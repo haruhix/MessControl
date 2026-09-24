@@ -43,6 +43,9 @@ AMCToothCharacter::AMCToothCharacter()
     GetMesh()->bEnableUpdateRateOptimizations=false;
     GetMesh()->SetAnimInstanceClass(UMCToothAnimInstance::StaticClass());
     Muscles=CreateDefaultSubobject<UPhysicsControlComponent>(TEXT("Muscles"));
+    // Recovery removes the mesh bodies from Chaos. Rebind muscle constraints when
+    // collision recreates those bodies, instead of keeping dead control handles.
+    Muscles->bAttemptToRecreateDisabledControls=true;
     ToothPhysics=CreateDefaultSubobject<UMCToothPhysicsComponent>(TEXT("ToothPhysics"));
     BrushPivot = CreateDefaultSubobject<USceneComponent>(TEXT("BrushPivot"));
     BrushPivot->SetupAttachment(GetMesh(),TEXT("hand_r"));

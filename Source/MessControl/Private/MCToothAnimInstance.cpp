@@ -40,8 +40,9 @@ public:
         Rotate(TEXT("foot_l"),FRotator(-FMath::Sin(G-0.35f)*13*Speed,0,0));
         Rotate(TEXT("foot_r"),FRotator(FMath::Sin(G-0.35f)*13*Speed,0,0));
         Rotate(TEXT("arm_l"),FRotator(-FMath::Sin(G-0.25f)*24*Speed,0,-10));
-        Rotate(TEXT("arm_r"),FRotator(Tooth->AnimationBrushAngle+FMath::Sin(G-0.25f)*18*Speed,0,10));
-        Rotate(TEXT("hand_r"),FRotator(Tooth->AnimationBrushAngle*0.3f,0,0));
+        // Stay inside the shoulder/wrist stops even at the strongest F1 preset.
+        Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle+FMath::Sin(G-0.25f)*18*Speed,-50.f,50.f),0,10));
+        Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle*0.3f,-35.f,35.f),0,0));
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
     }
     virtual bool Evaluate(FPoseContext& Output) override

@@ -1,4 +1,4 @@
-param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','Visual','Ragdoll','RagdollVisual')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0)
+param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 if (-not $EngineRoot) {
@@ -14,6 +14,9 @@ if ($Mode -eq 'Unit') {
     if ($LASTEXITCODE -ne 0) { throw 'Unreal automation failed.' }
     $taskReport=Get-Content -Raw "$taskRoot\Saved\TestReports\index.json" | ConvertFrom-Json
     if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 5) { throw 'Not all gameplay and physics tests passed.' }
+} elseif ($Mode -eq 'Limbs') {
+    & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game -MCLimbs -nullrhi -unattended -nosound -nop4 "-ExecCmds=t.MaxFPS $FrameRate" "-abslog=$taskLogs\Limbs$FrameRate.log"
+    if ($LASTEXITCODE -ne 0 -or -not (Select-String -Path "$taskLogs\Limbs$FrameRate.log" -Pattern 'MC_LIMBS_PASS' -Quiet)) { throw 'Limb stability regression. See Limbs log.' }
 } elseif ($Mode -eq 'Visual' -or $Mode -eq 'RagdollVisual') {
     $taskCapture=if($Mode -eq 'RagdollVisual'){'-MCRagdollCapture'}else{'-MCCapture'}
     & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game $taskCapture -RenderOffscreen -windowed -ForceRes -ResX=1440 -ResY=960 -unattended -nosound -nosplash -nop4 "-abslog=$taskLogs\$Mode.log"

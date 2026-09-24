@@ -6,6 +6,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCPrototypeWidget.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EngineUtils.h"
 #include "UnrealClient.h"
@@ -17,6 +18,7 @@
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
 #if !UE_BUILD_SHIPPING
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCLimbs"))) { TickLimbStability(DeltaSeconds); return; }
     const bool bSmoke = FParse::Param(FCommandLine::Get(),TEXT("MCSmoke"));
     const bool bCapture = FParse::Param(FCommandLine::Get(),TEXT("MCCapture"));
     const bool bRagdoll = FParse::Param(FCommandLine::Get(),TEXT("MCRagdoll"));
@@ -144,6 +146,67 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
         bool bSuccess=bSmoke ? bObservedWork && bObservedPlayers && Tooth != nullptr : (bRagdoll || bRagdollCapture)?Tooth!=nullptr:bCaptured && Tooth != nullptr;
         if (bRagdoll || bRagdollCapture) bSuccess &= ObservedFalls>=1 && ObservedRecoveries>=1 && !bInvalidPhysics;
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s"),bSuccess?TEXT("PASS"):TEXT("FAIL"));
+        FPlatformMisc::RequestExitWithStatus(false,bSuccess?0:1);
+    }
+#endif
+}
+
+void UMCValidationSubsystem::TickLimbStability(float Dt)
+{
+#if !UE_BUILD_SHIPPING
+    if (Age==0) NextLog=0;
+    Age+=Dt;
+    auto* PC=GetWorld()->GetFirstPlayerController();
+    auto* Tooth=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
+    if (!Tooth)
+    {
+        if (Age>5) { UE_LOG(LogTemp,Error,TEXT("MC_LIMBS_FAIL no pawn")); FPlatformMisc::RequestExitWithStatus(false,1); }
+        return;
+    }
+    if (Age>3 && Age<7) Tooth->AddMovementInput(FVector(FMath::Cos(Age*3),FMath::Sin(Age*3),0));
+    if (Age>7 && Age<10) { if (!Tooth->bBrushing) Tooth->StartBrush(); }
+    else if (Tooth->bBrushing) Tooth->StopBrush();
+    if (Age>11 && !bLimbKnockedDown)
+    {
+        Tooth->ToothPhysics->ApplyHit(FVector(350,0,250),Tooth->GetActorLocation()); bLimbKnockedDown=true;
+    }
+    Tooth->bPreviewAnimation=Age>20 && Age<28;
+    const bool bIdle=(Age>1.5f && Age<3) || (Age>17 && Age<20) || Age>30;
+    if (Tooth->ToothPhysics->CanAct() && Age>1)
+    {
+        auto* Mesh=Tooth->GetMesh(); const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();
+        bool bBad=false;
+        for (const FName Name:{FName("arm_l"),FName("hand_l"),FName("arm_r"),FName("hand_r")})
+        {
+            const int32 I=Ref.FindBoneIndex(Name), Parent=Ref.GetParentIndex(I);
+            const FQuat Local=Mesh->GetBoneQuaternion(Ref.GetBoneName(Parent)).Inverse()*Mesh->GetBoneQuaternion(Name);
+            const float Angle=FMath::RadiansToDegrees(Local.AngularDistance(Ref.GetRefBonePose()[I].GetRotation()));
+            MaxLimbAngle=FMath::Max(MaxLimbAngle,Angle); bBad |= !FMath::IsFinite(Angle) || Angle>135;
+            if (const FQuat* Last=LastLimbRotations.Find(Name))
+                if (bIdle && Dt>SMALL_NUMBER) MaxIdleSpin=FMath::Max(MaxIdleSpin,static_cast<float>(FMath::RadiansToDegrees(Local.AngularDistance(*Last))/Dt));
+            LastLimbRotations.Add(Name,Local);
+            if (bIdle && !bLimbKnockedDown) NeutralLimbRotations.Add(Name,Local);
+            else if (bIdle)
+                if (const FQuat* Neutral=NeutralLimbRotations.Find(Name))
+                    MaxIdleDeviation=FMath::Max(MaxIdleDeviation,static_cast<float>(FMath::RadiansToDegrees(Local.AngularDistance(*Neutral))));
+        }
+        if (bBad) BadLimbSeconds+=Dt;
+    }
+    else LastLimbRotations.Reset();
+    if (Age>NextLog)
+    {
+        NextLog+=2;
+        UE_LOG(LogTemp,Display,TEXT("MC_LIMBS time=%.2f angle=%.2f idle_spin=%.2f idle_deviation=%.2f bad_seconds=%.3f falls=%d recoveries=%d"),Age,MaxLimbAngle,MaxIdleSpin,MaxIdleDeviation,BadLimbSeconds,Tooth->ToothPhysics->KnockdownCount,Tooth->ToothPhysics->RecoveryCount);
+    }
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCLimbsCapture")) && Age>LimbSnapshotAt)
+    {
+        FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/FString::Printf(TEXT("LimbFrames/Frame%02d.png"),FMath::FloorToInt(LimbSnapshotAt*2)),true,false);
+        LimbSnapshotAt+=0.5f;
+    }
+    if (Age>33)
+    {
+        const bool bSuccess=BadLimbSeconds<0.15f && MaxIdleSpin<120 && MaxIdleDeviation<35 && Tooth->ToothPhysics->RecoveryCount>0 && Tooth->ToothPhysics->CanAct();
+        UE_LOG(LogTemp,Display,TEXT("MC_LIMBS_%s angle=%.2f idle_spin=%.2f idle_deviation=%.2f bad_seconds=%.3f"),bSuccess?TEXT("PASS"):TEXT("FAIL"),MaxLimbAngle,MaxIdleSpin,MaxIdleDeviation,BadLimbSeconds);
         FPlatformMisc::RequestExitWithStatus(false,bSuccess?0:1);
     }
 #endif

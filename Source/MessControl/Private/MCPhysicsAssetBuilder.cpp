@@ -64,7 +64,17 @@ UPhysicsAsset* UMCPhysicsAssetBuilder::BuildToothPhysicsAsset(USkeletalMesh* Mes
         C.SetRefFrame(EConstraintFrame::Frame2,Anchor.GetRelativeTransform(CS[Ref.FindBoneIndex(Parent)]));
         C.SetLinearLimits(LCM_Locked,LCM_Locked,LCM_Locked,0);
         C.SetAngularSwing1Limit(ACM_Limited,65); C.SetAngularSwing2Limit(ACM_Limited,60); C.SetAngularTwistLimit(ACM_Limited,50);
+        // Zero-stiffness soft limits are treated as free by Chaos. Keep hard stops;
+        // procedural targets are bounded in the animation proxy before the drive.
+        C.ProfileInstance.LinearLimit.bSoftConstraint=false;
+        C.ProfileInstance.ConeLimit.bSoftConstraint=false;
+        C.ProfileInstance.TwistLimit.bSoftConstraint=false;
+        // UE 5.8's drive-target clamp can misread equivalent negative-hemisphere
+        // quaternions near rest as a full turn. Do not clamp the target again here.
+        C.ProfileInstance.AngularDrive.LimitViolationResponse=EAngularDriveLimitViolationResponse::None;
         C.SetDisableCollision(true); C.SetProjectionParams(true,0.1f,0.1f,10,20);
+        // Serialize saves DefaultProfile, not the currently edited ProfileInstance.
+        Joint->SetDefaultProfile(C);
         Asset->ConstraintSetup.Add(Joint);
     }
     // The compact silhouette overlaps naturally at the shoulders. Disable self collision, retain world collision.
