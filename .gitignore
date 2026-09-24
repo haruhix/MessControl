@@ -1,0 +1,15 @@
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+.vs/
+.idea/
+*.sln
+*.suo
+*.VC.db
+*.opensdf
+*.blend1
+__pycache__/
+.DS_Store
+Artifacts/Logs/
+*.log
