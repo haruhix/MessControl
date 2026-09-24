@@ -155,3 +155,6 @@ else:
     if not levels.save_current_level(): raise RuntimeError("Could not save mouth map")
     ue.log("MC_CONTENT_COMPLETE: created mouth map")
 library.save_directory("/Game",only_if_is_dirty=True,recursive=True)
+# Later development steps have focused, idempotent asset generators of their own.
+import runpy
+runpy.run_path(str(ROOT / "Tools" / "Unreal" / "create_arena_tooth.py"))

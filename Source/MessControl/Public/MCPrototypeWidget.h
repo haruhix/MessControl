@@ -36,12 +36,16 @@ private:
     UFUNCTION() void FallClicked();
     UFUNCTION() void GetUpClicked();
     UFUNCTION() void DummyClicked();
+    UFUNCTION() void ArenaCoffeeClicked();
+    UFUNCTION() void ArenaCleanClicked();
+    UFUNCTION() void ArenaAnimationChanged(float Value);
     UPROPERTY() TObjectPtr<UTextBlock> DayLabel;
     UPROPERTY() TObjectPtr<UTextBlock> EventLabel;
     UPROPERTY() TObjectPtr<UTextBlock> InstructionLabel;
     UPROPERTY() TObjectPtr<UTextBlock> TimeLabel;
     UPROPERTY() TObjectPtr<UTextBlock> HealthLabel;
     UPROPERTY() TObjectPtr<UTextBlock> TaskLabel;
+    UPROPERTY() TObjectPtr<UTextBlock> ArenaLabel;
     UPROPERTY() TObjectPtr<UTextBlock> SaveLabel;
     UPROPERTY() TObjectPtr<UProgressBar> HealthBar;
     UPROPERTY() TObjectPtr<UBorder> TuningPanel;
@@ -52,6 +56,8 @@ private:
     UPROPERTY() TArray<TObjectPtr<USlider>> PhysicsSliders;
     UPROPERTY() TArray<TObjectPtr<UTextBlock>> PhysicsLabels;
     UPROPERTY() TObjectPtr<UVerticalBox> PhysicsBox;
+    UPROPERTY() TArray<TObjectPtr<USlider>> ArenaSliders;
+    UPROPERTY() TArray<TObjectPtr<UTextBlock>> ArenaSliderLabels;
     UPROPERTY() TObjectPtr<UScrollBox> TuningScroll;
     int32 LastDay = -1;
     int32 LastPhase = -1;

@@ -1,5 +1,9 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCArenaTooth.h"
+#include "MCArenaDemo.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 #include "MCTaskActor.h"
 #include "MCToothCharacter.h"
 #include "MCPlayerController.h"
@@ -16,6 +20,7 @@ AMCGameMode::AMCGameMode()
     GameStateClass = AMCGameState::StaticClass();
     TaskClass = AMCTaskActor::StaticClass();
     RunRulesProfile = TSoftObjectPtr<UMCRunRules>(FSoftObjectPath(TEXT("/Game/Data/DA_RunRules.DA_RunRules")));
+    ArenaToothProfile = TSoftObjectPtr<UMCArenaToothProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_ArenaTooth.DA_ArenaTooth")));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Coffee(TEXT("/Game/Data/DA_Coffee"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Food(TEXT("/Game/Data/DA_Food"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Tooth(TEXT("/Game/Data/DA_LooseTooth"));
@@ -39,6 +44,10 @@ void AMCGameMode::BeginPlay()
         }
     }
     RestartShift();
+#if !UE_BUILD_SHIPPING
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCArenaDemo")) && GetNetMode()==NM_Standalone)
+        GetWorld()->SpawnActor<AMCArenaDemo>();
+#endif
 }
 void AMCGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
@@ -61,6 +70,23 @@ void AMCGameMode::RestartShift()
     const UMCRunRules* Rules = RunRulesProfile.LoadSynchronous();
     State->RunSettings = Rules ? Rules->Settings : FMCRunSettings();
     State->RunSettings.Sanitize();
+    for (AMCArenaTooth* Tooth:State->ArenaTeeth) if (IsValid(Tooth)) Tooth->Destroy();
+    State->ArenaTeeth.Empty();
+    const UMCArenaToothProfile* ToothProfile=ArenaToothProfile.LoadSynchronous();
+    const int32 Count=State->RunSettings.InitialArenaTeeth;
+    const int32 PerSide=FMath::DivideAndRoundUp(Count,2);
+    for (int32 I=0;I<Count;++I)
+    {
+        const int32 Row=I/2;
+        const float X=PerSide<=1?0.f:FMath::Lerp(-740.f,740.f,float(Row)/float(PerSide-1));
+        const FTransform Transform(FVector(X,I%2?660.f:-660.f,110));
+        auto* Tooth=GetWorld()->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),Transform,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        if (Tooth)
+        {
+            Tooth->Initialize(I+1,ToothProfile?ToothProfile->Settings:FMCArenaToothSettings());
+            UGameplayStatics::FinishSpawningActor(Tooth,Transform); State->ArenaTeeth.Add(Tooth);
+        }
+    }
     State->Day = 0; State->MouthHealth = State->RunSettings.MaxMouthHealth; State->TasksLeft = 0; State->TasksTotal = 0;
     State->CurrentEvent = nullptr; State->Phase = EMCShiftPhase::Intermission;
     State->RunSeed = FMath::Rand();

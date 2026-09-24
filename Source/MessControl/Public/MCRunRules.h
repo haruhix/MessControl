@@ -18,8 +18,8 @@ struct MESSCONTROL_API FMCRunSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cooperation", meta=(ClampMin="1", ClampMax="4"))
     int32 MaxPlayers = 4;
 
-    // Configuration for the next development step, not a live respawn counter.
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Arena (planned)", meta=(ClampMin="0", ToolTip="Initial arena teeth, excluding starting player characters. Used by the future arena tooth system; does not grant respawns yet."))
+    // Number of concrete teeth spawned at run start, not a live respawn counter.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Arena", meta=(ClampMin="0", ToolTip="Arena actors spawned at run start, excluding starting player characters. Respawn consumption is a later step."))
     int32 InitialArenaTeeth = 8;
 
     void Sanitize();

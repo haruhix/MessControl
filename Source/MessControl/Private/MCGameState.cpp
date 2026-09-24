@@ -1,10 +1,17 @@
 #include "MCGameState.h"
+#include "MCArenaTooth.h"
 #include "Net/UnrealNetwork.h"
+int32 AMCGameState::AvailableArenaTeeth() const
+{
+    int32 Count=0; for (const AMCArenaTooth* Tooth:ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable()) ++Count;
+    return Count;
+}
 float AMCGameState::SecondsLeft() const { return FMath::Max(0., PhaseEndsAt - GetServerWorldTimeSeconds()); }
 void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCGameState, RunSettings);
+    DOREPLIFETIME(AMCGameState, ArenaTeeth);
     DOREPLIFETIME(AMCGameState, Day); DOREPLIFETIME(AMCGameState, Phase);
     DOREPLIFETIME(AMCGameState, MouthHealth); DOREPLIFETIME(AMCGameState, TasksLeft);
     DOREPLIFETIME(AMCGameState, TasksTotal); DOREPLIFETIME(AMCGameState, PhaseEndsAt);

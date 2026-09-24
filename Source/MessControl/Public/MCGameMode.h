@@ -5,6 +5,7 @@
 class UMCDayEvent;
 class UMCRunRules;
 class AMCTaskActor;
+class UMCArenaToothProfile;
 
 UCLASS()
 class MESSCONTROL_API AMCGameMode : public AGameModeBase
@@ -21,6 +22,7 @@ public:
     UPROPERTY(EditDefaultsOnly, Category="Shift") TSubclassOf<AMCTaskActor> TaskClass;
     // Read only when starting/restarting a run; editing the DA does not change an active run.
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<UMCRunRules> RunRulesProfile;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<UMCArenaToothProfile> ArenaToothProfile;
 private:
     void StartDay();
     void FinishDay(bool bTimedOut);

@@ -2,6 +2,7 @@
 #include "MCToothCharacter.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
+#include "MCArenaTooth.h"
 #include "MCToothPhysicsComponent.h"
 #include "EngineUtils.h"
 #include "Blueprint/WidgetTree.h"
@@ -28,6 +29,7 @@ namespace
     const TCHAR* PhysicsNames[]={TEXT("Knockback (cm/s)"),TEXT("Lift (cm/s)"),TEXT("Fall threshold"),TEXT("Ragdoll seconds"),TEXT("Get-up seconds"),TEXT("Muscle strength"),TEXT("Muscle damping"),TEXT("Mass (kg)")};
     const float PhysicsMin[]={150,80,100,0.5f,0.25f,2,0.3f,3};
     const float PhysicsMax[]={1100,650,600,6,2,35,2,20};
+    const TCHAR* ArenaNames[]={TEXT("Arena hit squash"),TEXT("Arena wobble degrees"),TEXT("Arena reaction seconds")};
 }
 UTextBlock* UMCPrototypeWidget::AddText(UVerticalBox* Box,const FString& Text,int32 Size,FLinearColor Color)
 {
@@ -46,13 +48,14 @@ void UMCPrototypeWidget::NativeOnInitialized()
         auto* Slot = Root->AddChildToCanvas(Border); Slot->SetAnchors(Anchors); Slot->SetAlignment(Alignment); Slot->SetPosition(Position); Slot->SetSize(Size);
         auto* Box = WidgetTree->ConstructWidget<UVerticalBox>(); Border->SetContent(Box); return Box;
     };
-    UBorder* HeaderBorder; auto* Header = Panel(FVector2D(28,28),FVector2D(440,248),FAnchors(0,0),FVector2D(0,0),HeaderBorder);
+    UBorder* HeaderBorder; auto* Header = Panel(FVector2D(28,28),FVector2D(440,282),FAnchors(0,0),FVector2D(0,0),HeaderBorder);
     AddText(Header,TEXT("M E S S  /  C O N T R O L"),15,Mint);
     DayLabel = AddText(Header,TEXT("DAY -- / --"),30,Cream);
     EventLabel = AddText(Header,TEXT("CLOCKING IN"),20,Cream);
     InstructionLabel = AddText(Header,TEXT("A little teamwork. A lot of toothpaste."),14,Cream);
     InstructionLabel->SetAutoWrapText(false); InstructionLabel->SetWrapTextAt(396.f);
     TaskLabel = AddText(Header,TEXT("Waiting for the first challenge"),15,Mint);
+    ArenaLabel = AddText(Header,TEXT("ARENA TEETH / --"),14,Mint);
     UBorder* HealthBorder; auto* Health = Panel(FVector2D(-28,28),FVector2D(270,126),FAnchors(1,0),FVector2D(1,0),HealthBorder);
     HealthLabel = AddText(Health,TEXT("MOUTH HEALTH / --"),15,Cream);
     HealthBar = WidgetTree->ConstructWidget<UProgressBar>(); HealthBar->SetFillColorAndOpacity(Mint); HealthBar->SetPercent(1); Health->AddChildToVerticalBox(HealthBar)->SetPadding(FMargin(0,8));
@@ -94,6 +97,18 @@ void UMCPrototypeWidget::NativeOnInitialized()
         PhysicsBox->AddChildToVerticalBox(S)->SetPadding(FMargin(0,4,0,10)); PhysicsSliders.Add(S);
     }
     Button(PhysicsBox,TEXT("SAVE LOCAL PRESETS"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::SaveClicked);
+    AddText(PhysicsBox,TEXT("ARENA TEETH / HOST"),21,Mint);
+    AddText(PhysicsBox,TEXT("Session preview. Permanent defaults: DA_ArenaTooth. Close F1 and RMB a numbered tooth to damage it."),12,Cream);
+    Button(PhysicsBox,TEXT("PREVIEW COFFEE ON ARENA"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ArenaCoffeeClicked);
+    Button(PhysicsBox,TEXT("CLEAR COFFEE PREVIEW"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ArenaCleanClicked);
+    const float ArenaMin[]={0,0,0.2f}, ArenaMax[]={0.4f,25,3};
+    for (int32 I=0;I<3;++I)
+    {
+        ArenaSliderLabels.Add(AddText(PhysicsBox,ArenaNames[I],14,Cream));
+        auto* Slider=WidgetTree->ConstructWidget<USlider>(); Slider->SetMinValue(ArenaMin[I]); Slider->SetMaxValue(ArenaMax[I]);
+        Slider->SetSliderHandleColor(Mint); Slider->OnValueChanged.AddDynamic(this,&UMCPrototypeWidget::ArenaAnimationChanged);
+        PhysicsBox->AddChildToVerticalBox(Slider)->SetPadding(FMargin(0,4,0,10)); ArenaSliders.Add(Slider);
+    }
     TuningPanel->SetVisibility(ESlateVisibility::Collapsed);
     UBorder* ConnectionBorder; auto* Connection = Panel(FVector2D(0,0),FVector2D(460,338),FAnchors(0.5f,0.5f),FVector2D(0.5f,0.5f),ConnectionBorder); ConnectionPanel = ConnectionBorder;
     AddText(Connection,TEXT("BRING YOUR MOLARS"),25,Mint);
@@ -110,6 +125,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     Super::NativeTick(Geometry,DeltaSeconds);
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>(); if (!State || !DayLabel) return;
     const bool bWorking = State->Phase == EMCShiftPhase::Working;
+    ArenaLabel->SetText(FText::FromString(FString::Printf(TEXT("ARENA TEETH  %d / %d"),State->AvailableArenaTeeth(),State->ArenaTeeth.Num())));
     const bool bWon = State->Phase == EMCShiftPhase::Won; const bool bLost = State->Phase == EMCShiftPhase::Lost;
     DayLabel->SetText(FText::FromString(FString::Printf(TEXT("DAY %02d / %02d"),FMath::Max(1,State->Day),State->RunSettings.DaysToSurvive)));
     EventLabel->SetText(bWon ? FText::FromString(TEXT("ALL SMILES. YOU MADE IT!")) : bLost ? FText::FromString(TEXT("THIS MOUTH NEEDS A BREAK")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Title : FText::FromString(TEXT("TAKE A BREATHER")));
@@ -150,6 +166,11 @@ void UMCPrototypeWidget::RefreshSliders()
     const float PV[]={P.Knockback,P.Lift,P.FallThreshold,P.RagdollSeconds,P.GetUpSeconds,P.MuscleStrength,P.Damping,P.Mass};
     PhysicsBox->SetIsEnabled(Tooth->HasAuthority());
     for (int32 I=0;I<PhysicsSliders.Num();++I) { PhysicsSliders[I]->SetValue(PV[I]); PhysicsLabels[I]->SetText(FText::FromString(FString::Printf(TEXT("%s  %.2f"),PhysicsNames[I],PV[I]))); }
+    if (const auto* GS=GetWorld()->GetGameState<AMCGameState>(); GS && GS->ArenaTeeth.Num() && IsValid(GS->ArenaTeeth[0]))
+    {
+        const auto& S=GS->ArenaTeeth[0]->Settings; const float AV[]={S.HitSquash,S.WobbleDegrees,S.ReactionSeconds};
+        for (int32 I=0;I<ArenaSliders.Num();++I) { ArenaSliders[I]->SetValue(AV[I]); ArenaSliderLabels[I]->SetText(FText::FromString(FString::Printf(TEXT("%s  %.2f"),ArenaNames[I],AV[I]))); }
+    }
     bRefreshing = false;
 }
 void UMCPrototypeWidget::TuningChanged(float Value)
@@ -171,6 +192,24 @@ void UMCPrototypeWidget::PhysicsChanged(float Value)
 void UMCPrototypeWidget::FallClicked() { if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) if (T->HasAuthority()) T->ToothPhysics->ApplyHit(T->GetActorForwardVector()*T->ToothPhysics->Settings.Knockback+FVector(0,0,T->ToothPhysics->Settings.Lift),T->GetActorLocation()); }
 void UMCPrototypeWidget::GetUpClicked() { if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) if (T->HasAuthority()) T->ToothPhysics->TryRecover(); }
 void UMCPrototypeWidget::DummyClicked() { if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) T->SpawnPracticeTooth(); }
+void UMCPrototypeWidget::ArenaCoffeeClicked()
+{
+    for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) It->SetCoffee(1);
+}
+void UMCPrototypeWidget::ArenaCleanClicked()
+{
+    for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) It->SetCoffee(0);
+}
+void UMCPrototypeWidget::ArenaAnimationChanged(float Value)
+{
+    if (bRefreshing || ArenaSliders.Num()!=3) return;
+    for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) if (It->HasAuthority())
+    {
+        It->Settings.HitSquash=ArenaSliders[0]->GetValue(); It->Settings.WobbleDegrees=ArenaSliders[1]->GetValue();
+        It->Settings.ReactionSeconds=ArenaSliders[2]->GetValue(); It->Settings.Sanitize(); It->ForceNetUpdate();
+    }
+    RefreshSliders();
+}
 void UMCPrototypeWidget::SaveClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->SaveTuning(); if (Tooth->HasAuthority()) Tooth->ToothPhysics->SaveTuning(); SaveLabel->SetText(FText::FromString(TEXT("Saved local .ini presets in Saved/."))); } }
 void UMCPrototypeWidget::ResetClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->ResetTuning(); if (Tooth->HasAuthority()) { Tooth->ToothPhysics->ResetTuning(); for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->ToothPhysics->SetTuning(Tooth->ToothPhysics->Settings); } RefreshSliders(); } }
 void UMCPrototypeWidget::HostClicked() { if (auto* PC = Cast<AMCPlayerController>(GetOwningPlayer())) PC->HostGame(); }

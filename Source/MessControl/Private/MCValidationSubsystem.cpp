@@ -1,5 +1,6 @@
 #include "MCValidationSubsystem.h"
 #include "MCGameState.h"
+#include "MCArenaTooth.h"
 #include "MCPlayerController.h"
 #include "MCToothCharacter.h"
 #include "MCTaskActor.h"
@@ -20,6 +21,7 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
 #if !UE_BUILD_SHIPPING
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLimbs"))) { TickLimbStability(DeltaSeconds); return; }
     const bool bSmoke = FParse::Param(FCommandLine::Get(),TEXT("MCSmoke"));
+    const bool bArena = FParse::Param(FCommandLine::Get(),TEXT("MCArenaNet"));
     const bool bCapture = FParse::Param(FCommandLine::Get(),TEXT("MCCapture"));
     const bool bRagdoll = FParse::Param(FCommandLine::Get(),TEXT("MCRagdoll"));
     const bool bRagdollCapture=FParse::Param(FCommandLine::Get(),TEXT("MCRagdollCapture"));
@@ -82,6 +84,22 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
     }
     if (State)
     {
+        if (bArena && State->ArenaTeeth.Num()==8)
+        {
+            AMCArenaTooth* Arena=State->ArenaTeeth[2];
+            if (IsValid(Arena))
+            {
+                bArenaInitial |= State->AvailableArenaTeeth()==8 && Arena->State.Health==100;
+                if (Arena->HasAuthority() && State->PlayerArray.Num()==4 && ArenaReadyAt<0) ArenaReadyAt=Age;
+                // PlayerState exists on the host before the new client has received its initial actor bunches.
+                if (Arena->HasAuthority() && ArenaReadyAt>=0 && Age>ArenaReadyAt+6 && ArenaStage==0)
+                { Arena->SetCoffee(1); Arena->ReceiveArenaHit(75,FVector(0,1,0)); ++ArenaStage; }
+                if (Arena->HasAuthority() && Age>ArenaReadyAt+18 && ArenaStage==1)
+                { Arena->ReceiveArenaHit(25,FVector(0,1,0)); ++ArenaStage; }
+                bArenaDamaged |= Arena->State.Coffee==1 && Arena->State.Health==25 && Arena->IsLoose();
+                bArenaLost |= Arena->State.bLost && State->AvailableArenaTeeth()==7 && !Arena->GetActorLocation().ContainsNaN();
+            }
+        }
         int32 ExpectedPlayers = 1; FParse::Value(FCommandLine::Get(),TEXT("MCExpectedPlayers="),ExpectedPlayers);
         bObservedPlayers |= State->PlayerArray.Num() >= ExpectedPlayers;
         bObservedWork |= State->TasksTotal > State->TasksLeft && State->Day > 0;
@@ -145,6 +163,11 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
     {
         bool bSuccess=bSmoke ? bObservedWork && bObservedPlayers && Tooth != nullptr : (bRagdoll || bRagdollCapture)?Tooth!=nullptr:bCaptured && Tooth != nullptr;
         if (bRagdoll || bRagdollCapture) bSuccess &= ObservedFalls>=1 && ObservedRecoveries>=1 && !bInvalidPhysics;
+        if (bArena)
+        {
+            bSuccess &= bArenaInitial && bArenaDamaged && bArenaLost;
+            UE_LOG(LogTemp,Display,TEXT("MC_ARENA_NET initial=%d damaged=%d lost=%d"),bArenaInitial,bArenaDamaged,bArenaLost);
+        }
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s"),bSuccess?TEXT("PASS"):TEXT("FAIL"));
         FPlatformMisc::RequestExitWithStatus(false,bSuccess?0:1);
     }

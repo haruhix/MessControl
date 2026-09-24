@@ -34,4 +34,9 @@ private:
     int32 ObservedRecoveries=0;
     int32 CaptureStage=0;
     bool bInvalidPhysics=false;
+    bool bArenaInitial=false;
+    bool bArenaDamaged=false;
+    bool bArenaLost=false;
+    int32 ArenaStage=0;
+    float ArenaReadyAt=-1;
 };

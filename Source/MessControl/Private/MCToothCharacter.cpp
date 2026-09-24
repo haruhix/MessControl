@@ -1,4 +1,5 @@
 #include "MCToothCharacter.h"
+#include "MCArenaTooth.h"
 #include "MCPlayerController.h"
 #include "MCTaskActor.h"
 #include "MCGameState.h"
@@ -250,6 +251,21 @@ void AMCToothCharacter::ResolveSwing()
         FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCBrushHit),false,this); Params.AddIgnoredActor(*It);
         if (GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),Point,ECC_Visibility,Params)) continue;
         Target=*It; Best=Offset.SizeSquared2D();
+    }
+    AMCArenaTooth* ArenaTarget=nullptr;
+    for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
+    {
+        const FVector Offset=It->GetActorLocation()-GetActorLocation();
+        if (!It->IsAvailable() || Offset.SizeSquared2D()>=Best || FMath::Abs(Offset.Z)>120 || FVector::DotProduct(GetActorForwardVector(),Offset.GetSafeNormal2D())<0.25f) continue;
+        FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCArenaBrushHit),false,this); Params.AddIgnoredActor(*It);
+        if (GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),It->GetActorLocation(),ECC_Visibility,Params)) continue;
+        ArenaTarget=*It; Best=Offset.SizeSquared2D();
+    }
+    if (ArenaTarget)
+    {
+        if (ArenaTarget->ReceiveArenaHit(ArenaTarget->Settings.BrushHitDamage,ArenaTarget->GetActorLocation()-GetActorLocation()))
+        { ++ConfirmedHitCount; MulticastHitSound(ArenaTarget->GetActorLocation()); }
+        return;
     }
     if (!Target) return;
     ++ConfirmedHitCount;

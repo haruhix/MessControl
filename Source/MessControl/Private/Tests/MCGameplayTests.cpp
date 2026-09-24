@@ -4,6 +4,7 @@
 #include "MCGameState.h"
 #include "MCTaskActor.h"
 #include "MCToothCharacter.h"
+#include "MCArenaTooth.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -217,6 +218,52 @@ bool FMCHitTest::RunTest(const FString& Parameters)
         TestFalse(TEXT("Fallen tooth cannot work"),Tasks[0]->ApplyWork(B,Tasks[0]->Kind==EMCTaskKind::Coffee,0.1f));
     }
     TestFalse(TEXT("Cannot get up without floor support"),B->ToothPhysics->TryRecover());
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArenaToothTest,"MessControl.Gameplay.ArenaToothLifecycle",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCArenaToothTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth;
+    TestEqual(TEXT("Eight real teeth, separate from players"),Mouth.State->ArenaTeeth.Num(),8);
+    TestEqual(TEXT("Eight available"),Mouth.State->AvailableArenaTeeth(),8);
+    TSet<int32> Ids;
+    for (AMCArenaTooth* Tooth:Mouth.State->ArenaTeeth) Ids.Add(Tooth->State.ToothId);
+    TestEqual(TEXT("Unique IDs"),Ids.Num(),8);
+    AMCArenaTooth* Tooth=Mouth.State->ArenaTeeth[2];
+    Tooth->SetCoffee(1);
+    TestEqual(TEXT("Coffee does not silently deal damage"),Tooth->State.Health,100.f);
+    TestFalse(TEXT("Negative damage rejected"),Tooth->ReceiveArenaHit(-25,FVector::RightVector));
+    TestFalse(TEXT("NaN damage rejected"),Tooth->ReceiveArenaHit(std::numeric_limits<float>::quiet_NaN(),FVector::RightVector));
+    Tooth->ReceiveArenaHit(75,FVector::RightVector);
+    TestTrue(TEXT("Low health becomes loose"),Tooth->IsLoose());
+    Mouth.NextPhase(); Mouth.NextPhase(); // Starting and timing out a day must not rebuild the teeth.
+    TestTrue(TEXT("Same physical tooth across days"),Mouth.State->ArenaTeeth[2]==Tooth);
+    TestEqual(TEXT("Damage persists across days"),Tooth->State.Health,25.f);
+    TestEqual(TEXT("Coffee persists across days"),Tooth->State.Coffee,1.f);
+    const float MouthHealth=Mouth.State->MouthHealth;
+    Tooth->ReceiveArenaHit(100,FVector::RightVector);
+    TestEqual(TEXT("Only this tooth is lost"),Mouth.State->AvailableArenaTeeth(),7);
+    TestEqual(TEXT("Tooth damage is separate from mouth health"),Mouth.State->MouthHealth,MouthHealth);
+    TestFalse(TEXT("Lost tooth cannot take damage twice"),Tooth->ReceiveArenaHit(25,FVector::RightVector));
+    TestEqual(TEXT("Lost health clamped"),Tooth->State.Health,0.f);
+    TestEqual(TEXT("No double spending"),Mouth.State->AvailableArenaTeeth(),7);
+    Mouth.Mode->RestartShift();
+    TestEqual(TEXT("Restart restores real teeth"),Mouth.State->AvailableArenaTeeth(),8);
+    int32 Actors=0; for (TActorIterator<AMCArenaTooth> It(Mouth.World);It;++It) ++Actors;
+    TestEqual(TEXT("Restart does not duplicate actors"),Actors,8);
+    TestNotNull(TEXT("Editable profile exists"),LoadObject<UMCArenaToothProfile>(nullptr,TEXT("/Game/Data/DA_ArenaTooth.DA_ArenaTooth")));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArenaBrushTest,"MessControl.Gameplay.ArenaBrushHit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCArenaBrushTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; auto* Worker=Mouth.Worker(); AMCArenaTooth* Tooth=Mouth.State->ArenaTeeth[0];
+    Worker->SetActorLocation(Tooth->GetActorLocation()+FVector(0,125,0)); Worker->SetActorRotation(FRotator(0,-90,0));
+    Worker->SwingBrush(); Worker->SwingBrush();
+    for (int32 I=0;I<3;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,0.1f); }
+    TestEqual(TEXT("One validated swing deals one hit"),Tooth->State.Health,75.f);
+    TestEqual(TEXT("One confirmed arena hit"),Worker->ConfirmedHitCount,1);
     return true;
 }
 #endif

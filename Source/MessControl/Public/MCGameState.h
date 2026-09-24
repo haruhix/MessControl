@@ -4,6 +4,7 @@
 #include "MCDataAssets.h"
 #include "MCRunRules.h"
 #include "MCGameState.generated.h"
+class AMCArenaTooth;
 
 UCLASS()
 class MESSCONTROL_API AMCGameState : public AGameStateBase
@@ -20,6 +21,9 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") double PhaseEndsAt = 0.;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") TObjectPtr<UMCDayEvent> CurrentEvent;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 RunSeed = 0;
+    // Concrete teeth, not a separately decremented lives counter. Starting players are excluded.
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena") TArray<TObjectPtr<AMCArenaTooth>> ArenaTeeth;
+    UFUNCTION(BlueprintPure, Category="Arena") int32 AvailableArenaTeeth() const;
     UFUNCTION(BlueprintPure, Category="Shift") float SecondsLeft() const;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };
