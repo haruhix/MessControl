@@ -48,13 +48,13 @@ void UMCPrototypeWidget::NativeOnInitialized()
     };
     UBorder* HeaderBorder; auto* Header = Panel(FVector2D(28,28),FVector2D(440,248),FAnchors(0,0),FVector2D(0,0),HeaderBorder);
     AddText(Header,TEXT("M E S S  /  C O N T R O L"),15,Mint);
-    DayLabel = AddText(Header,TEXT("DAY 01 / 07"),30,Cream);
+    DayLabel = AddText(Header,TEXT("DAY -- / --"),30,Cream);
     EventLabel = AddText(Header,TEXT("CLOCKING IN"),20,Cream);
     InstructionLabel = AddText(Header,TEXT("A little teamwork. A lot of toothpaste."),14,Cream);
     InstructionLabel->SetAutoWrapText(false); InstructionLabel->SetWrapTextAt(396.f);
     TaskLabel = AddText(Header,TEXT("Waiting for the first challenge"),15,Mint);
     UBorder* HealthBorder; auto* Health = Panel(FVector2D(-28,28),FVector2D(270,126),FAnchors(1,0),FVector2D(1,0),HealthBorder);
-    HealthLabel = AddText(Health,TEXT("MOUTH HEALTH / 100"),15,Cream);
+    HealthLabel = AddText(Health,TEXT("MOUTH HEALTH / --"),15,Cream);
     HealthBar = WidgetTree->ConstructWidget<UProgressBar>(); HealthBar->SetFillColorAndOpacity(Mint); HealthBar->SetPercent(1); Health->AddChildToVerticalBox(HealthBar)->SetPadding(FMargin(0,8));
     TimeLabel = AddText(Health,TEXT("SHIFT STARTS IN 08"),19,Mint);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1000,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
@@ -111,11 +111,11 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>(); if (!State || !DayLabel) return;
     const bool bWorking = State->Phase == EMCShiftPhase::Working;
     const bool bWon = State->Phase == EMCShiftPhase::Won; const bool bLost = State->Phase == EMCShiftPhase::Lost;
-    DayLabel->SetText(FText::FromString(FString::Printf(TEXT("DAY %02d / 07"),FMath::Max(1,State->Day))));
-    EventLabel->SetText(bWon ? FText::FromString(TEXT("SEVEN DAYS. ALL SMILES.")) : bLost ? FText::FromString(TEXT("THIS MOUTH NEEDS A BREAK")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Title : FText::FromString(TEXT("TAKE A BREATHER")));
+    DayLabel->SetText(FText::FromString(FString::Printf(TEXT("DAY %02d / %02d"),FMath::Max(1,State->Day),State->RunSettings.DaysToSurvive)));
+    EventLabel->SetText(bWon ? FText::FromString(TEXT("ALL SMILES. YOU MADE IT!")) : bLost ? FText::FromString(TEXT("THIS MOUTH NEEDS A BREAK")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Title : FText::FromString(TEXT("TAKE A BREATHER")));
     InstructionLabel->SetText((bWon || bLost) ? FText::FromString(TEXT("Host: press R to start another shift.")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Instruction : FText::FromString(TEXT("Get ready. Something messy is coming.")));
-    TaskLabel->SetText(FText::FromString(bWorking ? FString::Printf(TEXT("%02d / %02d JOBS DONE    |    %d / 4 TEETH"),State->TasksTotal-State->TasksLeft,State->TasksTotal,State->PlayerArray.Num()) : FString::Printf(TEXT("%d / 4 TEETH ON DUTY"),State->PlayerArray.Num())));
-    HealthLabel->SetText(FText::FromString(FString::Printf(TEXT("MOUTH HEALTH / %03d"),FMath::RoundToInt(State->MouthHealth)))); HealthBar->SetPercent(State->MouthHealth/100);
+    TaskLabel->SetText(FText::FromString(bWorking ? FString::Printf(TEXT("%02d / %02d JOBS DONE    |    %d / %d TEETH"),State->TasksTotal-State->TasksLeft,State->TasksTotal,State->PlayerArray.Num(),State->RunSettings.MaxPlayers) : FString::Printf(TEXT("%d / %d TEETH ON DUTY"),State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
+    HealthLabel->SetText(FText::FromString(FString::Printf(TEXT("MOUTH HEALTH / %03d"),FMath::RoundToInt(State->MouthHealth)))); HealthBar->SetPercent(State->MouthHealth/FMath::Max(1.f,State->RunSettings.MaxMouthHealth));
     const int32 Seconds = FMath::CeilToInt(State->SecondsLeft());
     TimeLabel->SetText(FText::FromString((bWon || bLost) ? FString(TEXT("SHIFT COMPLETE")) : bWorking ? FString::Printf(TEXT("%02d SECONDS LEFT"),Seconds) : FString::Printf(TEXT("NEXT SHIFT IN %02d"),Seconds)));
     if (LastDay != State->Day || LastPhase != static_cast<int32>(State->Phase))

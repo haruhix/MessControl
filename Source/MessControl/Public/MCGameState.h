@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
 #include "MCDataAssets.h"
+#include "MCRunRules.h"
 #include "MCGameState.generated.h"
 
 UCLASS()
@@ -9,6 +10,8 @@ class MESSCONTROL_API AMCGameState : public AGameStateBase
 {
     GENERATED_BODY()
 public:
+    // Snapshot for this run. Clients display the server's settings, not their local asset.
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") FMCRunSettings RunSettings;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 Day = 0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") EMCShiftPhase Phase = EMCShiftPhase::Intermission;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") float MouthHealth = 100.f;

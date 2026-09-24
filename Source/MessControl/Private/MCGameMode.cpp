@@ -15,6 +15,7 @@ AMCGameMode::AMCGameMode()
     PlayerControllerClass = AMCPlayerController::StaticClass();
     GameStateClass = AMCGameState::StaticClass();
     TaskClass = AMCTaskActor::StaticClass();
+    RunRulesProfile = TSoftObjectPtr<UMCRunRules>(FSoftObjectPath(TEXT("/Game/Data/DA_RunRules.DA_RunRules")));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Coffee(TEXT("/Game/Data/DA_Coffee"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Food(TEXT("/Game/Data/DA_Food"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Tooth(TEXT("/Game/Data/DA_LooseTooth"));
@@ -42,7 +43,10 @@ void AMCGameMode::BeginPlay()
 void AMCGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
     Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
-    if (GetNumPlayers() >= 4) ErrorMessage = TEXT("This mouth already has four dentists!");
+    const AMCGameState* State = GetGameState<AMCGameState>();
+    const int32 Limit = State ? State->RunSettings.MaxPlayers : FMCRunSettings().MaxPlayers;
+    if (ErrorMessage.IsEmpty() && GetNumPlayers() >= Limit)
+        ErrorMessage = FString::Printf(TEXT("This mouth is full (%d players)."), Limit);
 }
 void AMCGameMode::ClearTasks()
 {
@@ -54,7 +58,10 @@ void AMCGameMode::RestartShift()
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State) return;
     ClearTasks();
-    State->Day = 0; State->MouthHealth = 100; State->TasksLeft = 0; State->TasksTotal = 0;
+    const UMCRunRules* Rules = RunRulesProfile.LoadSynchronous();
+    State->RunSettings = Rules ? Rules->Settings : FMCRunSettings();
+    State->RunSettings.Sanitize();
+    State->Day = 0; State->MouthHealth = State->RunSettings.MaxMouthHealth; State->TasksLeft = 0; State->TasksTotal = 0;
     State->CurrentEvent = nullptr; State->Phase = EMCShiftPhase::Intermission;
     State->RunSeed = FMath::Rand();
     // ?Seed=123 gives reproducible challenge selection for playtesting.
@@ -101,7 +108,7 @@ void AMCGameMode::ResolveTask(AMCTaskActor* Task)
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State || State->Phase != EMCShiftPhase::Working || !ActiveTasks.Contains(Task)) return;
     ActiveTasks.Remove(Task); State->TasksLeft = ActiveTasks.Num();
-    State->MouthHealth = FMath::Min(100.f, State->MouthHealth + 1.f);
+    State->MouthHealth = FMath::Min(State->RunSettings.MaxMouthHealth, State->MouthHealth + 1.f);
     State->ForceNetUpdate();
     if (ActiveTasks.IsEmpty()) FinishDay(false);
 }
@@ -112,7 +119,7 @@ void AMCGameMode::FinishDay(bool bTimedOut)
     if (bTimedOut) State->MouthHealth = FMath::Max(0.f, State->MouthHealth - State->TasksLeft * State->CurrentEvent->MissedTaskDamage);
     ClearTasks();
     State->TasksLeft = 0;
-    State->Phase = State->MouthHealth <= 0 ? EMCShiftPhase::Lost : State->Day >= DaysToSurvive ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
+    State->Phase = State->MouthHealth <= 0 ? EMCShiftPhase::Lost : State->Day >= State->RunSettings.DaysToSurvive ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 7.;
     State->ForceNetUpdate();
 }

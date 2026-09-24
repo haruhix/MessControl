@@ -3,6 +3,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "MCGameMode.generated.h"
 class UMCDayEvent;
+class UMCRunRules;
 class AMCTaskActor;
 
 UCLASS()
@@ -18,7 +19,8 @@ public:
     UFUNCTION(BlueprintCallable, Category="Shift") void RestartShift();
     UPROPERTY(EditDefaultsOnly, Category="Shift") TArray<TObjectPtr<UMCDayEvent>> EventPool;
     UPROPERTY(EditDefaultsOnly, Category="Shift") TSubclassOf<AMCTaskActor> TaskClass;
-    UPROPERTY(EditDefaultsOnly, Category="Shift", meta=(ClampMin="1")) int32 DaysToSurvive = 7;
+    // Read only when starting/restarting a run; editing the DA does not change an active run.
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<UMCRunRules> RunRulesProfile;
 private:
     void StartDay();
     void FinishDay(bool bTimedOut);

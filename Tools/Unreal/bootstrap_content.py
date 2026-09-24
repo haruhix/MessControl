@@ -81,6 +81,8 @@ def data(name,cls):
 
 anim=data("DA_ToothAnimation",ue.MCAnimationProfile)
 library.save_loaded_asset(anim)
+run_rules=data("DA_RunRules",ue.MCRunRules)
+library.save_loaded_asset(run_rules)
 audio=data("DA_MouthSounds",ue.MCSoundPalette)
 events={}
 for name,sound in sounds.items():

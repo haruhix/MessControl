@@ -9,6 +9,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "MCToothPhysicsComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -95,6 +96,64 @@ bool FMCTimeoutTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Zero health loses run"),Mouth.State->Phase,EMCShiftPhase::Lost);
     TestEqual(TEXT("Health clamped to zero"),Mouth.State->MouthHealth,0.f);
     TestTrue(TEXT("Unfinished actors removed"),Mouth.Tasks().IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRunRulesTest,"MessControl.Gameplay.RunRules",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCRunRulesTest::RunTest(const FString& Parameters)
+{
+    const auto* DefaultRules=LoadObject<UMCRunRules>(nullptr,TEXT("/Game/Data/DA_RunRules.DA_RunRules"));
+    if (!TestNotNull(TEXT("Saved run rules asset exists"),DefaultRules)) return false;
+    TestEqual(TEXT("Default mouth health"),DefaultRules->Settings.MaxMouthHealth,100.f);
+    TestEqual(TEXT("Default days"),DefaultRules->Settings.DaysToSurvive,7);
+    TestEqual(TEXT("Default players"),DefaultRules->Settings.MaxPlayers,4);
+    TestEqual(TEXT("Planned arena teeth exclude starting players"),DefaultRules->Settings.InitialArenaTeeth,8);
+
+    FTestMouth Mouth;
+    auto* Custom=NewObject<UMCRunRules>(Mouth.Mode);
+    Custom->Settings.MaxMouthHealth=40; Custom->Settings.DaysToSurvive=2;
+    Custom->Settings.MaxPlayers=2; Custom->Settings.InitialArenaTeeth=3;
+    Mouth.Mode->RunRulesProfile=Custom;
+    TestEqual(TEXT("Changing profile does not alter active run"),Mouth.State->MouthHealth,100.f);
+    Mouth.Mode->RestartShift();
+    TestEqual(TEXT("Restart applies custom health"),Mouth.State->MouthHealth,40.f);
+    TestEqual(TEXT("Run snapshot has custom player limit"),Mouth.State->RunSettings.MaxPlayers,2);
+    TestEqual(TEXT("Run snapshot keeps planned arena count"),Mouth.State->RunSettings.InitialArenaTeeth,3);
+    Custom->Settings.MaxMouthHealth=80; Custom->Settings.DaysToSurvive=5;
+
+    // Exercise admission, rather than just comparing a copied setting.
+    FString Error;
+    Mouth.Mode->PreLogin(TEXT(""),TEXT("127.0.0.1"),FUniqueNetIdRepl(),Error);
+    TestTrue(TEXT("Empty two-player session accepts a connection"),Error.IsEmpty());
+    Mouth.World->SpawnActor<APlayerController>(); Mouth.World->SpawnActor<APlayerController>();
+    TestEqual(TEXT("Two player controllers occupy the session"),Mouth.Mode->GetNumPlayers(),2);
+    Mouth.Mode->PreLogin(TEXT(""),TEXT("127.0.0.1"),FUniqueNetIdRepl(),Error);
+    TestTrue(TEXT("Configured two-player session rejects third player"),!Error.IsEmpty());
+
+    auto* Worker=Mouth.Worker();
+    for (int32 Day=1;Day<=2;++Day)
+    {
+        Mouth.NextPhase(); Mouth.State->MouthHealth=39.5f;
+        for (AMCTaskActor* Task:Mouth.Tasks())
+        {
+            Worker->SetActorLocation(Task->GetActorLocation()+FVector(-60,0,58));
+            for (int32 I=0;I<100 && Task->Progress<1;++I) Task->ApplyWork(Worker,Task->Kind==EMCTaskKind::Coffee,0.2f);
+        }
+        TestEqual(TEXT("Healing respects active snapshot, not edited asset"),Mouth.State->MouthHealth,40.f);
+        TestEqual(TEXT("Victory follows custom two-day rule"),Mouth.State->Phase,Day==2?EMCShiftPhase::Won:EMCShiftPhase::Intermission);
+    }
+    Mouth.Mode->RestartShift();
+    TestEqual(TEXT("Next run picks up profile changes"),Mouth.State->MouthHealth,80.f);
+    TestEqual(TEXT("Next run picks up day changes"),Mouth.State->RunSettings.DaysToSurvive,5);
+    Mouth.Mode->RunRulesProfile.Reset(); Mouth.Mode->RestartShift();
+    TestEqual(TEXT("Missing optional profile falls back to defaults"),Mouth.State->MouthHealth,100.f);
+
+    FMCRunSettings Invalid; Invalid.MaxMouthHealth=std::numeric_limits<float>::quiet_NaN();
+    Invalid.DaysToSurvive=0; Invalid.MaxPlayers=99; Invalid.InitialArenaTeeth=-5; Invalid.Sanitize();
+    TestEqual(TEXT("Finite default health"),Invalid.MaxMouthHealth,100.f);
+    TestEqual(TEXT("At least one day"),Invalid.DaysToSurvive,1);
+    TestEqual(TEXT("At most four players supported"),Invalid.MaxPlayers,4);
+    TestEqual(TEXT("Arena count cannot be negative"),Invalid.InitialArenaTeeth,0);
     return true;
 }
 
