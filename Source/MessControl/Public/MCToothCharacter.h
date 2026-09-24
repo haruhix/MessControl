@@ -7,6 +7,8 @@ class UCameraComponent;
 class USpringArmComponent;
 class UInputAction;
 class UInputMappingContext;
+class UMCToothPhysicsComponent;
+class UPhysicsControlComponent;
 struct FInputActionValue;
 
 UCLASS(Blueprintable)
@@ -20,8 +22,8 @@ public:
     virtual void PawnClientRestart() override;
     virtual void Landed(const FHitResult& Hit) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<USceneComponent> BodyPivot;
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<UStaticMeshComponent> Body;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UPhysicsControlComponent> Muscles;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<USceneComponent> BrushPivot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<UStaticMeshComponent> Brush;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
@@ -34,6 +36,10 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_Working, BlueprintReadOnly, Category="Action") bool bHandling = false;
     UFUNCTION(BlueprintCallable, Category="Animation") void SaveTuning();
     UFUNCTION(BlueprintCallable, Category="Animation") void ResetTuning();
+    UFUNCTION(BlueprintCallable, Category="Action") void SwingBrush();
+    UFUNCTION(BlueprintCallable, Category="Physics") void SpawnPracticeTooth();
+    float AnimationGait=0.f, AnimationSpeed=0.f, AnimationBob=0.f, AnimationPitch=0.f, AnimationBrushAngle=0.f;
+    int32 ValidatedSwingCount=0, ConfirmedHitCount=0;
 protected:
     virtual void BeginPlay() override;
 private:
@@ -47,6 +53,11 @@ private:
     UFUNCTION(Server, Reliable) void ServerSetWorking(bool bBrush, bool bActive);
     UFUNCTION() void OnRep_Working();
     void FindWork(float DeltaSeconds);
+    UFUNCTION(Server,Reliable) void ServerSwingBrush();
+    UFUNCTION(NetMulticast,Reliable) void MulticastSwing();
+    UFUNCTION(NetMulticast,Unreliable) void MulticastHitSound(FVector Location);
+    UFUNCTION() void OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit);
+    void ResolveSwing();
     UPROPERTY() TObjectPtr<UInputMappingContext> InputMap;
     UPROPERTY() TObjectPtr<UInputAction> ForwardAction;
     UPROPERTY() TObjectPtr<UInputAction> RightAction;
@@ -56,6 +67,12 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> PanelAction;
     UPROPERTY() TObjectPtr<UInputAction> ConnectionAction;
     UPROPERTY() TObjectPtr<UInputAction> RestartAction;
+    UPROPERTY() TObjectPtr<UInputAction> SwingAction;
+    UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
+    float NextSwingTime=0.f;
+    float SwingStartedAt=-10.f;
+    float LastEnvironmentHit=-10.f;
+    FTimerHandle SwingTimer;
     float Gait = 0.f;
     float LandingImpulse = 0.f;
     float WorkStartedAt = -10.f;

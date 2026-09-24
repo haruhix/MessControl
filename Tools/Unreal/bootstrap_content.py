@@ -41,7 +41,7 @@ for name,(color,roughness) in palette.items():
 # Use the legacy FBX importer explicitly so material-slot names remain reproducible.
 ue.SystemLibrary.execute_console_command(None,"Interchange.FeatureFlags.Import.FBX 0")
 meshes={}
-for file in sorted((ROOT/"ArtSource"/"Exports").glob("*.fbx")):
+for file in sorted((ROOT/"ArtSource"/"Exports").glob("SM_*.fbx")):
     if library.does_asset_exist("/Game/Art/Meshes/"+file.stem) and os.environ.get("MC_REIMPORT")!="1":
         meshes[file.stem]=library.load_asset("/Game/Art/Meshes/"+file.stem)
         continue
@@ -86,14 +86,14 @@ events={}
 for name,sound in sounds.items():
     entry=ue.MCSoundVariation(); entry.set_editor_property("sounds",[sound]); entry.set_editor_property("volume",0.22 if name in ("Brush","Step","Pull") else 0.6)
     events[name]=entry
-audio.set_editor_property("events",events); library.save_loaded_asset(audio)
+audio.set_editor_property("events",events); library.save_loaded_asset(audio,only_if_is_dirty=False)
 for name,kind,title,instruction,count,seconds in [
     ("Coffee",ue.MCTaskKind.COFFEE,"COFFEE BREAK","Hold LMB near a brown stain. Scrub it sparkling clean.",4,2.8),
     ("Food",ue.MCTaskKind.FOOD,"SNACK ATTACK","Hold E near a stuck snack. Pull together to finish faster.",3,4.0),
     ("LooseTooth",ue.MCTaskKind.LOOSE_TOOTH,"WOBBLY BUSINESS","Hold E near a loose tooth. Help it stand straight again.",3,4.5)]:
     event=data("DA_"+name,ue.MCDayEvent)
     for key,value in dict(kind=kind,title=title,instruction=instruction,base_task_count=count,work_seconds=seconds,duration=95.0,missed_task_damage=12.0).items(): event.set_editor_property(key,value)
-    library.save_loaded_asset(event)
+    library.save_loaded_asset(event,only_if_is_dirty=False)
 
 # Editable Blueprint extension points. Existing Blueprints retain designer changes.
 for name,cls in [("BP_ToothCharacter",ue.MCToothCharacter),("BP_MouthTask",ue.MCTaskActor),("BP_MouthGameMode",ue.MCGameMode)]:

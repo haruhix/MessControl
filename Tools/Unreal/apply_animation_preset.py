@@ -10,5 +10,5 @@ settings=asset.get_editor_property("settings")
 for key,prop in {"Squash":"squash","Stretch":"stretch","Bob":"bob","Lean":"lean","FollowThrough":"follow_through","Tempo":"tempo","Anticipation":"anticipation","Exaggeration":"exaggeration"}.items():
     settings.set_editor_property(prop,config.getfloat("ToothAnimation",key))
 asset.set_editor_property("settings",settings)
-unreal.EditorAssetLibrary.save_loaded_asset(asset)
+unreal.EditorAssetLibrary.save_loaded_asset(asset,only_if_is_dirty=False)
 unreal.log("Animation Lab preset applied to DA_ToothAnimation. Commit the asset to share it.")

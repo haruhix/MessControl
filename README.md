@@ -38,7 +38,8 @@
 | Прыгнуть | Space | A / нижняя кнопка |
 | Счищать кофейный налёт | Удерживать ЛКМ возле цели | RB |
 | Вытаскивать еду / закреплять зуб | Удерживать E возле цели | X / левая кнопка |
-| Открыть Animation Lab | F1 | — |
+| Стукнуть другого зуба щёткой | ПКМ | LB |
+| Открыть Tooth Lab | F1 | — |
 | Создать / подключиться к игре | F2 | — |
 | Начать новый забег после финала | R, только у хоста | — |
 
@@ -67,17 +68,22 @@
 | Ресурс | Назначение |
 |---|---|
 | `Content/Data/DA_ToothAnimation` | Squash, stretch, bob, lean, follow through, tempo, anticipation, exaggeration |
+| `Content/Data/DA_ToothPhysics` | Отлёт, подброс, порог падения, время ragdoll и подъёма, сила мышц, масса |
+| `Content/Art/Rig/SK_ToothHero`, `PA_ToothHero` | Скелет, skin weights, morph targets и семь физических тел с ограничениями суставов |
 | `Content/Data/DA_MouthSounds` | Наборы звуков по событиям, случайный pitch и громкость |
 | `Content/Data/DA_Coffee`, `DA_Food`, `DA_LooseTooth` | Название, подсказка, число задач, время, скорость работы, штраф |
 | `Content/Maps/L_Mouth` | Блокинг, свет, коллизии и четыре точки старта |
 | `Content/Blueprints` | Точки расширения персонажа, задания и GameMode |
 | `ArtSource/MessControl.blend` | Редактируемые модели и сцена предпросмотра |
+| `ArtSource/ToothRig.blend` | Отдельная сцена со скелетом зуба и формами Squash / Stretch |
 
-**F1 Animation Lab** даёт живое циклическое превью бега, щётки и растяжения. Save local preset сохраняет значения в `Saved/AnimationTuning.ini`. Чтобы перенести их в общий DA, останови Play и выполни **Tools → Execute Python Script → Tools/Unreal/apply_animation_preset.py**.
+**F1 Tooth Lab** даёт живое циклическое превью бега, щётки и растяжения. Прокрути панель вниз до Physics: хост может менять физику всех присутствующих зубов, создать тренировочного зуба и проверить падение. Закрой F1 и нажми ПКМ рядом с ним. Сильный удар включает ragdoll; зуб автоматически встаёт, когда под ним есть пол и свободное место.
 
-Звуки — короткие оригинальные синтезированные заглушки. Их можно заменить своими SoundWave / SoundCue / MetaSound в DA. Анимация процедурная, на статических мешах; скелетные клипы, Control Rig, ragdoll и физический перенос предметов ещё не входят в этот прототип.
+Save local presets сохраняет `Saved/AnimationTuning.ini` и, у хоста, `Saved/PhysicsTuning.ini`. Чтобы перенести их в общие DA, останови Play и выполни **Tools → Execute Python Script → Tools/Unreal/apply_animation_preset.py** и **apply_physics_preset.py**. Физический preset применяется к следующему запуску после переноса в DA; клиенты не могут менять серверные параметры.
 
-Подробнее: [архитектура и сеть](Docs/Architecture.md), [12 принципов анимации и параметры](Docs/Animation.md), [проверки](Docs/Validation.md).
+Звуки — короткие оригинальные синтезированные заглушки, включая Whoosh, Hit, Fall, StandUp. Их можно заменить своими SoundWave / SoundCue / MetaSound в DA. Зуб использует процедурную скелетную анимацию, Physics Control для пружинящих конечностей и серверный Chaos ragdoll. Авторские клипы, граф Control Rig, захваты и физический перенос предметов остаются следующими этапами.
+
+Подробнее: [архитектура и сеть](Docs/Architecture.md), [физика и ragdoll](Docs/Physics.md), [12 принципов анимации и параметры](Docs/Animation.md), [проверки](Docs/Validation.md).
 
 ## Проверки и восстановление контента
 
@@ -85,23 +91,26 @@
 .\Tools\Test.ps1 -Mode Unit      # Правила семи дней, поражение, совместная работа и проверки действия
 .\Tools\Test.ps1 -Mode Network   # Четыре процесса; движение, RPC и получение общего прогресса
 .\Tools\Test.ps1 -Mode Visual    # Скриншоты игры и Animation Lab в Artifacts
+.\Tools\Test.ps1 -Mode Ragdoll   # Четыре процесса: удары, падения, подъём, затем совместная работа
+.\Tools\Test.ps1 -Mode RagdollVisual # Снимки скелета, падения и восстановления
 ```
 
 Для генерации исходников нужны Blender 5.x и Python 3.11+:
 
 ```powershell
 blender --background --factory-startup --python Tools/Blender/create_assets.py
+blender --background --factory-startup --python Tools/Blender/create_tooth_rig.py
 python Tools/generate_audio.py
 ```
 
-Затем выполнить `Tools/Unreal/bootstrap_content.py` через Unreal Python. Он создаёт отсутствующие ассеты, сохраняет существующую карту и материалы. `MC_REIMPORT=1` разрешает переимпорт мешей/аудио; `MC_REBUILD_MAP=1` заменяет сгенерированные объекты с префиксами ART / COLLISION / START / LIGHT. Делай это в отдельной ветке, если уже правил контент вручную. Генератор Blender перезаписывает собственный `.blend` и FBX: сохраняй авторские правки отдельным файлом или меняй сам генератор.
+Затем выполнить `Tools/Unreal/bootstrap_content.py` через Unreal Python, а для скелета — `Tools/Unreal/import_tooth_rig.py`. Первый создаёт отсутствующие ассеты, сохраняет существующую карту и материалы. Второй переимпортирует скелет и заново строит Physics Asset. `MC_REIMPORT=1` разрешает переимпорт статических мешей/аудио; `MC_REBUILD_MAP=1` заменяет сгенерированные объекты с префиксами ART / COLLISION / START / LIGHT. Делай это в отдельной ветке, если уже правил контент вручную. Генераторы Blender перезаписывают собственные `.blend` и FBX: сохраняй авторские правки отдельным файлом или меняй сам генератор.
 
 `Binaries`, `Intermediate`, `Saved`, DerivedDataCache и локальные настройки не хранятся в Git. `.uasset`, `.umap`, `.blend`, FBX, PNG и WAV хранятся через **Git LFS**.
 
 ## Следующие этапы
 
-- Физические совместные переносы, захваты и падения в духе party games.
-- Авторский скелет, IK рук, facial poses и анимационные клипы.
+- Физические совместные переносы и захваты в духе party games.
+- IK рук, facial poses и авторские анимационные клипы подъёма.
 - Больше событий, смешанные задания и взаимодействующие опасности.
 - Лобби, Steam/EOS, готовность игроков и обработка потери соединения.
 - Дополнительный арт, VFX пены и обратная связь от попадания щёткой.

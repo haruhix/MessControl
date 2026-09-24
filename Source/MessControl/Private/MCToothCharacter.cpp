@@ -2,6 +2,11 @@
 #include "MCPlayerController.h"
 #include "MCTaskActor.h"
 #include "MCGameState.h"
+#include "MCToothPhysicsComponent.h"
+#include "MCToothAnimInstance.h"
+#include "PhysicsControlComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -30,12 +35,17 @@ AMCToothCharacter::AMCToothCharacter()
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0, 650, 0);
     bUseControllerRotationYaw = false;
-    BodyPivot = CreateDefaultSubobject<USceneComponent>(TEXT("BodyPivot"));
-    BodyPivot->SetupAttachment(RootComponent); BodyPivot->SetRelativeLocation(FVector(0,0,-58));
-    Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ToothBody"));
-    Body->SetupAttachment(BodyPivot); Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    GetMesh()->SetRelativeLocation(FVector(0,0,-58));
+    GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+    GetMesh()->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+    GetMesh()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Ignore);
+    GetMesh()->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+    GetMesh()->bEnableUpdateRateOptimizations=false;
+    GetMesh()->SetAnimInstanceClass(UMCToothAnimInstance::StaticClass());
+    Muscles=CreateDefaultSubobject<UPhysicsControlComponent>(TEXT("Muscles"));
+    ToothPhysics=CreateDefaultSubobject<UMCToothPhysicsComponent>(TEXT("ToothPhysics"));
     BrushPivot = CreateDefaultSubobject<USceneComponent>(TEXT("BrushPivot"));
-    BrushPivot->SetupAttachment(BodyPivot); BrushPivot->SetRelativeLocation(FVector(25,42,38));
+    BrushPivot->SetupAttachment(GetMesh(),TEXT("hand_r"));
     Brush = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MiniBrush"));
     Brush->SetupAttachment(BrushPivot); Brush->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("ArenaCamera"));
@@ -47,11 +57,11 @@ AMCToothCharacter::AMCToothCharacter()
     CameraBoom->bDoCollisionTest = false;
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera")); Camera->SetupAttachment(CameraBoom);
     Camera->FieldOfView = 55;
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> ToothAsset(TEXT("/Game/Art/Meshes/SM_ToothHero"));
+    static ConstructorHelpers::FObjectFinder<USkeletalMesh> ToothAsset(TEXT("/Game/Art/Rig/SK_ToothHero"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> BrushAsset(TEXT("/Game/Art/Meshes/SM_Brush"));
     static ConstructorHelpers::FObjectFinder<UMCAnimationProfile> AnimAsset(TEXT("/Game/Data/DA_ToothAnimation"));
     static ConstructorHelpers::FObjectFinder<UMCSoundPalette> SoundAsset(TEXT("/Game/Data/DA_MouthSounds"));
-    if (ToothAsset.Succeeded()) Body->SetStaticMesh(ToothAsset.Object);
+    if (ToothAsset.Succeeded()) GetMesh()->SetSkeletalMesh(ToothAsset.Object);
     if (BrushAsset.Succeeded()) Brush->SetStaticMesh(BrushAsset.Object);
     if (AnimAsset.Succeeded()) AnimationProfile = AnimAsset.Object;
     if (SoundAsset.Succeeded()) SoundPalette = SoundAsset.Object;
@@ -60,6 +70,18 @@ void AMCToothCharacter::BeginPlay()
 {
     Super::BeginPlay();
     if (AnimationProfile) AnimationSettings = AnimationProfile->Settings;
+#if !UE_BUILD_SHIPPING
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCRagdollCapture")))
+        for (int32 I=0;I<GetMesh()->GetNumMaterials();++I) UE_LOG(LogTemp,Display,TEXT("MC_SKIN_MATERIAL %d %s"),I,*GetNameSafe(GetMesh()->GetMaterial(I)));
+#endif
+    GetMesh()->SetNotifyRigidBodyCollision(true);
+    GetMesh()->OnComponentHit.AddDynamic(this,&AMCToothCharacter::OnBodyHit);
+    GetCapsuleComponent()->OnComponentHit.AddDynamic(this,&AMCToothCharacter::OnBodyHit);
+    // Preserve the brush's upright asset orientation while attaching it to the animated hand.
+    const auto& Ref=GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+    FTransform Hand=FTransform::Identity; const auto& Bones=Ref.GetRefBonePose();
+    for (int32 I=Ref.FindBoneIndex(TEXT("hand_r"));I>=0;I=Ref.GetParentIndex(I)) Hand=Hand*Bones[I];
+    BrushPivot->SetRelativeRotation(Hand.GetRotation().Inverse());
 }
 void AMCToothCharacter::BuildInput()
 {
@@ -70,6 +92,8 @@ void AMCToothCharacter::BuildInput()
     JumpAction = Action(EInputActionValueType::Boolean); BrushAction = Action(EInputActionValueType::Boolean);
     HandleAction = Action(EInputActionValueType::Boolean); PanelAction = Action(EInputActionValueType::Boolean);
     ConnectionAction = Action(EInputActionValueType::Boolean); RestartAction = Action(EInputActionValueType::Boolean);
+    SwingAction=Action(EInputActionValueType::Boolean);
+    InputMap->MapKey(SwingAction,EKeys::RightMouseButton); InputMap->MapKey(SwingAction,EKeys::Gamepad_LeftShoulder);
     InputMap->MapKey(ForwardAction, EKeys::W);
     InputMap->MapKey(ForwardAction, EKeys::S).Modifiers.Add(NewObject<UInputModifierNegate>(this));
     InputMap->MapKey(ForwardAction, EKeys::Gamepad_LeftY);
@@ -106,10 +130,11 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(PanelAction, ETriggerEvent::Started, this, &AMCToothCharacter::TogglePanel);
     Input->BindAction(ConnectionAction, ETriggerEvent::Started, this, &AMCToothCharacter::ToggleConnection);
     Input->BindAction(RestartAction, ETriggerEvent::Started, this, &AMCToothCharacter::RestartRun);
+    Input->BindAction(SwingAction,ETriggerEvent::Started,this,&AMCToothCharacter::SwingBrush);
 }
 void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { AddMovementInput(FVector::ForwardVector, Value.Get<float>()); }
 void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { AddMovementInput(FVector::RightVector, Value.Get<float>()); }
-void AMCToothCharacter::StartJump() { Jump(); }
+void AMCToothCharacter::StartJump() { if (ToothPhysics->CanAct()) Jump(); }
 void AMCToothCharacter::StopJump() { StopJumping(); }
 void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
@@ -120,6 +145,7 @@ void AMCToothCharacter::ToggleConnection() { StopBrush(); StopHandle(); if (auto
 void AMCToothCharacter::RestartRun() { if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->RequestRestart(); }
 void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActive)
 {
+    if (bActive && (!ToothPhysics->CanAct() || GetWorld()->GetTimeSeconds()<NextSwingTime-0.3f)) return;
     if (bBrush) bBrushing = bActive; else bHandling = bActive;
     OnRep_Working(); ForceNetUpdate();
 }
@@ -131,7 +157,7 @@ void AMCToothCharacter::Landed(const FHitResult& Hit)
 }
 void AMCToothCharacter::FindWork(float DeltaSeconds)
 {
-    if (!bBrushing && !bHandling) return;
+    if ((!bBrushing && !bHandling) || !ToothPhysics->CanAct()) return;
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>();
     if (!State || State->Phase != EMCShiftPhase::Working) return;
     AMCTaskActor* Best = nullptr; float BestDistance = 180.f * 180.f;
@@ -165,7 +191,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     {
         WorkAccumulator += DeltaSeconds;
         if (WorkAccumulator >= 0.1f) { FindWork(FMath::Min(WorkAccumulator,0.2f)); WorkAccumulator = 0; }
-        if (GetActorLocation().Z < -300) { SetActorLocation(FVector(-700,0,160),false,nullptr,ETeleportType::TeleportPhysics); GetCharacterMovement()->StopMovementImmediately(); }
+        if (ToothPhysics->CanAct() && GetActorLocation().Z < -300) { SetActorLocation(FVector(-700,0,160),false,nullptr,ETeleportType::TeleportPhysics); GetCharacterMovement()->StopMovementImmediately(); }
     }
     const auto& A = AnimationSettings;
     const float Time = GetWorld()->GetTimeSeconds();
@@ -180,19 +206,71 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float Anticipation = bWork ? FMath::Clamp(1.f - WorkTime/FMath::Max(0.05f,A.Anticipation),0.f,1.f) : 0.f;
     const float Squash = (FMath::Sin(Gait*2.f)*0.22f*Speed + LandingImpulse + Anticipation*0.45f) * A.Squash * A.Exaggeration;
     const float Stretch = bAir ? A.Stretch * (bPreviewAnimation ? 0.8f : FMath::Clamp(FMath::Abs(GetVelocity().Z)/500.f,0.f,1.f)) : 0.f;
-    const float ZScale = FMath::Clamp(1.f-Squash+Stretch,0.55f,1.65f);
-    const float XYScale = 1.f/FMath::Sqrt(ZScale);
-    BodyPivot->SetRelativeScale3D(FVector(XYScale,XYScale,ZScale));
+    GetMesh()->SetMorphTarget(TEXT("Squash"),ToothPhysics->CanAct()?FMath::Clamp(Squash/0.28f,0.f,1.f):0.f);
+    GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f):0.f);
     const float Bob = bAir ? 0.f : FMath::Abs(FMath::Sin(Gait))*A.Bob*Speed + FMath::Sin(Time*2.f)*0.7f;
-    BodyPivot->SetRelativeLocation(FVector(0,0,-58+Bob));
     const float Pitch = Speed*A.Lean + Anticipation*15.f + (bHandling ? FMath::Sin(Time*13.f)*7.f : 0.f);
-    BodyPivot->SetRelativeRotation(FRotator(Pitch,0,FMath::Sin(Gait)*Speed*A.Lean*0.35f));
-    const float Swing = bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
+    const float AttackTime=Time-SwingStartedAt;
+    const float AttackAngle=AttackTime<0.16f?FMath::Lerp(0.f,-75.f,AttackTime/0.16f):AttackTime<0.30f?FMath::Lerp(-75.f,95.f,(AttackTime-0.16f)/0.14f):AttackTime<0.65f?FMath::Lerp(95.f,-12.f,(AttackTime-0.30f)/0.35f):-12.f;
+    const float Swing = AttackTime<0.65f?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
     BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,18.f-12.f*A.FollowThrough);
-    BrushPivot->SetRelativeRotation(FRotator(BrushAngle*A.Exaggeration,15.f*FMath::Sin(Gait)*Speed,8.f));
+    AnimationGait=Gait; AnimationSpeed=Speed; AnimationBob=Bob; AnimationPitch=Pitch; AnimationBrushAngle=BrushAngle*A.Exaggeration;
     SoundAccumulator += DeltaSeconds;
-    if (!bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
+    if (ToothPhysics->CanAct() && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
     { SoundAccumulator = 0; SoundPalette->Play(this,bBrushing ? TEXT("Brush") : bHandling ? TEXT("Pull") : TEXT("Step"),GetActorLocation()); }
+}
+void AMCToothCharacter::SwingBrush() { if (!bPreviewAnimation && ToothPhysics->CanAct()) ServerSwingBrush(); }
+void AMCToothCharacter::ServerSwingBrush_Implementation()
+{
+    const float Now=GetWorld()->GetTimeSeconds();
+    if (!ToothPhysics->CanAct() || Now<NextSwingTime) return;
+    NextSwingTime=Now+0.85f; ++ValidatedSwingCount;
+    bBrushing=false; bHandling=false; ForceNetUpdate(); MulticastSwing();
+    GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,0.16f,false);
+}
+void AMCToothCharacter::MulticastSwing_Implementation()
+{
+    SwingStartedAt=GetWorld()->GetTimeSeconds();
+    if (SoundPalette) SoundPalette->Play(this,TEXT("Whoosh"),GetActorLocation());
+}
+void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location) { if (SoundPalette) SoundPalette->Play(this,TEXT("Hit"),Location); }
+void AMCToothCharacter::ResolveSwing()
+{
+    if (!HasAuthority() || !ToothPhysics->CanAct()) return;
+    AMCToothCharacter* Target=nullptr; float Best=FMath::Square(180.f);
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+    {
+        if (*It==this || It->ToothPhysics->GetBodyState()==EMCBodyState::Recovering) continue;
+        const FVector Point=It->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?It->ToothPhysics->PhysicalLocation():It->GetActorLocation();
+        const FVector Offset=Point-GetActorLocation();
+        if (Offset.SizeSquared2D()>Best || FMath::Abs(Offset.Z)>120 || FVector::DotProduct(GetActorForwardVector(),Offset.GetSafeNormal2D())<0.25f) continue;
+        FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCBrushHit),false,this); Params.AddIgnoredActor(*It);
+        if (GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),Point,ECC_Visibility,Params)) continue;
+        Target=*It; Best=Offset.SizeSquared2D();
+    }
+    if (!Target) return;
+    ++ConfirmedHitCount;
+    FVector Direction=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(); if (Direction.IsNearlyZero()) Direction=GetActorForwardVector();
+    Target->ToothPhysics->ApplyHit(Direction*ToothPhysics->Settings.Knockback+FVector(0,0,ToothPhysics->Settings.Lift),Target->GetActorLocation()+FVector(0,0,15));
+    MulticastHitSound(Target->GetActorLocation());
+}
+void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
+{
+    if (!HasAuthority() || !ToothPhysics->CanAct() || !OtherComponent || OtherActor==this || GetWorld()->GetTimeSeconds()-LastEnvironmentHit<0.6f) return;
+    FVector Impact=FVector::ZeroVector;
+    if (OtherComponent->IsSimulatingPhysics()) Impact=(OtherComponent->GetPhysicsLinearVelocity()-GetVelocity())*0.7f;
+    else if (Hit.ImpactNormal.Z<0.4f && GetVelocity().Size()>500.f) Impact=Hit.ImpactNormal*GetVelocity().Size()*0.6f;
+    if (Impact.Size()<ToothPhysics->Settings.FallThreshold) return;
+    LastEnvironmentHit=GetWorld()->GetTimeSeconds(); Impact.Z=FMath::Max(150.f,Impact.Z);
+    ToothPhysics->ApplyHit(Impact,Hit.ImpactPoint);
+}
+void AMCToothCharacter::SpawnPracticeTooth()
+{
+    if (!HasAuthority() || !IsLocallyControlled()) return;
+    if (IsValid(PracticeTooth)) PracticeTooth->Destroy();
+    FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+    PracticeTooth=GetWorld()->SpawnActor<AMCToothCharacter>(GetClass(),GetActorLocation()+GetActorForwardVector()*130,GetActorRotation()+FRotator(0,180,0),Params);
+    if (PracticeTooth) PracticeTooth->ToothPhysics->SetTuning(ToothPhysics->Settings);
 }
 void AMCToothCharacter::SaveTuning()
 {

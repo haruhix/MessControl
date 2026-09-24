@@ -2,7 +2,7 @@
 
 Среда: Windows, Unreal Engine 5.8.1, MSVC 14.44, Windows SDK 10.0.22621, Blender 5.1.0.
 
-Проверено 24 сентября 2026: Editor Development и Game Development собираются; три Automation-теста прошли без предупреждений; listen server и три отдельных клиента завершили сетевую проверку успешно. Скриншоты игры и Animation Lab просмотрены, экспозиция и перекрытия HUD исправлены. Интернет-сессия между разными компьютерами и packaged build пока не проверялись.
+Проверено 25 сентября 2026: Editor Development и Game Development собираются; пять Automation-тестов прошли без предупреждений. Listen server и три отдельных клиента прошли проверку ударов, ragdoll, подъёма и дальнейшей совместной работы: 20 падений/подъёмов без эмуляции, 17 с `PktLag=75` и `PktLoss=2`. Каждый процесс наблюдал переходы; проверка не обнаружила нечисловых координат или разлёта костей дальше 250 см от тела. Это не измерение ошибки каждой позы или качества WAN. Интернет-сессия между разными компьютерами и packaged build пока не проверялись.
 
 ## Воспроизведение
 
@@ -12,6 +12,9 @@
 .\Tools\Test.ps1 -Mode Unit
 .\Tools\Test.ps1 -Mode Network
 .\Tools\Test.ps1 -Mode Visual
+.\Tools\Test.ps1 -Mode Ragdoll
+.\Tools\Test.ps1 -Mode Ragdoll -PacketLagMs 75 -PacketLoss 2
+.\Tools\Test.ps1 -Mode RagdollVisual
 ```
 
 `Unit` запускает Unreal Automation:
@@ -19,12 +22,16 @@
 - `MessControl.Gameplay.SevenDayVictory`: создание заданий, отсутствие соседних одинаковых событий, завершение каждого дня, защита от повторного завершения, победа и сброс забега.
 - `MessControl.Gameplay.TimeoutAndLoss`: штраф за оставшиеся задачи, проигрыш и очистка акторов.
 - `MessControl.Gameplay.WorkValidationAndCooperation`: неверный инструмент, дистанция, высота, фаза дня, сложение работы двух игроков и ограничение переданного времени.
+- `MessControl.Physics.RigAndTuning`: сохранённый скелет, morph targets, материалы, семь тел / шесть суставов, новые звуки, защита параметров от NaN и выхода за диапазон.
+- `MessControl.Physics.AuthorityAndActionGates`: частота ударов, попадание в ближайшего зуба, включение ragdoll, запрет работы/удара лёжа, отказ подъёма без пола.
 
 `Network` поднимает listen server и три клиента на localhost. Автоматические игроки используют стандартное сетевое движение и RPC начала/конца работы. Каждый процесс должен увидеть четыре PlayerState и изменение общего прогресса. FPS ограничен 60, клиенты завершают проверку раньше хоста. Это проверяет настоящий сетевой путь, но не заменяет испытания на WAN с задержкой и потерей пакетов.
 
-`Visual` запускает карту с рендерингом и сохраняет `Artifacts/Unreal_Gameplay.png` и `Artifacts/Unreal_AnimationLab.png`. Эти снимки проверяются визуально; сам скрипт не оценивает композицию или экспозицию. `Artifacts/Mouth_ArtPreview.png` — отдельный рендер Blender, а не снимок игры.
+`Ragdoll` дополнительно сталкивает игроков через обычный запрос удара, проверяет наблюдение падений/подъёмов на сервере и клиентах, затем возвращает ботов к работе над заданиями. Допустимы параметры эмуляции `-PacketLagMs` и `-PacketLoss`; они передаются каждому процессу. Проверка проходит на localhost и не заменяет WAN-тест.
 
-Отчёт Automation: `Saved/TestReports/index.json`. Логи: `Saved/Logs/Automation.log`, `Network0.log`…`Network3.log`, `Visual.log`. В репозитории остаются исходники проверок и снимки, а локальные логи исключены из Git.
+`Visual` сохраняет `Artifacts/Unreal_Gameplay.png`, `Unreal_AnimationLab.png`, `Unreal_PhysicsLab.png`. `RagdollVisual` сохраняет кадры Rig / Ragdoll / GetUp / Recovered, переключая наблюдение на тренировочного зуба после удара. Снимки проверяются визуально; сам скрипт не оценивает композицию или экспозицию. `Artifacts/Mouth_ArtPreview.png` — отдельный рендер Blender, а не снимок игры.
+
+Отчёт Automation: `Saved/TestReports/index.json`. Логи: `Saved/Logs/Automation.log`, `Network0.log`…`Network3.log`, `Ragdoll0.log`…`Ragdoll3.log`, `Visual.log`, `RagdollVisual.log`. В репозитории остаются исходники проверок и снимки, а локальные логи исключены из Git.
 
 ## Перед расширением игры
 

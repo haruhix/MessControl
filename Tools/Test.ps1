@@ -1,4 +1,4 @@
-param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','Visual')][string]$Mode='Unit')
+param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','Visual','Ragdoll','RagdollVisual')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 if (-not $EngineRoot) {
@@ -13,18 +13,23 @@ if ($Mode -eq 'Unit') {
     & $taskEditor $taskProject -unattended -nop4 -nosplash -nullrhi '-ExecCmds=Automation RunTests MessControl; Quit' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$taskRoot\Saved\TestReports" "-abslog=$taskLogs\Automation.log"
     if ($LASTEXITCODE -ne 0) { throw 'Unreal automation failed.' }
     $taskReport=Get-Content -Raw "$taskRoot\Saved\TestReports\index.json" | ConvertFrom-Json
-    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 3) { throw 'Not all gameplay tests passed.' }
-} elseif ($Mode -eq 'Visual') {
-    & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game -MCCapture -RenderOffscreen -windowed -ForceRes -ResX=1440 -ResY=960 -unattended -nosound -nosplash -nop4 "-abslog=$taskLogs\Visual.log"
+    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 5) { throw 'Not all gameplay and physics tests passed.' }
+} elseif ($Mode -eq 'Visual' -or $Mode -eq 'RagdollVisual') {
+    $taskCapture=if($Mode -eq 'RagdollVisual'){'-MCRagdollCapture'}else{'-MCCapture'}
+    & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game $taskCapture -RenderOffscreen -windowed -ForceRes -ResX=1440 -ResY=960 -unattended -nosound -nosplash -nop4 "-abslog=$taskLogs\$Mode.log"
     if ($LASTEXITCODE -ne 0) { throw 'Visual smoke run failed.' }
 } else {
     $taskProcesses=@()
     try {
         for ($taskIndex=0; $taskIndex -lt 4; $taskIndex++) {
             $taskMap=if($taskIndex -eq 0){'/Game/Maps/L_Mouth?listen?Seed=41'}else{'127.0.0.1:7777'}
-            $taskLog=Join-Path $taskLogs "Network$taskIndex.log"
+            $taskLog=Join-Path $taskLogs "$Mode$taskIndex.log"
             if (Test-Path -LiteralPath $taskLog) { Remove-Item -LiteralPath $taskLog }
-            $taskProcesses += Start-Process -FilePath $taskEditor -WindowStyle Hidden -PassThru -ArgumentList @("`"$taskProject`"",$taskMap,'-game','-MCSmoke','-MCExpectedPlayers=4','-nullrhi','-unattended','-nosound','-nosplash','-nop4','-ExecCmds="t.MaxFPS 60"',"`"-abslog=$taskLog`"")
+            $taskArguments=@("`"$taskProject`"",$taskMap,'-game','-MCSmoke','-MCExpectedPlayers=4','-nullrhi','-unattended','-nosound','-nosplash','-nop4','-ExecCmds="t.MaxFPS 60"',"`"-abslog=$taskLog`"")
+            if($Mode -eq 'Ragdoll') { $taskArguments+='-MCRagdoll' }
+            if($PacketLagMs -gt 0) { $taskArguments+="-PktLag=$PacketLagMs" }
+            if($PacketLoss -gt 0) { $taskArguments+="-PktLoss=$PacketLoss" }
+            $taskProcesses += Start-Process -FilePath $taskEditor -WindowStyle Hidden -PassThru -ArgumentList $taskArguments
             if ($taskIndex -eq 0) {
                 $taskDeadline=(Get-Date).AddSeconds(60)
                 do {
@@ -39,7 +44,7 @@ if ($Mode -eq 'Unit') {
             if (-not $taskProcess.WaitForExit(150000)) { throw 'Network test timed out.' }
         }
         for ($taskIndex=0;$taskIndex -lt 4;$taskIndex++) {
-            if (-not (Select-String -Path "$taskLogs\Network$taskIndex.log" -Pattern 'MC_VALIDATION_PASS' -Quiet)) { throw "Client $taskIndex did not observe four players and task progress." }
+            if (-not (Select-String -Path "$taskLogs\$Mode$taskIndex.log" -Pattern 'MC_VALIDATION_PASS' -Quiet)) { throw "Client $taskIndex failed $Mode validation. See its log." }
         }
         Write-Output 'PASS: four processes connected and observed authoritative task progress.'
     } finally {

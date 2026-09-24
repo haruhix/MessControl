@@ -2,6 +2,8 @@
 #include "MCToothCharacter.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
+#include "MCToothPhysicsComponent.h"
+#include "EngineUtils.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
@@ -13,6 +15,7 @@
 #include "Components/Slider.h"
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
+#include "Components/ScrollBox.h"
 #include "Styling/CoreStyle.h"
 
 namespace
@@ -22,6 +25,9 @@ namespace
     const TCHAR* TuningNames[] = {TEXT("Squash"),TEXT("Stretch"),TEXT("Run bob"),TEXT("Lean"),TEXT("Follow through"),TEXT("Tempo"),TEXT("Anticipation"),TEXT("Exaggeration")};
     const float TuningMin[] = {0,0,0,0,0,0.5f,0.05f,0.5f};
     const float TuningMax[] = {0.6f,0.6f,20,30,1,2,0.4f,2};
+    const TCHAR* PhysicsNames[]={TEXT("Knockback (cm/s)"),TEXT("Lift (cm/s)"),TEXT("Fall threshold"),TEXT("Ragdoll seconds"),TEXT("Get-up seconds"),TEXT("Muscle strength"),TEXT("Muscle damping"),TEXT("Mass (kg)")};
+    const float PhysicsMin[]={150,80,100,0.5f,0.25f,2,0.3f,3};
+    const float PhysicsMax[]={1100,650,600,6,2,35,2,20};
 }
 UTextBlock* UMCPrototypeWidget::AddText(UVerticalBox* Box,const FString& Text,int32 Size,FLinearColor Color)
 {
@@ -45,17 +51,19 @@ void UMCPrototypeWidget::NativeOnInitialized()
     DayLabel = AddText(Header,TEXT("DAY 01 / 07"),30,Cream);
     EventLabel = AddText(Header,TEXT("CLOCKING IN"),20,Cream);
     InstructionLabel = AddText(Header,TEXT("A little teamwork. A lot of toothpaste."),14,Cream);
+    InstructionLabel->SetAutoWrapText(false); InstructionLabel->SetWrapTextAt(396.f);
     TaskLabel = AddText(Header,TEXT("Waiting for the first challenge"),15,Mint);
     UBorder* HealthBorder; auto* Health = Panel(FVector2D(-28,28),FVector2D(270,126),FAnchors(1,0),FVector2D(1,0),HealthBorder);
     HealthLabel = AddText(Health,TEXT("MOUTH HEALTH / 100"),15,Cream);
     HealthBar = WidgetTree->ConstructWidget<UProgressBar>(); HealthBar->SetFillColorAndOpacity(Mint); HealthBar->SetPercent(1); Health->AddChildToVerticalBox(HealthBar)->SetPadding(FMargin(0,8));
     TimeLabel = AddText(Health,TEXT("SHIFT STARTS IN 08"),19,Mint);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1000,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
-    AddText(Footer,TEXT("WASD  MOVE    SPACE  HOP    HOLD LMB  BRUSH    HOLD E  PULL / REPAIR"),15,Cream);
-    AddText(Footer,TEXT("F1  ANIMATION LAB      F2  PLAY WITH FRIENDS      GAMEPAD  LEFT STICK / A / RB / X"),12,Mint);
+    AddText(Footer,TEXT("WASD  MOVE    SPACE  HOP    LMB  CLEAN    E  PULL / REPAIR    RMB  BONK"),15,Cream);
+    AddText(Footer,TEXT("F1  TOOTH LAB      F2  PLAY WITH FRIENDS      GAMEPAD  STICK / A / RB / X / LB"),12,Mint);
     UBorder* TuningBorder; auto* Tuning = Panel(FVector2D(-28,174),FVector2D(360,710),FAnchors(1,0),FVector2D(1,0),TuningBorder); TuningPanel = TuningBorder;
-    AddText(Tuning,TEXT("ANIMATION LAB"),23,Mint);
-    AddText(Tuning,TEXT("Auto preview: run / brush / stretch. F1 closes."),12,Cream);
+    TuningScroll=WidgetTree->ConstructWidget<UScrollBox>(); TuningBorder->SetContent(TuningScroll); TuningScroll->AddChild(Tuning);
+    AddText(Tuning,TEXT("TOOTH LAB"),23,Mint);
+    AddText(Tuning,TEXT("Run / brush / stretch preview. Scroll for physics. F1 closes."),12,Cream);
     for (int32 Index=0; Index<8; ++Index)
     {
         SliderLabels.Add(AddText(Tuning,TuningNames[Index],14,Cream));
@@ -72,6 +80,20 @@ void UMCPrototypeWidget::NativeOnInitialized()
     Button(Tuning,TEXT("SAVE LOCAL PRESET"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::SaveClicked);
     Button(Tuning,TEXT("RESET FROM DATA ASSET"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ResetClicked);
     SaveLabel = AddText(Tuning,TEXT("DA_ToothAnimation supplies the shared defaults."),11,Cream);
+    PhysicsBox=WidgetTree->ConstructWidget<UVerticalBox>(); Tuning->AddChildToVerticalBox(PhysicsBox);
+    AddText(PhysicsBox,TEXT("PHYSICS / HOST"),21,Mint);
+    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then RMB to bonk."),12,Cream);
+    Button(PhysicsBox,TEXT("SPAWN PRACTICE TOOTH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DummyClicked);
+    Button(PhysicsBox,TEXT("TEST FALL"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::FallClicked);
+    Button(PhysicsBox,TEXT("GET UP WHEN CLEAR"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::GetUpClicked);
+    for (int32 I=0;I<8;++I)
+    {
+        PhysicsLabels.Add(AddText(PhysicsBox,PhysicsNames[I],14,Cream));
+        auto* S=WidgetTree->ConstructWidget<USlider>(); S->SetMinValue(PhysicsMin[I]); S->SetMaxValue(PhysicsMax[I]); S->SetSliderHandleColor(Mint);
+        S->OnValueChanged.AddDynamic(this,&UMCPrototypeWidget::PhysicsChanged);
+        PhysicsBox->AddChildToVerticalBox(S)->SetPadding(FMargin(0,4,0,10)); PhysicsSliders.Add(S);
+    }
+    Button(PhysicsBox,TEXT("SAVE LOCAL PRESETS"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::SaveClicked);
     TuningPanel->SetVisibility(ESlateVisibility::Collapsed);
     UBorder* ConnectionBorder; auto* Connection = Panel(FVector2D(0,0),FVector2D(460,338),FAnchors(0.5f,0.5f),FVector2D(0.5f,0.5f),ConnectionBorder); ConnectionPanel = ConnectionBorder;
     AddText(Connection,TEXT("BRING YOUR MOLARS"),25,Mint);
@@ -105,6 +127,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
 }
 bool UMCPrototypeWidget::IsPanelOpen() const { return (TuningPanel && TuningPanel->IsVisible()) || (ConnectionPanel && ConnectionPanel->IsVisible()); }
 bool UMCPrototypeWidget::IsTuningOpen() const { return TuningPanel && TuningPanel->IsVisible(); }
+void UMCPrototypeWidget::ScrollToPhysics() { if (TuningScroll) TuningScroll->ScrollToEnd(); }
 void UMCPrototypeWidget::ToggleTuning() { TuningPanel->SetVisibility(TuningPanel->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible); ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed); RefreshSliders(); }
 void UMCPrototypeWidget::ToggleConnection() { ConnectionPanel->SetVisibility(ConnectionPanel->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible); TuningPanel->SetVisibility(ESlateVisibility::Collapsed); }
 FReply UMCPrototypeWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyEvent& Event)
@@ -123,6 +146,10 @@ void UMCPrototypeWidget::RefreshSliders()
     bRefreshing = true; const auto& A = Tooth->AnimationSettings;
     const float Values[] = {A.Squash,A.Stretch,A.Bob,A.Lean,A.FollowThrough,A.Tempo,A.Anticipation,A.Exaggeration};
     for (int32 I=0; I<Sliders.Num(); ++I) { Sliders[I]->SetValue(Values[I]); SliderLabels[I]->SetText(FText::FromString(FString::Printf(TEXT("%s  %.2f"),TuningNames[I],Values[I]))); }
+    const auto& P=Tooth->ToothPhysics->Settings;
+    const float PV[]={P.Knockback,P.Lift,P.FallThreshold,P.RagdollSeconds,P.GetUpSeconds,P.MuscleStrength,P.Damping,P.Mass};
+    PhysicsBox->SetIsEnabled(Tooth->HasAuthority());
+    for (int32 I=0;I<PhysicsSliders.Num();++I) { PhysicsSliders[I]->SetValue(PV[I]); PhysicsLabels[I]->SetText(FText::FromString(FString::Printf(TEXT("%s  %.2f"),PhysicsNames[I],PV[I]))); }
     bRefreshing = false;
 }
 void UMCPrototypeWidget::TuningChanged(float Value)
@@ -132,7 +159,19 @@ void UMCPrototypeWidget::TuningChanged(float Value)
     auto& A = Tooth->AnimationSettings; float* Values[] = {&A.Squash,&A.Stretch,&A.Bob,&A.Lean,&A.FollowThrough,&A.Tempo,&A.Anticipation,&A.Exaggeration};
     for (int32 I=0; I<Sliders.Num(); ++I) *Values[I]=Sliders[I]->GetValue(); RefreshSliders();
 }
-void UMCPrototypeWidget::SaveClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->SaveTuning(); SaveLabel->SetText(FText::FromString(TEXT("Saved to Saved/AnimationTuning.ini"))); } }
-void UMCPrototypeWidget::ResetClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->ResetTuning(); RefreshSliders(); } }
+void UMCPrototypeWidget::PhysicsChanged(float Value)
+{
+    auto* Tooth=Cast<AMCToothCharacter>(GetOwningPlayerPawn()); if (bRefreshing || !Tooth || !Tooth->HasAuthority()) return;
+    FMCPhysicsSettings P=Tooth->ToothPhysics->Settings;
+    float* Values[]={&P.Knockback,&P.Lift,&P.FallThreshold,&P.RagdollSeconds,&P.GetUpSeconds,&P.MuscleStrength,&P.Damping,&P.Mass};
+    for (int32 I=0;I<8;++I) *Values[I]=PhysicsSliders[I]->GetValue();
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->ToothPhysics->SetTuning(P);
+    RefreshSliders();
+}
+void UMCPrototypeWidget::FallClicked() { if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) if (T->HasAuthority()) T->ToothPhysics->ApplyHit(T->GetActorForwardVector()*T->ToothPhysics->Settings.Knockback+FVector(0,0,T->ToothPhysics->Settings.Lift),T->GetActorLocation()); }
+void UMCPrototypeWidget::GetUpClicked() { if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) if (T->HasAuthority()) T->ToothPhysics->TryRecover(); }
+void UMCPrototypeWidget::DummyClicked() { if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) T->SpawnPracticeTooth(); }
+void UMCPrototypeWidget::SaveClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->SaveTuning(); if (Tooth->HasAuthority()) Tooth->ToothPhysics->SaveTuning(); SaveLabel->SetText(FText::FromString(TEXT("Saved local .ini presets in Saved/."))); } }
+void UMCPrototypeWidget::ResetClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->ResetTuning(); if (Tooth->HasAuthority()) { Tooth->ToothPhysics->ResetTuning(); for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->ToothPhysics->SetTuning(Tooth->ToothPhysics->Settings); } RefreshSliders(); } }
 void UMCPrototypeWidget::HostClicked() { if (auto* PC = Cast<AMCPlayerController>(GetOwningPlayer())) PC->HostGame(); }
 void UMCPrototypeWidget::JoinClicked() { if (auto* PC = Cast<AMCPlayerController>(GetOwningPlayer())) PC->JoinGame(AddressBox->GetText().ToString()); }

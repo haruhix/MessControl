@@ -2,6 +2,7 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
+#include "MCToothPhysicsComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -46,6 +47,7 @@ void AMCTaskActor::Tick(float DeltaSeconds)
 bool AMCTaskActor::ApplyWork(AMCToothCharacter* Worker, bool bBrush, float DeltaSeconds)
 {
     if (!HasAuthority() || bResolved || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()) return false;
+    if (!Worker->ToothPhysics->CanAct()) return false;
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>();
     if (!State || State->Phase != EMCShiftPhase::Working || bBrush != (Kind == EMCTaskKind::Coffee)) return false;
     if (FVector::DistSquared2D(Worker->GetActorLocation(),GetActorLocation()) > FMath::Square(180.f) || FMath::Abs(Worker->GetActorLocation().Z-GetActorLocation().Z)>140) return false;

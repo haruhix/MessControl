@@ -9,6 +9,11 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MCToothPhysicsComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "PhysicsEngine/PhysicsAsset.h"
+#include <limits>
 
 namespace
 {
@@ -89,6 +94,52 @@ bool FMCTimeoutTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Zero health loses run"),Mouth.State->Phase,EMCShiftPhase::Lost);
     TestEqual(TEXT("Health clamped to zero"),Mouth.State->MouthHealth,0.f);
     TestTrue(TEXT("Unfinished actors removed"),Mouth.Tasks().IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRigTest,"MessControl.Physics.RigAndTuning",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCRigTest::RunTest(const FString& Parameters)
+{
+    USkeletalMesh* Mesh=LoadObject<USkeletalMesh>(nullptr,TEXT("/Game/Art/Rig/SK_ToothHero.SK_ToothHero"));
+    if (!TestNotNull(TEXT("Imported skeletal tooth"),Mesh)) return false;
+    TestTrue(TEXT("Body bone exists"),Mesh->GetRefSkeleton().FindBoneIndex(TEXT("body"))!=INDEX_NONE);
+    TestTrue(TEXT("Brush hand exists"),Mesh->GetRefSkeleton().FindBoneIndex(TEXT("hand_r"))!=INDEX_NONE);
+    TestNotNull(TEXT("Squash morph"),Mesh->FindMorphTarget(TEXT("Squash")));
+    TestNotNull(TEXT("Stretch morph"),Mesh->FindMorphTarget(TEXT("Stretch")));
+    for (const auto& Slot:Mesh->GetMaterials()) TestNotNull(*FString::Printf(TEXT("Saved material %s"),*Slot.MaterialSlotName.ToString()),Slot.MaterialInterface.Get());
+    const auto* Audio=LoadObject<UMCSoundPalette>(nullptr,TEXT("/Game/Data/DA_MouthSounds.DA_MouthSounds"));
+    if (TestNotNull(TEXT("Sound palette"),Audio))
+        for (const FName Event:{FName("Hit"),FName("Whoosh"),FName("Fall"),FName("StandUp")}) TestTrue(*Event.ToString(),Audio->Events.Contains(Event) && Audio->Events[Event].Sounds.Num()>0);
+    UPhysicsAsset* Physics=Mesh->GetPhysicsAsset();
+    if (TestNotNull(TEXT("Authored Physics Asset"),Physics))
+    {
+        TestEqual(TEXT("Seven simulated body shapes"),Physics->SkeletalBodySetups.Num(),7);
+        TestEqual(TEXT("Six constrained joints"),Physics->ConstraintSetup.Num(),6);
+    }
+    FMCPhysicsSettings P; P.Knockback=std::numeric_limits<float>::quiet_NaN(); P.Mass=-1; P.GetUpSeconds=500;
+    P.Sanitize(); TestEqual(TEXT("NaN restored to default"),P.Knockback,650.f);
+    TestEqual(TEXT("Positive minimum mass"),P.Mass,3.f); TestEqual(TEXT("Recovery time bounded"),P.GetUpSeconds,2.f);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHitTest,"MessControl.Physics.AuthorityAndActionGates",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCHitTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; Mouth.NextPhase(); auto* A=Mouth.Worker(); auto* B=Mouth.Worker();
+    A->SetActorLocation(FVector(0,0,150)); B->SetActorLocation(FVector(125,0,150)); A->SetActorRotation(FRotator::ZeroRotator);
+    for (int32 I=0;I<7;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,0.1f); }
+    A->SwingBrush(); A->SwingBrush();
+    TestEqual(TEXT("Repeated RPC respects cooldown"),A->ValidatedSwingCount,1);
+    for (int32 I=0;I<3;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,0.1f); }
+    TestEqual(TEXT("One forward target receives one hit"),A->ConfirmedHitCount,1);
+    TestEqual(TEXT("Strong hit enters ragdoll"),B->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
+    B->SwingBrush(); TestEqual(TEXT("Fallen tooth cannot attack"),B->ValidatedSwingCount,0);
+    const auto Tasks=Mouth.Tasks(); if (Tasks.Num())
+    {
+        B->SetActorLocation(Tasks[0]->GetActorLocation()+FVector(0,0,58));
+        TestFalse(TEXT("Fallen tooth cannot work"),Tasks[0]->ApplyWork(B,Tasks[0]->Kind==EMCTaskKind::Coffee,0.1f));
+    }
+    TestFalse(TEXT("Cannot get up without floor support"),B->ToothPhysics->TryRecover());
     return true;
 }
 #endif

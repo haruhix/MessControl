@@ -19,4 +19,10 @@ private:
     bool bCapturedLab = false;
     bool bObservedWork = false;
     bool bObservedPlayers = false;
+    bool bRagdollSetup=false;
+    float NextSwing=3.f;
+    int32 ObservedFalls=0;
+    int32 ObservedRecoveries=0;
+    int32 CaptureStage=0;
+    bool bInvalidPhysics=false;
 };
