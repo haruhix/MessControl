@@ -76,8 +76,10 @@ void AMCDayOneScenario::Next()
     if (Stage==6)
     {
         for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->IsDisposed()) It->Dispose();
-        auto* Tooth=GS->ArenaTeeth[2].Get(); FVector P=Tooth->GetActorLocation(); P.Y+=Tooth->Body->Bounds.BoxExtent.Y+65; P.Z=95;
-        Move(0,P,FRotator(0,-90,0)); Move(1,FVector(-300,0,95)); Move(2,FVector(0,300,95)); Move(3,FVector(300,-200,95));
+        if (GS->ArenaTeeth.IsEmpty() || !IsValid(GS->ArenaTeeth[0])) { bFailed=true; return; }
+        auto* Tooth=GS->ArenaTeeth[0].Get(); FVector P=Tooth->GetActorLocation(); const float Side=FMath::Sign(P.Y);
+        P.Y-=Side*(Tooth->Body->Bounds.BoxExtent.Y+65); P.Z=95;
+        Move(0,P,FRotator(0,Side*90,0)); Move(1,FVector(-300,0,95)); Move(2,FVector(0,300,95)); Move(3,FVector(300,-200,95));
         Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>(); Flood->Start(GS->DayPlan,10);
     }
     UE_LOG(LogTemp,Display,TEXT("MC_DAY1_NET_STAGE %d"),Stage); ForceNetUpdate();

@@ -9,6 +9,7 @@ void FMCFoodRow::Sanitize()
 }
 UMCDayPlan::UMCDayPlan()
 {
+    CoffeeProfile=TSoftObjectPtr<UMCCoffeeProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_CoffeeWater.DA_CoffeeWater")));
     Menu=TSoftObjectPtr<UDataTable>(FSoftObjectPath(TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu")));
     auto Add=[&](EMCDayStep Step,float Seconds,const TCHAR* Title,const TCHAR* Hint)
     { FMCDayStepSettings S; S.Step=Step; S.Seconds=Seconds; S.Title=FText::FromString(Title); S.Instruction=FText::FromString(Hint); Steps.Add(S); };

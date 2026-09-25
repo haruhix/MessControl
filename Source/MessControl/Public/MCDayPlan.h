@@ -3,6 +3,7 @@
 #include "Engine/DataAsset.h"
 #include "Engine/DataTable.h"
 #include "MCDayPlan.generated.h"
+class UMCCoffeeProfile;
 
 UENUM(BlueprintType)
 enum class EMCDayStep : uint8 { BrushLesson, DiscardBrushes, BreakfastRain, BreakfastCleanup, CoffeeWaves, CoffeeCleanup, StuckFood, Complete };
@@ -54,6 +55,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float FlowAcceleration=320;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float PaddleAcceleration=400;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float AnchorReach=160;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") TSoftObjectPtr<UMCCoffeeProfile> CoffeeProfile;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ulcers") float UlcerHealSeconds=15;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ulcers") float UlcerDamagePerSecond=.35f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ulcers") float UlcerDisturbDamage=1;

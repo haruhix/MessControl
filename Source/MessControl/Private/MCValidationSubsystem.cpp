@@ -23,6 +23,7 @@
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
 #if !UE_BUILD_SHIPPING
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCCoffeeWaterTest"))) { TickCoffeeWater(DeltaSeconds); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCDevPanelSmoke"))) { TickDevPanel(DeltaSeconds); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCCore")) || FParse::Param(FCommandLine::Get(),TEXT("MCDayOne"))) return;
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLimbs"))) { TickLimbStability(DeltaSeconds); return; }

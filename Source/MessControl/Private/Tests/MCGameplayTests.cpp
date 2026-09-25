@@ -12,6 +12,7 @@
 #include "MCDayPlan.h"
 #include "MCMouthSurface.h"
 #include "MCCoffeeFlood.h"
+#include "MCCoffeeProfile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -639,6 +640,51 @@ bool FMCDevEventsTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Normal restart restores reserve"),Mouth.State->AvailableArenaTeeth(),8);
     Mouth.NextPhase();
     TestEqual(TEXT("Normal day starts with lesson"),Mouth.State->StepIndex,0);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCoffeeWaterTest,"MessControl.Coffee.SurfaceAndRagdollSwimming",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCoffeeWaterTest::RunTest(const FString& Parameters)
+{
+    const auto* Profile=LoadObject<UMCCoffeeProfile>(nullptr,TEXT("/Game/Data/DA_CoffeeWater.DA_CoffeeWater"));
+    if (!TestNotNull(TEXT("Artist-editable water profile exists"),Profile)) return false;
+    TestNotNull(TEXT("Subdivided water mesh exists"),Profile->SurfaceMesh.LoadSynchronous());
+    TestNotNull(TEXT("Coffee material instance exists"),Profile->SurfaceMaterial.LoadSynchronous());
+    FMCCoffeeWaterSettings Water=Profile->Settings; Water.Sanitize();
+    for (int32 I=0;I<24;++I)
+        TestTrue(TEXT("Physical ripples stay within visual amplitude"),FMath::Abs(Water.Ripple(FVector(I*73,-I*39,0),I*.37f))<=Water.RippleHeight+.001f);
+    const FVector Neutral=Water.FloatAcceleration(160,FVector(0,0,160-Water.FloatDepth),FVector::ZeroVector,FVector::ZeroVector,980,Water.FloatDepth);
+    TestTrue(TEXT("At draft depth buoyancy balances gravity"),FMath::IsNearlyEqual(Neutral.Z,980.f));
+    TestTrue(TEXT("Fast rising bodies receive less lift"),Water.FloatAcceleration(160,FVector(0,0,100),FVector(0,0,300),FVector::ZeroVector,980,Water.FloatDepth).Z<Neutral.Z);
+    TestTrue(TEXT("Extreme depth and speed have bounded force"),Water.FloatAcceleration(160,FVector(0,0,-10000),FVector(1e6,1e6,-1e6),FVector(1e5),980,20).Size()<=2400.01);
+    Water.RippleLength=std::numeric_limits<float>::quiet_NaN(); Water.WaterDrag=-3; Water.Sanitize();
+    TestTrue(TEXT("Invalid tuning sanitizes"),Water.RippleLength>=100 && Water.WaterDrag>=.5f);
+
+    FTestMouth Mouth; Mouth.State->Phase=EMCShiftPhase::Working;
+    Mouth.Mode->DayDirector=Mouth.World->SpawnActor<AMCDayDirector>();
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(2000,1500,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    auto* A=Mouth.Worker(); auto* B=Mouth.Worker();
+    A->SetActorLocation(FVector(-250,0,100)); B->SetActorLocation(FVector(250,0,100));
+    auto Tick=[&](){++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,1.f/60);};
+    for (int32 I=0;I<45;++I) Tick();
+    A->ToothPhysics->ApplyHit(FVector(0,0,450),A->GetActorLocation());
+    B->ToothPhysics->ApplyHit(FVector(0,0,450),B->GetActorLocation());
+    auto* Plan=NewObject<UMCDayPlan>(); Plan->FlowAcceleration=0; Plan->FloodHeight=160; Plan->WaveCount=1;
+    auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan,120);
+    for (int32 I=0;I<180;++I)
+    {
+        // Hold a wave crest to isolate buoyancy/control from the rising/falling event envelope.
+        Flood->StartedAt=Mouth.World->GetTimeSeconds()-60;
+        A->ServerPaddle(FVector2D(0,-1)); B->ServerPaddle(FVector2D(0,1)); Tick();
+    }
+    const FVector PA=A->ToothPhysics->PhysicalLocation(),PB=B->ToothPhysics->PhysicalLocation();
+    TestTrue(TEXT("Left paddle moves real ragdoll left"),PA.Y<-50);
+    TestTrue(TEXT("Right paddle moves real ragdoll right"),PB.Y>50);
+    TestTrue(TEXT("Both ragdolls stay at water surface"),FMath::Abs(PA.Z-Flood->SurfaceHeightAt(PA))<65 && FMath::Abs(PB.Z-Flood->SurfaceHeightAt(PB))<65);
+    TestTrue(TEXT("Swimming keeps bodies in ragdoll"),A->bInCoffee && B->bInCoffee && A->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll && B->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll);
+    TestFalse(TEXT("Cannot stand up in water"),A->ToothPhysics->TryRecover());
+    Flood->Stop(); TestFalse(TEXT("Draining clears water state"),A->bInCoffee || B->bInCoffee);
+    UE_LOG(LogTemp,Display,TEXT("MC_WATER_TEST left=%s right=%s"),*PA.ToString(),*PB.ToString());
     return true;
 }
 #endif

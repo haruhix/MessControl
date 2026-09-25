@@ -1,4 +1,4 @@
-param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel)
+param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 if (-not $EngineRoot) {
@@ -13,7 +13,7 @@ if ($Mode -eq 'Unit') {
     & $taskEditor $taskProject -unattended -nop4 -nosplash -nullrhi '-ExecCmds=Automation RunTests MessControl; Quit' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$taskRoot\Saved\TestReports" "-abslog=$taskLogs\Automation.log"
     if ($LASTEXITCODE -ne 0) { throw 'Unreal automation failed.' }
     $taskReport=Get-Content -Raw "$taskRoot\Saved\TestReports\index.json" | ConvertFrom-Json
-    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 19) { throw 'Not all gameplay and physics tests passed.' }
+    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 20) { throw 'Not all gameplay and physics tests passed.' }
 } elseif ($Mode -eq 'Limbs') {
     & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game -MCLegacyDays -MCLimbs -nullrhi -unattended -nosound -nop4 "-ExecCmds=t.MaxFPS $FrameRate" "-abslog=$taskLogs\Limbs$FrameRate.log"
     if ($LASTEXITCODE -ne 0 -or -not (Select-String -Path "$taskLogs\Limbs$FrameRate.log" -Pattern 'MC_LIMBS_PASS' -Quiet)) { throw 'Limb stability regression. See Limbs log.' }
@@ -34,6 +34,11 @@ if ($Mode -eq 'Unit') {
             if($Mode -eq 'CoreNetwork') { $taskArguments+='-MCCore' }
             if($Mode -eq 'DayOneNetwork') { $taskArguments+='-MCDayOne' }
             if($Mode -eq 'DevPanelNetwork') { $taskArguments+='-MCDevPanelSmoke' }
+            if($Mode -eq 'CoffeeNetwork') { $taskArguments+='-MCCoffeeWaterTest' }
+            if($CaptureCoffee -and $Mode -eq 'CoffeeNetwork' -and $taskIndex -eq 0) {
+                $taskArguments=@($taskArguments | Where-Object { $_ -ne '-nullrhi' -and $_ -notlike '-ExecCmds=*' })
+                $taskArguments+=@('-MCCoffeeWaterCapture','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages','-ExecCmds="t.MaxFPS 60,t.IdleWhenNotForeground 0"')
+            }
             if($CaptureDevPanel -and $Mode -eq 'DevPanelNetwork' -and $taskIndex -eq 0) {
                 $taskArguments=@($taskArguments | Where-Object { $_ -ne '-nullrhi' })
                 $taskArguments+=@('-MCDevPanelCapture','-RenderOffscreen','-windowed','-ForceRes','-ResX=1440','-ResY=900','-NoScreenMessages')

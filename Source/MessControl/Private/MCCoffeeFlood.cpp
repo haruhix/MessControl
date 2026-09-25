@@ -13,11 +13,12 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
+#include "GameFramework/PlayerState.h"
 #include "UObject/ConstructorHelpers.h"
 AMCCoffeeFlood::AMCCoffeeFlood()
 {
     bReplicates=true; bAlwaysRelevant=true; PrimaryActorTick.bCanEverTick=true;
-    Surface=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CoffeeSurface")); SetRootComponent(Surface);
+    Surface=CreateDefaultSubobject<UMCCoffeeSurfaceComponent>(TEXT("CoffeeSurface")); SetRootComponent(Surface);
     Surface->SetCollisionEnabled(ECollisionEnabled::NoCollision); Surface->SetCastShadow(false);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Plane(TEXT("/Engine/BasicShapes/Plane"));
     if (Plane.Succeeded()) Surface->SetStaticMesh(Plane.Object);
@@ -25,20 +26,44 @@ AMCCoffeeFlood::AMCCoffeeFlood()
 void AMCCoffeeFlood::BeginPlay()
 {
     Super::BeginPlay();
-    if (auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_CoffeeLiquid.M_CoffeeLiquid")))
-    { Material=UMaterialInstanceDynamic::Create(Base,this); Surface->SetMaterial(0,Material); }
+    if (!Profile) Profile=LoadObject<UMCCoffeeProfile>(nullptr,TEXT("/Game/Data/DA_CoffeeWater.DA_CoffeeWater"));
+    OnRep_Profile(); UpdateSurface();
+}
+void AMCCoffeeFlood::OnRep_Profile()
+{
+    if (Profile) if (auto* Mesh=Profile->SurfaceMesh.LoadSynchronous()) Surface->SetStaticMesh(Mesh);
+    UMaterialInterface* Base=Profile?Profile->SurfaceMaterial.LoadSynchronous():nullptr;
+    if (!Base) Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_CoffeeLiquid.M_CoffeeLiquid"));
+    if (Base) { Material=UMaterialInstanceDynamic::Create(Base,this); Surface->SetMaterial(0,Material); }
+    Surface->SetBoundsScale(1.1f);
 }
 void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float Duration)
 {
     if (!HasAuthority() || !Plan) return;
     Waves=Plan->WaveCount; Height=Plan->FloodHeight; Flow=Plan->FlowAcceleration; Paddle=Plan->PaddleAcceleration; Reach=Plan->AnchorReach; HalfSize=Plan->ArenaHalfSize;
+    Profile=Plan->CoffeeProfile.LoadSynchronous();
+    WaterSettings=Profile?Profile->Settings:FMCCoffeeWaterSettings(); WaterSettings.Sanitize(); OnRep_Profile();
     Seconds=FMath::Max(1.f,Duration); StartedAt=GetWorld()->GetTimeSeconds(); Wave=0; bActive=true; ForceNetUpdate();
 }
-bool AMCCoffeeFlood::Contains(FVector P) const { return bActive && FMath::Abs(P.X)<HalfSize.X && FMath::Abs(P.Y)<HalfSize.Y && P.Z<Level+35 && P.Z>-200; }
+float AMCCoffeeFlood::WaterTime() const
+{
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    return FMath::Clamp(float((GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds())-StartedAt),0.f,Seconds);
+}
+float AMCCoffeeFlood::BaseHeight(float T) const
+{
+    return FMath::Lerp(10.f,Height,FMath::Sin(FMath::Frac(T/FMath::Max(1.f,Seconds)*Waves)*PI));
+}
+float AMCCoffeeFlood::SurfaceHeightAt(FVector P) const
+{
+    const float T=WaterTime(); return BaseHeight(T)+WaterSettings.Ripple(P,T);
+}
+bool AMCCoffeeFlood::Contains(FVector P) const { return bActive && !P.ContainsNaN() && FMath::Abs(P.X)<HalfSize.X && FMath::Abs(P.Y)<HalfSize.Y && P.Z<SurfaceHeightAt(P)+35 && P.Z>-200; }
 void AMCCoffeeFlood::Stop()
 {
     if (!HasAuthority()) return;
     bActive=false; Level=-40; ForceNetUpdate();
+    Surface->SetVisibility(false);
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) { It->bInCoffee=false; It->ClingTooth=nullptr; It->ForceNetUpdate(); }
 }
 void AMCCoffeeFlood::Tick(float Dt)
@@ -48,12 +73,12 @@ void AMCCoffeeFlood::Tick(float Dt)
     if (HasAuthority() && bActive)
     {
         if (!GS || GS->Phase!=EMCShiftPhase::Working) { Stop(); return; }
-        const float Age=GetWorld()->GetTimeSeconds()-StartedAt;
+        const float Age=WaterTime();
         if (Age>=Seconds) { Stop(); return; }
         const float Cycle=Age/Seconds*Waves; const int32 Current=FMath::FloorToInt(Cycle)+1;
         if (Current!=Wave) { Wave=Current; HitThisWave.Empty(); ForceNetUpdate(); }
         // Four smooth rises and troughs; gameplay volume matches this cheap visible surface.
-        Level=FMath::Lerp(10.f,Height,FMath::Sin(FMath::Frac(Cycle)*PI));
+        Level=BaseHeight(Age);
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         {
             auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
@@ -80,10 +105,9 @@ void AMCCoffeeFlood::Tick(float Dt)
             if (Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll)
             {
                 const FVector V=Hero->GetMesh()->GetPhysicsLinearVelocity(Hero->RigBone(TEXT("body")));
-                const float Buoyancy=FMath::Clamp((Level-P.Z)*18.f-V.Z*4.f+980.f,0.f,1800.f);
-                FVector A=CurrentForce+FVector(Hero->PaddleInput.X,Hero->PaddleInput.Y,0)*Paddle-V*1.2f+FVector(0,0,Buoyancy);
-                if (Hero->ClingTooth) A=(Hero->ClingPoint-P)*35.f-V*8.f+FVector(0,0,980);
-                A=A.GetClampedToMaxSize(2200);
+                const float Gravity=FMath::Abs(GetWorld()->GetGravityZ());
+                FVector A=WaterSettings.FloatAcceleration(SurfaceHeightAt(P),P,V,CurrentForce+FVector(Hero->PaddleInput.X,Hero->PaddleInput.Y,0)*Paddle,Gravity,WaterSettings.FloatDepth);
+                if (Hero->ClingTooth) A=((Hero->ClingPoint-P)*35.f-V*8.f+FVector(0,0,Gravity)).GetClampedToMaxSize(2400);
                 Hero->GetMesh()->AddForceToAllBodiesBelow(A,Hero->RigBone(TEXT("body")),true,true);
             }
             else if (Hero->ToothPhysics->CanAct())
@@ -94,9 +118,39 @@ void AMCCoffeeFlood::Tick(float Dt)
         }
         for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
             if (It->Body->IsSimulatingPhysics() && Contains(It->GetActorLocation()))
-            { const FVector V=It->Body->GetPhysicsLinearVelocity(); It->Body->AddForce((FVector(Flow,0,FMath::Clamp((Level-It->GetActorLocation().Z)*12+980.f,0.f,1500.f))-V*2)*It->Settings.Mass); }
+            {
+                const FVector P=It->GetActorLocation(), V=It->Body->GetPhysicsLinearVelocity();
+                const float Draft=It->Body->GetScaledBoxExtent().Z*.35f;
+                It->Body->AddForce(WaterSettings.FloatAcceleration(SurfaceHeightAt(P),P,V,FVector(Flow,0,0),FMath::Abs(GetWorld()->GetGravityZ()),Draft)*It->Settings.Mass);
+            }
     }
-    Surface->SetVisibility(bActive); Surface->SetWorldLocation(FVector(0,0,Level)); Surface->SetWorldScale3D(FVector(HalfSize.X/50,HalfSize.Y/50,1));
+    UpdateSurface();
+}
+void AMCCoffeeFlood::UpdateSurface()
+{
+    Surface->SetVisibility(bActive); if (!bActive) return;
+    const float T=WaterTime();
+    Surface->SetWorldLocation(FVector(0,0,BaseHeight(T))); Surface->SetWorldScale3D(FVector(HalfSize.X/50,HalfSize.Y/50,1));
+    if (!Material) return;
+    Material->SetScalarParameterValue(TEXT("WaterTime"),T);
+    Material->SetScalarParameterValue(TEXT("RippleHeight"),WaterSettings.RippleHeight);
+    Material->SetScalarParameterValue(TEXT("RippleLength"),WaterSettings.RippleLength);
+    Material->SetScalarParameterValue(TEXT("RippleSpeed"),WaterSettings.RippleSpeed);
+    Material->SetVectorParameterValue(TEXT("ArenaSize"),FLinearColor(HalfSize.X,HalfSize.Y,0,0));
+    // Four local visual wakes, derived from the already replicated ragdoll poses (no extra RPCs).
+    TArray<AMCToothCharacter*> Heroes;
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if (It->GetPlayerState() && It->bInCoffee) Heroes.Add(*It);
+    Heroes.Sort([](const AMCToothCharacter& A,const AMCToothCharacter& B){return A.GetPlayerState()->GetPlayerId()<B.GetPlayerState()->GetPlayerId();});
+    for (int32 I=0;I<4;++I)
+    {
+        FLinearColor Wake(0,0,0,0);
+        if (Heroes.IsValidIndex(I))
+        {
+            const FVector P=Heroes[I]->ToothPhysics->PhysicalLocation();
+            Wake=FLinearColor(P.X,P.Y,1,Heroes[I]->ClingTooth?.45f:1.f);
+        }
+        Material->SetVectorParameterValue(FName(*FString::Printf(TEXT("Wake%d"),I)),Wake);
+    }
 }
 void AMCCoffeeFlood::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -104,4 +158,5 @@ void AMCCoffeeFlood::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AMCCoffeeFlood,bActive); DOREPLIFETIME(AMCCoffeeFlood,Level); DOREPLIFETIME(AMCCoffeeFlood,Wave); DOREPLIFETIME(AMCCoffeeFlood,Waves);
     DOREPLIFETIME(AMCCoffeeFlood,Height); DOREPLIFETIME(AMCCoffeeFlood,Flow); DOREPLIFETIME(AMCCoffeeFlood,Paddle); DOREPLIFETIME(AMCCoffeeFlood,Reach);
     DOREPLIFETIME(AMCCoffeeFlood,HalfSize); DOREPLIFETIME(AMCCoffeeFlood,StartedAt); DOREPLIFETIME(AMCCoffeeFlood,Seconds);
+    DOREPLIFETIME(AMCCoffeeFlood,Profile); DOREPLIFETIME(AMCCoffeeFlood,WaterSettings);
 }
