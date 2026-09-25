@@ -70,7 +70,8 @@ private:
     bool bJamOnLanding=false;
     bool bLandingPending=false;
     float LastPullTime=0;
-    FVector PreviousVelocity=FVector::ZeroVector;
+    // Sampled in the actor's PrePhysics tick, before contact impulses change velocity.
+    FVector PrePhysicsVelocity=FVector::ZeroVector;
     TMap<TWeakObjectPtr<AActor>,double> LastHit;
     TMap<TWeakObjectPtr<AMCToothCharacter>,FVector> GripOffsets;
 };

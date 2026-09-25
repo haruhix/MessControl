@@ -92,7 +92,7 @@ void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
     if (HasAuthority()) for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]);
     Super::EndPlay(Reason);
 }
-void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
+void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent* OtherComponent,FVector,const FHitResult& Hit)
 {
     if (!HasAuthority() || IsDisposed() || !IsValid(Other)) return;
     if (Phase==EMCFoodPhase::Falling && Hit.ImpactNormal.Z>.6f && OtherComponent && OtherComponent->GetCollisionObjectType()==ECC_WorldStatic)
@@ -100,9 +100,17 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
     UMCToothStatusComponent* Target=Other->FindComponentByClass<UMCToothStatusComponent>();
     if (!Target || !Target->IsAlive() || Phase==EMCFoodPhase::Stuck) return;
     if (const auto* Arena=Cast<AMCArenaTooth>(Other); Arena && !Arena->IsAvailable()) return;
+    if (const auto* Hero=Cast<AMCToothCharacter>(Other); Hero && Holders.Contains(Hero)) return;
     const double Now=GetWorld()->GetTimeSeconds();
     if (const double* Prev=LastHit.Find(Other); Prev && Now-*Prev<Settings.HitCooldown) return;
-    const float Speed=FMath::Max((PreviousVelocity-Other->GetVelocity()).Size(),Impulse.Size()/Settings.Mass);
+    // A player running into stationary food must not turn their own speed (or the
+    // solver's separation impulse) into a new attack. Require the food's incoming
+    // motion before collision resolution, then check that the two bodies approach.
+    const FVector Approach=-Hit.ImpactNormal.GetSafeNormal();
+    const float IncomingSpeed=FVector::DotProduct(PrePhysicsVelocity,Approach);
+    if (!FMath::IsFinite(IncomingSpeed) || IncomingSpeed<Settings.ImpactSpeed) return;
+    const float Speed=FVector::DotProduct(PrePhysicsVelocity-Other->GetVelocity(),Approach);
+    if (!FMath::IsFinite(Speed)) return;
     if (Speed<Settings.ImpactSpeed) return;
     LastHit.Add(Other,Now); ++ConfirmedImpacts;
     FVector Direction=(Other->GetActorLocation()-GetActorLocation()).GetSafeNormal2D();
@@ -154,7 +162,7 @@ void AMCFoodActor::Tick(float Dt)
         // An escaped item returns to the arena, never counts as successfully disposed.
         if (GetActorLocation().Z<-250)
         { for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]); SetActorLocation(FVector(0,0,Settings.DropHeight),false,nullptr,ETeleportType::TeleportPhysics); Body->SetPhysicsLinearVelocity(FVector::ZeroVector); }
-        PreviousVelocity=Body->GetPhysicsLinearVelocity();
+        PrePhysicsVelocity=Body->GetPhysicsLinearVelocity();
     }
     Label->SetText(FText::FromString(Phase==EMCFoodPhase::Stuck?FString::Printf(TEXT("E + MOVE TO CENTRE\nPULL %.0f%% | %d GRIPS"),PullProgress*100,Holders.Num()):TEXT("HOLD E: DRAG\nTO THROAT >>>")));
     if (const auto* PC=GetWorld()->GetFirstPlayerController(); PC && PC->PlayerCameraManager)

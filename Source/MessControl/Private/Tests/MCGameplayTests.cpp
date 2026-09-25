@@ -375,10 +375,12 @@ bool FMCFoodInteractionTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Directional pulling frees food"),Food->Phase,EMCFoodPhase::Free);
     Food->Dispose(); TestTrue(TEXT("Disposal releases grip and hides food"),!A->HeldFood && Food->IsDisposed() && Food->IsHidden());
     TestFalse(TEXT("Disposed food cannot be grabbed again"),Food->TryGrab(A));
-    auto* ImpactFood=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,350),FRotator::ZeroRotator);
+    A->bHandling=false; A->GetCharacterMovement()->Velocity=FVector::ZeroVector;
     // Advance past the spawn recovery grace period. Synthetic contact uses the real hit delegate.
     for (int32 I=0;I<8;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
-    FHitResult Hit; Hit.ImpactPoint=A->GetActorLocation();
+    auto* ImpactFood=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,350),FRotator::ZeroRotator);
+    ImpactFood->Body->SetPhysicsLinearVelocity(FVector(0,0,-700)); ImpactFood->Tick(.016f);
+    FHitResult Hit; Hit.ImpactPoint=A->GetActorLocation(); Hit.ImpactNormal=FVector::UpVector;
     ImpactFood->Body->OnComponentHit.Broadcast(ImpactFood->Body,A,A->GetCapsuleComponent(),FVector(0,0,9000),Hit);
     const float Health=A->Status->State.Health;
     TestTrue(TEXT("Food impact damages player"),Health<100);
@@ -386,6 +388,44 @@ bool FMCFoodInteractionTest::RunTest(const FString& Parameters)
     ImpactFood->Body->OnComponentHit.Broadcast(ImpactFood->Body,A,A->GetCapsuleComponent(),FVector(0,0,9000),Hit);
     TestEqual(TEXT("Duplicate physics callbacks do not deal damage twice"),A->Status->State.Health,Health);
     TestNotNull(TEXT("Food tuning asset exists"),LoadObject<UMCFoodProfile>(nullptr,TEXT("/Game/Data/DA_FoodPhysics.DA_FoodPhysics")));
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodApproachTest,"MessControl.Gameplay.RestingFoodDoesNotLaunchPlayers",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodApproachTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; auto* Hero=Mouth.Worker();
+    Hero->SetActorLocation(FVector(-100,0,100)); Hero->SetActorRotation(FRotator::ZeroRotator);
+    // Exit the spawn grace period so an accidental knockdown cannot be masked by invulnerability.
+    for (int32 I=0;I<8;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
+    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,100),FRotator::ZeroRotator);
+    Food->Phase=EMCFoodPhase::Free;
+    FHitResult Hit; Hit.ImpactPoint=Hero->GetActorLocation(); Hit.ImpactNormal=FVector::ForwardVector;
+    auto Contact=[&](FVector FoodVelocity,FVector HeroVelocity)
+    {
+        Hero->GetCharacterMovement()->Velocity=HeroVelocity;
+        Food->Body->SetPhysicsLinearVelocity(FoodVelocity); Food->Tick(.016f);
+        // Even a large solver impulse must not substitute for incoming food velocity.
+        Food->Body->OnComponentHit.Broadcast(Food->Body,Hero,Hero->GetCapsuleComponent(),FVector(9000,0,0),Hit);
+    };
+    Contact(FVector::ZeroVector,FVector(440,0,0));
+    TestEqual(TEXT("Running into resting food does not deal damage"),Hero->Status->State.Health,100.f);
+    TestTrue(TEXT("Running into resting food leaves the player standing"),Hero->ToothPhysics->CanAct());
+    Contact(FVector(500,0,0),FVector::ZeroVector);
+    TestEqual(TEXT("Food moving away does not launch the player"),Food->ConfirmedImpacts,0);
+    Contact(FVector(0,500,0),FVector::ZeroVector);
+    TestEqual(TEXT("Tangential motion does not count as an incoming strike"),Food->ConfirmedImpacts,0);
+    Contact(FVector(-20,0,0),FVector(440,0,0));
+    TestEqual(TEXT("Player speed cannot amplify a slow food nudge into a strike"),Food->ConfirmedImpacts,0);
+    Contact(FVector(-500,0,0),FVector(-700,0,0));
+    TestEqual(TEXT("Separating bodies do not produce a strike"),Food->ConfirmedImpacts,0);
+    Hero->bHandling=true;
+    TestTrue(TEXT("Approached food remains grabbable"),Food->TryGrab(Hero));
+    Contact(FVector(-500,0,0),FVector::ZeroVector);
+    TestEqual(TEXT("Carried food does not strike its own holder"),Food->ConfirmedImpacts,0);
+    Food->Release(Hero);
+    Contact(FVector(-600,0,0),FVector::ZeroVector);
+    TestEqual(TEXT("Genuinely incoming free food still strikes once"),Food->ConfirmedImpacts,1);
+    TestTrue(TEXT("Real strike damages and knocks down"),Hero->Status->State.Health<100 && Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll);
     return true;
 }
 #endif
