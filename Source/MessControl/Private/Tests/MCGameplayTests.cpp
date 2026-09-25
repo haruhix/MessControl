@@ -5,6 +5,8 @@
 #include "MCTaskActor.h"
 #include "MCToothCharacter.h"
 #include "MCArenaTooth.h"
+#include "MCArenaToothSocket.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
@@ -264,6 +266,27 @@ bool FMCArenaBrushTest::RunTest(const FString& Parameters)
     for (int32 I=0;I<3;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,0.1f); }
     TestEqual(TEXT("One validated swing deals one hit"),Tooth->State.Health,75.f);
     TestEqual(TEXT("One confirmed arena hit"),Worker->ConfirmedHitCount,1);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArenaPlacementTest,"MessControl.Gameplay.ArenaAuthoredPlacement",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCArenaPlacementTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth;
+    auto* Left=Mouth.World->SpawnActor<AMCArenaToothSocket>(FVector(-320,-815,0),FRotator(0,10,3));
+    auto* Right=Mouth.World->SpawnActor<AMCArenaToothSocket>(FVector(420,815,0),FRotator::ZeroRotator);
+    Left->ToothId=7; Left->SetActorScale3D(FVector(2,2,3));
+    Right->ToothId=2; Right->SetActorScale3D(FVector(3,2,2));
+    Mouth.Mode->RestartShift();
+    TestEqual(TEXT("Only authored teeth, no extra inner row"),Mouth.State->ArenaTeeth.Num(),2);
+    TestEqual(TEXT("Order follows authored identity"),Mouth.State->ArenaTeeth[0]->State.ToothId,2);
+    AMCArenaTooth* Tooth=Mouth.State->ArenaTeeth[1];
+    TestEqual(TEXT("Authored ID retained"),Tooth->State.ToothId,7);
+    TestTrue(TEXT("Original mesh pivot, rotation and scale retained"),Tooth->Visual->GetComponentTransform().Equals(Left->Preview->GetComponentTransform(),0.01f));
+    TestTrue(TEXT("Editor preview hidden in gameplay"),Left->Preview->bHiddenInGame);
+    Tooth->ReceiveArenaHit(100,FVector(0,1,0));
+    TestEqual(TEXT("Losing a row tooth removes a concrete reserve"),Mouth.State->AvailableArenaTeeth(),1);
+    Mouth.Mode->RestartShift();
+    TestEqual(TEXT("Restart keeps authored layout"),Mouth.State->ArenaTeeth.Num(),2);
     return true;
 }
 #endif

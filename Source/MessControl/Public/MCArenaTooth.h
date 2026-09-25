@@ -8,6 +8,15 @@ class UBoxComponent;
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class UTextRenderComponent;
+class UStaticMesh;
+
+USTRUCT()
+struct FMCArenaToothAppearance
+{
+    GENERATED_BODY()
+    UPROPERTY() TObjectPtr<UStaticMesh> Mesh;
+    UPROPERTY() FVector MeshScale=FVector(2.15,2.15,2.45);
+};
 
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCArenaToothSettings
@@ -59,6 +68,8 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Initialize(int32 Id,const FMCArenaToothSettings& Defaults);
+    // Call before FinishSpawning. The actor root is the mesh bounds centre, independent of its asset pivot.
+    void SetAppearance(UStaticMesh* Mesh,FVector Scale);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") bool ReceiveArenaHit(float Damage,FVector Direction);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") void SetCoffee(float Amount);
     UFUNCTION(BlueprintPure, Category="Arena Tooth") bool IsAvailable() const { return !State.bLost && State.Health>0; }
@@ -69,6 +80,8 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> Label;
 private:
+    UFUNCTION() void ApplyAppearance();
+    UPROPERTY(ReplicatedUsing=ApplyAppearance) FMCArenaToothAppearance Appearance;
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     FVector MeshBaseLocation=FVector::ZeroVector;

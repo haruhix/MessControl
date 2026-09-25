@@ -1,6 +1,10 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
+#include "MCArenaToothSocket.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
+#include "EngineUtils.h"
 #include "MCArenaDemo.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -73,17 +77,26 @@ void AMCGameMode::RestartShift()
     for (AMCArenaTooth* Tooth:State->ArenaTeeth) if (IsValid(Tooth)) Tooth->Destroy();
     State->ArenaTeeth.Empty();
     const UMCArenaToothProfile* ToothProfile=ArenaToothProfile.LoadSynchronous();
-    const int32 Count=State->RunSettings.InitialArenaTeeth;
+    TArray<AMCArenaToothSocket*> Sockets;
+    for (TActorIterator<AMCArenaToothSocket> It(GetWorld());It;++It) Sockets.Add(*It);
+    Sockets.Sort([](const AMCArenaToothSocket& A,const AMCArenaToothSocket& B){return A.ToothId<B.ToothId;});
+    // Blank test maps retain a native fallback. Authored maps never get an extra inner row.
+    const int32 Count=Sockets.IsEmpty()?State->RunSettings.InitialArenaTeeth:FMath::Min(State->RunSettings.InitialArenaTeeth,Sockets.Num());
     const int32 PerSide=FMath::DivideAndRoundUp(Count,2);
+    UStaticMesh* DefaultMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Art/Meshes/SM_ToothProp.SM_ToothProp"));
     for (int32 I=0;I<Count;++I)
     {
         const int32 Row=I/2;
-        const float X=PerSide<=1?0.f:FMath::Lerp(-740.f,740.f,float(Row)/float(PerSide-1));
-        const FTransform Transform(FVector(X,I%2?660.f:-660.f,110));
+        const float X=PerSide<=1?0.f:FMath::Lerp(-890.f,965.f,float(Row)/float(PerSide-1));
+        const FTransform MeshTransform=Sockets.IsEmpty()?FTransform(FQuat::Identity,FVector(X,I%2?815.f:-815.f,0),FVector(2.15,2.15,2.45)):Sockets[I]->Preview->GetComponentTransform();
+        UStaticMesh* Mesh=Sockets.IsEmpty()?DefaultMesh:Sockets[I]->Preview->GetStaticMesh().Get();
+        if (!Mesh) continue;
+        const FTransform Transform(MeshTransform.GetRotation(),MeshTransform.TransformPosition(Mesh->GetBounds().Origin));
         auto* Tooth=GetWorld()->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),Transform,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if (Tooth)
         {
-            Tooth->Initialize(I+1,ToothProfile?ToothProfile->Settings:FMCArenaToothSettings());
+            Tooth->SetAppearance(Mesh,MeshTransform.GetScale3D());
+            Tooth->Initialize(Sockets.IsEmpty()?I+1:Sockets[I]->ToothId,ToothProfile?ToothProfile->Settings:FMCArenaToothSettings());
             UGameplayStatics::FinishSpawningActor(Tooth,Transform); State->ArenaTeeth.Add(Tooth);
         }
     }

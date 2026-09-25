@@ -6,7 +6,7 @@
 
 Целевой дизайн: [GDD 0.2](Docs/GDD.md) и [технические решения новых систем](Docs/SystemsDesign.md). Эти документы описывают дальнейшую разработку; реализованный прототип описан в [архитектуре](Docs/Architecture.md).
 
-[Разработка по шагам](Docs/DevelopmentSteps.md) — что уже добавлено, зачем нужен каждый файл и как проверить результат в Unreal. Текущий шаг: **2 — восемь зубов арены, налёт, урон и выпадение**. [Видео поведения из Unreal](Artifacts/Step02_ArenaTeeth.mp4).
+[Разработка по шагам](Docs/DevelopmentSteps.md) — что уже добавлено, зачем нужен каждый файл и как проверить результат в Unreal. Текущий шаг: **2 — восемь больших зубов рта, по четыре в боковых рядах: налёт, урон и выпадение**. [Видео поведения из Unreal](Artifacts/Step02_ArenaTeeth.mp4).
 
 ![Арена и персонажи — предпросмотр исходной Blender-сцены](Artifacts/Mouth_ArtPreview.png)
 
@@ -83,6 +83,7 @@
 |---|---|
 | `Content/Data/DA_RunRules` | Общие HP, дни, лимит игроков, начальное число зубов арены |
 | `Content/Data/DA_ArenaTooth` | Прочность зубов арены, урон, порог расшатывания, реакции и выпадение |
+| `ARENA / Tooth 01`…`08` в Outliner карты | Положение, модель, масштаб и ID больших зубов рта; отдельный внутренний ряд не создаётся |
 | `Content/Data/DA_ToothAnimation` | Squash, stretch, bob, lean, follow through, tempo, anticipation, exaggeration |
 | `Content/Data/DA_ToothPhysics` | Отлёт, подброс, порог падения, время ragdoll и подъёма, сила мышц, масса |
 | `Content/Art/Rig/SK_ToothHero`, `PA_ToothHero` | Скелет, skin weights, morph targets и семь физических тел с ограничениями суставов |

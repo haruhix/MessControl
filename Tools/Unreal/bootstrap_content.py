@@ -110,7 +110,7 @@ else:
     if library.does_asset_exist(map_path):
         if not levels.load_level(map_path): raise RuntimeError("Could not load mouth map")
         for existing in actors.get_all_level_actors():
-            if existing.get_actor_label().startswith(("ART |", "COLLISION |", "START |", "LIGHT |")) or isinstance(existing,ue.SkyLight):
+            if existing.get_actor_label().startswith(("ART |", "ARENA |", "COLLISION |", "START |", "LIGHT |")) or isinstance(existing,ue.SkyLight):
                 actors.destroy_actor(existing)
     elif not levels.new_level(map_path):
         raise RuntimeError("Could not create mouth map")
@@ -158,3 +158,4 @@ library.save_directory("/Game",only_if_is_dirty=True,recursive=True)
 # Later development steps have focused, idempotent asset generators of their own.
 import runpy
 runpy.run_path(str(ROOT / "Tools" / "Unreal" / "create_arena_tooth.py"))
+runpy.run_path(str(ROOT / "Tools" / "Unreal" / "place_arena_teeth.py"))

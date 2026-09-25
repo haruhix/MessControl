@@ -1,6 +1,7 @@
 #include "MCValidationSubsystem.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
+#include "Components/StaticMeshComponent.h"
 #include "MCPlayerController.h"
 #include "MCToothCharacter.h"
 #include "MCTaskActor.h"
@@ -89,7 +90,8 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
             AMCArenaTooth* Arena=State->ArenaTeeth[2];
             if (IsValid(Arena))
             {
-                bArenaInitial |= State->AvailableArenaTeeth()==8 && Arena->State.Health==100;
+                bArenaInitial |= State->AvailableArenaTeeth()==8 && Arena->State.Health==100 &&
+                    Arena->Visual->Bounds.BoxExtent.Z>100 && FMath::Abs(Arena->GetActorLocation().Y)>750;
                 if (Arena->HasAuthority() && State->PlayerArray.Num()==4 && ArenaReadyAt<0) ArenaReadyAt=Age;
                 // PlayerState exists on the host before the new client has received its initial actor bunches.
                 if (Arena->HasAuthority() && ArenaReadyAt>=0 && Age>ArenaReadyAt+6 && ArenaStage==0)

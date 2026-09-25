@@ -13,7 +13,7 @@ Get-ChildItem -LiteralPath $taskFrames -Filter 'Frame*.png' -File | ForEach-Obje
 $taskLog=Join-Path $taskRoot 'Saved\Logs\ArenaDemo.log'
 New-Item -ItemType Directory -Path (Split-Path $taskLog) -Force | Out-Null
 if (Test-Path -LiteralPath $taskLog) { Remove-Item -LiteralPath $taskLog }
-$taskArgs=@("`"$taskRoot\MessControl.uproject`"",'/Game/Maps/L_Mouth?Seed=41','-game','-MCArenaDemo','-UseFixedTimeStep','-FPS=30','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-unattended','-nosound','-nosplash','-nop4',"`"-abslog=$taskLog`"")
+$taskArgs=@("`"$taskRoot\MessControl.uproject`"",'/Game/Maps/L_Mouth?Seed=41','-game','-MCArenaDemo','-UseFixedTimeStep','-FPS=30','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-unattended','-nosound','-nosplash','-nop4','-NoScreenMessages',"`"-abslog=$taskLog`"")
 $taskProcess=Start-Process -FilePath "$EngineRoot\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" -WindowStyle Hidden -ArgumentList $taskArgs -PassThru
 try {
     if (-not $taskProcess.WaitForExit(1200000)) { throw 'Arena recording timed out.' }

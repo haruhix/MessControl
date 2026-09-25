@@ -28,7 +28,7 @@ AMCArenaTooth::AMCArenaTooth()
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnimatedEnamel")); Visual->SetupAttachment(Body);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Art/Meshes/SM_ToothProp"));
-    if (Mesh.Succeeded()) Visual->SetStaticMesh(Mesh.Object);
+    if (Mesh.Succeeded()) { Visual->SetStaticMesh(Mesh.Object); Appearance.Mesh=Mesh.Object; }
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("ToothIdentity")); Label->SetupAttachment(Body);
     Label->SetRelativeLocation(FVector(0,0,112)); Label->SetWorldSize(19); Label->SetHorizontalAlignment(EHTA_Center);
     Label->SetTextRenderColor(FColor(135,255,218)); Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -43,18 +43,29 @@ void AMCArenaTooth::BeginPlay()
     Super::BeginPlay();
     Body->OnComponentHit.AddDynamic(this,&AMCArenaTooth::OnBodyHit);
     Body->SetMassOverrideInKg(NAME_None,14,true);
-    if (const UStaticMesh* Mesh=Visual->GetStaticMesh())
-    {
-        const FBoxSphereBounds Bounds=Mesh->GetBounds();
-        MeshBaseScale=FVector(156.f/FMath::Max(1.f,Bounds.BoxExtent.Z*2));
-        MeshBaseLocation=-Bounds.Origin*MeshBaseScale;
-        Visual->SetRelativeScale3D(MeshBaseScale); Visual->SetRelativeLocation(MeshBaseLocation);
-    }
+    ApplyAppearance();
     if (auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth")))
     {
         Material=UMaterialInstanceDynamic::Create(Base,this);
         for (int32 I=0;I<Visual->GetNumMaterials();++I) Visual->SetMaterial(I,Material);
     }
+}
+void AMCArenaTooth::SetAppearance(UStaticMesh* Mesh,FVector Scale)
+{
+    if (!HasAuthority() || !Mesh || Scale.ContainsNaN()) return;
+    Appearance.Mesh=Mesh; Appearance.MeshScale=Scale.GetAbs().ComponentMax(FVector(0.01));
+}
+void AMCArenaTooth::ApplyAppearance()
+{
+    if (!Appearance.Mesh) return;
+    Visual->SetStaticMesh(Appearance.Mesh);
+    const FBoxSphereBounds Bounds=Appearance.Mesh->GetBounds();
+    MeshBaseScale=Appearance.MeshScale;
+    MeshBaseLocation=-Bounds.Origin*MeshBaseScale;
+    Visual->SetRelativeScale3D(MeshBaseScale); Visual->SetRelativeLocation(MeshBaseLocation);
+    Body->SetBoxExtent(Bounds.BoxExtent*MeshBaseScale*0.9f);
+    Label->SetRelativeLocation(FVector(0,0,Bounds.BoxExtent.Z*MeshBaseScale.Z+35));
+    if (Material) for (int32 I=0;I<Visual->GetNumMaterials();++I) Visual->SetMaterial(I,Material);
 }
 bool AMCArenaTooth::ReceiveArenaHit(float Damage,FVector Direction)
 {
@@ -95,6 +106,8 @@ void AMCArenaTooth::Tick(float DeltaSeconds)
             Body->SetSimulatePhysics(true);
             if (HasAuthority())
             {
+                // Authored roots sit slightly inside the gum. Extract them before the physics launch.
+                SetActorLocation(GetActorLocation()+FVector(0,0,25),false,nullptr,ETeleportType::TeleportPhysics);
                 Body->AddImpulse(State.HitDirection*Settings.FallSpeed+FVector(0,0,Settings.FallLift),NAME_None,true);
                 Body->AddAngularImpulseInDegrees(FVector(-State.HitDirection.Y,State.HitDirection.X,0.15f)*220,NAME_None,true);
                 ForceNetUpdate();
@@ -124,4 +137,5 @@ void AMCArenaTooth::OnBodyHit(UPrimitiveComponent*,AActor*,UPrimitiveComponent* 
 void AMCArenaTooth::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCArenaTooth,State); DOREPLIFETIME(AMCArenaTooth,Settings);
+    DOREPLIFETIME(AMCArenaTooth,Appearance);
 }

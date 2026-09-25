@@ -14,7 +14,7 @@ class AMCArenaDemo : public AActor
 public:
     AMCArenaDemo();
     virtual void Tick(float DeltaSeconds) override;
-    float Age=-2;
+    float Age=-4;
     UPROPERTY() TObjectPtr<AMCArenaTooth> Subject;
 private:
     UPROPERTY() TObjectPtr<ACameraActor> Camera;

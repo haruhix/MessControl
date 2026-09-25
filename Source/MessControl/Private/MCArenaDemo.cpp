@@ -14,6 +14,9 @@
 #include "UnrealClient.h"
 #include "Misc/Paths.h"
 #include "HAL/FileManager.h"
+#if WITH_EDITOR
+#include "ShaderCompiler.h"
+#endif
 
 AMCArenaDemo::AMCArenaDemo() { PrimaryActorTick.bCanEverTick=true; }
 void AMCArenaDemo::Tick(float Dt)
@@ -41,6 +44,9 @@ void AMCArenaDemo::Tick(float Dt)
         Light->PointLightComponent->SetSourceRadius(100); Light->PointLightComponent->SetCastShadows(false);
         IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("ArenaDemoFrames")),true);
     }
+#if WITH_EDITOR
+    if (GShaderCompilingManager && GShaderCompilingManager->IsCompiling()) return;
+#endif
     Age+=Dt;
     if (Age>=5 && Stage==0) { Subject->SetCoffee(1); ++Stage; }
     if (Age>=9 && Stage==1) { Subject->ReceiveArenaHit(25,FVector(0,1,0)); ++Stage; }
@@ -49,9 +55,9 @@ void AMCArenaDemo::Tick(float Dt)
     if (Age>=17 && Stage==4) { Subject->ReceiveArenaHit(25,FVector(0,1,0)); ++Stage; }
     const float Zoom=FMath::SmoothStep(1.5f,4.f,Age);
     const float PullBack=FMath::SmoothStep(16.f,18.5f,Age);
-    const FVector Close=Anchor+FVector(-400,440,220);
-    const FVector FallView=Anchor+FVector(-650,640,410);
-    const FVector Position=FMath::Lerp(FVector(-1750,0,850),FMath::Lerp(Close,FallView,PullBack),Zoom);
+    const FVector Close=Anchor+FVector(-530,610,250);
+    const FVector FallView=Anchor+FVector(-700,730,420);
+    const FVector Position=FMath::Lerp(FVector(-2750,0,1050),FMath::Lerp(Close,FallView,PullBack),Zoom);
     const FVector Aim=FMath::Lerp(FVector(0,0,110),Anchor+FVector(0,110*PullBack,25),Zoom);
     Camera->SetActorLocationAndRotation(Position,(Aim-Position).Rotation());
     if (Age>=0 && Age<23)
@@ -79,14 +85,14 @@ void AMCArenaDemoHUD::DrawHUD()
     DrawRect(Back,24*S,24*S,670*S,99*S);
     Text(TEXT("MESS / CONTROL    |    STEP 02"),42,36,1.25f,Mint);
     const float T=Demo->Age;
-    const TCHAR* Title=T<5?TEXT("01   Eight arena teeth"):T<9?TEXT("02   Coffee coats the enamel"):T<13?TEXT("03   Damage / squash / recoil"):T<17?TEXT("04   Low health: loose tooth"):TEXT("05   Tooth lost: 8 becomes 7");
+    const TCHAR* Title=T<5?TEXT("01   The mouth's teeth: four per side"):T<9?TEXT("02   Coffee coats a large molar"):T<13?TEXT("03   Damage / squash / recoil"):T<17?TEXT("04   Low health: loose molar"):TEXT("05   A gap in the row: 7 teeth remain");
     Text(Title,42,70,1.6f,Cream);
     DrawRect(Back,976*S,24*S,280*S,137*S);
     Text(FString::Printf(TEXT("ARENA TEETH   %d / %d"),GS->AvailableArenaTeeth(),GS->RunSettings.InitialArenaTeeth),994,40,1.2f,Mint);
     Text(FString::Printf(TEXT("TOOTH 03      HP %.0f"),Demo->Subject->State.Health),994,78,1.2f,Cream);
     DrawRect(FLinearColor(.1f,.13f,.13f),994*S,120*S,240*S,10*S);
     DrawRect(T>=13?Orange:Mint,994*S,120*S,240*S*Demo->Subject->State.Health/Demo->Subject->Settings.MaxHealth,10*S);
-    const TCHAR* Caption=T<5?TEXT("Each tooth has its own ID and health. Starting players are separate."):
+    const TCHAR* Caption=T<5?TEXT("The large teeth along the gums are the teeth you care for. No extra inner row."):
         T<9?TEXT("Surface status: brown patches over glossy enamel. Health is still 100."):
         T<13?TEXT("25 damage per hit. The mesh reacts; the collision body stays stable."):
         T<17?TEXT("At 25 HP: persistent wobble, cracks, and follow-through."):
