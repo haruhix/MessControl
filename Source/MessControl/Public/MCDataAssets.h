@@ -3,6 +3,26 @@
 #include "Engine/DataAsset.h"
 #include "Sound/SoundBase.h"
 #include "MCDataAssets.generated.h"
+class USkeletalMesh;
+class UPhysicsAsset;
+class UMaterialInterface;
+
+// Maps gameplay roles to an artist's skeleton without renaming the source rig.
+UCLASS(BlueprintType)
+class MESSCONTROL_API UMCPlayerAppearance : public UPrimaryDataAsset
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") TObjectPtr<USkeletalMesh> SkeletalMesh;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") TObjectPtr<UPhysicsAsset> PhysicsAsset;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") TObjectPtr<UMaterialInterface> Material;
+    // Imported model faces +Y; the character moves along +X. Feet sit below the capsule center.
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") FTransform MeshTransform=FTransform(FRotator(0,-90,0),FVector(0,0,-58));
+    // Grip offset in reference mesh space, relative to the hand's reference position.
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") FTransform BrushTransform=FTransform(FRotator(0,90,0),FVector(-8,3,-4));
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Rig") TMap<FName,FName> BoneMap;
+    FName Bone(FName Role) const { const FName* Found=BoneMap.Find(Role); return Found?*Found:Role; }
+};
 
 UENUM(BlueprintType)
 enum class EMCTaskKind : uint8 { Coffee, Food, LooseTooth };

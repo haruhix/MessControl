@@ -21,13 +21,15 @@ public:
         for (int32 I=0;I<Pose.Num();++I) ReferenceCS[I]=Ref.GetParentIndex(I)>=0?Pose[I]*ReferenceCS[Ref.GetParentIndex(I)]:Pose[I];
         auto Rotate=[&](FName Name,FRotator Delta)
         {
-            const int32 I=Ref.FindBoneIndex(Name); if (I==INDEX_NONE) return;
+            const int32 I=Ref.FindBoneIndex(Tooth->RigBone(Name)); if (I==INDEX_NONE) return;
             const int32 Parent=Ref.GetParentIndex(I); const FQuat Basis=Parent>=0?ReferenceCS[Parent].GetRotation():FQuat::Identity;
-            Pose[I].SetRotation((Basis.Inverse()*Delta.Quaternion()*Basis*Pose[I].GetRotation()).GetNormalized());
+            const FQuat Facing=Tooth->StandingMeshTransform().GetRotation();
+            const FQuat MeshDelta=Facing.Inverse()*Delta.Quaternion()*Facing;
+            Pose[I].SetRotation((Basis.Inverse()*MeshDelta*Basis*Pose[I].GetRotation()).GetNormalized());
         };
         auto Translate=[&](FName Name,FVector Delta)
         {
-            const int32 I=Ref.FindBoneIndex(Name); if (I==INDEX_NONE) return;
+            const int32 I=Ref.FindBoneIndex(Tooth->RigBone(Name)); if (I==INDEX_NONE) return;
             const int32 Parent=Ref.GetParentIndex(I);
             Pose[I].AddToTranslation(Parent>=0?ReferenceCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
         };
@@ -37,6 +39,8 @@ public:
         Translate(TEXT("body"),FVector(0,0,Tooth->AnimationBob));
         Rotate(TEXT("leg_l"),FRotator(FMath::Sin(G)*28*Speed,0,0));
         Rotate(TEXT("leg_r"),FRotator(-FMath::Sin(G)*28*Speed,0,0));
+        Rotate(TEXT("knee_l"),FRotator(-FMath::Max(0.f,FMath::Sin(G))*18*Speed,0,0));
+        Rotate(TEXT("knee_r"),FRotator(-FMath::Max(0.f,-FMath::Sin(G))*18*Speed,0,0));
         Rotate(TEXT("foot_l"),FRotator(-FMath::Sin(G-0.35f)*13*Speed,0,0));
         Rotate(TEXT("foot_r"),FRotator(FMath::Sin(G-0.35f)*13*Speed,0,0));
         Rotate(TEXT("arm_l"),FRotator(-FMath::Sin(G-0.25f)*24*Speed,0,-10));

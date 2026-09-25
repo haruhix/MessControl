@@ -1,4 +1,5 @@
 #include "MCPhysicsAssetBuilder.h"
+#include "MCDataAssets.h"
 #include "Engine/SkeletalMesh.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 #include "PhysicsEngine/SkeletalBodySetup.h"
@@ -81,6 +82,82 @@ UPhysicsAsset* UMCPhysicsAssetBuilder::BuildToothPhysicsAsset(USkeletalMesh* Mes
     for (int32 A=0;A<Names.Num();++A) for (int32 B=A+1;B<Names.Num();++B) Asset->DisableCollision(A,B);
     Asset->UpdateBodySetupIndexMap(); Asset->UpdateBoundsBodiesArray(); Asset->SetPreviewMesh(Mesh);
     Mesh->SetPhysicsAsset(Asset); Asset->MarkPackageDirty(); Mesh->MarkPackageDirty();
+    FSavePackageArgs Args; Args.TopLevelFlags=RF_Public|RF_Standalone; Args.SaveFlags=SAVE_NoError;
+    UPackage::SavePackage(Package,Asset,*FPackageName::LongPackageNameToFilename(PackageName,FPackageName::GetAssetPackageExtension()),Args);
+    return Asset;
+#else
+    return nullptr;
+#endif
+}
+
+UPhysicsAsset* UMCPhysicsAssetBuilder::BuildPlayerPhysicsAsset(UMCPlayerAppearance* Appearance)
+{
+#if WITH_EDITOR
+    if (!Appearance || !Appearance->SkeletalMesh) return nullptr;
+    auto* Mesh=Appearance->SkeletalMesh.Get(); const auto& Ref=Mesh->GetRefSkeleton();
+    const TArray<FName> Roles={TEXT("body"),TEXT("arm_l"),TEXT("forearm_l"),TEXT("hand_l"),TEXT("arm_r"),TEXT("forearm_r"),TEXT("hand_r"),TEXT("leg_l"),TEXT("knee_l"),TEXT("foot_l"),TEXT("leg_r"),TEXT("knee_r"),TEXT("foot_r")};
+    const TArray<int32> Parents={-1,0,1,2,0,4,5,0,7,8,0,10,11};
+    for (FName Role:Roles) if (Ref.FindBoneIndex(Appearance->Bone(Role))==INDEX_NONE)
+    { UE_LOG(LogTemp,Error,TEXT("Missing rig role %s (%s)"),*Role.ToString(),*Appearance->Bone(Role).ToString()); return nullptr; }
+    for (const FName Role:{FName("fingertip_l"),FName("fingertip_r"),FName("toe_l"),FName("toe_r")})
+        if (Ref.FindBoneIndex(Appearance->Bone(Role))==INDEX_NONE) return nullptr;
+    const FString PackageName=TEXT("/Game/Art/Rig/PA_TeethPlayer");
+    UPackage* Package=CreatePackage(*PackageName);
+    UPhysicsAsset* Asset=FindObject<UPhysicsAsset>(Package,TEXT("PA_TeethPlayer"));
+    if (!Asset) { Asset=NewObject<UPhysicsAsset>(Package,TEXT("PA_TeethPlayer"),RF_Public|RF_Standalone); FAssetRegistryModule::AssetCreated(Asset); }
+    Asset->SkeletalBodySetups.Empty(); Asset->ConstraintSetup.Empty(); Asset->CollisionDisableTable.Empty();
+    TArray<FTransform> CS; CS.SetNum(Ref.GetNum());
+    for (int32 I=0;I<CS.Num();++I) CS[I]=Ref.GetParentIndex(I)>=0?Ref.GetRefBonePose()[I]*CS[Ref.GetParentIndex(I)]:Ref.GetRefBonePose()[I];
+    for (int32 I=0;I<Roles.Num();++I)
+    {
+        const FName Name=Appearance->Bone(Roles[I]); const int32 Bone=Ref.FindBoneIndex(Name);
+        auto* Body=NewObject<USkeletalBodySetup>(Asset); Body->BoneName=Name; Body->PhysicsType=PhysType_Default;
+        Body->bSkipScaleFromAnimation=true; Body->CollisionTraceFlag=CTF_UseSimpleAsComplex;
+        Body->DefaultInstance.SetCollisionProfileName(TEXT("Ragdoll")); Body->DefaultInstance.bUseCCD=true;
+        Body->DefaultInstance.LinearDamping=.3f; Body->DefaultInstance.AngularDamping=1.5f;
+        Body->DefaultInstance.PositionSolverIterationCount=12; Body->DefaultInstance.VelocitySolverIterationCount=4;
+        Body->DefaultInstance.SetMassOverride(I==0?5.f:.25f);
+        if (I==0)
+        {
+            for (const FVector Center:{FVector(0,-3,75),FVector(0,-4,35)})
+            {
+                FKBoxElem Box; Box.Center=CS[Bone].InverseTransformPosition(Center);
+                Box.Rotation=CS[Bone].GetRotation().Inverse().Rotator();
+                Box.X=Center.Z>50?64:42; Box.Y=Center.Z>50?56:36; Box.Z=Center.Z>50?64:22;
+                Body->AggGeom.BoxElems.Add(Box);
+            }
+        }
+        else
+        {
+            const FString Role=Roles[I].ToString(); FVector Start=CS[Bone].GetLocation(), End;
+            if (Role.StartsWith(TEXT("hand")))
+                End=CS[Ref.FindBoneIndex(Appearance->Bone(FName(*Role.Replace(TEXT("hand"),TEXT("fingertip")))))].GetLocation();
+            else if (Role.StartsWith(TEXT("foot")))
+                End=CS[Ref.FindBoneIndex(Appearance->Bone(FName(*Role.Replace(TEXT("foot"),TEXT("toe")))))].GetLocation();
+            else End=CS[Ref.FindBoneIndex(Appearance->Bone(Roles[I+1]))].GetLocation();
+            FKSphylElem Capsule; Capsule.Radius=Role.StartsWith(TEXT("leg"))?8.f:5.5f;
+            Capsule.Length=FMath::Max(2.f,float((End-Start).Size())-Capsule.Radius);
+            const FTransform Shape(FRotationMatrix::MakeFromZ((End-Start).GetSafeNormal()).ToQuat(),(Start+End)*.5);
+            const FTransform Local=Shape.GetRelativeTransform(CS[Bone]); Capsule.Center=Local.GetLocation(); Capsule.Rotation=Local.Rotator();
+            Body->AggGeom.SphylElems.Add(Capsule);
+        }
+        Body->InvalidatePhysicsData(); Body->CreatePhysicsMeshes(); Asset->SkeletalBodySetups.Add(Body);
+        if (I==0) continue;
+        const int32 ParentBone=Ref.FindBoneIndex(Appearance->Bone(Roles[Parents[I]]));
+        auto* Joint=NewObject<UPhysicsConstraintTemplate>(Asset); auto& C=Joint->DefaultInstance;
+        C.JointName=Name; C.ConstraintBone1=Name; C.ConstraintBone2=Ref.GetBoneName(ParentBone);
+        const FTransform Anchor(FQuat::Identity,CS[Bone].GetLocation());
+        C.SetRefFrame(EConstraintFrame::Frame1,Anchor.GetRelativeTransform(CS[Bone]));
+        C.SetRefFrame(EConstraintFrame::Frame2,Anchor.GetRelativeTransform(CS[ParentBone]));
+        C.SetLinearLimits(LCM_Locked,LCM_Locked,LCM_Locked,0);
+        C.SetAngularSwing1Limit(ACM_Limited,55); C.SetAngularSwing2Limit(ACM_Limited,50); C.SetAngularTwistLimit(ACM_Limited,35);
+        C.ProfileInstance.LinearLimit.bSoftConstraint=false; C.ProfileInstance.ConeLimit.bSoftConstraint=false; C.ProfileInstance.TwistLimit.bSoftConstraint=false;
+        C.ProfileInstance.AngularDrive.LimitViolationResponse=EAngularDriveLimitViolationResponse::None;
+        C.SetDisableCollision(true); C.SetProjectionParams(true,.1f,.1f,10,20); Joint->SetDefaultProfile(C);
+        Asset->ConstraintSetup.Add(Joint);
+    }
+    for (int32 A=0;A<Roles.Num();++A) for (int32 B=A+1;B<Roles.Num();++B) Asset->DisableCollision(A,B);
+    Asset->UpdateBodySetupIndexMap(); Asset->UpdateBoundsBodiesArray(); Asset->SetPreviewMesh(Mesh); Asset->MarkPackageDirty();
     FSavePackageArgs Args; Args.TopLevelFlags=RF_Public|RF_Standalone; Args.SaveFlags=SAVE_NoError;
     UPackage::SavePackage(Package,Asset,*FPackageName::LongPackageNameToFilename(PackageName,FPackageName::GetAssetPackageExtension()),Args);
     return Asset;

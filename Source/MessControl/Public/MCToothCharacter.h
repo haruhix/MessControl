@@ -22,6 +22,8 @@ class MESSCONTROL_API AMCToothCharacter : public ACharacter
     GENERATED_BODY()
 public:
     AMCToothCharacter();
+    virtual void OnConstruction(const FTransform& Transform) override;
+    virtual void PostInitializeComponents() override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
     virtual void PawnClientRestart() override;
@@ -57,6 +59,9 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UPhysicsControlComponent> Muscles;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<USceneComponent> BrushPivot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<UStaticMeshComponent> Brush;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Visuals") TObjectPtr<UMCPlayerAppearance> Appearance;
+    FName RigBone(FName BoneRole) const;
+    FTransform StandingMeshTransform() const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<UCameraComponent> Camera;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TObjectPtr<UMCAnimationProfile> AnimationProfile;
@@ -79,6 +84,7 @@ private:
     friend class AMCCoreScenario;
     friend class AMCDayOneScenario;
     void BuildInput();
+    void ApplyAppearance();
     void MoveForward(const FInputActionValue& Value);
     void MoveRight(const FInputActionValue& Value);
     void StartJump(); void StopJump();

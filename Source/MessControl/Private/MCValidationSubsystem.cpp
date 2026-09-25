@@ -52,7 +52,7 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         {
             Falls+=It->ToothPhysics->KnockdownCount; Recoveries+=It->ToothPhysics->RecoveryCount;
-            const FVector Center=It->GetMesh()->GetBoneLocation(TEXT("body"));
+            const FVector Center=It->ToothPhysics->PhysicalLocation();
             for (const FName Bone:{FName("hand_l"),FName("hand_r"),FName("foot_l"),FName("foot_r")})
             {
                 const FVector Point=It->GetMesh()->GetBoneLocation(Bone);
@@ -114,7 +114,7 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
         {
             NextLog += 5;
             if (bRagdoll || bRagdollCapture)
-                UE_LOG(LogTemp,Display,TEXT("MC_PHYSICS net=%d falls=%d recoveries=%d invalid=%d ownstate=%d body=%s"),static_cast<int32>(GetWorld()->GetNetMode()),ObservedFalls,ObservedRecoveries,bInvalidPhysics,Tooth?static_cast<int32>(Tooth->ToothPhysics->GetBodyState()):-1,Tooth?*Tooth->GetMesh()->GetBoneLocation(TEXT("body")).ToString():TEXT("none"));
+                UE_LOG(LogTemp,Display,TEXT("MC_PHYSICS net=%d falls=%d recoveries=%d invalid=%d ownstate=%d body=%s"),static_cast<int32>(GetWorld()->GetNetMode()),ObservedFalls,ObservedRecoveries,bInvalidPhysics,Tooth?static_cast<int32>(Tooth->ToothPhysics->GetBodyState()):-1,Tooth?*Tooth->ToothPhysics->PhysicalLocation().ToString():TEXT("none"));
             UE_LOG(LogTemp,Display,TEXT("MC_SMOKE net=%d players=%d day=%d phase=%d left=%d health=%.0f work=%d pawn=%s"),
                 static_cast<int32>(GetWorld()->GetNetMode()),State->PlayerArray.Num(),State->Day,static_cast<int32>(State->Phase),State->TasksLeft,State->MouthHealth,bObservedWork,Tooth?*Tooth->GetActorLocation().ToString():TEXT("none"));
         }
@@ -227,8 +227,8 @@ void UMCValidationSubsystem::TickLimbStability(float Dt)
         bool bBad=false;
         for (const FName Name:{FName("arm_l"),FName("hand_l"),FName("arm_r"),FName("hand_r")})
         {
-            const int32 I=Ref.FindBoneIndex(Name), Parent=Ref.GetParentIndex(I);
-            const FQuat Local=Mesh->GetBoneQuaternion(Ref.GetBoneName(Parent)).Inverse()*Mesh->GetBoneQuaternion(Name);
+            const int32 I=Ref.FindBoneIndex(Tooth->RigBone(Name)), Parent=Ref.GetParentIndex(I);
+            const FQuat Local=Mesh->GetBoneQuaternion(Ref.GetBoneName(Parent)).Inverse()*Mesh->GetBoneQuaternion(Tooth->RigBone(Name));
             const float Angle=FMath::RadiansToDegrees(Local.AngularDistance(Ref.GetRefBonePose()[I].GetRotation()));
             MaxLimbAngle=FMath::Max(MaxLimbAngle,Angle); bBad |= !FMath::IsFinite(Angle) || Angle>135;
             if (const FQuat* Last=LastLimbRotations.Find(Name))

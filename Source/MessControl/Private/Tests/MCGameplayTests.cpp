@@ -26,6 +26,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "PhysicsEngine/PhysicsAsset.h"
+#include "PhysicsEngine/SkeletalBodySetup.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "PhysicsEngine/PhysicsConstraintTemplate.h"
 #include <limits>
 
@@ -220,6 +222,46 @@ bool FMCRigTest::RunTest(const FString& Parameters)
     FMCPhysicsSettings P; P.Knockback=std::numeric_limits<float>::quiet_NaN(); P.Mass=-1; P.GetUpSeconds=500;
     P.Sanitize(); TestEqual(TEXT("NaN restored to default"),P.Knockback,650.f);
     TestEqual(TEXT("Positive minimum mass"),P.Mass,3.f); TestEqual(TEXT("Recovery time bounded"),P.GetUpSeconds,2.f);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArtistRigTest,"MessControl.Physics.ArtistRigIntegration",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCArtistRigTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; auto* Hero=Mouth.Worker();
+    const auto* Profile=Hero->Appearance.Get();
+    if (!TestNotNull(TEXT("Player appearance profile"),Profile) || !TestNotNull(TEXT("Artist skeletal mesh"),Profile->SkeletalMesh.Get())) return false;
+    TestEqual(TEXT("Actual player uses artist mesh"),Hero->GetMesh()->GetSkeletalMeshAsset(),Profile->SkeletalMesh.Get());
+    TestEqual(TEXT("Body mapped to pelvis"),Hero->RigBone(TEXT("body")),FName("root_x"));
+    TestTrue(TEXT("Imported +Y faces character +X"),Profile->MeshTransform.TransformVectorNoScale(FVector::RightVector).Equals(FVector::ForwardVector,.001));
+    const auto& Ref=Profile->SkeletalMesh->GetRefSkeleton();
+    for (const FName BoneRole:{FName("body"),FName("arm_l"),FName("arm_r"),FName("hand_r"),FName("leg_l"),FName("leg_r"),FName("foot_l"),FName("foot_r")})
+        TestTrue(*FString::Printf(TEXT("Mapped %s exists"),*BoneRole.ToString()),Ref.FindBoneIndex(Hero->RigBone(BoneRole))!=INDEX_NONE);
+    auto* Asset=Hero->GetMesh()->GetPhysicsAsset();
+    if (!TestNotNull(TEXT("Gameplay physics override"),Asset)) return false;
+    TestEqual(TEXT("Thirteen physical bodies, no face bodies"),Asset->SkeletalBodySetups.Num(),13);
+    TestEqual(TEXT("Twelve constrained joints"),Asset->ConstraintSetup.Num(),12);
+    for (const UPhysicsConstraintTemplate* Joint:Asset->ConstraintSetup)
+    {
+        const auto& C=Joint->DefaultInstance;
+        TestEqual(TEXT("Joint twist limited"),C.GetAngularTwistMotion(),ACM_Limited);
+        TestEqual(TEXT("No joint translation"),C.GetLinearXMotion(),LCM_Locked);
+        TestFalse(TEXT("Hard angular stops"),bool(C.ProfileInstance.ConeLimit.bSoftConstraint));
+        TestTrue(TEXT("Both joint bones exist"),Ref.FindBoneIndex(C.ConstraintBone1)!=INDEX_NONE && Ref.FindBoneIndex(C.ConstraintBone2)!=INDEX_NONE);
+    }
+    TestEqual(TEXT("Brush attached to actual hand"),Hero->BrushPivot->GetAttachSocketName(),Hero->RigBone(TEXT("hand_r")));
+    Hero->Status->ApplyCoffee(); Hero->Status->Damage(25); Hero->Tick(.016f);
+    auto* Material=Cast<UMaterialInstanceDynamic>(Hero->GetMesh()->GetMaterial(0));
+    if (TestNotNull(TEXT("Player status material"),Material))
+    {
+        TestEqual(TEXT("Coffee reaches textured material"),Material->K2_GetScalarParameterValue(TEXT("Coffee")),1.f);
+        TestEqual(TEXT("Damage reaches textured material"),Material->K2_GetScalarParameterValue(TEXT("Damage")),.25f);
+    }
+    Hero->GetCharacterMovement()->DisableMovement();
+    for (int32 I=0;I<7;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
+    Hero->ToothPhysics->ApplyHit(FVector(450,0,250),Hero->GetActorLocation());
+    TestEqual(TEXT("Artist rig enters ragdoll"),Hero->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
+    TestTrue(TEXT("Artist core actually simulates"),Hero->GetMesh()->IsSimulatingPhysics(Hero->RigBone(TEXT("body"))));
     return true;
 }
 

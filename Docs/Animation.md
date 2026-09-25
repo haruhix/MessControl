@@ -1,5 +1,7 @@
 # Tooth Lab
 
+Новый игрок использует риг `SM_Teeth_rig` коллеги: свои кости, физические тела и процедурные позы. Squash/stretch добавлены в материал, так как морфов в этом риге нет. Настройки и ограничения: [PlayerAppearance.md](PlayerAppearance.md).
+
 F1 открывает UMG-виджет с живыми настройками. В `DA_ToothAnimation` лежат общие значения. Верхние ползунки меняют локальный визуальный профиль. Нижняя секция Physics доступна хосту и меняет игровую физику; см. [Physics.md](Physics.md).
 
 `Save local preset` сохраняет `Saved/AnimationTuning.ini`. Для переноса в общий Data Asset остановить PIE и выполнить **Tools → Execute Python Script → Tools/Unreal/apply_animation_preset.py**. Затем закоммитить `DA_ToothAnimation.uasset`. `Reset from Data Asset` сбрасывает локальные настройки к общему профилю.

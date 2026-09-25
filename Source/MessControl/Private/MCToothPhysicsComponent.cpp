@@ -8,6 +8,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "PhysicsControlComponent.h"
 #include "PhysicsEngine/BodyInstance.h"
+#include "PhysicsEngine/PhysicsAsset.h"
+#include "PhysicsEngine/SkeletalBodySetup.h"
 #include "Net/UnrealNetwork.h"
 #include "Misc/ConfigCacheIni.h"
 #include "UObject/ConstructorHelpers.h"
@@ -29,7 +31,7 @@ void UMCToothPhysicsComponent::BeginPlay()
     Data.bDisableCollision=true; Data.bOnlyControlChildObject=true;
     if (Muscles && Tooth->GetMesh()->GetPhysicsAsset())
     {
-        const auto Controls=Muscles->CreateControlsFromSkeletalMeshBelow(Tooth->GetMesh(),TEXT("body"),false,EPhysicsControlType::ParentSpace,Data,TEXT("Limbs"));
+        const auto Controls=Muscles->CreateControlsFromSkeletalMeshBelow(Tooth->GetMesh(),Tooth->RigBone(TEXT("body")),false,EPhysicsControlType::ParentSpace,Data,TEXT("Limbs"));
         FPhysicsControlNames Names; Muscles->AddControlsToSet(Names,Controls,TEXT("Limbs"));
         // Newly spawned actors can be created after the mesh tick this frame. Prime the cache
         // before the first control update so targets never read an empty skeleton buffer.
@@ -56,8 +58,12 @@ void UMCToothPhysicsComponent::OnRep_Settings()
         Data.bDisableCollision=true; Data.bOnlyControlChildObject=true;
         Muscles->SetControlDatasInSet(TEXT("Limbs"),Data);
     }
-    for (const FName Bone:{FName("body"),FName("arm_l"),FName("arm_r"),FName("hand_l"),FName("hand_r"),FName("leg_l"),FName("leg_r")})
-        Tooth->GetMesh()->SetMassOverrideInKg(Bone,Settings.Mass*(Bone==TEXT("body")?0.625f:0.0625f));
+    if (const auto* Asset=Tooth->GetMesh()->GetPhysicsAsset())
+        for (const USkeletalBodySetup* Body:Asset->SkeletalBodySetups)
+        {
+            const float Share=Body->BoneName==Tooth->RigBone(TEXT("body"))?.625f:.375f/FMath::Max(1,Asset->SkeletalBodySetups.Num()-1);
+            Tooth->GetMesh()->SetMassOverrideInKg(Body->BoneName,Settings.Mass*Share);
+        }
 }
 void UMCToothPhysicsComponent::SetTuning(FMCPhysicsSettings NewSettings)
 {
@@ -106,7 +112,7 @@ void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocati
     if (LocalState==EMCBodyState::Standing && VelocityChange.Size()<Settings.FallThreshold)
     {
         Tooth->LaunchCharacter(VelocityChange,false,false);
-        Tooth->GetMesh()->AddImpulseToAllBodiesBelow(VelocityChange*0.35f,TEXT("body"),true,false);
+        Tooth->GetMesh()->AddImpulseToAllBodiesBelow(VelocityChange*0.35f,Tooth->RigBone(TEXT("body")),true,false);
         return;
     }
     if (LocalState!=EMCBodyState::Ragdoll)
@@ -115,7 +121,7 @@ void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocati
         Tooth->GetMesh()->SetAllPhysicsLinearVelocity(Momentum);
     }
     LastHitTime=ServerTime();
-    Tooth->GetMesh()->AddImpulseToAllBodiesBelow(VelocityChange,TEXT("body"),true,true);
+    Tooth->GetMesh()->AddImpulseToAllBodiesBelow(VelocityChange,Tooth->RigBone(TEXT("body")),true,true);
     FVector Spin=FVector::CrossProduct(FVector::UpVector,VelocityChange.GetSafeNormal2D())*300.f;
     Spin.Z=FMath::Clamp((HitLocation-PhysicalLocation()).Y*3.f,-120.f,120.f);
     Tooth->GetMesh()->SetAllPhysicsAngularVelocityInDegrees(Spin,true);
@@ -123,7 +129,7 @@ void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocati
 }
 FVector UMCToothPhysicsComponent::PhysicalLocation() const
 {
-    return Tooth?Tooth->GetMesh()->GetBoneLocation(TEXT("body")):FVector::ZeroVector;
+    return Tooth?Tooth->GetMesh()->GetBoneLocation(Tooth->RigBone(TEXT("body"))):FVector::ZeroVector;
 }
 void UMCToothPhysicsComponent::CaptureFrame()
 {
@@ -159,7 +165,7 @@ bool UMCToothPhysicsComponent::TryRecover()
     if (!bClear) return false;
     CaptureFrame();
     // Convert only the root: other bone transforms are already parent-relative.
-    const FTransform NewMesh(FRotator(0,Tooth->GetActorRotation().Yaw,0),Destination-FVector(0,0,Half));
+    const FTransform NewMesh=Tooth->StandingMeshTransform()*FTransform(FRotator(0,Tooth->GetActorRotation().Yaw,0),Destination);
     const FTransform RootWorld=Tooth->GetMesh()->GetBoneTransform(0);
     const FTransform RootLocal=RootWorld.GetRelativeTransform(NewMesh);
     Frame.Bones[0].Position=RootLocal.GetLocation(); Frame.Bones[0].Rotation=RootLocal.Rotator();
@@ -173,7 +179,7 @@ void UMCToothPhysicsComponent::EnterRecovery()
     Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Tooth->SetActorLocationAndRotation(Frame.CapsuleLocation,FRotator(0,Frame.CapsuleYaw,0),false,nullptr,ETeleportType::TeleportPhysics);
     Mesh->AttachToComponent(Tooth->GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
-    Mesh->SetRelativeTransform(FTransform(FVector(0,0,-58)));
+    Mesh->SetRelativeTransform(Tooth->StandingMeshTransform());
     DisplayPose.Reset(); for (const auto& Bone:Frame.Bones) DisplayPose.Add(Bone.Transform());
     Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     Tooth->GetCharacterMovement()->DisableMovement();
@@ -184,12 +190,12 @@ void UMCToothPhysicsComponent::EnterStanding()
     if (!Tooth || !Tooth->GetMesh()->GetSkeletalMeshAsset()) return;
     auto* Mesh=Tooth->GetMesh(); Mesh->SetAllBodiesSimulatePhysics(false);
     Mesh->AttachToComponent(Tooth->GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
-    Mesh->SetRelativeTransform(FTransform(FVector(0,0,-58)));
+    Mesh->SetRelativeTransform(Tooth->StandingMeshTransform());
     Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     // Limb bodies follow the procedural target with spring/damper controls. The body stays kinematic.
     Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    Mesh->SetAllBodiesBelowSimulatePhysics(TEXT("body"),true,false);
-    Mesh->SetAllBodiesBelowPhysicsBlendWeight(TEXT("body"),1.f,false,false);
+    Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,false);
+    Mesh->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(TEXT("body")),1.f,false,false);
     SetMuscles(true); DisplayPose.Reset();
     Tooth->GetCharacterMovement()->SetMovementMode(MOVE_Walking); Tooth->SetReplicateMovement(true);
     RecoveryInvulnerableUntil=ServerTime()+0.6f;
@@ -232,7 +238,7 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
             SendAccumulator+=Dt;
             if (SendAccumulator>=0.05f) { SendAccumulator=0; CaptureFrame(); Tooth->ForceNetUpdate(); }
             const float Age=ServerTime()-FMath::Max(Frame.StateStartedAt,LastHitTime);
-            if (Age>=Settings.RagdollSeconds && (Tooth->GetMesh()->GetPhysicsLinearVelocity(TEXT("body")).Size()<160 || Age>Settings.RagdollSeconds+3)) TryRecover();
+            if (Age>=Settings.RagdollSeconds && (Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160 || Age>Settings.RagdollSeconds+3)) TryRecover();
             // Falling out of the mouth is a real death, using the same reserve as impact deaths.
             if (Center.Z<-250)
             {
@@ -261,7 +267,7 @@ void UMCToothPhysicsComponent::EnterDeath()
 {
     if (!Tooth || !Tooth->HasAuthority()) return;
     if (LocalState!=EMCBodyState::Ragdoll) { SetState(EMCBodyState::Ragdoll); EnterRagdoll(); }
-    Tooth->GetMesh()->AddImpulseToAllBodiesBelow(FVector(0,0,220),TEXT("body"),true,true);
+    Tooth->GetMesh()->AddImpulseToAllBodiesBelow(FVector(0,0,220),Tooth->RigBone(TEXT("body")),true,true);
     CaptureFrame(); Tooth->ForceNetUpdate();
 }
 void UMCToothPhysicsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

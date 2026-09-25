@@ -79,12 +79,12 @@ void AMCCoffeeFlood::Tick(float Dt)
             { HitThisWave.Add(Hero); Hero->ToothPhysics->ApplyHit(FVector(350,0,220),P); Hero->Status->ApplyCoffee(); }
             if (Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll)
             {
-                const FVector V=Hero->GetMesh()->GetPhysicsLinearVelocity(TEXT("body"));
+                const FVector V=Hero->GetMesh()->GetPhysicsLinearVelocity(Hero->RigBone(TEXT("body")));
                 const float Buoyancy=FMath::Clamp((Level-P.Z)*18.f-V.Z*4.f+980.f,0.f,1800.f);
                 FVector A=CurrentForce+FVector(Hero->PaddleInput.X,Hero->PaddleInput.Y,0)*Paddle-V*1.2f+FVector(0,0,Buoyancy);
                 if (Hero->ClingTooth) A=(Hero->ClingPoint-P)*35.f-V*8.f+FVector(0,0,980);
                 A=A.GetClampedToMaxSize(2200);
-                Hero->GetMesh()->AddForceToAllBodiesBelow(A,TEXT("body"),true,true);
+                Hero->GetMesh()->AddForceToAllBodiesBelow(A,Hero->RigBone(TEXT("body")),true,true);
             }
             else if (Hero->ToothPhysics->CanAct())
             {

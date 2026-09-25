@@ -13,14 +13,14 @@ if ($Mode -eq 'Unit') {
     & $taskEditor $taskProject -unattended -nop4 -nosplash -nullrhi '-ExecCmds=Automation RunTests MessControl; Quit' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$taskRoot\Saved\TestReports" "-abslog=$taskLogs\Automation.log"
     if ($LASTEXITCODE -ne 0) { throw 'Unreal automation failed.' }
     $taskReport=Get-Content -Raw "$taskRoot\Saved\TestReports\index.json" | ConvertFrom-Json
-    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 17) { throw 'Not all gameplay and physics tests passed.' }
+    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 18) { throw 'Not all gameplay and physics tests passed.' }
 } elseif ($Mode -eq 'Limbs') {
     & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game -MCLegacyDays -MCLimbs -nullrhi -unattended -nosound -nop4 "-ExecCmds=t.MaxFPS $FrameRate" "-abslog=$taskLogs\Limbs$FrameRate.log"
     if ($LASTEXITCODE -ne 0 -or -not (Select-String -Path "$taskLogs\Limbs$FrameRate.log" -Pattern 'MC_LIMBS_PASS' -Quiet)) { throw 'Limb stability regression. See Limbs log.' }
 } elseif ($Mode -eq 'Visual' -or $Mode -eq 'RagdollVisual') {
     $taskCapture=if($Mode -eq 'RagdollVisual'){'-MCRagdollCapture'}else{'-MCCapture'}
     & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game -MCLegacyDays $taskCapture -RenderOffscreen -windowed -ForceRes -ResX=1440 -ResY=960 -unattended -nosound -nosplash -nop4 "-abslog=$taskLogs\$Mode.log"
-    if ($LASTEXITCODE -ne 0) { throw 'Visual smoke run failed.' }
+    if ($LASTEXITCODE -ne 0 -or -not (Select-String -Path "$taskLogs\$Mode.log" -Pattern 'MC_VALIDATION_PASS' -Quiet)) { throw 'Visual smoke run failed.' }
 } else {
     $taskProcesses=@()
     try {
