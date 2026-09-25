@@ -50,7 +50,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Breakfast") int32 BreakfastCount=6;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stuck food") int32 StuckCount=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cleaning") int32 SurfacePatches=10;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") int32 WaveCount=4;
+    // Retained only for old assets. Repetitions now live in Coffee Profile -> Settings -> Cycles.
+    UPROPERTY() int32 WaveCount=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float FloodHeight=155;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float FlowAcceleration=320;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float PaddleAcceleration=400;

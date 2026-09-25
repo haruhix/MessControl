@@ -572,8 +572,8 @@ bool FMCUlcerAndFloodTest::RunTest(const FString& Parameters)
     auto* Hero=Mouth.Worker(); Hero->SetActorLocation(FVector(300,300,95)); Patch->Tick(.1f);
     TestEqual(TEXT("Walking over ulcer resets healing"),Patch->Healing,0.f);
     Hero->SetActorLocation(FVector(0,0,95)); Patch->Tick(2.1f); TestTrue(TEXT("Protected ulcer closes itself"),Patch->IsActorBeingDestroyed());
-    auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan,10);
-    Flood->StartedAt=Mouth.World->GetTimeSeconds()-1.25; Flood->Tick(.05f);
+    auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
+    Flood->StartedAt=Mouth.World->GetTimeSeconds()-3.8; Flood->Tick(.05f);
     TestTrue(TEXT("Rising coffee reaches the hero"),Hero->bInCoffee && Flood->Contains(Hero->GetActorLocation()));
     Hero->ServerPaddle(FVector2D(100,100)); TestTrue(TEXT("Server clamps swimming input"),Hero->PaddleInput.Size()<=1.001);
     Flood->Stop(); TestFalse(TEXT("Draining releases water control state"),Hero->bInCoffee);
@@ -670,11 +670,11 @@ bool FMCCoffeeWaterTest::RunTest(const FString& Parameters)
     A->ToothPhysics->ApplyHit(FVector(0,0,450),A->GetActorLocation());
     B->ToothPhysics->ApplyHit(FVector(0,0,450),B->GetActorLocation());
     auto* Plan=NewObject<UMCDayPlan>(); Plan->FlowAcceleration=0; Plan->FloodHeight=160; Plan->WaveCount=1;
-    auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan,120);
+    auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
     for (int32 I=0;I<180;++I)
     {
         // Hold a wave crest to isolate buoyancy/control from the rising/falling event envelope.
-        Flood->StartedAt=Mouth.World->GetTimeSeconds()-60;
+        Flood->StartedAt=Mouth.World->GetTimeSeconds()-3.8;
         A->ServerPaddle(FVector2D(0,-1)); B->ServerPaddle(FVector2D(0,1)); Tick();
     }
     const FVector PA=A->ToothPhysics->PhysicalLocation(),PB=B->ToothPhysics->PhysicalLocation();
@@ -685,6 +685,45 @@ bool FMCCoffeeWaterTest::RunTest(const FString& Parameters)
     TestFalse(TEXT("Cannot stand up in water"),A->ToothPhysics->TryRecover());
     Flood->Stop(); TestFalse(TEXT("Draining clears water state"),A->bInCoffee || B->bInCoffee);
     UE_LOG(LogTemp,Display,TEXT("MC_WATER_TEST left=%s right=%s"),*PA.ToString(),*PB.ToString());
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCoffeePourDrainTest,"MessControl.Coffee.PourAndDrain",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCoffeePourDrainTest::RunTest(const FString& Parameters)
+{
+    FMCCoffeeWaterSettings Water; Water.Sanitize();
+    TestTrue(TEXT("Default cycle is 4 second pour then 2 second drain"),Water.FillSeconds==4 && Water.DrainSeconds==2 && Water.Cycles==1);
+    TestTrue(TEXT("Water rises continuously"),Water.FillAmount(1)<Water.FillAmount(2) && Water.FillAmount(2)<Water.FillAmount(3.9f));
+    TestTrue(TEXT("Drain begins at 4 seconds"),Water.Phase(3.99f)==EMCCoffeePhase::Filling && Water.Phase(4)==EMCCoffeePhase::Draining);
+    TestTrue(TEXT("Drain lowers water and finishes at 6 seconds"),Water.FillAmount(4.1f)>Water.FillAmount(5) && Water.FillAmount(5)>Water.FillAmount(5.9f) && Water.Phase(6)==EMCCoffeePhase::Inactive);
+    TestEqual(TEXT("Jet stops before drain"),Water.JetAmount(4.1f),0.f);
+    const FVector P(-400,400,95);
+    TestTrue(TEXT("Fill pushes away from impact"),FVector::DotProduct(Water.FlowAt(P,2,320),(P-Water.Inlet).GetSafeNormal2D())>0);
+    TestTrue(TEXT("Drain pulls towards throat"),FVector::DotProduct(Water.FlowAt(P,4.7f,320),(Water.DrainPoint-P).GetSafeNormal2D())>0);
+    TestTrue(TEXT("No residual flow after drain"),Water.FlowAt(P,6.1f,320).IsNearlyZero());
+    Water.Cycles=2; TestTrue(TEXT("Second cycle restarts fill"),Water.Phase(6.5f)==EMCCoffeePhase::Filling && Water.Phase(12)==EMCCoffeePhase::Inactive);
+    Water.FillSeconds=-1; Water.DrainSeconds=std::numeric_limits<float>::quiet_NaN(); Water.FrontWidth=0; Water.Sanitize();
+    TestTrue(TEXT("Invalid timing and widths sanitize"),Water.FillSeconds>=1 && Water.DrainSeconds==2 && Water.FrontWidth>=40);
+
+    FTestMouth Mouth; Mouth.State->Phase=EMCShiftPhase::Working;
+    Mouth.Mode->DayDirector=Mouth.World->SpawnActor<AMCDayDirector>();
+    auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
+    TestEqual(TEXT("Event duration comes from water profile"),Flood->Seconds,6.f);
+    TestNotNull(TEXT("Pour mesh ready"),Flood->Jet->GetStaticMesh().Get());
+    TestNotNull(TEXT("Impact crown ready"),Flood->Crown->GetStaticMesh().Get());
+    TestNotNull(TEXT("Throat outflow mesh ready"),Flood->DrainRibbon->GetStaticMesh().Get());
+    Flood->StartedAt=Mouth.World->GetTimeSeconds()-2;
+    const FVector Point=Flood->WaterSettings.Inlet+FVector(-300,400,-500);
+    const FVector OpenFlow=Flood->FlowAtPosition(Point);
+    TestTrue(TEXT("Open flow is nonzero"),!OpenFlow.IsNearlyZero());
+    auto* Obstacle=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Obstacle);
+    Obstacle->SetRootComponent(Box); Box->SetBoxExtent(FVector(50,50,150)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent();
+    Obstacle->SetActorLocation(FVector((Flood->WaterSettings.Inlet.X+Point.X)*.5f,(Flood->WaterSettings.Inlet.Y+Point.Y)*.5f,Point.Z));
+    TestTrue(TEXT("Solid obstruction shields from flow"),Flood->FlowAtPosition(Point).IsNearlyZero());
+    Obstacle->Destroy();
+    Flood->StartedAt=Mouth.World->GetTimeSeconds()-4.7; Flood->Tick(.016f);
+    TestTrue(TEXT("Real actor enters drain and hides jet"),Flood->GetPhase()==EMCCoffeePhase::Draining && !Flood->Jet->IsVisible() && Flood->DrainRibbon->IsVisible());
+    Flood->Stop();
+    TestTrue(TEXT("Cancellation removes all pour visuals and forces"),!Flood->Surface->IsVisible() && !Flood->Jet->IsVisible() && !Flood->Crown->IsVisible() && !Flood->DrainRibbon->IsVisible() && !Flood->Drops->IsVisible() && Flood->FlowAtPosition(P).IsNearlyZero());
     return true;
 }
 #endif

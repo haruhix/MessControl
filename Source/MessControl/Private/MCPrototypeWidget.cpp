@@ -6,6 +6,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCCoffeeFlood.h"
 #include "MCCoreScenario.h"
 #include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
@@ -177,8 +178,16 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     if (bWorking && State->DayPlan && State->DayPlan->Steps.IsValidIndex(State->StepIndex))
     {
         const auto& Step=State->DayPlan->Steps[State->StepIndex]; EventLabel->SetText(Step.Title); InstructionLabel->SetText(Step.Instruction);
-        TaskLabel->SetText(FText::FromString(FString::Printf(TEXT("%s %02d    |    %d / %d PLAYERS"),Step.Step==EMCDayStep::CoffeeWaves?TEXT("WAVES LEFT"):TEXT("OBJECTS LEFT"),State->TasksLeft,State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
+        TaskLabel->SetText(FText::FromString(FString::Printf(TEXT("%s %02d    |    %d / %d PLAYERS"),Step.Step==EMCDayStep::CoffeeWaves?TEXT("CYCLES LEFT"):TEXT("OBJECTS LEFT"),State->TasksLeft,State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
         TimeLabel->SetText(FText::FromString(Step.Seconds>0?FString::Printf(TEXT("EVENT %02ds | DAY ELAPSED %03ds"),Seconds,FMath::FloorToInt(State->GetServerWorldTimeSeconds()-State->DayStartedAt)):TEXT("NO EVENT TIMER | TAKE YOUR TIME")));
+        if (Step.Step==EMCDayStep::CoffeeWaves)
+            for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
+            {
+                const auto Phase=It->GetPhase();
+                EventLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Filling?TEXT("COFFEE / FILLING"):Phase==EMCCoffeePhase::Draining?TEXT("COFFEE / DRAINING TO THROAT"):TEXT("COFFEE / DRAINED")));
+                InstructionLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Draining?TEXT("Current pulls towards the throat! Hold E at an arena tooth; WASD: paddle."):Phase==EMCCoffeePhase::Filling?TEXT("Dodge the jet and outward wave. Hold E near an arena tooth to cling."):TEXT("Water is gone. F3: replay the event or test cleanup.")));
+                break;
+            }
     }
     if (State->bDayOneComplete)
     {

@@ -99,7 +99,7 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Толчок / ragdoll моего игрока"),TEXT("Обычный физический удар. После падения персонаж встаёт штатно."),EMCDevAction::Ragdoll);
     AddAction(Actions,TEXT("Гибель → возрождение за зуб арены"),TEXT("Убивает игрока хоста; обычное возрождение расходует конкретный большой зуб."),EMCDevAction::KillSelf);
     AddAction(Actions,TEXT("Восстановить общее здоровье рта"),TEXT("Язвы и повреждения отдельных зубов сохраняются."),EMCDevAction::RestoreMouth);
-    AddAction(Actions,TEXT("Остановить кофе / слить жидкость"),TEXT("Убирает воду и зацепы. Налёт остаётся."),EMCDevAction::StopCoffee);
+    AddAction(Actions,TEXT("Мгновенно убрать кофе — сброс теста"),TEXT("Убирает воду и зацепы. Обычный двухсекундный слив запускается автоматически после наполнения."),EMCDevAction::StopCoffee);
 }
 void UMCDevPanelWidget::SetFeedback(const FText& Text) { if (Feedback) Feedback->SetText(Text); }
 void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)

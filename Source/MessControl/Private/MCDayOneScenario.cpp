@@ -80,7 +80,7 @@ void AMCDayOneScenario::Next()
         auto* Tooth=GS->ArenaTeeth[0].Get(); FVector P=Tooth->GetActorLocation(); const float Side=FMath::Sign(P.Y);
         P.Y-=Side*(Tooth->Body->Bounds.BoxExtent.Y+65); P.Z=95;
         Move(0,P,FRotator(0,Side*90,0)); Move(1,FVector(-300,0,95)); Move(2,FVector(0,300,95)); Move(3,FVector(300,-200,95));
-        Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>(); Flood->Start(GS->DayPlan,10);
+        Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>(); Flood->Start(GS->DayPlan);
     }
     UE_LOG(LogTemp,Display,TEXT("MC_DAY1_NET_STAGE %d"),Stage); ForceNetUpdate();
 }
@@ -146,7 +146,7 @@ void AMCDayOneScenario::Tick(float Dt)
     {
         if (Heroes[0] && Heroes[0]->ClingTooth) Seen|=32;
         if (Heroes[1] && Heroes[1]->bInCoffee && Heroes[1]->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll) Seen|=64;
-        if (Flood && Flood->Wave==4) Seen|=128;
+        if (Flood && Flood->GetPhase()==EMCCoffeePhase::Draining) Seen|=128;
     }
     if (Capture && PC)
     {

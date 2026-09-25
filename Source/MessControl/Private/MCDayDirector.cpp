@@ -102,7 +102,12 @@ void AMCDayDirector::EnterStep()
         for (int32 I=0;I<Settings->BreakfastCount;++I) SpawnMenuFood(FVector(Random.FRandRange(-620,650),Random.FRandRange(-430,430),650),2);
     if (Step.Step==EMCDayStep::BrushLesson) { DirtyMouth(false); DropBrushes(); }
     if (Step.Step==EMCDayStep::BreakfastRain) RainSpawned=0;
-    if (Step.Step==EMCDayStep::CoffeeWaves && Flood) Flood->Start(Settings,Step.Seconds);
+    if (Step.Step==EMCDayStep::CoffeeWaves && Flood)
+    {
+        Flood->Start(Settings);
+        Settings->Steps[GS->StepIndex].Seconds=Flood->Seconds;
+        GS->PhaseEndsAt=GS->bDevManualEvents?0:StepStartedAt+Flood->Seconds;
+    }
     if (Step.Step==EMCDayStep::CoffeeCleanup) { if (Flood) Flood->Stop(); DirtyMouth(true); DropBrushes(); }
     if (Step.Step==EMCDayStep::StuckFood)
     {
@@ -151,12 +156,14 @@ void AMCDayDirector::Tick(float Dt)
         { SpawnMenuFood(FVector(Random.FRandRange(-620,650),Random.FRandRange(-430,430),650),2); ++RainSpawned; }
         Left=GS->bDevManualEvents?CountFood(2):Settings->BreakfastCount-RainSpawned; bWait=Elapsed<Step.Seconds; break;
     case EMCDayStep::BreakfastCleanup: Left=CountFood(2); break;
-    case EMCDayStep::CoffeeWaves: bWait=Elapsed<Step.Seconds; Left=Flood?FMath::Max(0,Settings->WaveCount-Flood->Wave):0; break;
+    case EMCDayStep::CoffeeWaves: bWait=Flood && Flood->IsActive(); Left=bWait?FMath::Max(1,Flood->Waves-Flood->Wave+1):0; break;
     case EMCDayStep::StuckFood: Left=CountFood(3); break;
     default: break;
     }
     GS->TasksLeft=Left; GS->TasksTotal=FMath::Max(GS->TasksTotal,Left);
     if (GS->bDevManualEvents) return;
+    // The profile owns the complete fill/drain duration; never cut the final drain short.
+    if (Step.Step==EMCDayStep::CoffeeWaves) { if (!bWait) Next(false); return; }
     if (Left==0 && !bWait) Next(false);
     else if (Step.Seconds>0 && Elapsed>=Step.Seconds) Next(Step.Step!=EMCDayStep::BreakfastRain && Step.Step!=EMCDayStep::CoffeeWaves);
 }
