@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameFramework/Actor.h"
+#include "MCDayPlan.h"
 #include "MCFoodActor.generated.h"
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -36,7 +37,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Food") FMCFoodSettings Settings;
 };
 UENUM(BlueprintType)
-enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed };
+enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped };
 
 /** Server-simulated rigid food. Clients receive motion and interaction state. */
 UCLASS(Blueprintable)
@@ -53,6 +54,11 @@ public:
     bool TryGrab(AMCToothCharacter* Hero);
     void Release(AMCToothCharacter* Hero);
     void Dispose();
+    void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
+    void ConfigureBrush();
+    bool HitFood(float Damage,FVector Direction);
+    void Throw(AMCToothCharacter* Hero);
+    float DragSpeed() const;
     bool IsDisposed() const { return Phase==EMCFoodPhase::Disposed; }
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UBoxComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
@@ -63,9 +69,21 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) float PullProgress=0;
     UPROPERTY(Replicated, BlueprintReadOnly) FVector PullDirection=FVector(0,1,0);
     UPROPERTY(Replicated, BlueprintReadOnly) TArray<TObjectPtr<AMCToothCharacter>> Holders;
+    UPROPERTY(ReplicatedUsing=OnRep_Item, BlueprintReadOnly) TObjectPtr<UStaticMesh> ItemMesh;
+    UPROPERTY(Replicated, BlueprintReadOnly) FMCFoodRow FoodData;
+    UPROPERTY(Replicated, BlueprintReadOnly) FName ItemName;
+    UPROPERTY(Replicated, BlueprintReadOnly) float Health=75;
+    UPROPERTY(Replicated, BlueprintReadOnly) bool bFragment=false;
+    UPROPERTY(Replicated, BlueprintReadOnly) bool bBrushTool=false;
+    UPROPERTY(Replicated, BlueprintReadOnly) bool bSpoiled=false;
+    UPROPERTY(Replicated, BlueprintReadOnly) double SpoilAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly) int32 Batch=0;
+    UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCToothCharacter> EquippedBy;
+    UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AActor> StuckTooth;
     int32 ConfirmedImpacts=0;
 private:
     UFUNCTION() void OnRep_Phase();
+    UFUNCTION() void OnRep_Item();
     UFUNCTION() void OnHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     bool bJamOnLanding=false;
     bool bLandingPending=false;
@@ -74,6 +92,7 @@ private:
     FVector PrePhysicsVelocity=FVector::ZeroVector;
     TMap<TWeakObjectPtr<AActor>,double> LastHit;
     TMap<TWeakObjectPtr<AMCToothCharacter>,FVector> GripOffsets;
+    void Spoil();
 };
 
 /** Replaceable level marker: ordinary food is disposed towards the throat. */
@@ -86,4 +105,8 @@ public:
     virtual void Tick(float Dt) override;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Volume;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UTextRenderComponent> Label;
+    UPROPERTY(EditAnywhere, Replicated) bool bBrushBin=false;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+private:
+    bool bExitConfigured=false;
 };

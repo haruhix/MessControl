@@ -1,8 +1,12 @@
 #include "MCGameMode.h"
+#include "MCDayDirector.h"
+#include "MCMouthSurface.h"
+#include "MCCoffeeFlood.h"
 #include "MCGameState.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCCoreScenario.h"
+#include "MCDayOneScenario.h"
 #include "GameFramework/PlayerController.h"
 #include "MCArenaTooth.h"
 #include "MCArenaToothSocket.h"
@@ -29,6 +33,7 @@ AMCGameMode::AMCGameMode()
     TaskClass = AMCTaskActor::StaticClass();
     RunRulesProfile = TSoftObjectPtr<UMCRunRules>(FSoftObjectPath(TEXT("/Game/Data/DA_RunRules.DA_RunRules")));
     ArenaToothProfile = TSoftObjectPtr<UMCArenaToothProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_ArenaTooth.DA_ArenaTooth")));
+    FirstDayPlan=TSoftObjectPtr<UMCDayPlan>(FSoftObjectPath(TEXT("/Game/Data/DA_Day01.DA_Day01")));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Coffee(TEXT("/Game/Data/DA_Coffee"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Food(TEXT("/Game/Data/DA_Food"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Tooth(TEXT("/Game/Data/DA_LooseTooth"));
@@ -39,6 +44,7 @@ AMCGameMode::AMCGameMode()
 void AMCGameMode::BeginPlay()
 {
     Super::BeginPlay();
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays"))) bUseDayOnePlan=false;
     EventPool.RemoveAll([](const TObjectPtr<UMCDayEvent>& Event) { return !IsValid(Event); });
     // Native fallbacks also make a blank test map playable before content generation.
     if (EventPool.IsEmpty())
@@ -56,6 +62,7 @@ void AMCGameMode::BeginPlay()
     if (FParse::Param(FCommandLine::Get(),TEXT("MCArenaDemo")) && GetNetMode()==NM_Standalone)
         GetWorld()->SpawnActor<AMCArenaDemo>();
     if (FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) GetWorld()->SpawnActor<AMCCoreScenario>();
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCDayOne"))) GetWorld()->SpawnActor<AMCDayOneScenario>();
 #endif
 }
 void AMCGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -75,6 +82,11 @@ void AMCGameMode::RestartShift()
 {
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State) return;
+    if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
+    TArray<AActor*> OldDayActors;
+    for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
+    for (auto* Actor:OldDayActors) Actor->Destroy();
+    State->DayPlan=nullptr; State->StepIndex=INDEX_NONE; State->bPhysicalBrushes=false; State->bDayOneComplete=false; State->FailedEvents=0;
     ClearTasks();
     Objectives.Empty(); PendingRespawns.Empty();
     TArray<AMCFoodActor*> OldFood;
@@ -136,8 +148,10 @@ void AMCGameMode::Tick(float DeltaSeconds)
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
     ProcessRespawns();
+    if (State->bDayOneComplete) return;
     if (State->MouthHealth<=0 || (GetNumPlayers()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0))
     { State->Phase=EMCShiftPhase::Lost; State->ForceNetUpdate(); return; }
+    if (State->Phase==EMCShiftPhase::Working && IsValid(DayDirector)) return;
     if (State->Phase==EMCShiftPhase::Working) UpdateObjectives();
     if (State->Phase==EMCShiftPhase::Intermission && State->Day>=State->RunSettings.DaysToSurvive)
     { if (GetNumPlayers()==0 || HasLivingPlayers()) { State->Phase=EMCShiftPhase::Won; State->ForceNetUpdate(); } return; }
@@ -150,6 +164,11 @@ void AMCGameMode::StartDay()
     AMCGameState* State = GetGameState<AMCGameState>();
     ClearTasks();
     ++State->Day;
+    if (State->Day==1 && bUseDayOnePlan)
+    {
+        UMCDayPlan* Plan=FirstDayPlan.LoadSynchronous(); if (!Plan) Plan=NewObject<UMCDayPlan>(this);
+        DayDirector=GetWorld()->SpawnActor<AMCDayDirector>(); DayDirector->Start(Plan); return;
+    }
     int32 Choice = Random.RandRange(0, EventPool.Num()-1);
     if (EventPool.Num()>1 && Choice == PreviousEvent) Choice = (Choice + Random.RandRange(1, EventPool.Num()-1)) % EventPool.Num();
     PreviousEvent = Choice;
@@ -212,6 +231,7 @@ void AMCGameMode::FinishDay(bool bTimedOut)
 
 void AMCGameMode::UpdateObjectives()
 {
+    if (IsValid(DayDirector)) return;
     auto* GS=GetGameState<AMCGameState>(); if (!GS || GS->Phase!=EMCShiftPhase::Working) return;
     for (auto& O:Objectives)
     {

@@ -40,6 +40,6 @@ void AMCPlayerController::ServerRestartShift_Implementation()
 {
     // Only the listen host may restart, and only after a finished run.
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>();
-    if (!IsLocalController() || !State || (State->Phase != EMCShiftPhase::Won && State->Phase != EMCShiftPhase::Lost)) return;
+    if (!IsLocalController() || !State || (!State->bDayOneComplete && State->Phase != EMCShiftPhase::Won && State->Phase != EMCShiftPhase::Lost)) return;
     if (AMCGameMode* Mode = GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->RestartShift();
 }

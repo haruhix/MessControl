@@ -8,6 +8,11 @@
 #include "MCArenaToothSocket.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCDayDirector.h"
+#include "MCDayPlan.h"
+#include "MCMouthSurface.h"
+#include "MCCoffeeFlood.h"
+#include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -40,6 +45,7 @@ namespace
             FURL URL; URL.AddOption(TEXT("game=/Script/MessControl.MCGameMode")); URL.AddOption(TEXT("Seed=41"));
             World->SetGameMode(URL); World->InitializeActorsForPlay(URL); World->BeginPlay();
             Mode=World->GetAuthGameMode<AMCGameMode>(); State=World->GetGameState<AMCGameState>();
+            Mode->bUseDayOnePlan=false; // These regression cases cover the retained sandbox events.
         }
         ~FTestMouth() { World->EndPlay(EEndPlayReason::Quit); GEngine->DestroyWorldContext(World); World->DestroyWorld(false); }
         void NextPhase() { State->PhaseEndsAt=State->GetServerWorldTimeSeconds()-1; Mode->Tick(0.01f); }
@@ -426,6 +432,107 @@ bool FMCFoodApproachTest::RunTest(const FString& Parameters)
     Contact(FVector(-600,0,0),FVector::ZeroVector);
     TestEqual(TEXT("Genuinely incoming free food still strikes once"),Food->ConfirmedImpacts,1);
     TestTrue(TEXT("Real strike damages and knocks down"),Hero->Status->State.Health<100 && Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDayOneSequenceTest,"MessControl.DayOne.SequenceAndNoGlobalDeadline",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDayOneSequenceTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; Mouth.Mode->bUseDayOnePlan=true; Mouth.NextPhase();
+    auto* D=Mouth.Mode->DayDirector.Get(); if (!TestNotNull(TEXT("Day director starts"),D)) return false;
+    TestEqual(TEXT("First event is lesson"),Mouth.State->StepIndex,0);
+    TestEqual(TEXT("Lesson has no event deadline"),Mouth.State->PhaseEndsAt,0.);
+    Mouth.State->DayStartedAt-=500; D->Tick(.1f);
+    TestEqual(TEXT("240 seconds is a reference, never a hard cutoff"),Mouth.State->StepIndex,0);
+    TestTrue(TEXT("Teeth and tissue are both dirty"),D->CountDirt()>8);
+    for (TActorIterator<AActor> It(Mouth.World);It;++It) if (auto* S=It->FindComponentByClass<UMCToothStatusComponent>()) while (S->NeedsCare(true)) S->CareContact(true);
+    D->Tick(.1f); TestEqual(TEXT("Cleaning advances to brush disposal in same day"),Mouth.State->StepIndex,1);
+    TestEqual(TEXT("Event progress never increments Day"),Mouth.State->Day,1);
+    for (TActorIterator<AMCFoodActor> It(Mouth.World);It;++It) if (It->bBrushTool) It->Dispose();
+    D->Tick(.1f); D->Tick(.1f); TestEqual(TEXT("Breakfast starts after disposal"),Mouth.State->StepIndex,2);
+    TestTrue(TEXT("Menu food actually spawns"),D->CountFood(2)>0);
+    D->Next(); const float Before=Mouth.State->MouthHealth; D->Next(true);
+    TestEqual(TEXT("Failed event advances inside day"),Mouth.State->Day,1);
+    TestTrue(TEXT("Failure costs configured mouth health"),Mouth.State->MouthHealth<Before && Mouth.State->FailedEvents==1);
+    TestTrue(TEXT("Coffee starts a real volume"),D->Flood && D->Flood->IsActive());
+    D->Next(); TestFalse(TEXT("Coffee ends before cleaning"),D->Flood->IsActive());
+    D->Next(); TestTrue(TEXT("Stuck food exists at arena teeth"),D->CountFood(3)>0);
+    for (TActorIterator<AMCFoodActor> It(Mouth.World);It;++It) if (It->Batch==3)
+    { TestNotNull(TEXT("Stuck anchor is an arena tooth"),Cast<AMCArenaTooth>(It->StuckTooth)); TestEqual(TEXT("Food remains stuck until pulled"),It->Phase,EMCFoodPhase::Stuck); }
+    D->Next(); TestTrue(TEXT("Stops at day one, does not invent the foam party"),Mouth.State->bDayOneComplete);
+    Mouth.Mode->RestartShift(); TestNull(TEXT("Restart removes director"),Mouth.Mode->DayDirector.Get());
+    TestFalse(TEXT("Restart clears brush inventory rules"),Mouth.State->bPhysicalBrushes);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCBrushRoutingTest,"MessControl.DayOne.PhysicalBrushAndCorrectDisposal",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCBrushRoutingTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; Mouth.State->bPhysicalBrushes=true; auto* Hero=Mouth.Worker();
+    Hero->SetActorLocation(FVector(-80,0,95)); Hero->SetActorRotation(FRotator::ZeroRotator);
+    TestFalse(TEXT("No starting brush in inventory"),Hero->HasBrush());
+    const FTransform T(FVector(0,0,95)); auto* Brush=Mouth.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
+    Brush->ConfigureBrush(); UGameplayStatics::FinishSpawningActor(Brush,T);
+    TestTrue(TEXT("Physical brush can be picked up"),Brush->TryGrab(Hero));
+    TestTrue(TEXT("Inventory enables brushing"),Hero->HasBrush() && Brush->Phase==EMCFoodPhase::Equipped);
+    TestFalse(TEXT("Equipped brushes cannot be stolen"),Brush->TryGrab(Hero));
+    Hero->ServerThrowItem(); TestFalse(TEXT("Throw removes equipped brush"),Hero->HasBrush());
+    TestEqual(TEXT("Thrown brush returns to physics"),Brush->Phase,EMCFoodPhase::Free);
+    auto* Throat=Mouth.World->SpawnActor<AMCFoodDisposal>(FVector(500,0,100),FRotator::ZeroRotator);
+    Brush->SetActorLocation(Throat->GetActorLocation()); Throat->Tick(.1f);
+    TestFalse(TEXT("Throat refuses brushes"),Brush->IsDisposed());
+    auto* Bin=Mouth.World->SpawnActor<AMCFoodDisposal>(FVector(-500,0,100),FRotator::ZeroRotator); Bin->bBrushBin=true;
+    Brush->SetActorLocation(Bin->GetActorLocation()); Bin->Tick(.1f);
+    TestTrue(TEXT("Overboard bin accepts brushes"),Brush->IsDisposed());
+    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(Bin->GetActorLocation(),FRotator::ZeroRotator); Food->Phase=EMCFoodPhase::Free; Bin->Tick(.1f);
+    TestFalse(TEXT("Brush bin never completes food removal"),Food->IsDisposed());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCBreakfastMenuTest,"MessControl.DayOne.MenuFragmentsMassAndSpoilage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; FRandomStream Random(17);
+    auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
+    if (!TestNotNull(TEXT("Editable menu table exists"),Table)) return false;
+    const auto* Row=Table->FindRow<FMCFoodRow>(TEXT("Broccoli"),TEXT("Test")); if (!TestNotNull(TEXT("Broccoli row exists"),Row)) return false;
+    TestEqual(TEXT("Whole variants A B C"),Row->WholeMeshes.Num(),3); TestEqual(TEXT("Fragment variants A B C"),Row->FragmentMeshes.Num(),3);
+    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,160),FRotator::ZeroRotator); Food->ConfigureItem(TEXT("Broccoli"),*Row,Random);
+    Food->Batch=22; Food->SpoilAt=35;
+    const float Heavy=Food->DragSpeed(); Food->Settings.Mass=3; TestTrue(TEXT("Lighter food can be dragged faster"),Food->DragSpeed()>Heavy); Food->Settings.Mass=Row->Mass;
+    Food->HitFood(Row->Health,FVector::ForwardVector);
+    TestTrue(TEXT("Whole food is replaced"),Food->IsDisposed()); int32 Count=0; float Mass=0;
+    for (TActorIterator<AMCFoodActor> It(Mouth.World);It;++It) if (It->bFragment && !It->IsDisposed())
+    {
+        ++Count; Mass+=It->Settings.Mass; TestEqual(TEXT("Pieces keep the objective batch"),It->Batch,22);
+        TestEqual(TEXT("Breaking does not reset expiry"),It->SpoilAt,35.);
+        TestNotNull(TEXT("Fragment mesh loaded"),It->ItemMesh.Get());
+        It->HitFood(10000,FVector::ForwardVector); TestFalse(TEXT("Hitting fragments does not delete cleanup work"),It->IsDisposed());
+    }
+    TestEqual(TEXT("Configured number of pieces"),Count,Row->Fragments); TestTrue(TEXT("Fragment mass conserves whole mass"),FMath::IsNearlyEqual(Mass,Row->Mass));
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor); Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1000,1000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    auto* Rot=Mouth.World->SpawnActor<AMCFoodActor>(FVector(300,300,80),FRotator::ZeroRotator); Rot->ConfigureItem(TEXT("Egg"),*Row,Random); Rot->SpoilAt=.001;
+    ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.05f); Rot->Tick(.1f);
+    TestTrue(TEXT("Expired food becomes infected"),Rot->bSpoiled);
+    int32 Ulcers=0; for (TActorIterator<AMCMouthSurface> It(Mouth.World);It;++It) if (It->bUlcer) ++Ulcers;
+    TestTrue(TEXT("Spoilage leaves a lesion on the actual floor"),Ulcers>0);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCUlcerAndFloodTest,"MessControl.DayOne.UlcerProtectionAndCoffeeControl",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCUlcerAndFloodTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Patch=Mouth.World->SpawnActor<AMCMouthSurface>(FVector(300,300,5),FRotator::ZeroRotator); Patch->bUlcer=true; Patch->HealSeconds=2;
+    const float Before=Mouth.State->MouthHealth; Patch->Tick(.5f);
+    TestTrue(TEXT("Untouched ulcer heals automatically while hurting mouth"),Patch->Healing>0 && Mouth.State->MouthHealth<Before);
+    auto* Hero=Mouth.Worker(); Hero->SetActorLocation(FVector(300,300,95)); Patch->Tick(.1f);
+    TestEqual(TEXT("Walking over ulcer resets healing"),Patch->Healing,0.f);
+    Hero->SetActorLocation(FVector(0,0,95)); Patch->Tick(2.1f); TestTrue(TEXT("Protected ulcer closes itself"),Patch->IsActorBeingDestroyed());
+    auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan,10);
+    Flood->StartedAt=Mouth.World->GetTimeSeconds()-1.25; Flood->Tick(.05f);
+    TestTrue(TEXT("Rising coffee reaches the hero"),Hero->bInCoffee && Flood->Contains(Hero->GetActorLocation()));
+    Hero->ServerPaddle(FVector2D(100,100)); TestTrue(TEXT("Server clamps swimming input"),Hero->PaddleInput.Size()<=1.001);
+    Flood->Stop(); TestFalse(TEXT("Draining releases water control state"),Hero->bInCoffee);
     return true;
 }
 #endif
