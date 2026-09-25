@@ -4,6 +4,10 @@
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCToothStatusComponent.h"
+#include "MCFoodActor.h"
+#include "MCCoreScenario.h"
+#include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/CanvasPanel.h"
@@ -60,9 +64,16 @@ void UMCPrototypeWidget::NativeOnInitialized()
     HealthLabel = AddText(Health,TEXT("MOUTH HEALTH / --"),15,Cream);
     HealthBar = WidgetTree->ConstructWidget<UProgressBar>(); HealthBar->SetFillColorAndOpacity(Mint); HealthBar->SetPercent(1); Health->AddChildToVerticalBox(HealthBar)->SetPadding(FMargin(0,8));
     TimeLabel = AddText(Health,TEXT("SHIFT STARTS IN 08"),19,Mint);
-    UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1000,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
+    UBorder* CareBorder; auto* Care=Panel(FVector2D(0,-110),FVector2D(790,110),FAnchors(.5f,1),FVector2D(.5f,1),CareBorder);
+    PlayerStatusLabel=AddText(Care,TEXT(""),14,Cream);
+    ContactLabel=AddText(Care,TEXT(""),14,Mint);
+    ContactBar=WidgetTree->ConstructWidget<UProgressBar>(); ContactBar->SetFillColorAndOpacity(Mint); Care->AddChildToVerticalBox(ContactBar);
+    FProgressBarStyle ProgressStyle=ContactBar->GetWidgetStyle();
+    ProgressStyle.BackgroundImage.TintColor=FSlateColor(FLinearColor(.018f,.035f,.04f));
+    ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
+    UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
     AddText(Footer,TEXT("WASD  MOVE    SPACE  HOP    LMB  CLEAN    E  PULL / REPAIR    RMB  BONK"),15,Cream);
-    AddText(Footer,TEXT("F1  TOOTH LAB      F2  PLAY WITH FRIENDS      GAMEPAD  STICK / A / RB / X / LB"),12,Mint);
+    AddText(Footer,TEXT("C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      GAMEPAD  STICK / A / RB / X / LB"),12,Mint);
     UBorder* TuningBorder; auto* Tuning = Panel(FVector2D(-28,174),FVector2D(360,710),FAnchors(1,0),FVector2D(1,0),TuningBorder); TuningPanel = TuningBorder;
     TuningScroll=WidgetTree->ConstructWidget<UScrollBox>(); TuningBorder->SetContent(TuningScroll); TuningScroll->AddChild(Tuning);
     AddText(Tuning,TEXT("TOOTH LAB"),23,Mint);
@@ -85,6 +96,12 @@ void UMCPrototypeWidget::NativeOnInitialized()
     SaveLabel = AddText(Tuning,TEXT("DA_ToothAnimation supplies the shared defaults."),11,Cream);
     PhysicsBox=WidgetTree->ConstructWidget<UVerticalBox>(); Tuning->AddChildToVerticalBox(PhysicsBox);
     AddText(PhysicsBox,TEXT("PHYSICS / HOST"),21,Mint);
+    AddText(PhysicsBox,TEXT("GAMEPLAY / HOST TESTS"),18,Mint);
+    Button(PhysicsBox,TEXT("COFFEE: ALL TEETH + PLAYERS"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ArenaCoffeeClicked);
+    Button(PhysicsBox,TEXT("DAMAGE MY TOOTH (-25 HP)"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DamageSelfClicked);
+    Button(PhysicsBox,TEXT("LOOSEN ALL LIVING TEETH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::LooseClicked);
+    Button(PhysicsBox,TEXT("DROP STUCK FOOD AHEAD"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DropFoodClicked);
+    Button(PhysicsBox,TEXT("DIE / TEST RESPAWN COST"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::RespawnClicked);
     AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then RMB to bonk."),12,Cream);
     Button(PhysicsBox,TEXT("SPAWN PRACTICE TOOTH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DummyClicked);
     Button(PhysicsBox,TEXT("TEST FALL"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::FallClicked);
@@ -125,10 +142,27 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     Super::NativeTick(Geometry,DeltaSeconds);
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>(); if (!State || !DayLabel) return;
     const bool bWorking = State->Phase == EMCShiftPhase::Working;
+    if (const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn()))
+    {
+        PlayerStatusLabel->SetText(FText::FromString(Hero->Status->Summary()));
+        FString Hint=Hero->bSelfCare?TEXT("SELF CARE: LMB brush / E heal. C returns to others."):TEXT("Face a tooth: hold LMB to brush, E to heal. C: self care.");
+        float Progress=Hero->ContactProgress;
+        if (!Hero->Status->IsAlive()) Hint=State->AvailableArenaTeeth()>0?FString::Printf(TEXT("DOWN | RESPAWN %.1fs | consumes one numbered arena tooth"),FMath::Max(0.,Hero->RespawnAt-State->GetServerWorldTimeSeconds())):TEXT("DOWN | NO RESERVE TEETH LEFT");
+        else if (IsValid(Hero->HeldFood))
+        {
+            Progress=Hero->HeldFood->PullProgress;
+            Hint=Hero->HeldFood->Phase==EMCFoodPhase::Stuck?TEXT("HOLD E + MOVE TOWARDS CENTRE to pull free. Release E to let go."):TEXT("HOLD E + MOVE: drag food to THROAT. Release E to drop.");
+        }
+        else if (IsValid(Hero->CareTarget))
+            if (auto* Target=Hero->CareTarget->FindComponentByClass<UMCToothStatusComponent>())
+                Hint=FString::Printf(TEXT("%s | %s | CONTACT %.0f%%"),Hero->CareTarget==Hero?TEXT("SELF"):TEXT("TARGET"),*Target->Summary(),Progress*100);
+        ContactLabel->SetText(FText::FromString(Hint)); ContactBar->SetPercent(Progress);
+    }
     ArenaLabel->SetText(FText::FromString(FString::Printf(TEXT("ARENA TEETH  %d / %d"),State->AvailableArenaTeeth(),State->ArenaTeeth.Num())));
     const bool bWon = State->Phase == EMCShiftPhase::Won; const bool bLost = State->Phase == EMCShiftPhase::Lost;
     DayLabel->SetText(FText::FromString(FString::Printf(TEXT("DAY %02d / %02d"),FMath::Max(1,State->Day),State->RunSettings.DaysToSurvive)));
     EventLabel->SetText(bWon ? FText::FromString(TEXT("ALL SMILES. YOU MADE IT!")) : bLost ? FText::FromString(TEXT("THIS MOUTH NEEDS A BREAK")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Title : FText::FromString(TEXT("TAKE A BREATHER")));
+    for (TActorIterator<AMCCoreScenario> It(GetWorld());It;++It) { EventLabel->SetText(FText::FromString(It->Caption())); break; }
     InstructionLabel->SetText((bWon || bLost) ? FText::FromString(TEXT("Host: press R to start another shift.")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Instruction : FText::FromString(TEXT("Get ready. Something messy is coming.")));
     TaskLabel->SetText(FText::FromString(bWorking ? FString::Printf(TEXT("%02d / %02d JOBS DONE    |    %d / %d TEETH"),State->TasksTotal-State->TasksLeft,State->TasksTotal,State->PlayerArray.Num(),State->RunSettings.MaxPlayers) : FString::Printf(TEXT("%d / %d TEETH ON DUTY"),State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
     HealthLabel->SetText(FText::FromString(FString::Printf(TEXT("MOUTH HEALTH / %03d"),FMath::RoundToInt(State->MouthHealth)))); HealthBar->SetPercent(State->MouthHealth/FMath::Max(1.f,State->RunSettings.MaxMouthHealth));
@@ -195,6 +229,30 @@ void UMCPrototypeWidget::DummyClicked() { if (auto* T=Cast<AMCToothCharacter>(Ge
 void UMCPrototypeWidget::ArenaCoffeeClicked()
 {
     for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) It->SetCoffee(1);
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->Status->ApplyCoffee();
+}
+void UMCPrototypeWidget::DamageSelfClicked()
+{
+    if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) T->Status->Damage(25);
+}
+void UMCPrototypeWidget::LooseClicked()
+{
+    for (TActorIterator<AActor> It(GetWorld());It;++It)
+        if (auto* S=It->FindComponentByClass<UMCToothStatusComponent>()) S->Loosen();
+}
+void UMCPrototypeWidget::DropFoodClicked()
+{
+    if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn()); T && T->HasAuthority())
+    {
+        const FTransform Transform(T->GetActorLocation()+T->GetActorForwardVector()*120+FVector(0,0,650));
+        auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform);
+        const FVector Direction(0,T->GetActorLocation().Y>0?-1.f:1.f,0);
+        if (Food) { Food->Initialize(true,Direction); UGameplayStatics::FinishSpawningActor(Food,Transform); }
+    }
+}
+void UMCPrototypeWidget::RespawnClicked()
+{
+    if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) T->Status->Damage(T->Status->State.MaxHealth);
 }
 void UMCPrototypeWidget::ArenaCleanClicked()
 {

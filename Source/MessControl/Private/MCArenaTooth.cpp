@@ -1,4 +1,6 @@
 #include "MCArenaTooth.h"
+#include "MCToothStatusComponent.h"
+#include "MCFoodActor.h"
 #include "MCGameState.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -21,6 +23,8 @@ void FMCArenaToothSettings::Sanitize()
 AMCArenaTooth::AMCArenaTooth()
 {
     PrimaryActorTick.bCanEverTick=true; bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true);
+    PrimaryActorTick.TickGroup=TG_PostUpdateWork;
+    Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
     Body=CreateDefaultSubobject<UBoxComponent>(TEXT("PhysicalBody")); SetRootComponent(Body);
     Body->SetBoxExtent(FVector(48,48,78)); Body->SetCollisionProfileName(TEXT("BlockAllDynamic"));
     Body->SetNotifyRigidBodyCollision(true); Body->SetLinearDamping(0.6f); Body->SetAngularDamping(1.5f);
@@ -37,6 +41,7 @@ void AMCArenaTooth::Initialize(int32 Id,const FMCArenaToothSettings& Defaults)
 {
     if (!HasAuthority()) return;
     Settings=Defaults; Settings.Sanitize(); State.ToothId=Id; State.Health=Settings.MaxHealth;
+    Status->Initialize(Settings.MaxHealth);
 }
 void AMCArenaTooth::BeginPlay()
 {
@@ -70,21 +75,40 @@ void AMCArenaTooth::ApplyAppearance()
 bool AMCArenaTooth::ReceiveArenaHit(float Damage,FVector Direction)
 {
     if (!HasAuthority() || !IsAvailable() || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
-    State.Health=FMath::Max(0.f,State.Health-Damage); State.bLost=State.Health<=0;
-    State.HitDirection=Direction.GetSafeNormal2D();
+    return Status->Damage(Damage,Direction);
+}
+bool AMCArenaTooth::IsLoose() const { return IsAvailable() && Status->IsLoose(); }
+void AMCArenaTooth::StatusChanged()
+{
+    if (!HasAuthority()) return;
+    // Compatibility snapshot for the original arena demo; Status owns all gameplay values.
+    State.Health=Status->State.Health; State.Coffee=Status->CoffeeAmount();
+    State.bLost=State.Health<=0;
+    if (Status->State.bCareReaction) { ForceNetUpdate(); return; }
+    State.HitDirection=Status->LastDamageDirection.GetSafeNormal2D();
     if (State.HitDirection.IsNearlyZero()) State.HitDirection=FVector(0,1,0);
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     State.HitTime=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds(); ++State.HitSerial;
+    ForceNetUpdate();
+}
+bool AMCArenaTooth::ConsumeForRespawn()
+{
+    if (!HasAuthority() || !IsAvailable()) return false;
+    State.bConsumed=true; SetActorHiddenInGame(true); Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     ForceNetUpdate(); return true;
 }
 void AMCArenaTooth::SetCoffee(float Amount)
 {
     if (!HasAuthority() || !IsAvailable() || !FMath::IsFinite(Amount)) return;
-    State.Coffee=FMath::Clamp(Amount,0.f,1.f); ForceNetUpdate();
+    Status->ApplyCoffee(Amount);
 }
 void AMCArenaTooth::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if (State.bConsumed)
+    {
+        SetActorHiddenInGame(true); Body->SetSimulatePhysics(false); Body->SetCollisionEnabled(ECollisionEnabled::NoCollision); return;
+    }
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     const float Since=FMath::Max(0.,Now-State.HitTime);
@@ -120,13 +144,14 @@ void AMCArenaTooth::Tick(float DeltaSeconds)
         Material->SetScalarParameterValue(TEXT("Damage"),1-State.Health/Settings.MaxHealth);
         Material->SetScalarParameterValue(TEXT("HitFlash"),Since<0.16f?(1-Since/0.16f):0);
     }
-    Label->SetText(FText::FromString(FString::Printf(TEXT("%02d  |  %.0f"),State.ToothId,State.Health)));
+    Label->SetText(FText::FromString(FString::Printf(TEXT("%02d | HP %.0f\nBRUSH %d/%d | REPAIR %d"),State.ToothId,State.Health,Status->State.CoffeeLeft,Status->State.CoffeeTotal,Status->State.RepairLeft)));
     Label->SetTextRenderColor(IsLoose()?FColor(255,177,69):FColor(135,255,218));
     if (const APlayerController* PC=GetWorld()->GetFirstPlayerController(); PC && PC->PlayerCameraManager)
         Label->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Label->GetComponentLocation()).Rotation());
 }
-void AMCArenaTooth::OnBodyHit(UPrimitiveComponent*,AActor*,UPrimitiveComponent* Other,FVector Impulse,const FHitResult& Hit)
+void AMCArenaTooth::OnBodyHit(UPrimitiveComponent*,AActor* OtherActor,UPrimitiveComponent* Other,FVector Impulse,const FHitResult& Hit)
 {
+    if (Cast<AMCFoodActor>(OtherActor)) return; // Food owns its per-target hit cooldown.
     if (!HasAuthority() || !IsAvailable() || !Other || !Other->IsSimulatingPhysics()) return;
     const double Now=GetWorld()->GetTimeSeconds();
     // Normal impulse gives the approaching speed even when Chaos already stopped the other body.

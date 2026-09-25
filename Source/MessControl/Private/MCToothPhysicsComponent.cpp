@@ -1,5 +1,6 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -81,6 +82,7 @@ void UMCToothPhysicsComponent::EnterRagdoll()
 {
     ++KnockdownCount;
     Tooth->bBrushing=false; Tooth->bHandling=false;
+    Tooth->DropFood(); Tooth->ResetContact();
     Tooth->GetCharacterMovement()->StopMovementImmediately(); Tooth->GetCharacterMovement()->DisableMovement();
     Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Tooth->SetReplicateMovement(false);
@@ -138,7 +140,7 @@ void UMCToothPhysicsComponent::CaptureFrame()
 }
 bool UMCToothPhysicsComponent::TryRecover()
 {
-    if (!Tooth || !Tooth->HasAuthority() || LocalState!=EMCBodyState::Ragdoll) return false;
+    if (!Tooth || !Tooth->Status->IsAlive() || !Tooth->HasAuthority() || LocalState!=EMCBodyState::Ragdoll) return false;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCGetUp),false,Tooth);
     FHitResult Floor; const FVector Center=PhysicalLocation();
     if (!GetWorld()->LineTraceSingleByChannel(Floor,Center+FVector(0,0,60),Center-FVector(0,0,350),ECC_WorldStatic,Params) || Floor.ImpactNormal.Z<0.65f) return false;
@@ -231,11 +233,10 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
             if (SendAccumulator>=0.05f) { SendAccumulator=0; CaptureFrame(); Tooth->ForceNetUpdate(); }
             const float Age=ServerTime()-FMath::Max(Frame.StateStartedAt,LastHitTime);
             if (Age>=Settings.RagdollSeconds && (Tooth->GetMesh()->GetPhysicsLinearVelocity(TEXT("body")).Size()<160 || Age>Settings.RagdollSeconds+3)) TryRecover();
-            // Recover escaped bodies to a known safe point; no permanently unplayable pawn below KillZ.
+            // Falling out of the mouth is a real death, using the same reserve as impact deaths.
             if (Center.Z<-250)
             {
-                Frame.CapsuleLocation=FVector(-700,0,95); Frame.CapsuleYaw=0; Frame.Bones.Reset();
-                SetState(EMCBodyState::Standing); Tooth->SetActorLocation(Frame.CapsuleLocation,false,nullptr,ETeleportType::TeleportPhysics); EnterStanding();
+                Tooth->Status->Damage(Tooth->Status->State.MaxHealth);
             }
         }
         else
@@ -251,6 +252,17 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
     {
         Frame.CapsuleLocation=Tooth->GetActorLocation(); Frame.Bones.Reset(); SetState(EMCBodyState::Standing); EnterStanding();
     }
+}
+bool UMCToothPhysicsComponent::CanAct() const
+{
+    return LocalState==EMCBodyState::Standing && (!Tooth || Tooth->Status->IsAlive());
+}
+void UMCToothPhysicsComponent::EnterDeath()
+{
+    if (!Tooth || !Tooth->HasAuthority()) return;
+    if (LocalState!=EMCBodyState::Ragdoll) { SetState(EMCBodyState::Ragdoll); EnterRagdoll(); }
+    Tooth->GetMesh()->AddImpulseToAllBodiesBelow(FVector(0,0,220),TEXT("body"),true,true);
+    CaptureFrame(); Tooth->ForceNetUpdate();
 }
 void UMCToothPhysicsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

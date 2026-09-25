@@ -19,7 +19,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Physics") TObjectPtr<UMCPhysicsProfile> Profile;
     UPROPERTY(ReplicatedUsing=OnRep_Settings,BlueprintReadOnly,Category="Physics") FMCPhysicsSettings Settings;
     UFUNCTION(BlueprintPure,Category="Physics") EMCBodyState GetBodyState() const { return LocalState; }
-    bool CanAct() const { return LocalState == EMCBodyState::Standing; }
+    bool CanAct() const;
+    void EnterDeath();
     void ApplyHit(FVector VelocityChange,FVector HitLocation);
     bool TryRecover();
     void SetTuning(FMCPhysicsSettings NewSettings);

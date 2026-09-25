@@ -1,5 +1,9 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCToothStatusComponent.h"
+#include "MCFoodActor.h"
+#include "MCCoreScenario.h"
+#include "GameFramework/PlayerController.h"
 #include "MCArenaTooth.h"
 #include "MCArenaToothSocket.h"
 #include "Components/StaticMeshComponent.h"
@@ -51,6 +55,7 @@ void AMCGameMode::BeginPlay()
 #if !UE_BUILD_SHIPPING
     if (FParse::Param(FCommandLine::Get(),TEXT("MCArenaDemo")) && GetNetMode()==NM_Standalone)
         GetWorld()->SpawnActor<AMCArenaDemo>();
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) GetWorld()->SpawnActor<AMCCoreScenario>();
 #endif
 }
 void AMCGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -71,6 +76,21 @@ void AMCGameMode::RestartShift()
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State) return;
     ClearTasks();
+    Objectives.Empty(); PendingRespawns.Empty();
+    TArray<AMCFoodActor*> OldFood;
+    for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) OldFood.Add(*It);
+    for (auto* Food:OldFood) Food->Destroy();
+    for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+    {
+        auto* PC=It->Get(); if (!PC) continue;
+        if (APawn* Pawn=PC->GetPawn()) { PC->UnPossess(); Pawn->Destroy(); }
+        RestartPlayer(PC);
+    }
+    if (!IsValid(Throat))
+    {
+        for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) { Throat=*It; break; }
+        if (!Throat) Throat=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(920,0,180),FRotator::ZeroRotator);
+    }
     const UMCRunRules* Rules = RunRulesProfile.LoadSynchronous();
     State->RunSettings = Rules ? Rules->Settings : FMCRunSettings();
     State->RunSettings.Sanitize();
@@ -114,7 +134,14 @@ void AMCGameMode::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     AMCGameState* State = GetGameState<AMCGameState>();
-    if (!State || State->SecondsLeft() > 0.f) return;
+    if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
+    ProcessRespawns();
+    if (State->MouthHealth<=0 || (GetNumPlayers()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0))
+    { State->Phase=EMCShiftPhase::Lost; State->ForceNetUpdate(); return; }
+    if (State->Phase==EMCShiftPhase::Working) UpdateObjectives();
+    if (State->Phase==EMCShiftPhase::Intermission && State->Day>=State->RunSettings.DaysToSurvive)
+    { if (GetNumPlayers()==0 || HasLivingPlayers()) { State->Phase=EMCShiftPhase::Won; State->ForceNetUpdate(); } return; }
+    if (State->SecondsLeft() > 0.f) return;
     if (State->Phase == EMCShiftPhase::Intermission) StartDay();
     else if (State->Phase == EMCShiftPhase::Working) FinishDay(true);
 }
@@ -130,16 +157,36 @@ void AMCGameMode::StartDay()
     State->CurrentEvent = Event; State->Phase = EMCShiftPhase::Working;
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + FMath::Max(25.f, Event->Duration - (State->Day-1)*4.f);
     const int32 Count = FMath::Clamp(Event->BaseTaskCount + (State->Day-1)/2 + FMath::Max(0, GetNumPlayers()-1), 1, 16);
-    TArray<FVector> Slots;
-    for (int32 X=0; X<4; ++X) for (int32 Y=0; Y<4; ++Y) Slots.Add(FVector(-650+X*390, -570+Y*380, 40));
-    for (int32 Index=Slots.Num()-1; Index>0; --Index) Slots.Swap(Index, Random.RandRange(0, Index));
-    for (int32 Index=0; Index<Count; ++Index)
+    Objectives.Empty();
+    auto AddObjective=[&](AActor* Target) { FMCEventObjective O; O.Target=Target; O.Kind=Event->Kind; Objectives.Add(O); };
+    if (Event->Kind==EMCTaskKind::Coffee)
     {
-        const FTransform SpawnTransform(FRotator::ZeroRotator, Slots[Index]);
-        AMCTaskActor* Task = GetWorld()->SpawnActorDeferred<AMCTaskActor>(TaskClass ? TaskClass.Get() : AMCTaskActor::StaticClass(), SpawnTransform);
-        if (Task) { Task->Initialize(Event); UGameplayStatics::FinishSpawningActor(Task, SpawnTransform); ActiveTasks.Add(Task); }
+        for (AMCArenaTooth* Tooth:State->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable()) { Tooth->SetCoffee(1); AddObjective(Tooth); }
+        for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if (It->Status->IsAlive()) { It->Status->ApplyCoffee(); AddObjective(*It); }
     }
-    State->TasksTotal = ActiveTasks.Num(); State->TasksLeft = State->TasksTotal;
+    else if (Event->Kind==EMCTaskKind::LooseTooth)
+    {
+        TArray<AActor*> Targets;
+        for (AMCArenaTooth* Tooth:State->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable()) Targets.Add(Tooth);
+        for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if (It->Status->IsAlive()) Targets.Add(*It);
+        for (int32 I=Targets.Num()-1;I>0;--I) Targets.Swap(I,Random.RandRange(0,I));
+        for (int32 I=0;I<FMath::Min(Count,Targets.Num());++I)
+        { Targets[I]->FindComponentByClass<UMCToothStatusComponent>()->Loosen(); AddObjective(Targets[I]); }
+    }
+    else
+    {
+        const auto* Profile=LoadObject<UMCFoodProfile>(nullptr,TEXT("/Game/Data/DA_FoodPhysics.DA_FoodPhysics"));
+        FMCFoodSettings FoodSettings=Profile?Profile->Settings:FMCFoodSettings(); FoodSettings.Sanitize();
+        for (int32 I=0;I<Count;++I)
+        {
+            const bool bJam=I%2==0; const float Side=I%4<2?1.f:-1.f;
+            const FVector Location(-650+(I%4)*380,bJam?Side*590.f:Random.FRandRange(-350,350),FoodSettings.DropHeight+I*60);
+            const FTransform Transform(FRotator::ZeroRotator,Location);
+            auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform);
+            if (Food) { Food->Initialize(bJam,FVector(0,-Side,0)); UGameplayStatics::FinishSpawningActor(Food,Transform); AddObjective(Food); }
+        }
+    }
+    State->TasksTotal = Objectives.Num(); State->TasksLeft = State->TasksTotal;
     State->ForceNetUpdate();
 }
 void AMCGameMode::ResolveTask(AMCTaskActor* Task)
@@ -156,9 +203,69 @@ void AMCGameMode::FinishDay(bool bTimedOut)
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State || State->Phase != EMCShiftPhase::Working) return;
     if (bTimedOut) State->MouthHealth = FMath::Max(0.f, State->MouthHealth - State->TasksLeft * State->CurrentEvent->MissedTaskDamage);
-    ClearTasks();
+    // Unfinished coffee, damage and food persist into the following day.
     State->TasksLeft = 0;
-    State->Phase = State->MouthHealth <= 0 ? EMCShiftPhase::Lost : State->Day >= State->RunSettings.DaysToSurvive ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
+    State->Phase = State->MouthHealth <= 0 ? EMCShiftPhase::Lost : State->Day >= State->RunSettings.DaysToSurvive && (GetNumPlayers()==0 || HasLivingPlayers()) ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 7.;
     State->ForceNetUpdate();
+}
+
+void AMCGameMode::UpdateObjectives()
+{
+    auto* GS=GetGameState<AMCGameState>(); if (!GS || GS->Phase!=EMCShiftPhase::Working) return;
+    for (auto& O:Objectives)
+    {
+        if (O.bCompleted) continue;
+        bool bDone=false;
+        if (O.Kind==EMCTaskKind::Food) bDone=!IsValid(O.Target) || CastChecked<AMCFoodActor>(O.Target)->IsDisposed();
+        else if (IsValid(O.Target))
+        {
+            auto* Status=O.Target->FindComponentByClass<UMCToothStatusComponent>();
+            const auto* Arena=Cast<AMCArenaTooth>(O.Target);
+            bDone=Status && Status->IsAlive() && (!Arena || Arena->IsAvailable()) && !Status->NeedsCare(O.Kind==EMCTaskKind::Coffee);
+        }
+        if (bDone) { O.bCompleted=true; GS->MouthHealth=FMath::Min(GS->RunSettings.MaxMouthHealth,GS->MouthHealth+1.f); }
+    }
+    GS->TasksLeft=0; for (const auto& O:Objectives) if (!O.bCompleted) ++GS->TasksLeft;
+    GS->ForceNetUpdate();
+    if (GS->TasksLeft==0) FinishDay(false);
+}
+bool AMCGameMode::HasLivingPlayers() const
+{
+    for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+        if (const auto* PC=It->Get()) if (const auto* Hero=Cast<AMCToothCharacter>(PC->GetPawn())) if (Hero->Status->IsAlive()) return true;
+    return false;
+}
+void AMCGameMode::PlayerDied(AMCToothCharacter* Hero)
+{
+    auto* GS=GetGameState<AMCGameState>();
+    if (!IsValid(Hero) || !Hero->GetController() || !GS || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost) return;
+    if (PendingRespawns.Contains(Hero)) return;
+    Hero->RespawnAt=GS->GetServerWorldTimeSeconds()+Hero->Status->Settings.RespawnSeconds;
+    PendingRespawns.Add(Hero); Hero->ForceNetUpdate();
+}
+void AMCGameMode::ProcessRespawns()
+{
+    auto* GS=GetGameState<AMCGameState>(); if (!GS) return;
+    for (int32 I=0;I<PendingRespawns.Num();)
+    {
+        AMCToothCharacter* Old=PendingRespawns[I];
+        if (!IsValid(Old) || !IsValid(Old->GetController())) { PendingRespawns.RemoveAt(I); continue; }
+        if (GS->GetServerWorldTimeSeconds()<Old->RespawnAt) { ++I; continue; }
+        AMCArenaTooth* Reserve=nullptr;
+        for (AMCArenaTooth* Tooth:GS->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable() && (!Reserve || Tooth->State.ToothId<Reserve->State.ToothId)) Reserve=Tooth;
+        if (!Reserve) { ++I; continue; }
+        const FMCToothStatus Inherited=Reserve->Status->State;
+        FVector Location=Reserve->GetActorLocation(); Location.Y=FMath::Sign(Location.Y)*510; Location.Z=120;
+        FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+        auto* NewHero=GetWorld()->SpawnActor<AMCToothCharacter>(Old->GetClass(),Location,FRotator::ZeroRotator,Params);
+        if (!NewHero) { ++I; continue; }
+        if (!Reserve->ConsumeForRespawn()) { NewHero->Destroy(); ++I; continue; }
+        if (Old->Status->Settings.bInheritReserveStatus) NewHero->Status->Restore(Inherited);
+        NewHero->RespawnSourceId=Reserve->State.ToothId;
+        for (auto& O:Objectives) if (!O.bCompleted && (O.Target==Old || O.Target==Reserve)) O.Target=NewHero;
+        AController* Controller=Old->GetController(); Controller->Possess(NewHero);
+        Old->RespawnAt=0; Old->SetLifeSpan(3); NewHero->ForceNetUpdate();
+        PendingRespawns.RemoveAt(I); GS->ForceNetUpdate();
+    }
 }

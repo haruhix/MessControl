@@ -9,6 +9,7 @@ class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class UTextRenderComponent;
 class UStaticMesh;
+class UMCToothStatusComponent;
 
 USTRUCT()
 struct FMCArenaToothAppearance
@@ -23,7 +24,8 @@ struct MESSCONTROL_API FMCArenaToothSettings
 {
     GENERATED_BODY()
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health", meta=(ClampMin="1")) float MaxHealth=100;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health", meta=(ClampMin="0",ClampMax="1")) float LooseHealthFraction=0.4f;
+    // Kept for loading the step-2 asset. The shared DA_ToothCare now owns this threshold.
+    UPROPERTY() float LooseHealthFraction=0.4f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health", meta=(ClampMin="0")) float BrushHitDamage=25;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="0",ClampMax="0.4")) float HitSquash=0.18f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="0",ClampMax="25")) float WobbleDegrees=12;
@@ -34,7 +36,7 @@ struct MESSCONTROL_API FMCArenaToothSettings
     void Sanitize();
 };
 
-/** Defaults for arena teeth only. Shared player statuses/cleaning are the next step. */
+/** Mesh reactions and maximum health for arena teeth; common care rules live in DA_ToothCare. */
 UCLASS(BlueprintType)
 class MESSCONTROL_API UMCArenaToothProfile : public UPrimaryDataAsset
 {
@@ -52,6 +54,7 @@ struct FMCArenaToothState
     UPROPERTY(BlueprintReadOnly) float Health=100;
     UPROPERTY(BlueprintReadOnly) float Coffee=0;
     UPROPERTY(BlueprintReadOnly) bool bLost=false;
+    UPROPERTY(BlueprintReadOnly) bool bConsumed=false;
     UPROPERTY() double HitTime=-100;
     UPROPERTY() FVector HitDirection=FVector(0,1,0);
     UPROPERTY() int32 HitSerial=0;
@@ -70,10 +73,13 @@ public:
     void Initialize(int32 Id,const FMCArenaToothSettings& Defaults);
     // Call before FinishSpawning. The actor root is the mesh bounds centre, independent of its asset pivot.
     void SetAppearance(UStaticMesh* Mesh,FVector Scale);
+    void StatusChanged();
+    bool ConsumeForRespawn();
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") bool ReceiveArenaHit(float Damage,FVector Direction);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") void SetCoffee(float Amount);
-    UFUNCTION(BlueprintPure, Category="Arena Tooth") bool IsAvailable() const { return !State.bLost && State.Health>0; }
-    UFUNCTION(BlueprintPure, Category="Arena Tooth") bool IsLoose() const { return IsAvailable() && State.Health<=Settings.MaxHealth*Settings.LooseHealthFraction; }
+    UFUNCTION(BlueprintPure, Category="Arena Tooth") bool IsAvailable() const { return !State.bLost && !State.bConsumed && State.Health>0; }
+    UFUNCTION(BlueprintPure, Category="Arena Tooth") bool IsLoose() const;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena Tooth") FMCArenaToothState State;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena Tooth") FMCArenaToothSettings Settings;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UBoxComponent> Body;

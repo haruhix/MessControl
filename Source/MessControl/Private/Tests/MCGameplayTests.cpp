@@ -6,6 +6,10 @@
 #include "MCToothCharacter.h"
 #include "MCArenaTooth.h"
 #include "MCArenaToothSocket.h"
+#include "MCToothStatusComponent.h"
+#include "MCFoodActor.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -40,6 +44,14 @@ namespace
         ~FTestMouth() { World->EndPlay(EEndPlayReason::Quit); GEngine->DestroyWorldContext(World); World->DestroyWorld(false); }
         void NextPhase() { State->PhaseEndsAt=State->GetServerWorldTimeSeconds()-1; Mode->Tick(0.01f); }
         TArray<AMCTaskActor*> Tasks() { TArray<AMCTaskActor*> Result; for (TActorIterator<AMCTaskActor> It(World);It;++It) if (It->Progress<1) Result.Add(*It); return Result; }
+        void CompleteDay()
+        {
+            for (TActorIterator<AActor> It(World);It;++It)
+                if (auto* Status=It->FindComponentByClass<UMCToothStatusComponent>())
+                    for (int32 I=0;I<100;++I) { Status->CareContact(true); Status->CareContact(false); }
+            for (TActorIterator<AMCFoodActor> It(World);It;++It) It->Dispose();
+            Mode->UpdateObjectives();
+        }
         AMCToothCharacter* Worker()
         {
             auto* Tooth=World->SpawnActor<AMCToothCharacter>(FVector(0,0,98),FRotator::ZeroRotator);
@@ -58,13 +70,7 @@ bool FMCSevenDayTest::RunTest(const FString& Parameters)
         Mouth.NextPhase(); TestEqual(TEXT("Sequential day"),Mouth.State->Day,Day);
         TestTrue(TEXT("No immediate event repeat"),Previous!=Mouth.State->CurrentEvent); Previous=Mouth.State->CurrentEvent;
         TestTrue(TEXT("Tasks spawned"),Mouth.State->TasksLeft>0);
-        for (AMCTaskActor* Task:Mouth.Tasks())
-        {
-            Worker->SetActorLocation(Task->GetActorLocation()+FVector(-60,0,58));
-            for (int32 I=0;I<100 && Task->Progress<1;++I) Task->ApplyWork(Worker,Task->Kind==EMCTaskKind::Coffee,0.2f);
-            TestEqual(TEXT("Task complete"),Task->Progress,1.f);
-            TestFalse(TEXT("Cannot complete twice"),Task->ApplyWork(Worker,Task->Kind==EMCTaskKind::Coffee,0.2f));
-        }
+        Mouth.CompleteDay();
     }
     TestEqual(TEXT("Win after seven days"),Mouth.State->Phase,EMCShiftPhase::Won);
     TestEqual(TEXT("Healthy mouth"),Mouth.State->MouthHealth,100.f);
@@ -75,18 +81,30 @@ bool FMCSevenDayTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWorkValidationTest,"MessControl.Gameplay.WorkValidationAndCooperation",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCWorkValidationTest::RunTest(const FString& Parameters)
 {
-    FTestMouth Mouth; Mouth.NextPhase(); auto Tasks=Mouth.Tasks(); if (!TestTrue(TEXT("Task exists"),!Tasks.IsEmpty())) return false;
-    AMCTaskActor* Task=Tasks[0]; auto* A=Mouth.Worker(); auto* B=Mouth.Worker(); const bool bBrush=Task->Kind==EMCTaskKind::Coffee;
-    A->SetActorLocation(Task->GetActorLocation()+FVector(1000,0,58));
-    TestFalse(TEXT("Out of range rejected"),Task->ApplyWork(A,bBrush,0.1f));
-    A->SetActorLocation(Task->GetActorLocation()+FVector(60,0,58)); B->SetActorLocation(Task->GetActorLocation()+FVector(-60,0,58));
-    TestFalse(TEXT("Wrong tool rejected"),Task->ApplyWork(A,!bBrush,0.1f));
-    TestTrue(TEXT("Valid tool accepted"),Task->ApplyWork(A,bBrush,0.1f)); const float Once=Task->Progress;
-    Task->ApplyWork(B,bBrush,0.1f); TestTrue(TEXT("Two players add work"),FMath::IsNearlyEqual(Task->Progress,Once*2));
-    const float Before=Task->Progress; Task->ApplyWork(A,bBrush,-5); TestEqual(TEXT("Negative time cannot undo progress"),Task->Progress,Before);
-    Task->ApplyWork(A,bBrush,1000); TestTrue(TEXT("Oversized time is clamped"),Task->Progress<Before+0.5f);
-    A->SetActorLocation(Task->GetActorLocation()+FVector(0,0,400)); TestFalse(TEXT("Wrong height rejected"),Task->ApplyWork(A,bBrush,0.1f));
-    Mouth.State->Phase=EMCShiftPhase::Intermission; TestFalse(TEXT("Intermission rejects work"),Task->ApplyWork(B,bBrush,0.1f));
+    FTestMouth Mouth; auto* A=Mouth.Worker(); auto* B=Mouth.Worker(); auto* Tooth=Mouth.State->ArenaTeeth[0].Get();
+    Tooth->SetCoffee(1); const FVector Near=Tooth->GetActorLocation()+FVector(0,Tooth->Body->Bounds.BoxExtent.Y+75,0);
+    A->SetActorLocation(Near); A->SetActorRotation(FRotator(0,-90,0)); A->bHandling=true;
+    for (int32 I=0;I<10;++I) A->AdvanceCare(.1f);
+    TestEqual(TEXT("Care tool cannot remove coffee"),Tooth->Status->State.CoffeeLeft,4);
+    A->bHandling=false; A->bBrushing=true;
+    for (int32 I=0;I<4;++I) A->AdvanceCare(.1f);
+    TestEqual(TEXT("0.4 seconds is not a full contact"),Tooth->Status->State.CoffeeLeft,4);
+    A->AdvanceCare(.1f); TestEqual(TEXT("0.5 seconds removes exactly one layer"),Tooth->Status->State.CoffeeLeft,3);
+    for (int32 I=0;I<3;++I) A->AdvanceCare(.1f);
+    A->SetActorLocation(Near+FVector(0,500,0)); A->AdvanceCare(.1f);
+    TestEqual(TEXT("Leaving contact resets partial work"),A->ContactProgress,0.f);
+    A->SetActorLocation(Near); A->AdvanceCare(.1f); A->AdvanceCare(.1f);
+    TestEqual(TEXT("Interrupted work cannot complete early"),Tooth->Status->State.CoffeeLeft,3);
+    Tooth->SetCoffee(1); A->ResetContact(); B->SetActorLocation(Near+FVector(60,0,0)); B->SetActorRotation(FRotator(0,-90,0)); B->bBrushing=true;
+    for (int32 I=0;I<10;++I) { A->AdvanceCare(.1f); B->AdvanceCare(.1f); }
+    TestEqual(TEXT("Two workers clear four contacts in one second"),Tooth->Status->State.CoffeeLeft,0);
+    TestFalse(TEXT("No over-cleaning"),Tooth->Status->CareContact(true));
+    Tooth->SetCoffee(1); A->ResetContact(); A->AdvanceCare(-1); A->AdvanceCare(std::numeric_limits<float>::quiet_NaN());
+    TestEqual(TEXT("Invalid delta cannot add work"),A->ContactProgress,0.f);
+    A->AdvanceCare(1000); TestEqual(TEXT("Oversized delta is clamped to one tick"),Tooth->Status->State.CoffeeLeft,4);
+    A->SetActorRotation(FRotator(0,90,0)); A->AdvanceCare(.1f); TestEqual(TEXT("Facing away resets contact"),A->ContactProgress,0.f);
+    A->SetActorRotation(FRotator(0,-90,0)); Mouth.State->Phase=EMCShiftPhase::Lost;
+    TestFalse(TEXT("Finished run rejects work"),A->CanContact(Tooth));
     return true;
 }
 
@@ -98,7 +116,7 @@ bool FMCTimeoutTest::RunTest(const FString& Parameters)
     Mouth.State->MouthHealth=1; Mouth.NextPhase(); Mouth.NextPhase();
     TestEqual(TEXT("Zero health loses run"),Mouth.State->Phase,EMCShiftPhase::Lost);
     TestEqual(TEXT("Health clamped to zero"),Mouth.State->MouthHealth,0.f);
-    TestTrue(TEXT("Unfinished actors removed"),Mouth.Tasks().IsEmpty());
+    TestTrue(TEXT("No legacy placeholder tasks spawned"),Mouth.Tasks().IsEmpty());
     return true;
 }
 
@@ -128,20 +146,17 @@ bool FMCRunRulesTest::RunTest(const FString& Parameters)
     FString Error;
     Mouth.Mode->PreLogin(TEXT(""),TEXT("127.0.0.1"),FUniqueNetIdRepl(),Error);
     TestTrue(TEXT("Empty two-player session accepts a connection"),Error.IsEmpty());
-    Mouth.World->SpawnActor<APlayerController>(); Mouth.World->SpawnActor<APlayerController>();
+    auto* PC=Mouth.World->SpawnActor<APlayerController>(); Mouth.World->SpawnActor<APlayerController>();
     TestEqual(TEXT("Two player controllers occupy the session"),Mouth.Mode->GetNumPlayers(),2);
     Mouth.Mode->PreLogin(TEXT(""),TEXT("127.0.0.1"),FUniqueNetIdRepl(),Error);
     TestTrue(TEXT("Configured two-player session rejects third player"),!Error.IsEmpty());
 
     auto* Worker=Mouth.Worker();
+    PC->Possess(Worker);
     for (int32 Day=1;Day<=2;++Day)
     {
         Mouth.NextPhase(); Mouth.State->MouthHealth=39.5f;
-        for (AMCTaskActor* Task:Mouth.Tasks())
-        {
-            Worker->SetActorLocation(Task->GetActorLocation()+FVector(-60,0,58));
-            for (int32 I=0;I<100 && Task->Progress<1;++I) Task->ApplyWork(Worker,Task->Kind==EMCTaskKind::Coffee,0.2f);
-        }
+        Mouth.CompleteDay();
         TestEqual(TEXT("Healing respects active snapshot, not edited asset"),Mouth.State->MouthHealth,40.f);
         TestEqual(TEXT("Victory follows custom two-day rule"),Mouth.State->Phase,Day==2?EMCShiftPhase::Won:EMCShiftPhase::Intermission);
     }
@@ -287,6 +302,90 @@ bool FMCArenaPlacementTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Losing a row tooth removes a concrete reserve"),Mouth.State->AvailableArenaTeeth(),1);
     Mouth.Mode->RestartShift();
     TestEqual(TEXT("Restart keeps authored layout"),Mouth.State->ArenaTeeth.Num(),2);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCareStatusTest,"MessControl.Gameplay.SharedStatusAndCare",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCareStatusTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; auto* Hero=Mouth.Worker(); auto* S=Hero->Status.Get();
+    S->ApplyCoffee(); S->Damage(75);
+    TestTrue(TEXT("Players share coffee, damage and loose statuses"),S->IsLoose() && S->State.CoffeeLeft==4 && S->State.Health==25);
+    Hero->bSelfCare=true; Hero->bHandling=true;
+    for (int32 I=0;I<20;++I) Hero->AdvanceCare(.1f);
+    TestEqual(TEXT("Four care contacts restore health"),S->State.Health,100.f);
+    TestFalse(TEXT("Care secures the tooth"),S->IsLoose());
+    TestEqual(TEXT("Treatment leaves coffee for the brush"),S->State.CoffeeLeft,4);
+    Hero->bHandling=false; Hero->bBrushing=true;
+    for (int32 I=0;I<20;++I) Hero->AdvanceCare(.1f);
+    TestEqual(TEXT("Solo self brushing works"),S->State.CoffeeLeft,0);
+    S->Settings.CoffeeContacts=6; S->Settings.ContactSeconds=.2f; S->ApplyCoffee();
+    for (int32 I=0;I<12;++I) Hero->AdvanceCare(.1f);
+    TestEqual(TEXT("Data controls both timing and number of contacts"),S->State.CoffeeLeft,0);
+    S->Damage(100); TestFalse(TEXT("Death cannot be treated as ordinary damage"),S->CareContact(false));
+    TestFalse(TEXT("Dead players cannot act or get up"),Hero->ToothPhysics->CanAct() || Hero->ToothPhysics->TryRecover());
+    TestNotNull(TEXT("Care asset exists"),LoadObject<UMCToothCareProfile>(nullptr,TEXT("/Game/Data/DA_ToothCare.DA_ToothCare")));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRespawnTest,"MessControl.Gameplay.ConcreteReserveRespawn",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCRespawnTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; auto* A=Mouth.Worker(); auto* B=Mouth.Worker();
+    auto* PC1=Mouth.World->SpawnActor<APlayerController>(); auto* PC2=Mouth.World->SpawnActor<APlayerController>(); PC1->Possess(A); PC2->Possess(B);
+    Mouth.State->ArenaTeeth[0]->ReceiveArenaHit(100,FVector::ForwardVector);
+    auto* Source=Mouth.State->ArenaTeeth[1].Get(); Source->SetCoffee(1); Source->ReceiveArenaHit(25,FVector::ForwardVector);
+    A->Status->Damage(100); B->Status->Damage(100); A->RespawnAt=-1; B->RespawnAt=-1;
+    Mouth.Mode->ProcessRespawns();
+    auto* NewA=Cast<AMCToothCharacter>(PC1->GetPawn()); auto* NewB=Cast<AMCToothCharacter>(PC2->GetPawn());
+    TestTrue(TEXT("Both controllers receive new heroes"),NewA!=A && NewB!=B && NewA && NewB);
+    if (NewA==A || NewB==B || !NewA || !NewB) return false;
+    TestEqual(TEXT("Destroyed reserve is skipped"),NewA->RespawnSourceId,2);
+    TestEqual(TEXT("Second death consumes another tooth"),NewB->RespawnSourceId,3);
+    TestEqual(TEXT("Seven reserves minus two respawns"),Mouth.State->AvailableArenaTeeth(),5);
+    TestTrue(TEXT("Spent tooth leaves a visible and physical gap"),Source->State.bConsumed && Source->IsHidden() && Source->Body->GetCollisionEnabled()==ECollisionEnabled::NoCollision);
+    TestEqual(TEXT("Inherited damage"),NewA->Status->State.Health,75.f);
+    TestEqual(TEXT("Inherited coffee"),NewA->Status->State.CoffeeLeft,4);
+    TestFalse(TEXT("Spent tooth cannot be consumed again"),Source->ConsumeForRespawn());
+    Mouth.Mode->ProcessRespawns(); TestEqual(TEXT("Queue does not charge twice"),Mouth.State->AvailableArenaTeeth(),5);
+    for (AMCArenaTooth* Tooth:Mouth.State->ArenaTeeth) if (Tooth->IsAvailable()) Tooth->ConsumeForRespawn();
+    Mouth.Mode->Tick(.01f); TestTrue(TEXT("Zero reserves with living players is playable"),Mouth.State->Phase!=EMCShiftPhase::Lost);
+    NewA->Status->Damage(100); NewB->Status->Damage(100); Mouth.Mode->Tick(.01f);
+    TestEqual(TEXT("No players and no reserves loses"),Mouth.State->Phase,EMCShiftPhase::Lost);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodInteractionTest,"MessControl.Gameplay.FoodGripPullAndImpact",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodInteractionTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; auto* A=Mouth.Worker(); A->SetActorLocation(FVector(-100,0,100)); A->SetActorRotation(FRotator::ZeroRotator); A->bHandling=true;
+    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,100),FRotator::ZeroRotator);
+    TestTrue(TEXT("Near food can be gripped"),Food->TryGrab(A));
+    TestTrue(TEXT("Grip links both sides"),A->HeldFood==Food && Food->Holders.Num()==1);
+    TestTrue(TEXT("Repeated grab is idempotent"),Food->TryGrab(A) && Food->Holders.Num()==1);
+    A->SetActorLocation(FVector(-1000,0,100)); Food->Tick(.1f);
+    TestTrue(TEXT("Overstretched grip releases"),!A->HeldFood && Food->Holders.IsEmpty());
+    TestFalse(TEXT("Remote grab rejected"),Food->TryGrab(A));
+    A->SetActorLocation(FVector(-100,0,100)); Food->TryGrab(A);
+    Food->Phase=EMCFoodPhase::Stuck; Food->PullDirection=FVector(-1,0,0);
+    A->GetCharacterMovement()->Velocity=FVector(0,55,0);
+    for (int32 I=0;I<10;++I) Food->Tick(.1f);
+    TestEqual(TEXT("Wrong pull direction gives no extraction"),Food->PullProgress,0.f);
+    A->GetCharacterMovement()->Velocity=FVector(-55,0,0);
+    for (int32 I=0;I<31;++I) Food->Tick(.1f);
+    TestEqual(TEXT("Directional pulling frees food"),Food->Phase,EMCFoodPhase::Free);
+    Food->Dispose(); TestTrue(TEXT("Disposal releases grip and hides food"),!A->HeldFood && Food->IsDisposed() && Food->IsHidden());
+    TestFalse(TEXT("Disposed food cannot be grabbed again"),Food->TryGrab(A));
+    auto* ImpactFood=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,350),FRotator::ZeroRotator);
+    // Advance past the spawn recovery grace period. Synthetic contact uses the real hit delegate.
+    for (int32 I=0;I<8;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
+    FHitResult Hit; Hit.ImpactPoint=A->GetActorLocation();
+    ImpactFood->Body->OnComponentHit.Broadcast(ImpactFood->Body,A,A->GetCapsuleComponent(),FVector(0,0,9000),Hit);
+    const float Health=A->Status->State.Health;
+    TestTrue(TEXT("Food impact damages player"),Health<100);
+    TestEqual(TEXT("Food impact causes ragdoll"),A->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
+    ImpactFood->Body->OnComponentHit.Broadcast(ImpactFood->Body,A,A->GetCapsuleComponent(),FVector(0,0,9000),Hit);
+    TestEqual(TEXT("Duplicate physics callbacks do not deal damage twice"),A->Status->State.Health,Health);
+    TestNotNull(TEXT("Food tuning asset exists"),LoadObject<UMCFoodProfile>(nullptr,TEXT("/Game/Data/DA_FoodPhysics.DA_FoodPhysics")));
     return true;
 }
 #endif

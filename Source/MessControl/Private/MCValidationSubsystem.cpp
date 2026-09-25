@@ -6,6 +6,9 @@
 #include "MCToothCharacter.h"
 #include "MCTaskActor.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCToothStatusComponent.h"
+#include "MCFoodActor.h"
+#include "Components/BoxComponent.h"
 #include "MCPrototypeWidget.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -20,6 +23,7 @@
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
 #if !UE_BUILD_SHIPPING
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) return;
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLimbs"))) { TickLimbStability(DeltaSeconds); return; }
     const bool bSmoke = FParse::Param(FCommandLine::Get(),TEXT("MCSmoke"));
     const bool bArena = FParse::Param(FCommandLine::Get(),TEXT("MCArenaNet"));
@@ -117,23 +121,42 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
     }
     if (bSmoke && Tooth && Tooth->IsLocallyControlled() && (!bRagdoll || Age>33))
     {
-        AMCTaskActor* Best=nullptr; float BestDistance=MAX_flt;
-        for (TActorIterator<AMCTaskActor> It(GetWorld()); It; ++It)
+        // Exercise the production inputs against actual teeth/food, not the retired task proxies.
+        if (Tooth->HeldFood)
         {
-            const float Distance=FVector::DistSquared2D(Tooth->GetActorLocation(),It->GetActorLocation());
-            if (It->Progress<1.f && Distance<BestDistance) { Best=*It; BestDistance=Distance; }
+            const FVector Direction=Tooth->HeldFood->Phase==EMCFoodPhase::Stuck?Tooth->HeldFood->PullDirection:(FVector(965,0,95)-Tooth->GetActorLocation()).GetSafeNormal2D();
+            Tooth->AddMovementInput(Direction);
         }
-        if (Best)
+        else if (Tooth->Status->NeedsCare(true) || Tooth->Status->NeedsCare(false))
         {
-            const FVector Direction=(Best->GetActorLocation()-Tooth->GetActorLocation()).GetSafeNormal2D();
-            if (BestDistance>FMath::Square(85.f)) Tooth->AddMovementInput(Direction);
-            if (!Tooth->bBrushing) Tooth->StartBrush();
-            if (!Tooth->bHandling) Tooth->StartHandle();
+            if (!Tooth->bSelfCare) Tooth->ServerToggleSelfCare();
+            if (Tooth->Status->NeedsCare(true)) { if (!Tooth->bBrushing) Tooth->StartBrush(); }
+            else if (!Tooth->bHandling) Tooth->StartHandle();
         }
         else
         {
-            if (Tooth->bBrushing) Tooth->StopBrush();
-            if (Tooth->bHandling) Tooth->StopHandle();
+            if (Tooth->bSelfCare) Tooth->ServerToggleSelfCare();
+            AActor* Best=nullptr; float BestDistance=MAX_flt; bool bBrush=false; FVector Goal;
+            for (TActorIterator<AActor> It(GetWorld());It;++It)
+            {
+                auto* Status=It->FindComponentByClass<UMCToothStatusComponent>(); auto* Food=Cast<AMCFoodActor>(*It);
+                auto* Arena=Cast<AMCArenaTooth>(*It);
+                if (*It==Tooth || (Arena && !Arena->IsAvailable())) continue;
+                const bool bNeedsCare=Status && (Status->NeedsCare(true) || Status->NeedsCare(false));
+                if (!bNeedsCare && (!Food || Food->IsDisposed())) continue;
+                FVector Point=It->GetActorLocation();
+                if (Arena) Point.Y-=FMath::Sign(Point.Y)*(Arena->Body->Bounds.BoxExtent.Y+75);
+                else Point+=(Tooth->GetActorLocation()-Point).GetSafeNormal2D()*90;
+                const float D=FVector::DistSquared2D(Point,Tooth->GetActorLocation());
+                if (D<BestDistance) { Best=*It; BestDistance=D; Goal=Point; bBrush=bNeedsCare && Status->NeedsCare(true); }
+            }
+            if (Best)
+            {
+                Tooth->AddMovementInput((BestDistance>FMath::Square(20.f)?Goal-Tooth->GetActorLocation():Best->GetActorLocation()-Tooth->GetActorLocation()).GetSafeNormal2D(),BestDistance>FMath::Square(20.f)?1.f:.03f);
+                if (bBrush) { if (!Tooth->bBrushing) Tooth->StartBrush(); }
+                else if (!Tooth->bHandling) Tooth->StartHandle();
+            }
+            else { if (Tooth->bBrushing) Tooth->StopBrush(); if (Tooth->bHandling) Tooth->StopHandle(); }
         }
     }
     if (bCapture && PC && Tooth && !bCaptured && Age>12)
@@ -181,6 +204,7 @@ void UMCValidationSubsystem::TickLimbStability(float Dt)
 #if !UE_BUILD_SHIPPING
     if (Age==0) NextLog=0;
     Age+=Dt;
+    if (auto* GS=GetWorld()->GetGameState<AMCGameState>(); GS && GS->HasAuthority()) GS->PhaseEndsAt=GS->GetServerWorldTimeSeconds()+999;
     auto* PC=GetWorld()->GetFirstPlayerController();
     auto* Tooth=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
     if (!Tooth)

@@ -39,6 +39,10 @@ private:
     UFUNCTION() void ArenaCoffeeClicked();
     UFUNCTION() void ArenaCleanClicked();
     UFUNCTION() void ArenaAnimationChanged(float Value);
+    UFUNCTION() void DamageSelfClicked();
+    UFUNCTION() void LooseClicked();
+    UFUNCTION() void DropFoodClicked();
+    UFUNCTION() void RespawnClicked();
     UPROPERTY() TObjectPtr<UTextBlock> DayLabel;
     UPROPERTY() TObjectPtr<UTextBlock> EventLabel;
     UPROPERTY() TObjectPtr<UTextBlock> InstructionLabel;
@@ -46,6 +50,9 @@ private:
     UPROPERTY() TObjectPtr<UTextBlock> HealthLabel;
     UPROPERTY() TObjectPtr<UTextBlock> TaskLabel;
     UPROPERTY() TObjectPtr<UTextBlock> ArenaLabel;
+    UPROPERTY() TObjectPtr<UTextBlock> PlayerStatusLabel;
+    UPROPERTY() TObjectPtr<UTextBlock> ContactLabel;
+    UPROPERTY() TObjectPtr<UProgressBar> ContactBar;
     UPROPERTY() TObjectPtr<UTextBlock> SaveLabel;
     UPROPERTY() TObjectPtr<UProgressBar> HealthBar;
     UPROPERTY() TObjectPtr<UBorder> TuningPanel;

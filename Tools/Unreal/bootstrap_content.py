@@ -159,3 +159,4 @@ library.save_directory("/Game",only_if_is_dirty=True,recursive=True)
 import runpy
 runpy.run_path(str(ROOT / "Tools" / "Unreal" / "create_arena_tooth.py"))
 runpy.run_path(str(ROOT / "Tools" / "Unreal" / "place_arena_teeth.py"))
+runpy.run_path(str(ROOT / "Tools" / "Unreal" / "create_care_food_assets.py"))

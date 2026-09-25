@@ -9,6 +9,10 @@ class UInputAction;
 class UInputMappingContext;
 class UMCToothPhysicsComponent;
 class UPhysicsControlComponent;
+class UMCToothStatusComponent;
+class AMCFoodActor;
+class UMaterialInstanceDynamic;
+class UEnhancedInputLocalPlayerSubsystem;
 struct FInputActionValue;
 
 UCLASS(Blueprintable)
@@ -21,8 +25,24 @@ public:
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
     virtual void PawnClientRestart() override;
     virtual void Landed(const FHitResult& Hit) override;
+    virtual void FellOutOfWorld(const UDamageType& DamageType) override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") bool bSelfCare=false;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") TObjectPtr<AActor> CareTarget;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") float ContactProgress=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Food") TObjectPtr<AMCFoodActor> HeldFood;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
+    bool CanWork() const;
+    void StatusChanged();
+    void DropFood();
+    bool CanContact(AActor* Target) const;
+    UMCToothStatusComponent* FindCareTarget(bool bBrush) const;
+    void AdvanceCare(float Dt);
+    void ResetContact();
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UPhysicsControlComponent> Muscles;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<USceneComponent> BrushPivot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<UStaticMeshComponent> Brush;
@@ -40,10 +60,12 @@ public:
     UFUNCTION(BlueprintCallable, Category="Physics") void SpawnPracticeTooth();
     float AnimationGait=0.f, AnimationSpeed=0.f, AnimationBob=0.f, AnimationPitch=0.f, AnimationBrushAngle=0.f;
     int32 ValidatedSwingCount=0, ConfirmedHitCount=0;
+    int32 SuccessfulBrushContacts=0;
 protected:
     virtual void BeginPlay() override;
 private:
     friend class UMCValidationSubsystem;
+    friend class AMCCoreScenario;
     void BuildInput();
     void MoveForward(const FInputActionValue& Value);
     void MoveRight(const FInputActionValue& Value);
@@ -51,6 +73,8 @@ private:
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void TogglePanel(); void ToggleConnection(); void RestartRun();
     UFUNCTION(Server, Reliable) void ServerSetWorking(bool bBrush, bool bActive);
+    void ToggleSelfCare();
+    UFUNCTION(Server, Reliable) void ServerToggleSelfCare();
     UFUNCTION() void OnRep_Working();
     void FindWork(float DeltaSeconds);
     UFUNCTION(Server,Reliable) void ServerSwingBrush();
@@ -59,6 +83,7 @@ private:
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit);
     void ResolveSwing();
     UPROPERTY() TObjectPtr<UInputMappingContext> InputMap;
+    UPROPERTY() TWeakObjectPtr<UEnhancedInputLocalPlayerSubsystem> AppliedInputSubsystem;
     UPROPERTY() TObjectPtr<UInputAction> ForwardAction;
     UPROPERTY() TObjectPtr<UInputAction> RightAction;
     UPROPERTY() TObjectPtr<UInputAction> JumpAction;
@@ -68,6 +93,8 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> ConnectionAction;
     UPROPERTY() TObjectPtr<UInputAction> RestartAction;
     UPROPERTY() TObjectPtr<UInputAction> SwingAction;
+    UPROPERTY() TObjectPtr<UInputAction> SelfCareAction;
+    UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StatusMaterial;
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
     float NextSwingTime=0.f;
     float SwingStartedAt=-10.f;
@@ -76,8 +103,10 @@ private:
     float Gait = 0.f;
     float LandingImpulse = 0.f;
     float WorkStartedAt = -10.f;
-    float WorkAccumulator = 0.f;
     float SoundAccumulator = 0.f;
     float BrushAngle = 0.f;
     bool bLoadedLocalTuning = false;
+    bool bDeathReported=false;
+    bool bLastContactBrush=false;
+    float ContactElapsed=0;
 };
