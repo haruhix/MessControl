@@ -48,7 +48,17 @@ void UMCValidationSubsystem::TickCoffeeWater(float Dt)
             bCoffeePreloaded=true;
             return;
         }
-        if (GS->PlayerArray.Num()==4 && Age>8 && Ready)
+        bool AllPossessed=GS->PlayerArray.Num()==4;
+        for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+        {
+            const auto* Player=It->Get();
+            AllPossessed &= Player && Player->GetPawn() && (Player->IsLocalController() || Player->AcknowledgedPawn==Player->GetPawn());
+        }
+        // PlayerArray entries can arrive before a client has loaded the new arena
+        // and acknowledged its pawn. Do not start a six-second observation then.
+        if (AllPossessed && Ready) { if (CoffeeReadyAt<0) CoffeeReadyAt=Age; }
+        else CoffeeReadyAt=-1;
+        if (CoffeeReadyAt>=0 && Age>CoffeeReadyAt+2 && Age>8)
         {
             auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
             const auto* Plan=Mode->FirstDayPlan.LoadSynchronous();
@@ -70,7 +80,10 @@ void UMCValidationSubsystem::TickCoffeeWater(float Dt)
         for (int32 I=0;I<4;++I)
         {
             auto* H=Heroes[I]; H->GetCharacterMovement()->StopMovementImmediately();
-            H->SetActorLocationAndRotation(I==0?P:FVector(-480+(I-1)*300,I==1?-350:350,95),FRotator(0,I==0?Side*90:0,0),false,nullptr,ETeleportType::TeleportPhysics);
+            // Measure lateral paddle movement perpendicular to the initial jet impulse.
+            // On the deeper artist arena the swimmer has less time at the surface;
+            // starting off-axis mixed the swimming check with cancelling an opposite hit.
+            H->SetActorLocationAndRotation(I==0?P:FVector(-480+(I-1)*300,I==1?Flood->WaterSettings.Inlet.Y:350,95),FRotator(0,I==0?Side*90:0,0),false,nullptr,ETeleportType::TeleportPhysics);
             H->ForceNetUpdate();
         }
         DevStage=2;

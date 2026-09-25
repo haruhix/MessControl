@@ -49,16 +49,12 @@ void AMCArenaTooth::BeginPlay()
     Body->OnComponentHit.AddDynamic(this,&AMCArenaTooth::OnBodyHit);
     Body->SetMassOverrideInKg(NAME_None,14,true);
     ApplyAppearance();
-    if (auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth")))
-    {
-        Material=UMaterialInstanceDynamic::Create(Base,this);
-        for (int32 I=0;I<Visual->GetNumMaterials();++I) Visual->SetMaterial(I,Material);
-    }
 }
-void AMCArenaTooth::SetAppearance(UStaticMesh* Mesh,FVector Scale)
+void AMCArenaTooth::SetAppearance(UStaticMesh* Mesh,FVector Scale,UMaterialInterface* GameplayMaterial)
 {
     if (!HasAuthority() || !Mesh || Scale.ContainsNaN()) return;
     Appearance.Mesh=Mesh; Appearance.MeshScale=Scale.GetAbs().ComponentMax(FVector(0.01));
+    Appearance.GameplayMaterial=GameplayMaterial;
 }
 void AMCArenaTooth::ApplyAppearance()
 {
@@ -70,6 +66,9 @@ void AMCArenaTooth::ApplyAppearance()
     Visual->SetRelativeScale3D(MeshBaseScale); Visual->SetRelativeLocation(MeshBaseLocation);
     Body->SetBoxExtent(Bounds.BoxExtent*MeshBaseScale*0.9f);
     Label->SetRelativeLocation(FVector(0,0,Bounds.BoxExtent.Z*MeshBaseScale.Z+35));
+    UMaterialInterface* Base=Appearance.GameplayMaterial;
+    if (!Base) Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth"));
+    if (Base && (!Material || Material->Parent!=Base)) Material=UMaterialInstanceDynamic::Create(Base,this);
     if (Material) for (int32 I=0;I<Visual->GetNumMaterials();++I) Visual->SetMaterial(I,Material);
 }
 bool AMCArenaTooth::ReceiveArenaHit(float Damage,FVector Direction)

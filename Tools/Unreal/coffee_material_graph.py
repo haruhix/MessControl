@@ -65,7 +65,10 @@ class Graph:
         mi=u.EditorAssetLibrary.load_asset(path) if u.EditorAssetLibrary.does_asset_exist(path) else None
         if not mi:
             mi=self.assets.create_asset(instance,'/Game/Art/Materials',u.MaterialInstanceConstant,u.MaterialInstanceConstantFactoryNew())
-            self.lib.set_material_instance_parent(mi,self.mat)
+        # A graph rebuild can change uniform parameter layout. Refresh the
+        # existing instance's parent data as well as its shader resource.
+        self.lib.set_material_instance_parent(mi,None)
+        self.lib.set_material_instance_parent(mi,self.mat)
         self.lib.update_material_instance(mi)
         if not u.EditorAssetLibrary.save_loaded_asset(mi,only_if_is_dirty=False):
             raise RuntimeError('Cannot save '+path)

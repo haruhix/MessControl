@@ -5,7 +5,7 @@ void AMCCoffeeFlood::UpdatePour(float Time)
 {
     const float Local=WaterSettings.CycleTime(Time), JetAlpha=WaterSettings.JetAmount(Time);
     const float DrainAlpha=WaterSettings.DrainAmount(Time);
-    FVector Impact=WaterSettings.Inlet; Impact.Z=SurfaceHeightAt(Impact)+2;
+    FVector Impact=WaterSettings.Inlet; Impact.Z=FMath::Max(InletFloorZ,SurfaceHeightAt(Impact))+2;
     // The tip travels down before the impact front begins, instead of popping in full-height.
     const float Bottom=FMath::Lerp(WaterSettings.Inlet.Z,Impact.Z,FMath::Clamp(Local/.25f,0.f,1.f));
     Jet->SetVisibility(JetAlpha>.001f);
@@ -40,7 +40,7 @@ void AMCCoffeeFlood::UpdatePour(float Time)
         const FVector Radial(FMath::Cos(Angle),FMath::Sin(Angle),0);
         const float Horizontal=190+Noise(I+44)*260, Up=320+Noise(I+27)*250;
         FVector P=WaterSettings.Inlet+Radial*(WaterSettings.JetRadius*.7f+Age*Horizontal);
-        P.Z=BaseHeight(FMath::Max(0.f,Time-Age))+25+Up*Age-400*Age*Age;
+        P.Z=FMath::Max(InletFloorZ,BaseHeight(FMath::Max(0.f,Time-Age)))+25+Up*Age-400*Age*Age;
         const float Size=Visible && P.Z>SurfaceHeightAt(P)?(.07f+Noise(I+17)*.09f)*FMath::Min(1.f,(Life-Age)*10):0;
         const FVector Velocity=Radial*Horizontal+FVector(0,0,Up-800*Age);
         Transforms.Emplace(Velocity.Rotation(),P,FVector(Size*1.55f,Size,Size));

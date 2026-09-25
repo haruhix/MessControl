@@ -101,7 +101,7 @@ void AMCGameMode::RestartShift()
     }
     if (!IsValid(Throat))
     {
-        for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) { Throat=*It; break; }
+        for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (!It->bBrushBin) { Throat=*It; break; }
         if (!Throat) Throat=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(920,0,180),FRotator::ZeroRotator);
     }
     const UMCRunRules* Rules = RunRulesProfile.LoadSynchronous();
@@ -128,7 +128,7 @@ void AMCGameMode::RestartShift()
         auto* Tooth=GetWorld()->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),Transform,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if (Tooth)
         {
-            Tooth->SetAppearance(Mesh,MeshTransform.GetScale3D());
+            Tooth->SetAppearance(Mesh,MeshTransform.GetScale3D(),ToothProfile?ToothProfile->GameplayMaterial.LoadSynchronous():nullptr);
             Tooth->Initialize(Sockets.IsEmpty()?I+1:Sockets[I]->ToothId,ToothProfile?ToothProfile->Settings:FMCArenaToothSettings());
             UGameplayStatics::FinishSpawningActor(Tooth,Transform); State->ArenaTeeth.Add(Tooth);
         }

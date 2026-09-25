@@ -181,7 +181,9 @@ void AMCFoodActor::Tick(float Dt)
             Body->AddForce(Acceleration*9.f*FMath::Sqrt(float(Holders.Num())));
         }
         // An escaped item returns to the arena, never counts as successfully disposed.
-        if (bBrushTool && (GetActorLocation().X < -1050 || GetActorLocation().Z < -250)) { Dispose(); return; }
+        // A placed brush bin owns the horizontal exit. A fixed X cutoff would
+        // delete tools inside an artist arena whose front edge moved.
+        if (bBrushTool && GetActorLocation().Z < -250) { Dispose(); return; }
         if (GetActorLocation().Z<-250)
         { for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]); SetActorLocation(FVector(0,0,Settings.DropHeight),false,nullptr,ETeleportType::TeleportPhysics); Body->SetPhysicsLinearVelocity(FVector::ZeroVector); }
         PrePhysicsVelocity=Body->GetPhysicsLinearVelocity();
@@ -289,7 +291,7 @@ void AMCFoodActor::Spoil()
     if (Count>=24) { bSpoiled=true; return; }
     FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFoodRot),false,this);
     if (!GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),GetActorLocation()-FVector(0,0,500),ECC_WorldStatic,Params)) return;
-    auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Hit.ImpactPoint+FVector(0,0,5),FRotator::ZeroRotator);
+    auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Hit.ImpactPoint+Hit.ImpactNormal*5,FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
     if (Patch)
     {
         Patch->bUlcer=true;

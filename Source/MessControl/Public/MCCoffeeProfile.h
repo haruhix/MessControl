@@ -11,6 +11,8 @@ struct FMCCoffeeWaterSettings
 {
     GENERATED_BODY()
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Surface", meta=(ClampMin="0",ClampMax="15")) float RippleHeight=6;
+    // Absolute world Z below the playable floor, so a completed drain leaves no floating sheet.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Surface") float DryHeight=-18;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Surface", meta=(ClampMin="100",ClampMax="600")) float RippleLength=260;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Surface", meta=(ClampMin="0",ClampMax="4")) float RippleSpeed=1.4f;
     // Depth of the ragdoll's main bone below the visible surface, in cm.

@@ -9,6 +9,7 @@ class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class UTextRenderComponent;
 class UStaticMesh;
+class UMaterialInterface;
 class UMCToothStatusComponent;
 
 USTRUCT()
@@ -17,6 +18,7 @@ struct FMCArenaToothAppearance
     GENERATED_BODY()
     UPROPERTY() TObjectPtr<UStaticMesh> Mesh;
     UPROPERTY() FVector MeshScale=FVector(2.15,2.15,2.45);
+    UPROPERTY() TObjectPtr<UMaterialInterface> GameplayMaterial;
 };
 
 USTRUCT(BlueprintType)
@@ -43,6 +45,7 @@ class MESSCONTROL_API UMCArenaToothProfile : public UPrimaryDataAsset
     GENERATED_BODY()
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Arena Tooth") FMCArenaToothSettings Settings;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Arena Tooth") TSoftObjectPtr<UMaterialInterface> GameplayMaterial;
 };
 
 /** One replicated snapshot also reconstructs visuals for a late-joining client. */
@@ -72,7 +75,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Initialize(int32 Id,const FMCArenaToothSettings& Defaults);
     // Call before FinishSpawning. The actor root is the mesh bounds centre, independent of its asset pivot.
-    void SetAppearance(UStaticMesh* Mesh,FVector Scale);
+    void SetAppearance(UStaticMesh* Mesh,FVector Scale,UMaterialInterface* GameplayMaterial=nullptr);
     void StatusChanged();
     bool ConsumeForRespawn();
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") bool ReceiveArenaHit(float Damage,FVector Direction);

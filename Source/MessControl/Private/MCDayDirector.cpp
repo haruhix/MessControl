@@ -22,8 +22,13 @@ void AMCDayDirector::Start(UMCDayPlan* Plan,int32 InitialStep,bool bManual)
     GS->DayPlan=Plan; GS->StepIndex=InitialStep; GS->bDevManualEvents=bManual;
     GS->DayStartedAt=GS->GetServerWorldTimeSeconds(); GS->bPhysicalBrushes=true; GS->CurrentEvent=nullptr;
     GS->Phase=EMCShiftPhase::Working; GS->bDayOneComplete=false; GS->FailedEvents=0;
-    auto* Bin=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(-1110,0,140),FRotator::ZeroRotator);
-    if (Bin) { Bin->Tags.Add(TEXT("DayOne")); Bin->bBrushBin=true; Bin->Volume->SetBoxExtent(FVector(70,680,240)); Bin->Label->SetRelativeLocation(FVector(80,0,0)); }
+    AMCFoodDisposal* Bin=nullptr;
+    for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (It->bBrushBin) { Bin=*It; break; }
+    if (!Bin)
+    {
+        Bin=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(-1110,0,140),FRotator::ZeroRotator);
+        if (Bin) { Bin->Tags.Add(TEXT("DayOne")); Bin->bBrushBin=true; Bin->Volume->SetBoxExtent(FVector(70,680,240)); Bin->Label->SetRelativeLocation(FVector(80,0,0)); }
+    }
     Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>(); EnterStep();
 }
 int32 AMCDayDirector::CountDirt() const
@@ -65,7 +70,8 @@ void AMCDayDirector::DirtyMouth(bool bCoffee)
         const FVector P(-700+(I%5)*330,-340+(I/5)*260,350);
         FHitResult Floor; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCDirtFloor));
         const FVector Location=GetWorld()->LineTraceSingleByChannel(Floor,P,P-FVector(0,0,600),ECC_WorldStatic,Params)?Floor.ImpactPoint+FVector(0,0,5):FVector(P.X,P.Y,5);
-        auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Location,FRotator::ZeroRotator);
+        const FRotator Rotation=Floor.bBlockingHit?FRotationMatrix::MakeFromZ(Floor.ImpactNormal).Rotator():FRotator::ZeroRotator;
+        auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Location,Rotation);
         if (Patch) { Patch->Status->ApplyCoffee(bCoffee?1.f:.5f); Patch->Batch=GS->StepIndex; }
     }
 }

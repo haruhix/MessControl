@@ -5,6 +5,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCArenaTooth.h"
 #include "MCFoodActor.h"
+#include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -40,9 +41,12 @@ void AMCCoreScenario::NextStage()
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); ++Stage; StageAt=GS->GetServerWorldTimeSeconds(); ForceNetUpdate();
     if (Stage==1)
     {
-        Target=GS->ArenaTeeth[2]; Target->SetCoffee(1);
-        FVector P=Target->GetActorLocation(); P.Y+=Target->Body->Bounds.BoxExtent.Y+75; P.Z=95;
-        MoveHero(0,P+FVector(-42,0,0),FRotator(0,-90,0)); MoveHero(1,P+FVector(42,0,0),FRotator(0,-90,0));
+        // Artist blockouts can contain fewer than eight sockets. Exercise their
+        // real actors and count delta, without indexing an absent third tooth.
+        Target=GS->ArenaTeeth[FMath::Min(2,GS->ArenaTeeth.Num()-1)]; Target->SetCoffee(1);
+        FVector P=Target->GetActorLocation(); const float Side=FMath::Sign(P.Y);
+        P.Y-=Side*(Target->Body->Bounds.BoxExtent.Y+75); P.Z=95;
+        MoveHero(0,P+FVector(-42,0,0),FRotator(0,Side*90,0)); MoveHero(1,P+FVector(42,0,0),FRotator(0,Side*90,0));
         MoveHero(2,FVector(-400,250,95),FRotator::ZeroRotator); MoveHero(3,FVector(0,0,95),FRotator::ZeroRotator);
     }
     if (Stage==2) { Target->ReceiveArenaHit(75,FVector(0,1,0)); Heroes[2]->Status->Damage(50); Heroes[2]->Status->Loosen(); }
@@ -83,7 +87,15 @@ void AMCCoreScenario::Tick(float Dt)
         {
             Heroes.Empty();
             for (auto Player:GS->PlayerArray) if (auto* Hero=Cast<AMCToothCharacter>(Player->GetPawn())) Heroes.Add(Hero);
-            if (Heroes.Num()==4) NextStage();
+            if (Heroes.Num()==4)
+            {
+                if (GS->ArenaTeeth.IsEmpty())
+                {
+                    UE_LOG(LogTemp,Error,TEXT("MC_CORE: map has no gameplay teeth"));
+                    bFailed=true; Stage=7; StageAt=Now; ForceNetUpdate();
+                }
+                else NextStage();
+            }
         }
         if (Stage==1 && Elapsed>4 && Target->Status->State.CoffeeLeft==0)
         {
@@ -92,10 +104,11 @@ void AMCCoreScenario::Tick(float Dt)
         }
         else if (Stage==2 && Elapsed>4 && !Target->Status->NeedsCare(false) && !Heroes[2]->Status->NeedsCare(false)) NextStage();
         else if (Stage==3 && Elapsed>6 && Food->ConfirmedImpacts>0 && Heroes[3]->ToothPhysics->KnockdownCount>0 && Heroes[3]->ToothPhysics->CanAct()) NextStage();
-        else if (Stage==4 && Elapsed>6 && GS->AvailableArenaTeeth()==7)
+        else if (Stage==4 && Elapsed>6 && GS->AvailableArenaTeeth()==GS->ArenaTeeth.Num()-1)
         {
-            for (auto Player:GS->PlayerArray) if (auto* Hero=Cast<AMCToothCharacter>(Player->GetPawn())) if (Hero->RespawnSourceId==1) Heroes[3]=Hero;
-            if (Heroes[3]->RespawnSourceId==1) NextStage();
+            const int32 SourceId=GS->ArenaTeeth[0]->State.ToothId;
+            for (auto Player:GS->PlayerArray) if (auto* Hero=Cast<AMCToothCharacter>(Player->GetPawn())) if (Hero->RespawnSourceId==SourceId) Heroes[3]=Hero;
+            if (Heroes[3]->RespawnSourceId==SourceId) NextStage();
         }
         else if (Stage==5 && Elapsed>4 && Food->Phase==EMCFoodPhase::Free) NextStage();
         else if (Stage==6 && Food->IsDisposed()) NextStage();
@@ -119,7 +132,9 @@ void AMCCoreScenario::Tick(float Dt)
         if (Stage==5 && Slot>=0 && Slot<2 && Hero->HeldFood && Food && Food->Phase==EMCFoodPhase::Stuck) Hero->AddMovementInput(FVector(0,1,0));
         if (Stage==6 && Slot>=0 && Slot<2 && Hero->HeldFood)
         {
-            const FVector Destination(965,Slot==0?-45.f:45.f,95);
+            FVector Destination(965,Slot==0?-45.f:45.f,95);
+            for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (!It->bBrushBin)
+            { Destination=It->GetActorLocation()+FVector(0,Slot==0?-45.f:45.f,0); break; }
             if (FVector::DistSquared2D(Destination,Hero->GetActorLocation())>FMath::Square(35.f)) Hero->AddMovementInput((Destination-Hero->GetActorLocation()).GetSafeNormal2D());
         }
     }
@@ -128,7 +143,7 @@ void AMCCoreScenario::Tick(float Dt)
     if (Target && Target->Status->IsLoose() && Stage==2) Observed|=4;
     if (Target && !Target->Status->NeedsCare(false) && Stage==2) Observed|=8;
     if (Heroes.Num()==4 && IsValid(Heroes[3]) && Stage==3 && Heroes[3]->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll && Heroes[3]->Status->State.Health<100) Observed|=16;
-    if (GS->AvailableArenaTeeth()==7 && GS->ArenaTeeth.Num()==8 && GS->ArenaTeeth[0] && GS->ArenaTeeth[0]->State.bConsumed) Observed|=32;
+    if (!GS->ArenaTeeth.IsEmpty() && GS->AvailableArenaTeeth()==GS->ArenaTeeth.Num()-1 && GS->ArenaTeeth[0] && GS->ArenaTeeth[0]->State.bConsumed) Observed|=32;
     if (Food && Stage==5 && Food->Holders.Num()==2 && Food->PullProgress>0) Observed|=64;
     if (Food && Stage==6 && Food->Phase==EMCFoodPhase::Free && Food->Holders.Num()>0) Observed|=128;
     if (Food && Food->IsDisposed() && Stage>=6) Observed|=256;

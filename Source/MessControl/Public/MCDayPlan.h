@@ -61,5 +61,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ulcers") float UlcerDamagePerSecond=.35f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ulcers") float UlcerDisturbDamage=1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Arena") FVector ArenaHalfSize=FVector(1050,740,220);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Arena") FVector ArenaCenter=FVector::ZeroVector;
     void Sanitize();
 };

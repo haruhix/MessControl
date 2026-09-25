@@ -55,6 +55,8 @@ public:
     UPROPERTY(Replicated) float Paddle=400;
     UPROPERTY(Replicated) float Reach=160;
     UPROPERTY(Replicated) FVector HalfSize=FVector(1050,740,220);
+    UPROPERTY(Replicated) FVector ArenaCenter=FVector::ZeroVector;
+    UPROPERTY(Replicated) float InletFloorZ=0;
     UPROPERTY(Replicated) double StartedAt=0;
     UPROPERTY(Replicated) float Seconds=6;
     UPROPERTY(ReplicatedUsing=OnRep_Profile) TObjectPtr<UMCCoffeeProfile> Profile;

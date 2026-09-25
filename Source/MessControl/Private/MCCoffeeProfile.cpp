@@ -4,6 +4,7 @@ void FMCCoffeeWaterSettings::Sanitize()
 {
     auto Safe=[](float V,float Default,float Min,float Max){return FMath::IsFinite(V)?FMath::Clamp(V,Min,Max):Default;};
     RippleHeight=Safe(RippleHeight,6,0,15); RippleLength=Safe(RippleLength,260,100,600); RippleSpeed=Safe(RippleSpeed,1.4f,0,4);
+    DryHeight=Safe(DryHeight,-18,-1000,100);
     FloatDepth=Safe(FloatDepth,20,0,55); BuoyancyStiffness=Safe(BuoyancyStiffness,18,5,35);
     VerticalDamping=Safe(VerticalDamping,5.2f,1,12); WaterDrag=Safe(WaterDrag,1.8f,.5f,6);
     FillSeconds=Safe(FillSeconds,4,1,15); DrainSeconds=Safe(DrainSeconds,2,.5f,10); Cycles=FMath::Clamp(Cycles,1,4);

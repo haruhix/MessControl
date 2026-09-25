@@ -1,0 +1,112 @@
+[
+  {
+    "label": "ARENA | Tooth 01",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_01_Mirrored.SM_ArenaTooth_01_Mirrored",
+    "location": [
+      -519.6684893640057,
+      -927.9542177414585,
+      -15.571439238769528
+    ],
+    "yaw": 85.489979,
+    "source_row": "SM_Location_teeth2"
+  },
+  {
+    "label": "ARENA | Tooth 03",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_02_Mirrored.SM_ArenaTooth_02_Mirrored",
+    "location": [
+      -254.09320902191928,
+      -924.915893847705,
+      8.476732758300784
+    ],
+    "yaw": 85.489979,
+    "source_row": "SM_Location_teeth2"
+  },
+  {
+    "label": "ARENA | Tooth 05",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_03_Mirrored.SM_ArenaTooth_03_Mirrored",
+    "location": [
+      -28.03493688418353,
+      -914.6119410476595,
+      6.618441132324222
+    ],
+    "yaw": 85.489979,
+    "source_row": "SM_Location_teeth2"
+  },
+  {
+    "label": "ARENA | Tooth 07",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_04_Mirrored.SM_ArenaTooth_04_Mirrored",
+    "location": [
+      150.57510125714487,
+      -898.454382886841,
+      6.636461762207034
+    ],
+    "yaw": 85.489979,
+    "source_row": "SM_Location_teeth2"
+  },
+  {
+    "label": "ART | Far tooth Left",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_05_Mirrored.SM_ArenaTooth_05_Mirrored",
+    "location": [
+      398.8271386951143,
+      -880.8492830689067,
+      8.605104950683597
+    ],
+    "yaw": 85.489979,
+    "source_row": "SM_Location_teeth2"
+  },
+  {
+    "label": "ARENA | Tooth 02",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_01.SM_ArenaTooth_01",
+    "location": [
+      -359.58456226862575,
+      836.7095999165065,
+      -9.326092716453559
+    ],
+    "yaw": 83.33820663165238,
+    "source_row": "SM_Location_teeth"
+  },
+  {
+    "label": "ARENA | Tooth 04",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_02.SM_ArenaTooth_02",
+    "location": [
+      -99.63045827582651,
+      782.2731713216576,
+      14.722079280616754
+    ],
+    "yaw": 83.33820663165238,
+    "source_row": "SM_Location_teeth"
+  },
+  {
+    "label": "ARENA | Tooth 06",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_03.SM_ArenaTooth_03",
+    "location": [
+      120.14773321084658,
+      728.3652832898359,
+      12.863787654640191
+    ],
+    "yaw": 83.33820663165238,
+    "source_row": "SM_Location_teeth"
+  },
+  {
+    "label": "ARENA | Tooth 08",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_04.SM_ArenaTooth_04",
+    "location": [
+      292.2426605277485,
+      677.9078913402192,
+      12.881808284523004
+    ],
+    "yaw": 83.33820663165238,
+    "source_row": "SM_Location_teeth"
+  },
+  {
+    "label": "ART | Far tooth Right",
+    "mesh": "/Game/Gameplay/Arena/SM_ArenaTooth_05.SM_ArenaTooth_05",
+    "location": [
+      532.3794483674923,
+      612.5371275561521,
+      14.850451472999566
+    ],
+    "yaw": 83.33820663165238,
+    "source_row": "SM_Location_teeth"
+  }
+]

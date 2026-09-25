@@ -720,6 +720,17 @@ bool FMCCoffeePourDrainTest::RunTest(const FString& Parameters)
     Obstacle->SetActorLocation(FVector((Flood->WaterSettings.Inlet.X+Point.X)*.5f,(Flood->WaterSettings.Inlet.Y+Point.Y)*.5f,Point.Z));
     TestTrue(TEXT("Solid obstruction shields from flow"),Flood->FlowAtPosition(Point).IsNearlyZero());
     Obstacle->Destroy();
+    // The artist tongue slopes below the original flat arena. Its front is still in the wave.
+    auto* LowHero=Mouth.Worker();
+    // Let the normal 0.6 second spawn/recovery protection expire before the test impact.
+    Flood->SetActorTickEnabled(false);
+    for (int32 I=0;I<45;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,1.f/60); }
+    Flood->SetActorTickEnabled(true);
+    LowHero->SetActorLocation(FVector(Flood->WaterSettings.Inlet.X-300,Flood->WaterSettings.Inlet.Y+400,-105));
+    Flood->WaterSettings.DryHeight=-200;
+    Flood->StartedAt=Mouth.World->GetTimeSeconds()-(.25f+500.f/Flood->WaterSettings.FrontSpeed);
+    Flood->Tick(.016f);
+    TestTrue(TEXT("Impact reaches players on the lower artist tongue"),LowHero->ToothPhysics->KnockdownCount>0);
     Flood->StartedAt=Mouth.World->GetTimeSeconds()-4.7; Flood->Tick(.016f);
     TestTrue(TEXT("Real actor enters drain and hides jet"),Flood->GetPhase()==EMCCoffeePhase::Draining && !Flood->Jet->IsVisible() && Flood->DrainRibbon->IsVisible());
     Flood->Stop();

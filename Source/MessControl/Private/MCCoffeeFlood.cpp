@@ -65,8 +65,11 @@ void AMCCoffeeFlood::Start(const UMCDayPlan* Plan)
 {
     if (!HasAuthority() || !Plan) return;
     Height=Plan->FloodHeight; Flow=Plan->FlowAcceleration; Paddle=Plan->PaddleAcceleration; Reach=Plan->AnchorReach; HalfSize=Plan->ArenaHalfSize;
+    ArenaCenter=Plan->ArenaCenter.ContainsNaN()?FVector::ZeroVector:Plan->ArenaCenter;
     Profile=Plan->CoffeeProfile.LoadSynchronous();
     WaterSettings=Profile?Profile->Settings:FMCCoffeeWaterSettings(); WaterSettings.Sanitize();
+    FHitResult Floor; FVector FloorProbe=WaterSettings.Inlet; FloorProbe.Z=Height+200;
+    InletFloorZ=GetWorld()->LineTraceSingleByChannel(Floor,FloorProbe,FloorProbe-FVector(0,0,1400),ECC_WorldStatic)?Floor.ImpactPoint.Z:WaterSettings.DryHeight;
     if (WaterSettings.bUseThroatActor)
         for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (!It->bBrushBin)
         { WaterSettings.DrainPoint.X=It->GetActorLocation().X; WaterSettings.DrainPoint.Y=It->GetActorLocation().Y; break; }
@@ -81,7 +84,7 @@ float AMCCoffeeFlood::WaterTime() const
 }
 float AMCCoffeeFlood::BaseHeight(float T) const
 {
-    return FMath::Lerp(-18.f,Height,WaterSettings.FillAmount(T));
+    return FMath::Lerp(WaterSettings.DryHeight,Height,WaterSettings.FillAmount(T));
 }
 float AMCCoffeeFlood::SurfaceHeightAt(FVector P) const
 {
@@ -89,12 +92,15 @@ float AMCCoffeeFlood::SurfaceHeightAt(FVector P) const
 }
 bool AMCCoffeeFlood::Contains(FVector P) const
 {
-    if (!bActive || P.ContainsNaN() || FMath::Abs(P.X)>=HalfSize.X || FMath::Abs(P.Y)>=HalfSize.Y || P.Z<=-200 || P.Z>=SurfaceHeightAt(P)+35) return false;
+    if (!bActive || P.ContainsNaN() || FMath::Abs(P.X-ArenaCenter.X)>=HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>=HalfSize.Y || P.Z<=WaterSettings.DryHeight-100 || P.Z>=SurfaceHeightAt(P)+35) return false;
     return GetPhase()!=EMCCoffeePhase::Filling || FVector::Dist2D(P,WaterSettings.Inlet)<WaterSettings.FrontRadius(WaterTime())+WaterSettings.FrontWidth;
 }
 bool AMCCoffeeFlood::IsFlowBlocked(FVector P,const AActor* Ignore) const
 {
-    FVector Source=GetPhase()==EMCCoffeePhase::Draining?WaterSettings.DrainPoint:WaterSettings.Inlet; Source.Z=P.Z;
+    FVector Source=GetPhase()==EMCCoffeePhase::Draining?WaterSettings.DrainPoint:WaterSettings.Inlet;
+    // A low swimmer on the sloping tongue must not trace from underneath the inlet floor.
+    // Teeth and walls still shelter players at this height.
+    Source.Z=P.Z=FMath::Max(P.Z,InletFloorZ+25.f);
     FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCCoffeeFlow),false,Ignore);
     return GetWorld()->LineTraceSingleByChannel(Hit,Source,P,ECC_Visibility,Params);
 }
@@ -125,7 +131,7 @@ void AMCCoffeeFlood::Tick(float Dt)
         {
             auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
             Hero->bInCoffee=Contains(P) && Hero->Status->IsAlive();
-            if (!Hero->Status->IsAlive() || FMath::Abs(P.X)>HalfSize.X || FMath::Abs(P.Y)>HalfSize.Y) { Hero->ClingTooth=nullptr; continue; }
+            if (!Hero->Status->IsAlive() || FMath::Abs(P.X-ArenaCenter.X)>HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>HalfSize.Y) { Hero->ClingTooth=nullptr; continue; }
             if (Hero->bWantsCling)
             {
                 if (!IsValid(Hero->ClingTooth))
@@ -145,7 +151,7 @@ void AMCCoffeeFlood::Tick(float Dt)
             const float Distance=FVector::Dist2D(P,WaterSettings.Inlet), Front=WaterSettings.FrontRadius(Age);
             const bool CrossedFront=Distance<=Front+WaterSettings.FrontWidth && Distance>=Front-WaterSettings.FrontSpeed*Dt-WaterSettings.FrontWidth;
             if (!Hero->ClingTooth && !HitThisWave.Contains(Hero) && GetPhase()==EMCCoffeePhase::Filling
-                && WaterSettings.CycleTime(Age)>.25f && P.Z<Height+100 && P.Z>-80
+                && WaterSettings.CycleTime(Age)>.25f && P.Z<Height+100 && P.Z>WaterSettings.DryHeight
                 && (CrossedFront || Distance<WaterSettings.JetRadius*1.4f) && !IsFlowBlocked(P,Hero))
             {
                 HitThisWave.Add(Hero);
@@ -188,7 +194,7 @@ void AMCCoffeeFlood::UpdateSurface()
     if (!bActive) { Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false); return; }
     const float T=WaterTime();
     UpdatePour(T);
-    Surface->SetWorldLocation(FVector(0,0,BaseHeight(T))); Surface->SetWorldScale3D(FVector(HalfSize.X/50,HalfSize.Y/50,1));
+    Surface->SetWorldLocation(FVector(ArenaCenter.X,ArenaCenter.Y,BaseHeight(T))); Surface->SetWorldScale3D(FVector(HalfSize.X/50,HalfSize.Y/50,1));
     if (!Material) return;
     Material->SetScalarParameterValue(TEXT("WaterTime"),T);
     Material->SetScalarParameterValue(TEXT("RippleHeight"),WaterSettings.RippleHeight);
@@ -206,6 +212,7 @@ void AMCCoffeeFlood::UpdateSurface()
     Material->SetVectorParameterValue(TEXT("Inlet"),FLinearColor(WaterSettings.Inlet.X,WaterSettings.Inlet.Y,0,0));
     Material->SetVectorParameterValue(TEXT("Outlet"),FLinearColor(WaterSettings.DrainPoint.X,WaterSettings.DrainPoint.Y,0,0));
     Material->SetVectorParameterValue(TEXT("ArenaSize"),FLinearColor(HalfSize.X,HalfSize.Y,0,0));
+    Material->SetVectorParameterValue(TEXT("ArenaCenter"),FLinearColor(ArenaCenter.X,ArenaCenter.Y,0,0));
     // Four local visual wakes, derived from the already replicated ragdoll poses (no extra RPCs).
     TArray<AMCToothCharacter*> Heroes;
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if (It->GetPlayerState() && It->bInCoffee) Heroes.Add(*It);
@@ -228,4 +235,5 @@ void AMCCoffeeFlood::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AMCCoffeeFlood,Height); DOREPLIFETIME(AMCCoffeeFlood,Flow); DOREPLIFETIME(AMCCoffeeFlood,Paddle); DOREPLIFETIME(AMCCoffeeFlood,Reach);
     DOREPLIFETIME(AMCCoffeeFlood,HalfSize); DOREPLIFETIME(AMCCoffeeFlood,StartedAt); DOREPLIFETIME(AMCCoffeeFlood,Seconds);
     DOREPLIFETIME(AMCCoffeeFlood,Profile); DOREPLIFETIME(AMCCoffeeFlood,WaterSettings);
+    DOREPLIFETIME(AMCCoffeeFlood,ArenaCenter); DOREPLIFETIME(AMCCoffeeFlood,InletFloorZ);
 }

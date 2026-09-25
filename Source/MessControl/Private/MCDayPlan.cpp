@@ -34,4 +34,6 @@ void UMCDayPlan::Sanitize()
     UlcerDisturbDamage=Safe(UlcerDisturbDamage,1,0,10);
     if (ArenaHalfSize.ContainsNaN()) ArenaHalfSize=FVector(1050,740,220);
     ArenaHalfSize=ArenaHalfSize.GetAbs().BoundToBox(FVector(500,300,100),FVector(3000,2000,600));
+    if (ArenaCenter.ContainsNaN()) ArenaCenter=FVector::ZeroVector;
+    ArenaCenter=ArenaCenter.BoundToBox(FVector(-5000),FVector(5000));
 }

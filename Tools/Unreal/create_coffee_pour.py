@@ -90,9 +90,9 @@ return lerp(body,FoamColor.rgb,Foam);
     g.output(color,u.MaterialProperty.MP_BASE_COLOR)
     opacity=g.custom('Wet front expands from inlet; softened arena and object intersections',base+'''
 float wet=lerp(1,1-smoothstep(FrontRadius-FrontWidth,FrontRadius+FrontWidth,d),Filling);
-float border=saturate(min(ArenaSize.x-abs(P.x),ArenaSize.y-abs(P.y))/40);
+float border=saturate(min(ArenaSize.x-abs(P.x-ArenaCenter.x),ArenaSize.y-abs(P.y-ArenaCenter.y))/40);
 return saturate(lerp(ShallowOpacity,DeepOpacity,Depth)+Fresnel*.10+Foam*.2)*Edge*border*wet;
-''',dict(runtime,ArenaSize=g.vector('ArenaSize',(1050,740,0,0),'Runtime'),Depth=depth,Edge=edge,Fresnel=fresnel,Foam=foam,ShallowOpacity=g.scalar('ShallowOpacity',.60),DeepOpacity=g.scalar('DeepOpacity',.92)))
+''',dict(runtime,ArenaSize=g.vector('ArenaSize',(1050,740,0,0),'Runtime'),ArenaCenter=g.vector('ArenaCenter',(0,0,0,0),'Runtime'),Depth=depth,Edge=edge,Fresnel=fresnel,Foam=foam,ShallowOpacity=g.scalar('ShallowOpacity',.60),DeepOpacity=g.scalar('DeepOpacity',.92)))
     g.output(opacity,u.MaterialProperty.MP_OPACITY)
     g.output(g.custom('Liquid gloss, softer foam','return lerp(Roughness,.38,Foam);',dict(Roughness=g.scalar('Roughness',.105),Foam=foam)),u.MaterialProperty.MP_ROUGHNESS)
     g.output(g.scalar('Specular',.65),u.MaterialProperty.MP_SPECULAR)

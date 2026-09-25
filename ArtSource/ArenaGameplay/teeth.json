@@ -1,0 +1,52 @@
+[
+  {
+    "index": 1,
+    "centre_ue": [
+      75.44317626953125,
+      452.16156005859375,
+      -12.777008056640625
+    ],
+    "mesh": "SM_ArenaTooth_01",
+    "mirror": "SM_ArenaTooth_01_Mirrored"
+  },
+  {
+    "index": 2,
+    "centre_ue": [
+      51.531158447265625,
+      187.64752197265625,
+      11.271163940429688
+    ],
+    "mesh": "SM_ArenaTooth_02",
+    "mirror": "SM_ArenaTooth_02_Mirrored"
+  },
+  {
+    "index": 3,
+    "centre_ue": [
+      23.483367919921875,
+      -36.90054702758789,
+      9.412872314453125
+    ],
+    "mesh": "SM_ArenaTooth_03",
+    "mirror": "SM_ArenaTooth_03_Mirrored"
+  },
+  {
+    "index": 4,
+    "centre_ue": [
+      -6.66888427734375,
+      -213.68701171875,
+      9.430892944335938
+    ],
+    "mesh": "SM_ArenaTooth_04",
+    "mirror": "SM_ArenaTooth_04_Mirrored"
+  },
+  {
+    "index": 5,
+    "centre_ue": [
+      -43.740386962890625,
+      -459.7860107421875,
+      11.3995361328125
+    ],
+    "mesh": "SM_ArenaTooth_05",
+    "mirror": "SM_ArenaTooth_05_Mirrored"
+  }
+]

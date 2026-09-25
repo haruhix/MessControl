@@ -53,4 +53,5 @@ private:
     bool bArenaLost=false;
     int32 ArenaStage=0;
     float ArenaReadyAt=-1;
+    float CoffeeReadyAt=-1;
 };

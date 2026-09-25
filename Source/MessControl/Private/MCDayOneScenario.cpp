@@ -43,7 +43,9 @@ void AMCDayOneScenario::Next()
         GS->Phase=EMCShiftPhase::Working;
         // Suspend the legacy random-day scheduler while the bounded scenario drives real actions.
         GetWorld()->GetAuthGameMode<AMCGameMode>()->DayDirector=GetWorld()->SpawnActor<AMCDayDirector>();
-        auto* Bin=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(-1110,0,140),FRotator::ZeroRotator); Bin->bBrushBin=true;
+        bool HasBin=false;
+        for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) HasBin|=It->bBrushBin;
+        if (!HasBin) { auto* Bin=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(-1110,0,140),FRotator::ZeroRotator); Bin->bBrushBin=true; }
         for (int32 I=0;I<4;++I)
         {
             Move(I,FVector(-600+I*220,100,95)); const FTransform T(FVector(-520+I*220,100,280));
