@@ -87,6 +87,7 @@ void AMCGameMode::RestartShift()
     for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
     for (auto* Actor:OldDayActors) Actor->Destroy();
     State->DayPlan=nullptr; State->StepIndex=INDEX_NONE; State->bPhysicalBrushes=false; State->bDayOneComplete=false; State->FailedEvents=0;
+    State->bDevManualEvents=false;
     ClearTasks();
     Objectives.Empty(); PendingRespawns.Empty();
     TArray<AMCFoodActor*> OldFood;

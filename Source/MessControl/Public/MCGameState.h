@@ -28,6 +28,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") bool bDayOneComplete=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") double DayStartedAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") int32 FailedEvents=0;
+    // Dev sandbox suppresses deadlines/transitions, but physics and damage keep running.
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Development") bool bDevManualEvents=false;
     // Concrete teeth, not a separately decremented lives counter. Starting players are excluded.
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena") TArray<TObjectPtr<AMCArenaTooth>> ArenaTeeth;
     UFUNCTION(BlueprintPure, Category="Arena") int32 AvailableArenaTeeth() const;

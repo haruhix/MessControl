@@ -1,5 +1,6 @@
 #include "MCPlayerController.h"
 #include "MCPrototypeWidget.h"
+#include "MCDevPanelWidget.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
@@ -15,15 +16,59 @@ void AMCPlayerController::BeginPlay()
         PrototypeWidget->AddToViewport(); UpdateInputMode();
     }
 }
-void AMCPlayerController::ToggleTuning() { if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
-void AMCPlayerController::ToggleConnection() { if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
+void AMCPlayerController::SetupInputComponent()
+{
+    Super::SetupInputComponent();
+#if !UE_BUILD_SHIPPING
+    InputComponent->BindKey(EKeys::F3,IE_Pressed,this,&AMCPlayerController::ToggleDevPanel);
+#endif
+}
+void AMCPlayerController::ToggleDevPanel()
+{
+#if !UE_BUILD_SHIPPING
+    if (!IsLocalController()) return;
+    if (!DevPanel)
+    {
+        DevPanel=CreateWidget<UMCDevPanelWidget>(this,UMCDevPanelWidget::StaticClass());
+        DevPanel->AddToViewport(20); DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+    }
+    const bool bOpen=!DevPanel->IsVisible();
+    if (PrototypeWidget) PrototypeWidget->ClosePanels();
+    DevPanel->SetVisibility(bOpen?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    if (bOpen) DevPanel->RefreshActions();
+    UpdateInputMode();
+#endif
+}
+bool AMCPlayerController::CanUseDevPanel() const
+{
+    const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
+    return Mode && Mode->CanUseDevPanel(this);
+}
+void AMCPlayerController::RequestDevAction(EMCDevAction Action,int32 StepIndex)
+{
+    if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>())
+    {
+        const FText Result=Mode->ExecuteDevAction(this,Action,StepIndex);
+        if (DevPanel) DevPanel->SetFeedback(Result);
+    }
+    else if (DevPanel) DevPanel->SetFeedback(FText::FromString(TEXT("События запускает хост. Его изменения появятся у всех игроков.")));
+    UpdateInputMode();
+}
+void AMCPlayerController::ToggleTuning() { if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleConnection() { if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
 void AMCPlayerController::UpdateInputMode()
 {
-    const bool bPanel = PrototypeWidget && PrototypeWidget->IsPanelOpen();
+    const bool bDev=DevPanel && DevPanel->IsVisible();
+    const bool bPanel = bDev || (PrototypeWidget && PrototypeWidget->IsPanelOpen());
     bShowMouseCursor = bPanel;
     if (auto* Tooth = Cast<AMCToothCharacter>(GetPawn())) Tooth->bPreviewAnimation = PrototypeWidget && PrototypeWidget->IsTuningOpen();
     ResetIgnoreMoveInput(); SetIgnoreMoveInput(bPanel);
-    if (bPanel) { FInputModeGameAndUI Mode; Mode.SetWidgetToFocus(PrototypeWidget->TakeWidget()); Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode); }
+    if (bDev)
+    {
+        if (auto* Tooth=Cast<AMCToothCharacter>(GetPawn())) Tooth->CancelGameplayInput();
+        FInputModeUIOnly Mode; Mode.SetWidgetToFocus(DevPanel->TakeWidget()); SetInputMode(Mode);
+    }
+    else if (bPanel) { FInputModeGameAndUI Mode; Mode.SetWidgetToFocus(PrototypeWidget->TakeWidget()); Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode); }
     else SetInputMode(FInputModeGameOnly());
 }
 void AMCPlayerController::HostGame() { UGameplayStatics::OpenLevel(this,TEXT("L_Mouth"),true,TEXT("listen")); }

@@ -22,6 +22,7 @@
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerStart.h"
 #include "MCToothPhysicsComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -575,6 +576,69 @@ bool FMCUlcerAndFloodTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Rising coffee reaches the hero"),Hero->bInCoffee && Flood->Contains(Hero->GetActorLocation()));
     Hero->ServerPaddle(FVector2D(100,100)); TestTrue(TEXT("Server clamps swimming input"),Hero->PaddleInput.Size()<=1.001);
     Flood->Stop(); TestFalse(TEXT("Draining releases water control state"),Hero->bInCoffee);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDevEventsTest,"MessControl.Development.EventSandbox",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDevEventsTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth;
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(3000,2000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    Mouth.World->SpawnActor<APlayerStart>(FVector(-500,0,100),FRotator::ZeroRotator);
+    auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->Possess(Mouth.Worker());
+    const auto* Plan=Mouth.Mode->FirstDayPlan.LoadSynchronous();
+    if (!TestNotNull(TEXT("Day plan"),Plan)) return false;
+    auto Index=[&](EMCDayStep Step) { return Plan->Steps.IndexOfByPredicate([Step](const FMCDayStepSettings& S){return S.Step==Step;}); };
+    TestFalse(TEXT("Unassigned controller cannot use panel"),Mouth.Mode->CanUseDevPanel(PC));
+    PC->SetAsLocalPlayerController(); // Same host designation used by GameMode when spawning a local player.
+    TestTrue(TEXT("Standalone host can use panel"),Mouth.Mode->CanUseDevPanel(PC));
+    Mouth.Mode->ExecuteDevAction(nullptr,EMCDevAction::StartStep,0);
+    TestNull(TEXT("No requester cannot reset world"),Mouth.Mode->DayDirector.Get());
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StartStep,Index(EMCDayStep::BreakfastCleanup));
+    auto* Director=Mouth.Mode->DayDirector.Get();
+    if (!TestNotNull(TEXT("Cleanup selected directly"),Director)) return false;
+    TestTrue(TEXT("Manual mode is visible to game state"),Mouth.State->bDevManualEvents);
+    TestEqual(TEXT("Direct cleanup includes its meal"),Director->CountFood(2),Plan->BreakfastCount);
+    TestEqual(TEXT("Manual event has no deadline"),Mouth.State->PhaseEndsAt,0.);
+    for (TActorIterator<AMCFoodActor> It(Mouth.World);It;++It) It->Dispose();
+    Director->Tick(.1f);
+    TestEqual(TEXT("Finishing all work does not jump away from test"),Mouth.State->StepIndex,Index(EMCDayStep::BreakfastCleanup));
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StartStep,999);
+    TestEqual(TEXT("Invalid step preserves current sandbox"),Mouth.Mode->DayDirector.Get(),Director);
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StartStep,Index(EMCDayStep::CoffeeWaves));
+    TestTrue(TEXT("Coffee selection uses real flood"),Mouth.Mode->DayDirector->Flood->IsActive());
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::CoffeeDirt);
+    TestTrue(TEXT("Dirt action includes teeth and tissue"),Mouth.Mode->DayDirector->CountDirt()>8);
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StopCoffee);
+    TestFalse(TEXT("Drain stops real flood"),Mouth.Mode->DayDirector->Flood->IsActive());
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::Infection);
+    for (int32 I=0;I<8;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.05f); }
+    AMCMouthSurface* Ulcer=nullptr;
+    for (TActorIterator<AMCMouthSurface> It(Mouth.World);It;++It) if (It->bUlcer) Ulcer=*It;
+    TestNotNull(TEXT("Infection button produces actual food spoilage lesion"),Ulcer);
+    if (Ulcer)
+    {
+        const float HP=Mouth.State->MouthHealth; Ulcer->Tick(.1f);
+        TestTrue(TEXT("Manual mode keeps ulcer damage active"),Mouth.State->MouthHealth<HP);
+    }
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StartStep,Index(EMCDayStep::StuckFood));
+    TestEqual(TEXT("Stuck food has configured count"),Mouth.Mode->DayDirector->CountFood(3),Plan->StuckCount);
+    int32 Ulcers=0; for (TActorIterator<AMCMouthSurface> It(Mouth.World);It;++It) if (It->bUlcer) ++Ulcers;
+    TestEqual(TEXT("Clean step start removes previous ulcers"),Ulcers,0);
+    TestEqual(TEXT("Clean step restores concrete reserve"),Mouth.State->AvailableArenaTeeth(),8);
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::KillSelf);
+    auto* Dead=Cast<AMCToothCharacter>(PC->GetPawn());
+    if (TestNotNull(TEXT("Host pawn"),Dead))
+    {
+        TestFalse(TEXT("Death button kills host"),Dead->Status->IsAlive());
+        Dead->RespawnAt=-1; Mouth.Mode->ProcessRespawns();
+        TestEqual(TEXT("Dev death uses real reserve payment"),Mouth.State->AvailableArenaTeeth(),7);
+    }
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::RestartDay);
+    TestFalse(TEXT("Normal restart leaves manual mode"),Mouth.State->bDevManualEvents);
+    TestEqual(TEXT("Normal restart restores reserve"),Mouth.State->AvailableArenaTeeth(),8);
+    Mouth.NextPhase();
+    TestEqual(TEXT("Normal day starts with lesson"),Mouth.State->StepIndex,0);
     return true;
 }
 #endif

@@ -13,6 +13,11 @@ public:
     virtual TStatId GetStatId() const override { RETURN_QUICK_DECLARE_CYCLE_STAT(UMCValidationSubsystem,STATGROUP_Tickables); }
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override { return WorldType == EWorldType::Game || WorldType == EWorldType::PIE; }
 private:
+    void TickDevPanel(float Dt);
+    int32 DevStage=0;
+    int32 DevSeen=0;
+    double DevStartedAt=-1;
+    bool bDevClientGuard=false;
     void TickLimbStability(float DeltaSeconds);
     TMap<FName,FQuat> LastLimbRotations;
     TMap<FName,FQuat> NeutralLimbRotations;

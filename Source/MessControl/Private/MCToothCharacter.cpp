@@ -207,6 +207,11 @@ void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
 void AMCToothCharacter::StartHandle() { ServerSetWorking(false,true); }
 void AMCToothCharacter::StopHandle() { ServerSetWorking(false,false); }
+void AMCToothCharacter::CancelGameplayInput()
+{
+    StopBrush(); StopHandle(); StopJump(); LocalPaddle=FVector2D::ZeroVector; ServerPaddle(LocalPaddle);
+    GetCharacterMovement()->StopMovementImmediately();
+}
 void AMCToothCharacter::TogglePanel() { StopBrush(); StopHandle(); if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->ToggleTuning(); }
 void AMCToothCharacter::ToggleConnection() { StopBrush(); StopHandle(); if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->ToggleConnection(); }
 void AMCToothCharacter::RestartRun() { if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->RequestRestart(); }

@@ -73,7 +73,11 @@ void UMCPrototypeWidget::NativeOnInitialized()
     ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
     AddText(Footer,TEXT("WASD  MOVE    SPACE  HOP    LMB  CLEAN    E  PULL / REPAIR    RMB  BONK"),15,Cream);
-    AddText(Footer,TEXT("C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      GAMEPAD  STICK / A / RB / X / LB"),12,Mint);
+#if !UE_BUILD_SHIPPING
+    AddText(Footer,TEXT("C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
+#else
+    AddText(Footer,TEXT("C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS"),12,Mint);
+#endif
     UBorder* TuningBorder; auto* Tuning = Panel(FVector2D(-28,174),FVector2D(360,710),FAnchors(1,0),FVector2D(1,0),TuningBorder); TuningPanel = TuningBorder;
     TuningScroll=WidgetTree->ConstructWidget<UScrollBox>(); TuningBorder->SetContent(TuningScroll); TuningScroll->AddChild(Tuning);
     AddText(Tuning,TEXT("TOOTH LAB"),23,Mint);
@@ -182,6 +186,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
         InstructionLabel->SetText(FText::FromString(TEXT("First three events finished. Foam party is next in development. Host: R to replay.")));
         TimeLabel->SetText(FText::FromString(FString::Printf(TEXT("%d EVENTS FAILED"),State->FailedEvents)));
     }
+    if (State->bDevManualEvents) TimeLabel->SetText(FText::FromString(TEXT("DEV TEST | F3 | NO AUTO ADVANCE")));
     if (LastDay != State->Day || LastPhase != static_cast<int32>(State->Phase))
     {
         if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn()))
@@ -191,6 +196,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
 }
 bool UMCPrototypeWidget::IsPanelOpen() const { return (TuningPanel && TuningPanel->IsVisible()) || (ConnectionPanel && ConnectionPanel->IsVisible()); }
 bool UMCPrototypeWidget::IsTuningOpen() const { return TuningPanel && TuningPanel->IsVisible(); }
+void UMCPrototypeWidget::ClosePanels() { TuningPanel->SetVisibility(ESlateVisibility::Collapsed); ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed); }
 void UMCPrototypeWidget::ScrollToPhysics() { if (TuningScroll) TuningScroll->ScrollToEnd(); }
 void UMCPrototypeWidget::ToggleTuning() { TuningPanel->SetVisibility(TuningPanel->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible); ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed); RefreshSliders(); }
 void UMCPrototypeWidget::ToggleConnection() { ConnectionPanel->SetVisibility(ConnectionPanel->IsVisible() ? ESlateVisibility::Collapsed : ESlateVisibility::Visible); TuningPanel->SetVisibility(ESlateVisibility::Collapsed); }
@@ -200,6 +206,7 @@ FReply UMCPrototypeWidget::NativeOnKeyDown(const FGeometry& Geometry,const FKeyE
     {
         if (Event.GetKey()==EKeys::F1) { PC->ToggleTuning(); return FReply::Handled(); }
         if (Event.GetKey()==EKeys::F2) { PC->ToggleConnection(); return FReply::Handled(); }
+        if (Event.GetKey()==EKeys::F3) { PC->ToggleDevPanel(); return FReply::Handled(); }
         if (Event.GetKey()==EKeys::Escape) { TuningPanel->SetVisibility(ESlateVisibility::Collapsed); ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed); PC->UpdateInputMode(); return FReply::Handled(); }
     }
     return Super::NativeOnKeyDown(Geometry,Event);

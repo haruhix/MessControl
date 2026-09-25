@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "MCDataAssets.h"
+#include "MCDevCommands.h"
 #include "MCGameMode.generated.h"
 class UMCDayEvent;
 class UMCRunRules;
@@ -34,6 +35,8 @@ public:
     void UpdateObjectives();
     void ProcessRespawns();
     UFUNCTION(BlueprintCallable, Category="Shift") void RestartShift();
+    bool CanUseDevPanel(const APlayerController* Requester) const;
+    FText ExecuteDevAction(APlayerController* Requester,EMCDevAction Action,int32 StepIndex=INDEX_NONE);
     UPROPERTY(EditDefaultsOnly, Category="Shift") TArray<TObjectPtr<UMCDayEvent>> EventPool;
     UPROPERTY(EditDefaultsOnly, Category="Shift") TSubclassOf<AMCTaskActor> TaskClass;
     // Read only when starting/restarting a run; editing the DA does not change an active run.

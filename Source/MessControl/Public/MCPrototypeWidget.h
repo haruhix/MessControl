@@ -17,6 +17,7 @@ class MESSCONTROL_API UMCPrototypeWidget : public UUserWidget
 public:
     void ToggleTuning();
     void ToggleConnection();
+    void ClosePanels();
     bool IsPanelOpen() const;
     bool IsTuningOpen() const;
     void ScrollToPhysics();

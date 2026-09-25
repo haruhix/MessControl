@@ -11,12 +11,16 @@
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 AMCDayDirector::AMCDayDirector() { PrimaryActorTick.bCanEverTick=true; }
-void AMCDayDirector::Start(UMCDayPlan* Plan)
+void AMCDayDirector::Start(UMCDayPlan* Plan,int32 InitialStep,bool bManual)
 {
-    if (!HasAuthority() || !Plan) return;
+    if (!HasAuthority() || !Plan || !Plan->Steps.IsValidIndex(InitialStep)) return;
+#if UE_BUILD_SHIPPING
+    bManual=false;
+#endif
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if (!GS) return;
     Settings=DuplicateObject<UMCDayPlan>(Plan,this); Settings->Sanitize(); Random.Initialize(GS->RunSeed);
-    GS->DayPlan=Plan; GS->StepIndex=0; GS->DayStartedAt=GS->GetServerWorldTimeSeconds(); GS->bPhysicalBrushes=true; GS->CurrentEvent=nullptr;
+    GS->DayPlan=Plan; GS->StepIndex=InitialStep; GS->bDevManualEvents=bManual;
+    GS->DayStartedAt=GS->GetServerWorldTimeSeconds(); GS->bPhysicalBrushes=true; GS->CurrentEvent=nullptr;
     GS->Phase=EMCShiftPhase::Working; GS->bDayOneComplete=false; GS->FailedEvents=0;
     auto* Bin=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(-1110,0,140),FRotator::ZeroRotator);
     if (Bin) { Bin->Tags.Add(TEXT("DayOne")); Bin->bBrushBin=true; Bin->Volume->SetBoxExtent(FVector(70,680,240)); Bin->Label->SetRelativeLocation(FVector(80,0,0)); }
@@ -91,7 +95,11 @@ void AMCDayDirector::EnterStep()
         GS->bDayOneComplete=true; GS->Phase=EMCShiftPhase::Intermission; GS->PhaseEndsAt=0; GS->TasksLeft=0; GS->ForceNetUpdate(); return;
     }
     const auto& Step=Settings->Steps[GS->StepIndex]; StepStartedAt=GS->GetServerWorldTimeSeconds();
-    GS->PhaseEndsAt=Step.Seconds>0?StepStartedAt+Step.Seconds:0; GS->TasksTotal=0; GS->TasksLeft=0;
+    GS->PhaseEndsAt=!GS->bDevManualEvents && Step.Seconds>0?StepStartedAt+Step.Seconds:0; GS->TasksTotal=0; GS->TasksLeft=0;
+    // A directly selected cleanup/discard step needs the objects normally left by its predecessor.
+    if (GS->bDevManualEvents && Step.Step==EMCDayStep::DiscardBrushes) DropBrushes();
+    if (GS->bDevManualEvents && Step.Step==EMCDayStep::BreakfastCleanup)
+        for (int32 I=0;I<Settings->BreakfastCount;++I) SpawnMenuFood(FVector(Random.FRandRange(-620,650),Random.FRandRange(-430,430),650),2);
     if (Step.Step==EMCDayStep::BrushLesson) { DirtyMouth(false); DropBrushes(); }
     if (Step.Step==EMCDayStep::BreakfastRain) RainSpawned=0;
     if (Step.Step==EMCDayStep::CoffeeWaves && Flood) Flood->Start(Settings,Step.Seconds);
@@ -141,13 +149,14 @@ void AMCDayDirector::Tick(float Dt)
     case EMCDayStep::BreakfastRain:
         while (RainSpawned<Settings->BreakfastCount && Elapsed>=double(RainSpawned)*FMath::Max(.1f,Step.Seconds)/Settings->BreakfastCount)
         { SpawnMenuFood(FVector(Random.FRandRange(-620,650),Random.FRandRange(-430,430),650),2); ++RainSpawned; }
-        Left=Settings->BreakfastCount-RainSpawned; bWait=Elapsed<Step.Seconds; break;
+        Left=GS->bDevManualEvents?CountFood(2):Settings->BreakfastCount-RainSpawned; bWait=Elapsed<Step.Seconds; break;
     case EMCDayStep::BreakfastCleanup: Left=CountFood(2); break;
     case EMCDayStep::CoffeeWaves: bWait=Elapsed<Step.Seconds; Left=Flood?FMath::Max(0,Settings->WaveCount-Flood->Wave):0; break;
     case EMCDayStep::StuckFood: Left=CountFood(3); break;
     default: break;
     }
     GS->TasksLeft=Left; GS->TasksTotal=FMath::Max(GS->TasksTotal,Left);
+    if (GS->bDevManualEvents) return;
     if (Left==0 && !bWait) Next(false);
     else if (Step.Seconds>0 && Elapsed>=Step.Seconds) Next(Step.Step!=EMCDayStep::BreakfastRain && Step.Step!=EMCDayStep::CoffeeWaves);
 }

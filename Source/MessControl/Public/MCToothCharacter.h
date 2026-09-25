@@ -52,6 +52,7 @@ public:
     bool CanWork() const;
     void StatusChanged();
     void DropFood();
+    void CancelGameplayInput();
     bool CanContact(AActor* Target) const;
     UMCToothStatusComponent* FindCareTarget(bool bBrush) const;
     void AdvanceCare(float Dt);
