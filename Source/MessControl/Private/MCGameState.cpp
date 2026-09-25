@@ -11,6 +11,8 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCGameState, RunSettings);
+    DOREPLIFETIME(AMCGameState, DayPlan); DOREPLIFETIME(AMCGameState, StepIndex); DOREPLIFETIME(AMCGameState, bPhysicalBrushes);
+    DOREPLIFETIME(AMCGameState, bDayOneComplete); DOREPLIFETIME(AMCGameState, DayStartedAt); DOREPLIFETIME(AMCGameState, FailedEvents);
     DOREPLIFETIME(AMCGameState, ArenaTeeth);
     DOREPLIFETIME(AMCGameState, Day); DOREPLIFETIME(AMCGameState, Phase);
     DOREPLIFETIME(AMCGameState, MouthHealth); DOREPLIFETIME(AMCGameState, TasksLeft);

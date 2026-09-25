@@ -140,7 +140,7 @@ void UMCToothPhysicsComponent::CaptureFrame()
 }
 bool UMCToothPhysicsComponent::TryRecover()
 {
-    if (!Tooth || !Tooth->Status->IsAlive() || !Tooth->HasAuthority() || LocalState!=EMCBodyState::Ragdoll) return false;
+    if (!Tooth || !Tooth->Status->IsAlive() || Tooth->bInCoffee || !Tooth->HasAuthority() || LocalState!=EMCBodyState::Ragdoll) return false;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCGetUp),false,Tooth);
     FHitResult Floor; const FVector Center=PhysicalLocation();
     if (!GetWorld()->LineTraceSingleByChannel(Floor,Center+FVector(0,0,60),Center-FVector(0,0,350),ECC_WorldStatic,Params) || Floor.ImpactNormal.Z<0.65f) return false;

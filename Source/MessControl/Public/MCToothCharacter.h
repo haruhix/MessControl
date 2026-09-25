@@ -11,6 +11,7 @@ class UMCToothPhysicsComponent;
 class UPhysicsControlComponent;
 class UMCToothStatusComponent;
 class AMCFoodActor;
+class AMCArenaTooth;
 class UMaterialInstanceDynamic;
 class UEnhancedInputLocalPlayerSubsystem;
 struct FInputActionValue;
@@ -34,6 +35,16 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") TObjectPtr<AActor> CareTarget;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") float ContactProgress=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Food") TObjectPtr<AMCFoodActor> HeldFood;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Tools") TObjectPtr<AMCFoodActor> EquippedBrush;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Coffee") bool bInCoffee=false;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Coffee") TObjectPtr<AMCArenaTooth> ClingTooth;
+    bool bWantsCling=false;
+    FVector ClingPoint=FVector::ZeroVector;
+    FVector2D PaddleInput=FVector2D::ZeroVector;
+    bool HasBrush() const;
+    UFUNCTION(BlueprintCallable, Category="Tools") void ThrowItem();
+    UFUNCTION(Server,Reliable) void ServerThrowItem();
+    UFUNCTION(Server,Unreliable) void ServerPaddle(FVector2D Direction);
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
     bool CanWork() const;
@@ -66,6 +77,7 @@ protected:
 private:
     friend class UMCValidationSubsystem;
     friend class AMCCoreScenario;
+    friend class AMCDayOneScenario;
     void BuildInput();
     void MoveForward(const FInputActionValue& Value);
     void MoveRight(const FInputActionValue& Value);
@@ -94,6 +106,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> RestartAction;
     UPROPERTY() TObjectPtr<UInputAction> SwingAction;
     UPROPERTY() TObjectPtr<UInputAction> SelfCareAction;
+    UPROPERTY() TObjectPtr<UInputAction> ThrowAction;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StatusMaterial;
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
     float NextSwingTime=0.f;
@@ -109,4 +122,7 @@ private:
     bool bDeathReported=false;
     bool bLastContactBrush=false;
     float ContactElapsed=0;
+    FVector2D LocalPaddle=FVector2D::ZeroVector;
+    float PaddleSendElapsed=0;
+    double LastPaddleAt=0;
 };

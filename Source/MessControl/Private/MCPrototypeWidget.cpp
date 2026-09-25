@@ -146,6 +146,8 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     {
         PlayerStatusLabel->SetText(FText::FromString(Hero->Status->Summary()));
         FString Hint=Hero->bSelfCare?TEXT("SELF CARE: LMB brush / E heal. C returns to others."):TEXT("Face a tooth: hold LMB to brush, E to heal. C: self care.");
+        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("E: pick up a brush. RMB: hit food. Q: throw held item.");
+        if (Hero->bInCoffee) Hint=Hero->ClingTooth?TEXT("CLINGING | keep E held. Release E to let go."):TEXT("COFFEE | WASD: paddle. Hold E near arena teeth to cling.");
         float Progress=Hero->ContactProgress;
         if (!Hero->Status->IsAlive()) Hint=State->AvailableArenaTeeth()>0?FString::Printf(TEXT("DOWN | RESPAWN %.1fs | consumes one numbered arena tooth"),FMath::Max(0.,Hero->RespawnAt-State->GetServerWorldTimeSeconds())):TEXT("DOWN | NO RESERVE TEETH LEFT");
         else if (IsValid(Hero->HeldFood))
@@ -168,6 +170,18 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     HealthLabel->SetText(FText::FromString(FString::Printf(TEXT("MOUTH HEALTH / %03d"),FMath::RoundToInt(State->MouthHealth)))); HealthBar->SetPercent(State->MouthHealth/FMath::Max(1.f,State->RunSettings.MaxMouthHealth));
     const int32 Seconds = FMath::CeilToInt(State->SecondsLeft());
     TimeLabel->SetText(FText::FromString((bWon || bLost) ? FString(TEXT("SHIFT COMPLETE")) : bWorking ? FString::Printf(TEXT("%02d SECONDS LEFT"),Seconds) : FString::Printf(TEXT("NEXT SHIFT IN %02d"),Seconds)));
+    if (bWorking && State->DayPlan && State->DayPlan->Steps.IsValidIndex(State->StepIndex))
+    {
+        const auto& Step=State->DayPlan->Steps[State->StepIndex]; EventLabel->SetText(Step.Title); InstructionLabel->SetText(Step.Instruction);
+        TaskLabel->SetText(FText::FromString(FString::Printf(TEXT("%s %02d    |    %d / %d PLAYERS"),Step.Step==EMCDayStep::CoffeeWaves?TEXT("WAVES LEFT"):TEXT("OBJECTS LEFT"),State->TasksLeft,State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
+        TimeLabel->SetText(FText::FromString(Step.Seconds>0?FString::Printf(TEXT("EVENT %02ds | DAY ELAPSED %03ds"),Seconds,FMath::FloorToInt(State->GetServerWorldTimeSeconds()-State->DayStartedAt)):TEXT("NO EVENT TIMER | TAKE YOUR TIME")));
+    }
+    if (State->bDayOneComplete)
+    {
+        EventLabel->SetText(FText::FromString(TEXT("DAY 01 COMPLETE")));
+        InstructionLabel->SetText(FText::FromString(TEXT("First three events finished. Foam party is next in development. Host: R to replay.")));
+        TimeLabel->SetText(FText::FromString(FString::Printf(TEXT("%d EVENTS FAILED"),State->FailedEvents)));
+    }
     if (LastDay != State->Day || LastPhase != static_cast<int32>(State->Phase))
     {
         if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn()))

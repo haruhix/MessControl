@@ -23,7 +23,7 @@
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
 #if !UE_BUILD_SHIPPING
-    if (FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) return;
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCCore")) || FParse::Param(FCommandLine::Get(),TEXT("MCDayOne"))) return;
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLimbs"))) { TickLimbStability(DeltaSeconds); return; }
     const bool bSmoke = FParse::Param(FCommandLine::Get(),TEXT("MCSmoke"));
     const bool bArena = FParse::Param(FCommandLine::Get(),TEXT("MCArenaNet"));

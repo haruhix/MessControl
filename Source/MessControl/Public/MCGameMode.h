@@ -9,6 +9,7 @@ class AMCTaskActor;
 class UMCArenaToothProfile;
 class AMCToothCharacter;
 class AMCFoodDisposal;
+class AMCDayDirector;
 
 USTRUCT()
 struct FMCEventObjective
@@ -38,6 +39,9 @@ public:
     // Read only when starting/restarting a run; editing the DA does not change an active run.
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<UMCRunRules> RunRulesProfile;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<UMCArenaToothProfile> ArenaToothProfile;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<class UMCDayPlan> FirstDayPlan;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") bool bUseDayOnePlan=true;
+    UPROPERTY() TObjectPtr<AMCDayDirector> DayDirector;
 private:
     void StartDay();
     void FinishDay(bool bTimedOut);

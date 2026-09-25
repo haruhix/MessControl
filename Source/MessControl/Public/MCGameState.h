@@ -3,6 +3,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "MCDataAssets.h"
 #include "MCRunRules.h"
+#include "MCDayPlan.h"
 #include "MCGameState.generated.h"
 class AMCArenaTooth;
 
@@ -21,6 +22,12 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") double PhaseEndsAt = 0.;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") TObjectPtr<UMCDayEvent> CurrentEvent;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 RunSeed = 0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") TObjectPtr<UMCDayPlan> DayPlan;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") int32 StepIndex=INDEX_NONE;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") bool bPhysicalBrushes=false;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") bool bDayOneComplete=false;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") double DayStartedAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") int32 FailedEvents=0;
     // Concrete teeth, not a separately decremented lives counter. Starting players are excluded.
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena") TArray<TObjectPtr<AMCArenaTooth>> ArenaTeeth;
     UFUNCTION(BlueprintPure, Category="Arena") int32 AvailableArenaTeeth() const;
