@@ -1,4 +1,5 @@
 #include "MCGazeComponent.h"
+#include "MCExpressionComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
@@ -190,7 +191,8 @@ void UMCGazeComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
             if (Lid==INDEX_NONE || !Tooth->Appearance) continue;
             const int32 LidParent=Ref.GetParentIndex(Lid); if (LidParent<0) continue;
             const float Degrees=Part==0?Tooth->Appearance->UpperLidDegrees:Tooth->Appearance->LowerLidDegrees;
-            const FQuat Close(Right,FMath::DegreesToRadians(FMath::Clamp(Degrees,-80.f,80.f)*Blink));
+            const float Closure=FMath::Max(Blink,Tooth->Expression?Tooth->Expression->Squint():0.f);
+            const FQuat Close(Right,FMath::DegreesToRadians(FMath::Clamp(Degrees,-80.f,80.f)*Closure));
             Pose[Lid].SetRotation((CS[LidParent].GetRotation().Inverse()*Close*HeadDelta*Rest[Lid].GetRotation()).GetNormalized());
         }
     }

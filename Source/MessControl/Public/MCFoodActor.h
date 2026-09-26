@@ -38,7 +38,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Food") FMCFoodSettings Settings;
 };
 UENUM(BlueprintType)
-enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped };
+enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped, Carried };
 
 /** Server-simulated rigid food. Clients receive motion and interaction state. */
 UCLASS(Blueprintable)
@@ -55,6 +55,7 @@ public:
     void Initialize(bool bJam,FVector ExtractionDirection);
     bool TryGrab(AMCToothCharacter* Hero);
     bool FindGripSurface(FVector From,FHitResult& Hit) const;
+    bool BeginCarry(AMCToothCharacter* Hero);
     void Release(AMCToothCharacter* Hero);
     void Dispose();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
@@ -95,6 +96,8 @@ private:
     bool bJamOnLanding=false;
     bool bLandingPending=false;
     float LastPullTime=0;
+    float CarryBlockedSeconds=0;
+    TWeakObjectPtr<AMCToothCharacter> CollisionIgnoredCarrier;
     // Sampled in the actor's PrePhysics tick, before contact impulses change velocity.
     FVector PrePhysicsVelocity=FVector::ZeroVector;
     TMap<TWeakObjectPtr<AActor>,double> LastHit;

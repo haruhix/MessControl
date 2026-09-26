@@ -1,9 +1,12 @@
 ﻿#include "MCGripComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCExpressionComponent.h"
 #include "MCFoodActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "Engine/SkeletalMesh.h"
@@ -16,6 +19,7 @@ void FMCGripSettings::Sanitize()
     ReachSeconds=C(ReachSeconds,.28f,.12f,.6f); ReleaseSeconds=C(ReleaseSeconds,.22f,.1f,.6f);
     BodyReach=C(BodyReach,18,0,24); CrouchDepth=C(CrouchDepth,25,0,30); ContactTolerance=C(ContactTolerance,6,0,10);
     MaxArmStretch=C(MaxArmStretch,1.08f,1,1.15f); BreakSlack=C(BreakSlack,14,2,20);
+    DragDistanceScale=C(DragDistanceScale,1.7f,1,2); CarryMaxMass=C(CarryMaxMass,6,0,20); CarryMaxHalfExtent=C(CarryMaxHalfExtent,30,10,50);
     PalmLength=C(PalmLength,7,2,12); PalmThickness=C(PalmThickness,2.5f,0,6);
     FrontAngle=C(FrontAngle,55,30,70); RearAngle=C(RearAngle,130,110,160); AngleHysteresis=C(AngleHysteresis,8,2,15);
     DriveForce=C(DriveForce,17000,1000,40000); Spring=C(Spring,750,100,1500); Damping=C(Damping,95,10,250); Lean=C(Lean,10,0,20);
@@ -41,10 +45,27 @@ float UMCGripComponent::Now() const
 void UMCGripComponent::OnRep_Settings() { Settings.Sanitize(); CacheRig(); }
 FVector UMCGripComponent::ReachFor(const AMCFoodActor* Food) const
 {
-    FVector Reach=(Food->Visual->Bounds.Origin-Tooth->GetActorLocation()).GetSafeNormal2D()*Settings.BodyReach;
+    FVector Reach=(Food->Visual->Bounds.Origin-Tooth->GetActorLocation()).GetSafeNormal2D()*Settings.BodyReach/Settings.DragDistanceScale;
     const float ShoulderZ=Tooth->GetActorTransform().TransformPosition((Arms[0].Shoulder+Arms[1].Shoulder)*.5).Z;
     Reach.Z=FMath::Clamp(float(Food->Visual->Bounds.GetBox().Max.Z+12-ShoulderZ),-Settings.CrouchDepth,0.f);
     return Reach;
+}
+bool UMCGripComponent::CanCarry(const AMCFoodActor* Food) const
+{
+    if (!Food || Food->bBrushTool || Food->Phase==EMCFoodPhase::Stuck || Food->IsDisposed() || Food->Holders.Num()>1) return false;
+    const FVector Extent=Food->Body->GetScaledBoxExtent();
+    const float VisualRadius=Food->Visual->Bounds.SphereRadius;
+    return Food->Settings.Mass<=Settings.CarryMaxMass && Extent.GetMax()<=Settings.CarryMaxHalfExtent
+        && VisualRadius<=Settings.CarryMaxHalfExtent*1.75f;
+}
+FVector UMCGripComponent::CarryLocation() const
+{
+    if (!Tooth || !Frame.Food) return FVector::ZeroVector;
+    const FVector Extent=Frame.Food->Body->GetScaledBoxExtent();
+    const FVector Shoulders=Tooth->GetActorTransform().TransformPosition((Arms[0].Shoulder+Arms[1].Shoulder)*.5);
+    FVector P=Tooth->GetActorLocation()+Tooth->GetActorForwardVector()*(Tooth->GetCapsuleComponent()->GetScaledCapsuleRadius()+Extent.X+8);
+    P.Z=FMath::Max(Shoulders.Z,Tooth->GetActorLocation().Z+8);
+    return P;
 }
 void UMCGripComponent::CacheRig()
 {
@@ -107,8 +128,8 @@ bool UMCGripComponent::FindAnchors(AMCFoodActor* Food,EMCGripPose Mode,FMCGripFr
         const FVector Shoulder=Tooth->GetActorTransform().TransformPosition(Arms[I].Shoulder)+Reach;
         FHitResult Hit; if (!Food->FindGripSurface(Shoulder,Hit)) { DebugFailure=TEXT("No visible surface hit"); return false; }
         const FVector Wrist=Hit.ImpactPoint-HandRotation(I,Hit.ImpactNormal).RotateVector(Arms[I].PalmLocal);
-        if (FVector::Distance(Shoulder,Wrist)>(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch)
-        { DebugFailure=FString::Printf(TEXT("Hand %d needs %.1f, reach %.1f; shoulder %s contact %s"),I,FVector::Distance(Shoulder,Wrist),(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch,*Shoulder.ToCompactString(),*Hit.ImpactPoint.ToCompactString()); return false; }
+        if (FVector::Distance(Shoulder,Wrist)>(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch*Settings.DragDistanceScale)
+        { DebugFailure=FString::Printf(TEXT("Hand %d needs %.1f, reach %.1f; shoulder %s contact %s"),I,FVector::Distance(Shoulder,Wrist),(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch*Settings.DragDistanceScale,*Shoulder.ToCompactString(),*Hit.ImpactPoint.ToCompactString()); return false; }
         FCollisionQueryParams Params(SCENE_QUERY_STAT(MCGripLOS),false,Tooth); Params.AddIgnoredActor(Food);
         FHitResult Obstacle;
         if (GetWorld()->LineTraceSingleByChannel(Obstacle,Shoulder,Hit.ImpactPoint,ECC_Visibility,Params)) { DebugFailure=TEXT("Contact occluded by ")+GetNameSafe(Obstacle.GetActor()); return false; }
@@ -185,8 +206,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     auto* Food=Frame.Food.Get(); const bool Active=IsValid(Food) && !Food->IsDisposed() && Tooth->ToothPhysics->CanAct();
     if (Active)
     {
-        if (!bOrientationSaved) { bPreviousOrient=Tooth->GetCharacterMovement()->bOrientRotationToMovement; bOrientationSaved=true; }
-        Tooth->GetCharacterMovement()->bOrientRotationToMovement=false;
+        Tooth->GetCharacterMovement()->bOrientRotationToMovement=true;
         ReachOffset=ReachFor(Food);
         // Follow the finished rigid-body step before solving the rendered hands.
         ConstrainMovement(0,Tooth->GetActorLocation(),Tooth->GetVelocity());
@@ -196,14 +216,20 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
             const FVector Delta=Food->Visual->Bounds.Origin-Tooth->GetActorLocation();
             const FVector D=Tooth->GetActorTransform().InverseTransformVectorNoScale(Delta);
             const float Approach=FVector::DotProduct(InputDirection(),Delta.GetSafeNormal2D())*100;
-            const auto Desired=SelectPose(Frame.Pose,FMath::RadiansToDegrees(FMath::Atan2(D.Y,D.X)),Approach,Settings);
+            const auto Desired=Food->Phase==EMCFoodPhase::Carried?EMCGripPose::Carry:SelectPose(Frame.Pose,FMath::RadiansToDegrees(FMath::Atan2(D.Y,D.X)),Approach,Settings);
             if (Desired!=Frame.Pose && Now()>NextModeAt)
             {
                 FMCGripFrame Next=Frame;
                 // Push/pull share the same two fixed contacts; changing hand count requires a regrip.
                 if (UsesHand(Desired,true)==UsesHand(Frame.Pose,true) && UsesHand(Desired,false)==UsesHand(Frame.Pose,false))
                     Frame.Pose=Desired;
-                else if (FindAnchors(Food,Desired,Next)) { Frame=Next; Frame.StartedAt=Now(); Frame.bContact=false; ++Frame.Serial; }
+                else if (FindAnchors(Food,Desired,Next))
+                {
+                    // The supporting hand stays anchored while the free hand reaches in.
+                    if (UsesHand(Frame.Pose,true) && UsesHand(Desired,true)) { Next.LeftPoint=Frame.LeftPoint; Next.LeftNormal=Frame.LeftNormal; }
+                    if (UsesHand(Frame.Pose,false) && UsesHand(Desired,false)) { Next.RightPoint=Frame.RightPoint; Next.RightNormal=Frame.RightNormal; }
+                    Frame=Next; Frame.StartedAt=Now(); Frame.bContact=false; LostContact=0; ++Frame.Serial;
+                }
                 NextModeAt=Now()+.3; Tooth->ForceNetUpdate();
             }
             float ReachError=0;
@@ -211,17 +237,19 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
             {
                 const FVector N=Food->Visual->GetComponentTransform().TransformVectorNoScale(I==0?FVector(Frame.LeftNormal):FVector(Frame.RightNormal));
                 const FVector Wrist=ContactPoint(I==0)-HandRotation(I,N).RotateVector(Arms[I].PalmLocal);
-                ReachError=FMath::Max(ReachError,float(FVector::Distance(ShoulderPoint(I),Wrist))-(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch);
+                ReachError=FMath::Max(ReachError,float(FVector::Distance(ShoulderPoint(I),Wrist))-(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch*Settings.DragDistanceScale);
             }
             // Previous-frame bone transforms are stale after physics; validate the IK reach here.
             // The smooth reach finishes before force can engage.
-            const bool Ready=Now()-Frame.StartedAt>=Settings.ReachSeconds && Blend()>.99f && ReachError<=Settings.ContactTolerance;
+            const bool HandsReady=(!UsesHand(Frame.Pose,true) || HandAlpha[0]>.99f) && (!UsesHand(Frame.Pose,false) || HandAlpha[1]>.99f);
+            const bool Ready=Now()-Frame.StartedAt>=Settings.ReachSeconds && HandsReady && ReachError<=Settings.ContactTolerance;
             if (Frame.bContact!=Ready) { Frame.bContact=Ready; Tooth->ForceNetUpdate(); }
+            if (Ready && CanCarry(Food) && Food->Phase!=EMCFoodPhase::Carried) Food->BeginCarry(Tooth);
             LostContact=Ready?0:LostContact+Dt;
             if (LostContact>Settings.ReachSeconds+.65f || !Tooth->bHandling)
             {
 #if !UE_BUILD_SHIPPING
-                if (FParse::Param(FCommandLine::Get(),TEXT("MCGripTest"))) UE_LOG(LogTemp,Display,TEXT("MC_GRIP_LOST %s error=%.1f lost=%.2f handling=%d"),*Tooth->GetName(),ContactError(),LostContact,Tooth->bHandling);
+                if (FParse::Param(FCommandLine::Get(),TEXT("MCGripTest"))) UE_LOG(LogTemp,Display,TEXT("MC_GRIP_LOST %s error=%.1f reach=%.1f blend=%.2f phase=%d lost=%.2f handling=%d"),*Tooth->GetName(),ContactError(),ReachError,Blend(),int32(Food->Phase),LostContact,Tooth->bHandling);
 #endif
                 Food->Release(Tooth); return; }
         }
@@ -232,26 +260,35 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
             Normals[I]=Food->Visual->GetComponentTransform().TransformVectorNoScale(I==0?FVector(Frame.LeftNormal):FVector(Frame.RightNormal)).GetSafeNormal();
         }
     }
-    else if (bOrientationSaved) { Tooth->GetCharacterMovement()->bOrientRotationToMovement=bPreviousOrient; bOrientationSaved=false; }
     for (int32 I=0;I<2;++I)
     {
         const float Target=Active && UsesHand(Frame.Pose,I==0)?1:0;
         HandAlpha[I]=FMath::FInterpConstantTo(HandAlpha[I],Target,Dt,1/(Target>0?Settings.ReachSeconds:Settings.ReleaseSeconds));
         if (!Tooth->ToothPhysics->CanAct()) HandAlpha[I]=0;
     }
-    Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f,HandAlpha[1]>.001f);
+    const bool Emote=Tooth->Expression && Tooth->Expression->BodyAlpha()>.001f;
+    Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote,HandAlpha[1]>.001f || Emote);
 }
 void UMCGripComponent::ConstrainMovement(float Dt,FVector OldLocation,FVector OldVelocity)
 {
-    if (bConstraining || !bRigReady || !IsValid(Frame.Food) || !Tooth->ToothPhysics->CanAct()
+    if (bConstraining || !bRigReady || !IsValid(Frame.Food) || Frame.Food->Phase==EMCFoodPhase::Carried || !Tooth->ToothPhysics->CanAct()
         || (!Tooth->HasAuthority() && !Tooth->IsLocallyControlled()) || !Tooth->GetCharacterMovement()->IsMovingOnGround()) return;
     FVector Candidate=Tooth->GetActorLocation();
+    FHitResult Surface;
+    if (Frame.Food->FindGripSurface(Candidate,Surface))
+    {
+        const FVector Away=(Candidate-Surface.ImpactPoint).GetSafeNormal2D();
+        const float Gap=FVector::Dist2D(Candidate,Surface.ImpactPoint);
+        const float DesiredGap=(Tooth->GetCapsuleComponent()->GetScaledCapsuleRadius()+2)*Settings.DragDistanceScale;
+        // Ease out of the initial close contact; sweep below keeps walls solid.
+        if (Gap<DesiredGap) Candidate+=Away*FMath::Min(DesiredGap-Gap,120.f*FMath::Min(GetWorld()->GetDeltaSeconds(),.05f));
+    }
     for (int32 Pass=0;Pass<3;++Pass) for (int32 I=0;I<2;++I) if (UsesHand(Frame.Pose,I==0))
     {
         const FVector N=Frame.Food->Visual->GetComponentTransform().TransformVectorNoScale(I==0?FVector(Frame.LeftNormal):FVector(Frame.RightNormal));
         const FVector Wrist=ContactPoint(I==0)-HandRotation(I,N).RotateVector(Arms[I].PalmLocal);
         const FVector Shoulder=ShoulderPoint(I)+Candidate-Tooth->GetActorLocation();
-        const float Reach=(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch-1;
+        const float Reach=(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch*Settings.DragDistanceScale-1;
         const float Dz=Shoulder.Z-Wrist.Z;
         if (FMath::Abs(Dz)>Reach) continue;
         const float R=FMath::Sqrt(Reach*Reach-Dz*Dz);
@@ -297,7 +334,7 @@ void UMCGripComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
         const int32 Parent=Ref.GetParentIndex(Body); FTransform B=CS[Body];
         B.AddToTranslation(MeshWorld.InverseTransformVector(ReachOffset)*Blend());
         const float Sign=PresentationPose==EMCGripPose::Push?1.f:-1.f;
-        const float Effort=IsReady() && !InputDirection().IsNearlyZero()?FMath::Clamp(Frame.Food->Settings.Mass/28.f,.2f,1.f):.1f;
+        const float Effort=PresentationPose==EMCGripPose::Carry?.15f:IsReady() && !InputDirection().IsNearlyZero()?FMath::Clamp(Frame.Food->Settings.Mass/28.f,.2f,1.f):.1f;
         const FVector Axis=MeshWorld.InverseTransformVectorNoScale(Tooth->GetActorRightVector());
         const FQuat Tilt(Axis,FMath::DegreesToRadians(Sign*Settings.Lean*Effort*Blend()));
         const FVector Pivot=(CS[Arms[0].Upper].GetLocation()+CS[Arms[1].Upper].GetLocation())*.5+MeshWorld.InverseTransformVector(ReachOffset)*Blend();
@@ -312,7 +349,7 @@ void UMCGripComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
         const FVector Goal=MeshWorld.InverseTransformPosition(Targets[I]-WorldRotation.RotateVector(A.PalmLocal));
         const FVector Pole=CS[A.Upper].GetLocation()+MeshWorld.InverseTransformVectorNoScale(Tooth->GetActorRightVector()*(I==0?-35:35)-FVector::UpVector*25-Tooth->GetActorForwardVector()*10);
         FTransform Upper=CS[A.Upper],Lower=CS[A.Lower],Hand=CS[A.Hand];
-        AnimationCore::SolveTwoBoneIK(Upper,Lower,Hand,Pole,Goal,true,1.,double(Settings.MaxArmStretch));
+        AnimationCore::SolveTwoBoneIK(Upper,Lower,Hand,Pole,Goal,true,1.,double(Settings.MaxArmStretch*Settings.DragDistanceScale));
         Hand.SetRotation((MeshWorld.GetRotation().Inverse()*WorldRotation).GetNormalized());
         const FTransform Solved[]={Upper,Lower,Hand}; const int32 Bones[]={A.Upper,A.Lower,A.Hand};
         const float Alpha=FMath::SmoothStep(0.f,1.f,HandAlpha[I]);

@@ -3,15 +3,62 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
+#include "MCExpressionComponent.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "MCFoodActor.h"
+#include "TwoBoneIK.h"
 
 class FMCToothAnimProxy final : public FAnimInstanceProxy
 {
 public:
     explicit FMCToothAnimProxy(UAnimInstance* Instance):FAnimInstanceProxy(Instance) {}
     TArray<FTransform> Pose;
+    FVector PlantedFeet[2]={FVector::ZeroVector,FVector::ZeroVector};
+    bool FootPlanted[2]={false,false};
+    void PlaceFeet(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        if (!Tooth->ToothPhysics->CanAct() || Tooth->GetCharacterMovement()->IsFalling() || Tooth->bPreviewAnimation
+            || (Tooth->Expression && Tooth->Expression->BodyAlpha()>.01f)) { FootPlanted[0]=FootPlanted[1]=false; return; }
+        const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        TArray<FTransform> CS; CS.SetNum(Pose.Num());
+        auto Rebuild=[&](){for (int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)>=0?Pose[I]*CS[Ref.GetParentIndex(I)]:Pose[I];};
+        Rebuild();
+        for (int32 Side=0;Side<2;++Side)
+        {
+            const FString S=Side==0?TEXT("_l"):TEXT("_r");
+            const int32 Upper=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("leg")+S))));
+            const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("knee")+S))));
+            const int32 Foot=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("foot")+S))));
+            if (Upper<0 || Lower<0 || Foot<0) continue;
+            const FVector Animated=World.TransformPosition(CS[Foot].GetLocation());
+            const float Phase=Tooth->AnimationGait+(Side==0?0:PI);
+            const bool Stance=Tooth->AnimationSpeed<.05f || FMath::Sin(Phase)<=0;
+            if (!Stance) { FootPlanted[Side]=false; continue; }
+            FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFootGround),false,Tooth);
+            if (Tooth->HeldFood) Params.AddIgnoredActor(Tooth->HeldFood);
+            if (!Tooth->GetWorld()->LineTraceSingleByChannel(Hit,Animated+FVector(0,0,22),Animated-FVector(0,0,35),ECC_Visibility,Params)
+                || Hit.ImpactNormal.Z<.65f) { FootPlanted[Side]=false; continue; }
+            FVector Target=Animated;
+            if (!FootPlanted[Side] || FVector::Dist2D(PlantedFeet[Side],Animated)>24) PlantedFeet[Side]=Animated;
+            FootPlanted[Side]=true;
+            Target.X=PlantedFeet[Side].X; Target.Y=PlantedFeet[Side].Y;
+            // A small sole clearance, with bounded correction on moving tongue geometry.
+            Target.Z=Animated.Z+FMath::Clamp(float(Hit.ImpactPoint.Z+3-Animated.Z),-12.f,12.f);
+            FTransform U=CS[Upper],L=CS[Lower],F=CS[Foot];
+            const FVector Pole=CS[Upper].GetLocation()+World.InverseTransformVectorNoScale(Tooth->GetActorForwardVector()*45);
+            AnimationCore::SolveTwoBoneIK(U,L,F,Pole,World.InverseTransformPosition(Target),false,1.,1.);
+            const float Weight=Tooth->AnimationSpeed<.05f?1.f:FMath::Clamp(-FMath::Sin(Phase)*4.f,0.f,1.f);
+            const int32 Bones[]={Upper,Lower,Foot}; const FTransform Solved[]={U,L,F};
+            for (int32 J=0;J<3;++J)
+            {
+                const int32 B=Bones[J],Parent=Ref.GetParentIndex(B); FTransform Blended;
+                Blended.Blend(CS[B],Solved[J],Weight); Pose[B]=Parent>=0?Blended.GetRelativeTransform(CS[Parent]):Blended; Rebuild();
+            }
+        }
+    }
     virtual void PreUpdate(UAnimInstance* Instance,float Dt) override
     {
         FAnimInstanceProxy::PreUpdate(Instance,Dt);
@@ -49,8 +96,11 @@ public:
         // Stay inside the shoulder/wrist stops even at the strongest F1 preset.
         Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle+FMath::Sin(G-0.25f)*18*Speed,-50.f,50.f),0,10));
         Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle*0.3f,-35.f,35.f),0,0));
+        if (Tooth->Expression) Tooth->Expression->BuildBodyPose(Pose,Ref);
         if (Tooth->Grip) Tooth->Grip->BuildPose(Pose,Ref,Dt);
+        PlaceFeet(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
+        if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);
     }
     virtual bool Evaluate(FPoseContext& Output) override

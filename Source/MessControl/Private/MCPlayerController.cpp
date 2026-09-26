@@ -1,6 +1,7 @@
 #include "MCPlayerController.h"
 #include "MCPrototypeWidget.h"
 #include "MCDevPanelWidget.h"
+#include "MCEmoteWidget.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
@@ -19,6 +20,7 @@ void AMCPlayerController::BeginPlay()
 void AMCPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
+    InputComponent->BindKey(EKeys::T,IE_Pressed,this,&AMCPlayerController::ToggleEmotes);
 #if !UE_BUILD_SHIPPING
     InputComponent->BindKey(EKeys::F3,IE_Pressed,this,&AMCPlayerController::ToggleDevPanel);
 #endif
@@ -27,6 +29,7 @@ void AMCPlayerController::ToggleDevPanel()
 {
 #if !UE_BUILD_SHIPPING
     if (!IsLocalController()) return;
+    if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     if (!DevPanel)
     {
         DevPanel=CreateWidget<UMCDevPanelWidget>(this,UMCDevPanelWidget::StaticClass());
@@ -54,19 +57,34 @@ void AMCPlayerController::RequestDevAction(EMCDevAction Action,int32 StepIndex)
     else if (DevPanel) DevPanel->SetFeedback(FText::FromString(TEXT("События запускает хост. Его изменения появятся у всех игроков.")));
     UpdateInputMode();
 }
-void AMCPlayerController::ToggleTuning() { if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
-void AMCPlayerController::ToggleConnection() { if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleEmotes()
+{
+    if (!IsLocalController()) return;
+    if (!EmoteWidget)
+    {
+        EmoteWidget=CreateWidget<UMCEmoteWidget>(this,UMCEmoteWidget::StaticClass());
+        EmoteWidget->AddToViewport(15); EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
+    }
+    const bool Open=!EmoteWidget->IsVisible();
+    if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+    if (PrototypeWidget) PrototypeWidget->ClosePanels();
+    EmoteWidget->SetVisibility(Open?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    if (Open) EmoteWidget->Refresh(); UpdateInputMode();
+}
+void AMCPlayerController::ToggleTuning() { if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleConnection() { if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
 void AMCPlayerController::UpdateInputMode()
 {
     const bool bDev=DevPanel && DevPanel->IsVisible();
-    const bool bPanel = bDev || (PrototypeWidget && PrototypeWidget->IsPanelOpen());
+    const bool bEmote=EmoteWidget && EmoteWidget->IsVisible();
+    const bool bPanel = bEmote || bDev || (PrototypeWidget && PrototypeWidget->IsPanelOpen());
     bShowMouseCursor = bPanel;
     if (auto* Tooth = Cast<AMCToothCharacter>(GetPawn())) Tooth->bPreviewAnimation = PrototypeWidget && PrototypeWidget->IsTuningOpen();
     ResetIgnoreMoveInput(); SetIgnoreMoveInput(bPanel);
-    if (bDev)
+    if (bDev || bEmote)
     {
         if (auto* Tooth=Cast<AMCToothCharacter>(GetPawn())) Tooth->CancelGameplayInput();
-        FInputModeUIOnly Mode; Mode.SetWidgetToFocus(DevPanel->TakeWidget()); SetInputMode(Mode);
+        FInputModeUIOnly Mode; Mode.SetWidgetToFocus(bEmote?EmoteWidget->TakeWidget():DevPanel->TakeWidget()); SetInputMode(Mode);
     }
     else if (bPanel) { FInputModeGameAndUI Mode; Mode.SetWidgetToFocus(PrototypeWidget->TakeWidget()); Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode); }
     else SetInputMode(FInputModeGameOnly());

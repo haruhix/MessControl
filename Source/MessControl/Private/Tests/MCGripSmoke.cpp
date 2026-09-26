@@ -81,11 +81,12 @@ void UMCValidationSubsystem::TickGrip(float Dt)
             for (int32 I=0;I<4;++I)
             {
                 const FVector Point(I<2?-250:250,I%2==0?-160:160,0); FHitResult Hit; Tongue->SurfacePoint(Point,Hit);
-                const FTransform T(Hit.ImpactPoint+FVector(0,0,51));
+                const FTransform T(Hit.ImpactPoint+FVector(0,0,I==2?26:51));
                 auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
                 FMCFoodRow Row; Row.Label=FText::FromString(TEXT("GRIP")); Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
                 Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
-                FRandomStream Random(1); Food->ConfigureItem(FName(*FString::Printf(TEXT("Grip%d"),I)),Row,Random); Food->Batch=I;
+                Row.FragmentMeshes=Row.WholeMeshes;
+                FRandomStream Random(1); Food->ConfigureItem(FName(*FString::Printf(TEXT("Grip%d"),I)),Row,Random,I==2); Food->Batch=I;
                 Food->FinishSpawning(T);
                 Place(Heroes[I],Point+FVector(-220,0,0),0);
             }
@@ -107,10 +108,19 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     if (!Food[0] || !Food[1] || !Food[2] || !Food[3]) { if (T>21) Finish(); return; }
     if (Host && DevStage==1 && T>1)
     {
-        const FVector Offset[]={FVector(-86,0,0),FVector(-86,0,0),FVector(0,86,0),FVector(86,0,0)};
+        const FVector Offset[]={FVector(-86,0,0),FVector(-86,0,0),FVector(-68,0,0),FVector(86,0,0)};
         for (int32 I=0;I<4;++I)
         {
             Place(Heroes[I],Food[I]->GetActorLocation()+Offset[I],0); GripStarts[I]=Food[I]->GetActorLocation();
+        }
+        ++DevStage;
+    }
+    // Allow the test teleport to reach the owning clients before starting a grip.
+    // Otherwise their in-flight movement corrections can undo the placement during pickup.
+    if (Host && DevStage==2 && T>2)
+    {
+        for (int32 I=0;I<4;++I)
+        {
             Heroes[I]->bHandling=true;
             if (!Food[I]->TryGrab(Heroes[I]))
             { bTongueInvalid=true; UE_LOG(LogTemp,Display,TEXT("MC_GRIP_BEGIN_FAIL %d %s"),I,*Heroes[I]->Grip->DebugFailure); }
@@ -121,14 +131,16 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     if (T>2 && GripStarts[0].IsNearlyZero()) for (int32 I=0;I<4;++I) GripStarts[I]=Food[I]->GetActorLocation();
     // Test teleports rotate authority; owning character rotation is normally driven by local movement.
     if (!Host && T>1 && T<3) for (auto* Hero:Heroes) if (Hero->IsLocallyControlled()) Hero->SetActorRotation(FRotator::ZeroRotator);
-    if (T>4 && T<7)
+    // The longer grip can walk farther before tension stops the hero. Keep this
+    // contact test inside the arena; falling into the throat is tested separately.
+    if (T>4 && T<5.2f)
         for (int32 I=0;I<4;++I) if (Heroes[I]->IsLocallyControlled()) Heroes[I]->AddMovementInput(FVector(I==0 || I==2?-1:1,0,0),.35f);
-    if (Host && DevStage==2 && T>12)
+    if (Host && DevStage==3 && T>12)
     {
         for (int32 I=0;I<4;++I) { Food[I]->Release(Heroes[I]); Heroes[I]->bHandling=false; Heroes[I]->ForceNetUpdate(); }
         ++DevStage;
     }
-    if (Host && DevStage==3 && T>15)
+    if (Host && DevStage==4 && T>15)
     {
         // Reset the rolled test cube before the independent regrip/ragdoll case.
         FHitResult Floor; Tongue->SurfacePoint(Food[1]->GetActorLocation(),Floor);
@@ -139,9 +151,9 @@ void UMCValidationSubsystem::TickGrip(float Dt)
         ++DevStage;
     }
     if (T>15 && T<17 && Heroes[1]->Grip->IsReady() && Heroes[1]->HeldFood==Food[1]) DevSeen|=32768;
-    if (Host && DevStage==4 && T>17)
+    if (Host && DevStage==5 && T>17)
     { Heroes[1]->ToothPhysics->ApplyHit(FVector(0,0,450),Heroes[1]->GetActorLocation()); ++DevStage; }
-    const EMCGripPose Expected[]={EMCGripPose::FrontPull,EMCGripPose::Push,EMCGripPose::LeftHand,EMCGripPose::RearPull};
+    const EMCGripPose Expected[]={EMCGripPose::FrontPull,EMCGripPose::Push,EMCGripPose::Carry,EMCGripPose::RearPull};
     if (T>2 && T<12) for (int32 I=0;I<4;++I)
     {
         auto* Grip=Heroes[I]->Grip.Get();
@@ -152,10 +164,13 @@ void UMCValidationSubsystem::TickGrip(float Dt)
             if (Grip->Frame.Pose==Expected[I]) DevSeen|=1<<(I+4);
             if (FVector::Dist2D(GripStarts[I],Food[I]->GetActorLocation())>60) DevSeen|=1<<(I+8);
         }
-        if (Grip->Blend()>.99f && Grip->Frame.Food && T<4)
+        if (Grip->IsReady() && Grip->Blend()>.99f && Grip->Frame.Food && T>3.3f && T<4)
         {
             GripWorstError=FMath::Max(GripWorstError,Grip->ContactError());
-            bTongueInvalid|=Grip->ContactError()>12;
+            // A delayed transform can briefly precede its matching pose on a client.
+            // Fail a sustained detached hand, while retaining the raw peak in the log.
+            GripBadContactSeconds[I]=Grip->ContactError()>12?GripBadContactSeconds[I]+Dt:0;
+            bTongueInvalid|=GripBadContactSeconds[I]>.25f;
         }
     }
     if (T>13 && T<15)

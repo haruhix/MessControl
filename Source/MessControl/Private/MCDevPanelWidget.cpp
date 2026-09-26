@@ -92,7 +92,7 @@ void UMCDevPanelWidget::RefreshActions()
     }
     AddAction(Steps,TEXT("Обычный день 1 — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычные таймеры и переходы."),EMCDevAction::RestartDay);
     AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
-    AddAction(Actions,TEXT("Руки — хват, тяга и толкание"),TEXT("Лёгкий тренировочный куб. Подойди близко с разных сторон, держи E и двигайся. Положение кистей, сила и времена — DA_Grip."),EMCDevAction::GripPractice);
+    AddAction(Actions,TEXT("Руки — хват, тяга и толкание"),TEXT("Большой куб для тяги и маленький для переноски. Держи ЛКМ и двигайся. Дистанция, масса переноски и руки — DA_Grip."),EMCDevAction::GripPractice);
     AddAction(Actions,TEXT("Инфекция — испорченная еда + язва"),TEXT("Ускоряет порчу одного нового куска. Он создаёт настоящую язву и мешает её заживлению."),EMCDevAction::Infection);
     AddAction(Actions,TEXT("Язык — язва и волна боли"),TEXT("Язва без еды перед игроком. Наступи на неё: движение языка, красная волна и один толчок каждому. Язва заживает сама."),EMCDevAction::TongueUlcer);
     AddAction(Actions,TEXT("Язык — сильный рывок / ragdoll"),TEXT("Поджатие, резкий подъём и бросок игроков с едой. В обычном дне повторяется редко; в ручном тесте запускается этой кнопкой."),EMCDevAction::TongueJolt);
@@ -103,7 +103,7 @@ void UMCDevPanelWidget::RefreshActions()
         break;
     }
     AddAction(Actions,TEXT("Глаза — создать напарника"),TEXT("Наблюдай взгляд зуба на тебя, еду и опасности. Веки моргают; настройки в DA_Gaze и F1."),EMCDevAction::GazePractice);
-    AddAction(Actions,TEXT("Язык — сравнить вес 4 / 28 кг"),TEXT("Два одинаковых предмета перед игроком. Тяжёлый сильнее продавливает язык; E — хват и перетаскивание."),EMCDevAction::TongueWeight);
+    AddAction(Actions,TEXT("Язык — сравнить вес 4 / 28 кг"),TEXT("Два одинаковых предмета перед игроком. Тяжёлый сильнее продавливает язык; ЛКМ — хват и перетаскивание."),EMCDevAction::TongueWeight);
     AddAction(Actions,TEXT("Язык — включить / выключить продавливание"),TEXT("Для сравнения поверхности под игроками и едой. Движения от событий продолжают работать."),EMCDevAction::TongueWeightToggle);
     AddAction(Actions,TEXT("Кофейный налёт + щётки"),TEXT("Покрывает зубы, игроков и поверхность налётом. Четыре контакта по 0,5 секунды."),EMCDevAction::CoffeeDirt);
     AddAction(Actions,TEXT("Сбросить щётки с неба"),TEXT("По одной щётке на игрока. Подобрать E, выбросить Q за передний край."),EMCDevAction::DropBrushes);

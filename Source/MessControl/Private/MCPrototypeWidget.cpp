@@ -75,11 +75,11 @@ void UMCPrototypeWidget::NativeOnInitialized()
     ProgressStyle.BackgroundImage.TintColor=FSlateColor(FLinearColor(.018f,.035f,.04f));
     ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
-    AddText(Footer,TEXT("WASD  MOVE    SPACE  HOP    LMB  CLEAN    E  PULL / REPAIR    RMB  BONK"),15,Cream);
+    AddText(Footer,TEXT("WASD  MOVE    SPACE  HOP    HOLD LMB  INTERACT    Q  THROW    RMB  BONK"),15,Cream);
 #if !UE_BUILD_SHIPPING
-    AddText(Footer,TEXT("C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
+    AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
 #else
-    AddText(Footer,TEXT("C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS"),12,Mint);
+    AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS"),12,Mint);
 #endif
     UBorder* TuningBorder; auto* Tuning = Panel(FVector2D(-28,174),FVector2D(360,710),FAnchors(1,0),FVector2D(1,0),TuningBorder); TuningPanel = TuningBorder;
     TuningScroll=WidgetTree->ConstructWidget<UScrollBox>(); TuningBorder->SetContent(TuningScroll); TuningScroll->AddChild(Tuning);
@@ -162,15 +162,15 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     if (const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn()))
     {
         PlayerStatusLabel->SetText(FText::FromString(Hero->Status->Summary()));
-        FString Hint=Hero->bSelfCare?TEXT("SELF CARE: LMB brush / E heal. C returns to others."):TEXT("Face a tooth: hold LMB to brush, E to heal. C: self care.");
-        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("E: pick up a brush. RMB: hit food. Q: throw held item.");
-        if (Hero->bInCoffee) Hint=Hero->ClingTooth?TEXT("CLINGING | keep E held. Release E to let go."):TEXT("COFFEE | WASD: paddle. Hold E near arena teeth to cling.");
+        FString Hint=Hero->bSelfCare?TEXT("SELF CARE: hold LMB to clean / heal. C returns to others."):TEXT("Hold LMB near a target: pick up, clean or heal. C: self care.");
+        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hit food. Q: throw held item.");
+        if (Hero->bInCoffee) Hint=Hero->ClingTooth?TEXT("CLINGING | keep LMB held. Release LMB to let go."):TEXT("COFFEE | WASD: paddle. Hold LMB near arena teeth to cling.");
         float Progress=Hero->ContactProgress;
         if (!Hero->Status->IsAlive()) Hint=State->AvailableArenaTeeth()>0?FString::Printf(TEXT("DOWN | RESPAWN %.1fs | consumes one numbered arena tooth"),FMath::Max(0.,Hero->RespawnAt-State->GetServerWorldTimeSeconds())):TEXT("DOWN | NO RESERVE TEETH LEFT");
         else if (IsValid(Hero->HeldFood))
         {
             Progress=Hero->HeldFood->PullProgress;
-            Hint=Hero->HeldFood->Phase==EMCFoodPhase::Stuck?TEXT("HOLD E + MOVE TOWARDS CENTRE to pull free. Release E to let go."):TEXT("HOLD E + MOVE: drag food to THROAT. Release E to drop.");
+            Hint=Hero->HeldFood->Phase==EMCFoodPhase::Stuck?TEXT("HOLD LMB + MOVE TOWARDS CENTRE to pull free."):Hero->HeldFood->Phase==EMCFoodPhase::Carried?TEXT("CARRYING | WASD: move. Release LMB: drop. Q: throw."):TEXT("HOLD LMB + MOVE: drag food to THROAT. Release LMB to drop.");
         }
         else if (IsValid(Hero->CareTarget))
             if (auto* Target=Hero->CareTarget->FindComponentByClass<UMCToothStatusComponent>())
@@ -197,7 +197,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
             {
                 const auto Phase=It->GetPhase();
                 EventLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Filling?TEXT("COFFEE / FILLING"):Phase==EMCCoffeePhase::Draining?TEXT("COFFEE / DRAINING TO THROAT"):TEXT("COFFEE / DRAINED")));
-                InstructionLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Draining?TEXT("Current pulls towards the throat! Hold E at an arena tooth; WASD: paddle."):Phase==EMCCoffeePhase::Filling?TEXT("Dodge the jet and outward wave. Hold E near an arena tooth to cling."):TEXT("Water is gone. F3: replay the event or test cleanup.")));
+                InstructionLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Draining?TEXT("Current pulls towards the throat! Hold LMB at an arena tooth; WASD: paddle."):Phase==EMCCoffeePhase::Filling?TEXT("Dodge the jet and outward wave. Hold LMB near an arena tooth to cling."):TEXT("Water is gone. F3: replay the event or test cleanup.")));
                 break;
             }
     }

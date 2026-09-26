@@ -12,6 +12,7 @@ class UPhysicsControlComponent;
 class UMCToothStatusComponent;
 class UMCGazeComponent;
 class UMCGripComponent;
+class UMCExpressionComponent;
 class AMCFoodActor;
 class AMCArenaTooth;
 class UMaterialInstanceDynamic;
@@ -37,6 +38,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Gaze") TObjectPtr<UMCGazeComponent> Gaze;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Grip") TObjectPtr<UMCGripComponent> Grip;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Emotes") TObjectPtr<UMCExpressionComponent> Expression;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") bool bSelfCare=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") TObjectPtr<AActor> CareTarget;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") float ContactProgress=0;
@@ -57,6 +59,7 @@ public:
     void StatusChanged();
     void DropFood();
     void CancelGameplayInput();
+    UFUNCTION(Server,Reliable) void ServerSetPrimary(bool bActive);
     bool CanContact(AActor* Target) const;
     UMCToothStatusComponent* FindCareTarget(bool bBrush) const;
     void AdvanceCare(float Dt);
@@ -94,6 +97,8 @@ private:
     void MoveRight(const FInputActionValue& Value);
     void StartJump(); void StopJump();
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
+    void StartPrimary(); void StopPrimary();
+    void ResolvePrimaryAction();
     void TogglePanel(); void ToggleConnection(); void RestartRun();
     UFUNCTION(Server, Reliable) void ServerSetWorking(bool bBrush, bool bActive);
     void ToggleSelfCare();
@@ -132,6 +137,7 @@ private:
     bool bLoadedLocalTuning = false;
     bool bDeathReported=false;
     bool bLastContactBrush=false;
+    bool bPrimaryHeld=false;
     float ContactElapsed=0;
     FVector2D LocalPaddle=FVector2D::ZeroVector;
     float PaddleSendElapsed=0;

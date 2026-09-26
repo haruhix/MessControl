@@ -178,7 +178,7 @@ if plan:
         if step.get_editor_property('step')==u.MCDayStep.COFFEE_WAVES:
             step.set_editor_property('seconds',6)
             step.set_editor_property('title',u.Text('COFFEE / POUR AND DRAIN'))
-            step.set_editor_property('instruction',u.Text('Dodge the jet. WASD: paddle. Hold E near an arena tooth: cling through the drain.'))
+            step.set_editor_property('instruction',u.Text('Dodge the jet. WASD: paddle. Hold LMB near an arena tooth: cling through the drain.'))
     plan.set_editor_property('steps',steps); lib.save_loaded_asset(plan,only_if_is_dirty=False)
 u.log('MC_COFFEE_POUR_ASSETS_PASS')
 u.SystemLibrary.quit_editor()

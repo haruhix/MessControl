@@ -1,3 +1,4 @@
+#include "MCTonguePressure.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"

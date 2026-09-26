@@ -14,8 +14,8 @@ for name, cls in [('DA_ToothCare', u.MCToothCareProfile), ('DA_FoodPhysics', u.M
 
 instructions = {
     'DA_Coffee': 'Hold LMB facing a tooth: 4 contacts, 0.5s each. C: care for yourself. Teamwork adds contacts.',
-    'DA_LooseTooth': 'Hold E facing a damaged or loose tooth to heal and secure it. C: care for yourself.',
-    'DA_Food': 'Dodge falling food. Hold E and move to drag it. Pull stuck food towards the centre, then bring it to THROAT.'
+    'DA_LooseTooth': 'Hold LMB facing a damaged or loose tooth to heal and secure it. C: care for yourself.',
+    'DA_Food': 'Dodge falling food. Hold LMB and move to drag it. Pull stuck food towards the centre, then bring it to THROAT.'
 }
 for name, text in instructions.items():
     data = lib.load_asset('/Game/Data/' + name)

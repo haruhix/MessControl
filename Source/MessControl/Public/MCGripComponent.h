@@ -9,7 +9,7 @@ class AMCFoodActor;
 struct FReferenceSkeleton;
 
 UENUM(BlueprintType)
-enum class EMCGripPose : uint8 { FrontPull, Push, LeftHand, RightHand, RearPull };
+enum class EMCGripPose : uint8 { FrontPull, Push, LeftHand, RightHand, RearPull, Carry };
 
 USTRUCT(BlueprintType)
 struct FMCGripSettings
@@ -22,6 +22,9 @@ struct FMCGripSettings
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Reach",meta=(ClampMin="0",ClampMax="10")) float ContactTolerance=6;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Reach",meta=(ClampMin="1",ClampMax="1.15")) float MaxArmStretch=1.08f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Reach",meta=(ClampMin="2",ClampMax="20")) float BreakSlack=14;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Reach",meta=(ClampMin="1",ClampMax="2")) float DragDistanceScale=1.7f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Carry",meta=(ClampMin="0",ClampMax="20")) float CarryMaxMass=6;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Carry",meta=(ClampMin="10",ClampMax="50")) float CarryMaxHalfExtent=30;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hands",meta=(ClampMin="2",ClampMax="12")) float PalmLength=7;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hands",meta=(ClampMin="0",ClampMax="6")) float PalmThickness=2.5f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Angles",meta=(ClampMin="30",ClampMax="70")) float FrontAngle=55;
@@ -78,6 +81,8 @@ public:
     FVector ContactPoint(bool Left) const;
     FVector PalmPoint(bool Left) const;
     bool IsReady() const { return Frame.Food && Frame.bContact; }
+    bool CanCarry(const AMCFoodActor* Food) const;
+    FVector CarryLocation() const;
     float Blend() const { return FMath::Max(HandAlpha[0],HandAlpha[1]); }
     float ContactError() const;
     FString DebugFailure;
@@ -96,7 +101,7 @@ private:
     float HandAlpha[2]={0,0};
     FVector Targets[2],Normals[2];
     FVector ReachOffset=FVector::ZeroVector;
-    bool bRigReady=false,bOrientationSaved=false,bPreviousOrient=true,bConstraining=false;
+    bool bRigReady=false,bConstraining=false;
     float LostContact=0,NextAttemptAt=0;
     double NextModeAt=0;
     EMCGripPose PresentationPose=EMCGripPose::FrontPull;

@@ -71,7 +71,15 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             FMCFoodRow Row; Row.Label=FText::FromString(TEXT("GRIP PRACTICE")); Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
             Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
             FRandomStream GripRandom(1); Food->ConfigureItem(TEXT("GripPractice"),Row,GripRandom); Food->Tags.Add(TEXT("DevGripFood")); Food->FinishSpawning(T);
-            return FText::FromString(TEXT("Подойди вплотную и держи E. Смотри на куб и пятясь тяни; шагом вперёд толкай. Подойди боком или спиной для других поз. Настройки — DA_Grip."));
+            FHitResult SmallFloor;
+            if (It->SurfacePoint(Hit.ImpactPoint+Hero->GetActorRightVector()*180,SmallFloor))
+            {
+                const FTransform SmallT(SmallFloor.ImpactPoint+FVector(0,0,35));
+                auto* Small=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),SmallT);
+                Row.FragmentMeshes=Row.WholeMeshes; Row.Label=FText::FromString(TEXT("CARRY PRACTICE"));
+                Small->ConfigureItem(TEXT("CarryPractice"),Row,GripRandom,true); Small->Tags.Add(TEXT("DevGripFood")); Small->FinishSpawning(SmallT);
+            }
+            return FText::FromString(TEXT("Держи ЛКМ возле куба: большой волочится, маленький поднимается на руки. WASD разворачивает героя. Отпусти ЛКМ, чтобы положить, Q — бросить. Настройки — DA_Grip."));
         }
         return FText::FromString(TEXT("Нужны игрок и подвижный язык."));
     case EMCDevAction::TongueWeightToggle:
@@ -96,7 +104,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
                 Food->Tags.Add(TEXT("DevPressureFood")); Food->Settings.Mass=I==0?4:28;
                 Food->Body->SetMassOverrideInKg(NAME_None,Food->Settings.Mass,true); Food->ForceNetUpdate();
             }
-            return FText::FromString(TEXT("Слева 4 кг, справа 28 кг. Потяни E: тяжёлый удобнее вдвоём. После перемещения язык постепенно выпрямится."));
+            return FText::FromString(TEXT("Слева 4 кг, справа 28 кг. Потяни ЛКМ: тяжёлый удобнее вдвоём. После перемещения язык постепенно выпрямится."));
         }
         return FText::FromString(TEXT("Нужны игрок и подвижный язык."));
     case EMCDevAction::GazePractice:

@@ -1,0 +1,25 @@
+{
+  "fps": 30.0,
+  "source": "C:\\Users\\user\\Downloads\\Telegram Desktop\\Teeth (2).blend",
+  "target_bones": 107,
+  "clips": [
+    {
+      "name": "hello",
+      "frames": [
+        1,
+        50
+      ],
+      "max_motion_cm": 99.98686383752356,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\A_Teeth_Hello.fbx"
+    },
+    {
+      "name": "highfive",
+      "frames": [
+        1,
+        47
+      ],
+      "max_motion_cm": 150.24054382323294,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\A_Teeth_Highfive.fbx"
+    }
+  ]
+}

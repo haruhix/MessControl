@@ -17,6 +17,8 @@
 #include "MCTongue.h"
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
+#include "MCExpressionComponent.h"
+#include "Animation/AnimSequence.h"
 #include "Engine/StaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
@@ -872,7 +874,17 @@ bool FMCGripContactTest::RunTest(const FString&)
     Step(.65f);
     TestTrue(*FString::Printf(TEXT("Hands reach their fixed surface points; error %.2f"),Hero->Grip->ContactError()),Hero->Grip->IsReady() && Hero->Grip->ContactError()<=Hero->Grip->Settings.ContactTolerance);
     TestEqual(TEXT("Front grip uses both hands"),Hero->Grip->Frame.Pose,EMCGripPose::FrontPull);
-    TestFalse(TEXT("Holding preserves facing for backpedaling"),Hero->GetCharacterMovement()->bOrientRotationToMovement);
+    TestTrue(TEXT("Holding permits turning along movement"),Hero->GetCharacterMovement()->bOrientRotationToMovement);
+    TestTrue(TEXT("Grip keeps more clearance from the food"),FVector::Dist2D(Hero->GetActorLocation(),Food->Visual->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation()))>50);
+    Hero->SetActorRotation(FRotator(0,90,0)); Step(.5f);
+    TestEqual(TEXT("Turning away leaves the near hand holding"),Hero->Grip->Frame.Pose,EMCGripPose::LeftHand);
+    const FVector Anchor=Hero->Grip->Frame.LeftPoint;
+    Hero->SetActorRotation(FRotator::ZeroRotator);
+    for (int32 I=0;I<30 && Hero->Grip->Frame.Pose==EMCGripPose::LeftHand;++I) Step(1.f/60);
+    TestFalse(TEXT("Second hand must arrive before two-hand force"),Hero->Grip->IsReady());
+    Step(.65f);
+    TestTrue(TEXT("Turning toward food restores two hands"),Hero->Grip->Frame.Pose==EMCGripPose::FrontPull && Hero->Grip->IsReady());
+    TestTrue(TEXT("Supporting hand keeps the original surface anchor"),FVector(Hero->Grip->Frame.LeftPoint).Equals(Anchor,.01f));
     Food->Release(Hero); Hero->bHandling=false; Step(.5f);
     TestTrue(TEXT("Release restores walking rotation and free arms"),Hero->GetCharacterMovement()->bOrientRotationToMovement && Hero->Grip->Blend()<.001f && !Hero->Grip->Frame.Food);
     Hero->SetActorLocation(FVector(-86,0,61)); Hero->bHandling=true;
@@ -881,6 +893,77 @@ bool FMCGripContactTest::RunTest(const FString&)
     TestTrue(TEXT("Disposal clears both gameplay and animation grip"),!Hero->HeldFood && !Hero->Grip->Frame.Food && Hero->Grip->Blend()<.001f);
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPrimaryCarryTest,"MessControl.Grip.PrimaryCarryAndCare",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPrimaryCarryTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1000,1000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    const FTransform T(FVector(0,0,26));
+    auto* Food=Mouth.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
+    FMCFoodRow Row; Row.Mass=6; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
+    Row.FragmentMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+    FRandomStream Random(1); Food->ConfigureItem(TEXT("SmallFood"),Row,Random,true); Food->FinishSpawning(T);
+    auto* Hero=Mouth.Worker(); Hero->SetActorLocation(FVector(-68,0,61));
+    auto* Move=Hero->GetCharacterMovement(); Move->bRunPhysicsWithNoController=true; Move->SetMovementMode(MOVE_Walking);
+    Mouth.Step(.5f); Hero->ServerSetPrimary(true);
+    for (int32 I=0;I<16;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
+    TestTrue(*FString::Printf(TEXT("Primary action lifts a small item: %s"),*Hero->Grip->DebugFailure),Hero->HeldFood==Food && Food->Phase==EMCFoodPhase::Carried);
+    TestTrue(*FString::Printf(TEXT("Carried food lifts clear of the floor: z=%.1f"),Food->GetActorLocation().Z),Food->GetActorLocation().Z>45);
+    TestFalse(TEXT("Carried food does not simulate separately from its holder"),Food->Body->IsSimulatingPhysics());
+    for (int32 I=0;I<45;++I) { Hero->AddMovementInput(FVector::RightVector); Mouth.Step(1.f/60); }
+    TestTrue(TEXT("Movement turns the carrying hero"),FVector::DotProduct(Hero->GetActorForwardVector(),FVector::RightVector)>.8f);
+    TestTrue(TEXT("Food follows the turn and stays in the hands"),Hero->HeldFood==Food && FVector::Dist(Food->GetActorLocation(),Hero->Grip->CarryLocation())<40);
+    Hero->ServerSetPrimary(false); Mouth.Step(.4f);
+    TestTrue(TEXT("Releasing the same button drops food with physics"),!Hero->HeldFood && Food->Phase==EMCFoodPhase::Free && Food->Body->IsSimulatingPhysics());
+    Food->Dispose(); Hero->bSelfCare=true; Hero->Status->ApplyCoffee(); Hero->Status->Damage(25);
+    const int32 Coffee=Hero->Status->State.CoffeeLeft;
+    Hero->ServerSetPrimary(true); Mouth.Step(3.5f); Hero->ServerSetPrimary(false);
+    TestTrue(TEXT("The same held action cleans then repairs without another key"),Coffee>0 && Hero->Status->State.CoffeeLeft==0 && Hero->Status->State.Health==Hero->Status->State.MaxHealth);
+    TestFalse(TEXT("Releasing primary stops both work modes"),Hero->bBrushing || Hero->bHandling);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCExpressionTest,"MessControl.Animation.EmotesReactionsAndSpeech",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCExpressionTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1000,1000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    auto* Hero=Mouth.Worker(); Hero->SetActorLocation(FVector(0,0,61));
+    Hero->GetCharacterMovement()->bRunPhysicsWithNoController=true; Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    Mouth.Step(1);
+    auto* Face=Hero->Expression.Get();
+    if (!TestNotNull(TEXT("Editable emote library is available"),Face->Library.Get())) return false;
+    TestTrue(TEXT("Menu has two authored clips and facial choices"),Face->Library->Entries.Num()>=6);
+    Face->ServerPlayEmote(TEXT("unknown")); TestTrue(TEXT("Unknown requests do not change state"),Face->State.Id.IsNone());
+    Face->ServerPlayEmote(TEXT("hello")); Mouth.Step(.5f);
+    TestTrue(TEXT("Authored greeting blends fully in"),Face->State.Id==TEXT("hello") && Face->BodyAlpha()>.99f);
+    const auto& Ref=Hero->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+    TArray<FTransform> Pose=Ref.GetRefBonePose(); Face->BuildBodyPose(Pose,Ref);
+    float Change=0; TArray<FTransform> CS; CS.SetNum(Pose.Num());
+    for (int32 I=0;I<Pose.Num();++I)
+    {
+        CS[I]=Ref.GetParentIndex(I)>=0?Pose[I]*CS[Ref.GetParentIndex(I)]:Pose[I];
+        TestFalse(TEXT("Imported transform is finite"),CS[I].ContainsNaN());
+        TestTrue(*FString::Printf(TEXT("Clip retains gameplay scale: %s %.2f"),*Ref.GetBoneName(I).ToString(),CS[I].GetLocation().Size()),CS[I].GetLocation().Size()<400);
+        Change=FMath::Max(Change,float(Pose[I].GetRotation().AngularDistance(Ref.GetRefBonePose()[I].GetRotation())));
+    }
+    TestTrue(TEXT("The clip changes the actual skeletal pose"),Change>.2f);
+    const uint16 Serial=Face->State.Serial; Face->ServerPlayEmote(TEXT("highfive")); TestEqual(TEXT("Spam cannot replace active emote"),Face->State.Serial,Serial);
+    Hero->Status->Damage(10); Mouth.Step(.1f);
+    TestEqual(TEXT("Pain overrides selected expression"),Face->CurrentEmotion,EMCEmotion::Pain);
+    TestTrue(TEXT("Pain starts emote blend-out"),Face->State.StoppedAt>=0);
+    Mouth.Step(.4f); TestEqual(TEXT("Interrupted body animation fades out"),Face->BodyAlpha(),0.f);
+    Mouth.Step(1); Hero->bHandling=true;
+    Face->ServerPlayEmote(TEXT("highfive")); TestEqual(TEXT("Work blocks hand gestures"),Face->State.Serial,Serial);
+    Face->ServerPlayEmote(TEXT("happy")); Mouth.Step(.3f);
+    TestEqual(TEXT("Facial emote remains available while working"),Face->CurrentEmotion,EMCEmotion::Happy);
+    Face->SetSpeechInput(.8f,MCViseme::Round); TestEqual(TEXT("Voice envelope is accepted"),Face->SpeechAmount(),.8f);
+    Mouth.Step(.4f); TestEqual(TEXT("Missing speech updates return to silence"),Face->SpeechAmount(),0.f);
+    Face->SetSpeechInput(std::numeric_limits<float>::quiet_NaN()); TestEqual(TEXT("Invalid speech data is harmless"),Face->SpeechAmount(),0.f);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGripModesTest,"MessControl.Grip.AnglesAndBounds",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCGripModesTest::RunTest(const FString&)
 {
