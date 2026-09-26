@@ -108,7 +108,7 @@ void AMCToothCharacter::ApplyAppearance()
     GetMesh()->SetSkeletalMesh(Appearance->SkeletalMesh);
     if (Appearance->PhysicsAsset) GetMesh()->SetPhysicsAsset(Appearance->PhysicsAsset);
     GetMesh()->SetRelativeTransform(StandingMeshTransform());
-    if (Appearance->Material) for (int32 I=0;I<GetMesh()->GetNumMaterials();++I) GetMesh()->SetMaterial(I,Appearance->Material);
+    if (Appearance->Material) GetMesh()->SetMaterial(0,Appearance->Material);
     BrushPivot->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepRelativeTransform,RigBone(TEXT("hand_r")));
     const auto& Ref=GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
     FTransform Hand=FTransform::Identity;
@@ -141,7 +141,11 @@ void AMCToothCharacter::BeginPlay()
         for (int32 I=0;I<GetMesh()->GetNumMaterials();++I)
         {
             const FString Name=GetNameSafe(GetMesh()->GetMaterial(I));
-            if (Appearance || Name.Contains(TEXT("Enamel")) || Name.Contains(TEXT("Tooth"))) GetMesh()->SetMaterial(I,StatusMaterial);
+            if (Appearance?I==0:Name.Contains(TEXT("Enamel")) || Name.Contains(TEXT("Tooth"))) GetMesh()->SetMaterial(I,StatusMaterial);
+            else if (Appearance && I>0)
+            {
+                if (auto* FaceMaterial=GetMesh()->CreateDynamicMaterialInstance(I)) FaceMaterials.Add(FaceMaterial);
+            }
         }
     }
 }
@@ -348,7 +352,9 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float Squash = (FMath::Sin(Gait*2.f)*0.22f*Speed + LandingImpulse + Anticipation*0.45f) * A.Squash * A.Exaggeration;
     const float Stretch = bAir ? A.Stretch * (bPreviewAnimation ? 0.8f : FMath::Clamp(FMath::Abs(GetVelocity().Z)/500.f,0.f,1.f)) : 0.f;
     const float GripBlend=Grip?Grip->Blend():0;
-    if (StatusMaterial) StatusMaterial->SetScalarParameterValue(TEXT("BodyStretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch-Squash,-.35f,.4f)*(1-GripBlend):0.f);
+    const float BodyStretch=ToothPhysics->CanAct()?FMath::Clamp(Stretch-Squash,-.35f,.4f)*(1-GripBlend):0.f;
+    if (StatusMaterial) StatusMaterial->SetScalarParameterValue(TEXT("BodyStretch"),BodyStretch);
+    for (const auto& FaceMaterial:FaceMaterials) FaceMaterial->SetScalarParameterValue(TEXT("BodyStretch"),BodyStretch);
     GetMesh()->SetMorphTarget(TEXT("Squash"),ToothPhysics->CanAct()?FMath::Clamp(Squash/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     const float Bob = bAir ? 0.f : FMath::Abs(FMath::Sin(Gait))*A.Bob*Speed + FMath::Sin(Time*2.f)*0.7f;

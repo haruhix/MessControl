@@ -964,6 +964,78 @@ bool FMCExpressionTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCMouthMorphTest,"MessControl.Animation.ConnectedMouthMorphs",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCMouthMorphTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1000,1000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    auto* Hero=Mouth.Worker(); Hero->SetActorLocation(FVector(0,0,61));
+    Hero->GetCharacterMovement()->bRunPhysicsWithNoController=true; Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking); Mouth.Step(1.5f);
+    auto* Face=Hero->Expression.Get(); auto* Mesh=Hero->GetMesh();
+    for (FName Name:UMCExpressionComponent::MouthShapes())
+        if (!TestNotNull(*FString::Printf(TEXT("Imported mouth shape %s"),*Name.ToString()),Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name))) return false;
+    TestEqual(TEXT("Enamel, lips and cavity have their own material slots"),Mesh->GetNumMaterials(),3);
+    TestTrue(TEXT("Appearance override preserves the lip material"),Mesh->GetMaterial(0)!=Mesh->GetMaterial(1));
+    auto CheckWeights=[&]()
+    {
+        float Sum=0;
+        for (FName Name:UMCExpressionComponent::MouthShapes())
+        {
+            const float W=Mesh->GetMorphTarget(Name);Sum+=W;
+            TestTrue(TEXT("Every facial weight is finite and nonnegative"),FMath::IsFinite(W) && W>=0 && W<=1.00001f);
+        }
+        TestTrue(TEXT("Complete mouth poses never add beyond full deformation"),Sum<=1.00001f);
+    };
+    Face->ServerPlayEmote(TEXT("happy")); Mouth.Step(.3f);
+    for (uint8 I=1;I<=uint8(MCViseme::D);++I)
+    {
+        const auto Viseme=MCViseme(I);
+        for (int32 Frame=0;Frame<24;++Frame)
+        {
+            Face->SetSpeechInput(Viseme==MCViseme::Closed?0.f:1.f,Viseme); Mouth.Step(1.f/60); CheckWeights();
+        }
+        TestTrue(TEXT("Each viseme drives the imported mesh, including silent closed lips"),Mesh->GetMorphTarget(UMCExpressionComponent::VisemeShape(Viseme))>.98f);
+    }
+    Hero->Status->Damage(10);
+    for (int32 Frame=0;Frame<10;++Frame) { Face->SetSpeechInput(1,MCViseme::Open); Mouth.Step(1.f/60); CheckWeights(); }
+    TestTrue(TEXT("Pain takes priority over live speech"),Mesh->GetMorphTarget(TEXT("Mouth_Pain"))>.6f && Mesh->GetMorphTarget(TEXT("Mouth_A"))<.05f);
+    Mouth.Step(1.6f); CheckWeights();
+    float Sum=0;for (FName Name:UMCExpressionComponent::MouthShapes()) Sum+=Mesh->GetMorphTarget(Name);
+    TestTrue(TEXT("Silence and completed reactions return the mouth to its base shape"),Sum<.01f);
+    Face->SetSpeechInput(1,MCViseme(255)); Mouth.Step(.1f);
+    TestTrue(TEXT("Unknown viseme values are harmless"),UMCExpressionComponent::VisemeShape(MCViseme(255)).IsNone());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPupilResponseTest,"MessControl.Gaze.PupilResponseAndRecovery",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPupilResponseTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1000,1000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    auto* Hero=Mouth.Worker(); Hero->SetActorLocation(FVector(0,0,61));
+    Hero->GetCharacterMovement()->bRunPhysicsWithNoController=true; Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking); Mouth.Step(1);
+    auto* G=Hero->Gaze.Get(); auto* Mesh=Hero->GetMesh();
+    for (FName Name:{FName(TEXT("Pupil_Dilate")),FName(TEXT("Pupil_Contract"))})
+        if (!TestNotNull(TEXT("Both pupil morphs are present in the gameplay mesh"),Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name))) return false;
+    TestTrue(TEXT("Calm pupil has its original size"),FMath::IsNearlyEqual(G->PupilScale,1.f,.01f));
+    const FVector Point=Hero->GetActorLocation()+FVector(250,0,25);
+    TestTrue(TEXT("Authority can announce nearby danger"),G->NoticePoint(Point,.65f));
+    Mouth.Step(.05f); TestTrue(TEXT("Dilation begins smoothly"),G->PupilScale>1.05f && G->PupilScale<1.6f);
+    Mouth.Step(.3f); TestTrue(TEXT("Danger enlarges the rendered pupil"),G->PupilScale>1.65f && Mesh->GetMorphTarget(TEXT("Pupil_Dilate"))>.8f);
+    Mouth.Step(.55f); TestTrue(TEXT("Pupil recovers gradually after the threat expires"),G->PupilScale>1.1f && G->PupilScale<1.7f);
+    Mouth.Step(2); TestTrue(TEXT("Pupil returns to rest"),FMath::Abs(G->PupilScale-1)<.015f);
+    Hero->Status->Damage(10); Mouth.Step(.15f); TestTrue(TEXT("Pain produces a brief pupil reaction"),G->PupilScale>1.2f);
+    Mouth.Step(2); Hero->Expression->ServerPlayEmote(TEXT("angry")); Mouth.Step(.4f);
+    TestTrue(TEXT("Focused expression contracts the pupil"),G->PupilScale<.9f && Mesh->GetMorphTarget(TEXT("Pupil_Contract"))>.25f);
+    G->NoticePoint(Point,1); Mouth.Step(.35f);
+    TestTrue(TEXT("Danger takes priority over a selected expression"),G->PupilScale>1.65f);
+    FMCGazeSettings S; S.PupilRest=100; S.PupilFocus=-100; S.PupilReactSpeed=std::numeric_limits<float>::quiet_NaN(); S.Sanitize();
+    TestTrue(TEXT("Pupil tuning stays inside the authored morph range"),S.PupilRest<=1.8f && S.PupilFocus>=.6f && FMath::IsFinite(S.PupilReactSpeed));
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGripModesTest,"MessControl.Grip.AnglesAndBounds",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCGripModesTest::RunTest(const FString&)
 {

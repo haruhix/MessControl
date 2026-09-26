@@ -23,7 +23,7 @@
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
 #if !UE_BUILD_SHIPPING
-    if (FParse::Param(FCommandLine::Get(),TEXT("MCEmoteTest"))) { TickEmotes(DeltaSeconds); return; }
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCEmoteTest")) || FParse::Param(FCommandLine::Get(),TEXT("MCMouthTest")) || FParse::Param(FCommandLine::Get(),TEXT("MCPupilTest"))) { TickEmotes(DeltaSeconds); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCGripTest"))) { TickGrip(DeltaSeconds); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCTonguePressureTest"))) { TickTonguePressure(DeltaSeconds); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCGazeTest"))) { TickGaze(DeltaSeconds); return; }

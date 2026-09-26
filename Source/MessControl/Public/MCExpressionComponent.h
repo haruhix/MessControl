@@ -10,7 +10,8 @@ struct FReferenceSkeleton;
 UENUM(BlueprintType)
 enum class EMCEmotion : uint8 { Neutral, Happy, Angry, Sad, Surprise, Pain, Effort };
 UENUM(BlueprintType)
-enum class MCViseme : uint8 { Rest, Open, Wide, Round, Closed, LipBite };
+// Keep the original six values stable for existing Blueprint callers.
+enum class MCViseme : uint8 { Rest, Open, Wide, Round, Closed, LipBite, I, U, L, TH, CH, S, D };
 
 USTRUCT(BlueprintType)
 struct FMCEmoteEntry
@@ -66,10 +67,14 @@ public:
     // Envelope-only VOIP can use Open; a later lip-sync provider supplies actual visemes.
     UFUNCTION(BlueprintCallable,Category="Speech") void SetSpeechInput(float Envelope,MCViseme Viseme=MCViseme::Open);
     float SpeechAmount() const { return Voice; }
+    static FName VisemeShape(MCViseme Viseme);
+    static TConstArrayView<FName> MouthShapes();
 private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
     double Now() const;
     double VoiceAt=-100,NextEmoteAt=0;
     float Voice=0,EyeSquint=0,Jaw=0,Smile=0,Brows=0,BrowTilt=0,Round=0,LipClosure=0;
     MCViseme VoiceViseme=MCViseme::Rest;
+    TMap<FName,float> MouthWeights;
+    bool UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain);
 };

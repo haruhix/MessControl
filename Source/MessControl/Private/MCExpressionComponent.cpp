@@ -6,6 +6,7 @@
 #include "MCFoodActor.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
+#include "Engine/SkeletalMesh.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/GameStateBase.h"
@@ -67,7 +68,45 @@ void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorCompon
 void UMCExpressionComponent::SetSpeechInput(float Envelope,MCViseme Viseme)
 {
     Voice=FMath::IsFinite(Envelope)?FMath::Clamp(Envelope,0.f,1.f):0;
-    VoiceViseme=Viseme; VoiceAt=Now();
+    VoiceViseme=FMath::IsFinite(Envelope) && uint8(Viseme)<=uint8(MCViseme::D)?Viseme:MCViseme::Rest; VoiceAt=Now();
+}
+FName UMCExpressionComponent::VisemeShape(MCViseme Viseme)
+{
+    static const FName Names[]={NAME_None,TEXT("Mouth_A"),TEXT("Mouth_E"),TEXT("Mouth_O"),TEXT("Mouth_MBP"),TEXT("Mouth_FV"),
+        TEXT("Mouth_I"),TEXT("Mouth_U"),TEXT("Mouth_L"),TEXT("Mouth_TH"),TEXT("Mouth_CH"),TEXT("Mouth_S"),TEXT("Mouth_D")};
+    return uint8(Viseme)<UE_ARRAY_COUNT(Names)?Names[uint8(Viseme)]:NAME_None;
+}
+TConstArrayView<FName> UMCExpressionComponent::MouthShapes()
+{
+    static const FName Names[]={TEXT("Mouth_A"),TEXT("Mouth_E"),TEXT("Mouth_O"),TEXT("Mouth_MBP"),TEXT("Mouth_FV"),
+        TEXT("Mouth_I"),TEXT("Mouth_U"),TEXT("Mouth_L"),TEXT("Mouth_TH"),TEXT("Mouth_CH"),TEXT("Mouth_S"),TEXT("Mouth_D"),
+        TEXT("Mouth_Smile"),TEXT("Mouth_Frown"),TEXT("Mouth_Angry"),TEXT("Mouth_Pain"),TEXT("Mouth_Surprise"),TEXT("Mouth_Effort")};
+    return MakeArrayView(Names);
+}
+bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain)
+{
+    auto* Mesh=Tooth->GetMesh();
+    if (!Mesh->GetSkeletalMeshAsset() || !Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Mouth_A"))) return false;
+    static const FName Moods[]={NAME_None,TEXT("Mouth_Smile"),TEXT("Mouth_Angry"),TEXT("Mouth_Frown"),
+        TEXT("Mouth_Surprise"),TEXT("Mouth_Pain"),TEXT("Mouth_Effort")};
+    const FName Mood=Moods[uint8(CurrentEmotion)];
+    const FName Speech=VisemeShape(VoiceViseme);
+    const bool Fresh=Now()-VoiceAt<=.25 && !Speech.IsNone() && !bPain;
+    // Unvoiced consonants and a closed M/B/P still need articulation at zero volume.
+    const bool Consonant=VoiceViseme==MCViseme::Closed || VoiceViseme==MCViseme::LipBite || uint8(VoiceViseme)>=uint8(MCViseme::L);
+    const float SpeechWeight=Fresh?(Consonant?1.f:Voice):0.f;
+    const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-SpeechWeight);
+    const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
+    // These are complete poses, so convex blending preserves the shared mouth contour.
+    // A common smoothing factor preserves sum(weights) <= 1 during every transition.
+    for (FName Name:MouthShapes())
+    {
+        const float Target=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f);
+        float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,Target,Alpha);
+        if (Weight<.0001f) Weight=0;
+        Mesh->SetMorphTarget(Name,Weight);
+    }
+    return true;
 }
 void UMCExpressionComponent::BuildBodyPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const
 {
@@ -129,14 +168,17 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         const int32 Parent=Ref.GetParentIndex(I);
         Pose[I].AddToTranslation(Parent>=0?RestCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
     };
-    // Mesh-space deltas in cm. Separate lip controls avoid pulling the enamel shell.
-    Offset(TEXT("c_jawbone_x"),FVector(0,0,-2.8f*Jaw));
-    Offset(TEXT("c_lips_top_x"),FVector(0,0,-1.8f*FMath::Max(0.f,Smile)-3.5f*LipClosure));
-    Offset(TEXT("c_lips_bot_x"),FVector(0,0,1.2f*FMath::Max(0.f,Smile)+3.5f*LipClosure));
+    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,Pain>.01f);
+    if (!MorphMouth)
+    {
+        Offset(TEXT("c_jawbone_x"),FVector(0,0,-2.8f*Jaw));
+        Offset(TEXT("c_lips_top_x"),FVector(0,0,-1.8f*FMath::Max(0.f,Smile)-3.5f*LipClosure));
+        Offset(TEXT("c_lips_bot_x"),FVector(0,0,1.2f*FMath::Max(0.f,Smile)+3.5f*LipClosure));
+    }
     for (const FString Side:{FString(TEXT("l")),FString(TEXT("r"))})
     {
         const float Sign=Side==TEXT("l")?1.f:-1.f;
-        Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
+        if (!MorphMouth) Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
         Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f));
         Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f));
         Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f));

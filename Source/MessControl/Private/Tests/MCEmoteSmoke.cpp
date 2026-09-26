@@ -1,5 +1,6 @@
 #include "MCValidationSubsystem.h"
 #include "MCExpressionComponent.h"
+#include "MCGazeComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCPlayerController.h"
@@ -29,7 +30,10 @@ void UMCValidationSubsystem::TickEmotes(float Dt)
     Age+=Dt; auto* GS=GetWorld()->GetGameState<AMCGameState>(); auto* PC=Cast<AMCPlayerController>(GetWorld()->GetFirstPlayerController());
     if (!GS || !PC) return;
     const bool Host=GetWorld()->GetNetMode()!=NM_Client;
-    const bool Capture=Host && FParse::Param(FCommandLine::Get(),TEXT("MCEmoteCapture"));
+    const bool MouthTest=FParse::Param(FCommandLine::Get(),TEXT("MCMouthTest"));
+    const bool PupilTest=FParse::Param(FCommandLine::Get(),TEXT("MCPupilTest"));
+    const bool FaceTest=MouthTest || PupilTest;
+    const bool Capture=Host && (FaceTest || FParse::Param(FCommandLine::Get(),TEXT("MCEmoteCapture")));
     auto Finish=[&]()
     {
         const bool Pass=DevSeen==31 && !bInvalidPhysics;
@@ -73,18 +77,70 @@ void UMCValidationSubsystem::TickEmotes(float Dt)
         }
         if (Capture)
         {
-            const FVector Focus=Heroes[0]->GetActorLocation();
-            CoffeeCamera=GetWorld()->SpawnActor<ACameraActor>(Focus+FVector(680,-190,150),FRotator::ZeroRotator);
-            CoffeeCamera->SetActorRotation((Focus+FVector(0,0,40)-CoffeeCamera->GetActorLocation()).Rotation());
-            CoffeeCamera->GetCameraComponent()->SetFieldOfView(43); PC->SetViewTarget(CoffeeCamera);
+            const FVector Focus=Heroes[0]->GetActorLocation()+FVector(0,0,FaceTest?12:0);
+            CoffeeCamera=GetWorld()->SpawnActor<ACameraActor>(Focus+(FaceTest?FVector(230,-35,25):FVector(680,-190,150)),FRotator::ZeroRotator);
+            CoffeeCamera->SetActorRotation((Focus+FVector(0,0,FaceTest?0:40)-CoffeeCamera->GetActorLocation()).Rotation());
+            CoffeeCamera->GetCameraComponent()->SetFieldOfView(FaceTest?33:43); PC->SetViewTarget(CoffeeCamera);
+            if (FaceTest) CoffeeCamera->GetCameraComponent()->SetAspectRatio(1.f);
             for (TActorIterator<AActor> It(GetWorld());It;++It)
             { TArray<UTextRenderComponent*> Texts; It->GetComponents(Texts); for (auto* Text:Texts) Text->SetVisibility(false); }
             IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("EmoteFrames")),true);
+            if (MouthTest) IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("MouthFrames")),true);
+            if (PupilTest) IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("PupilFrames")),true);
         }
         ++DevStage;
     }
     if (GS->bDevManualEvents && DevStartedAt<0) DevStartedAt=GS->DayStartedAt;
     const float T=DevStartedAt<0?-1:GS->GetServerWorldTimeSeconds()-DevStartedAt;
+    if (PupilTest && T>=0)
+    {
+        auto* H=Heroes[0];auto* G=H->Gaze.Get();
+        if (DevStage==1 && T>1) { G->NoticePoint(H->GetActorLocation()+FVector(300,0,25),1.4f);++DevStage; }
+        if (DevStage==2 && T>6) { H->Expression->ServerPlayEmote(TEXT("angry"));++DevStage; }
+        const float Times[]={.65f,1.8f,5.8f,6.8f};
+        const TCHAR* Names[]={TEXT("Calm"),TEXT("Danger"),TEXT("Recovered"),TEXT("Focus")};
+        if (CaptureStage<4 && T>Times[CaptureStage])
+        {
+            const float Scale=G->PupilScale;
+            bInvalidPhysics|=!FMath::IsFinite(Scale) || (CaptureStage==1?Scale<1.6f:CaptureStage==3?Scale>.87f:FMath::Abs(Scale-1)>.025f);
+            UE_LOG(LogTemp,Display,TEXT("MC_PUPIL_STAGE %s scale=%.4f"),Names[CaptureStage],Scale);
+            FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/FString::Printf(TEXT("PupilFrames/%s.png"),Names[CaptureStage]),false,false);++CaptureStage;
+        }
+        if (T>7.8f)
+        {
+            const bool Pass=CaptureStage==4 && !bInvalidPhysics;
+            UE_LOG(LogTemp,Display,TEXT("MC_PUPIL_%s stages=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),CaptureStage);
+            FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
+        }
+        return;
+    }
+    if (MouthTest && T>=0)
+    {
+        // Run all twelve speech targets through the real expression component and render path.
+        const int32 Index=FMath::FloorToInt(T/1.25f);
+        auto* H=Heroes[0]; auto* E=H->Expression.Get();
+        if (Index<12)
+        {
+            const auto Viseme=MCViseme(Index+1); const FName Shape=UMCExpressionComponent::VisemeShape(Viseme);
+            E->SetSpeechInput(Viseme==MCViseme::Closed?0.f:1.f,Viseme);
+            if (T-Index*1.25f>.65f && CaptureStage==Index)
+            {
+                const float Weight=H->GetMesh()->GetMorphTarget(Shape);
+                bInvalidPhysics|=!FMath::IsFinite(Weight) || Weight<.97f;
+                UE_LOG(LogTemp,Display,TEXT("MC_MOUTH_SHAPE %s %.4f"),*Shape.ToString(),Weight);
+                FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/FString::Printf(TEXT("MouthFrames/%s.png"),*Shape.ToString()),false,false);
+                ++CaptureStage;
+            }
+        }
+        else if (T>16)
+        {
+            float Sum=0; for (FName Shape:UMCExpressionComponent::MouthShapes()) Sum+=H->GetMesh()->GetMorphTarget(Shape);
+            const bool Pass=CaptureStage==12 && !bInvalidPhysics && Sum<.01f;
+            UE_LOG(LogTemp,Display,TEXT("MC_MOUTH_%s shapes=%d restWeight=%.5f"),Pass?TEXT("PASS"):TEXT("FAIL"),CaptureStage,Sum);
+            FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
+        }
+        return;
+    }
     if (T>1 && !bDevClientGuard)
     {
         if (auto* Own=Cast<AMCToothCharacter>(PC->GetPawn())) Own->Expression->ServerPlayEmote(TEXT("hello"));

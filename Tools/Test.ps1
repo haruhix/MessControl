@@ -1,4 +1,4 @@
-param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','TongueNetwork','TongueJoltNetwork','TonguePressureNetwork','GripNetwork','EmoteNetwork','GazeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee,[switch]$CaptureTongue,[switch]$CaptureGaze,[switch]$CapturePressure,[switch]$CaptureGrip,[switch]$CaptureEmotes)
+param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','TongueNetwork','TongueJoltNetwork','TonguePressureNetwork','GripNetwork','EmoteNetwork','Mouth','Pupils','GazeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee,[switch]$CaptureTongue,[switch]$CaptureGaze,[switch]$CapturePressure,[switch]$CaptureGrip,[switch]$CaptureEmotes)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 if (-not $EngineRoot) {
@@ -13,7 +13,12 @@ if ($Mode -eq 'Unit') {
     & $taskEditor $taskProject -unattended -nop4 -nosplash -nullrhi '-ExecCmds=Automation RunTests MessControl; Quit' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$taskRoot\Saved\TestReports" "-abslog=$taskLogs\Automation.log"
     if ($LASTEXITCODE -ne 0) { throw 'Unreal automation failed.' }
     $taskReport=Get-Content -Raw "$taskRoot\Saved\TestReports\index.json" | ConvertFrom-Json
-    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 31) { throw 'Not all gameplay and physics tests passed.' }
+    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 33) { throw 'Not all gameplay and physics tests passed.' }
+} elseif ($Mode -in @('Mouth','Pupils')) {
+    $taskFaceFlag=if($Mode -eq 'Pupils'){'-MCPupilTest'}else{'-MCMouthTest'}
+    $taskFacePass=if($Mode -eq 'Pupils'){'MC_PUPIL_PASS'}else{'MC_MOUTH_PASS'}
+    & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game -MCLegacyDays $taskFaceFlag -RenderOffscreen -windowed -ForceRes -ResX=1000 -ResY=1000 -unattended -nosound -nosplash -nop4 -NoScreenMessages '-ExecCmds=t.MaxFPS 60,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,sg.PostProcessQuality 1,r.ScreenPercentage 100' "-abslog=$taskLogs\$Mode.log"
+    if ($LASTEXITCODE -ne 0 -or -not (Select-String -Path "$taskLogs\$Mode.log" -Pattern $taskFacePass -Quiet)) { throw "Face morph or rendered reaction test failed. See $Mode.log." }
 } elseif ($Mode -eq 'Limbs') {
     & $taskEditor $taskProject '/Game/Maps/L_Mouth?Seed=41' -game -MCLegacyDays -MCLimbs -nullrhi -unattended -nosound -nop4 "-ExecCmds=t.MaxFPS $FrameRate" "-abslog=$taskLogs\Limbs$FrameRate.log"
     if ($LASTEXITCODE -ne 0 -or -not (Select-String -Path "$taskLogs\Limbs$FrameRate.log" -Pattern 'MC_LIMBS_PASS' -Quiet)) { throw 'Limb stability regression. See Limbs log.' }

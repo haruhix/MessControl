@@ -124,6 +124,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> SelfCareAction;
     UPROPERTY() TObjectPtr<UInputAction> ThrowAction;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StatusMaterial;
+    UPROPERTY() TArray<TObjectPtr<UMaterialInstanceDynamic>> FaceMaterials;
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
     float NextSwingTime=0.f;
     float SwingStartedAt=-10.f;

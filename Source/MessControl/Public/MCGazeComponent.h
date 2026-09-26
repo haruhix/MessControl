@@ -24,6 +24,12 @@ struct FMCGazeSettings
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Blink") float BlinkMin=2.8f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Blink") float BlinkMax=5.2f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Blink") float BlinkSeconds=.22f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilRest=1.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilDanger=1.75f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilPain=1.5f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilFocus=.8f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilReactSpeed=12.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilRecoverSpeed=2.4f;
     void Sanitize();
 };
 
@@ -63,6 +69,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Gaze") FMCGazeTarget Target;
     UPROPERTY(Replicated) double BlinkStartedAt=-100;
     UPROPERTY(BlueprintReadOnly,Category="Gaze") float Blink=0;
+    UPROPERTY(BlueprintReadOnly,Category="Gaze") float PupilScale=1.f;
     UPROPERTY(BlueprintReadOnly,Category="Gaze") FVector2D LeftAngles=FVector2D::ZeroVector;
     UPROPERTY(BlueprintReadOnly,Category="Gaze") FVector2D RightAngles=FVector2D::ZeroVector;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Gaze") bool NoticePoint(FVector WorldPoint,float HoldSeconds=1);

@@ -21,6 +21,9 @@ void FMCGazeSettings::Sanitize()
     YawLimit=C(YawLimit,35,0,45); PitchLimit=C(PitchLimit,25,0,35);
     TurnSpeed=C(TurnSpeed,18,3,40); ReactionDelay=C(ReactionDelay,.12f,0,.5f);
     BlinkMin=C(BlinkMin,2.8f,1,15); BlinkMax=C(BlinkMax,5.2f,BlinkMin,20); BlinkSeconds=C(BlinkSeconds,.22f,.12f,.6f);
+    PupilRest=C(PupilRest,1.f,.6f,1.8f); PupilDanger=C(PupilDanger,1.75f,PupilRest,1.8f);
+    PupilPain=C(PupilPain,1.5f,PupilRest,1.8f); PupilFocus=C(PupilFocus,.8f,.6f,PupilRest);
+    PupilReactSpeed=C(PupilReactSpeed,12.f,2.f,30.f); PupilRecoverSpeed=C(PupilRecoverSpeed,2.4f,.5f,10.f);
 }
 UMCGazeComponent::UMCGazeComponent()
 {
@@ -30,6 +33,7 @@ UMCGazeComponent::UMCGazeComponent()
 void UMCGazeComponent::BeginPlay()
 {
     Super::BeginPlay(); Tooth=Cast<AMCToothCharacter>(GetOwner()); if (!Tooth) return;
+    Tooth->GetMesh()->AddTickPrerequisiteComponent(this);
     if (GetOwner()->HasAuthority())
     {
         if (auto* P=Profile.LoadSynchronous()) Settings=P->Settings;
@@ -122,6 +126,35 @@ void UMCGazeComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     const float Age=(ServerTime()-BlinkStartedAt)/Settings.BlinkSeconds;
     Blink=Age>=0 && Age<1?FMath::Square(FMath::Sin(PI*Age)):0;
     if (!Tooth->Status->IsAlive()) Blink=1;
+    const auto S=VisualSettings();
+    float Goal=S.PupilRest;
+    if (Tooth->Status->IsAlive())
+    {
+        if (Target.Interest==EMCGazeInterest::Work) Goal=S.PupilFocus;
+        if (const auto* E=Tooth->Expression.Get(); E && E->EmoteAlpha()>.01f)
+        {
+            if (const auto* Entry=E->ActiveEntry(); Entry)
+            {
+                if (Entry->Emotion==EMCEmotion::Angry) Goal=FMath::Lerp(Goal,S.PupilFocus,E->EmoteAlpha());
+                if (Entry->Emotion==EMCEmotion::Surprise) Goal=FMath::Lerp(Goal,S.PupilDanger,E->EmoteAlpha());
+            }
+        }
+        const auto& State=Tooth->Status->State;
+        const float Pain=!State.bCareReaction?FMath::Clamp(1.f-(ServerTime()-float(State.ReactionAt))/1.1f,0.f,1.f):0;
+        if (Pain>.001f) Goal=FMath::Max(Goal,FMath::Lerp(S.PupilRest,S.PupilPain,Pain));
+        if (Target.Interest==EMCGazeInterest::Danger || !Tooth->ToothPhysics->CanAct()) Goal=S.PupilDanger;
+    }
+    // The server already replicates attention, reactions and emotes. Each peer
+    // derives the cosmetic pupil response without streaming another float.
+    const bool Recovering=FMath::IsNearlyEqual(Goal,S.PupilRest,.01f);
+    const float Speed=Recovering?S.PupilRecoverSpeed:S.PupilReactSpeed;
+    PupilScale=FMath::Clamp(FMath::Lerp(PupilScale,Goal,1-FMath::Exp(-Speed*FMath::Max(0.f,Dt))),.6f,1.8f);
+    auto* Mesh=Tooth->GetMesh();
+    if (Mesh->GetSkeletalMeshAsset() && Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Pupil_Dilate")))
+    {
+        Mesh->SetMorphTarget(TEXT("Pupil_Dilate"),FMath::Clamp((PupilScale-1.f)/.8f,0.f,1.f));
+        Mesh->SetMorphTarget(TEXT("Pupil_Contract"),FMath::Clamp((1.f-PupilScale)/.4f,0.f,1.f));
+    }
 }
 FMCGazeSettings UMCGazeComponent::VisualSettings() const
 {

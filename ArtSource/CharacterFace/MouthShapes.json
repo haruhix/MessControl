@@ -1,0 +1,158 @@
+{
+  "vertices": 3083,
+  "bones": 107,
+  "mouth_seam_shared_vertices": 48,
+  "clean_enamel_uv_loops": 238,
+  "shape_keys": [
+    "Basis",
+    "Mouth_MBP",
+    "Mouth_A",
+    "Mouth_E",
+    "Mouth_I",
+    "Mouth_O",
+    "Mouth_U",
+    "Mouth_FV",
+    "Mouth_L",
+    "Mouth_TH",
+    "Mouth_CH",
+    "Mouth_S",
+    "Mouth_D",
+    "Mouth_Smile",
+    "Mouth_Frown",
+    "Mouth_Angry",
+    "Mouth_Pain",
+    "Mouth_Surprise",
+    "Mouth_Effort"
+  ],
+  "minimum_central_lip_gap_cm": 0.05,
+  "pupils": {
+    "shape_keys": {
+      "Pupil_Dilate": 1.8,
+      "Pupil_Contract": 0.6
+    },
+    "eye_vertices": [
+      494,
+      494
+    ],
+    "maximum_radius_error_cm": 6.042450996446291e-06,
+    "minimum_midpoint_radius_ratio": 0.9896221183263533
+  },
+  "all_weights_normalized": true,
+  "source": "ArtSource/CharacterGameplay/TeethGameplay.blend",
+  "parameters": {
+    "Basis": {
+      "width": 11.8,
+      "half_opening": 0.18,
+      "corner_lift": 0,
+      "purse": 0
+    },
+    "Mouth_MBP": {
+      "width": 11.8,
+      "half_opening": 0.025,
+      "corner_lift": 0,
+      "purse": 0.2
+    },
+    "Mouth_A": {
+      "width": 11.6,
+      "half_opening": 6.2,
+      "corner_lift": 0,
+      "purse": 0.1
+    },
+    "Mouth_E": {
+      "width": 14.1,
+      "half_opening": 2.8,
+      "corner_lift": 0.65,
+      "purse": -0.25
+    },
+    "Mouth_I": {
+      "width": 14.7,
+      "half_opening": 1.65,
+      "corner_lift": 0.9,
+      "purse": -0.35
+    },
+    "Mouth_O": {
+      "width": 6.4,
+      "half_opening": 5.5,
+      "corner_lift": 0,
+      "purse": 2.0
+    },
+    "Mouth_U": {
+      "width": 5.1,
+      "half_opening": 3.25,
+      "corner_lift": 0,
+      "purse": 2.5
+    },
+    "Mouth_FV": {
+      "width": 11.7,
+      "half_opening": 1.0,
+      "corner_lift": 0,
+      "purse": 0.1
+    },
+    "Mouth_L": {
+      "width": 11.6,
+      "half_opening": 3.65,
+      "corner_lift": 0.1,
+      "purse": 0
+    },
+    "Mouth_TH": {
+      "width": 11.9,
+      "half_opening": 2.15,
+      "corner_lift": 0,
+      "purse": 0
+    },
+    "Mouth_CH": {
+      "width": 8.6,
+      "half_opening": 2.35,
+      "corner_lift": 0,
+      "purse": 1.35
+    },
+    "Mouth_S": {
+      "width": 13.6,
+      "half_opening": 0.85,
+      "corner_lift": 0.3,
+      "purse": -0.15
+    },
+    "Mouth_D": {
+      "width": 11.8,
+      "half_opening": 2.2,
+      "corner_lift": 0.1,
+      "purse": 0.1
+    },
+    "Mouth_Smile": {
+      "width": 14.5,
+      "half_opening": 2.5,
+      "corner_lift": 2.6,
+      "purse": -0.1
+    },
+    "Mouth_Frown": {
+      "width": 11.8,
+      "half_opening": 0.25,
+      "corner_lift": -2,
+      "purse": 0
+    },
+    "Mouth_Angry": {
+      "width": 12.4,
+      "half_opening": 1.0,
+      "corner_lift": -0.8,
+      "purse": 0
+    },
+    "Mouth_Pain": {
+      "width": 13.4,
+      "half_opening": 4.3,
+      "corner_lift": -1.25,
+      "purse": 0.1
+    },
+    "Mouth_Surprise": {
+      "width": 7.0,
+      "half_opening": 5.9,
+      "corner_lift": 0,
+      "purse": 1.0
+    },
+    "Mouth_Effort": {
+      "width": 12.5,
+      "half_opening": 0.75,
+      "corner_lift": -0.6,
+      "purse": 0
+    }
+  }
+}
