@@ -1,5 +1,6 @@
-#include "MCValidationSubsystem.h"
+﻿#include "MCValidationSubsystem.h"
 #include "MCTongue.h"
+#include "MCGripComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
@@ -36,7 +37,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
     const FString Folder=FPaths::ProjectSavedDir()/TEXT("TonguePressureFrames");
     auto Finish=[&]()
     {
-        const bool Pass=DevSeen==511 && !bTongueInvalid && TongueError<.5;
+        const bool Pass=DevSeen==1023 && !bTongueInvalid && TongueError<.5;
         if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(Folder/TEXT("times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s PRESSURE net=%d seen=%d collisionError=%.4f invalid=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,TongueError,bTongueInvalid);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
@@ -46,7 +47,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
     Heroes.Sort([](const AMCToothCharacter& A,const AMCToothCharacter& B){return A.GetPlayerState()->GetPlayerId()<B.GetPlayerState()->GetPlayerId();});
     if (Heroes.Num()<4)
     {
-        if (Host && DevStartedAt>=0 && GS->GetServerWorldTimeSeconds()-DevStartedAt>21) Finish();
+        if (DevStartedAt>=0 && GS->GetServerWorldTimeSeconds()-DevStartedAt>21) Finish();
         else if (Age>65) FPlatformMisc::RequestExitWithStatus(false,1);
         return;
     }
@@ -122,8 +123,10 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         {
             for (const int32 I:{0,3})
             {
-                Place(Heroes[I],Heavy->GetActorLocation()+FVector(0,I==0?-105:105,0),I==0?90:-90);
-                Heroes[I]->bHandling=true; bTongueInvalid|=!Heavy->TryGrab(Heroes[I]); Heroes[I]->ForceNetUpdate();
+                Place(Heroes[I],Heavy->GetActorLocation()+FVector(0,I==0?-74:74,0),I==0?90:-90);
+                Heroes[I]->bHandling=true;
+                if (!Heavy->TryGrab(Heroes[I])) { UE_LOG(LogTemp,Display,TEXT("MC_PRESSURE_GRIP_FAIL %d %s"),I,*Heroes[I]->Grip->DebugFailure); }
+                Heroes[I]->ForceNetUpdate();
             }
             ++DevStage;
         }
@@ -141,6 +144,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         if (DevStage==6 && T>19)
         { Tongue->PressureSettings.bEnabled=false; Tongue->ResetPain(); Tongue->ResetPressure(); Tongue->ForceNetUpdate(); ++DevStage; }
     }
+    if (!Host && T>7 && T<8) for (const int32 I:{0,3}) if (Heroes[I]->IsLocallyControlled()) Heroes[I]->SetActorRotation(FRotator(0,I==0?90:-90,0));
     // Input must run on the owning peer; sorted PlayerIds need not put the listen host first.
     for (const int32 I:{0,3})
         if (T>8 && T<12 && Heroes[I]->IsLocallyControlled()) Heroes[I]->AddMovementInput(FVector::ForwardVector,.65f);
@@ -159,6 +163,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         const float LD=Tongue->IndentationAt(Light->GetActorLocation()),HD=Tongue->IndentationAt(Heavy->GetActorLocation());
         if (T>2 && T<6 && LD>.5 && HD>LD*1.3) DevSeen|=2;
         if (Ragdoll) DevSeen|=4;
+        if (Heroes[0]->Grip->IsReady() && Heroes[3]->Grip->IsReady() && Heroes[0]->HeldFood==Heavy && Heroes[3]->HeldFood==Heavy) DevSeen|=512;
         if (!Heavy->Holders.IsEmpty() && HD>.5 && FVector::Dist2D(PressureOldPoint,Heavy->GetActorLocation())>80) DevSeen|=8;
         if (T>13 && T<19 && (DevSeen&8) && Tongue->IndentationAt(PressureOldPoint)<1) DevSeen|=16;
         if (Tongue->Motion.Serial>0 && GS->GetServerWorldTimeSeconds()>Tongue->Motion.StartedAt+.7 && Player && HD>.5) DevSeen|=64;

@@ -27,6 +27,7 @@ public:
     void SaveTuning() const;
     void ResetTuning();
     void BuildPresentationPose(TArray<FTransform>& InOutPose) const;
+    void SetGripArms(bool Left,bool Right);
     float RecoveryAlpha() const;
     FVector PhysicalLocation() const;
     int32 KnockdownCount = 0;
@@ -49,4 +50,5 @@ private:
     float SendAccumulator = 0.f;
     float LastHitTime = -10.f;
     float RecoveryInvulnerableUntil = 0.f;
+    bool bGripLeft=false,bGripRight=false;
 };

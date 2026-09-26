@@ -1,4 +1,4 @@
-#include "MCToothCharacter.h"
+﻿#include "MCToothCharacter.h"
 #include "MCMouthSurface.h"
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
@@ -11,6 +11,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothAnimInstance.h"
 #include "MCGazeComponent.h"
+#include "MCGripComponent.h"
 #include "PhysicsControlComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -34,6 +35,8 @@ AMCToothCharacter::AMCToothCharacter()
     PrimaryActorTick.bCanEverTick = true;
     bReplicates = true;
     GetCapsuleComponent()->InitCapsuleSize(34.f, 58.f);
+    // Food movement is driven by grip strength, not CharacterMovement's large automatic push force.
+    GetCharacterMovement()->bEnablePhysicsInteraction=false;
     GetCharacterMovement()->MaxWalkSpeed = 440.f;
     GetCharacterMovement()->MaxAcceleration = 1800.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 1600.f;
@@ -56,6 +59,7 @@ AMCToothCharacter::AMCToothCharacter()
     ToothPhysics=CreateDefaultSubobject<UMCToothPhysicsComponent>(TEXT("ToothPhysics"));
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
     Gaze=CreateDefaultSubobject<UMCGazeComponent>(TEXT("Gaze"));
+    Grip=CreateDefaultSubobject<UMCGripComponent>(TEXT("Grip"));
     BrushPivot = CreateDefaultSubobject<USceneComponent>(TEXT("BrushPivot"));
     BrushPivot->SetupAttachment(GetMesh(),TEXT("hand_r"));
     Brush = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MiniBrush"));
@@ -107,8 +111,8 @@ void AMCToothCharacter::ApplyAppearance()
     const auto& Ref=GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
     FTransform Hand=FTransform::Identity;
     for (int32 I=Ref.FindBoneIndex(RigBone(TEXT("hand_r")));I>=0;I=Ref.GetParentIndex(I)) Hand=Hand*Ref.GetRefBonePose()[I];
-    FTransform Grip=Appearance->BrushTransform; Grip.AddToTranslation(Hand.GetLocation());
-    BrushPivot->SetRelativeTransform(Grip.GetRelativeTransform(Hand));
+    FTransform BrushGrip=Appearance->BrushTransform; BrushGrip.AddToTranslation(Hand.GetLocation());
+    BrushPivot->SetRelativeTransform(BrushGrip.GetRelativeTransform(Hand));
 }
 void AMCToothCharacter::BeginPlay()
 {
@@ -244,7 +248,7 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
             for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
             {
                 const float D=FVector::DistSquared(GetActorLocation(),It->GetActorLocation());
-                if (!It->IsDisposed() && It->Phase!=EMCFoodPhase::Equipped && (!It->bBrushTool || !EquippedBrush) && D<Distance && D<=FMath::Square(It->Settings.GrabReach) && CanContact(*It)) { Best=*It; Distance=D; }
+                if (!It->IsDisposed() && It->Phase!=EMCFoodPhase::Equipped && (!It->bBrushTool || !EquippedBrush) && D<Distance && D<=FMath::Square(It->Settings.GrabReach) && (!It->bBrushTool || CanContact(*It))) { Best=*It; Distance=D; }
             }
             if (Best && Best->TryGrab(this) && Best->bBrushTool) { ResetContact(); return; }
         }
@@ -273,7 +277,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     if (IsLocallyControlled() && bInCoffee)
     { PaddleSendElapsed+=DeltaSeconds; if (PaddleSendElapsed>=.05f) { ServerPaddle(LocalPaddle); PaddleSendElapsed=0; } }
     GetCharacterMovement()->MaxWalkSpeed=ClingTooth?0:HeldFood?HeldFood->DragSpeed():440.f;
-    Brush->SetVisibility(HasBrush());
+    Brush->SetVisibility(HasBrush() && !HeldFood && (!Grip || Grip->Blend()<.05f));
     if (StatusMaterial)
     {
         const auto* GS=GetWorld()->GetGameState<AMCGameState>();
@@ -295,9 +299,10 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float Anticipation = bWork ? FMath::Clamp(1.f - WorkTime/FMath::Max(0.05f,A.Anticipation),0.f,1.f) : 0.f;
     const float Squash = (FMath::Sin(Gait*2.f)*0.22f*Speed + LandingImpulse + Anticipation*0.45f) * A.Squash * A.Exaggeration;
     const float Stretch = bAir ? A.Stretch * (bPreviewAnimation ? 0.8f : FMath::Clamp(FMath::Abs(GetVelocity().Z)/500.f,0.f,1.f)) : 0.f;
-    if (StatusMaterial) StatusMaterial->SetScalarParameterValue(TEXT("BodyStretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch-Squash,-.35f,.4f):0.f);
-    GetMesh()->SetMorphTarget(TEXT("Squash"),ToothPhysics->CanAct()?FMath::Clamp(Squash/0.28f,0.f,1.f):0.f);
-    GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f):0.f);
+    const float GripBlend=Grip?Grip->Blend():0;
+    if (StatusMaterial) StatusMaterial->SetScalarParameterValue(TEXT("BodyStretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch-Squash,-.35f,.4f)*(1-GripBlend):0.f);
+    GetMesh()->SetMorphTarget(TEXT("Squash"),ToothPhysics->CanAct()?FMath::Clamp(Squash/0.28f,0.f,1.f)*(1-GripBlend):0.f);
+    GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     const float Bob = bAir ? 0.f : FMath::Abs(FMath::Sin(Gait))*A.Bob*Speed + FMath::Sin(Time*2.f)*0.7f;
     const float Pitch = Speed*A.Lean + Anticipation*15.f + (bHandling ? FMath::Sin(Time*13.f)*7.f : 0.f);
     const float AttackTime=Time-SwingStartedAt;
@@ -305,6 +310,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float Swing = AttackTime<0.65f?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
     BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,18.f-12.f*A.FollowThrough);
     AnimationGait=Gait; AnimationSpeed=Speed; AnimationBob=Bob; AnimationPitch=Pitch+(Status->IsLoose()?FMath::Sin(Time*7)*7:0); AnimationBrushAngle=BrushAngle*A.Exaggeration;
+    AnimationBob*=1-.85f*GripBlend; AnimationPitch*=1-GripBlend;
     SoundAccumulator += DeltaSeconds;
     if (ToothPhysics->CanAct() && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
     { SoundAccumulator = 0; SoundPalette->Play(this,bBrushing ? TEXT("Brush") : bHandling ? TEXT("Pull") : TEXT("Step"),GetActorLocation()); }

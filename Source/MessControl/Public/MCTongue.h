@@ -49,6 +49,8 @@ private:
     UFUNCTION() void OnRep_PressureFrame();
     UPROPERTY() TArray<FMCTongueLoad> CurrentLoads;
     TArray<float> IndentDepth;
+    // UV1 carries a cosmetic displacement to the material. Positions remain the physics surface.
+    TArray<FVector2D> PressureUV;
     TArray<FVector> IndentGradient;
     struct FLoadHistory
     {

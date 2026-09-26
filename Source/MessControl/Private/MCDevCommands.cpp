@@ -1,5 +1,6 @@
 #include "MCDevCommands.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCDayDirector.h"
@@ -45,7 +46,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         DayDirector->Start(Plan,StepIndex,true);
         return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::TongueWeightToggle))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::GripPractice))
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -59,6 +60,20 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::GripPractice:
+        if (Hero) for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        {
+            FHitResult Hit; if (!It->SurfacePoint(Hero->GetActorLocation()+Hero->GetActorForwardVector()*170,Hit))
+                return FText::FromString(TEXT("Встань на язык: перед игроком нужно свободное место."));
+            for (TActorIterator<AMCFoodActor> Food(GetWorld());Food;++Food) if (Food->ActorHasTag(TEXT("DevGripFood"))) Food->Destroy();
+            const FTransform T(Hit.ImpactPoint+FVector(0,0,60));
+            auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
+            FMCFoodRow Row; Row.Label=FText::FromString(TEXT("GRIP PRACTICE")); Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
+            Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+            FRandomStream GripRandom(1); Food->ConfigureItem(TEXT("GripPractice"),Row,GripRandom); Food->Tags.Add(TEXT("DevGripFood")); Food->FinishSpawning(T);
+            return FText::FromString(TEXT("Подойди вплотную и держи E. Смотри на куб и пятясь тяни; шагом вперёд толкай. Подойди боком или спиной для других поз. Настройки — DA_Grip."));
+        }
+        return FText::FromString(TEXT("Нужны игрок и подвижный язык."));
     case EMCDevAction::TongueWeightToggle:
         for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
         {

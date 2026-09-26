@@ -9,8 +9,8 @@ struct FMCTonguePressureSettings
 {
     GENERATED_BODY()
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pressure") bool bEnabled=true;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pressure",meta=(ClampMin="0",ClampMax="3")) float DepthPerKg=.9f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pressure",meta=(ClampMin="1",ClampMax="35")) float MaxDepth=24;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pressure",meta=(ClampMin="0",ClampMax="3")) float DepthPerKg=.4f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pressure",meta=(ClampMin="1",ClampMax="35")) float MaxDepth=8;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Footprint",meta=(ClampMin="60",ClampMax="250")) float PlayerRadius=120;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Footprint",meta=(ClampMin="60",ClampMax="300")) float RagdollRadius=150;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Footprint",meta=(ClampMin="30",ClampMax="120")) float FoodMargin=70;

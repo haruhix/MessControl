@@ -1,10 +1,13 @@
-#include "MCCoreScenario.h"
+﻿#include "MCCoreScenario.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCArenaTooth.h"
 #include "MCFoodActor.h"
+#include "MCTongue.h"
+#include "MCGripComponent.h"
+#include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
@@ -62,9 +65,14 @@ void AMCCoreScenario::NextStage()
     }
     if (Stage==5)
     {
-        MoveHero(0,FVector(-442,-290,95),FRotator(0,-90,0)); MoveHero(1,FVector(-358,-290,95),FRotator(0,-90,0));
-        const FTransform Transform(FVector(-400,-400,65));
+        FVector Floor(-400,-180,0);
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { FHitResult Hit; if (It->SurfacePoint(Floor,Hit)) Floor=Hit.ImpactPoint; break; }
+        MoveHero(0,Floor+FVector(-86,0,61),FRotator::ZeroRotator); MoveHero(1,Floor+FVector(86,0,61),FRotator::ZeroRotator);
+        const FTransform Transform(Floor+FVector(0,0,51));
         Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform);
+        FMCFoodRow Row; Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
+        Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+        FRandomStream Random(1); Food->ConfigureItem(TEXT("CoreGrip"),Row,Random);
         Food->Phase=EMCFoodPhase::Stuck; Food->PullDirection=FVector(0,1,0); UGameplayStatics::FinishSpawningActor(Food,Transform);
     }
     UE_LOG(LogTemp,Display,TEXT("MC_CORE_STAGE %d %s"),Stage,*Caption());
@@ -129,13 +137,16 @@ void AMCCoreScenario::Tick(float Dt)
             if (Stage==1 && Slot>=0 && Slot<2) Hero->StartBrush();
             if ((Stage==2 && Slot>=0 && Slot<3) || ((Stage==5 || Stage==6) && Slot>=0 && Slot<2)) Hero->StartHandle();
         }
+        if (Stage==5 && Elapsed<1 && Slot>=0 && Slot<2) Hero->SetActorRotation(FRotator::ZeroRotator);
+        if ((Stage==5 || Stage==6) && Slot>=0 && Slot<2 && Food && !Hero->HeldFood) Hero->AddMovementInput((Food->GetActorLocation()-Hero->GetActorLocation()).GetSafeNormal2D());
         if (Stage==5 && Slot>=0 && Slot<2 && Hero->HeldFood && Food && Food->Phase==EMCFoodPhase::Stuck) Hero->AddMovementInput(FVector(0,1,0));
         if (Stage==6 && Slot>=0 && Slot<2 && Hero->HeldFood)
         {
-            FVector Destination(965,Slot==0?-45.f:45.f,95);
+            FVector Destination(965,0,95);
             for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (!It->bBrushBin)
-            { Destination=It->GetActorLocation()+FVector(0,Slot==0?-45.f:45.f,0); break; }
-            if (FVector::DistSquared2D(Destination,Hero->GetActorLocation())>FMath::Square(35.f)) Hero->AddMovementInput((Destination-Hero->GetActorLocation()).GetSafeNormal2D());
+            { Destination=It->GetActorLocation(); break; }
+            // Both carriers steer the shared object toward the exit, not two competing pawn destinations.
+            if (Food && FVector::DistSquared2D(Destination,Food->GetActorLocation())>FMath::Square(35.f)) Hero->AddMovementInput((Destination-Food->GetActorLocation()).GetSafeNormal2D());
         }
     }
     if (Target && Target->Status->State.CoffeeLeft==4 && Stage==1) Observed|=1;
@@ -175,6 +186,7 @@ void AMCCoreScenario::Tick(float Dt)
     {
         NextLog=Age+3;
         UE_LOG(LogTemp,Display,TEXT("MC_CORE net=%d stage=%d seen=%u failed=%d food=%d pull=%.2f grips=%d hero=%s"),int32(GetNetMode()),Stage,Observed,bFailed,Food?int32(Food->Phase):-1,Food?Food->PullProgress:0,Food?Food->Holders.Num():0,Hero?*Hero->GetActorLocation().ToString():TEXT("none"));
+        if (Stage>=5 && Food && Hero) UE_LOG(LogTemp,Display,TEXT("MC_CORE_GRIP food=%s heroYaw=%.1f reason=%s"),*Food->GetActorLocation().ToCompactString(),Hero->GetActorRotation().Yaw,*Hero->Grip->DebugFailure);
     }
     if ((Stage==7 && Now-StageAt>(HasAuthority()?5:2)) || Age>140)
     {

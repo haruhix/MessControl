@@ -1,7 +1,8 @@
-#include "MCFoodActor.h"
+﻿#include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCGripComponent.h"
 #include "MCArenaTooth.h"
 #include "MCGameState.h"
 #include "MCMouthSurface.h"
@@ -37,6 +38,10 @@ AMCFoodActor::AMCFoodActor()
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetRelativeLocation(FVector(0,0,-25)); Visual->SetRelativeScale3D(FVector(1.5));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Art/Meshes/SM_Food"));
     if (Mesh.Succeeded()) Visual->SetStaticMesh(Mesh.Object);
+    GripSurface=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GripSurface")); GripSurface->SetupAttachment(Visual);
+    GripSurface->SetVisibility(false); GripSurface->SetHiddenInGame(true); GripSurface->SetCastShadow(false);
+    GripSurface->SetCollisionEnabled(ECollisionEnabled::QueryOnly); GripSurface->SetCollisionResponseToAllChannels(ECR_Ignore);
+    GripSurface->SetGenerateOverlapEvents(false);
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("FoodInstruction")); Label->SetupAttachment(Body);
     Label->SetRelativeLocation(FVector(0,0,75)); Label->SetHorizontalAlignment(EHTA_Center); Label->SetWorldSize(17);
     Label->SetCollisionEnabled(ECollisionEnabled::NoCollision); Label->SetTextRenderColor(FColor(255,215,110));
@@ -87,7 +92,7 @@ bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
     if (!HasAuthority() || !IsValid(Hero) || IsDisposed() || Phase==EMCFoodPhase::Equipped || !Hero->CanWork() || Hero->HeldFood && Hero->HeldFood!=this) return false;
     if (Holders.Contains(Hero)) return true;
     const FVector Offset=GetActorLocation()-Hero->GetActorLocation();
-    if (Offset.Size()>Settings.GrabReach || FVector::DotProduct(Hero->GetActorForwardVector(),Offset.GetSafeNormal2D())<-.25f) return false;
+    if (Offset.Size()>Settings.GrabReach || (bBrushTool && FVector::DotProduct(Hero->GetActorForwardVector(),Offset.GetSafeNormal2D())<-.25f)) return false;
     FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFoodGrab),false,Hero); Params.AddIgnoredActor(this);
     if (GetWorld()->LineTraceSingleByChannel(Hit,Hero->GetActorLocation(),GetActorLocation(),ECC_Visibility,Params)) return false;
     if (bBrushTool)
@@ -96,13 +101,38 @@ bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
         EquippedBy=Hero; Hero->EquippedBrush=this; Phase=EMCFoodPhase::Equipped; OnRep_Phase();
         Hero->ForceNetUpdate(); ForceNetUpdate(); return true;
     }
-    Holders.Add(Hero); GripOffsets.Add(Hero,Offset.GetClampedToMaxSize(95)); Hero->HeldFood=this;
+    if (!Hero->Grip || !Hero->Grip->BeginGrip(this)) return false;
+    Holders.Add(Hero); Hero->HeldFood=this;
     Hero->ForceNetUpdate(); ForceNetUpdate(); return true;
+}
+bool AMCFoodActor::FindGripSurface(FVector From,FHitResult& Hit) const
+{
+    if (!GripSurface || !GripSurface->GetStaticMesh()) return false;
+    FCollisionQueryParams Params(SCENE_QUERY_STAT(MCGripMesh),true); Params.bReturnFaceIndex=true;
+    const FBox Bounds=Visual->Bounds.GetBox();
+    FVector Near=Bounds.GetClosestPointTo(From),Center=Visual->Bounds.Origin;
+    const double ZMargin=FMath::Min(4.,Bounds.GetExtent().Z*.5);
+    Center.Z=FMath::Clamp(From.Z,Bounds.Min.Z+ZMargin,Bounds.Max.Z-ZMargin);
+    FVector Closest;
+    if (GripSurface->GetClosestPointOnCollision(From,Closest)>=0)
+    {
+        const FVector Direction=(Closest-From).GetSafeNormal();
+        if (!Direction.IsNearlyZero() && GripSurface->LineTraceComponent(Hit,From-Direction*Visual->Bounds.SphereRadius*2,Closest+Direction*Visual->Bounds.SphereRadius*2,Params)) return true;
+    }
+    for (const float Bias:{0.f,.25f,.5f,1.f})
+    {
+        const FVector Aim=FMath::Lerp(Near,Center,Bias);
+        const FVector Start=From+(From-Center).GetSafeNormal()*Visual->Bounds.SphereRadius*2;
+        const FVector Direction=(Aim-Start).GetSafeNormal();
+        if (!Direction.IsNearlyZero() && GripSurface->LineTraceComponent(Hit,Start,Aim+Direction*Visual->Bounds.SphereRadius*2,Params)) return true;
+    }
+    return false;
 }
 void AMCFoodActor::Release(AMCToothCharacter* Hero)
 {
     if (!HasAuthority()) return;
-    Holders.Remove(Hero); GripOffsets.Remove(Hero);
+    Holders.Remove(Hero);
+    if (IsValid(Hero) && Hero->Grip && Hero->Grip->Frame.Food==this) Hero->Grip->EndGrip();
     if (IsValid(Hero) && Hero->HeldFood==this) { Hero->HeldFood=nullptr; Hero->ForceNetUpdate(); }
     ForceNetUpdate();
 }
@@ -170,7 +200,7 @@ void AMCFoodActor::Tick(float Dt)
         { bLandingPending=false; Phase=bJamOnLanding?EMCFoodPhase::Stuck:EMCFoodPhase::Free; OnRep_Phase(); ForceNetUpdate(); }
         if (const auto* GS=GetWorld()->GetGameState<AMCGameState>(); GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost))
             for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]);
-        FVector Target=FVector::ZeroVector; int32 Pullers=0;
+        FVector Force=FVector::ZeroVector; int32 Pullers=0,ReadyHolders=0;
         for (int32 I=Holders.Num()-1;I>=0;--I)
         {
             AMCToothCharacter* Hero=Holders[I];
@@ -181,9 +211,12 @@ void AMCFoodActor::Tick(float Dt)
 #endif
                 Release(Hero); continue;
             }
-            Target+=Hero->GetActorLocation()+GripOffsets.FindRef(Hero);
-            const FVector Velocity=Hero->GetVelocity();
-            if (Velocity.Size2D()>10 && FVector::DotProduct(Velocity.GetSafeNormal2D(),PullDirection)>=FMath::Cos(FMath::DegreesToRadians(Settings.PullConeDegrees))) ++Pullers;
+            if (Hero->Grip && Hero->Grip->IsReady())
+            {
+                ++ReadyHolders; Force+=Hero->Grip->DriveForce();
+                const FVector Intent=Hero->Grip->InputDirection();
+                if (!Intent.IsNearlyZero() && FVector::DotProduct(Intent,PullDirection)>=FMath::Cos(FMath::DegreesToRadians(Settings.PullConeDegrees))) ++Pullers;
+            }
         }
         if (Phase==EMCFoodPhase::Stuck)
         {
@@ -192,12 +225,10 @@ void AMCFoodActor::Tick(float Dt)
             else if (Now-LastPullTime>1) PullProgress=FMath::Max(0.f,PullProgress-Dt*.2f);
             if (PullProgress>=1) { Phase=EMCFoodPhase::Free; OnRep_Phase(); Body->AddImpulse(PullDirection*120+FVector(0,0,80),NAME_None,true); ForceNetUpdate(); }
         }
-        else if (!Holders.IsEmpty())
+        else if (ReadyHolders>0)
         {
-            Target/=Holders.Num();
-            const FVector Acceleration=((Target-GetActorLocation())*Settings.Spring-Body->GetPhysicsLinearVelocity()*Settings.Damping).GetClampedToMaxSize(2000);
-            // Fixed strength per team: unlike multiplying by mass, heavy food really resists pulling.
-            Body->AddForce(Acceleration*9.f*FMath::Sqrt(float(Holders.Num())));
+            // A team gains strength sublinearly; mass still changes acceleration and drag speed.
+            Body->AddForce(Force/FMath::Sqrt(float(ReadyHolders)));
         }
         // An escaped item returns to the arena, never counts as successfully disposed.
         // A placed brush bin owns the horizontal exit. A fixed X cutoff would
@@ -258,6 +289,7 @@ void AMCFoodActor::OnRep_Item()
     if (ItemMesh) { Visual->SetStaticMesh(ItemMesh); Visual->SetRelativeLocation(FVector::ZeroVector); Visual->SetRelativeScale3D(FVector(bFragment?.5f:1.f)); }
     if (bBrushTool) { Body->SetCollisionObjectType(ECC_GameTraceChannel1); Body->SetBoxExtent(FVector(12,12,40)); Visual->SetRelativeLocation(FVector(0,0,-35)); Visual->SetRelativeScale3D(FVector(.8)); }
     else if (!ItemName.IsNone()) Body->SetBoxExtent(FoodData.HalfExtent*(bFragment?.5f:1.f));
+    GripSurface->SetStaticMesh(Visual->GetStaticMesh());
 }
 void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment)
 {

@@ -32,8 +32,12 @@ void UMCToothPhysicsComponent::BeginPlay()
     Data.bDisableCollision=true; Data.bOnlyControlChildObject=true;
     if (Muscles && Tooth->GetMesh()->GetPhysicsAsset())
     {
-        const auto Controls=Muscles->CreateControlsFromSkeletalMeshBelow(Tooth->GetMesh(),Tooth->RigBone(TEXT("body")),false,EPhysicsControlType::ParentSpace,Data,TEXT("Limbs"));
-        FPhysicsControlNames Names; Muscles->AddControlsToSet(Names,Controls,TEXT("Limbs"));
+        for (const FName Role:{FName("arm_l"),FName("arm_r"),FName("leg_l"),FName("leg_r")})
+        {
+            const auto Controls=Muscles->CreateControlsFromSkeletalMeshBelow(Tooth->GetMesh(),Tooth->RigBone(Role),true,EPhysicsControlType::ParentSpace,Data,Role);
+            FPhysicsControlNames Names;
+            Muscles->AddControlsToSet(Names,Controls,TEXT("Limbs")); Muscles->AddControlsToSet(Names,Controls,Role);
+        }
         // Newly spawned actors can be created after the mesh tick this frame. Prime the cache
         // before the first control update so targets never read an empty skeleton buffer.
         Tooth->GetMesh()->RefreshBoneTransforms(); Muscles->UpdateTargetCaches(0.f);
@@ -96,6 +100,7 @@ void UMCToothPhysicsComponent::EnterRagdoll()
     auto* Mesh=Tooth->GetMesh();
     SetMuscles(false); Mesh->SetAllBodiesSimulatePhysics(false);
     Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+    Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Block);
     Mesh->SetMorphTarget(TEXT("Squash"),0); Mesh->SetMorphTarget(TEXT("Stretch"),0);
     if (Tooth->HasAuthority())
     {
@@ -196,11 +201,26 @@ void UMCToothPhysicsComponent::EnterStanding()
     Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     // Limb bodies follow the procedural target with spring/damper controls. The body stays kinematic.
     Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    // The capsule receives incoming food while standing; dangling toes must not kick it out of reach.
+    Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
     Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,false);
     Mesh->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(TEXT("body")),1.f,false,false);
-    SetMuscles(true); DisplayPose.Reset();
+    bGripLeft=bGripRight=false; SetMuscles(true); DisplayPose.Reset();
     Tooth->GetCharacterMovement()->SetMovementMode(MOVE_Walking); Tooth->SetReplicateMovement(true);
     RecoveryInvulnerableUntil=ServerTime()+0.6f;
+}
+void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
+{
+    if (!Tooth || LocalState!=EMCBodyState::Standing) { bGripLeft=bGripRight=false; return; }
+    bool* Flags[]={&bGripLeft,&bGripRight}; const bool Values[]={Left,Right};
+    for (int32 I=0;I<2;++I) if (*Flags[I]!=Values[I])
+    {
+        const FName Role=I==0?TEXT("arm_l"):TEXT("arm_r"); const bool Kinematic=Values[I];
+        if (Muscles) Muscles->SetControlsInSetEnabled(Role,!Kinematic);
+        Tooth->GetMesh()->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(Role),!Kinematic,true);
+        Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),Kinematic?0.f:1.f,false,true);
+        *Flags[I]=Kinematic;
+    }
 }
 float UMCToothPhysicsComponent::RecoveryAlpha() const { return FMath::Clamp((ServerTime()-Frame.StateStartedAt)/Settings.GetUpSeconds,0.f,1.f); }
 void UMCToothPhysicsComponent::BuildPresentationPose(TArray<FTransform>& Pose) const

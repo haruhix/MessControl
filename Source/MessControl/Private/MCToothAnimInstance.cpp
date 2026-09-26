@@ -2,6 +2,7 @@
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGazeComponent.h"
+#include "MCGripComponent.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -48,6 +49,7 @@ public:
         // Stay inside the shoulder/wrist stops even at the strongest F1 preset.
         Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle+FMath::Sin(G-0.25f)*18*Speed,-50.f,50.f),0,10));
         Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle*0.3f,-35.f,35.f),0,0));
+        if (Tooth->Grip) Tooth->Grip->BuildPose(Pose,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);
     }

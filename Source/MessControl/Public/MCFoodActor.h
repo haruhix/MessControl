@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "GameFramework/Actor.h"
@@ -22,8 +22,9 @@ struct FMCFoodSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact") float HitCooldown=0.75f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float GrabReach=145;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float BreakDistance=340;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float Spring=14;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Grab") float Damping=6;
+    // Serialized legacy fields; grip tuning lives in DA_Grip.
+    UPROPERTY() float Spring=14;
+    UPROPERTY() float Damping=6;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pull") float PullSeconds=3;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pull") float PullConeDegrees=35;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pull") float CooperationMultiplier=1.5f;
@@ -53,6 +54,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Initialize(bool bJam,FVector ExtractionDirection);
     bool TryGrab(AMCToothCharacter* Hero);
+    bool FindGripSurface(FVector From,FHitResult& Hit) const;
     void Release(AMCToothCharacter* Hero);
     void Dispose();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
@@ -63,6 +65,7 @@ public:
     bool IsDisposed() const { return Phase==EMCFoodPhase::Disposed; }
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UBoxComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> GripSurface;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> Label;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Food") TSoftObjectPtr<UMCFoodProfile> Profile;
     UPROPERTY(Replicated, BlueprintReadOnly) FMCFoodSettings Settings;
@@ -95,7 +98,6 @@ private:
     // Sampled in the actor's PrePhysics tick, before contact impulses change velocity.
     FVector PrePhysicsVelocity=FVector::ZeroVector;
     TMap<TWeakObjectPtr<AActor>,double> LastHit;
-    TMap<TWeakObjectPtr<AMCToothCharacter>,FVector> GripOffsets;
     void Spoil();
 };
 

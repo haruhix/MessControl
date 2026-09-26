@@ -12,7 +12,7 @@
 void FMCTonguePressureSettings::Sanitize()
 {
     auto C=[](float V,float D,float A,float B){return FMath::Clamp(FMath::IsFinite(V)?V:D,A,B);};
-    DepthPerKg=C(DepthPerKg,.9f,0,3); MaxDepth=C(MaxDepth,24,1,35);
+    DepthPerKg=C(DepthPerKg,.4f,0,3); MaxDepth=C(MaxDepth,8,1,35);
     PlayerRadius=C(PlayerRadius,120,60,250); RagdollRadius=C(RagdollRadius,150,60,300); FoodMargin=C(FoodMargin,70,30,120);
     PressSeconds=C(PressSeconds,.12f,.06f,1); RecoverSeconds=C(RecoverSeconds,.6f,.15f,3);
     LandingBoost=C(LandingBoost,1,0,2); LandingSpeed=C(LandingSpeed,650,100,1200);

@@ -1,4 +1,4 @@
-#if WITH_DEV_AUTOMATION_TESTS
+﻿#if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
@@ -16,6 +16,7 @@
 #include "MCTongueProfile.h"
 #include "MCTongue.h"
 #include "MCGazeComponent.h"
+#include "MCGripComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
@@ -66,6 +67,17 @@ namespace
             for (TActorIterator<AMCFoodActor> It(World);It;++It) It->Dispose();
             Mode->UpdateObjectives();
         }
+        AMCFoodActor* GripCube()
+        {
+            const FTransform T(FVector(0,0,100));
+            auto* Food=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
+            FMCFoodRow Row; Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
+            Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+            FRandomStream Random(1); Food->ConfigureItem(TEXT("GripFixture"),Row,Random);
+            Food->FinishSpawning(T); Food->Body->SetEnableGravity(false); return Food;
+        }
+        void Step(float Seconds)
+        { for (int32 I=0;I<FMath::CeilToInt(Seconds*60);++I) { ++GFrameCounter; World->Tick(LEVELTICK_All,1.f/60); } }
         AMCToothCharacter* Worker()
         {
             auto* Tooth=World->SpawnActor<AMCToothCharacter>(FVector(0,0,98),FRotator::ZeroRotator);
@@ -432,22 +444,29 @@ bool FMCRespawnTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodInteractionTest,"MessControl.Gameplay.FoodGripPullAndImpact",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCFoodInteractionTest::RunTest(const FString& Parameters)
 {
-    FTestMouth Mouth; auto* A=Mouth.Worker(); A->SetActorLocation(FVector(-100,0,100)); A->SetActorRotation(FRotator::ZeroRotator); A->bHandling=true;
-    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,100),FRotator::ZeroRotator);
+    FTestMouth Mouth; auto* A=Mouth.Worker(); A->SetActorLocation(FVector(-86,0,110)); A->SetActorRotation(FRotator::ZeroRotator); A->bHandling=true;
+    auto* Food=Mouth.GripCube();
     TestTrue(TEXT("Near food can be gripped"),Food->TryGrab(A));
     TestTrue(TEXT("Grip links both sides"),A->HeldFood==Food && Food->Holders.Num()==1);
     TestTrue(TEXT("Repeated grab is idempotent"),Food->TryGrab(A) && Food->Holders.Num()==1);
     A->SetActorLocation(FVector(-1000,0,100)); Food->Tick(.1f);
     TestTrue(TEXT("Overstretched grip releases"),!A->HeldFood && Food->Holders.IsEmpty());
     TestFalse(TEXT("Remote grab rejected"),Food->TryGrab(A));
-    A->SetActorLocation(FVector(-100,0,100)); Food->TryGrab(A);
+    Mouth.Step(.3f); A->SetActorLocation(FVector(-86,0,110));
+    TestTrue(TEXT("Regrip within arm reach"),Food->TryGrab(A)); Mouth.Step(.65f);
+    TestTrue(TEXT("Hands contact before extraction"),A->Grip->IsReady());
     Food->Phase=EMCFoodPhase::Stuck; Food->PullDirection=FVector(-1,0,0);
-    A->GetCharacterMovement()->Velocity=FVector(0,55,0);
+    A->ConsumeMovementInputVector(); A->AddMovementInput(FVector(0,1,0),1,true);
     for (int32 I=0;I<10;++I) Food->Tick(.1f);
     TestEqual(TEXT("Wrong pull direction gives no extraction"),Food->PullProgress,0.f);
-    A->GetCharacterMovement()->Velocity=FVector(-55,0,0);
+    A->ConsumeMovementInputVector(); A->AddMovementInput(FVector(-1,0,0),1,true);
     for (int32 I=0;I<31;++I) Food->Tick(.1f);
     TestEqual(TEXT("Directional pulling frees food"),Food->Phase,EMCFoodPhase::Free);
+    A->ConsumeMovementInputVector();
+    A->GetCharacterMovement()->Velocity=FVector(-55,0,0);
+    TestTrue(TEXT("Passive motion does not add grip drive input"),A->Grip->InputDirection().IsNearlyZero());
+    Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector); A->AddActorWorldOffset(FVector(10,0,0));
+    TestTrue(TEXT("No input cannot motor food from a changed rest offset"),A->Grip->DriveForce().IsNearlyZero());
     Food->Dispose(); TestTrue(TEXT("Disposal releases grip and hides food"),!A->HeldFood && Food->IsDisposed() && Food->IsHidden());
     TestFalse(TEXT("Disposed food cannot be grabbed again"),Food->TryGrab(A));
     A->bHandling=false; A->GetCharacterMovement()->Velocity=FVector::ZeroVector;
@@ -469,10 +488,10 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodApproachTest,"MessControl.Gameplay.Resti
 bool FMCFoodApproachTest::RunTest(const FString& Parameters)
 {
     FTestMouth Mouth; auto* Hero=Mouth.Worker();
-    Hero->SetActorLocation(FVector(-100,0,100)); Hero->SetActorRotation(FRotator::ZeroRotator);
+    Hero->SetActorLocation(FVector(-86,0,110)); Hero->SetActorRotation(FRotator::ZeroRotator);
     // Exit the spawn grace period so an accidental knockdown cannot be masked by invulnerability.
     for (int32 I=0;I<8;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
-    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,100),FRotator::ZeroRotator);
+    auto* Food=Mouth.GripCube();
     Food->Phase=EMCFoodPhase::Free;
     FHitResult Hit; Hit.ImpactPoint=Hero->GetActorLocation(); Hit.ImpactNormal=FVector::ForwardVector;
     auto Contact=[&](FVector FoodVelocity,FVector HeroVelocity)
@@ -832,6 +851,51 @@ bool FMCGazeAttentionTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Face tuning stays bounded"),S.YawLimit<=45 && S.BlinkMin>=1 && FMath::IsFinite(S.TurnSpeed));
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGripContactTest,"MessControl.Grip.ContactAndRelease",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCGripContactTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1000,1000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    FTransform Transform(FVector(0,0,51));
+    auto* Food=Mouth.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform);
+    FMCFoodRow Row; Row.Mass=4; Row.HalfExtent=FVector(50); Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+    FRandomStream Random(1); Food->ConfigureItem(TEXT("GripCube"),Row,Random); Food->FinishSpawning(Transform);
+    auto* Hero=Mouth.Worker(); Hero->SetActorLocation(FVector(-86,0,61)); Hero->SetActorRotation(FRotator::ZeroRotator);
+    Hero->GetCharacterMovement()->bRunPhysicsWithNoController=true; Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    auto Step=[&](float Seconds){for (int32 I=0;I<FMath::CeilToInt(Seconds*60);++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,1.f/60); }};
+    Step(.8f); Hero->bHandling=true;
+    const bool Grabbed=Food->TryGrab(Hero);
+    TestTrue(*FString::Printf(TEXT("Both hands can reach the actual cube surface: %s hero %s food %s"),*Hero->Grip->DebugFailure,*Hero->GetActorLocation().ToCompactString(),*Food->GetActorLocation().ToCompactString()),Grabbed);
+    if (!Grabbed) return false;
+    TestFalse(TEXT("No force before the hands arrive"),Hero->Grip->IsReady());
+    Step(.65f);
+    TestTrue(*FString::Printf(TEXT("Hands reach their fixed surface points; error %.2f"),Hero->Grip->ContactError()),Hero->Grip->IsReady() && Hero->Grip->ContactError()<=Hero->Grip->Settings.ContactTolerance);
+    TestEqual(TEXT("Front grip uses both hands"),Hero->Grip->Frame.Pose,EMCGripPose::FrontPull);
+    TestFalse(TEXT("Holding preserves facing for backpedaling"),Hero->GetCharacterMovement()->bOrientRotationToMovement);
+    Food->Release(Hero); Hero->bHandling=false; Step(.5f);
+    TestTrue(TEXT("Release restores walking rotation and free arms"),Hero->GetCharacterMovement()->bOrientRotationToMovement && Hero->Grip->Blend()<.001f && !Hero->Grip->Frame.Food);
+    Hero->SetActorLocation(FVector(-86,0,61)); Hero->bHandling=true;
+    TestTrue(TEXT("Can grab again"),Food->TryGrab(Hero)); Step(.5f);
+    Food->Dispose(); Step(.4f);
+    TestTrue(TEXT("Disposal clears both gameplay and animation grip"),!Hero->HeldFood && !Hero->Grip->Frame.Food && Hero->Grip->Blend()<.001f);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGripModesTest,"MessControl.Grip.AnglesAndBounds",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCGripModesTest::RunTest(const FString&)
+{
+    FMCGripSettings S;
+    TestEqual(TEXT("Facing and approaching pushes"),UMCGripComponent::SelectPose(EMCGripPose::FrontPull,0,100,S),EMCGripPose::Push);
+    TestEqual(TEXT("Facing and retreating pulls"),UMCGripComponent::SelectPose(EMCGripPose::Push,0,-100,S),EMCGripPose::FrontPull);
+    TestEqual(TEXT("Left side uses left hand"),UMCGripComponent::SelectPose(EMCGripPose::FrontPull,-90,0,S),EMCGripPose::LeftHand);
+    TestEqual(TEXT("Right side uses right hand"),UMCGripComponent::SelectPose(EMCGripPose::FrontPull,90,0,S),EMCGripPose::RightHand);
+    TestEqual(TEXT("Behind uses rear pull"),UMCGripComponent::SelectPose(EMCGripPose::FrontPull,175,100,S),EMCGripPose::RearPull);
+    TestEqual(TEXT("Small angle noise does not change hand count"),UMCGripComponent::SelectPose(EMCGripPose::FrontPull,58,0,S),EMCGripPose::FrontPull);
+    TestEqual(TEXT("Side grip keeps its mode until decisively front"),UMCGripComponent::SelectPose(EMCGripPose::RightHand,52,0,S),EMCGripPose::RightHand);
+    S.MaxArmStretch=100; S.ReachSeconds=0; S.DriveForce=std::numeric_limits<float>::quiet_NaN(); S.Sanitize();
+    TestTrue(TEXT("Tuning cannot create infinite arms or force"),S.MaxArmStretch<=1.15f && S.ReachSeconds>=.12f && FMath::IsFinite(S.DriveForce));
+    return true;
+}
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTongueWeightTest,"MessControl.Tongue.WeightContactsAndRecovery",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCTongueWeightTest::RunTest(const FString&)
 {
@@ -853,7 +917,13 @@ bool FMCTongueWeightTest::RunTest(const FString&)
     const float Heavy=Tongue->IndentationAt(Food->GetActorLocation());
     TestTrue(*FString::Printf(TEXT("Same collider with more mass presses deeper: %.3f -> %.3f"),Light,Heavy),Heavy>Light*1.5f);
     TestTrue(TEXT("Depth has a finite cap"),Heavy<=Tongue->PressureSettings.MaxDepth);
-    TestTrue(TEXT("One food object has one load"),Tongue->PressureLoads().Num()==1 && FoodLoad()>20);
+    TestTrue(TEXT("One food object has one load"),Tongue->PressureLoads().Num()==1 && FMath::IsNearlyEqual(FoodLoad(),28*Tongue->PressureSettings.DepthPerKg,.1f));
+    FHitResult CosmeticHit; Tongue->SurfacePoint(Start,CosmeticHit);
+    TestTrue(TEXT("Cosmetic pressure never lowers the physics floor"),FMath::Abs(CosmeticHit.ImpactPoint.Z-Hit.ImpactPoint.Z)<.01);
+    const auto* Section=Tongue->Surface->GetProcMeshSection(0);
+    bool ShaderData=false;
+    if (Section) for (const auto& Vertex:Section->ProcVertexBuffer) ShaderData|=Vertex.UV1.X>.5f;
+    TestTrue(TEXT("Weight is uploaded as material WPO input"),ShaderData);
     const FVector OldPlace=Food->GetActorLocation();
     Food->Body->SetEnableGravity(false); Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
     Food->SetActorLocation(OldPlace+FVector(0,0,350),false,nullptr,ETeleportType::TeleportPhysics); Step(.2f);

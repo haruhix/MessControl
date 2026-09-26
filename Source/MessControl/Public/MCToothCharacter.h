@@ -11,6 +11,7 @@ class UMCToothPhysicsComponent;
 class UPhysicsControlComponent;
 class UMCToothStatusComponent;
 class UMCGazeComponent;
+class UMCGripComponent;
 class AMCFoodActor;
 class AMCArenaTooth;
 class UMaterialInstanceDynamic;
@@ -35,6 +36,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Gaze") TObjectPtr<UMCGazeComponent> Gaze;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Grip") TObjectPtr<UMCGripComponent> Grip;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") bool bSelfCare=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") TObjectPtr<AActor> CareTarget;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") float ContactProgress=0;
