@@ -34,6 +34,9 @@ struct FMCGripSettings
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Effort",meta=(ClampMin="100",ClampMax="1500")) float Spring=750;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Effort",meta=(ClampMin="10",ClampMax="250")) float Damping=95;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Effort",meta=(ClampMin="0",ClampMax="20")) float Lean=10;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Turning") float TurnRate=45;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Turning") float TurnTorque=900000;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Turning") float TurnDamping=750000;
     void Sanitize();
 };
 UCLASS(BlueprintType)
@@ -55,6 +58,7 @@ struct FMCGripFrame
     UPROPERTY() FVector_NetQuantizeNormal LeftNormal=FVector::ForwardVector;
     UPROPERTY() FVector_NetQuantizeNormal RightNormal=FVector::ForwardVector;
     UPROPERTY() FVector_NetQuantize10 RestOffset=FVector::ZeroVector;
+    UPROPERTY() float RelativeYaw=0;
     UPROPERTY() double StartedAt=0;
     UPROPERTY(BlueprintReadOnly) bool bContact=false;
     UPROPERTY() int32 Serial=0;
@@ -78,6 +82,7 @@ public:
     void BuildPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
     FVector InputDirection() const;
     FVector DriveForce() const;
+    FVector DriveTorque() const;
     FVector ContactPoint(bool Left) const;
     FVector PalmPoint(bool Left) const;
     bool IsReady() const { return Frame.Food && Frame.bContact; }
@@ -107,6 +112,7 @@ private:
     EMCGripPose PresentationPose=EMCGripPose::FrontPull;
     bool FindAnchors(AMCFoodActor* Food,EMCGripPose Mode,FMCGripFrame& Result);
     FVector ShoulderPoint(int32 Index) const;
+    float FloorFrictionForce() const;
     FVector ReachFor(const AMCFoodActor* Food) const;
     UFUNCTION() void OnRep_Settings();
     FQuat HandRotation(int32 Index,FVector Normal) const;

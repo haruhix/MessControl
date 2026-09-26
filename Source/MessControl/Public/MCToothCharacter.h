@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Engine/NetSerialization.h"
 #include "MCDataAssets.h"
 #include "MCToothCharacter.generated.h"
 class UCameraComponent;
@@ -24,7 +25,7 @@ class MESSCONTROL_API AMCToothCharacter : public ACharacter
 {
     GENERATED_BODY()
 public:
-    AMCToothCharacter();
+    AMCToothCharacter(const FObjectInitializer& ObjectInitializer=FObjectInitializer::Get());
     virtual void OnConstruction(const FTransform& Transform) override;
     virtual void PostInitializeComponents() override;
     virtual void Tick(float DeltaSeconds) override;
@@ -49,6 +50,7 @@ public:
     bool bWantsCling=false;
     FVector ClingPoint=FVector::ZeroVector;
     FVector2D PaddleInput=FVector2D::ZeroVector;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Swimming") FVector_NetQuantizeNormal SwimIntent=FVector::ZeroVector;
     bool HasBrush() const;
     UFUNCTION(BlueprintCallable, Category="Tools") void ThrowItem();
     UFUNCTION(Server,Reliable) void ServerThrowItem();
@@ -83,6 +85,7 @@ public:
     UFUNCTION(BlueprintCallable, Category="Action") void SwingBrush();
     UFUNCTION(BlueprintCallable, Category="Physics") void SpawnPracticeTooth();
     float AnimationGait=0.f, AnimationSpeed=0.f, AnimationBob=0.f, AnimationPitch=0.f, AnimationBrushAngle=0.f;
+    float AnimationSwim=0,AnimationStroke=0,AnimationSwimEffort=0,AnimationTurn=0,AnimationBrake=0;
     int32 ValidatedSwingCount=0, ConfirmedHitCount=0;
     int32 SuccessfulBrushContacts=0;
 protected:
@@ -142,5 +145,6 @@ private:
     float ContactElapsed=0;
     FVector2D LocalPaddle=FVector2D::ZeroVector;
     float PaddleSendElapsed=0;
+    float PreviousAnimationYaw=0,PreviousAnimationSpeed=0;
     double LastPaddleAt=0;
 };

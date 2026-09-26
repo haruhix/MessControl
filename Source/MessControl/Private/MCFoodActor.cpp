@@ -265,6 +265,10 @@ void AMCFoodActor::Tick(float Dt)
         {
             // A team gains strength sublinearly; mass still changes acceleration and drag speed.
             Body->AddForce(Force/FMath::Sqrt(float(ReadyHolders)));
+            FVector Torque=FVector::ZeroVector;
+            for (const auto& Holder:Holders) if (IsValid(Holder) && Holder->Grip && Holder->Grip->IsReady()) Torque+=Holder->Grip->DriveTorque();
+            if (!Torque.IsNearlyZero(100.f)) Body->WakeAllRigidBodies();
+            Body->AddTorqueInRadians(Torque/FMath::Sqrt(float(ReadyHolders)));
         }
         // An escaped item returns to the arena, never counts as successfully disposed.
         // A placed brush bin owns the horizontal exit. A fixed X cutoff would

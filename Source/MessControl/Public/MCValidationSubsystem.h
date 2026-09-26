@@ -29,6 +29,7 @@ private:
     float TongueRestZ=10000;
     bool bTongueInvalid=false;
     void TickCoffeeWater(float Dt);
+    void TickSwim(float Dt);
     UPROPERTY() TObjectPtr<class ACameraActor> CoffeeCamera;
     FVector CoffeeSwimStart=FVector::ZeroVector;
     bool bCoffeeSampleStarted=false;

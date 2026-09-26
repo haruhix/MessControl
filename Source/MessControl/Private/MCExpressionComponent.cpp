@@ -136,6 +136,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     if (const auto* Entry=ActiveEntry(); Entry && EmoteAlpha()>.01f) { CurrentEmotion=Entry->Emotion; Strength=EmoteAlpha(); }
     else if (Tooth->HeldFood && !Tooth->Grip->InputDirection().IsNearlyZero()) { CurrentEmotion=EMCEmotion::Effort; Strength=FMath::Clamp(Tooth->HeldFood->Settings.Mass/28.f,.25f,1.f); }
     else if (!Tooth->ToothPhysics->CanAct() || Tooth->GetCharacterMovement()->IsFalling()) { CurrentEmotion=EMCEmotion::Surprise; Strength=.75f; }
+    else if (Tooth->AnimationSwim>.5f && Tooth->AnimationSwimEffort>.1f) { CurrentEmotion=EMCEmotion::Effort; Strength=.3f+.5f*Tooth->AnimationSwimEffort; }
     else if (S.Health<S.MaxHealth*.35f) { CurrentEmotion=EMCEmotion::Sad; Strength=.6f; }
     if (Pain>.01f) { CurrentEmotion=EMCEmotion::Pain; Strength=Pain; }
     float J=0,Sml=0,B=0,Tilt=0,Squ=0,Rnd=0;

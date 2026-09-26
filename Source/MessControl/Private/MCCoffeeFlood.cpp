@@ -167,7 +167,7 @@ void AMCCoffeeFlood::Tick(float Dt)
                 if (Hero->ClingTooth) A=((Hero->ClingPoint-P)*35.f-V*8.f+FVector(0,0,Gravity)).GetClampedToMaxSize(2400);
                 Hero->GetMesh()->AddForceToAllBodiesBelow(A,Hero->RigBone(TEXT("body")),true,true);
             }
-            else if (Hero->ToothPhysics->CanAct())
+            else if (Hero->ToothPhysics->CanAct() && !Hero->GetCharacterMovement()->IsSwimming())
             {
                 if (Hero->ClingTooth) { Hero->GetCharacterMovement()->StopMovementImmediately(); Hero->GetCharacterMovement()->AddForce((Hero->ClingPoint-P)*1500.f); }
                 else Hero->GetCharacterMovement()->AddForce(CurrentForce*Hero->GetCharacterMovement()->Mass);

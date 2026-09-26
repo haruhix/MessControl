@@ -1,6 +1,7 @@
 #include "MCDevPanelWidget.h"
 #include "MCTongue.h"
 #include "MCPlayerController.h"
+#include "MCPrototypeWidget.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCFoodActor.h"
@@ -17,6 +18,7 @@
 #include "Components/VerticalBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "Components/ScrollBox.h"
+#include "Components/CheckBox.h"
 #include "Styling/CoreStyle.h"
 #include "EngineUtils.h"
 
@@ -56,6 +58,15 @@ void UMCDevPanelWidget::NativeOnInitialized()
     AddText(Main,TEXT("DEV / ТЕСТ МЕХАНИК"),25)->SetColorAndOpacity(FSlateColor(DevMint));
     AddText(Main,TEXT("F3 / Esc — закрыть. Мир продолжает работать. Команды доступны хосту."),13);
     Status=AddText(Main,TEXT(""),14);
+    PlayerOverlayCheck=WidgetTree->ConstructWidget<UCheckBox>();
+    auto* OverlayLabel=WidgetTree->ConstructWidget<UTextBlock>();
+    OverlayLabel->SetText(FText::FromString(TEXT("Показывать статус игрока и подсказки управления")));
+    OverlayLabel->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),14));
+    OverlayLabel->SetColorAndOpacity(FSlateColor(DevMint));
+    PlayerOverlayCheck->SetContent(OverlayLabel);
+    PlayerOverlayCheck->SetToolTipText(FText::FromString(TEXT("Нижние плашки HP, взаимодействия и клавиш. Только на моём экране.")));
+    PlayerOverlayCheck->OnCheckStateChanged.AddDynamic(this,&UMCDevPanelWidget::PlayerOverlayChanged);
+    Main->AddChildToVerticalBox(PlayerOverlayCheck)->SetPadding(FMargin(0,2,0,12));
     auto* Columns=WidgetTree->ConstructWidget<UHorizontalBox>();
     Main->AddChildToVerticalBox(Columns)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
     auto Column=[&](const TCHAR* Title,const TCHAR* Hint)
@@ -78,6 +89,8 @@ void UMCDevPanelWidget::NativeOnInitialized()
 void UMCDevPanelWidget::RefreshActions()
 {
     if (!Steps || !Actions) return;
+    if (const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()); PC && PC->PrototypeWidget && PlayerOverlayCheck)
+        PlayerOverlayCheck->SetIsChecked(PC->PrototypeWidget->IsPlayerOverlayVisible());
     // Keep the two introduction labels; rebuild so a changed DA needs no widget edits.
     while (Steps->GetChildrenCount()>2) Steps->RemoveChildAt(2);
     while (Actions->GetChildrenCount()>2) Actions->RemoveChildAt(2);
@@ -113,6 +126,11 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Гибель → возрождение за зуб арены"),TEXT("Убивает игрока хоста; обычное возрождение расходует конкретный большой зуб."),EMCDevAction::KillSelf);
     AddAction(Actions,TEXT("Восстановить общее здоровье рта"),TEXT("Язвы и повреждения отдельных зубов сохраняются."),EMCDevAction::RestoreMouth);
     AddAction(Actions,TEXT("Мгновенно убрать кофе — сброс теста"),TEXT("Убирает воду и зацепы. Обычный двухсекундный слив запускается автоматически после наполнения."),EMCDevAction::StopCoffee);
+}
+void UMCDevPanelWidget::PlayerOverlayChanged(bool Checked)
+{
+    if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()); PC && PC->PrototypeWidget)
+        PC->PrototypeWidget->SetPlayerOverlayVisible(Checked);
 }
 void UMCDevPanelWidget::SetFeedback(const FText& Text) { if (Feedback) Feedback->SetText(Text); }
 void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)

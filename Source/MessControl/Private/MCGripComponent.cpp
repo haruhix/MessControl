@@ -12,6 +12,7 @@
 #include "Engine/SkeletalMesh.h"
 #include "Net/UnrealNetwork.h"
 #include "TwoBoneIK.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 void FMCGripSettings::Sanitize()
 {
@@ -23,6 +24,7 @@ void FMCGripSettings::Sanitize()
     PalmLength=C(PalmLength,7,2,12); PalmThickness=C(PalmThickness,2.5f,0,6);
     FrontAngle=C(FrontAngle,55,30,70); RearAngle=C(RearAngle,130,110,160); AngleHysteresis=C(AngleHysteresis,8,2,15);
     DriveForce=C(DriveForce,17000,1000,40000); Spring=C(Spring,750,100,1500); Damping=C(Damping,95,10,250); Lean=C(Lean,10,0,20);
+    TurnRate=C(TurnRate,45,5,90); TurnTorque=C(TurnTorque,900000,0,2000000); TurnDamping=C(TurnDamping,750000,10000,2000000);
 }
 UMCGripComponent::UMCGripComponent()
 {
@@ -65,6 +67,18 @@ FVector UMCGripComponent::CarryLocation() const
     const FVector Shoulders=Tooth->GetActorTransform().TransformPosition((Arms[0].Shoulder+Arms[1].Shoulder)*.5);
     FVector P=Tooth->GetActorLocation()+Tooth->GetActorForwardVector()*(Tooth->GetCapsuleComponent()->GetScaledCapsuleRadius()+Extent.X+8);
     P.Z=FMath::Max(Shoulders.Z,Tooth->GetActorLocation().Z+8);
+    // A contact picked near the floor may sit high on a small item after lifting.
+    // Fit the carry target to those same anchors instead of forcing an unreachable grip.
+    const FTransform VisualLocal=Frame.Food->Visual->GetComponentTransform().GetRelativeTransform(Frame.Food->GetActorTransform());
+    for (int32 Pass=0;Pass<3;++Pass) for (int32 I=0;I<2;++I) if (UsesHand(Frame.Pose,I==0))
+    {
+        const FTransform Target=VisualLocal*FTransform(Tooth->GetActorQuat(),P,Frame.Food->GetActorScale3D());
+        const FVector N=Target.TransformVectorNoScale(I==0?FVector(Frame.LeftNormal):FVector(Frame.RightNormal));
+        const FVector Wrist=Target.TransformPosition(I==0?FVector(Frame.LeftPoint):FVector(Frame.RightPoint))-HandRotation(I,N).RotateVector(Arms[I].PalmLocal);
+        const FVector D=Wrist-ShoulderPoint(I);
+        const float Reach=(Arms[I].UpperLength+Arms[I].LowerLength)*Settings.MaxArmStretch*Settings.DragDistanceScale-2;
+        if (D.Size()>Reach) P-=D.GetSafeNormal()*(D.Size()-Reach);
+    }
     return P;
 }
 void UMCGripComponent::CacheRig()
@@ -156,6 +170,7 @@ bool UMCGripComponent::BeginGrip(AMCFoodActor* Food)
         if (!FindAnchors(Food,Near,NewFrame) && !FindAnchors(Food,Other,NewFrame)) return false;
     }
     NewFrame.Food=Food; NewFrame.StartedAt=Now(); NewFrame.RestOffset=Food->GetActorLocation()-Tooth->GetActorLocation();
+    NewFrame.RelativeYaw=FMath::FindDeltaAngleDegrees(Tooth->GetActorRotation().Yaw,Food->GetActorRotation().Yaw);
     NewFrame.Serial=Frame.Serial+1; Frame=NewFrame; LostContact=0; NextModeAt=Now()+.35;
     Tooth->ForceNetUpdate(); return true;
 }
@@ -189,16 +204,46 @@ FVector UMCGripComponent::InputDirection() const
 }
 FVector UMCGripComponent::DriveForce() const
 {
-    if (!IsReady()) return FVector::ZeroVector;
+    if (!IsReady() || Frame.Food->Phase!=EMCFoodPhase::Free) return FVector::ZeroVector;
     const FVector Error=Tooth->GetActorLocation()+FVector(Frame.RestOffset)-Frame.Food->GetActorLocation();
     // Tension builds over centimetres, not the former metres-long invisible spring.
     const FVector Intent=InputDirection();
     // No motor input means damping only. A rotating contact must not turn the root's
     // old rest offset into a self-propelling spring.
     const float Tension=FMath::Max(0.f,float(FVector::DotProduct(Error,Intent)));
-    FVector Force=Intent*(Settings.DriveForce+Tension*Settings.Spring)-Frame.Food->GetVelocity()*Settings.Damping;
+    // Forces are held over the rigid-body step. Bound this explicit velocity
+    // controller on long frames, keeping the same target speed and normal-frame feel.
+    const float StableDamping=FMath::Min(Settings.Damping,.8f*Frame.Food->Body->GetMass()/FMath::Max(.008f,GetWorld()->GetDeltaSeconds()));
+    FVector Force=(Intent*(Settings.DriveForce+Tension*Settings.Spring)/Settings.Damping-Frame.Food->GetVelocity())*StableDamping;
+    if (StableDamping<Settings.Damping && !Intent.IsNearlyZero())
+        Force+=Intent*FloorFrictionForce()*(1-StableDamping/Settings.Damping);
     Force.Z=FMath::Clamp(Force.Z,-Settings.DriveForce*.15f,Settings.DriveForce*.15f);
     return Force.GetClampedToMaxSize(Settings.DriveForce*1.2f);
+}
+float UMCGripComponent::FloorFrictionForce() const
+{
+    FHitResult Floor; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCGripFloor),false,Frame.Food); Query.AddIgnoredActor(Tooth); Query.bReturnPhysicalMaterial=true;
+    const FVector Center=Frame.Food->Body->GetCenterOfMass();
+    if (!GetWorld()->LineTraceSingleByChannel(Floor,Center,Center-FVector(0,0,Frame.Food->Body->Bounds.BoxExtent.Z+4),ECC_WorldStatic,Query) || Floor.ImpactNormal.Z<=.65f) return 0;
+    const auto* Material=Frame.Food->Body->BodyInstance.GetSimplePhysicalMaterial();
+    const float Friction=(Material->Friction+(Floor.PhysMaterial.IsValid()?Floor.PhysMaterial->Friction:Material->Friction))*.5f;
+    return Frame.Food->Body->GetMass()*FMath::Abs(GetWorld()->GetGravityZ())*Friction;
+}
+FVector UMCGripComponent::DriveTorque() const
+{
+    if (!IsReady() || Frame.Food->Phase!=EMCFoodPhase::Free) return FVector::ZeroVector;
+    const float Error=FMath::FindDeltaAngleDegrees(Frame.Food->GetActorRotation().Yaw,Tooth->GetActorRotation().Yaw+Frame.RelativeYaw);
+    const float Rate=FMath::DegreesToRadians(FMath::Clamp(Error*2.2f,-Settings.TurnRate,Settings.TurnRate));
+    const float Spin=Frame.Food->Body->GetPhysicsAngularVelocityInRadians().Z;
+    const float Strength=UsesHand(Frame.Pose,true) && UsesHand(Frame.Pose,false)?1.f:.85f;
+    const FVector LocalAxis=Frame.Food->Body->GetComponentQuat().UnrotateVector(FVector::UpVector);
+    const FVector Inertia=Frame.Food->Body->GetInertiaTensor();
+    const float AxialInertia=Inertia.X*LocalAxis.X*LocalAxis.X+Inertia.Y*LocalAxis.Y*LocalAxis.Y+Inertia.Z*LocalAxis.Z*LocalAxis.Z;
+    // Bound the velocity servo by the real inertia and frame step so light food
+    // cannot oscillate as the stronger motor overcomes surface friction.
+    const float Gain=FMath::Min(Settings.TurnDamping,.8f*AxialInertia/FMath::Max(.008f,GetWorld()->GetDeltaSeconds()));
+    const float FloorResistance=FloorFrictionForce()*Frame.Food->Body->GetScaledBoxExtent().Size2D()*FMath::Clamp(Error/6.f,-1.f,1.f);
+    return FVector(0,0,FMath::Clamp((Rate-Spin)*Gain+FloorResistance,-Settings.TurnTorque,Settings.TurnTorque)*Strength);
 }
 void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction)
 {
@@ -267,7 +312,8 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         if (!Tooth->ToothPhysics->CanAct()) HandAlpha[I]=0;
     }
     const bool Emote=Tooth->Expression && Tooth->Expression->BodyAlpha()>.001f;
-    Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote,HandAlpha[1]>.001f || Emote);
+    const bool Swimming=Tooth->AnimationSwim>.05f;
+    Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote || Swimming,HandAlpha[1]>.001f || Emote || Swimming);
 }
 void UMCGripComponent::ConstrainMovement(float Dt,FVector OldLocation,FVector OldVelocity)
 {

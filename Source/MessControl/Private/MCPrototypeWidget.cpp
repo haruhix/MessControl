@@ -68,6 +68,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     HealthBar = WidgetTree->ConstructWidget<UProgressBar>(); HealthBar->SetFillColorAndOpacity(Mint); HealthBar->SetPercent(1); Health->AddChildToVerticalBox(HealthBar)->SetPadding(FMargin(0,8));
     TimeLabel = AddText(Health,TEXT("SHIFT STARTS IN 08"),19,Mint);
     UBorder* CareBorder; auto* Care=Panel(FVector2D(0,-110),FVector2D(790,110),FAnchors(.5f,1),FVector2D(.5f,1),CareBorder);
+    CarePanel=CareBorder;
     PlayerStatusLabel=AddText(Care,TEXT(""),14,Cream);
     ContactLabel=AddText(Care,TEXT(""),14,Mint);
     ContactBar=WidgetTree->ConstructWidget<UProgressBar>(); ContactBar->SetFillColorAndOpacity(Mint); Care->AddChildToVerticalBox(ContactBar);
@@ -75,6 +76,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     ProgressStyle.BackgroundImage.TintColor=FSlateColor(FLinearColor(.018f,.035f,.04f));
     ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
+    ControlsPanel=FooterBorder; SetPlayerOverlayVisible(bPlayerOverlayVisible);
     AddText(Footer,TEXT("WASD  MOVE    SPACE  HOP    HOLD LMB  INTERACT    Q  THROW    RMB  BONK"),15,Cream);
 #if !UE_BUILD_SHIPPING
     AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
@@ -153,6 +155,13 @@ void UMCPrototypeWidget::NativeOnInitialized()
     Button(Connection,TEXT("JOIN FRIEND"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::JoinClicked);
     AddText(Connection,TEXT("LAN or reachable host IP. Internet play needs UDP 7777 forwarding or a VPN. F2 / Esc closes this panel."),12,Cream);
     ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed);
+}
+void UMCPrototypeWidget::SetPlayerOverlayVisible(bool Visible)
+{
+    bPlayerOverlayVisible=Visible;
+    const auto PanelVisibility=Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed;
+    if (CarePanel) CarePanel->SetVisibility(PanelVisibility);
+    if (ControlsPanel) ControlsPanel->SetVisibility(PanelVisibility);
 }
 void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {

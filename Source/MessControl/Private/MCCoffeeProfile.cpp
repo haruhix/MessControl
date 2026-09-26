@@ -7,6 +7,8 @@ void FMCCoffeeWaterSettings::Sanitize()
     DryHeight=Safe(DryHeight,-18,-1000,100);
     FloatDepth=Safe(FloatDepth,20,0,55); BuoyancyStiffness=Safe(BuoyancyStiffness,18,5,35);
     VerticalDamping=Safe(VerticalDamping,5.2f,1,12); WaterDrag=Safe(WaterDrag,1.8f,.5f,6);
+    SwimStrokeMultiplier=Safe(SwimStrokeMultiplier,3.f,1.f,5.f);
+    SwimFloatDepth=Safe(SwimFloatDepth,-5.f,-20.f,25.f);
     FillSeconds=Safe(FillSeconds,4,1,15); DrainSeconds=Safe(DrainSeconds,2,.5f,10); Cycles=FMath::Clamp(Cycles,1,4);
     if (Inlet.ContainsNaN()) Inlet=FVector(420,-100,1100);
     Inlet=Inlet.BoundToBox(FVector(-2500,-1500,300),FVector(2500,1500,1800));

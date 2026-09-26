@@ -20,6 +20,9 @@ struct FMCCoffeeWaterSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Swimming") float BuoyancyStiffness=18;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Swimming") float VerticalDamping=5.2f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Swimming") float WaterDrag=1.8f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Swimming") float SwimStrokeMultiplier=3.f;
+    // Capsule draft for a conscious swimmer; keep the eyes above the liquid.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Swimming") float SwimFloatDepth=-5.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour", meta=(ClampMin="1",ClampMax="15")) float FillSeconds=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour", meta=(ClampMin="0.5",ClampMax="10")) float DrainSeconds=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour", meta=(ClampMin="1",ClampMax="4")) int32 Cycles=1;

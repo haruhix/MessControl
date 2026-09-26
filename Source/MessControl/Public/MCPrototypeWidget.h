@@ -21,6 +21,8 @@ public:
     bool IsPanelOpen() const;
     bool IsTuningOpen() const;
     void ScrollToPhysics();
+    void SetPlayerOverlayVisible(bool Visible);
+    bool IsPlayerOverlayVisible() const { return bPlayerOverlayVisible; }
 protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
@@ -59,6 +61,8 @@ private:
     UPROPERTY() TObjectPtr<UProgressBar> HealthBar;
     UPROPERTY() TObjectPtr<UBorder> TuningPanel;
     UPROPERTY() TObjectPtr<UBorder> ConnectionPanel;
+    UPROPERTY() TObjectPtr<UBorder> CarePanel;
+    UPROPERTY() TObjectPtr<UBorder> ControlsPanel;
     UPROPERTY() TObjectPtr<UEditableTextBox> AddressBox;
     UPROPERTY() TArray<TObjectPtr<USlider>> Sliders;
     UPROPERTY() TArray<TObjectPtr<UTextBlock>> SliderLabels;
@@ -73,4 +77,5 @@ private:
     int32 LastDay = -1;
     int32 LastPhase = -1;
     bool bRefreshing = false;
+    bool bPlayerOverlayVisible = false;
 };

@@ -38,7 +38,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     const FString Folder=FPaths::ProjectSavedDir()/TEXT("GripFrames");
     auto Finish=[&]()
     {
-        const bool Pass=DevSeen==65535 && !bTongueInvalid;
+        const bool Pass=DevSeen==131071 && !bTongueInvalid;
         if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(Folder/TEXT("times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GRIP net=%d seen=%d error=%.2f ready=%.1f/%.1f/%.1f/%.1f invalid=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,GripWorstError,GripReadySeconds[0],GripReadySeconds[1],GripReadySeconds[2],GripReadySeconds[3],bTongueInvalid);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
@@ -48,7 +48,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     Heroes.Sort([](const AMCToothCharacter& A,const AMCToothCharacter& B){return A.GetPlayerState()->GetPlayerId()<B.GetPlayerState()->GetPlayerId();});
     if (Heroes.Num()<4)
     {
-        if (DevStartedAt>=0 && GS->GetServerWorldTimeSeconds()-DevStartedAt>22) Finish();
+        if (DevStartedAt>=0 && GS->GetServerWorldTimeSeconds()-DevStartedAt>(Host?27:22)) Finish();
         else if (Age>70) Finish();
         return;
     }
@@ -131,10 +131,11 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     if (T>2 && GripStarts[0].IsNearlyZero()) for (int32 I=0;I<4;++I) GripStarts[I]=Food[I]->GetActorLocation();
     // Test teleports rotate authority; owning character rotation is normally driven by local movement.
     if (!Host && T>1 && T<3) for (auto* Hero:Heroes) if (Hero->IsLocallyControlled()) Hero->SetActorRotation(FRotator::ZeroRotator);
-    // The longer grip can walk farther before tension stops the hero. Keep this
-    // contact test inside the arena; falling into the throat is tested separately.
-    if (T>4 && T<5.2f)
-        for (int32 I=0;I<4;++I) if (Heroes[I]->IsLocallyControlled()) Heroes[I]->AddMovementInput(FVector(I==0 || I==2?-1:1,0,0),.35f);
+    // Allow the lift and its replicated pose to settle even during slow captures.
+    // Stop by distance so the test remains inside the arena at every frame rate.
+    if (T>5 && T<9)
+        for (int32 I=0;I<4;++I) if (Heroes[I]->IsLocallyControlled() && FVector::Dist2D(GripStarts[I],Food[I]->GetActorLocation())<110)
+            Heroes[I]->AddMovementInput(FVector(I==0 || I==2?-1:1,0,0),.35f);
     if (Host && DevStage==3 && T>12)
     {
         for (int32 I=0;I<4;++I) { Food[I]->Release(Heroes[I]); Heroes[I]->bHandling=false; Heroes[I]->ForceNetUpdate(); }
@@ -146,14 +147,21 @@ void UMCValidationSubsystem::TickGrip(float Dt)
         FHitResult Floor; Tongue->SurfacePoint(Food[1]->GetActorLocation(),Floor);
         Food[1]->Body->SetPhysicsLinearVelocity(FVector::ZeroVector); Food[1]->Body->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
         Food[1]->SetActorLocationAndRotation(Floor.ImpactPoint+FVector(0,0,51),FRotator::ZeroRotator,false,nullptr,ETeleportType::TeleportPhysics); Food[1]->ForceNetUpdate();
-        Place(Heroes[1],Food[1]->GetActorLocation()+FVector(-86,0,0),0); Heroes[1]->bHandling=true;
+        Place(Heroes[1],Food[1]->GetActorLocation()+FVector(-86,0,0),0);
+        ++DevStage;
+    }
+    // As for the initial grip, let the teleport reach the owner before regripping.
+    if (Host && DevStage==5 && T>16)
+    {
+        Heroes[1]->bHandling=true;
         if (!Food[1]->TryGrab(Heroes[1])) { bTongueInvalid=true; UE_LOG(LogTemp,Display,TEXT("MC_GRIP_REGRAB_FAIL %s"),*Heroes[1]->Grip->DebugFailure); }
         ++DevStage;
     }
-    if (T>15 && T<17 && Heroes[1]->Grip->IsReady() && Heroes[1]->HeldFood==Food[1]) DevSeen|=32768;
-    if (Host && DevStage==5 && T>17)
+    if (T>16 && T<18 && Heroes[1]->Grip->IsReady() && Heroes[1]->HeldFood==Food[1]) DevSeen|=32768;
+    if (Host && DevStage==6 && T>18)
     { Heroes[1]->ToothPhysics->ApplyHit(FVector(0,0,450),Heroes[1]->GetActorLocation()); ++DevStage; }
     const EMCGripPose Expected[]={EMCGripPose::FrontPull,EMCGripPose::Push,EMCGripPose::Carry,EMCGripPose::RearPull};
+    if(T>4 && T<12 && Heroes[0]->HeldFood==Food[0] && Food[0]->Phase==EMCFoodPhase::Free && FMath::Abs(Food[0]->GetActorRotation().Yaw)>10)DevSeen|=65536;
     if (T>2 && T<12) for (int32 I=0;I<4;++I)
     {
         auto* Grip=Heroes[I]->Grip.Get();
@@ -164,7 +172,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
             if (Grip->Frame.Pose==Expected[I]) DevSeen|=1<<(I+4);
             if (FVector::Dist2D(GripStarts[I],Food[I]->GetActorLocation())>60) DevSeen|=1<<(I+8);
         }
-        if (Grip->IsReady() && Grip->Blend()>.99f && Grip->Frame.Food && T>3.3f && T<4)
+        if (Grip->IsReady() && Grip->Blend()>.99f && Grip->Frame.Food && T>4.3f && T<5)
         {
             GripWorstError=FMath::Max(GripWorstError,Grip->ContactError());
             // A delayed transform can briefly precede its matching pose on a client.

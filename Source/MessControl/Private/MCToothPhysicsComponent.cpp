@@ -1,4 +1,6 @@
 #include "MCToothPhysicsComponent.h"
+#include "MCToothMovementComponent.h"
+#include "MCCoffeeFlood.h"
 #include "MCGazeComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -153,19 +155,21 @@ void UMCToothPhysicsComponent::CaptureFrame()
 }
 bool UMCToothPhysicsComponent::TryRecover()
 {
-    if (!Tooth || !Tooth->Status->IsAlive() || Tooth->bInCoffee || !Tooth->HasAuthority() || LocalState!=EMCBodyState::Ragdoll) return false;
+    if (!Tooth || !Tooth->Status->IsAlive() || !Tooth->HasAuthority() || LocalState!=EMCBodyState::Ragdoll) return false;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCGetUp),false,Tooth);
     FHitResult Floor; const FVector Center=PhysicalLocation();
-    if (!GetWorld()->LineTraceSingleByChannel(Floor,Center+FVector(0,0,60),Center-FVector(0,0,350),ECC_WorldStatic,Params) || Floor.ImpactNormal.Z<0.65f) return false;
+    auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
+    auto* Water=Movement?Movement->DeepWaterAt(Center,true):nullptr;
+    if (!Water && (!GetWorld()->LineTraceSingleByChannel(Floor,Center+FVector(0,0,60),Center-FVector(0,0,350),ECC_WorldStatic,Params) || Floor.ImpactNormal.Z<0.65f)) return false;
     const float Half=Tooth->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-    FVector Destination=Floor.ImpactPoint+FVector(0,0,Half+3.f);
+    FVector Destination=Water?FVector(Center.X,Center.Y,Water->SurfaceHeightAt(Center)-Water->WaterSettings.SwimFloatDepth):Floor.ImpactPoint+FVector(0,0,Half+3.f);
     bool bClear=false;
     // Try nearby grounded space, never restore the capsule through a wall or another player.
     for (const FVector Offset:{FVector::ZeroVector,FVector(80,0,0),FVector(-80,0,0),FVector(0,80,0),FVector(0,-80,0)})
     {
         const FVector Candidate=Destination+Offset;
         FHitResult Support;
-        if (!GetWorld()->LineTraceSingleByChannel(Support,Candidate,Candidate-FVector(0,0,Half+12),ECC_WorldStatic,Params) || Support.ImpactNormal.Z<0.65f) continue;
+        if (!Water && (!GetWorld()->LineTraceSingleByChannel(Support,Candidate,Candidate-FVector(0,0,Half+12),ECC_WorldStatic,Params) || Support.ImpactNormal.Z<0.65f)) continue;
         if (!GetWorld()->OverlapBlockingTestByProfile(Candidate,FQuat::Identity,TEXT("Pawn"),FCollisionShape::MakeCapsule(34,Half),Params))
         { Destination=Candidate; bClear=true; break; }
     }
@@ -206,7 +210,8 @@ void UMCToothPhysicsComponent::EnterStanding()
     Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,false);
     Mesh->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(TEXT("body")),1.f,false,false);
     bGripLeft=bGripRight=false; SetMuscles(true); DisplayPose.Reset();
-    Tooth->GetCharacterMovement()->SetMovementMode(MOVE_Walking); Tooth->SetReplicateMovement(true);
+    auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
+    Tooth->GetCharacterMovement()->SetMovementMode(Movement && Movement->DeepWaterAt(Tooth->GetActorLocation(),true)?MOVE_Swimming:MOVE_Walking); Tooth->SetReplicateMovement(true);
     RecoveryInvulnerableUntil=ServerTime()+0.6f;
 }
 void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
@@ -260,7 +265,7 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
             SendAccumulator+=Dt;
             if (SendAccumulator>=0.05f) { SendAccumulator=0; CaptureFrame(); Tooth->ForceNetUpdate(); }
             const float Age=ServerTime()-FMath::Max(Frame.StateStartedAt,LastHitTime);
-            if (Age>=Settings.RagdollSeconds && (Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160 || Age>Settings.RagdollSeconds+3)) TryRecover();
+            if (Age>=Settings.RagdollSeconds && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160 || Age>Settings.RagdollSeconds+3)) TryRecover();
             // Falling out of the mouth is a real death, using the same reserve as impact deaths.
             if (Center.Z<-250)
             {

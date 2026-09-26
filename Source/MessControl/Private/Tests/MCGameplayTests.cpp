@@ -32,6 +32,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerStart.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCToothMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "PhysicsEngine/PhysicsAsset.h"
@@ -718,6 +719,8 @@ bool FMCCoffeeWaterTest::RunTest(const FString& Parameters)
     for (int32 I=0;I<45;++I) Tick();
     A->ToothPhysics->ApplyHit(FVector(0,0,450),A->GetActorLocation());
     B->ToothPhysics->ApplyHit(FVector(0,0,450),B->GetActorLocation());
+    // Isolate unconscious buoyancy; the controlled-swimming test covers automatic recovery.
+    A->ToothPhysics->Settings.RagdollSeconds=10; B->ToothPhysics->Settings.RagdollSeconds=10;
     auto* Plan=NewObject<UMCDayPlan>(); Plan->FlowAcceleration=0; Plan->FloodHeight=160; Plan->WaveCount=1;
     auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
     for (int32 I=0;I<180;++I)
@@ -730,8 +733,8 @@ bool FMCCoffeeWaterTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Left paddle moves real ragdoll left"),PA.Y<-50);
     TestTrue(TEXT("Right paddle moves real ragdoll right"),PB.Y>50);
     TestTrue(TEXT("Both ragdolls stay at water surface"),FMath::Abs(PA.Z-Flood->SurfaceHeightAt(PA))<65 && FMath::Abs(PB.Z-Flood->SurfaceHeightAt(PB))<65);
-    TestTrue(TEXT("Swimming keeps bodies in ragdoll"),A->bInCoffee && B->bInCoffee && A->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll && B->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll);
-    TestFalse(TEXT("Cannot stand up in water"),A->ToothPhysics->TryRecover());
+    TestTrue(TEXT("Unconscious bodies remain buoyant"),A->bInCoffee && B->bInCoffee && A->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll && B->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll);
+    TestTrue(TEXT("Can recover into swimming while water is still present"),A->ToothPhysics->TryRecover());
     Flood->Stop(); TestFalse(TEXT("Draining clears water state"),A->bInCoffee || B->bInCoffee);
     UE_LOG(LogTemp,Display,TEXT("MC_WATER_TEST left=%s right=%s"),*PA.ToString(),*PB.ToString());
     return true;
@@ -911,6 +914,14 @@ bool FMCPrimaryCarryTest::RunTest(const FString&)
     TestTrue(*FString::Printf(TEXT("Primary action lifts a small item: %s"),*Hero->Grip->DebugFailure),Hero->HeldFood==Food && Food->Phase==EMCFoodPhase::Carried);
     TestTrue(*FString::Printf(TEXT("Carried food lifts clear of the floor: z=%.1f"),Food->GetActorLocation().Z),Food->GetActorLocation().Z>45);
     TestFalse(TEXT("Carried food does not simulate separately from its holder"),Food->Body->IsSimulatingPhysics());
+    bool ContinuousCarry=true;
+    const int32 CarrySerial=Hero->Grip->Frame.Serial;
+    for (int32 I=0;I<120;++I)
+    {
+        Mouth.Step(1.f/30);
+        ContinuousCarry&=Hero->HeldFood==Food && Food->Phase==EMCFoodPhase::Carried && Hero->Grip->Frame.Serial==CarrySerial;
+    }
+    TestTrue(TEXT("Lifted floor contacts stay reachable without dropping and regrabbing"),ContinuousCarry);
     for (int32 I=0;I<45;++I) { Hero->AddMovementInput(FVector::RightVector); Mouth.Step(1.f/60); }
     TestTrue(TEXT("Movement turns the carrying hero"),FVector::DotProduct(Hero->GetActorForwardVector(),FVector::RightVector)>.8f);
     TestTrue(TEXT("Food follows the turn and stays in the hands"),Hero->HeldFood==Food && FVector::Dist(Food->GetActorLocation(),Hero->Grip->CarryLocation())<40);
@@ -1036,6 +1047,55 @@ bool FMCPupilResponseTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSurfaceSwimTest,"MessControl.Coffee.ControlledSwimming",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSurfaceSwimTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=Mouth.World->SpawnActor<AActor>();auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box);Box->SetBoxExtent(FVector(2000,2000,10));Box->SetCollisionProfileName(TEXT("BlockAll"));Box->RegisterComponent();Floor->SetActorLocation(FVector(0,0,-10));
+    auto* Water=Mouth.World->SpawnActor<AMCCoffeeFlood>();Water->bActive=true;Water->Height=200;Water->Seconds=1000;Water->HalfSize=FVector(1900,1900,500);
+    Water->WaterSettings=FMCCoffeeWaterSettings();Water->WaterSettings.FillSeconds=15;Water->WaterSettings.DrainSeconds=10;Water->WaterSettings.RippleHeight=0;Water->WaterSettings.DrainPoint=FVector(1500,0,0);
+    auto* H=Mouth.Worker();H->SetActorLocation(FVector(-300,0,180));auto* Move=CastChecked<UMCToothMovementComponent>(H->GetCharacterMovement());Move->bRunPhysicsWithNoController=true;Move->SetMovementMode(MOVE_Falling);
+    auto Step=[&](float Seconds,FVector Input=FVector::ZeroVector)
+    {for(int32 I=0;I<FMath::CeilToInt(Seconds*60);++I){Water->StartedAt=Mouth.World->GetTimeSeconds()-15.3;H->AddMovementInput(Input);Mouth.Step(1.f/60);}};
+    Step(1);
+    TestTrue(TEXT("Deep water starts controlled swimming"),Move->IsSwimming() && H->ToothPhysics->CanAct());
+    TestTrue(TEXT("Idle swimmer floats near the surface"),FMath::Abs(H->GetActorLocation().Z-(Water->SurfaceHeightAt(H->GetActorLocation())-Water->WaterSettings.SwimFloatDepth))<12);
+    TestTrue(TEXT("Idle swimmer drifts towards the throat"),H->GetActorLocation().X>-270);
+    const float Before=H->GetActorLocation().X;Step(2.5f,FVector(-1,0,0));
+    TestTrue(*FString::Printf(TEXT("Paddling makes progress against the drain: %.1f cm"),Before-H->GetActorLocation().X),H->GetActorLocation().X<Before-50);
+    TestTrue(TEXT("Swimming pose and effort are active"),H->AnimationSwim>.95f && H->AnimationSwimEffort>.8f);
+    auto* Wall=Mouth.World->SpawnActor<AActor>();auto* Block=NewObject<UBoxComponent>(Wall);Wall->SetRootComponent(Block);Block->SetBoxExtent(FVector(10,500,400));Block->SetCollisionProfileName(TEXT("BlockAll"));Block->RegisterComponent();
+    const float WallX=H->GetActorLocation().X-120;Wall->SetActorLocation(FVector(WallX,0,200));Step(1.3f,FVector(-1,0,0));
+    TestTrue(TEXT("Swimming sweeps the capsule against obstacles"),H->GetActorLocation().X>WallX+30);Wall->Destroy();
+    H->ToothPhysics->ApplyHit(FVector(0,0,450),H->GetActorLocation());
+    TestTrue(TEXT("A stunned swimmer can recover without waiting for dry ground"),H->ToothPhysics->TryRecover());Step(1.2f);
+    TestTrue(TEXT("Recovery restores swimming control"),H->ToothPhysics->CanAct() && Move->IsSwimming());
+    Water->Stop();Mouth.Step(1.5f);
+    TestTrue(TEXT("Draining water restores grounded movement"),Move->IsMovingOnGround() && H->AnimationSwim<.02f);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGripTurnTest,"MessControl.Grip.PhysicalTurning",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCGripTurnTest::RunTest(const FString&)
+{
+    for (int32 FPS:{5,10,30,60})
+    {
+    FTestMouth Mouth;Mouth.Mode->SetActorTickEnabled(false);Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=Mouth.World->SpawnActor<AActor>();auto* Box=NewObject<UBoxComponent>(Floor);Floor->SetRootComponent(Box);Box->SetBoxExtent(FVector(1000,1000,10));Box->SetCollisionProfileName(TEXT("BlockAll"));Box->RegisterComponent();Floor->SetActorLocation(FVector(0,0,-10));
+    auto* Food=Mouth.GripCube();Food->Body->SetEnableGravity(true);Food->SetActorLocation(FVector(0,0,51));
+    auto* H=Mouth.Worker();H->SetActorLocation(FVector(-86,0,61));H->SetActorRotation(FRotator::ZeroRotator);H->GetCharacterMovement()->bRunPhysicsWithNoController=true;H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);Mouth.Step(.8f);H->bHandling=true;
+    if(!TestTrue(TEXT("Acquire turning fixture"),Food->TryGrab(H)))return false;Mouth.Step(.65f);
+    const float Start=Food->GetActorRotation().Yaw;float PeakTorque=0;
+    for(int32 I=0;I<FPS*2;++I)
+    {H->SetActorRotation(FRotator(0,FMath::Min(40.f,I*30.f/FPS),0));++GFrameCounter;Mouth.World->Tick(LEVELTICK_All,1.f/FPS);PeakTorque=FMath::Max(PeakTorque,float(H->Grip->DriveTorque().Size()));}
+    const float Turn=FMath::FindDeltaAngleDegrees(Start,Food->GetActorRotation().Yaw);
+    TestTrue(*FString::Printf(TEXT("Turning at %d FPS uses Chaos torque: %.1f degrees, torque %.0f, spin %.2f, mass %.1f"),FPS,Turn,PeakTorque,Food->Body->GetPhysicsAngularVelocityInRadians().Z,Food->Body->GetMass()),Turn>8 && Turn<80 && Food->Body->IsSimulatingPhysics());
+    TestTrue(TEXT("Turning retains the grip"),H->HeldFood==Food && H->Grip->IsReady());
+    TestTrue(TEXT("Turning force is bounded"),PeakTorque>1000 && PeakTorque<=H->Grip->Settings.TurnTorque+1);
+    Food->Release(H);TestTrue(TEXT("Release stops the turning motor"),H->Grip->DriveTorque().IsNearlyZero());
+    }
+    return true;
+}
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGripModesTest,"MessControl.Grip.AnglesAndBounds",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCGripModesTest::RunTest(const FString&)
 {

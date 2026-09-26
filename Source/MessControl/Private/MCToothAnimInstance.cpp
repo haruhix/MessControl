@@ -20,7 +20,7 @@ public:
     bool FootPlanted[2]={false,false};
     void PlaceFeet(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
     {
-        if (!Tooth->ToothPhysics->CanAct() || Tooth->GetCharacterMovement()->IsFalling() || Tooth->bPreviewAnimation
+        if (!Tooth->ToothPhysics->CanAct() || Tooth->GetCharacterMovement()->IsFalling() || Tooth->AnimationSwim>.05f || Tooth->bPreviewAnimation
             || (Tooth->Expression && Tooth->Expression->BodyAlpha()>.01f)) { FootPlanted[0]=FootPlanted[1]=false; return; }
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
         TArray<FTransform> CS; CS.SetNum(Pose.Num());
@@ -84,7 +84,7 @@ public:
         };
         const auto& A=Tooth->AnimationSettings; const float G=Tooth->AnimationGait;
         const float Speed=Tooth->AnimationSpeed;
-        Rotate(TEXT("body"),FRotator(Tooth->AnimationPitch,0,FMath::Sin(G)*Speed*A.Lean*0.35f));
+        Rotate(TEXT("body"),FRotator(Tooth->AnimationPitch-Tooth->AnimationBrake*7,Tooth->AnimationTurn*-5,FMath::Sin(G)*Speed*A.Lean*0.35f-Tooth->AnimationTurn*6));
         Translate(TEXT("body"),FVector(0,0,Tooth->AnimationBob));
         Rotate(TEXT("leg_l"),FRotator(FMath::Sin(G)*28*Speed,0,0));
         Rotate(TEXT("leg_r"),FRotator(-FMath::Sin(G)*28*Speed,0,0));
@@ -96,6 +96,26 @@ public:
         // Stay inside the shoulder/wrist stops even at the strongest F1 preset.
         Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle+FMath::Sin(G-0.25f)*18*Speed,-50.f,50.f),0,10));
         Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle*0.3f,-35.f,35.f),0,0));
+        // Blend a readable dog-paddle over locomotion; contact IK still owns a held hand.
+        if (Tooth->AnimationSwim>.001f)
+        {
+            const TArray<FTransform> Ground=Pose; Pose=Ref.GetRefBonePose();
+            const float Phase=Tooth->AnimationStroke,Effort=Tooth->AnimationSwimEffort;
+            Rotate(TEXT("body"),FRotator(-12-24*Effort,0,FMath::Sin(Phase)*3));
+            Rotate(TEXT("gaze_head"),FRotator(8+18*Effort,0,0));
+            for (int32 Side=0;Side<2;++Side)
+            {
+                const FString S=Side==0?TEXT("_l"):TEXT("_r"); const float Sign=Side==0?-1.f:1.f;
+                const float Stroke=FMath::Sin(Phase+Side*PI),Lift=FMath::Cos(Phase+Side*PI);
+                Rotate(FName(*(TEXT("arm")+S)),FRotator(-12+Stroke*(18+22*Effort),0,Sign*(22+Lift*12)));
+                Rotate(FName(*(TEXT("forearm")+S)),FRotator(-15-FMath::Max(0.f,-Stroke)*25,0,0));
+                Rotate(FName(*(TEXT("hand")+S)),FRotator(Lift*14,0,0));
+                Rotate(FName(*(TEXT("leg")+S)),FRotator(12-Stroke*(12+16*Effort),0,Sign*5));
+                Rotate(FName(*(TEXT("knee")+S)),FRotator(-15-FMath::Max(0.f,Stroke)*20,0,0));
+                Rotate(FName(*(TEXT("foot")+S)),FRotator(15+Lift*10,0,0));
+            }
+            for (int32 I=0;I<Pose.Num();++I) { FTransform Blended; Blended.Blend(Ground[I],Pose[I],Tooth->AnimationSwim); Pose[I]=Blended; }
+        }
         if (Tooth->Expression) Tooth->Expression->BuildBodyPose(Pose,Ref);
         if (Tooth->Grip) Tooth->Grip->BuildPose(Pose,Ref,Dt);
         PlaceFeet(Tooth,Ref,Dt);

@@ -7,6 +7,7 @@
 class AMCPlayerController;
 class UTextBlock;
 class UVerticalBox;
+class UCheckBox;
 
 // Each button carries a typed action; no console strings or arbitrary commands.
 UCLASS()
@@ -37,6 +38,8 @@ private:
     UTextBlock* AddText(UVerticalBox* Box,const FString& Text,int32 Size);
     void AddAction(UVerticalBox* Box,const FString& Text,const FString& Hint,EMCDevAction Action,int32 Step=INDEX_NONE);
     UFUNCTION() void CloseClicked();
+    UFUNCTION() void PlayerOverlayChanged(bool Checked);
+    UPROPERTY() TObjectPtr<UCheckBox> PlayerOverlayCheck;
     UPROPERTY() TObjectPtr<UVerticalBox> Steps;
     UPROPERTY() TObjectPtr<UVerticalBox> Actions;
     UPROPERTY() TObjectPtr<UTextBlock> Status;

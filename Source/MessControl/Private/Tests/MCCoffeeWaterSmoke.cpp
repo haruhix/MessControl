@@ -99,12 +99,13 @@ void UMCValidationSubsystem::TickCoffeeWater(float Dt)
             {
                 H->LocalPaddle=Slot==1?FVector2D(0,1):Slot==2?FVector2D(0,-1):FVector2D(-1,0);
                 H->ServerPaddle(H->LocalPaddle);
+                if (H->GetCharacterMovement()->IsSwimming()) H->AddMovementInput(FVector(H->LocalPaddle.X,H->LocalPaddle.Y,0));
             }
         }
         if (Flood->Profile && Flood->IsActive()) DevSeen|=1;
         if (Heroes[0]->ClingTooth) DevSeen|=2;
         const FVector P=Heroes[1]->ToothPhysics->PhysicalLocation();
-        if (Heroes[1]->bInCoffee && Heroes[1]->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll)
+        if (Heroes[1]->bInCoffee && (Heroes[1]->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll || Heroes[1]->GetCharacterMovement()->IsSwimming()))
         {
             DevSeen|=4;
             if (Flood->Level>Flood->Height*.85f && FMath::Abs(P.Z-Flood->SurfaceHeightAt(P))<70) DevSeen|=8;

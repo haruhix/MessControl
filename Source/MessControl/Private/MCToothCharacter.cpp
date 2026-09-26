@@ -10,6 +10,7 @@
 #include "MCGameState.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothAnimInstance.h"
+#include "MCToothMovementComponent.h"
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
 #include "MCExpressionComponent.h"
@@ -31,7 +32,8 @@
 #include "Misc/ConfigCacheIni.h"
 #include "UObject/ConstructorHelpers.h"
 
-AMCToothCharacter::AMCToothCharacter()
+AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer)
+    :Super(ObjectInitializer.SetDefaultSubobjectClass<UMCToothMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
     PrimaryActorTick.bCanEverTick = true;
     bReplicates = true;
@@ -327,6 +329,18 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     if (IsLocallyControlled() && bInCoffee)
     { PaddleSendElapsed+=DeltaSeconds; if (PaddleSendElapsed>=.05f) { ServerPaddle(LocalPaddle); PaddleSendElapsed=0; } }
     GetCharacterMovement()->MaxWalkSpeed=ClingTooth?0:HeldFood?HeldFood->DragSpeed():440.f;
+    const bool Swimming=GetCharacterMovement()->IsSwimming();
+    GetCharacterMovement()->RotationRate.Yaw=Swimming?180:HeldFood && HeldFood->Phase!=EMCFoodPhase::Carried?110:650;
+    const FVector StrokeIntent=GetCharacterMovement()->GetCurrentAcceleration().GetClampedToMaxSize(GetCharacterMovement()->GetMaxAcceleration())/FMath::Max(1.f,GetCharacterMovement()->GetMaxAcceleration());
+    if (HasAuthority()) SwimIntent=Swimming?StrokeIntent:FVector::ZeroVector;
+    AnimationSwim=FMath::FInterpTo(AnimationSwim,Swimming?1.f:0.f,DeltaSeconds,7.f);
+    AnimationSwimEffort=FMath::FInterpTo(AnimationSwimEffort,ClingTooth?0.f:float((IsLocallyControlled()?StrokeIntent:FVector(SwimIntent)).Size2D()),DeltaSeconds,6.f);
+    AnimationStroke=FMath::Fmod(AnimationStroke+DeltaSeconds*(3.5f+AnimationSwimEffort*5.f)*AnimationSwim,2*PI);
+    const float Turn=FMath::Clamp(FMath::FindDeltaAngleDegrees(PreviousAnimationYaw,GetActorRotation().Yaw)/FMath::Max(DeltaSeconds,.001f)/180.f,-1.f,1.f);
+    AnimationTurn=FMath::FInterpTo(AnimationTurn,Turn,DeltaSeconds,8.f); PreviousAnimationYaw=GetActorRotation().Yaw;
+    const float GroundSpeed=GetVelocity().Size2D();
+    AnimationBrake=FMath::FInterpTo(AnimationBrake,FMath::Clamp((PreviousAnimationSpeed-GroundSpeed)/FMath::Max(DeltaSeconds,.001f)/1600.f,0.f,1.f),DeltaSeconds,9.f);
+    PreviousAnimationSpeed=GroundSpeed;
     Brush->SetVisibility(HasBrush() && !HeldFood && (!Grip || Grip->Blend()<.05f) && (!Expression || Expression->BodyAlpha()<.01f));
     if (StatusMaterial)
     {
@@ -339,7 +353,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const auto& A = AnimationSettings;
     const float Time = GetWorld()->GetTimeSeconds();
     const float PreviewTime = FMath::Fmod(Time,8.f);
-    const float TargetSpeed = bPreviewAnimation ? (PreviewTime<3.f ? 0.8f : 0.f) : FMath::Clamp(GetVelocity().Size2D()/440.f, 0.f, 1.f);
+    const float TargetSpeed = bPreviewAnimation ? (PreviewTime<3.f ? 0.8f : 0.f) : FMath::Clamp(GetVelocity().Size2D()/440.f, 0.f, 1.f)*(1-AnimationSwim);
     const float Speed=FMath::FInterpTo(AnimationSpeed,TargetSpeed,DeltaSeconds,10.f);
     // Distance-driven cadence: stopping freezes the cycle while the stride fades to idle.
     if (!GetCharacterMovement()->IsFalling()) Gait=FMath::Fmod(Gait+DeltaSeconds*TargetSpeed*15.f*A.Tempo,2.f*PI);
@@ -352,7 +366,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float Squash = (FMath::Sin(Gait*2.f)*0.22f*Speed + LandingImpulse + Anticipation*0.45f) * A.Squash * A.Exaggeration;
     const float Stretch = bAir ? A.Stretch * (bPreviewAnimation ? 0.8f : FMath::Clamp(FMath::Abs(GetVelocity().Z)/500.f,0.f,1.f)) : 0.f;
     const float GripBlend=Grip?Grip->Blend():0;
-    const float BodyStretch=ToothPhysics->CanAct()?FMath::Clamp(Stretch-Squash,-.35f,.4f)*(1-GripBlend):0.f;
+    const float BodyStretch=ToothPhysics->CanAct()?FMath::Clamp(Stretch-Squash,-.35f,.4f)*(1-GripBlend)*(1-AnimationSwim):0.f;
     if (StatusMaterial) StatusMaterial->SetScalarParameterValue(TEXT("BodyStretch"),BodyStretch);
     for (const auto& FaceMaterial:FaceMaterials) FaceMaterial->SetScalarParameterValue(TEXT("BodyStretch"),BodyStretch);
     GetMesh()->SetMorphTarget(TEXT("Squash"),ToothPhysics->CanAct()?FMath::Clamp(Squash/0.28f,0.f,1.f)*(1-GripBlend):0.f);
@@ -366,7 +380,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     AnimationGait=Gait; AnimationSpeed=Speed; AnimationBob=Bob; AnimationPitch=Pitch+(Status->IsLoose()?FMath::Sin(Time*7)*7:0); AnimationBrushAngle=BrushAngle*A.Exaggeration;
     AnimationBob*=1-.85f*GripBlend; AnimationPitch*=1-GripBlend;
     SoundAccumulator += DeltaSeconds;
-    if (ToothPhysics->CanAct() && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
+    if (ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
     { SoundAccumulator = 0; SoundPalette->Play(this,bBrushing ? TEXT("Brush") : bHandling ? TEXT("Pull") : TEXT("Step"),GetActorLocation()); }
 }
 void AMCToothCharacter::SwingBrush() { if (!bPreviewAnimation && ToothPhysics->CanAct()) ServerSwingBrush(); }
@@ -467,6 +481,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCToothCharacter,bSelfCare); DOREPLIFETIME(AMCToothCharacter,CareTarget); DOREPLIFETIME(AMCToothCharacter,ContactProgress);
     DOREPLIFETIME(AMCToothCharacter,HeldFood); DOREPLIFETIME(AMCToothCharacter,RespawnAt); DOREPLIFETIME(AMCToothCharacter,RespawnSourceId);
     DOREPLIFETIME(AMCToothCharacter,EquippedBrush); DOREPLIFETIME(AMCToothCharacter,bInCoffee); DOREPLIFETIME(AMCToothCharacter,ClingTooth);
+    DOREPLIFETIME(AMCToothCharacter,SwimIntent);
 }
 
 bool AMCToothCharacter::CanWork() const
