@@ -6,5 +6,5 @@ UENUM()
 enum class EMCDevAction : uint8
 {
     StartStep, DropFood, Infection, DropBrushes, CoffeeDirt, LooseTeeth,
-    DamageSelf, Ragdoll, KillSelf, RestoreMouth, StopCoffee, RestartDay
+    DamageSelf, Ragdoll, KillSelf, RestoreMouth, StopCoffee, RestartDay, TongueUlcer
 };

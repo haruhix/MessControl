@@ -6,6 +6,10 @@ import unreal as u
 levels=u.get_editor_subsystem(u.LevelEditorSubsystem)
 if not levels.load_level('/Game/Maps/L_Mouth'): raise RuntimeError('Map load failed')
 actors=u.get_editor_subsystem(u.EditorActorSubsystem).get_all_level_actors()
+tongues=[a for a in actors if isinstance(a,u.MCTongue)]
+if len(tongues)!=1: raise RuntimeError('Expected one deforming tongue')
+collision=next(a for a in actors if a.get_actor_label()=='COLLISION | Artist mouth')
+if collision.static_mesh_component.static_mesh.get_name()!='SM_MouthShell': raise RuntimeError('Static collision must exclude the moving tongue')
 slots=[a for a in actors if isinstance(a,u.MCArenaToothSocket)]
 decor=[a for a in actors if a.get_actor_label().startswith('ART | Far tooth')]
 if sorted(a.tooth_id for a in slots)!=list(range(1,9)) or len(decor)!=2: raise RuntimeError('Expected 8 gameplay + 2 decorative teeth')

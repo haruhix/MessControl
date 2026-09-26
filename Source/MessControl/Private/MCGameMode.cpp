@@ -1,4 +1,5 @@
 #include "MCGameMode.h"
+#include "MCTongue.h"
 #include "MCDayDirector.h"
 #include "MCMouthSurface.h"
 #include "MCCoffeeFlood.h"
@@ -83,6 +84,7 @@ void AMCGameMode::RestartShift()
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State) return;
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
+    for (TActorIterator<AMCTongue> It(GetWorld());It;++It) It->ResetPain();
     TArray<AActor*> OldDayActors;
     for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
     for (auto* Actor:OldDayActors) Actor->Destroy();

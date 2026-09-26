@@ -11,6 +11,7 @@
     { "Name": "EditorScriptingUtilities", "Enabled": true, "TargetAllowList": ["Editor"] },
     { "Name": "EnhancedInput", "Enabled": true },
     { "Name": "PhysicsControl", "Enabled": true },
+    { "Name": "ProceduralMeshComponent", "Enabled": true },
     { "Name": "AndroidFileServer", "Enabled": false }
   ]
 }

@@ -28,6 +28,8 @@ private:
     void Move(int32 Slot,FVector P,FRotator R=FRotator::ZeroRotator);
     float Age=0,LogAt=0,NextSwing=0;
     int32 LocalStage=-1;
+    bool bObservedUlcer=false;
+    double RecoveryReadyAt=-1;
     uint32 Seen=0;
     double NextCapture=0,LastCapture=-1;
     int32 CaptureFrame=0;

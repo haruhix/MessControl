@@ -1,0 +1,12 @@
+[
+  {
+    "mesh": "SM_MouthShell",
+    "vertices": 2632,
+    "faces": 4896
+  },
+  {
+    "mesh": "SM_TongueSurface",
+    "vertices": 2757,
+    "faces": 2688
+  }
+]

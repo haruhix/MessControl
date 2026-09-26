@@ -7,6 +7,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCFoodActor.h"
 #include "MCMouthSurface.h"
+#include "MCTongue.h"
 #include "MCCoffeeFlood.h"
 #include "MCArenaTooth.h"
 #include "Components/BoxComponent.h"
@@ -114,7 +115,24 @@ void AMCDayOneScenario::Tick(float Dt)
             if (!Food->IsDisposed() && Heroes[0]->CanWork()) Move(0,Food->GetActorLocation()+FVector(-80,0,40));
             if (Food->IsDisposed() && Elapsed>4) Next();
         }
-        else if (Stage==5 && Elapsed>4) { bool Ulcer=false; for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) Ulcer|=It->bUlcer; if (Ulcer) Next(); }
+        else if (Stage==5)
+        {
+            bool Ulcer=false; for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) Ulcer|=It->bUlcer;
+            if (Ulcer && !bObservedUlcer)
+            {
+                bObservedUlcer=true;
+                for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->IsDisposed()) It->Dispose();
+            }
+            // Spoiled food now launches a real pain wave. Finish that physical reaction
+            // before testing the separate coffee knockdown; recovery immunity is intentional.
+            bool ReadyForCoffee=bObservedUlcer;
+            for (auto Hero:Heroes) ReadyForCoffee &= Hero && Hero->ToothPhysics->CanAct();
+            for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+                ReadyForCoffee &= It->Pulse.Serial==0 || Now-It->Pulse.StartedAt>It->Settings.Duration();
+            if (ReadyForCoffee) { if (RecoveryReadyAt<0) RecoveryReadyAt=Now; }
+            else RecoveryReadyAt=-1;
+            if (RecoveryReadyAt>=0 && Now-RecoveryReadyAt>1 && Elapsed>4) Next();
+        }
         else if (Stage==6 && Elapsed>11 && Flood && !Flood->IsActive()) Next();
         GS->TasksLeft=0;
         if (Stage==1) for (auto Hero:Heroes) GS->TasksLeft+=Hero && !Hero->EquippedBrush;

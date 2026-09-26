@@ -13,6 +13,11 @@ public:
     virtual TStatId GetStatId() const override { RETURN_QUICK_DECLARE_CYCLE_STAT(UMCValidationSubsystem,STATGROUP_Tickables); }
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override { return WorldType == EWorldType::Game || WorldType == EWorldType::PIE; }
 private:
+    void TickTongue(float Dt);
+    float TongueError=0;
+    float TonguePatchError=0;
+    float TongueMinZ=10000,TongueMaxZ=-10000;
+    bool bTongueInvalid=false;
     void TickCoffeeWater(float Dt);
     UPROPERTY() TObjectPtr<class ACameraActor> CoffeeCamera;
     FVector CoffeeSwimStart=FVector::ZeroVector;

@@ -8,6 +8,8 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCArenaTooth.h"
+#include "MCTongue.h"
+#include "MCMouthSurface.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 
@@ -42,7 +44,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         DayDirector->Start(Plan,StepIndex,true);
         return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::RestartDay))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::TongueUlcer))
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -56,6 +58,20 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::TongueUlcer:
+    {
+        if (!Hero) return FText::FromString(TEXT("Нужен персонаж хоста."));
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        {
+            FHitResult Hit;
+            if (!It->SurfacePoint(Hero->GetActorLocation()+Hero->GetActorForwardVector()*180,Hit)) continue;
+            auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Hit.ImpactPoint+Hit.ImpactNormal*5,FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
+            Patch->bUlcer=true;
+            if (const auto* Plan=GS->DayPlan.Get()) { Patch->HealSeconds=Plan->UlcerHealSeconds; Patch->DamagePerSecond=Plan->UlcerDamagePerSecond; Patch->DisturbDamage=Plan->UlcerDisturbDamage; }
+            return FText::FromString(TEXT("Язва перед тобой: наступи на неё — по языку пойдёт красная волна и толкнёт игроков. Без контакта заживает сама."));
+        }
+        return FText::FromString(TEXT("Перед игроком нет языка. Переместись ближе к центру."));
+    }
     case EMCDevAction::DropFood:
     case EMCDevAction::Infection:
     {

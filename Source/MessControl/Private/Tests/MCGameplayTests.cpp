@@ -13,6 +13,7 @@
 #include "MCMouthSurface.h"
 #include "MCCoffeeFlood.h"
 #include "MCCoffeeProfile.h"
+#include "MCTongueProfile.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -569,8 +570,11 @@ bool FMCUlcerAndFloodTest::RunTest(const FString& Parameters)
     auto* Patch=Mouth.World->SpawnActor<AMCMouthSurface>(FVector(300,300,5),FRotator::ZeroRotator); Patch->bUlcer=true; Patch->HealSeconds=2;
     const float Before=Mouth.State->MouthHealth; Patch->Tick(.5f);
     TestTrue(TEXT("Untouched ulcer heals automatically while hurting mouth"),Patch->Healing>0 && Mouth.State->MouthHealth<Before);
-    auto* Hero=Mouth.Worker(); Hero->SetActorLocation(FVector(300,300,95)); Patch->Tick(.1f);
+    auto* Hero=Mouth.Worker(); Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    Hero->SetActorLocation(FVector(300,300,65)); Patch->Tick(.1f);
     TestEqual(TEXT("Walking over ulcer resets healing"),Patch->Healing,0.f);
+    Hero->GetCharacterMovement()->SetMovementMode(MOVE_Falling); Patch->Tick(.1f);
+    TestTrue(TEXT("Passing over ulcer in the air does not count as stepping"),Patch->Healing>0);
     Hero->SetActorLocation(FVector(0,0,95)); Patch->Tick(2.1f); TestTrue(TEXT("Protected ulcer closes itself"),Patch->IsActorBeingDestroyed());
     auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
     Flood->StartedAt=Mouth.World->GetTimeSeconds()-3.8; Flood->Tick(.05f);

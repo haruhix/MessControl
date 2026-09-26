@@ -32,6 +32,8 @@ public:
     bool IsClean() const;
     void Disturb();
 private:
+    UPROPERTY(Replicated) TObjectPtr<class AMCTongue> Tongue;
+    UPROPERTY(Replicated) FVector TongueAnchor=FVector::ZeroVector;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     float ContactCooldown=0;
 };
