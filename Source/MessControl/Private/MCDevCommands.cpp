@@ -1,4 +1,5 @@
 #include "MCDevCommands.h"
+#include "Components/BoxComponent.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCDayDirector.h"
@@ -44,7 +45,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         DayDirector->Start(Plan,StepIndex,true);
         return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::TongueMotion))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::TongueWeightToggle))
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -58,6 +59,31 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::TongueWeightToggle:
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        {
+            It->PressureSettings.bEnabled=!It->PressureSettings.bEnabled; It->ForceNetUpdate();
+            return FText::FromString(It->PressureSettings.bEnabled?TEXT("Вес продавливает язык. Глубина и восстановление — DA_Tongue → Pressure."):TEXT("Продавливание отключено, существующие вмятины разглаживаются."));
+        }
+        return FText::FromString(TEXT("На карте нет подвижного языка."));
+    case EMCDevAction::TongueWeight:
+        if (Hero) for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        {
+            FHitResult Hits[2];
+            for (int32 I=0;I<2;++I)
+                if (!It->SurfacePoint(Hero->GetActorLocation()+Hero->GetActorForwardVector()*250+Hero->GetActorRightVector()*(I==0?-140:140),Hits[I]))
+                    return FText::FromString(TEXT("Нужно свободное место на языке перед игроком."));
+            for (TActorIterator<AMCFoodActor> Food(GetWorld());Food;++Food) if (Food->ActorHasTag(TEXT("DevPressureFood"))) Food->Destroy();
+            It->PressureSettings.bEnabled=true; It->ForceNetUpdate();
+            for (int32 I=0;I<2;++I)
+            {
+                auto* Food=GetWorld()->SpawnActor<AMCFoodActor>(Hits[I].ImpactPoint+FVector(0,0,260),FRotator::ZeroRotator);
+                Food->Tags.Add(TEXT("DevPressureFood")); Food->Settings.Mass=I==0?4:28;
+                Food->Body->SetMassOverrideInKg(NAME_None,Food->Settings.Mass,true); Food->ForceNetUpdate();
+            }
+            return FText::FromString(TEXT("Слева 4 кг, справа 28 кг. Потяни E: тяжёлый удобнее вдвоём. После перемещения язык постепенно выпрямится."));
+        }
+        return FText::FromString(TEXT("Нужны игрок и подвижный язык."));
     case EMCDevAction::GazePractice:
         if (Hero) Hero->SpawnPracticeTooth();
         return FText::FromString(TEXT("Зуб перед тобой: обойди его, посмотри на глаза, затем урони рядом еду. Настройки взгляда — F1 и DA_Gaze."));

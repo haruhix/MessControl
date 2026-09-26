@@ -102,6 +102,8 @@ void UMCDevPanelWidget::RefreshActions()
         break;
     }
     AddAction(Actions,TEXT("Глаза — создать напарника"),TEXT("Наблюдай взгляд зуба на тебя, еду и опасности. Веки моргают; настройки в DA_Gaze и F1."),EMCDevAction::GazePractice);
+    AddAction(Actions,TEXT("Язык — сравнить вес 4 / 28 кг"),TEXT("Два одинаковых предмета перед игроком. Тяжёлый сильнее продавливает язык; E — хват и перетаскивание."),EMCDevAction::TongueWeight);
+    AddAction(Actions,TEXT("Язык — включить / выключить продавливание"),TEXT("Для сравнения поверхности под игроками и едой. Движения от событий продолжают работать."),EMCDevAction::TongueWeightToggle);
     AddAction(Actions,TEXT("Кофейный налёт + щётки"),TEXT("Покрывает зубы, игроков и поверхность налётом. Четыре контакта по 0,5 секунды."),EMCDevAction::CoffeeDirt);
     AddAction(Actions,TEXT("Сбросить щётки с неба"),TEXT("По одной щётке на игрока. Подобрать E, выбросить Q за передний край."),EMCDevAction::DropBrushes);
     AddAction(Actions,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);

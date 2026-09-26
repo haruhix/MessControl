@@ -58,6 +58,7 @@ void AMCTongue::RebuildSurface()
         AnchorGradients.Add(Away*(6*U*(1-U)/180));
     }
     Colors.Init(FColor(0,0,0,255),Rest.Num());
+    IndentDepth.Init(0,Rest.Num()); IndentGradient.Init(FVector::ZeroVector,Rest.Num());
     Surface->ClearAllMeshSections();
     Surface->CreateMeshSection(0,Positions,Indices,Normals,UV,Colors,Tangents,true);
     Surface->SetMaterial(0,SurfaceMaterial?SurfaceMaterial.Get():SourceMesh->GetMaterial(0));
@@ -65,7 +66,12 @@ void AMCTongue::RebuildSurface()
 void AMCTongue::BeginPlay()
 {
     Super::BeginPlay(); RebuildSurface();
-    if (HasAuthority()) { Settings=Profile?Profile->Settings:FMCTongueSettings(); Settings.Sanitize(); ScheduleJolt(); ForceNetUpdate(); }
+    if (HasAuthority())
+    {
+        Settings=Profile?Profile->Settings:FMCTongueSettings(); Settings.Sanitize();
+        PressureSettings=Profile?Profile->Pressure:FMCTonguePressureSettings(); PressureSettings.Sanitize();
+        ScheduleJolt(); ForceNetUpdate();
+    }
 }
 float AMCTongue::ServerTime() const
 {
@@ -174,12 +180,12 @@ void AMCTongue::Deform(float Time)
     for (int32 I=0;I<Rest.Num();++I)
     {
         const FVector P=Rest[I]; float Red=0,Dummy=0;
-        const float Height=Offset(P,Time,Red),Anchor=AnchorWeights[I];
+        const float Height=Offset(P,Time,Red)-IndentDepth[I],Anchor=AnchorWeights[I];
         Positions[I]=P+FVector(0,0,Height*Anchor); Red*=Anchor;
         // Transform artist normals/tangents with the displacement gradient; keep UV seam smoothing.
-        const float Dx=(Offset(P+FVector(1,0,0),Time,Dummy)-Offset(P-FVector(1,0,0),Time,Dummy))*.5f*Anchor+Height*AnchorGradients[I].X;
-        const float Dy=(Offset(P+FVector(0,1,0),Time,Dummy)-Offset(P-FVector(0,1,0),Time,Dummy))*.5f*Anchor+Height*AnchorGradients[I].Y;
-        const float Dz=(Offset(P+FVector(0,0,1),Time,Dummy)-Offset(P-FVector(0,0,1),Time,Dummy))*.5f*Anchor+Height*AnchorGradients[I].Z;
+        const float Dx=((Offset(P+FVector(1,0,0),Time,Dummy)-Offset(P-FVector(1,0,0),Time,Dummy))*.5f-IndentGradient[I].X)*Anchor+Height*AnchorGradients[I].X;
+        const float Dy=((Offset(P+FVector(0,1,0),Time,Dummy)-Offset(P-FVector(0,1,0),Time,Dummy))*.5f-IndentGradient[I].Y)*Anchor+Height*AnchorGradients[I].Y;
+        const float Dz=((Offset(P+FVector(0,0,1),Time,Dummy)-Offset(P-FVector(0,0,1),Time,Dummy))*.5f-IndentGradient[I].Z)*Anchor+Height*AnchorGradients[I].Z;
         const FVector N=RestNormals[I],T=RestTangents[I].TangentX;
         const float Nz=N.Z/FMath::Max(.5f,1+Dz);
         Normals[I]=FVector(N.X-Dx*Nz,N.Y-Dy*Nz,Nz).GetSafeNormal();
@@ -191,6 +197,7 @@ void AMCTongue::Deform(float Time)
 bool AMCTongue::SurfacePoint(FVector P,FHitResult& Hit) const
 {
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCTongueSurface),true);
+    Params.bReturnFaceIndex=true;
     return Surface->LineTraceComponent(Hit,P+FVector(0,0,1200),P-FVector(0,0,1600),Params);
 }
 void AMCTongue::PushMotion(float Age)
@@ -255,6 +262,8 @@ void AMCTongue::Tick(float Dt)
     // force until the run ends, even if the event that started it just completed.
     if (HasAuthority() && State && State->Phase!=EMCShiftPhase::Won && State->Phase!=EMCShiftPhase::Lost && !State->bDayOneComplete)
         PushMotion(Time-Motion.StartedAt);
+    if (HasAuthority()) GatherPressure(Dt);
+    UpdatePressureField(Dt);
     Deform(Time);
     // A deforming mesh has no component translation for CharacterMovement's usual based movement.
     for (const auto& Rider:Riders)
@@ -275,4 +284,5 @@ void AMCTongue::Tick(float Dt)
 void AMCTongue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCTongue,Settings); DOREPLIFETIME(AMCTongue,Motion);
+    DOREPLIFETIME(AMCTongue,PressureSettings); DOREPLIFETIME(AMCTongue,PressureFrame);
 }

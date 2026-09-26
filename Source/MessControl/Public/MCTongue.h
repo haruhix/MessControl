@@ -24,6 +24,11 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tongue") TObjectPtr<UMCTongueProfile> Profile;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue") FMCTongueSettings Settings;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue") FMCTongueMotionState Motion;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Weight") FMCTonguePressureSettings PressureSettings;
+    UPROPERTY(ReplicatedUsing=OnRep_PressureFrame) FMCTonguePressureFrame PressureFrame;
+    UFUNCTION(BlueprintPure,Category="Tongue|Weight") float IndentationAt(FVector WorldPoint) const;
+    const TArray<FMCTongueLoad>& PressureLoads() const { return HasAuthority()?CurrentLoads:PressureFrame.Sources; }
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue|Weight") void ResetPressure();
     // Returns false while another motion/rest interval is active. Call on the server.
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue") bool PlayMotion(UMCTongueMotionProfile* MotionProfile,FVector WorldOrigin,FVector WorldDirection,float Strength=1);
     UFUNCTION(BlueprintPure,Category="Tongue") bool IsMotionActive() const;
@@ -38,6 +43,22 @@ public:
     const TArray<int32>& TriangleIndices() const { return Indices; }
     int32 PlayerPushes=0,FoodPushes=0;
 private:
+    void GatherPressure(float Dt);
+    void UpdatePressureField(float Dt);
+    bool PressureSupport(AActor* Actor,FVector Center,float Bottom,FHitResult& Hit) const;
+    UFUNCTION() void OnRep_PressureFrame();
+    UPROPERTY() TArray<FMCTongueLoad> CurrentLoads;
+    TArray<float> IndentDepth;
+    TArray<FVector> IndentGradient;
+    struct FLoadHistory
+    {
+        float DownSpeed=0,Impact=0;
+        double LastSeen=0,LastContact=-100,LandingAt=-100;
+        bool bSupported=false;
+    };
+    TMap<TWeakObjectPtr<AActor>,FLoadHistory> LoadHistory;
+    float PressureSendElapsed=0;
+    int32 PressureEpoch=0;
     bool StartMotion(FMCTongueMotionSettings Event,FVector Origin,FVector Direction,float Strength);
     float JoltWeight(FVector Local) const;
     float SurfaceWeight(FVector Local) const;

@@ -832,6 +832,71 @@ bool FMCGazeAttentionTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Face tuning stays bounded"),S.YawLimit<=45 && S.BlinkMin>=1 && FMath::IsFinite(S.TurnSpeed));
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTongueWeightTest,"MessControl.Tongue.WeightContactsAndRecovery",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCTongueWeightTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working; Mouth.State->bDevManualEvents=true;
+    auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FTransform::Identity);
+    Tongue->SourceMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/Arena/SM_TongueSurface.SM_TongueSurface")); Tongue->FinishSpawning(FTransform::Identity);
+    Tongue->Settings.IdleHeight=0; Tongue->PressureSettings.RecoverSeconds=.3f;
+    const FVector Center=FBox(Tongue->CurrentVertices()).GetCenter(); FHitResult Hit;
+    if (!TestTrue(TEXT("Test load has a real tongue floor"),Tongue->SurfacePoint(Center,Hit))) return false;
+    const FVector Start=Hit.ImpactPoint+FVector(0,0,31);
+    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(Start,FRotator::ZeroRotator);
+    Food->Settings.Mass=4; Food->Body->SetMassOverrideInKg(NAME_None,4,true);
+    auto Step=[&](float Seconds){for (int32 I=0;I<FMath::CeilToInt(Seconds*60);++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,1.f/60); }};
+    auto FoodLoad=[&](){for (const auto& S:Tongue->PressureLoads()) if (S.Actor==Food) return S.Depth; return 0.f;};
+    Step(2);
+    const float Light=Tongue->IndentationAt(Food->GetActorLocation());
+    TestTrue(*FString::Printf(TEXT("Supported 4 kg food makes a dent: %.3f"),Light),Light>.5f);
+    Food->Settings.Mass=28; Food->Body->SetMassOverrideInKg(NAME_None,28,true); Step(2);
+    const float Heavy=Tongue->IndentationAt(Food->GetActorLocation());
+    TestTrue(*FString::Printf(TEXT("Same collider with more mass presses deeper: %.3f -> %.3f"),Light,Heavy),Heavy>Light*1.5f);
+    TestTrue(TEXT("Depth has a finite cap"),Heavy<=Tongue->PressureSettings.MaxDepth);
+    TestTrue(TEXT("One food object has one load"),Tongue->PressureLoads().Num()==1 && FoodLoad()>20);
+    const FVector OldPlace=Food->GetActorLocation();
+    Food->Body->SetEnableGravity(false); Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
+    Food->SetActorLocation(OldPlace+FVector(0,0,350),false,nullptr,ETeleportType::TeleportPhysics); Step(.2f);
+    TestEqual(TEXT("Lifted food stops loading the floor"),FoodLoad(),0.f);
+    TestTrue(TEXT("Vacated dent recovers gradually"),Tongue->IndentationAt(OldPlace)>0 && Tongue->IndentationAt(OldPlace)<Heavy);
+    Step(2); TestTrue(TEXT("Surface recovers after lifting"),Tongue->IndentationAt(OldPlace)<.1f);
+    Food->SetActorLocation(Start,false,nullptr,ETeleportType::TeleportPhysics); Food->Body->SetEnableGravity(true); Step(2);
+    TestTrue(TEXT("Putting food down restores its load"),FoodLoad()>0);
+    Food->Dispose(); Step(.2f); TestEqual(TEXT("Disposed item has no load"),FoodLoad(),0.f);
+    Tongue->ResetPressure(); TestTrue(TEXT("Reset clears the stored indentation"),Tongue->IndentationAt(Start)<.001f && Tongue->PressureLoads().IsEmpty());
+    // Input bounds guard against a malformed designer profile creating an unstable floor.
+    FMCTonguePressureSettings S; S.MaxDepth=10000; S.MaxSources=500; S.PressSeconds=0; S.DepthPerKg=std::numeric_limits<float>::quiet_NaN(); S.Sanitize();
+    TestTrue(TEXT("Pressure budget and response remain bounded"),S.MaxDepth<=35 && S.MaxSources<=32 && S.PressSeconds>=.06f && FMath::IsFinite(S.DepthPerKg));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTonguePlayerWeightTest,"MessControl.Tongue.PlayerWeightAndLanding",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCTonguePlayerWeightTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working; Mouth.State->bDevManualEvents=true;
+    auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FTransform::Identity);
+    Tongue->SourceMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/Arena/SM_TongueSurface.SM_TongueSurface")); Tongue->FinishSpawning(FTransform::Identity);
+    Tongue->Settings.IdleHeight=0;
+    FHitResult Hit; if (!Tongue->SurfacePoint(FBox(Tongue->CurrentVertices()).GetCenter(),Hit)) return false;
+    auto* Hero=Mouth.Worker(); Hero->GetCharacterMovement()->bRunPhysicsWithNoController=true;
+    Hero->SetActorLocation(Hit.ImpactPoint+FVector(0,0,61)); Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    auto Step=[&](float Seconds){for (int32 I=0;I<FMath::CeilToInt(Seconds*60);++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,1.f/60); }};
+    auto Find=[&]()->const FMCTongueLoad* {for (const auto& S:Tongue->PressureLoads()) if (S.Actor==Hero) return &S; return nullptr;};
+    Step(2); const auto* Standing=Find();
+    TestTrue(TEXT("Grounded character loads the tongue"),Standing && Standing->Kind==EMCTongueLoadKind::Player);
+    if (!Standing) return false;
+    const float RestLoad=Standing->Depth;
+    Hero->LaunchCharacter(FVector(0,0,600),false,true); Step(.2f);
+    TestNull(TEXT("Airborne character has no standing load"),Find());
+    float Peak=0; for (int32 I=0;I<100;++I) { Step(1.f/60); if (const auto* S=Find()) Peak=FMath::Max(Peak,S->Depth); }
+    TestTrue(*FString::Printf(TEXT("Landing briefly increases pressure: %.2f > %.2f"),Peak,RestLoad),Peak>RestLoad*1.25f);
+    Step(1); Hero->ToothPhysics->ApplyHit(FVector(0,0,-350),Hero->GetActorLocation());
+    bool Broad=false;
+    for (int32 I=0;I<100;++I) { Step(1.f/60); if (const auto* S=Find()) Broad|=S->Kind==EMCTongueLoadKind::Ragdoll && S->RadiusX>Tongue->PressureSettings.PlayerRadius; }
+    TestTrue(TEXT("Supported ragdoll uses a broader footprint"),Broad);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTongueEventTest,"MessControl.Tongue.EventProfiles",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCTongueEventTest::RunTest(const FString& Parameters)
 {

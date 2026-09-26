@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "MCTongueMotion.h"
+#include "MCTonguePressure.h"
 #include "MCTongueProfile.generated.h"
 
 USTRUCT(BlueprintType)
@@ -42,6 +43,7 @@ class MESSCONTROL_API UMCTongueProfile : public UPrimaryDataAsset
     GENERATED_BODY()
 public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue") FMCTongueSettings Settings;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Weight") FMCTonguePressureSettings Pressure;
     // Unassigned references retain the original Settings values for existing maps.
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Events") TObjectPtr<UMCTongueMotionProfile> PainMotion;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Events") TObjectPtr<UMCTongueMotionProfile> JoltMotion;
