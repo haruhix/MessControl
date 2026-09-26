@@ -7,6 +7,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCGazeComponent.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -73,28 +74,55 @@ float AMCTongue::ServerTime() const
 }
 bool AMCTongue::TriggerPain(FVector Point)
 {
-    if (!HasAuthority() || Point.ContainsNaN() || (Pulse.Serial>0 && ServerTime()-Pulse.StartedAt<Settings.Cooldown)
-        || (Jolt.Serial>0 && ServerTime()-Jolt.StartedAt<Settings.JoltDuration()+1)) return false;
-    Pulse.Origin=GetActorTransform().InverseTransformPosition(Point);
-    // A short anticipation gives clients time to receive the authoritative pulse.
-    Pulse.StartedAt=ServerTime()+.2; ++Pulse.Serial;
-    NextJoltAt=FMath::Max(NextJoltAt,Pulse.StartedAt+Settings.Duration()+2);
-    HitActors.Empty(); PreviousWaveAge=-1; ForceNetUpdate(); return true;
+    if (Profile && Profile->PainMotion) return PlayMotion(Profile->PainMotion,Point,FVector::ForwardVector);
+    FMCTongueMotionSettings Event;
+    Event.Shape=EMCTongueShape::RadialWave; Event.Height=Settings.WaveHeight;
+    Event.Speed=Settings.WaveSpeed; Event.Width=Settings.WaveWidth; Event.Radius=Settings.WaveRadius;
+    Event.Anticipation=0; Event.Redness=1; Event.Lift=Settings.LiftSpeed; Event.Push=Settings.PushSpeed;
+    Event.AffectHeight=Settings.AffectHeight; Event.RestAfter=FMath::Max(.2f,Settings.Cooldown-Settings.Duration());
+    return StartMotion(Event,Point,FVector::ForwardVector,1);
 }
 void AMCTongue::ScheduleJolt() { NextJoltAt=ServerTime()+FMath::FRandRange(Settings.JoltRestMin,Settings.JoltRestMax); }
 bool AMCTongue::TriggerJolt()
 {
-    if (!HasAuthority() || (Jolt.Serial>0 && ServerTime()-Jolt.StartedAt<Settings.JoltDuration()+1)
-        || (Pulse.Serial>0 && ServerTime()-Pulse.StartedAt<Settings.Duration()+1)) return false;
-    Jolt.StartedAt=ServerTime()+.2; ++Jolt.Serial;
-    JoltPlayerPushes=JoltFoodPushes=0;
-    ScheduleJolt(); NextJoltAt+=Settings.JoltDuration(); ForceNetUpdate(); return true;
+    const FVector Origin=GetActorTransform().TransformPosition(RestBounds.GetCenter());
+    const FVector Front=GetActorTransform().TransformVectorNoScale(FVector(0,1,0));
+    if (Profile && Profile->JoltMotion) return PlayMotion(Profile->JoltMotion,Origin,Front);
+    FMCTongueMotionSettings Event;
+    Event.Shape=EMCTongueShape::FrontBend; Event.Height=Settings.JoltHeight;
+    Event.Anticipation=Settings.JoltAnticipation; Event.Rise=Settings.JoltRise; Event.Return=Settings.JoltReturn;
+    Event.Lift=Settings.JoltLift; Event.Push=Settings.JoltPush; Event.AffectHeight=Settings.AffectHeight;
+    Event.bPushFromOrigin=false; Event.bFoodLiftIgnoresMass=true;
+    return StartMotion(Event,Origin,Front,1);
+}
+bool AMCTongue::IsMotionActive() const
+{
+    return Motion.Serial>0 && ServerTime()<Motion.StartedAt+Motion.Settings.Duration()+Motion.Settings.RestAfter;
+}
+bool AMCTongue::PlayMotion(UMCTongueMotionProfile* Event,FVector Origin,FVector Direction,float Strength)
+{
+    return Event && StartMotion(Event->Settings,Origin,Direction,Strength);
+}
+bool AMCTongue::StartMotion(FMCTongueMotionSettings Event,FVector Origin,FVector Direction,float Strength)
+{
+    if (!HasAuthority() || IsMotionActive() || Rest.IsEmpty() || Origin.ContainsNaN() || Direction.ContainsNaN()
+        || !FMath::IsFinite(Strength) || Strength<=0) return false;
+    Event.Sanitize(); Strength=FMath::Clamp(Strength,.05f,2.f);
+    Event.Height*=Strength; Event.Push*=Strength; Event.Lift*=Strength; Event.Sanitize();
+    Motion.Settings=Event; Motion.Origin=GetActorTransform().InverseTransformPosition(Origin);
+    Motion.Direction=GetActorTransform().InverseTransformVectorNoScale(Direction.GetSafeNormal2D(KINDA_SMALL_NUMBER,FVector::ForwardVector));
+    Motion.StartedAt=ServerTime()+.2; ++Motion.Serial;
+    PlayerPushes=FoodPushes=0; HitActors.Empty(); PreviousMotionAge=-1;
+    ScheduleJolt(); NextJoltAt+=Event.Duration(); ForceNetUpdate();
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+        if (It->Gaze) It->Gaze->NoticePoint(Origin+FVector(0,0,40),FMath::Max(.5f,Event.Anticipation));
+    return true;
 }
 void AMCTongue::ResetPain()
 {
     if (!HasAuthority()) return;
-    Pulse=FMCTonguePulse(); HitActors.Empty(); PreviousWaveAge=-1; PlayerPushes=FoodPushes=0; ForceNetUpdate();
-    Jolt=FMCTonguePulse(); AppliedJolt=0; JoltPlayerPushes=JoltFoodPushes=0; ScheduleJolt();
+    Motion=FMCTongueMotionState(); HitActors.Empty(); PreviousMotionAge=-1; PlayerPushes=FoodPushes=0;
+    ScheduleJolt(); ForceNetUpdate();
 }
 float AMCTongue::JoltWeight(FVector P) const
 {
@@ -104,48 +132,42 @@ float AMCTongue::JoltWeight(FVector P) const
     return Lateral*FMath::SmoothStep(.1f,.48f,float(U.Y))
         *(1-FMath::SmoothStep(.88f,1.f,float(U.Y)))*FMath::SmoothStep(.15f,.75f,float(U.Z));
 }
-float AMCTongue::Offset(FVector P,float Time,float& Red) const
+float AMCTongue::SurfaceWeight(FVector P) const
 {
     const FVector Unit=(P-RestBounds.Min)/RestBounds.GetSize();
     // Fix the rim and underside to the original mouth. No cracks at the shell seam.
     const float Rim=FMath::Square(FMath::Sin(PI*FMath::Clamp(float(Unit.X),0.f,1.f)))
         *FMath::Square(FMath::Sin(PI*FMath::Clamp(float(Unit.Y),0.f,1.f)));
-    const float Weight=Rim*FMath::SmoothStep(.15f,.75f,float(Unit.Z));
-    const float Age=Time-Pulse.StartedAt;
-    const float Distance=FVector::Dist2D(GetActorTransform().TransformPosition(P),GetActorTransform().TransformPosition(Pulse.Origin));
-    Red=Pulse.Serial>0?Settings.Band(Distance,Age)*FMath::Sqrt(Weight):0;
-    const float Idle=Settings.IdleHeight*FMath::Sin(Time*2*PI/Settings.IdlePeriod+Unit.Y*1.2f);
-    const float Bend=Jolt.Serial>0?Settings.JoltHeight*Settings.JoltShape(Time-Jolt.StartedAt)*JoltWeight(P):0;
-    return Weight*Idle+Settings.WaveHeight*Red+Bend;
+    return Rim*FMath::SmoothStep(.15f,.75f,float(Unit.Z));
 }
-void AMCTongue::ThrowRiders()
+float AMCTongue::MotionDistance(FVector P) const
 {
-    if (AppliedJolt==Jolt.Serial || Jolt.Serial==0) return;
-    AppliedJolt=Jolt.Serial;
-    auto Strength=[&](FVector P)
+    const FVector Delta=GetActorTransform().TransformVector(P-Motion.Origin);
+    return Motion.Settings.Shape==EMCTongueShape::DirectionalWave?FVector::DotProduct(Delta,GetActorTransform().TransformVectorNoScale(Motion.Direction)):Delta.Size2D();
+}
+float AMCTongue::MotionWeight(FVector P) const
+{
+    const auto& S=Motion.Settings;
+    if (S.Shape==EMCTongueShape::FrontBend) return JoltWeight(P);
+    const float Weight=FMath::Sqrt(SurfaceWeight(P));
+    if (S.Shape==EMCTongueShape::LocalLift) return Weight*(1-FMath::SmoothStep(0.f,S.Radius,MotionDistance(P)));
+    if (S.Shape==EMCTongueShape::DirectionalWave)
     {
-        FHitResult Hit;
-        if (!SurfacePoint(P,Hit) || P.Z<Hit.ImpactPoint.Z-30 || P.Z>Hit.ImpactPoint.Z+Settings.AffectHeight) return 0.f;
-        return JoltWeight(GetActorTransform().InverseTransformPosition(Hit.ImpactPoint));
-    };
-    const FVector Front=GetActorTransform().TransformVectorNoScale(FVector(0,1,0)).GetSafeNormal2D();
-    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
-    {
-        auto* Hero=*It;
-        const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
-        const float W=Strength(P);
-        if (!Hero->Status->IsAlive() || W<.15f) continue;
-        Hero->ToothPhysics->ApplyHit((Front*Settings.JoltPush+FVector(0,0,Settings.JoltLift))*FMath::Sqrt(W),P); ++JoltPlayerPushes;
+        const FVector Delta=GetActorTransform().TransformVector(P-Motion.Origin);
+        const FVector Direction=GetActorTransform().TransformVectorNoScale(Motion.Direction);
+        const float Side=FMath::Abs(FVector::DotProduct(Delta,FVector::CrossProduct(Direction,FVector::UpVector)));
+        return Weight*(1-FMath::SmoothStep(S.Radius*.6f,S.Radius,Side));
     }
-    for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
-    {
-        auto* Food=*It; const FVector P=Food->Body->GetComponentLocation(); const float W=Strength(P);
-        if (W<.15f || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Stuck || !Food->Body->IsSimulatingPhysics()) continue;
-        // Each item rides the rising floor; mass dampens the extra directional kick.
-        const float Mass=FMath::Max(1.f,Food->Body->GetMass());
-        Food->Body->AddImpulse((Front*Settings.JoltPush*FMath::Sqrt(4.f/Mass)+FVector(0,0,Settings.JoltLift))*FMath::Sqrt(W),NAME_None,true);
-        ++JoltFoodPushes;
-    }
+    return Weight;
+}
+float AMCTongue::Offset(FVector P,float Time,float& Red) const
+{
+    const float UnitY=(P.Y-RestBounds.Min.Y)/RestBounds.GetSize().Y;
+    const float Idle=SurfaceWeight(P)*Settings.IdleHeight*FMath::Sin(Time*2*PI/Settings.IdlePeriod+UnitY*1.2f);
+    const auto& S=Motion.Settings; const float Age=Time-Motion.StartedAt;
+    const float Amount=Motion.Serial>0?MotionWeight(P)*(S.IsWave()?S.Band(MotionDistance(P),Age):S.Envelope(Age)):0;
+    Red=FMath::Max(0.f,Amount)*S.Redness;
+    return Idle+S.Height*Amount;
 }
 void AMCTongue::Deform(float Time)
 {
@@ -171,35 +193,42 @@ bool AMCTongue::SurfacePoint(FVector P,FHitResult& Hit) const
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCTongueSurface),true);
     return Surface->LineTraceComponent(Hit,P+FVector(0,0,1200),P-FVector(0,0,1600),Params);
 }
-void AMCTongue::PushWave(float Age)
+void AMCTongue::PushMotion(float Age)
 {
-    if (PreviousSerial!=Pulse.Serial) { PreviousSerial=Pulse.Serial; HitActors.Empty(); PreviousWaveAge=-1; }
-    if (Pulse.Serial==0 || Age<0 || PreviousWaveAge>Settings.Duration()) return;
-    const FVector Origin=GetActorTransform().TransformPosition(Pulse.Origin);
-    auto Reached=[&](AActor* Actor,FVector P)
+    const auto& S=Motion.Settings;
+    if (Motion.Serial==0 || Age<0 || PreviousMotionAge>S.Duration()) return;
+    const FVector Origin=GetActorTransform().TransformPosition(Motion.Origin);
+    const FVector Direction=GetActorTransform().TransformVectorNoScale(Motion.Direction).GetSafeNormal2D();
+    auto Strength=[&](AActor* Actor,FVector P)
     {
-        if (HitActors.Contains(Actor) || !Settings.Crossed(FVector::Dist2D(P,Origin),PreviousWaveAge,Age)) return false;
+        if (HitActors.Contains(Actor)) return 0.f;
+        const FVector Local=GetActorTransform().InverseTransformPosition(P);
+        if (S.IsWave()? !S.Crossed(MotionDistance(Local),PreviousMotionAge,Age): !(Age>=S.Anticipation && PreviousMotionAge<S.Anticipation)) return 0.f;
         FHitResult Hit;
-        // The wave only affects objects near the tongue, not objects above it or beyond the throat.
-        if (!SurfacePoint(P,Hit) || P.Z<Hit.ImpactPoint.Z-30 || P.Z>Hit.ImpactPoint.Z+Settings.AffectHeight) return false;
-        HitActors.Add(Actor); return true;
+        if (!SurfacePoint(P,Hit) || P.Z<Hit.ImpactPoint.Z-30 || P.Z>Hit.ImpactPoint.Z+S.AffectHeight) return 0.f;
+        const float Weight=MotionWeight(GetActorTransform().InverseTransformPosition(Hit.ImpactPoint));
+        if (Weight<.15f) return 0.f;
+        HitActors.Add(Actor); return S.IsWave()?1.f:FMath::Sqrt(Weight);
     };
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
-        if (!Hero->Status->IsAlive() || !Reached(Hero,P)) continue;
-        const FVector Away=(P-Origin).GetSafeNormal2D(KINDA_SMALL_NUMBER,FVector::ForwardVector);
-        Hero->ToothPhysics->ApplyHit(Away*Settings.PushSpeed+FVector(0,0,Settings.LiftSpeed),P); ++PlayerPushes;
+        if (!Hero->Status->IsAlive()) continue;
+        const float W=Strength(Hero,P); if (W<=0) continue;
+        const FVector Away=S.bPushFromOrigin?(P-Origin).GetSafeNormal2D(KINDA_SMALL_NUMBER,Direction):Direction;
+        Hero->ToothPhysics->ApplyHit((Away*S.Push+FVector(0,0,S.Lift))*W,P); ++PlayerPushes;
     }
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
     {
         auto* Food=*It; const FVector P=Food->Body->GetComponentLocation();
-        if (Food->IsDisposed() || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Stuck || !Food->Body->IsSimulatingPhysics() || !Reached(Food,P)) continue;
-        // Physical impulse, not velocity change: heavy food resists the same shove.
-        const FVector Away=(P-Origin).GetSafeNormal2D(KINDA_SMALL_NUMBER,FVector::ForwardVector);
-        Food->Body->AddImpulse((Away*Settings.PushSpeed+FVector(0,0,Settings.LiftSpeed))*4.f); ++FoodPushes;
+        if (Food->IsDisposed() || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Stuck || !Food->Body->IsSimulatingPhysics()) continue;
+        const float W=Strength(Food,P); if (W<=0) continue;
+        const FVector Away=S.bPushFromOrigin?(P-Origin).GetSafeNormal2D(KINDA_SMALL_NUMBER,Direction):Direction;
+        const float MassRatio=4.f/FMath::Max(1.f,Food->Body->GetMass());
+        const FVector Velocity=S.bFoodLiftIgnoresMass?(Away*S.Push*FMath::Sqrt(MassRatio)+FVector(0,0,S.Lift)):(Away*S.Push+FVector(0,0,S.Lift))*MassRatio;
+        Food->Body->AddImpulse(Velocity*W,NAME_None,true); ++FoodPushes;
     }
-    PreviousWaveAge=Age;
+    PreviousMotionAge=Age;
 }
 void AMCTongue::Tick(float Dt)
 {
@@ -221,9 +250,11 @@ void AMCTongue::Tick(float Dt)
     {
         const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
         if (Settings.bAutomaticJolts && Mode && Mode->bUseDayOnePlan && !State->bDevManualEvents && Time>=NextJoltAt) TriggerJolt();
-        // Throw before the fast rise, while everyone is still touching the anticipation pose.
-        if (Jolt.Serial>0 && Time-Jolt.StartedAt>=Settings.JoltAnticipation && Time-Jolt.StartedAt<Settings.JoltDuration()) ThrowRiders();
     }
+    // Ulcers persist through intermissions. An active surface motion keeps its
+    // force until the run ends, even if the event that started it just completed.
+    if (HasAuthority() && State && State->Phase!=EMCShiftPhase::Won && State->Phase!=EMCShiftPhase::Lost && !State->bDayOneComplete)
+        PushMotion(Time-Motion.StartedAt);
     Deform(Time);
     // A deforming mesh has no component translation for CharacterMovement's usual based movement.
     for (const auto& Rider:Riders)
@@ -233,8 +264,6 @@ void AMCTongue::Tick(float Dt)
     }
     if (HasAuthority())
     {
-        const auto* GS=GetWorld()->GetGameState<AMCGameState>();
-        if (GS && GS->Phase!=EMCShiftPhase::Lost && GS->Phase!=EMCShiftPhase::Won && !GS->bDayOneComplete) PushWave(Time-Pulse.StartedAt);
         // Sleeping rigid bodies otherwise retain contacts against the previous triangle positions.
         for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->IsDisposed() && It->Body->IsSimulatingPhysics())
         {
@@ -245,6 +274,5 @@ void AMCTongue::Tick(float Dt)
 }
 void AMCTongue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-    Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCTongue,Settings); DOREPLIFETIME(AMCTongue,Pulse);
-    DOREPLIFETIME(AMCTongue,Jolt);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCTongue,Settings); DOREPLIFETIME(AMCTongue,Motion);
 }

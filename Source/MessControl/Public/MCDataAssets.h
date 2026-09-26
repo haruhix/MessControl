@@ -21,6 +21,9 @@ public:
     // Grip offset in reference mesh space, relative to the hand's reference position.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") FTransform BrushTransform=FTransform(FRotator(0,90,0),FVector(-8,3,-4));
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Rig") TMap<FName,FName> BoneMap;
+    // Closing angles for the repaired, rigid eyelid shells; zero disables bone blinking.
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Face") float UpperLidDegrees=48.f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Face") float LowerLidDegrees=-28.f;
     FName Bone(FName Role) const { const FName* Found=BoneMap.Find(Role); return Found?*Found:Role; }
 };
 

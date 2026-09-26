@@ -10,6 +10,7 @@ class UInputMappingContext;
 class UMCToothPhysicsComponent;
 class UPhysicsControlComponent;
 class UMCToothStatusComponent;
+class UMCGazeComponent;
 class AMCFoodActor;
 class AMCArenaTooth;
 class UMaterialInstanceDynamic;
@@ -33,6 +34,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Gaze") TObjectPtr<UMCGazeComponent> Gaze;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") bool bSelfCare=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") TObjectPtr<AActor> CareTarget;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") float ContactProgress=0;

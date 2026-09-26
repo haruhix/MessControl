@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "MCTongueMotion.h"
 #include "MCTongueProfile.generated.h"
 
 USTRUCT(BlueprintType)
@@ -41,4 +42,8 @@ class MESSCONTROL_API UMCTongueProfile : public UPrimaryDataAsset
     GENERATED_BODY()
 public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue") FMCTongueSettings Settings;
+    // Unassigned references retain the original Settings values for existing maps.
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Events") TObjectPtr<UMCTongueMotionProfile> PainMotion;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Events") TObjectPtr<UMCTongueMotionProfile> JoltMotion;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Events") TArray<TObjectPtr<UMCTongueMotionProfile>> DevMotions;
 };

@@ -29,6 +29,7 @@ private:
     UTextBlock* AddText(UVerticalBox* Box,const FString& Text,int32 Size,FLinearColor Color);
     void RefreshSliders();
     UFUNCTION() void TuningChanged(float Value);
+    UFUNCTION() void GazeChanged(float Value);
     UFUNCTION() void SaveClicked();
     UFUNCTION() void ResetClicked();
     UFUNCTION() void HostClicked();
@@ -61,6 +62,8 @@ private:
     UPROPERTY() TObjectPtr<UEditableTextBox> AddressBox;
     UPROPERTY() TArray<TObjectPtr<USlider>> Sliders;
     UPROPERTY() TArray<TObjectPtr<UTextBlock>> SliderLabels;
+    UPROPERTY() TArray<TObjectPtr<USlider>> GazeSliders;
+    UPROPERTY() TArray<TObjectPtr<UTextBlock>> GazeLabels;
     UPROPERTY() TArray<TObjectPtr<USlider>> PhysicsSliders;
     UPROPERTY() TArray<TObjectPtr<UTextBlock>> PhysicsLabels;
     UPROPERTY() TObjectPtr<UVerticalBox> PhysicsBox;

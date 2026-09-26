@@ -1,4 +1,5 @@
 #include "MCDevPanelWidget.h"
+#include "MCTongue.h"
 #include "MCPlayerController.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
@@ -94,6 +95,13 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Инфекция — испорченная еда + язва"),TEXT("Ускоряет порчу одного нового куска. Он создаёт настоящую язву и мешает её заживлению."),EMCDevAction::Infection);
     AddAction(Actions,TEXT("Язык — язва и волна боли"),TEXT("Язва без еды перед игроком. Наступи на неё: движение языка, красная волна и один толчок каждому. Язва заживает сама."),EMCDevAction::TongueUlcer);
     AddAction(Actions,TEXT("Язык — сильный рывок / ragdoll"),TEXT("Поджатие, резкий подъём и бросок игроков с едой. В обычном дне повторяется редко; в ручном тесте запускается этой кнопкой."),EMCDevAction::TongueJolt);
+    for (TActorIterator<AMCTongue> It(GetWorld());It;++It) if (It->Profile)
+    {
+        for (int32 I=0;I<It->Profile->DevMotions.Num();++I) if (const auto* P=It->Profile->DevMotions[I].Get())
+            AddAction(Actions,TEXT("Язык — ")+P->Label.ToString(),TEXT("Профиль из DA_Tongue.DevMotions. Центр перед игроком, направление по взгляду корпуса."),EMCDevAction::TongueMotion,I);
+        break;
+    }
+    AddAction(Actions,TEXT("Глаза — создать напарника"),TEXT("Наблюдай взгляд зуба на тебя, еду и опасности. Веки моргают; настройки в DA_Gaze и F1."),EMCDevAction::GazePractice);
     AddAction(Actions,TEXT("Кофейный налёт + щётки"),TEXT("Покрывает зубы, игроков и поверхность налётом. Четыре контакта по 0,5 секунды."),EMCDevAction::CoffeeDirt);
     AddAction(Actions,TEXT("Сбросить щётки с неба"),TEXT("По одной щётке на игрока. Подобрать E, выбросить Q за передний край."),EMCDevAction::DropBrushes);
     AddAction(Actions,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);

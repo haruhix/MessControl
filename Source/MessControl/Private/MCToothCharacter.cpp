@@ -10,6 +10,7 @@
 #include "MCGameState.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothAnimInstance.h"
+#include "MCGazeComponent.h"
 #include "PhysicsControlComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -54,6 +55,7 @@ AMCToothCharacter::AMCToothCharacter()
     Muscles->bAttemptToRecreateDisabledControls=true;
     ToothPhysics=CreateDefaultSubobject<UMCToothPhysicsComponent>(TEXT("ToothPhysics"));
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
+    Gaze=CreateDefaultSubobject<UMCGazeComponent>(TEXT("Gaze"));
     BrushPivot = CreateDefaultSubobject<USceneComponent>(TEXT("BrushPivot"));
     BrushPivot->SetupAttachment(GetMesh(),TEXT("hand_r"));
     Brush = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MiniBrush"));

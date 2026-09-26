@@ -5,15 +5,6 @@
 #include "MCTongueProfile.h"
 #include "MCTongue.generated.h"
 
-USTRUCT()
-struct FMCTonguePulse
-{
-    GENERATED_BODY()
-    UPROPERTY() FVector Origin=FVector::ZeroVector;
-    UPROPERTY() double StartedAt=-100;
-    UPROPERTY() int32 Serial=0;
-};
-
 /** One vertex buffer drives both the visible tongue and its Chaos triangle surface.
  * Fixed topology: UpdateMeshSection refits collision, never cooks a new mesh per tick.
  */
@@ -32,28 +23,31 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tongue") TObjectPtr<UMaterialInterface> SurfaceMaterial;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tongue") TObjectPtr<UMCTongueProfile> Profile;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue") FMCTongueSettings Settings;
-    UPROPERTY(Replicated) FMCTonguePulse Pulse;
-    UPROPERTY(Replicated) FMCTonguePulse Jolt;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue") FMCTongueMotionState Motion;
+    // Returns false while another motion/rest interval is active. Call on the server.
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue") bool PlayMotion(UMCTongueMotionProfile* MotionProfile,FVector WorldOrigin,FVector WorldDirection,float Strength=1);
+    UFUNCTION(BlueprintPure,Category="Tongue") bool IsMotionActive() const;
     UFUNCTION(CallInEditor,Category="Tongue") void RebuildSurface();
     bool TriggerPain(FVector WorldPoint);
     bool TriggerJolt();
-    void ResetPain();
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue") void ResetPain();
     bool SurfacePoint(FVector WorldPoint,FHitResult& Hit) const;
     float ServerTime() const;
     // Used by validation to compare the rendered triangle with collision.
     const TArray<FVector>& CurrentVertices() const { return Positions; }
     const TArray<int32>& TriangleIndices() const { return Indices; }
     int32 PlayerPushes=0,FoodPushes=0;
-    int32 JoltPlayerPushes=0,JoltFoodPushes=0;
 private:
+    bool StartMotion(FMCTongueMotionSettings Event,FVector Origin,FVector Direction,float Strength);
     float JoltWeight(FVector Local) const;
-    void ThrowRiders();
+    float SurfaceWeight(FVector Local) const;
+    float MotionWeight(FVector Local) const;
+    float MotionDistance(FVector Local) const;
+    void PushMotion(float Age);
     void ScheduleJolt();
     double NextJoltAt=0;
-    int32 AppliedJolt=0;
     float Offset(FVector Local,float Time,float& Red) const;
     void Deform(float Time);
-    void PushWave(float Age);
     TArray<FVector> Rest,RestNormals,Positions,Normals;
     TArray<float> AnchorWeights;
     TArray<FVector> AnchorGradients;
@@ -63,6 +57,5 @@ private:
     TArray<FColor> Colors;
     FBox RestBounds=FBox(ForceInit);
     TSet<TWeakObjectPtr<AActor>> HitActors;
-    float PreviousWaveAge=-1;
-    int32 PreviousSerial=0;
+    float PreviousMotionAge=-1;
 };

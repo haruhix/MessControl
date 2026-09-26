@@ -113,7 +113,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
         if (TongueMaxZ-TongueMinZ>(JoltTest?100:8)) DevSeen|=2;
         if (JoltTest)
         {
-            if (Tongue->Jolt.Serial>0)
+            if (Tongue->Motion.Serial>0)
             {
                 DevSeen|=4;
                 if (Host && DevStage==2) { bTongueInvalid|=Tongue->TriggerJolt(); ++DevStage; }
@@ -127,15 +127,15 @@ void UMCValidationSubsystem::TickTongue(float Dt)
             for (const auto* Hero:Heroes) AllStanding&=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Standing;
             if (T>6 && AllStanding && (DevSeen&16)) DevSeen|=32;
             if (TongueMinZ<TongueRestZ-10) DevSeen|=64;
-            if (T>9 && Tongue->Jolt.Serial==1 && FMath::Abs(Center.ImpactPoint.Z-TongueRestZ)<8) DevSeen|=128;
+            if (T>9 && Tongue->Motion.Serial==1 && FMath::Abs(Center.ImpactPoint.Z-TongueRestZ)<8) DevSeen|=128;
             if (Host && T>6 && DevStage==3)
             {
-                bTongueInvalid|=Tongue->Jolt.Serial!=1 || Tongue->JoltPlayerPushes!=Expected || Tongue->JoltFoodPushes<1;
-                UE_LOG(LogTemp,Display,TEXT("MC_TONGUE_JOLT players=%d food=%d serial=%d"),Tongue->JoltPlayerPushes,Tongue->JoltFoodPushes,Tongue->Jolt.Serial);
+                bTongueInvalid|=Tongue->Motion.Serial!=1 || Tongue->PlayerPushes!=Expected || Tongue->FoodPushes<1;
+                UE_LOG(LogTemp,Display,TEXT("MC_TONGUE_JOLT players=%d food=%d serial=%d"),Tongue->PlayerPushes,Tongue->FoodPushes,Tongue->Motion.Serial);
                 ++DevStage;
             }
         }
-        if (Tongue->Pulse.Serial>0)
+        if (Tongue->Motion.Serial>0)
         {
             DevSeen|=4;
             if (Host && DevStage==2) { bTongueInvalid|=Tongue->TriggerPain(Center.ImpactPoint); ++DevStage; }
@@ -158,8 +158,8 @@ void UMCValidationSubsystem::TickTongue(float Dt)
         if (!JoltTest && T>9 && Ulcers==0 && (DevSeen&32)) DevSeen|=128;
         if (Host && T>6 && DevStage==3)
         {
-            bTongueInvalid|=Tongue->Pulse.Serial!=1 || Tongue->PlayerPushes!=Expected || Tongue->FoodPushes<1;
-            UE_LOG(LogTemp,Display,TEXT("MC_TONGUE_PUSHES players=%d food=%d serial=%d"),Tongue->PlayerPushes,Tongue->FoodPushes,Tongue->Pulse.Serial);
+            bTongueInvalid|=Tongue->Motion.Serial!=1 || Tongue->PlayerPushes!=Expected || Tongue->FoodPushes<1;
+            UE_LOG(LogTemp,Display,TEXT("MC_TONGUE_PUSHES players=%d food=%d serial=%d"),Tongue->PlayerPushes,Tongue->FoodPushes,Tongue->Motion.Serial);
             ++DevStage;
         }
         if (Capture && T>=CoffeeNextFrame && T<11)

@@ -15,6 +15,7 @@
 #include "MCCoffeeProfile.h"
 #include "MCTongueProfile.h"
 #include "MCTongue.h"
+#include "MCGazeComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
@@ -240,6 +241,27 @@ bool FMCArtistRigTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Body mapped to pelvis"),Hero->RigBone(TEXT("body")),FName("root_x"));
     TestTrue(TEXT("Imported +Y faces character +X"),Profile->MeshTransform.TransformVectorNoScale(FVector::RightVector).Equals(FVector::ForwardVector,.001));
     const auto& Ref=Profile->SkeletalMesh->GetRefSkeleton();
+    auto* Original=LoadObject<USkeletalMesh>(nullptr,TEXT("/Game/Art/Meshes/Character/SM_Teeth_rig.SM_Teeth_rig"));
+    if (!TestNotNull(TEXT("Artist source retained"),Original)) return false;
+    const auto& OriginalRef=Original->GetRefSkeleton();
+    TestEqual(TEXT("Face repair preserves bone count"),Ref.GetNum(),OriginalRef.GetNum());
+    for (int32 I=0;I<OriginalRef.GetNum();++I)
+    {
+        const int32 J=Ref.FindBoneIndex(OriginalRef.GetBoneName(I));
+        if (TestTrue(TEXT("Source bone survives facial repair"),J!=INDEX_NONE))
+        {
+            const auto& A=OriginalRef.GetRefBonePose()[I]; const auto& B=Ref.GetRefBonePose()[J];
+            // FBX/Blender reconstructs the two stretch-arm joints within 0.46 mm / 0.11 degrees.
+            // Bound physical drift explicitly instead of using one tolerance for position, scale and quaternion.
+            TestTrue(*FString::Printf(TEXT("Ref pose compatible: %s"),*OriginalRef.GetBoneName(I).ToString()),
+                A.GetLocation().Equals(B.GetLocation(),.05) && A.GetScale3D().Equals(B.GetScale3D(),.001)
+                && A.GetRotation().AngularDistance(B.GetRotation())<FMath::DegreesToRadians(.15f));
+            const int32 PA=OriginalRef.GetParentIndex(I),PB=Ref.GetParentIndex(J);
+            TestEqual(TEXT("Bone hierarchy preserved"),PA<0?NAME_None:OriginalRef.GetBoneName(PA),PB<0?NAME_None:Ref.GetBoneName(PB));
+        }
+    }
+    for (const FName Role:{FName("eye_l"),FName("eye_r"),FName("lid_top_l"),FName("lid_top_r"),FName("lid_bottom_l"),FName("lid_bottom_r")})
+        TestTrue(TEXT("Facial mapping exists"),Ref.FindBoneIndex(Hero->RigBone(Role))!=INDEX_NONE);
     for (const FName BoneRole:{FName("body"),FName("arm_l"),FName("arm_r"),FName("hand_r"),FName("leg_l"),FName("leg_r"),FName("foot_l"),FName("foot_r")})
         TestTrue(*FString::Printf(TEXT("Mapped %s exists"),*BoneRole.ToString()),Ref.FindBoneIndex(Hero->RigBone(BoneRole))!=INDEX_NONE);
     auto* Asset=Hero->GetMesh()->GetPhysicsAsset();
@@ -761,28 +783,103 @@ bool FMCTongueScheduleTest::RunTest(const FString& Parameters)
         Tongue->Tick(.1f);
     };
     Advance(21);
-    TestEqual(TEXT("Normal day has no jolt before minimum rest"),Tongue->Jolt.Serial,0);
+    TestEqual(TEXT("Normal day has no jolt before minimum rest"),Tongue->Motion.Serial,0);
     Advance(12);
-    TestEqual(TEXT("Normal day starts jolt by maximum rest"),Tongue->Jolt.Serial,1);
+    TestEqual(TEXT("Normal day starts jolt by maximum rest"),Tongue->Motion.Serial,1);
     TestFalse(TEXT("A running jolt cannot be triggered twice"),Tongue->TriggerJolt());
     Mouth.State->bDevManualEvents=true;
     Advance(40);
-    TestEqual(TEXT("Manual event mode suppresses automatic jolts"),Tongue->Jolt.Serial,1);
+    TestEqual(TEXT("Manual event mode suppresses automatic jolts"),Tongue->Motion.Serial,1);
     Mouth.State->bDevManualEvents=false;
     Mouth.State->bDayOneComplete=true;
     Advance(1);
-    TestEqual(TEXT("Completed day suppresses automatic jolts"),Tongue->Jolt.Serial,1);
+    TestEqual(TEXT("Completed day suppresses automatic jolts"),Tongue->Motion.Serial,1);
     Mouth.State->bDayOneComplete=false;
     Advance(1);
-    TestEqual(TEXT("Active normal day resumes automatic jolts"),Tongue->Jolt.Serial,2);
+    TestEqual(TEXT("Active normal day resumes automatic jolts"),Tongue->Motion.Serial,2);
     Tongue->ResetPain();
-    TestEqual(TEXT("Restart removes current jolt"),Tongue->Jolt.Serial,0);
+    TestEqual(TEXT("Restart removes current jolt"),Tongue->Motion.Serial,0);
     Advance(21);
-    TestEqual(TEXT("Restart grants a fresh quiet interval"),Tongue->Jolt.Serial,0);
+    TestEqual(TEXT("Restart grants a fresh quiet interval"),Tongue->Motion.Serial,0);
     Tongue->Settings.bAutomaticJolts=false;
     Advance(12);
-    TestEqual(TEXT("Data setting disables automatic jolts"),Tongue->Jolt.Serial,0);
+    TestEqual(TEXT("Data setting disables automatic jolts"),Tongue->Motion.Serial,0);
     TestTrue(TEXT("Explicit dev action still works when automatic is disabled"),Tongue->TriggerJolt());
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGazeAttentionTest,"MessControl.Gaze.AttentionAndOcclusion",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCGazeAttentionTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* A=Mouth.Worker(); auto* B=Mouth.Worker();
+    A->SetActorLocationAndRotation(FVector(0,0,200),FRotator::ZeroRotator); B->SetActorLocation(FVector(250,100,200));
+    auto Scan=[&](){A->Gaze->TickComponent(.3f,LEVELTICK_All,nullptr);};
+    Scan(); TestTrue(TEXT("Visible player draws attention"),A->Gaze->Target.Actor==B && A->Gaze->Target.Interest==EMCGazeInterest::Player);
+    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(200,-100,250),FRotator::ZeroRotator);
+    Scan(); TestTrue(TEXT("Falling food interrupts a social hold"),A->Gaze->Target.Actor==Food && A->Gaze->Target.Interest==EMCGazeInterest::Danger);
+    Food->Dispose(); Scan(); TestTrue(TEXT("Disposed target releases attention"),A->Gaze->Target.Actor==B);
+    auto* Wall=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Wall);
+    Wall->SetRootComponent(Box); Box->SetBoxExtent(FVector(20,300,300)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Wall->SetActorLocation(FVector(120,0,200));
+    Scan(); TestTrue(TEXT("Wall blocks gaze"),A->Gaze->Target.Interest==EMCGazeInterest::None);
+    Wall->Destroy(); B->SetActorLocation(FVector(-200,0,200)); Scan();
+    TestTrue(TEXT("Does not select a player behind the head"),A->Gaze->Target.Interest==EMCGazeInterest::None);
+    TestTrue(TEXT("Events may request a brief reaction to a world point"),A->Gaze->NoticePoint(FVector(200,100,230),1));
+    TestTrue(TEXT("Point reaction is independent of actor lifetime"),!A->Gaze->Target.Actor && A->Gaze->Target.Interest==EMCGazeInterest::Danger);
+    const int32 Serial=A->Gaze->Target.Serial;
+    TestFalse(TEXT("Reject invalid event point"),A->Gaze->NoticePoint(FVector(std::numeric_limits<double>::quiet_NaN()),1));
+    TestEqual(TEXT("Rejected request does not change attention"),A->Gaze->Target.Serial,Serial);
+    FMCGazeSettings S; S.YawLimit=1000; S.BlinkMin=0; S.TurnSpeed=std::numeric_limits<float>::quiet_NaN(); S.Sanitize();
+    TestTrue(TEXT("Face tuning stays bounded"),S.YawLimit<=45 && S.BlinkMin>=1 && FMath::IsFinite(S.TurnSpeed));
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTongueEventTest,"MessControl.Tongue.EventProfiles",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCTongueEventTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working; Mouth.State->bDevManualEvents=true;
+    auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FTransform::Identity);
+    Tongue->SourceMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/Arena/SM_TongueSurface.SM_TongueSurface")); Tongue->FinishSpawning(FTransform::Identity);
+    Tongue->SetActorTickEnabled(false); Tongue->Settings.IdleHeight=0;
+    const auto Rest=Tongue->CurrentVertices(); if (!TestTrue(TEXT("Tongue geometry available"),Rest.Num()>100)) return false;
+    FBox Bounds(Rest); FVector Origin=Bounds.GetCenter();
+    auto* Profile=NewObject<UMCTongueMotionProfile>(); Profile->Settings.Height=100; Profile->Settings.Radius=400;
+    TestTrue(TEXT("Event can start from explicit origin"),Tongue->PlayMotion(Profile,Origin,FVector::ForwardVector,.5f));
+    TestEqual(TEXT("Per-call strength is snapshotted"),Tongue->Motion.Settings.Height,50.f);
+    Profile->Settings.Height=210;
+    TestEqual(TEXT("Asset edits cannot change an active event"),Tongue->Motion.Settings.Height,50.f);
+    TestFalse(TEXT("Active motion rejects overlapping event"),Tongue->PlayMotion(Profile,Origin,FVector::ForwardVector));
+    auto Peak=[&]()
+    {
+        Tongue->Motion.StartedAt=Tongue->ServerTime()-Tongue->Motion.Settings.Anticipation-Tongue->Motion.Settings.Rise-.05;
+        Tongue->Tick(.033f);
+        FVector Center=FVector::ZeroVector; float Sum=0;
+        for (int32 I=0;I<Rest.Num();++I) { const float D=FMath::Max(0.f,float(Tongue->CurrentVertices()[I].Z-Rest[I].Z)); Center+=Rest[I]*D; Sum+=D; }
+        TestTrue(TEXT("Local event visibly deforms mesh"),Sum>10); return Center/FMath::Max(1.f,Sum);
+    };
+    const FVector First=Peak();
+    Tongue->ResetPain(); Origin.Y+=300; Profile->Settings.Height=50;
+    TestTrue(TEXT("Same profile can move its origin"),Tongue->PlayMotion(Profile,Origin,FVector::ForwardVector));
+    const FVector Second=Peak(); TestTrue(TEXT("Deformation follows the moved origin"),Second.Y>First.Y+100);
+    Tongue->ResetPain(); Profile->Settings.Shape=EMCTongueShape::DirectionalWave; Profile->Settings.Speed=0;
+    TestTrue(TEXT("Directional event starts with sanitized parameters"),Tongue->PlayMotion(Profile,Origin,FVector(0,1,0)));
+    TestTrue(TEXT("Direction is retained and speed is safe"),Tongue->Motion.Direction.Equals(FVector(0,1,0),.001f) && Tongue->Motion.Settings.Speed>=100);
+    Tongue->ResetPain();
+    Profile->Settings.Speed=700; Profile->Settings.Radius=1300; Profile->Settings.Width=180;
+    Origin=Bounds.GetCenter()-FVector(0,300,0);
+    Tongue->PlayMotion(Profile,Origin,FVector(0,1,0));
+    auto Crest=[&](float Seconds)
+    {
+        Tongue->Motion.StartedAt=Tongue->ServerTime()-Tongue->Motion.Settings.Anticipation-Seconds;
+        Tongue->Tick(.033f); FVector Center=FVector::ZeroVector; float Sum=0;
+        for (int32 I=0;I<Rest.Num();++I) { const float D=FMath::Max(0.f,float(Tongue->CurrentVertices()[I].Z-Rest[I].Z)); Center+=Rest[I]*D; Sum+=D; }
+        TestTrue(TEXT("Travelling front has visible geometry"),Sum>10); return Center/FMath::Max(1.f,Sum);
+    };
+    const FVector Early=Crest(.25f),Late=Crest(.75f);
+    TestTrue(TEXT("Front travels in requested direction over time"),Late.Y>Early.Y+100);
+    Tongue->ResetPain(); Tongue->PlayMotion(Profile,Origin,FVector(0,-1,0));
+    TestTrue(TEXT("Reversing direction sends front the other way"),Crest(.25f).Y<Origin.Y);
+    Tongue->ResetPain();
+    TestFalse(TEXT("Invalid strength is rejected"),Tongue->PlayMotion(Profile,Origin,FVector::ForwardVector,std::numeric_limits<float>::quiet_NaN()));
+    TestEqual(TEXT("Rejected event has no state"),Tongue->Motion.Serial,0);
     return true;
 }
 #endif

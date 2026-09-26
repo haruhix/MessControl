@@ -1,0 +1,28 @@
+{
+  "source": "TeethFaceSource.fbx",
+  "eyelids": [
+    {
+      "bone": "c_eyelid_top_l",
+      "vertices": 260,
+      "clearance_cm": 0.8
+    },
+    {
+      "bone": "c_eyelid_top_r",
+      "vertices": 258,
+      "clearance_cm": 0.8
+    },
+    {
+      "bone": "c_eyelid_bot_l",
+      "vertices": 188,
+      "clearance_cm": 0.8
+    },
+    {
+      "bone": "c_eyelid_bot_r",
+      "vertices": 188,
+      "clearance_cm": 0.8
+    }
+  ],
+  "body_vertices_remapped": 269,
+  "vertices": 3138,
+  "bones": 107
+}

@@ -128,7 +128,7 @@ void AMCDayOneScenario::Tick(float Dt)
             bool ReadyForCoffee=bObservedUlcer;
             for (auto Hero:Heroes) ReadyForCoffee &= Hero && Hero->ToothPhysics->CanAct();
             for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
-                ReadyForCoffee &= It->Pulse.Serial==0 || Now-It->Pulse.StartedAt>It->Settings.Duration();
+                ReadyForCoffee &= !It->IsMotionActive();
             if (ReadyForCoffee) { if (RecoveryReadyAt<0) RecoveryReadyAt=Now; }
             else RecoveryReadyAt=-1;
             if (RecoveryReadyAt>=0 && Now-RecoveryReadyAt>1 && Elapsed>4) Next();

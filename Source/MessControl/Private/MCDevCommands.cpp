@@ -44,7 +44,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         DayDirector->Start(Plan,StepIndex,true);
         return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::TongueJolt))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::TongueMotion))
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -58,6 +58,18 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::GazePractice:
+        if (Hero) Hero->SpawnPracticeTooth();
+        return FText::FromString(TEXT("Зуб перед тобой: обойди его, посмотри на глаза, затем урони рядом еду. Настройки взгляда — F1 и DA_Gaze."));
+    case EMCDevAction::TongueMotion:
+        if (Hero) for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        {
+            if (!It->Profile || !It->Profile->DevMotions.IsValidIndex(StepIndex)) return FText::FromString(TEXT("Профиль движения отсутствует."));
+            FHitResult Hit; if (!It->SurfacePoint(Hero->GetActorLocation()+Hero->GetActorForwardVector()*180,Hit)) return FText::FromString(TEXT("Перед игроком нет языка."));
+            const bool Started=It->PlayMotion(It->Profile->DevMotions[StepIndex],Hit.ImpactPoint,Hero->GetActorForwardVector());
+            return FText::FromString(Started?TEXT("Движение началось перед игроком. Направление — куда смотрел зуб. F3 — играть."):TEXT("Дождись конца текущего движения и паузы."));
+        }
+        return FText::FromString(TEXT("Нужны игрок и подвижный язык."));
     case EMCDevAction::TongueJolt:
         for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
             return FText::FromString(It->TriggerJolt()?TEXT("Язык подожмётся и резко поднимется. F3 — закрыть панель и увидеть бросок."):TEXT("Дождись окончания текущей реакции языка."));

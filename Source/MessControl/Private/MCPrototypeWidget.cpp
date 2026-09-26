@@ -4,6 +4,7 @@
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCGazeComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCCoffeeFlood.h"
@@ -35,6 +36,7 @@ namespace
     const float PhysicsMin[]={150,80,100,0.5f,0.25f,2,0.3f,3};
     const float PhysicsMax[]={1100,650,600,6,2,35,2,20};
     const TCHAR* ArenaNames[]={TEXT("Arena hit squash"),TEXT("Arena wobble degrees"),TEXT("Arena reaction seconds")};
+    const TCHAR* GazeNames[]={TEXT("Eye yaw limit"),TEXT("Eye pitch limit"),TEXT("Eye turn speed"),TEXT("Eye reaction delay")};
 }
 UTextBlock* UMCPrototypeWidget::AddText(UVerticalBox* Box,const FString& Text,int32 Size,FLinearColor Color)
 {
@@ -96,6 +98,16 @@ void UMCPrototypeWidget::NativeOnInitialized()
         auto* L = WidgetTree->ConstructWidget<UTextBlock>(); L->SetText(FText::FromString(Text)); L->SetColorAndOpacity(FSlateColor(Cream)); L->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14));
         B->AddChild(L); Box->AddChildToVerticalBox(B)->SetPadding(FMargin(0,5)); return B;
     };
+    AddText(Tuning,TEXT("EYES / LOCAL PREVIEW"),21,Mint);
+    AddText(Tuning,TEXT("Shared defaults: DA_Gaze. Attention is selected by the host; these sliders preview your face only."),12,Cream);
+    const float GazeMin[]={0,0,3,0},GazeMax[]={45,35,40,.5f};
+    for (int32 I=0;I<4;++I)
+    {
+        GazeLabels.Add(AddText(Tuning,GazeNames[I],14,Cream));
+        auto* S=WidgetTree->ConstructWidget<USlider>(); S->SetMinValue(GazeMin[I]); S->SetMaxValue(GazeMax[I]); S->SetSliderHandleColor(Mint);
+        S->OnValueChanged.AddDynamic(this,&UMCPrototypeWidget::GazeChanged);
+        Tuning->AddChildToVerticalBox(S)->SetPadding(FMargin(0,4,0,10)); GazeSliders.Add(S);
+    }
     Button(Tuning,TEXT("SAVE LOCAL PRESET"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::SaveClicked);
     Button(Tuning,TEXT("RESET FROM DATA ASSET"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ResetClicked);
     SaveLabel = AddText(Tuning,TEXT("DA_ToothAnimation supplies the shared defaults."),11,Cream);
@@ -226,6 +238,8 @@ void UMCPrototypeWidget::RefreshSliders()
     bRefreshing = true; const auto& A = Tooth->AnimationSettings;
     const float Values[] = {A.Squash,A.Stretch,A.Bob,A.Lean,A.FollowThrough,A.Tempo,A.Anticipation,A.Exaggeration};
     for (int32 I=0; I<Sliders.Num(); ++I) { Sliders[I]->SetValue(Values[I]); SliderLabels[I]->SetText(FText::FromString(FString::Printf(TEXT("%s  %.2f"),TuningNames[I],Values[I]))); }
+    const auto G=Tooth->Gaze->VisualSettings(); const float GV[]={G.YawLimit,G.PitchLimit,G.TurnSpeed,G.ReactionDelay};
+    for (int32 I=0;I<GazeSliders.Num();++I) { GazeSliders[I]->SetValue(GV[I]); GazeLabels[I]->SetText(FText::FromString(FString::Printf(TEXT("%s  %.2f"),GazeNames[I],GV[I]))); }
     const auto& P=Tooth->ToothPhysics->Settings;
     const float PV[]={P.Knockback,P.Lift,P.FallThreshold,P.RagdollSeconds,P.GetUpSeconds,P.MuscleStrength,P.Damping,P.Mass};
     PhysicsBox->SetIsEnabled(Tooth->HasAuthority());
@@ -252,6 +266,11 @@ void UMCPrototypeWidget::PhysicsChanged(float Value)
     for (int32 I=0;I<8;++I) *Values[I]=PhysicsSliders[I]->GetValue();
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->ToothPhysics->SetTuning(P);
     RefreshSliders();
+}
+void UMCPrototypeWidget::GazeChanged(float Value)
+{
+    auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn()); if (bRefreshing || !T || GazeSliders.Num()!=4) return;
+    T->Gaze->SetVisualPreview(GazeSliders[0]->GetValue(),GazeSliders[1]->GetValue(),GazeSliders[2]->GetValue(),GazeSliders[3]->GetValue()); RefreshSliders();
 }
 void UMCPrototypeWidget::FallClicked() { if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) if (T->HasAuthority()) T->ToothPhysics->ApplyHit(T->GetActorForwardVector()*T->ToothPhysics->Settings.Knockback+FVector(0,0,T->ToothPhysics->Settings.Lift),T->GetActorLocation()); }
 void UMCPrototypeWidget::GetUpClicked() { if (auto* T=Cast<AMCToothCharacter>(GetOwningPlayerPawn())) if (T->HasAuthority()) T->ToothPhysics->TryRecover(); }
@@ -298,7 +317,7 @@ void UMCPrototypeWidget::ArenaAnimationChanged(float Value)
     }
     RefreshSliders();
 }
-void UMCPrototypeWidget::SaveClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->SaveTuning(); if (Tooth->HasAuthority()) Tooth->ToothPhysics->SaveTuning(); SaveLabel->SetText(FText::FromString(TEXT("Saved local .ini presets in Saved/."))); } }
-void UMCPrototypeWidget::ResetClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->ResetTuning(); if (Tooth->HasAuthority()) { Tooth->ToothPhysics->ResetTuning(); for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->ToothPhysics->SetTuning(Tooth->ToothPhysics->Settings); } RefreshSliders(); } }
+void UMCPrototypeWidget::SaveClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->SaveTuning(); Tooth->Gaze->SavePreview(); if (Tooth->HasAuthority()) Tooth->ToothPhysics->SaveTuning(); SaveLabel->SetText(FText::FromString(TEXT("Saved local .ini presets in Saved/."))); } }
+void UMCPrototypeWidget::ResetClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->ResetTuning(); Tooth->Gaze->ResetPreview(); if (Tooth->HasAuthority()) { Tooth->ToothPhysics->ResetTuning(); for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->ToothPhysics->SetTuning(Tooth->ToothPhysics->Settings); } RefreshSliders(); } }
 void UMCPrototypeWidget::HostClicked() { if (auto* PC = Cast<AMCPlayerController>(GetOwningPlayer())) PC->HostGame(); }
 void UMCPrototypeWidget::JoinClicked() { if (auto* PC = Cast<AMCPlayerController>(GetOwningPlayer())) PC->JoinGame(AddressBox->GetText().ToString()); }

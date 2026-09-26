@@ -1,4 +1,5 @@
 #include "MCToothPhysicsComponent.h"
+#include "MCGazeComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -109,6 +110,7 @@ void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocati
     if (!Tooth || !Tooth->HasAuthority() || LocalState==EMCBodyState::Recovering || ServerTime()<RecoveryInvulnerableUntil) return;
     if (VelocityChange.ContainsNaN() || HitLocation.ContainsNaN()) return;
     VelocityChange=VelocityChange.GetClampedToMaxSize(1400.f);
+    if (Tooth->Gaze) Tooth->Gaze->NoticePoint(HitLocation-VelocityChange.GetSafeNormal2D()*140+FVector(0,0,40),1);
     if (LocalState==EMCBodyState::Standing && VelocityChange.Size()<Settings.FallThreshold)
     {
         Tooth->LaunchCharacter(VelocityChange,false,false);

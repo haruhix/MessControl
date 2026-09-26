@@ -13,6 +13,7 @@ public:
     virtual TStatId GetStatId() const override { RETURN_QUICK_DECLARE_CYCLE_STAT(UMCValidationSubsystem,STATGROUP_Tickables); }
     virtual bool DoesSupportWorldType(EWorldType::Type WorldType) const override { return WorldType == EWorldType::Game || WorldType == EWorldType::PIE; }
 private:
+    void TickGaze(float Dt);
     void TickTongue(float Dt);
     float TongueError=0;
     float TonguePatchError=0;
