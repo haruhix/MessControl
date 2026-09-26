@@ -14,6 +14,8 @@
 #include "MCCoffeeFlood.h"
 #include "MCCoffeeProfile.h"
 #include "MCTongueProfile.h"
+#include "MCTongue.h"
+#include "Engine/StaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -739,6 +741,48 @@ bool FMCCoffeePourDrainTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Real actor enters drain and hides jet"),Flood->GetPhase()==EMCCoffeePhase::Draining && !Flood->Jet->IsVisible() && Flood->DrainRibbon->IsVisible());
     Flood->Stop();
     TestTrue(TEXT("Cancellation removes all pour visuals and forces"),!Flood->Surface->IsVisible() && !Flood->Jet->IsVisible() && !Flood->Crown->IsVisible() && !Flood->DrainRibbon->IsVisible() && !Flood->Drops->IsVisible() && Flood->FlowAtPosition(P).IsNearlyZero());
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTongueScheduleTest,"MessControl.Tongue.AutomaticJoltAndReset",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCTongueScheduleTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth;
+    Mouth.Mode->SetActorTickEnabled(false);
+    Mouth.Mode->bUseDayOnePlan=true;
+    Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FTransform::Identity);
+    Tongue->SourceMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/Arena/SM_TongueSurface.SM_TongueSurface"));
+    Tongue->FinishSpawning(FTransform::Identity);
+    Tongue->SetActorTickEnabled(false);
+    if (!TestTrue(TEXT("Authored tongue available"),Tongue->CurrentVertices().Num()>0)) return false;
+    auto Advance=[&](float Seconds)
+    {
+        for (int32 I=0;I<FMath::RoundToInt(Seconds*10);++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
+        Tongue->Tick(.1f);
+    };
+    Advance(21);
+    TestEqual(TEXT("Normal day has no jolt before minimum rest"),Tongue->Jolt.Serial,0);
+    Advance(12);
+    TestEqual(TEXT("Normal day starts jolt by maximum rest"),Tongue->Jolt.Serial,1);
+    TestFalse(TEXT("A running jolt cannot be triggered twice"),Tongue->TriggerJolt());
+    Mouth.State->bDevManualEvents=true;
+    Advance(40);
+    TestEqual(TEXT("Manual event mode suppresses automatic jolts"),Tongue->Jolt.Serial,1);
+    Mouth.State->bDevManualEvents=false;
+    Mouth.State->bDayOneComplete=true;
+    Advance(1);
+    TestEqual(TEXT("Completed day suppresses automatic jolts"),Tongue->Jolt.Serial,1);
+    Mouth.State->bDayOneComplete=false;
+    Advance(1);
+    TestEqual(TEXT("Active normal day resumes automatic jolts"),Tongue->Jolt.Serial,2);
+    Tongue->ResetPain();
+    TestEqual(TEXT("Restart removes current jolt"),Tongue->Jolt.Serial,0);
+    Advance(21);
+    TestEqual(TEXT("Restart grants a fresh quiet interval"),Tongue->Jolt.Serial,0);
+    Tongue->Settings.bAutomaticJolts=false;
+    Advance(12);
+    TestEqual(TEXT("Data setting disables automatic jolts"),Tongue->Jolt.Serial,0);
+    TestTrue(TEXT("Explicit dev action still works when automatic is disabled"),Tongue->TriggerJolt());
     return true;
 }
 #endif

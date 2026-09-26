@@ -58,6 +58,20 @@ void AMCFoodActor::Initialize(bool bJam,FVector ExtractionDirection)
     bJamOnLanding=bJam; PullDirection=ExtractionDirection.GetSafeNormal2D();
     if (PullDirection.IsNearlyZero()) PullDirection=FVector(0,1,0);
 }
+void AMCFoodActor::OnRep_ReplicatedMovement()
+{
+    if (HasAuthority()) return;
+    // Our proxies deliberately do not simulate. AActor's default physics path sends
+    // a rigid-body target, which stops moving them after OnRep_Phase disables Chaos.
+    // Consume the same replicated transform as a kinematic presentation instead.
+    Body->SetSimulatePhysics(false);
+    const auto& Motion=GetReplicatedMovement();
+    NetworkLocation=FRepMovement::RebaseOntoLocalOrigin(Motion.Location,this);
+    NetworkRotation=Motion.Rotation.Quaternion();
+    if (!bReceivedMotion || FVector::DistSquared(GetActorLocation(),NetworkLocation)>FMath::Square(600.f) || Phase==EMCFoodPhase::Stuck)
+        SetActorLocationAndRotation(NetworkLocation,NetworkRotation,false,nullptr,ETeleportType::TeleportPhysics);
+    bReceivedMotion=true;
+}
 void AMCFoodActor::OnRep_Phase()
 {
     const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped;
@@ -141,6 +155,11 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
 void AMCFoodActor::Tick(float Dt)
 {
     Super::Tick(Dt);
+    if (!HasAuthority() && bReceivedMotion)
+    {
+        const float Alpha=1-FMath::Exp(-25.f*Dt);
+        SetActorLocationAndRotation(FMath::Lerp(GetActorLocation(),NetworkLocation,Alpha),FQuat::Slerp(GetActorQuat(),NetworkRotation,Alpha),false,nullptr,ETeleportType::TeleportPhysics);
+    }
     if (HasAuthority() && !IsDisposed())
     {
         if (Phase==EMCFoodPhase::Equipped) { if (IsValid(EquippedBy)) SetActorLocation(EquippedBy->GetActorLocation()); return; }

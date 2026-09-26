@@ -93,6 +93,7 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
     AddAction(Actions,TEXT("Инфекция — испорченная еда + язва"),TEXT("Ускоряет порчу одного нового куска. Он создаёт настоящую язву и мешает её заживлению."),EMCDevAction::Infection);
     AddAction(Actions,TEXT("Язык — язва и волна боли"),TEXT("Язва без еды перед игроком. Наступи на неё: движение языка, красная волна и один толчок каждому. Язва заживает сама."),EMCDevAction::TongueUlcer);
+    AddAction(Actions,TEXT("Язык — сильный рывок / ragdoll"),TEXT("Поджатие, резкий подъём и бросок игроков с едой. В обычном дне повторяется редко; в ручном тесте запускается этой кнопкой."),EMCDevAction::TongueJolt);
     AddAction(Actions,TEXT("Кофейный налёт + щётки"),TEXT("Покрывает зубы, игроков и поверхность налётом. Четыре контакта по 0,5 секунды."),EMCDevAction::CoffeeDirt);
     AddAction(Actions,TEXT("Сбросить щётки с неба"),TEXT("По одной щётке на игрока. Подобрать E, выбросить Q за передний край."),EMCDevAction::DropBrushes);
     AddAction(Actions,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);

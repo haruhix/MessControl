@@ -33,8 +33,10 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tongue") TObjectPtr<UMCTongueProfile> Profile;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue") FMCTongueSettings Settings;
     UPROPERTY(Replicated) FMCTonguePulse Pulse;
+    UPROPERTY(Replicated) FMCTonguePulse Jolt;
     UFUNCTION(CallInEditor,Category="Tongue") void RebuildSurface();
     bool TriggerPain(FVector WorldPoint);
+    bool TriggerJolt();
     void ResetPain();
     bool SurfacePoint(FVector WorldPoint,FHitResult& Hit) const;
     float ServerTime() const;
@@ -42,7 +44,13 @@ public:
     const TArray<FVector>& CurrentVertices() const { return Positions; }
     const TArray<int32>& TriangleIndices() const { return Indices; }
     int32 PlayerPushes=0,FoodPushes=0;
+    int32 JoltPlayerPushes=0,JoltFoodPushes=0;
 private:
+    float JoltWeight(FVector Local) const;
+    void ThrowRiders();
+    void ScheduleJolt();
+    double NextJoltAt=0;
+    int32 AppliedJolt=0;
     float Offset(FVector Local,float Time,float& Red) const;
     void Deform(float Time);
     void PushWave(float Age);

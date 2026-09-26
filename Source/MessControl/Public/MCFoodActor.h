@@ -49,6 +49,7 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+    virtual void OnRep_ReplicatedMovement() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Initialize(bool bJam,FVector ExtractionDirection);
     bool TryGrab(AMCToothCharacter* Hero);
@@ -82,6 +83,9 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AActor> StuckTooth;
     int32 ConfirmedImpacts=0;
 private:
+    bool bReceivedMotion=false;
+    FVector NetworkLocation=FVector::ZeroVector;
+    FQuat NetworkRotation=FQuat::Identity;
     UFUNCTION() void OnRep_Phase();
     UFUNCTION() void OnRep_Item();
     UFUNCTION() void OnHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);

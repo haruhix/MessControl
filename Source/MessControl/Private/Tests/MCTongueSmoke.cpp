@@ -5,6 +5,9 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCFoodActor.h"
 #include "MCGameState.h"
+#include "MCGameMode.h"
+#include "MCPlayerController.h"
+#include "MCDayDirector.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -31,6 +34,8 @@ void UMCValidationSubsystem::TickTongue(float Dt)
     AMCTongue* Tongue=nullptr; for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
     if (!GS || !PC || !Tongue) { if (Age>60) FPlatformMisc::RequestExitWithStatus(false,1); return; }
     const bool Host=GetWorld()->GetNetMode()!=NM_Client;
+    const bool JoltTest=FParse::Param(FCommandLine::Get(),TEXT("MCTongueJolt"));
+    const FString FrameFolder=FPaths::ProjectSavedDir()/(JoltTest?TEXT("TongueJoltFrames"):TEXT("TongueFrames"));
     const bool Capture=Host && FParse::Param(FCommandLine::Get(),TEXT("MCTongueCapture"));
     int32 Expected=4; FParse::Value(FCommandLine::Get(),TEXT("MCExpectedPlayers="),Expected);
     bool Ready=true;
@@ -51,6 +56,11 @@ void UMCValidationSubsystem::TickTongue(float Dt)
         {
             GS->bDevManualEvents=true; GS->Phase=EMCShiftPhase::Working; GS->PhaseEndsAt=0;
             GS->DayStartedAt=GS->GetServerWorldTimeSeconds(); GS->ForceNetUpdate();
+            if (JoltTest)
+            {
+                auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
+                if (!Mode->DayDirector) Mode->DayDirector=GetWorld()->SpawnActor<AMCDayDirector>();
+            }
             const FVector Points[]={FVector(-100,-100,0),FVector(-420,130,0),FVector(300,-170,0),FVector(-600,-340,0)};
             for (int32 I=0;I<Heroes.Num();++I)
             {
@@ -66,7 +76,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
                 CoffeeCamera=GetWorld()->SpawnActor<ACameraActor>(FVector(-1540,-1130,1200),FRotator::ZeroRotator);
                 CoffeeCamera->SetActorRotation((FVector(50,-100,-30)-CoffeeCamera->GetActorLocation()).Rotation());
                 CoffeeCamera->GetCameraComponent()->SetFieldOfView(70); PC->SetViewTarget(CoffeeCamera);
-                IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("TongueFrames")),true);
+                IFileManager::Get().MakeDirectory(*FrameFolder,true);
             }
             DevStage=1;
         }
@@ -75,9 +85,13 @@ void UMCValidationSubsystem::TickTongue(float Dt)
     const float T=DevStartedAt<0?-1:GS->GetServerWorldTimeSeconds()-DevStartedAt;
     if (Host && DevStage==1 && T>2)
     {
-        FHitResult Hit; Tongue->SurfacePoint(FVector(-100,-100,0),Hit);
-        auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Hit.ImpactPoint+Hit.ImpactNormal*5,FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
-        Patch->bUlcer=true; Patch->HealSeconds=5; ++DevStage;
+        if (JoltTest) { CastChecked<AMCPlayerController>(PC)->RequestDevAction(EMCDevAction::TongueJolt); ++DevStage; }
+        else
+        {
+            FHitResult Hit; Tongue->SurfacePoint(FVector(-100,-100,0),Hit);
+            auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Hit.ImpactPoint+Hit.ImpactNormal*5,FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
+            Patch->bUlcer=true; Patch->HealSeconds=5; ++DevStage;
+        }
     }
     if (T>=0)
     {
@@ -94,8 +108,33 @@ void UMCValidationSubsystem::TickTongue(float Dt)
         }
         if (Probes>8) DevSeen|=1;
         FHitResult Center; Tongue->SurfacePoint(FVector(-100,-100,0),Center);
+        if (TongueRestZ>9999) TongueRestZ=Center.ImpactPoint.Z;
         TongueMinZ=FMath::Min(TongueMinZ,float(Center.ImpactPoint.Z)); TongueMaxZ=FMath::Max(TongueMaxZ,float(Center.ImpactPoint.Z));
-        if (TongueMaxZ-TongueMinZ>8) DevSeen|=2;
+        if (TongueMaxZ-TongueMinZ>(JoltTest?100:8)) DevSeen|=2;
+        if (JoltTest)
+        {
+            if (Tongue->Jolt.Serial>0)
+            {
+                DevSeen|=4;
+                if (Host && DevStage==2) { bTongueInvalid|=Tongue->TriggerJolt(); ++DevStage; }
+            }
+            for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
+            {
+                FHitResult Hit;
+                if (Tongue->SurfacePoint(It->GetActorLocation(),Hit) && It->GetActorLocation().Z-Hit.ImpactPoint.Z>100) DevSeen|=8;
+            }
+            bool AllStanding=Heroes.Num()==Expected;
+            for (const auto* Hero:Heroes) AllStanding&=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Standing;
+            if (T>6 && AllStanding && (DevSeen&16)) DevSeen|=32;
+            if (TongueMinZ<TongueRestZ-10) DevSeen|=64;
+            if (T>9 && Tongue->Jolt.Serial==1 && FMath::Abs(Center.ImpactPoint.Z-TongueRestZ)<8) DevSeen|=128;
+            if (Host && T>6 && DevStage==3)
+            {
+                bTongueInvalid|=Tongue->Jolt.Serial!=1 || Tongue->JoltPlayerPushes!=Expected || Tongue->JoltFoodPushes<1;
+                UE_LOG(LogTemp,Display,TEXT("MC_TONGUE_JOLT players=%d food=%d serial=%d"),Tongue->JoltPlayerPushes,Tongue->JoltFoodPushes,Tongue->Jolt.Serial);
+                ++DevStage;
+            }
+        }
         if (Tongue->Pulse.Serial>0)
         {
             DevSeen|=4;
@@ -116,7 +155,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
             TonguePatchError=FMath::Max(TonguePatchError,float(FMath::Abs(It->GetActorLocation().Z-Hit.ImpactPoint.Z-5)));
             if (It->Healing>.3) DevSeen|=64;
         }
-        if (T>9 && Ulcers==0 && (DevSeen&32)) DevSeen|=128;
+        if (!JoltTest && T>9 && Ulcers==0 && (DevSeen&32)) DevSeen|=128;
         if (Host && T>6 && DevStage==3)
         {
             bTongueInvalid|=Tongue->Pulse.Serial!=1 || Tongue->PlayerPushes!=Expected || Tongue->FoodPushes<1;
@@ -126,7 +165,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
         if (Capture && T>=CoffeeNextFrame && T<11)
         {
             const FString Name=FString::Printf(TEXT("Tongue_%04d.png"),CoffeeFrame++);
-            FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("TongueFrames")/Name,false,false);
+            FScreenshotRequest::RequestScreenshot(FrameFolder/Name,false,false);
             CoffeeTiming+=FString::Printf(TEXT("%s,%.6f\n"),*Name,T); CoffeeNextFrame=T+.1f;
         }
     }
@@ -134,7 +173,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
     if (T>(Host?19:15) || Age>100)
     {
         const bool Pass=DevSeen==255 && TongueError<.5f && TonguePatchError<2 && !bTongueInvalid;
-        if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(FPaths::ProjectSavedDir()/TEXT("TongueFrames/times.csv")));
+        if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(FrameFolder/TEXT("times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s TONGUE net=%d seen=%d collisionError=%.3f patchError=%.3f"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,TongueError,TonguePatchError);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     }
@@ -155,6 +194,11 @@ bool FMCTonguePulseTest::RunTest(const FString&)
     TestTrue(TEXT("Swept front catches a low frame rate crossing"),S.Crossed(600,.1f,1.f));
     TestFalse(TEXT("An object behind a passed wave is not hit later"),S.Crossed(50,1.f,1.1f));
     TestFalse(TEXT("Nothing beyond radius is hit"),S.Crossed(S.WaveRadius+1,0,10));
+    TestEqual(TEXT("Jolt rests before starting"),S.JoltShape(-1),0.f);
+    TestTrue(TEXT("Tongue compresses before throwing"),S.JoltShape(S.JoltAnticipation)<-.11f);
+    TestEqual(TEXT("Full tongue bend after rise"),S.JoltShape(S.JoltAnticipation+S.JoltRise+.05f),1.f);
+    TestEqual(TEXT("Jolt ends at neutral shape"),S.JoltShape(S.JoltDuration()),0.f);
+    TestTrue(TEXT("Default rest is much longer than movement"),S.JoltRestMin>S.JoltDuration()*5);
     return true;
 }
 #endif

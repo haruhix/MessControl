@@ -2,6 +2,7 @@
 #include "KismetProceduralMeshLibrary.h"
 #include "Engine/StaticMesh.h"
 #include "MCGameState.h"
+#include "MCGameMode.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
@@ -63,7 +64,7 @@ void AMCTongue::RebuildSurface()
 void AMCTongue::BeginPlay()
 {
     Super::BeginPlay(); RebuildSurface();
-    if (HasAuthority()) { Settings=Profile?Profile->Settings:FMCTongueSettings(); Settings.Sanitize(); ForceNetUpdate(); }
+    if (HasAuthority()) { Settings=Profile?Profile->Settings:FMCTongueSettings(); Settings.Sanitize(); ScheduleJolt(); ForceNetUpdate(); }
 }
 float AMCTongue::ServerTime() const
 {
@@ -72,16 +73,36 @@ float AMCTongue::ServerTime() const
 }
 bool AMCTongue::TriggerPain(FVector Point)
 {
-    if (!HasAuthority() || Point.ContainsNaN() || (Pulse.Serial>0 && ServerTime()-Pulse.StartedAt<Settings.Cooldown)) return false;
+    if (!HasAuthority() || Point.ContainsNaN() || (Pulse.Serial>0 && ServerTime()-Pulse.StartedAt<Settings.Cooldown)
+        || (Jolt.Serial>0 && ServerTime()-Jolt.StartedAt<Settings.JoltDuration()+1)) return false;
     Pulse.Origin=GetActorTransform().InverseTransformPosition(Point);
     // A short anticipation gives clients time to receive the authoritative pulse.
     Pulse.StartedAt=ServerTime()+.2; ++Pulse.Serial;
+    NextJoltAt=FMath::Max(NextJoltAt,Pulse.StartedAt+Settings.Duration()+2);
     HitActors.Empty(); PreviousWaveAge=-1; ForceNetUpdate(); return true;
+}
+void AMCTongue::ScheduleJolt() { NextJoltAt=ServerTime()+FMath::FRandRange(Settings.JoltRestMin,Settings.JoltRestMax); }
+bool AMCTongue::TriggerJolt()
+{
+    if (!HasAuthority() || (Jolt.Serial>0 && ServerTime()-Jolt.StartedAt<Settings.JoltDuration()+1)
+        || (Pulse.Serial>0 && ServerTime()-Pulse.StartedAt<Settings.Duration()+1)) return false;
+    Jolt.StartedAt=ServerTime()+.2; ++Jolt.Serial;
+    JoltPlayerPushes=JoltFoodPushes=0;
+    ScheduleJolt(); NextJoltAt+=Settings.JoltDuration(); ForceNetUpdate(); return true;
 }
 void AMCTongue::ResetPain()
 {
     if (!HasAuthority()) return;
     Pulse=FMCTonguePulse(); HitActors.Empty(); PreviousWaveAge=-1; PlayerPushes=FoodPushes=0; ForceNetUpdate();
+    Jolt=FMCTonguePulse(); AppliedJolt=0; JoltPlayerPushes=JoltFoodPushes=0; ScheduleJolt();
+}
+float AMCTongue::JoltWeight(FVector P) const
+{
+    const FVector U=(P-RestBounds.Min)/RestBounds.GetSize();
+    const float Lateral=FMath::Square(FMath::Sin(PI*FMath::Clamp(float(U.X),0.f,1.f)));
+    // +local Y is the front of this authored tongue. The root remains fixed.
+    return Lateral*FMath::SmoothStep(.1f,.48f,float(U.Y))
+        *(1-FMath::SmoothStep(.88f,1.f,float(U.Y)))*FMath::SmoothStep(.15f,.75f,float(U.Z));
 }
 float AMCTongue::Offset(FVector P,float Time,float& Red) const
 {
@@ -94,7 +115,37 @@ float AMCTongue::Offset(FVector P,float Time,float& Red) const
     const float Distance=FVector::Dist2D(GetActorTransform().TransformPosition(P),GetActorTransform().TransformPosition(Pulse.Origin));
     Red=Pulse.Serial>0?Settings.Band(Distance,Age)*FMath::Sqrt(Weight):0;
     const float Idle=Settings.IdleHeight*FMath::Sin(Time*2*PI/Settings.IdlePeriod+Unit.Y*1.2f);
-    return Weight*Idle+Settings.WaveHeight*Red;
+    const float Bend=Jolt.Serial>0?Settings.JoltHeight*Settings.JoltShape(Time-Jolt.StartedAt)*JoltWeight(P):0;
+    return Weight*Idle+Settings.WaveHeight*Red+Bend;
+}
+void AMCTongue::ThrowRiders()
+{
+    if (AppliedJolt==Jolt.Serial || Jolt.Serial==0) return;
+    AppliedJolt=Jolt.Serial;
+    auto Strength=[&](FVector P)
+    {
+        FHitResult Hit;
+        if (!SurfacePoint(P,Hit) || P.Z<Hit.ImpactPoint.Z-30 || P.Z>Hit.ImpactPoint.Z+Settings.AffectHeight) return 0.f;
+        return JoltWeight(GetActorTransform().InverseTransformPosition(Hit.ImpactPoint));
+    };
+    const FVector Front=GetActorTransform().TransformVectorNoScale(FVector(0,1,0)).GetSafeNormal2D();
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+    {
+        auto* Hero=*It;
+        const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
+        const float W=Strength(P);
+        if (!Hero->Status->IsAlive() || W<.15f) continue;
+        Hero->ToothPhysics->ApplyHit((Front*Settings.JoltPush+FVector(0,0,Settings.JoltLift))*FMath::Sqrt(W),P); ++JoltPlayerPushes;
+    }
+    for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
+    {
+        auto* Food=*It; const FVector P=Food->Body->GetComponentLocation(); const float W=Strength(P);
+        if (W<.15f || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Stuck || !Food->Body->IsSimulatingPhysics()) continue;
+        // Each item rides the rising floor; mass dampens the extra directional kick.
+        const float Mass=FMath::Max(1.f,Food->Body->GetMass());
+        Food->Body->AddImpulse((Front*Settings.JoltPush*FMath::Sqrt(4.f/Mass)+FVector(0,0,Settings.JoltLift))*FMath::Sqrt(W),NAME_None,true);
+        ++JoltFoodPushes;
+    }
 }
 void AMCTongue::Deform(float Time)
 {
@@ -163,11 +214,21 @@ void AMCTongue::Tick(float Dt)
             FHitResult Hit; if (SurfacePoint(Hero->GetActorLocation(),Hit)) Riders.Emplace(Hero,Hit.ImpactPoint.Z);
         }
     }
-    const float Time=ServerTime(); Deform(Time);
+    const float Time=ServerTime();
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    const bool Playing=State && State->Phase==EMCShiftPhase::Working && !State->bDayOneComplete;
+    if (HasAuthority() && Playing)
+    {
+        const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
+        if (Settings.bAutomaticJolts && Mode && Mode->bUseDayOnePlan && !State->bDevManualEvents && Time>=NextJoltAt) TriggerJolt();
+        // Throw before the fast rise, while everyone is still touching the anticipation pose.
+        if (Jolt.Serial>0 && Time-Jolt.StartedAt>=Settings.JoltAnticipation && Time-Jolt.StartedAt<Settings.JoltDuration()) ThrowRiders();
+    }
+    Deform(Time);
     // A deforming mesh has no component translation for CharacterMovement's usual based movement.
     for (const auto& Rider:Riders)
     {
-        FHitResult Hit; if (SurfacePoint(Rider.Key->GetActorLocation(),Hit))
+        FHitResult Hit; if (Rider.Key->ToothPhysics->CanAct() && SurfacePoint(Rider.Key->GetActorLocation(),Hit))
             Rider.Key->AddActorWorldOffset(FVector(0,0,Hit.ImpactPoint.Z-Rider.Value),true);
     }
     if (HasAuthority())
@@ -185,4 +246,5 @@ void AMCTongue::Tick(float Dt)
 void AMCTongue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCTongue,Settings); DOREPLIFETIME(AMCTongue,Pulse);
+    DOREPLIFETIME(AMCTongue,Jolt);
 }

@@ -17,6 +17,7 @@ private:
     float TongueError=0;
     float TonguePatchError=0;
     float TongueMinZ=10000,TongueMaxZ=-10000;
+    float TongueRestZ=10000;
     bool bTongueInvalid=false;
     void TickCoffeeWater(float Dt);
     UPROPERTY() TObjectPtr<class ACameraActor> CoffeeCamera;

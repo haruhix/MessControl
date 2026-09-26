@@ -9,6 +9,15 @@ struct FMCTongueSettings
     GENERATED_BODY()
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Idle",meta=(ClampMin="0",ClampMax="8")) float IdleHeight=3;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Idle",meta=(ClampMin="2")) float IdlePeriod=5;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt") bool bAutomaticJolts=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="8")) float JoltRestMin=22;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="8")) float JoltRestMax=32;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="0",ClampMax="220")) float JoltHeight=180;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="0.4")) float JoltAnticipation=.7f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="0.25")) float JoltRise=.35f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="0.7")) float JoltReturn=1.4f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="400",ClampMax="1200")) float JoltLift=1000;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="0",ClampMax="500")) float JoltPush=260;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pain",meta=(ClampMin="0",ClampMax="50")) float WaveHeight=28;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pain",meta=(ClampMin="100")) float WaveSpeed=850;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pain",meta=(ClampMin="100")) float WaveWidth=260;
@@ -22,6 +31,8 @@ struct FMCTongueSettings
     float Duration() const { return (WaveRadius+WaveWidth)/WaveSpeed; }
     float Band(float Distance,float Age) const;
     bool Crossed(float Distance,float PreviousAge,float Age) const;
+    float JoltDuration() const { return JoltAnticipation+JoltRise+.15f+JoltReturn+.5f; }
+    float JoltShape(float Age) const;
 };
 
 UCLASS(BlueprintType)
