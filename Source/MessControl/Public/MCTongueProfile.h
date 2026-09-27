@@ -44,6 +44,8 @@ class MESSCONTROL_API UMCTongueProfile : public UPrimaryDataAsset
 public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue") FMCTongueSettings Settings;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Weight") FMCTonguePressureSettings Pressure;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Weight",meta=(ToolTip="Optional default preset. When assigned, its Settings replace the inline Pressure settings. Leave empty to keep existing inline tuning.")) TObjectPtr<UMCTonguePressurePreset> DefaultPressurePreset;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Weight",meta=(ToolTip="Presets available for comparison in F3. Switching is temporary and does not save over the assets.")) TArray<TObjectPtr<UMCTonguePressurePreset>> PressurePresets;
     // Unassigned references retain the original Settings values for existing maps.
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Events") TObjectPtr<UMCTongueMotionProfile> PainMotion;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Events") TObjectPtr<UMCTongueMotionProfile> JoltMotion;

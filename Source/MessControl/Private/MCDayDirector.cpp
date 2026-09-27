@@ -67,7 +67,7 @@ void AMCDayDirector::DirtyMouth(bool bCoffee)
     for (auto* Patch:Existing) Patch->Destroy();
     for (int32 I=0;I<Settings->SurfacePatches;++I)
     {
-        const FVector P(-700+(I%5)*330,-340+(I/5)*260,350);
+        const FVector P(-700+(I%5)*330+Random.FRandRange(-60,60),-340+(I/5)*260+Random.FRandRange(-55,55),350);
         FHitResult Floor; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCDirtFloor));
         const FVector Location=GetWorld()->LineTraceSingleByChannel(Floor,P,P-FVector(0,0,600),ECC_WorldStatic,Params)?Floor.ImpactPoint+FVector(0,0,5):FVector(P.X,P.Y,5);
         const FRotator Rotation=Floor.bBlockingHit?FRotationMatrix::MakeFromZ(Floor.ImpactNormal).Rotator():FRotator::ZeroRotator;

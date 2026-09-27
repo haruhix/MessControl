@@ -1,4 +1,4 @@
-"""Update control hints and verify the existing tongue WPO connection."""
+"""Update control hints and verify that the tongue material adds no extra displacement."""
 import unreal as u
 
 lib = u.EditorAssetLibrary
@@ -35,7 +35,7 @@ for tongue in tongues:
         material = material.get_editor_property('parent')
     assert material, 'Tongue has no surface material'
     node = u.MaterialEditingLibrary.get_material_property_input_node(material, u.MaterialProperty.MP_WORLD_POSITION_OFFSET)
-    assert node, 'Tongue material has no WPO connection'
-    u.log('PRIMARY_WPO_VERIFIED ' + material.get_path_name())
+    assert node is None, 'Tongue WPO would move rendering away from the physical mesh'
+    u.log('PRIMARY_TONGUE_CONTACT_VERIFIED ' + material.get_path_name())
 u.log('PRIMARY_INTERACTION_ASSETS_PASS')
 u.SystemLibrary.quit_editor()

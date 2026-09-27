@@ -46,7 +46,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         DayDirector->Start(Plan,StepIndex,true);
         return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::GripPractice))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::TonguePressureClear))
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -60,6 +60,21 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::TonguePressurePreset:
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        {
+            if (!It->Profile || !It->Profile->PressurePresets.IsValidIndex(StepIndex) || !It->Profile->PressurePresets[StepIndex])
+                return FText::FromString(TEXT("Пресет отсутствует в DA_Tongue → Pressure Presets."));
+            auto* Preset=It->Profile->PressurePresets[StepIndex].Get(); It->ApplyPressurePreset(Preset);
+            return FText::FromString(TEXT("Применён ")+Preset->Label.ToString()+TEXT(". Геометрия, коллизия и материал обновлены у всех игроков. Ассет не перезаписан."));
+        }
+        return FText::FromString(TEXT("На карте нет подвижного языка."));
+    case EMCDevAction::TonguePressureReload:
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It) It->ReloadPressureProfile();
+        return FText::FromString(TEXT("Применены настройки DA_Tongue и его Default Pressure Preset. Повтори кнопку пресета, чтобы применить его правки во время PIE."));
+    case EMCDevAction::TonguePressureClear:
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It) It->ResetPressure();
+        return FText::FromString(TEXT("История следов очищена. Стоящие объекты снова создадут давление."));
     case EMCDevAction::GripPractice:
         if (Hero) for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
         {

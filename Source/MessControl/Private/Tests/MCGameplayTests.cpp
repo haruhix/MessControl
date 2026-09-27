@@ -1133,18 +1133,41 @@ bool FMCTongueWeightTest::RunTest(const FString&)
     TestTrue(*FString::Printf(TEXT("Same collider with more mass presses deeper: %.3f -> %.3f"),Light,Heavy),Heavy>Light*1.5f);
     TestTrue(TEXT("Depth has a finite cap"),Heavy<=Tongue->PressureSettings.MaxDepth);
     TestTrue(TEXT("One food object has one load"),Tongue->PressureLoads().Num()==1 && FMath::IsNearlyEqual(FoodLoad(),28*Tongue->PressureSettings.DepthPerKg,.1f));
-    FHitResult CosmeticHit; Tongue->SurfacePoint(Start,CosmeticHit);
-    TestTrue(TEXT("Cosmetic pressure never lowers the physics floor"),FMath::Abs(CosmeticHit.ImpactPoint.Z-Hit.ImpactPoint.Z)<.01);
-    const auto* Section=Tongue->Surface->GetProcMeshSection(0);
-    bool ShaderData=false;
-    if (Section) for (const auto& Vertex:Section->ProcVertexBuffer) ShaderData|=Vertex.UV1.X>.5f;
-    TestTrue(TEXT("Weight is uploaded as material WPO input"),ShaderData);
+    auto CheckContact=[&]()
+    {
+        FHitResult Floor; if (!TestTrue(TEXT("Deformed floor remains queryable"),Tongue->SurfacePoint(Start,Floor))) return;
+        const float Depth=Tongue->IndentationAt(Start);
+        TestTrue(TEXT("Collision lowers by the full pressure depth"),FMath::Abs(Hit.ImpactPoint.Z-Floor.ImpactPoint.Z-Depth)<.05f);
+        const auto* Section=Tongue->Surface->GetProcMeshSection(0);
+        if (!Section || !TestTrue(TEXT("Contact identifies a rendered triangle"),Floor.FaceIndex>=0 && Floor.FaceIndex*3+2<Section->ProcIndexBuffer.Num())) return;
+        FVector Center=FVector::ZeroVector;
+        for(int32 J=0;J<3;++J) Center+=Section->ProcVertexBuffer[Section->ProcIndexBuffer[Floor.FaceIndex*3+J]].Position/3;
+        FHitResult Triangle; TestTrue(TEXT("Physics follows the rendered pressure triangle"),Tongue->SurfacePoint(Center,Triangle) && FMath::Abs(Triangle.ImpactPoint.Z-Center.Z)<.05f);
+    };
+    CheckContact();
+    const float BeforeTuning=Tongue->IndentationAt(Start);
+    Tongue->PressureSettings.MaxDepth=20; Tongue->PressureSettings.DepthPerKg=1.2f;
+    Tongue->PressureSettings.FoodMargin=100; Tongue->PressureSettings.PressSeconds=.3f;
+    Tongue->PressureSettings.TrailHoldSeconds=.35f;
+    Step(2);
+    TestTrue(TEXT("Changing pressure tuning deepens the same physical surface"),Tongue->IndentationAt(Start)>BeforeTuning*1.5f);
+    CheckContact();
     const FVector OldPlace=Food->GetActorLocation();
+    const float HeldDepth=Tongue->IndentationAt(OldPlace);
+    bool PressureMask=false,RimMask=false;
+    for (const auto& Vertex:Tongue->Surface->GetProcMeshSection(0)->ProcVertexBuffer)
+    { PressureMask|=Vertex.Color.G>0; RimMask|=Vertex.Color.B>0; }
+    TestTrue(TEXT("The shared pressure field supplies depth and rim material masks"),PressureMask && RimMask);
     Food->Body->SetEnableGravity(false); Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
     Food->SetActorLocation(OldPlace+FVector(0,0,350),false,nullptr,ETeleportType::TeleportPhysics); Step(.2f);
     TestEqual(TEXT("Lifted food stops loading the floor"),FoodLoad(),0.f);
-    TestTrue(TEXT("Vacated dent recovers gradually"),Tongue->IndentationAt(OldPlace)>0 && Tongue->IndentationAt(OldPlace)<Heavy);
-    Step(2); TestTrue(TEXT("Surface recovers after lifting"),Tongue->IndentationAt(OldPlace)<.1f);
+    TestTrue(TEXT("Trail hold keeps the vacated physical imprint before recovery"),FMath::Abs(Tongue->IndentationAt(OldPlace)-HeldDepth)<.05f);
+    TestTrue(TEXT("Vacated dent recovers gradually"),Tongue->IndentationAt(OldPlace)>0 && Tongue->IndentationAt(OldPlace)<Tongue->PressureSettings.MaxDepth);
+    CheckContact();
+    // Recovery must use elapsed time even with very slow frames (4 Hz).
+    for (int32 I=0;I<8;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.25f); }
+    TestTrue(TEXT("Surface recovers after lifting even at 4 Hz"),Tongue->IndentationAt(OldPlace)<.1f);
+    CheckContact();
     Food->SetActorLocation(Start,false,nullptr,ETeleportType::TeleportPhysics); Food->Body->SetEnableGravity(true); Step(2);
     TestTrue(TEXT("Putting food down restores its load"),FoodLoad()>0);
     Food->Dispose(); Step(.2f); TestEqual(TEXT("Disposed item has no load"),FoodLoad(),0.f);
@@ -1152,6 +1175,34 @@ bool FMCTongueWeightTest::RunTest(const FString&)
     // Input bounds guard against a malformed designer profile creating an unstable floor.
     FMCTonguePressureSettings S; S.MaxDepth=10000; S.MaxSources=500; S.PressSeconds=0; S.DepthPerKg=std::numeric_limits<float>::quiet_NaN(); S.Sanitize();
     TestTrue(TEXT("Pressure budget and response remain bounded"),S.MaxDepth<=35 && S.MaxSources<=32 && S.PressSeconds>=.06f && FMath::IsFinite(S.DepthPerKg));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCTongueDesignerTest,"MessControl.Tongue.DesignerPresets",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCTongueDesignerTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false);
+    auto* Tongue=Mouth.World->SpawnActor<AMCTongue>();
+    Tongue->Profile=NewObject<UMCTongueProfile>(); Tongue->Profile->Pressure.MaxDepth=11;
+    auto* Preset=NewObject<UMCTonguePressurePreset>(); Preset->Settings.MaxDepth=17;
+    Preset->Settings.FalloffPower=2.3f; Preset->Settings.PlayerDepthScale=.7f;
+    Preset->Settings.TrailHoldSeconds=.4f; Preset->Settings.LandingSeconds=.5f;
+    Preset->SurfaceMaterial=LoadObject<UMaterialInterface>(nullptr,TEXT("/Engine/EngineMaterials/DefaultMaterial.DefaultMaterial"));
+    const auto Motion=Tongue->Motion; const float Idle=Tongue->Settings.IdleHeight;
+    Tongue->ApplyPressurePreset(Preset);
+    TestEqual(TEXT("Preset supplies physical depth"),Tongue->PressureSettings.MaxDepth,17.f);
+    TestEqual(TEXT("Preset supplies footprint shape"),Tongue->PressureSettings.FalloffPower,2.3f);
+    TestEqual(TEXT("Preset changes the presentation material"),Tongue->Surface->GetMaterial(0),Preset->SurfaceMaterial.Get());
+    TestTrue(TEXT("Pressure presets preserve independent event motion"),Tongue->Motion.Serial==Motion.Serial && Tongue->Settings.IdleHeight==Idle);
+    Preset->Settings.MaxDepth=14; Tongue->ApplyPressurePreset(Preset);
+    TestEqual(TEXT("The same preset can be reapplied after designer edits"),Tongue->PressureSettings.MaxDepth,14.f);
+    Tongue->Profile->DefaultPressurePreset=Preset; Tongue->ReloadPressureProfile();
+    TestEqual(TEXT("Main profile respects its default preset"),Tongue->PressureSettings.MaxDepth,14.f);
+    Tongue->Profile->DefaultPressurePreset=nullptr; Tongue->ReloadPressureProfile();
+    TestEqual(TEXT("Inline settings are preserved and can be restored"),Tongue->PressureSettings.MaxDepth,11.f);
+    TestNull(TEXT("Restoring inline settings clears the temporary preset"),Tongue->ActivePressurePreset.Get());
+    FMCTonguePressureSettings S; S.FalloffPower=-20; S.TrailHoldSeconds=100; S.LandingSeconds=0; S.PlayerDepthScale=std::numeric_limits<float>::quiet_NaN(); S.Sanitize();
+    TestTrue(TEXT("Designer controls remain finite and bounded"),S.FalloffPower>=2 && S.TrailHoldSeconds<=1 && S.LandingSeconds>=.08f && FMath::IsFinite(S.PlayerDepthScale));
     return true;
 }
 
@@ -1170,6 +1221,10 @@ bool FMCTonguePlayerWeightTest::RunTest(const FString&)
     Step(2); const auto* Standing=Find();
     TestTrue(TEXT("Grounded character loads the tongue"),Standing && Standing->Kind==EMCTongueLoadKind::Player);
     if (!Standing) return false;
+    FHitResult Pressed; Tongue->SurfacePoint(Hero->GetActorLocation(),Pressed);
+    TestTrue(TEXT("Player stands inside its physical dent"),Hit.ImpactPoint.Z-Pressed.ImpactPoint.Z>.5f && Hero->GetCharacterMovement()->IsMovingOnGround());
+    const float Sole=Hero->GetActorLocation().Z-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+    TestTrue(TEXT("Capsule stays on the deformed floor"),Sole-Pressed.ImpactPoint.Z>=-.5f && Sole-Pressed.ImpactPoint.Z<4);
     const float RestLoad=Standing->Depth;
     Hero->LaunchCharacter(FVector(0,0,600),false,true); Step(.2f);
     TestNull(TEXT("Airborne character has no standing load"),Find());

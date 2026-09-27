@@ -7,6 +7,7 @@
 #include "MCFoodActor.h"
 #include "MCGameState.h"
 #include "MCGameMode.h"
+#include "MCPlayerController.h"
 #include "MCDayDirector.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -37,7 +38,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
     const FString Folder=FPaths::ProjectSavedDir()/TEXT("TonguePressureFrames");
     auto Finish=[&]()
     {
-        const bool Pass=DevSeen==1023 && !bTongueInvalid && TongueError<.5;
+        const bool Pass=DevSeen==16383 && !bTongueInvalid && TongueError<.5;
         if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(Folder/TEXT("times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s PRESSURE net=%d seen=%d collisionError=%.4f invalid=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,TongueError,bTongueInvalid);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
@@ -47,7 +48,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
     Heroes.Sort([](const AMCToothCharacter& A,const AMCToothCharacter& B){return A.GetPlayerState()->GetPlayerId()<B.GetPlayerState()->GetPlayerId();});
     if (Heroes.Num()<4)
     {
-        if (DevStartedAt>=0 && GS->GetServerWorldTimeSeconds()-DevStartedAt>21) Finish();
+        if (DevStartedAt>=0 && GS->GetServerWorldTimeSeconds()-DevStartedAt>27) Finish();
         else if (Age>65) FPlatformMisc::RequestExitWithStatus(false,1);
         return;
     }
@@ -111,6 +112,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
     { if (It->ItemName==TEXT("PressureLight")) Light=*It; if (It->ItemName==TEXT("PressureHeavy")) Heavy=*It; }
     if (!Light || !Heavy) { if (Age>70) Finish(); return; }
     if (PressureOldPoint.IsNearlyZero() && T>2.5) PressureOldPoint=Heavy->GetActorLocation();
+    if (PressureTrailPoint.IsNearlyZero() && T>1 && T<2) PressureTrailPoint=Heroes[2]->GetActorLocation();
     if (Host)
     {
         if (DevStage==1 && T>4) { Heroes[1]->ToothPhysics->ApplyHit(FVector(0,0,-350),Heroes[1]->GetActorLocation()); ++DevStage; }
@@ -143,11 +145,27 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         }
         if (DevStage==6 && T>19)
         { Tongue->PressureSettings.bEnabled=false; Tongue->ResetPain(); Tongue->ResetPressure(); Tongue->ForceNetUpdate(); ++DevStage; }
+        if (DevStage==7 && T>21)
+        {
+            if (Tongue->Profile && Tongue->Profile->PressurePresets.IsValidIndex(1)) CastChecked<AMCPlayerController>(PC)->RequestDevAction(EMCDevAction::TonguePressurePreset,1);
+            else bTongueInvalid=true;
+            ++DevStage;
+        }
+        if (DevStage==8 && T>24)
+        {
+            auto* Controller=CastChecked<AMCPlayerController>(PC);
+            Controller->RequestDevAction(EMCDevAction::TonguePressureReload);
+            if (Tongue->PressureSettings.bEnabled) Controller->RequestDevAction(EMCDevAction::TongueWeightToggle);
+            Controller->RequestDevAction(EMCDevAction::TonguePressureClear);
+            ++DevStage;
+        }
     }
     if (!Host && T>7 && T<8) for (const int32 I:{0,3}) if (Heroes[I]->IsLocallyControlled()) Heroes[I]->SetActorRotation(FRotator(0,I==0?90:-90,0));
     // Input must run on the owning peer; sorted PlayerIds need not put the listen host first.
     for (const int32 I:{0,3})
         if (T>8 && T<12 && Heroes[I]->IsLocallyControlled()) Heroes[I]->AddMovementInput(FVector::ForwardVector,.65f);
+    // Ordinary owned movement must leave a visible recovering trail after the player has passed.
+    if (T>2 && T<4.4 && Heroes[2]->IsLocallyControlled()) Heroes[2]->AddMovementInput(FVector::ForwardVector,.6f);
     if (T>=0)
     {
         const auto& Sources=Tongue->PressureLoads();
@@ -161,6 +179,14 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         }
         if (Player && Tongue->IndentationAt(Heroes[2]->GetActorLocation())>.5) DevSeen|=1;
         const float LD=Tongue->IndentationAt(Light->GetActorLocation()),HD=Tongue->IndentationAt(Heavy->GetActorLocation());
+        const float Trail=Tongue->IndentationAt(PressureTrailPoint);
+        float TrailMask=0; FHitResult TrailHit;
+        const auto* Section=Tongue->Surface->GetProcMeshSection(0);
+        if (Section && Tongue->SurfacePoint(PressureTrailPoint,TrailHit) && TrailHit.FaceIndex>=0 && TrailHit.FaceIndex*3+2<Section->ProcIndexBuffer.Num())
+            for (int32 J=0;J<3;++J) TrailMask+=Section->ProcVertexBuffer[Section->ProcIndexBuffer[TrailHit.FaceIndex*3+J]].Color.G/(255.f*3);
+        if (T>3 && T<6 && FVector::Dist2D(PressureTrailPoint,Heroes[2]->GetActorLocation())>Tongue->PressureSettings.PlayerRadius*1.5f
+            && Trail>1 && TrailMask>.03f) DevSeen|=4096;
+        if (T>17 && T<19 && (DevSeen&4096) && Trail<.2f && TrailMask<.02f) DevSeen|=8192;
         if (T>2 && T<6 && LD>.5 && HD>LD*1.3) DevSeen|=2;
         if (Ragdoll) DevSeen|=4;
         if (Heroes[0]->Grip->IsReady() && Heroes[3]->Grip->IsReady() && Heroes[0]->HeldFood==Heavy && Heroes[3]->HeldFood==Heavy) DevSeen|=512;
@@ -169,6 +195,13 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         if (Tongue->Motion.Serial>0 && GS->GetServerWorldTimeSeconds()>Tongue->Motion.StartedAt+.7 && Player && HD>.5) DevSeen|=64;
         if (T>20 && !Tongue->PressureSettings.bEnabled && Sources.IsEmpty() && Tongue->IndentationAt(Heroes[2]->GetActorLocation())<.01) DevSeen|=128;
         if (T>6.5 && !LightLoad && Light->GetActorLocation().Z>200) DevSeen|=256;
+        if (T>21 && T<24 && Tongue->ActivePressurePreset && Tongue->Profile && Tongue->Profile->PressurePresets.IsValidIndex(1)
+            && Tongue->ActivePressurePreset==Tongue->Profile->PressurePresets[1]
+            && Tongue->PressureSettings.MaxDepth==Tongue->ActivePressurePreset->Settings.MaxDepth
+            && Tongue->Surface->GetMaterial(0)==Tongue->ActivePressurePreset->SurfaceMaterial) DevSeen|=1024;
+        if (T>25 && !Tongue->PressureSettings.bEnabled && Tongue->Profile && Tongue->ActivePressurePreset==Tongue->Profile->DefaultPressurePreset
+            && Tongue->PressureSettings.MaxDepth==(Tongue->Profile->DefaultPressurePreset?Tongue->Profile->DefaultPressurePreset->Settings.MaxDepth:Tongue->Profile->Pressure.MaxDepth)
+            && Tongue->IndentationAt(Heroes[2]->GetActorLocation())<.01) DevSeen|=2048;
         bTongueInvalid|=HeavyCount>1 || Sources.Num()>Tongue->PressureSettings.MaxSources || HD>Tongue->PressureSettings.MaxDepth+.1;
         const auto& V=Tongue->CurrentVertices(); const auto& Idx=Tongue->TriangleIndices(); int32 Probes=0;
         for (int32 I=0;I+2<Idx.Num();I+=93)
@@ -180,7 +213,7 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         }
         if (Probes>8) DevSeen|=32;
         for (auto* Hero:Heroes) bTongueInvalid|=Hero->GetActorLocation().ContainsNaN() || Hero->GetActorLocation().Z<-250;
-        if (Capture && T>=CoffeeNextFrame && T<22)
+        if (Capture && T>=CoffeeNextFrame && T<24)
         {
             const FString Name=FString::Printf(TEXT("Tongue_%04d.png"),CoffeeFrame++);
             FScreenshotRequest::RequestScreenshot(Folder/Name,false,false);
@@ -189,9 +222,9 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
         if (Age>=NextLog)
         {
             NextLog+=3;
-            UE_LOG(LogTemp,Display,TEXT("MC_PRESSURE net=%d t=%.2f seen=%d loads=%d light=%.2f heavy=%.2f drag=%.1f old=%.2f error=%.3f invalid=%d grip=%d hero=%s local=%d speed=%.1f"),int32(GetWorld()->GetNetMode()),T,DevSeen,Sources.Num(),LD,HD,FVector::Dist2D(PressureOldPoint,Heavy->GetActorLocation()),Tongue->IndentationAt(PressureOldPoint),TongueError,bTongueInvalid,Heavy->Holders.Num(),*Heroes[0]->GetActorLocation().ToCompactString(),Heroes[0]->IsLocallyControlled(),Heroes[0]->GetVelocity().Size2D());
+            UE_LOG(LogTemp,Display,TEXT("MC_PRESSURE net=%d t=%.2f seen=%d loads=%d light=%.2f heavy=%.2f trail=%.2f mask=%.3f player=%.2f drag=%.1f old=%.2f error=%.3f invalid=%d grip=%d hero=%s local=%d speed=%.1f"),int32(GetWorld()->GetNetMode()),T,DevSeen,Sources.Num(),LD,HD,Trail,TrailMask,Tongue->IndentationAt(Heroes[2]->GetActorLocation()),FVector::Dist2D(PressureOldPoint,Heavy->GetActorLocation()),Tongue->IndentationAt(PressureOldPoint),TongueError,bTongueInvalid,Heavy->Holders.Num(),*Heroes[0]->GetActorLocation().ToCompactString(),Heroes[0]->IsLocallyControlled(),Heroes[0]->GetVelocity().Size2D());
         }
     }
-    if (T>(Host?26:23) || Age>110) Finish();
+    if (T>(Host?30:27) || Age>110) Finish();
 #endif
 }

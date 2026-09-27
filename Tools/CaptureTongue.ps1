@@ -28,6 +28,6 @@ $taskLines.Add("file '$($taskRows[-1].Name)'")
 [IO.File]::WriteAllLines((Join-Path $taskFrames 'timing.txt'),$taskLines)
 & $FFmpeg -hide_banner -loglevel warning -y -f concat -safe 0 -i "$taskFrames\timing.txt" -vf 'fps=30' -c:v libx264 -crf 20 -pix_fmt yuv420p -movflags +faststart "$taskRoot\Artifacts\$taskName.mp4"
 if ($LASTEXITCODE -ne 0) { throw 'Tongue recording encoding failed.' }
-$taskCoverTime=if($Pressure){'5'}elseif($Jolt){'3.35'}else{'2.7'}
+$taskCoverTime=if($Pressure){'3.5'}elseif($Jolt){'3.35'}else{'2.7'}
 & $FFmpeg -hide_banner -loglevel warning -y -ss $taskCoverTime -i "$taskRoot\Artifacts\$taskName.mp4" -frames:v 1 -update 1 "$taskRoot\Artifacts\$taskName.png"
 if ($LASTEXITCODE -ne 0) { throw 'Tongue cover failed.' }

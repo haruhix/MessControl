@@ -1,0 +1,109 @@
+{
+  "settings": {
+    "whiteTemp": 6750,
+    "whiteTint": 0,
+    "colorSaturation": {
+      "x": 1,
+      "y": 1,
+      "z": 1,
+      "w": 1.02
+    },
+    "colorContrast": {
+      "x": 1,
+      "y": 1,
+      "z": 1,
+      "w": 1.025
+    },
+    "colorGammaMidtones": {
+      "x": 1,
+      "y": 1,
+      "z": 1,
+      "w": 1.055
+    },
+    "colorSaturationMidtones": {
+      "x": 1,
+      "y": 1,
+      "z": 1,
+      "w": 1.035
+    },
+    "colorGainMidtones": {
+      "x": 1.025,
+      "y": 1.01,
+      "z": 1.0,
+      "w": 1
+    },
+    "colorGainHighlights": {
+      "x": 1.0,
+      "y": 0.99,
+      "z": 0.965,
+      "w": 1
+    },
+    "colorSaturationHighlights": {
+      "x": 1,
+      "y": 1,
+      "z": 1,
+      "w": 0.97
+    },
+    "colorSaturationShadows": {
+      "x": 1,
+      "y": 1,
+      "z": 1,
+      "w": 0.96
+    },
+    "autoExposureMinBrightness": 1.0,
+    "autoExposureMaxBrightness": 1.0,
+    "autoExposureBias": 0.85,
+    "autoExposureApplyPhysicalCameraExposure": false,
+    "bloomIntensity": 0.18,
+    "bloomGaussianIntensity": 1.0,
+    "bloomThreshold": 1.2,
+    "sceneFringeIntensity": 0,
+    "chromaticAberrationStartOffset": 0,
+    "vignetteIntensity": 0.08,
+    "lensFlareIntensity": 0,
+    "filmGrainIntensity": 0,
+    "motionBlurAmount": 0,
+    "depthOfFieldEnabled": false,
+    "filmToe": 0.48,
+    "filmShoulder": 0.3,
+    "localExposureHighlightContrastScale": 0.92,
+    "localExposureShadowContrastScale": 1.0,
+    "sharpen": 0.15,
+    "bOverride_WhiteTemp": true,
+    "bOverride_WhiteTint": true,
+    "bOverride_ColorSaturation": true,
+    "bOverride_ColorContrast": true,
+    "bOverride_ColorGammaMidtones": true,
+    "bOverride_ColorSaturationMidtones": true,
+    "bOverride_ColorGainMidtones": true,
+    "bOverride_ColorGainHighlights": true,
+    "bOverride_ColorSaturationHighlights": true,
+    "bOverride_ColorSaturationShadows": true,
+    "bOverride_AutoExposureMinBrightness": true,
+    "bOverride_AutoExposureMaxBrightness": true,
+    "bOverride_AutoExposureBias": true,
+    "bOverride_AutoExposureApplyPhysicalCameraExposure": true,
+    "bOverride_BloomIntensity": true,
+    "bOverride_BloomGaussianIntensity": true,
+    "bOverride_BloomThreshold": true,
+    "bOverride_SceneFringeIntensity": true,
+    "bOverride_ChromaticAberrationStartOffset": true,
+    "bOverride_VignetteIntensity": true,
+    "bOverride_LensFlareIntensity": true,
+    "bOverride_FilmGrainIntensity": true,
+    "bOverride_MotionBlurAmount": true,
+    "bOverride_DepthOfFieldEnabled": true,
+    "bOverride_FilmToe": true,
+    "bOverride_FilmShoulder": true,
+    "bOverride_LocalExposureHighlightContrastScale": true,
+    "bOverride_LocalExposureShadowContrastScale": true,
+    "bOverride_Sharpen": true
+  },
+  "bUnbound": true,
+  "priority": 50,
+  "blendWeight": 1.0,
+  "bEnabled": true,
+  "tags": [
+    "MC_CoralReference"
+  ]
+}

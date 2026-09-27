@@ -9,15 +9,57 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PhysicsEngine/BodyInstance.h"
 #include "EngineUtils.h"
+#include "Engine/StaticMesh.h"
+#include "Materials/MaterialInterface.h"
+#include "ProfilingDebugging/CpuProfilerTrace.h"
 
 void FMCTonguePressureSettings::Sanitize()
 {
     auto C=[](float V,float D,float A,float B){return FMath::Clamp(FMath::IsFinite(V)?V:D,A,B);};
     DepthPerKg=C(DepthPerKg,.4f,0,3); MaxDepth=C(MaxDepth,8,1,35);
+    FalloffPower=C(FalloffPower,3,2,6);
+    PlayerDepthScale=C(PlayerDepthScale,1,0,3); RagdollDepthScale=C(RagdollDepthScale,1,0,3); FoodDepthScale=C(FoodDepthScale,1,0,3);
+    PlayerWidthRatio=C(PlayerWidthRatio,1,.5f,1.5f); RagdollWidthRatio=C(RagdollWidthRatio,.8f,.5f,1.5f);
     PlayerRadius=C(PlayerRadius,120,60,250); RagdollRadius=C(RagdollRadius,150,60,300); FoodMargin=C(FoodMargin,70,30,120);
-    PressSeconds=C(PressSeconds,.12f,.06f,1); RecoverSeconds=C(RecoverSeconds,.6f,.15f,3);
+    PressSeconds=C(PressSeconds,.12f,.06f,1); RecoverSeconds=C(RecoverSeconds,.6f,.15f,5); TrailHoldSeconds=C(TrailHoldSeconds,0,0,1);
     LandingBoost=C(LandingBoost,1,0,2); LandingSpeed=C(LandingSpeed,650,100,1200);
+    LandingSeconds=C(LandingSeconds,.22f,.08f,1);
     ContactTolerance=C(ContactTolerance,12,3,20); MaxSources=FMath::Clamp(MaxSources,4,32);
+}
+
+void AMCTongue::RefreshPressureMaterial()
+{
+    UMaterialInterface* Material=ActivePressureMaterial;
+    if (!HasActorBegunPlay() && Profile && Profile->DefaultPressurePreset && Profile->DefaultPressurePreset->SurfaceMaterial)
+        Material=Profile->DefaultPressurePreset->SurfaceMaterial;
+    if (!Material) Material=SurfaceMaterial?SurfaceMaterial.Get():SourceMesh?SourceMesh->GetMaterial(0):nullptr;
+    Surface->SetMaterial(0,Material);
+}
+void AMCTongue::ApplyPressurePreset(UMCTonguePressurePreset* Preset)
+{
+    if (!HasAuthority()) return;
+    ActivePressurePreset=Preset;
+    PressureSettings=Preset?Preset->Settings:Profile?Profile->Pressure:FMCTonguePressureSettings();
+    PressureSettings.Sanitize();
+    ActivePressureMaterial=Preset?Preset->SurfaceMaterial.Get():nullptr;
+    RefreshPressureMaterial(); ForceNetUpdate();
+}
+void AMCTongue::ReloadPressureProfile() { ApplyPressurePreset(Profile?Profile->DefaultPressurePreset.Get():nullptr); }
+
+// Fixed world-space bins restrict each load to nearby vertices. They rebuild only
+// with the source mesh/actor transform; event displacement does not move vertices in XY.
+namespace { constexpr float PressureCellSize=160.f; }
+void AMCTongue::BuildPressureGrid()
+{
+    PressureCells.Empty(); PressureWorldVertices.SetNum(Rest.Num());
+    PressureGridTransform=GetActorTransform();
+    for(int32 I=0;I<Rest.Num();++I)
+    {
+        const FVector P=PressureGridTransform.TransformPosition(Rest[I]); PressureWorldVertices[I]=P;
+        const float U=(Rest[I].Z-RestBounds.Min.Z)/FMath::Max(1.,RestBounds.GetSize().Z);
+        if (U>.15f && AnchorWeights[I]>0)
+            PressureCells.FindOrAdd(FIntPoint(FMath::FloorToInt(P.X/PressureCellSize),FMath::FloorToInt(P.Y/PressureCellSize))).Add(I);
+    }
 }
 
 bool AMCTongue::PressureSupport(AActor* Actor,FVector Center,float Bottom,FHitResult& Hit) const
@@ -48,7 +90,8 @@ void AMCTongue::GatherPressure(float Dt)
             FMCTongueLoad S; S.Actor=Actor; S.Kind=Kind; S.LocalPoint=GetActorTransform().InverseTransformPosition(P);
             S.Axis=Axis.GetSafeNormal2D(KINDA_SMALL_NUMBER,FVector::ForwardVector);
             S.RadiusX=FMath::Clamp(RX,60.f,300.f); S.RadiusY=FMath::Clamp(RY,60.f,300.f);
-            S.Depth=FMath::Clamp(Mass,0.f,200.f)*PressureSettings.DepthPerKg*(1+H.Impact*FMath::Exp(-(Now-H.LandingAt)/.22));
+            const float Scale=Kind==EMCTongueLoadKind::Player?PressureSettings.PlayerDepthScale:Kind==EMCTongueLoadKind::Ragdoll?PressureSettings.RagdollDepthScale:PressureSettings.FoodDepthScale;
+            S.Depth=FMath::Clamp(Mass,0.f,200.f)*PressureSettings.DepthPerKg*Scale*(1+H.Impact*FMath::Exp(-(Now-H.LandingAt)/PressureSettings.LandingSeconds));
             if (S.Depth>.001) CurrentLoads.Add(S);
         }
         H.bSupported=Supported; H.DownSpeed=FMath::Max(0.f,-VZ);
@@ -65,14 +108,14 @@ void AMCTongue::GatherPressure(float Dt)
                 {
                     const FBox Bounds=Body->GetBodyBounds(); const FVector P=Bounds.GetCenter();
                     const bool Supported=!Hero->bInCoffee && !Hero->ClingTooth && PressureSupport(Hero,P,Bounds.Min.Z,Hit);
-                    Add(Hero,EMCTongueLoadKind::Ragdoll,Supported?Hit.ImpactPoint:P,Hero->GetActorForwardVector(),PressureSettings.RagdollRadius,PressureSettings.RagdollRadius*.8f,Physics->Settings.Mass,Body->GetUnrealWorldVelocity().Z,Supported);
+                    Add(Hero,EMCTongueLoadKind::Ragdoll,Supported?Hit.ImpactPoint:P,Hero->GetActorForwardVector(),PressureSettings.RagdollRadius,PressureSettings.RagdollRadius*PressureSettings.RagdollWidthRatio,Physics->Settings.Mass,Body->GetUnrealWorldVelocity().Z,Supported);
                 }
             }
             else
             {
                 const auto* Move=Hero->GetCharacterMovement(); const FVector P=Hero->GetActorLocation();
                 const bool Supported=!Hero->bInCoffee && !Hero->ClingTooth && Move->IsMovingOnGround() && Move->CurrentFloor.HitResult.GetComponent()==Surface && SurfacePoint(P,Hit);
-                Add(Hero,EMCTongueLoadKind::Player,Supported?Hit.ImpactPoint:P,Hero->GetActorForwardVector(),PressureSettings.PlayerRadius,PressureSettings.PlayerRadius,Physics->Settings.Mass,Move->Velocity.Z,Supported);
+                Add(Hero,EMCTongueLoadKind::Player,Supported?Hit.ImpactPoint:P,Hero->GetActorForwardVector(),PressureSettings.PlayerRadius,PressureSettings.PlayerRadius*PressureSettings.PlayerWidthRatio,Physics->Settings.Mass,Move->Velocity.Z,Supported);
             }
         }
         // Reserve the limited footprint budget for players, then for the heaviest supported food.
@@ -103,24 +146,40 @@ void AMCTongue::GatherPressure(float Dt)
 
 void AMCTongue::UpdatePressureField(float Dt)
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_PressureField);
     const auto& Sources=PressureLoads(); const auto& S=PressureSettings;
     const bool Active=S.bEnabled && (HasAuthority() || ServerTime()-PressureFrame.UpdatedAt<1);
     const FTransform Transform=GetActorTransform(); const FVector Scale=Transform.GetScale3D();
+    if (!Transform.Equals(PressureGridTransform)) BuildPressureGrid();
     const float ZScale=FMath::Max(.01f,float(FMath::Abs(Scale.Z)));
     const FVector Size=RestBounds.GetSize();
-    const float Press=1-FMath::Exp(-FMath::Min(Dt,.1f)/S.PressSeconds),Release=1-FMath::Exp(-FMath::Min(Dt,.1f)/S.RecoverSeconds);
+    // Exponential response is stable for large steps. Capping Dt made trails
+    // recover several times slower in a slow frame/capture than in ordinary Play.
+    const float Step=FMath::Max(0.f,Dt);
+    const float Press=1-FMath::Exp(-Step/S.PressSeconds),Release=1-FMath::Exp(-Step/S.RecoverSeconds);
+    TargetDepth.Init(0,Rest.Num()); TargetGradient.Init(FVector::ZeroVector,Rest.Num());
+    if (Active) for (const auto& Load:Sources)
+    {
+        const FVector Center=Transform.TransformPosition(Load.LocalPoint);
+        const FVector X=Load.Axis,Y=FVector::CrossProduct(FVector::UpVector,X);
+        const FVector GX=X/Load.RadiusX,GY=Y/Load.RadiusY;
+        const float EX=FMath::Abs(X.X)*Load.RadiusX+FMath::Abs(Y.X)*Load.RadiusY;
+        const float EY=FMath::Abs(X.Y)*Load.RadiusX+FMath::Abs(Y.Y)*Load.RadiusY;
+        for(int32 CX=FMath::FloorToInt((Center.X-EX)/PressureCellSize);CX<=FMath::FloorToInt((Center.X+EX)/PressureCellSize);++CX)
+        for(int32 CY=FMath::FloorToInt((Center.Y-EY)/PressureCellSize);CY<=FMath::FloorToInt((Center.Y+EY)/PressureCellSize);++CY)
+        if (const auto* Cell=PressureCells.Find(FIntPoint(CX,CY))) for(int32 I:*Cell)
+        {
+            const FVector D=PressureWorldVertices[I]-Center;
+            const float DX=FVector::DotProduct(D,GX),DY=FVector::DotProduct(D,GY);
+            const float R2=DX*DX+DY*DY; if (R2>=1) continue;
+            const float K=1-R2,Kernel=FMath::Pow(K,S.FalloffPower-1);
+            TargetDepth[I]+=Load.Depth*Kernel*K;
+            TargetGradient[I]+=-2*S.FalloffPower*Load.Depth*Kernel*(GX*DX+GY*DY);
+        }
+    }
     for (int32 I=0;I<Rest.Num();++I)
     {
-        float Sum=0; FVector Gradient=FVector::ZeroVector;
-        if (Active) for (const auto& Load:Sources)
-        {
-            const FVector D=Transform.TransformVector(Rest[I]-FVector(Load.LocalPoint));
-            const FVector X=Load.Axis,Y=FVector::CrossProduct(FVector::UpVector,X);
-            const float DX=FVector::DotProduct(D,X)/Load.RadiusX,DY=FVector::DotProduct(D,Y)/Load.RadiusY;
-            const float R2=DX*DX+DY*DY; if (R2>=1) continue;
-            const float K=1-R2; Sum+=Load.Depth*K*K*K;
-            Gradient+=-6*Load.Depth*K*K*(X*(DX/Load.RadiusX)+Y*(DY/Load.RadiusY));
-        }
+        const float Sum=TargetDepth[I]; FVector Gradient=TargetGradient[I];
         // Smooth saturation bounds overlapping dents and keeps their normals continuous.
         const float Denom=S.MaxDepth+Sum;
         Gradient*=FMath::Square(S.MaxDepth/Denom);
@@ -130,9 +189,16 @@ void AMCTongue::UpdatePressureField(float Dt)
         const float TopSlope=6*T*(1-T)/(.6f*Size.Z);
         const FVector G=Transform.InverseTransformVectorNoScale(Gradient)*Scale/ZScale*Top+FVector(0,0,Depth*TopSlope);
         const float Target=Depth*Top,Alpha=Target>IndentDepth[I]?Press:Release;
-        IndentDepth[I]=FMath::Lerp(IndentDepth[I],Target,Alpha);
-        IndentGradient[I]=FMath::Lerp(IndentGradient[I],G,Alpha);
-        if (Target==0 && IndentDepth[I]<.001f) { IndentDepth[I]=0; IndentGradient[I]=FVector::ZeroVector; }
+        if (Active && Target>=IndentDepth[I]-.001f && Target>.001f) PressureHold[I]=S.TrailHoldSeconds;
+        else PressureHold[I]=FMath::Max(0.f,PressureHold[I]-Dt);
+        if (Target>=IndentDepth[I] || PressureHold[I]<=0 || !S.bEnabled)
+        {
+            IndentDepth[I]=FMath::Lerp(IndentDepth[I],Target,Alpha);
+            IndentGradient[I]=FMath::Lerp(IndentGradient[I],G,Alpha);
+        }
+        if (IndentDepth[I]>S.MaxDepth/ZScale)
+        { IndentGradient[I]*=(S.MaxDepth/ZScale)/IndentDepth[I]; IndentDepth[I]=S.MaxDepth/ZScale; }
+        if (Target==0 && IndentDepth[I]<.001f) { IndentDepth[I]=0; IndentGradient[I]=FVector::ZeroVector; PressureHold[I]=0; }
     }
 }
 
@@ -147,7 +213,7 @@ float AMCTongue::IndentationAt(FVector P) const
 void AMCTongue::OnRep_PressureFrame()
 {
     if (PressureEpoch==PressureFrame.Epoch) return;
-    PressureEpoch=PressureFrame.Epoch; IndentDepth.Init(0,Rest.Num()); IndentGradient.Init(FVector::ZeroVector,Rest.Num());
+    PressureEpoch=PressureFrame.Epoch; IndentDepth.Init(0,Rest.Num()); IndentGradient.Init(FVector::ZeroVector,Rest.Num()); PressureHold.Init(0,Rest.Num());
 }
 void AMCTongue::ResetPressure()
 {

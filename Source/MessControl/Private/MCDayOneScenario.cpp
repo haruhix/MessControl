@@ -7,6 +7,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCFoodActor.h"
 #include "MCMouthSurface.h"
+#include "MCCoffeeWipe.h"
 #include "MCTongue.h"
 #include "MCCoffeeFlood.h"
 #include "MCArenaTooth.h"
@@ -59,7 +60,10 @@ void AMCDayOneScenario::Next()
         {
             FVector P(-600+I*230,-200,350); FHitResult Hit;
             if (GetWorld()->LineTraceSingleByChannel(Hit,P,P-FVector(0,0,600),ECC_WorldStatic)) P=Hit.ImpactPoint+FVector(0,0,5);
-            auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(P,FRotator::ZeroRotator); Patch->Status->ApplyCoffee(); Patches.Add(Patch); Move(I,P+FVector(-65,0,90));
+            auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(P,FRotator::ZeroRotator); Patch->Status->ApplyCoffee();
+            if (FParse::Param(FCommandLine::Get(),TEXT("MCLiquidTest")) && (I==1 || I==2))
+                Patch->SetLiquidAppearance(LoadObject<UMaterialInterface>(nullptr,I==1?TEXT("/Game/Gameplay/Liquid/MI_CurryPuddle.MI_CurryPuddle"):TEXT("/Game/Gameplay/Liquid/MI_FoodSaucePuddle.MI_FoodSaucePuddle")));
+            Patches.Add(Patch); Move(I,P+FVector(-65,0,90));
         }
     }
     if (Stage==3) for (int32 I=0;I<4;++I) Move(I,FVector(-975,-300+I*200,95),FRotator(0,180,0));
@@ -95,6 +99,8 @@ void AMCDayOneScenario::Tick(float Dt)
     const double Now=GS->GetServerWorldTimeSeconds(),Elapsed=Now-StageAt;
     bool Ready=true;
     const bool Capture=HasAuthority() && FParse::Param(FCommandLine::Get(),TEXT("MCDayOneCapture"));
+    const bool LiquidTest=FParse::Param(FCommandLine::Get(),TEXT("MCLiquidTest"));
+    const FString CaptureFolder=LiquidTest?TEXT("PuddleFrames"):TEXT("DayOneFrames");
 #if WITH_EDITOR
     Ready=!Capture || !GShaderCompilingManager || !GShaderCompilingManager->IsCompiling();
 #endif
@@ -108,7 +114,7 @@ void AMCDayOneScenario::Tick(float Dt)
         }
         if (Stage==1 && Elapsed>3) { bool All=true; for (auto H:Heroes) All &= H->EquippedBrush!=nullptr; if (All) Next(); }
         else if (Stage==2 && Elapsed>4) { bool All=true; for (auto P:Patches) All &= P->IsClean(); if (All) Next(); }
-        else if (Stage==3 && Elapsed>4)
+        else if (Stage==3 && Elapsed>4 && !LiquidTest)
         { int32 Left=0; for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (It->bBrushTool && !It->IsDisposed()) ++Left; if (!Left) Next(); }
         else if (Stage==4)
         {
@@ -158,7 +164,9 @@ void AMCDayOneScenario::Tick(float Dt)
         if (Stage==6 && Slot==1 && H->bInCoffee) { H->LocalPaddle=FVector2D(-1,0); H->ServerPaddle(H->LocalPaddle); }
     }
     if (Stage==1) for (auto Hero:Heroes) if (Hero && Hero->EquippedBrush) Seen|=1;
-    if (Stage==2) for (auto Patch:Patches) if (Patch && Patch->IsClean()) Seen|=2;
+    if (Stage>=2) for (auto Patch:Patches) if (Patch && Patch->IsClean()) Seen|=2;
+    if (Stage>=2) for (auto Patch:Patches)
+        if (Patch && Patch->LiquidSeed>0 && Patch->WipeMask.Num()==FMCCoffeeWipe::Count && FMCCoffeeWipe::Remaining(Patch->WipeMask)<.98f) Seen|=256;
     if (Stage>=4) { bool Any=false; for (auto Hero:Heroes) if (Hero && Hero->EquippedBrush) Any=true; if (!Any) Seen|=4; }
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (It->bFragment && It->ItemMesh) Seen|=8;
     for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (It->bUlcer && GS->MouthHealth<100) Seen|=16;
@@ -170,18 +178,33 @@ void AMCDayOneScenario::Tick(float Dt)
     }
     if (Capture && PC)
     {
-        if (!Camera) { Camera=GetWorld()->SpawnActor<ACameraActor>(); Camera->GetCameraComponent()->SetFieldOfView(55); PC->SetViewTarget(Camera); IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("DayOneFrames")),true); }
+        if (!Camera) { Camera=GetWorld()->SpawnActor<ACameraActor>(); Camera->GetCameraComponent()->SetFieldOfView(55); PC->SetViewTarget(Camera); IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/CaptureFolder),true); }
         FVector Aim(0,0,80),P(-2400,0,1000);
+        if (LiquidTest) { Aim=FVector(-270,-200,-50); P=Aim+FVector(-550,-650,540); }
         if (Stage==4 || Stage==5) { Aim=FVector(-400,-150,60); P=Aim+FVector(-800,560,500); }
         Camera->SetActorLocationAndRotation(P,(Aim-P).Rotation());
         if (Stage>0 && Stage<7 && Now>=NextCapture)
-        { NextCapture=Now+.12; if (LastCapture>=0) CaptureTiming+=FString::Printf(TEXT("duration %.6f\n"),Now-LastCapture); CaptureTiming+=FString::Printf(TEXT("file 'Frame%05d.png'\n"),CaptureFrame); FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/FString::Printf(TEXT("DayOneFrames/Frame%05d.png"),CaptureFrame++),true,false); LastCapture=Now; }
+        { NextCapture=Now+.12; if (LastCapture>=0) CaptureTiming+=FString::Printf(TEXT("duration %.6f\n"),Now-LastCapture); CaptureTiming+=FString::Printf(TEXT("file 'Frame%05d.png'\n"),CaptureFrame); FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/CaptureFolder/FString::Printf(TEXT("Frame%05d.png"),CaptureFrame++),true,false); LastCapture=Now; }
+    }
+    if (LiquidTest && ((Stage>=3 && Now-StageAt>(HasAuthority()?5:2)) || Age>65))
+    {
+        bool Clean=Patches.Num()==4;
+        FString Fingerprints;
+        for (auto Patch:Patches)
+        {
+            Clean&=Patch && Patch->IsClean() && Patch->WipeMask.Num()==FMCCoffeeWipe::Count;
+            if (Patch) Fingerprints+=FString::Printf(TEXT(" %d:%.3f:%s:%08x"),Patch->LiquidSeed,Patch->LiquidHalfSize,*Patch->LiquidMaterial.ToSoftObjectPath().GetAssetName(),FCrc::MemCrc32(Patch->WipeMask.GetData(),Patch->WipeMask.Num()));
+        }
+        const bool Pass=!bFailed && Stage>=3 && (Seen&259)==259 && Clean;
+        if (Capture && CaptureFrame>0) FFileHelper::SaveStringToFile(CaptureTiming+FString::Printf(TEXT("duration 0.12\nfile 'Frame%05d.png'\n"),CaptureFrame-1),*(FPaths::ProjectSavedDir()/CaptureFolder/TEXT("Timing.txt")));
+        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s LIQUID net=%d seen=%u masks=%s"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetNetMode()),Seen,*Fingerprints);
+        FPlatformMisc::RequestExitWithStatus(false,Pass?0:1); return;
     }
     if (Age>LogAt) { LogAt=Age+3; UE_LOG(LogTemp,Display,TEXT("MC_DAY1_NET net=%d stage=%d seen=%u failed=%d brush=%d work=%d contact=%.2f target=%s"),int32(GetNetMode()),Stage,Seen,bFailed,H&&H->HasBrush(),H&&H->bBrushing,H?H->ContactProgress:0,H?*GetNameSafe(H->CareTarget):TEXT("none")); }
     if ((Stage==7 && Now-StageAt>(HasAuthority()?5:2)) || Age>140)
     {
         if (Capture && CaptureFrame>0) FFileHelper::SaveStringToFile(CaptureTiming+FString::Printf(TEXT("duration 0.12\nfile 'Frame%05d.png'\n"),CaptureFrame-1),*(FPaths::ProjectSavedDir()/TEXT("DayOneFrames/Timing.txt")));
-        const bool Pass=Stage==7 && !bFailed && Seen==255;
+        const bool Pass=Stage==7 && !bFailed && Seen==511;
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s dayone seen=%u failed=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),Seen,bFailed);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     }

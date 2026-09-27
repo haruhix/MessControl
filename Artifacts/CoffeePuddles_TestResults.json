@@ -1,0 +1,44 @@
+{
+  "tests": [
+    {
+      "name": "MessControl.DayOne.SequenceAndNoGlobalDeadline",
+      "state": "Success",
+      "duration": 0.1354691982269287,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.DayOne.UlcerProtectionAndCoffeeControl",
+      "state": "Success",
+      "duration": 0.05802420154213905,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.WorkValidationAndCooperation",
+      "state": "Success",
+      "duration": 0.03495059907436371,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Liquid.AuthoritativeBrushContact",
+      "state": "Success",
+      "duration": 0.0364810973405838,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Liquid.PersistentLocalWipe",
+      "state": "Success",
+      "duration": 0.012501601129770279,
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "passed": 5,
+  "failed": 0,
+  "skipped": 0,
+  "total": 5,
+  "duration": 0.27742668986320496
+}

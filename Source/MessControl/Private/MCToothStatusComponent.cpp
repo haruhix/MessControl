@@ -1,6 +1,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCArenaTooth.h"
 #include "MCToothCharacter.h"
+#include "MCMouthSurface.h"
 #include "GameFramework/GameStateBase.h"
 #include "Net/UnrealNetwork.h"
 
@@ -60,6 +61,7 @@ void UMCToothStatusComponent::ApplyCoffee(float Amount)
 {
     if (!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount)) return;
     State.CoffeeTotal=Settings.CoffeeContacts;
+    if (auto* Surface=Cast<AMCMouthSurface>(GetOwner())) Surface->ResetLiquid();
     State.CoffeeLeft=FMath::CeilToInt(FMath::Clamp(Amount,0.f,1.f)*State.CoffeeTotal); Changed(true);
 }
 void UMCToothStatusComponent::Loosen()

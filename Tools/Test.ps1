@@ -13,7 +13,7 @@ if ($Mode -eq 'Unit') {
     & $taskEditor $taskProject -unattended -nop4 -nosplash -nullrhi '-ExecCmds=Automation RunTests MessControl; Quit' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$taskRoot\Saved\TestReports" "-abslog=$taskLogs\Automation.log"
     if ($LASTEXITCODE -ne 0) { throw 'Unreal automation failed.' }
     $taskReport=Get-Content -Raw "$taskRoot\Saved\TestReports\index.json" | ConvertFrom-Json
-    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 35) { throw 'Not all gameplay and physics tests passed.' }
+    if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 36) { throw 'Not all gameplay and physics tests passed.' }
 } elseif ($Mode -in @('Mouth','Pupils','SwimVisual')) {
     $taskFaceFlag=if($Mode -eq 'SwimVisual'){'-MCSwimTest'}elseif($Mode -eq 'Pupils'){'-MCPupilTest'}else{'-MCMouthTest'}
     $taskFacePass=if($Mode -eq 'SwimVisual'){'MC_VALIDATION_PASS SWIM'}elseif($Mode -eq 'Pupils'){'MC_PUPIL_PASS'}else{'MC_MOUTH_PASS'}

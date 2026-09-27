@@ -118,6 +118,14 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Глаза — создать напарника"),TEXT("Наблюдай взгляд зуба на тебя, еду и опасности. Веки моргают; настройки в DA_Gaze и F1."),EMCDevAction::GazePractice);
     AddAction(Actions,TEXT("Язык — сравнить вес 4 / 28 кг"),TEXT("Два одинаковых предмета перед игроком. Тяжёлый сильнее продавливает язык; ЛКМ — хват и перетаскивание."),EMCDevAction::TongueWeight);
     AddAction(Actions,TEXT("Язык — включить / выключить продавливание"),TEXT("Для сравнения поверхности под игроками и едой. Движения от событий продолжают работать."),EMCDevAction::TongueWeightToggle);
+    for (TActorIterator<AMCTongue> It(GetWorld());It;++It) if (It->Profile)
+    {
+        for (int32 I=0;I<It->Profile->PressurePresets.Num();++I) if (const auto* P=It->Profile->PressurePresets[I].Get())
+            AddAction(Actions,TEXT("Давление — ")+P->Label.ToString(),P->Description.ToString(),EMCDevAction::TonguePressurePreset,I);
+        break;
+    }
+    AddAction(Actions,TEXT("Давление — применить DA_Tongue"),TEXT("Вернуть настройки основного DA без перезапуска Play. Если Default Pressure Preset назначен, используется он. Ассеты не перезаписываются."),EMCDevAction::TonguePressureReload);
+    AddAction(Actions,TEXT("Давление — очистить следы"),TEXT("Сбросить историю продавливания. Текущие объекты продолжат давить на язык."),EMCDevAction::TonguePressureClear);
     AddAction(Actions,TEXT("Кофейный налёт + щётки"),TEXT("Покрывает зубы, игроков и поверхность налётом. Четыре контакта по 0,5 секунды."),EMCDevAction::CoffeeDirt);
     AddAction(Actions,TEXT("Сбросить щётки с неба"),TEXT("По одной щётке на игрока. Подобрать E, выбросить Q за передний край."),EMCDevAction::DropBrushes);
     AddAction(Actions,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);
@@ -147,6 +155,13 @@ void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
         GS->MouthHealth,GS->AvailableArenaTeeth(),GS->ArenaTeeth.Num(),Food,Ulcers,Water?TEXT("активен"):TEXT("нет"));
     if (GS->ArenaTeeth.Num()<GS->RunSettings.InitialArenaTeeth)
         Summary+=FString::Printf(TEXT("\nРазметка карты: %d игровых мест для зубов, по правилам нужно %d."),GS->ArenaTeeth.Num(),GS->RunSettings.InitialArenaTeeth);
+    for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+    {
+        const FString Name=It->ActivePressurePreset?It->ActivePressurePreset->Label.ToString():TEXT("DA_Tongue");
+        Summary+=FString::Printf(TEXT("\nДавление: %s%s  /  глубина до %.0f см  /  восстановление %.2f с"),
+            *Name,It->PressureSettings.bEnabled?TEXT(""):TEXT(" — выключено"),It->PressureSettings.MaxDepth,It->PressureSettings.RecoverSeconds);
+        break;
+    }
     Status->SetText(FText::FromString(Summary));
 }
 void UMCDevPanelWidget::CloseClicked() { if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->ToggleDevPanel(); }

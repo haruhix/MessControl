@@ -21,6 +21,7 @@ private:
     float GripWorstError=0;
     void TickTonguePressure(float Dt);
     FVector PressureOldPoint=FVector::ZeroVector;
+    FVector PressureTrailPoint=FVector::ZeroVector;
     void TickGaze(float Dt);
     void TickTongue(float Dt);
     float TongueError=0;

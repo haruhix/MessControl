@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "EngineUtils.h"
+#include "ProfilingDebugging/CpuProfilerTrace.h"
 
 AMCTongue::AMCTongue()
 {
@@ -58,10 +59,11 @@ void AMCTongue::RebuildSurface()
         AnchorGradients.Add(Away*(6*U*(1-U)/180));
     }
     Colors.Init(FColor(0,0,0,255),Rest.Num());
-    IndentDepth.Init(0,Rest.Num()); IndentGradient.Init(FVector::ZeroVector,Rest.Num()); PressureUV.Init(FVector2D::ZeroVector,Rest.Num());
+    IndentDepth.Init(0,Rest.Num()); IndentGradient.Init(FVector::ZeroVector,Rest.Num()); PressureHold.Init(0,Rest.Num());
+    BuildPressureGrid();
     Surface->ClearAllMeshSections();
-    Surface->CreateMeshSection(0,Positions,Indices,Normals,UV,PressureUV,TArray<FVector2D>(),TArray<FVector2D>(),Colors,Tangents,true);
-    Surface->SetMaterial(0,SurfaceMaterial?SurfaceMaterial.Get():SourceMesh->GetMaterial(0));
+    Surface->CreateMeshSection(0,Positions,Indices,Normals,UV,Colors,Tangents,true);
+    RefreshPressureMaterial();
 }
 void AMCTongue::BeginPlay()
 {
@@ -69,7 +71,7 @@ void AMCTongue::BeginPlay()
     if (HasAuthority())
     {
         Settings=Profile?Profile->Settings:FMCTongueSettings(); Settings.Sanitize();
-        PressureSettings=Profile?Profile->Pressure:FMCTonguePressureSettings(); PressureSettings.Sanitize();
+        ReloadPressureProfile();
         ScheduleJolt(); ForceNetUpdate();
     }
 }
@@ -177,12 +179,14 @@ float AMCTongue::Offset(FVector P,float Time,float& Red) const
 }
 void AMCTongue::Deform(float Time)
 {
+    TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_DeformAndCollision);
     for (int32 I=0;I<Rest.Num();++I)
     {
         const FVector P=Rest[I]; float Red=0,Dummy=0;
         const float PhysicalHeight=Offset(P,Time,Red),Height=PhysicalHeight-IndentDepth[I],Anchor=AnchorWeights[I];
-        Positions[I]=P+FVector(0,0,PhysicalHeight*Anchor); Red*=Anchor;
-        PressureUV[I]=FVector2D(IndentDepth[I]*Anchor,0);
+        // Events and weight share this buffer with Chaos. Never add a second
+        // material-only displacement: it leaves feet/food above the visible dent.
+        Positions[I]=P+FVector(0,0,Height*Anchor); Red*=Anchor;
         // Transform artist normals/tangents with the displacement gradient; keep UV seam smoothing.
         const float Dx=((Offset(P+FVector(1,0,0),Time,Dummy)-Offset(P-FVector(1,0,0),Time,Dummy))*.5f-IndentGradient[I].X)*Anchor+Height*AnchorGradients[I].X;
         const float Dy=((Offset(P+FVector(0,1,0),Time,Dummy)-Offset(P-FVector(0,1,0),Time,Dummy))*.5f-IndentGradient[I].Y)*Anchor+Height*AnchorGradients[I].Y;
@@ -191,9 +195,13 @@ void AMCTongue::Deform(float Time)
         const float Nz=N.Z/FMath::Max(.5f,1+Dz);
         Normals[I]=FVector(N.X-Dx*Nz,N.Y-Dy*Nz,Nz).GetSafeNormal();
         Tangents[I]=FProcMeshTangent((T+FVector(0,0,Dx*T.X+Dy*T.Y+Dz*T.Z)).GetSafeNormal(),RestTangents[I].bFlipTangentY);
-        Colors[I]=FColor(FMath::RoundToInt(FMath::Clamp(Red,0.f,1.f)*255),0,0,255);
+        // One pressure field drives geometry, physics and material masks. No UV1 displacement.
+        const float Depth=IndentDepth[I]*Anchor*FMath::Abs(GetActorScale3D().Z);
+        const float Mask=FMath::Clamp(Depth/FMath::Max(1.f,PressureSettings.MaxDepth),0.f,1.f);
+        const float Rim=FMath::Clamp(float((IndentGradient[I]*Anchor+IndentDepth[I]*AnchorGradients[I]).Size2D())*4,0.f,1.f);
+        Colors[I]=FColor(FMath::RoundToInt(FMath::Clamp(Red,0.f,1.f)*255),FMath::RoundToInt(Mask*255),FMath::RoundToInt(Rim*255),255);
     }
-    Surface->UpdateMeshSection(0,Positions,Normals,UV,PressureUV,TArray<FVector2D>(),TArray<FVector2D>(),Colors,Tangents);
+    Surface->UpdateMeshSection(0,Positions,Normals,UV,Colors,Tangents);
 }
 bool AMCTongue::SurfacePoint(FVector P,FHitResult& Hit) const
 {
@@ -286,4 +294,6 @@ void AMCTongue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCTongue,Settings); DOREPLIFETIME(AMCTongue,Motion);
     DOREPLIFETIME(AMCTongue,PressureSettings); DOREPLIFETIME(AMCTongue,PressureFrame);
+    DOREPLIFETIME(AMCTongue,ActivePressurePreset);
+    DOREPLIFETIME(AMCTongue,ActivePressureMaterial);
 }

@@ -26,6 +26,10 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue") FMCTongueMotionState Motion;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Weight") FMCTonguePressureSettings PressureSettings;
     UPROPERTY(ReplicatedUsing=OnRep_PressureFrame) FMCTonguePressureFrame PressureFrame;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Weight") TObjectPtr<UMCTonguePressurePreset> ActivePressurePreset;
+    // nullptr explicitly restores the inline settings/material, preserving all event settings.
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue|Weight") void ApplyPressurePreset(UMCTonguePressurePreset* Preset);
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,CallInEditor,Category="Tongue|Weight") void ReloadPressureProfile();
     UFUNCTION(BlueprintPure,Category="Tongue|Weight") float IndentationAt(FVector WorldPoint) const;
     const TArray<FMCTongueLoad>& PressureLoads() const { return HasAuthority()?CurrentLoads:PressureFrame.Sources; }
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue|Weight") void ResetPressure();
@@ -49,9 +53,14 @@ private:
     UFUNCTION() void OnRep_PressureFrame();
     UPROPERTY() TArray<FMCTongueLoad> CurrentLoads;
     TArray<float> IndentDepth;
-    // UV1 carries a cosmetic displacement to the material. Positions remain the physics surface.
-    TArray<FVector2D> PressureUV;
     TArray<FVector> IndentGradient;
+    TArray<float> PressureHold,TargetDepth;
+    TArray<FVector> TargetGradient,PressureWorldVertices;
+    TMap<FIntPoint,TArray<int32>> PressureCells;
+    FTransform PressureGridTransform;
+    void BuildPressureGrid();
+    UPROPERTY(ReplicatedUsing=RefreshPressureMaterial) TObjectPtr<UMaterialInterface> ActivePressureMaterial;
+    UFUNCTION() void RefreshPressureMaterial();
     struct FLoadHistory
     {
         float DownSpeed=0,Impact=0;
