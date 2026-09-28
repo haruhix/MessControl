@@ -123,6 +123,7 @@ private:
     float HandAlpha[2]={0,0};
     FVector Targets[2],Normals[2];
     FVector ReachOffset=FVector::ZeroVector;
+    float PresentationLean=0;
     bool bRigReady=false;
     float LostContact=0,NextAttemptAt=0;
     float SecondaryLostContact=0;

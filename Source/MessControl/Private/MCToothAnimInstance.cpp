@@ -6,6 +6,7 @@
 #include "MCExpressionComponent.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MCFoodActor.h"
@@ -20,8 +21,12 @@ public:
     TArray<FTransform> Pose;
     FVector PlantedFeet[2]={FVector::ZeroVector,FVector::ZeroVector};
     bool FootPlanted[2]={false,false};
+    FVector FootOffsets[2]={FVector::ZeroVector,FVector::ZeroVector};
+    float FootWeights[2]={0,0};
+    FVector PreviousMeshLocation=FVector::ZeroVector;
     float ArtistHandAlpha[2]={0,0};
     float ArtistPushAlpha=0,ArtistTiredAlpha=0;
+    FMCFootContactDebug Feet[2];
     void ArtistWorkPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
     {
         if (!Tooth->AnimationProfile || !Tooth->Grip) return;
@@ -60,9 +65,17 @@ public:
     }
     void PlaceFeet(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
     {
-        if (!Tooth->ToothPhysics->CanAct() || Tooth->GetCharacterMovement()->IsFalling() || Tooth->AnimationSwim>.05f || Tooth->bPreviewAnimation
-            || (Tooth->Expression && Tooth->Expression->BodyAlpha()>.01f)) { FootPlanted[0]=FootPlanted[1]=false; return; }
+        Feet[0]=Feet[1]=FMCFootContactDebug();
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        const bool Reset=!Tooth->ToothPhysics->CanAct() || FVector::DistSquared(World.GetLocation(),PreviousMeshLocation)>FMath::Square(200.);
+        PreviousMeshLocation=World.GetLocation();
+        if (Reset)
+        {
+            for (int32 Side=0;Side<2;++Side) { FootPlanted[Side]=false; FootWeights[Side]=0; FootOffsets[Side]=FVector::ZeroVector; }
+            return;
+        }
+        const bool Allowed=!Tooth->GetCharacterMovement()->IsFalling() && Tooth->AnimationSwim<.05f && !Tooth->bPreviewAnimation
+            && (!Tooth->Expression || Tooth->Expression->BodyAlpha()<.01f);
         TArray<FTransform> CS; CS.SetNum(Pose.Num());
         auto Rebuild=[&](){for (int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)>=0?Pose[I]*CS[Ref.GetParentIndex(I)]:Pose[I];};
         Rebuild();
@@ -74,30 +87,57 @@ public:
             const int32 Foot=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("foot")+S))));
             if (Upper<0 || Lower<0 || Foot<0) continue;
             const FVector Animated=World.TransformPosition(CS[Foot].GetLocation());
+            Feet[Side].Animated=Feet[Side].Target=Animated;
             const float Phase=Tooth->AnimationGait+(Side==0?0:PI);
-            const bool Stance=Tooth->AnimationSpeed<.05f || FMath::Sin(Phase)<=0;
-            if (!Stance) { FootPlanted[Side]=false; continue; }
+            const bool Stance=Allowed && (Tooth->AnimationSpeed<.05f || FMath::Sin(Phase)<=0);
             FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFootGround),false,Tooth);
-            if (Tooth->HeldFood) Params.AddIgnoredActor(Tooth->HeldFood);
-            if (Tooth->Grip->Secondary.Food) Params.AddIgnoredActor(Tooth->Grip->Secondary.Food);
-            if (!Tooth->GetWorld()->LineTraceSingleByChannel(Hit,Animated+FVector(0,0,22),Animated-FVector(0,0,35),ECC_Visibility,Params)
-                || Hit.ImpactNormal.Z<.65f) { FootPlanted[Side]=false; continue; }
-            FVector Target=Animated;
-            if (!FootPlanted[Side] || FVector::Dist2D(PlantedFeet[Side],Animated)>24) PlantedFeet[Side]=Animated;
-            FootPlanted[Side]=true;
-            Target.X=PlantedFeet[Side].X; Target.Y=PlantedFeet[Side].Y;
-            // A small sole clearance, with bounded correction on moving tongue geometry.
-            Target.Z=Animated.Z+FMath::Clamp(float(Hit.ImpactPoint.Z+3-Animated.Z),-12.f,12.f);
+            const bool Grounded=Stance && Tooth->GetWorld()->LineTraceSingleByObjectType(Hit,Animated+FVector(0,0,45),Animated-FVector(0,0,55),
+                FCollisionObjectQueryParams(ECC_WorldStatic),Params) && Hit.ImpactNormal.Z>.65f;
+            float Weight=0;
+            if (Grounded)
+            {
+                Feet[Side].bHit=true; Feet[Side].Surface=Hit.GetComponent()->GetFName();
+                const double LockDistance=FMath::Min(10.,(FVector::Distance(CS[Upper].GetLocation(),CS[Lower].GetLocation())+FVector::Distance(CS[Lower].GetLocation(),CS[Foot].GetLocation()))*.3);
+                if (!FootPlanted[Side] || FVector::Dist2D(PlantedFeet[Side],Animated)>LockDistance) PlantedFeet[Side]=Animated;
+                FootPlanted[Side]=true;
+                FVector Target=PlantedFeet[Side];
+                // An ankle is above the sole. Driving the ankle itself into the
+                // floor made the physics foot push back against the IK every frame.
+                FTransform Rest=Ref.GetRefBonePose()[Foot];
+                for (int32 Parent=Ref.GetParentIndex(Foot);Parent>=0;Parent=Ref.GetParentIndex(Parent)) Rest=Rest*Ref.GetRefBonePose()[Parent];
+                const double SoleHeight=FMath::Clamp(Tooth->StandingMeshTransform().TransformPosition(Rest.GetLocation()).Z+Tooth->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight(),3.,20.);
+                Target.Z=Animated.Z+FMath::Clamp(Hit.ImpactPoint.Z+SoleHeight*Tooth->GetActorScale3D().Z-Animated.Z,-12.,12.);
+                FVector Offset=Target-Animated;
+                const FVector Horizontal=FVector(Offset.X,Offset.Y,0).GetClampedToMaxSize(LockDistance);
+                Offset.X=Horizontal.X; Offset.Y=Horizontal.Y;
+                FootOffsets[Side]=FMath::Lerp(FootOffsets[Side],Offset,1.f-FMath::Exp(-18.f*Dt));
+                Weight=Tooth->AnimationSpeed<.05f?1.f:FMath::Clamp(-FMath::Sin(Phase)*4.f,0.f,1.f);
+            }
+            else FootPlanted[Side]=false;
+            // Losing a ray or entering swing fades the last correction instead
+            // of replacing the entire leg pose in one frame.
+            FootWeights[Side]=FMath::FInterpConstantTo(FootWeights[Side],Weight,Dt,10.f);
+            if (FootWeights[Side]<.001f) { FootOffsets[Side]=FVector::ZeroVector; continue; }
+            const FVector Target=Animated+FootOffsets[Side];
+            Feet[Side].Target=Target; Feet[Side].bPlanted=FootPlanted[Side];
             FTransform U=CS[Upper],L=CS[Lower],F=CS[Foot];
             const FVector Pole=CS[Upper].GetLocation()+World.InverseTransformVectorNoScale(Tooth->GetActorForwardVector()*45);
-            AnimationCore::SolveTwoBoneIK(U,L,F,Pole,World.InverseTransformPosition(Target),false,1.,1.);
-            const float Weight=Tooth->AnimationSpeed<.05f?1.f:FMath::Clamp(-FMath::Sin(Phase)*4.f,0.f,1.f);
+            // Keep a small knee bend: the two-bone solution is singular at full
+            // extension, so tiny contact changes otherwise move the knee sharply.
+            const double Reach=(FVector::Distance(U.GetLocation(),L.GetLocation())+FVector::Distance(L.GetLocation(),F.GetLocation()))*.97;
+            const FVector Goal=U.GetLocation()+(World.InverseTransformPosition(Target)-U.GetLocation()).GetClampedToMaxSize(Reach);
+            AnimationCore::SolveTwoBoneIK(U,L,F,Pole,Goal,false,1.,1.);
             const int32 Bones[]={Upper,Lower,Foot}; const FTransform Solved[]={U,L,F};
             for (int32 J=0;J<3;++J)
             {
                 const int32 B=Bones[J],Parent=Ref.GetParentIndex(B); FTransform Blended;
-                Blended.Blend(CS[B],Solved[J],Weight); Pose[B]=Parent>=0?Blended.GetRelativeTransform(CS[Parent]):Blended; Rebuild();
+                // Blend complete local chains. Rebuilding after each world-space
+                // blend applies the parent's correction again to its children and
+                // changes segment lengths at partial IK weights.
+                const FTransform Local=Parent<0?Solved[J]:Solved[J].GetRelativeTransform(J>0?Solved[J-1]:CS[Parent]);
+                Blended.Blend(Pose[B],Local,FootWeights[Side]); Pose[B]=Blended;
             }
+            Rebuild();
         }
     }
     virtual void PreUpdate(UAnimInstance* Instance,float Dt) override
@@ -164,6 +204,13 @@ public:
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);
+        if (auto* Diagnostics=Cast<UMCToothAnimInstance>(Instance); Diagnostics && Diagnostics->bRecordMotion)
+        {
+            Diagnostics->FootContacts[0]=Feet[0]; Diagnostics->FootContacts[1]=Feet[1];
+            Diagnostics->DiagnosticPose.SetNum(Pose.Num());
+            for (int32 I=0;I<Pose.Num();++I)
+                Diagnostics->DiagnosticPose[I]=Ref.GetParentIndex(I)>=0?Pose[I]*Diagnostics->DiagnosticPose[Ref.GetParentIndex(I)]:Pose[I];
+        }
     }
     virtual bool Evaluate(FPoseContext& Output) override
     {

@@ -19,6 +19,7 @@
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
 #include "MCExpressionComponent.h"
+#include "MCMotionRecorder.h"
 #include "Animation/AnimSequence.h"
 #include "Engine/StaticMesh.h"
 #if WITH_EDITOR
@@ -1504,6 +1505,57 @@ bool FMCPlayerGripTest::RunTest(const FString&)
     TestTrue(TEXT("Throw releases grip and activates ragdoll"),!H->Grip->GrabbedPlayer && P->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll);
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGripPoseContinuityTest,"MessControl.Animation.GripPoseContinuity",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCGripPoseContinuityTest::RunTest(const FString&)
+{
+    for (const int32 Rate:{30,60,0}) // 0 alternates a slow frame with three short frames.
+    {
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=M.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1500,1500,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    auto Spawn=[&](float Y)
+    {
+        const FTransform T(FVector(0,Y,26)); auto* F=M.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
+        FMCFoodRow Row; Row.Mass=6; Row.SpoilSeconds=300; Row.FragmentMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+        FRandomStream R(4); F->ConfigureItem(TEXT("PoseFixture"),Row,R,true); F->FinishSpawning(T); return F;
+    };
+    auto* A=Spawn(-32); auto* B=Spawn(32); auto* H=M.Worker(); H->SetActorLocation(FVector(-64,0,61));
+    H->GetCharacterMovement()->bRunPhysicsWithNoController=true; H->GetCharacterMovement()->SetMovementMode(MOVE_Walking); M.Step(1);
+    auto* Recorder=NewObject<UMCMotionRecorder>(H); Recorder->RegisterComponent(); Recorder->Start(60,FString::Printf(TEXT("grip_continuity_%d"),Rate));
+    auto Sample=[&](const TCHAR* Stage,FVector Direction=FVector::ZeroVector)
+    {
+        TArray<FTransform> Previous; float Step=0,Angle=0;
+        for (int32 N=0;N<120;++N)
+        {
+            if (!Direction.IsNearlyZero()) H->AddMovementInput(Direction,.35f);
+            const float Dt=Rate?1.f/Rate:(N%4==0?.05f:1.f/90);
+            ++GFrameCounter; M.World->Tick(LEVELTICK_All,Dt); int32 I=0;
+            for (const FName Role:{FName("knee_l"),FName("foot_l"),FName("knee_r"),FName("foot_r")})
+            {
+                const FTransform Bone=H->GetMesh()->GetSocketTransform(H->RigBone(Role)).GetRelativeTransform(H->GetActorTransform());
+                if (Previous.IsValidIndex(I))
+                {
+                    Step=FMath::Max(Step,float(FVector::Distance(Bone.GetLocation(),Previous[I].GetLocation()))/(Dt*60));
+                    Angle=FMath::Max(Angle,float(FMath::RadiansToDegrees(Bone.GetRotation().AngularDistance(Previous[I].GetRotation())))/(Dt*60));
+                    Previous[I]=Bone;
+                }
+                else Previous.Add(Bone);
+                ++I;
+            }
+        }
+        AddInfo(FString::Printf(TEXT("%s (%d FPS): max leg step %.3f cm, rotation %.3f degrees per 1/60 s"),Stage,Rate,Step,Angle));
+        TestTrue(*FString::Printf(TEXT("%s (%d FPS): legs stay continuous through grip transitions"),Stage,Rate),Step<4 && Angle<20);
+    };
+    Sample(TEXT("Idle")); H->bHandling=true;
+    TestTrue(TEXT("First item acquired"),A->TryGrab(H)); Sample(TEXT("One item"));
+    TestTrue(TEXT("Second item acquired"),B->TryGrab(H)); Sample(TEXT("Two items"));
+    Sample(TEXT("Walking with two items"),FVector(-1,0,0));
+    H->DropFood(); H->bHandling=false; Sample(TEXT("Released"));
+    Recorder->Stop();
+    }
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArtistClipTest,"MessControl.Animation.Teeth3Layers",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCArtistClipTest::RunTest(const FString&)
 {

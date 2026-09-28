@@ -366,8 +366,11 @@ FVector UMCGripComponent::PlayerPullAcceleration() const
 void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction)
 {
     Super::TickComponent(Dt,Type,TickFunction); if (!Tooth || !bRigReady) return;
-    ReachOffset=Frame.Food?ReachFor(Frame.Food):FVector::ZeroVector;
-    if (Secondary.Food) ReachOffset=(ReachOffset+ReachFor(Secondary.Food))*.5;
+    FVector DesiredReach=Frame.Food?ReachFor(Frame.Food):FVector::ZeroVector;
+    if (Secondary.Food) DesiredReach=(DesiredReach+ReachFor(Secondary.Food))*.5;
+    // Adding/removing the other hand changes the centre of the load. Move the
+    // torso towards it continuously, including while the last grip fades out.
+    ReachOffset=FMath::Lerp(ReachOffset,DesiredReach,1.f-FMath::Exp(-10.f*Dt));
     for (int32 Slot=0;Slot<2;++Slot)
     {
         auto& F=Slot==0?Frame:Secondary; auto* Food=F.Food.Get();
@@ -437,6 +440,9 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         }
     }
     PresentationPose=Frame.Pose;
+    const float LeanSign=PresentationPose==EMCGripPose::Push?1.f:-1.f;
+    const float Effort=PresentationPose==EMCGripPose::Carry?.15f:IsReady() && !InputDirection().IsNearlyZero()?FMath::Clamp(LoadMass()/28.f,.2f,1.f):.1f;
+    PresentationLean=FMath::Lerp(PresentationLean,LeanSign*Settings.Lean*Effort,1.f-FMath::Exp(-10.f*Dt));
     for (int32 I=0;I<2;++I)
     {
         const auto* F=HandFrame(I==0);
@@ -482,10 +488,8 @@ void UMCGripComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
     {
         const int32 Parent=Ref.GetParentIndex(Body); FTransform B=CS[Body];
         B.AddToTranslation(MeshWorld.InverseTransformVector(ReachOffset)*Blend());
-        const float Sign=PresentationPose==EMCGripPose::Push?1.f:-1.f;
-        const float Effort=PresentationPose==EMCGripPose::Carry?.15f:IsReady() && !InputDirection().IsNearlyZero()?FMath::Clamp(LoadMass()/28.f,.2f,1.f):.1f;
         const FVector Axis=MeshWorld.InverseTransformVectorNoScale(Tooth->GetActorRightVector());
-        const FQuat Tilt(Axis,FMath::DegreesToRadians(Sign*Settings.Lean*Effort*Blend()));
+        const FQuat Tilt(Axis,FMath::DegreesToRadians(PresentationLean*Blend()));
         const FVector Pivot=(CS[Arms[0].Upper].GetLocation()+CS[Arms[1].Upper].GetLocation())*.5+MeshWorld.InverseTransformVector(ReachOffset)*Blend();
         B.SetLocation(Pivot+Tilt.RotateVector(B.GetLocation()-Pivot));
         B.SetRotation((Tilt*B.GetRotation()).GetNormalized());
@@ -502,12 +506,15 @@ void UMCGripComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
         Hand.SetRotation((MeshWorld.GetRotation().Inverse()*WorldRotation).GetNormalized());
         const FTransform Solved[]={Upper,Lower,Hand}; const int32 Bones[]={A.Upper,A.Lower,A.Hand};
         const float Alpha=FMath::SmoothStep(0.f,1.f,HandAlpha[I]);
-        // Blend in component space, then rebuild local transforms in parent order.
+        // Blend the local chain together so partial reach does not apply the
+        // upper arm's correction a second time to the forearm and wrist.
         for (int32 J=0;J<3;++J)
         {
             const int32 Bone=Bones[J],Parent=Ref.GetParentIndex(Bone); FTransform Blended;
-            Blended.Blend(CS[Bone],Solved[J],Alpha); Pose[Bone]=Parent>=0?Blended.GetRelativeTransform(CS[Parent]):Blended; Rebuild();
+            const FTransform Local=Parent<0?Solved[J]:Solved[J].GetRelativeTransform(J>0?Solved[J-1]:CS[Parent]);
+            Blended.Blend(Pose[Bone],Local,Alpha); Pose[Bone]=Blended;
         }
+        Rebuild();
     }
 }
 void UMCGripComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
