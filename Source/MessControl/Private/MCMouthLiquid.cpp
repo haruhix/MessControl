@@ -8,6 +8,13 @@
 #include "GameFramework/GameStateBase.h"
 #include "Misc/App.h"
 #include "Components/BoxComponent.h"
+#include "HAL/IConsoleManager.h"
+#include "ProfilingDebugging/CpuProfilerTrace.h"
+
+static TAutoConsoleVariable<int32> CVarMCLiquidRender(TEXT("mc.LiquidRender"),1,
+    TEXT("Render and update liquid stain visuals. 0 disables visuals for A/B profiling; gameplay remains active."));
+static TAutoConsoleVariable<float> CVarMCLiquidMeshHz(TEXT("mc.LiquidMeshHz"),60.f,
+    TEXT("Maximum visual liquid mesh updates per second. 0 updates every frame. Brush masks and gameplay are independent."));
 
 void AMCMouthSurface::SetLiquidAppearance(UMaterialInterface* Preset)
 {
@@ -120,7 +127,8 @@ void AMCMouthSurface::UploadWipe()
 
 void AMCMouthSurface::UpdateLiquid(float Dt)
 {
-    if (bUlcer || !FApp::CanEverRender()) { Liquid->SetVisibility(false); return; }
+    TRACE_CPUPROFILER_EVENT_SCOPE(MCLiquidUpdate);
+    if (bUlcer || !FApp::CanEverRender() || CVarMCLiquidRender.GetValueOnGameThread()==0) { Liquid->SetVisibility(false); return; }
     if (!LiquidMID)
     {
         auto* Base=LiquidMaterial.LoadSynchronous(); if (!Base) return;
@@ -135,8 +143,12 @@ void AMCMouthSurface::UpdateLiquid(float Dt)
     Liquid->SetVisibility(Finish<1);
     if (Finish>=1) return;
     if (LiquidVertices.IsEmpty() || BoundTongue.Get()!=Tongue) BuildLiquid();
-    if (Tongue)
+    GeometryElapsed+=Dt;
+    const float MeshHz=FMath::Clamp(CVarMCLiquidMeshHz.GetValueOnGameThread(),0.f,240.f);
+    const float MeshInterval=MeshHz>0?1.f/MeshHz:0.f;
+    if (Tongue && GeometryElapsed>=MeshInterval)
     {
+        GeometryElapsed=MeshInterval>0?FMath::Fmod(GeometryElapsed,MeshInterval):0;
         const auto& Idx=Tongue->TriangleIndices(); const auto& V=Tongue->CurrentVertices();
         const FTransform TT=Tongue->GetActorTransform(),LT=GetActorTransform();
         for (int32 I=0;I<SurfaceBindings.Num();++I)
@@ -156,6 +168,8 @@ void AMCMouthSurface::UpdateLiquid(float Dt)
     LiquidMID->SetScalarParameterValue(TEXT("Seed"),LiquidSeed);
     LiquidMID->SetScalarParameterValue(TEXT("WorldSize"),LiquidHalfSize*2);
     LiquidMID->SetScalarParameterValue(TEXT("Finish"),Finish);
-    LiquidMID->SetScalarParameterValue(TEXT("BrushAge"),FMath::Max(0.f,Now-BrushAt));
+    // The wake has decayed below visibility after three seconds. Keep the value
+    // stable then, so idle puddles do not upload a new material uniform every frame.
+    LiquidMID->SetScalarParameterValue(TEXT("BrushAge"),FMath::Clamp(Now-BrushAt,0.f,3.f));
     LiquidMID->SetVectorParameterValue(TEXT("Brush"),FLinearColor(BrushUV.X,BrushUV.Y,BrushDirection.X,BrushDirection.Y));
 }

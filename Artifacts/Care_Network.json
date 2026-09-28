@@ -1,0 +1,12 @@
+{
+  "latencyMs": 60,
+  "packetLossPercent": 1,
+  "results": [
+    "[2026.09.28-01.05.42:112][173]LogTemp: Display: MC_CARE_PASS net=2 initial=1 partial=1 complete=1 cells=85 hash=3583899200",
+    "[2026.09.28-01.05.39:188][645]LogTemp: Display: MC_CARE_PASS net=3 initial=1 partial=1 complete=1 cells=85 hash=3583899200",
+    "[2026.09.28-01.05.39:208][587]LogTemp: Display: MC_CARE_PASS net=3 initial=1 partial=1 complete=1 cells=85 hash=3583899200",
+    "[2026.09.28-01.05.39:198][668]LogTemp: Display: MC_CARE_PASS net=3 initial=0 partial=0 complete=1 cells=85 hash=3583899200"
+  ],
+  "passed": true,
+  "lateJoin": true
+}

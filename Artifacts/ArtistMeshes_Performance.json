@@ -1,0 +1,42 @@
+{
+  "resolution": [
+    1920,
+    1080
+  ],
+  "patches": 10,
+  "seed": 41,
+  "mesh_hz": 60,
+  "automatic_tongue_jolts": false,
+  "seconds_per_window": 8,
+  "settling_seconds": 2,
+  "phases": [
+    {
+      "phase": 0,
+      "visuals": true,
+      "frames": 1001,
+      "mean_frame_ms": 6.008,
+      "median_frame_ms": 4.002,
+      "p95_frame_ms": 16.142,
+      "mean_gpu_ms": 2.519
+    },
+    {
+      "phase": 1,
+      "visuals": false,
+      "frames": 1073,
+      "mean_frame_ms": 5.591,
+      "median_frame_ms": 3.694,
+      "p95_frame_ms": 15.855,
+      "mean_gpu_ms": 2.461
+    },
+    {
+      "phase": 2,
+      "visuals": true,
+      "frames": 1002,
+      "mean_frame_ms": 5.977,
+      "median_frame_ms": 3.986,
+      "p95_frame_ms": 16.105,
+      "mean_gpu_ms": 2.462
+    }
+  ],
+  "scope": "Visual rendering and geometry updates only; gameplay stays active. Offscreen standalone, not editor FPS."
+}

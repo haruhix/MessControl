@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/StaticMesh.h"
+#include "ProceduralMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Camera/PlayerCameraManager.h"
 #include "GameFramework/PlayerController.h"
@@ -23,6 +24,7 @@ void FMCArenaToothSettings::Sanitize()
 AMCArenaTooth::AMCArenaTooth()
 {
     PrimaryActorTick.bCanEverTick=true; bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true);
+    SetNetUpdateFrequency(12); SetMinNetUpdateFrequency(2);
     PrimaryActorTick.TickGroup=TG_PostUpdateWork;
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
     Body=CreateDefaultSubobject<UBoxComponent>(TEXT("PhysicalBody")); SetRootComponent(Body);
@@ -31,6 +33,13 @@ AMCArenaTooth::AMCArenaTooth()
     Body->BodyInstance.bUseCCD=true;
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnimatedEnamel")); Visual->SetupAttachment(Body);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    BrushSurface=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BrushSurface")); BrushSurface->SetupAttachment(Visual);
+    BrushSurface->SetVisibility(false); BrushSurface->SetHiddenInGame(true); BrushSurface->SetCastShadow(false);
+    BrushSurface->SetCollisionEnabled(ECollisionEnabled::QueryOnly); BrushSurface->SetCollisionResponseToAllChannels(ECR_Ignore);
+    BrushSurface->SetGenerateOverlapEvents(false);
+    GrimeRelief=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("GrimeClumps")); GrimeRelief->SetupAttachment(Visual);
+    GrimeRelief->SetCollisionEnabled(ECollisionEnabled::NoCollision); GrimeRelief->SetCastShadow(false);
+    GrimeRelief->SetCanEverAffectNavigation(false);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Art/Meshes/SM_ToothProp"));
     if (Mesh.Succeeded()) { Visual->SetStaticMesh(Mesh.Object); Appearance.Mesh=Mesh.Object; }
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("ToothIdentity")); Label->SetupAttachment(Body);
@@ -60,6 +69,8 @@ void AMCArenaTooth::ApplyAppearance()
 {
     if (!Appearance.Mesh) return;
     Visual->SetStaticMesh(Appearance.Mesh);
+    BrushSurface->SetStaticMesh(Appearance.Mesh);
+    GrimeRelief->ClearAllMeshSections();
     const FBoxSphereBounds Bounds=Appearance.Mesh->GetBounds();
     MeshBaseScale=Appearance.MeshScale;
     MeshBaseLocation=-Bounds.Origin*MeshBaseScale;
@@ -69,7 +80,13 @@ void AMCArenaTooth::ApplyAppearance()
     UMaterialInterface* Base=Appearance.GameplayMaterial;
     if (!Base) Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth"));
     if (Base && (!Material || Material->Parent!=Base)) Material=UMaterialInstanceDynamic::Create(Base,this);
-    if (Material) for (int32 I=0;I<Visual->GetNumMaterials();++I) Visual->SetMaterial(I,Material);
+    if (Material)
+    {
+        for (int32 I=0;I<Visual->GetNumMaterials();++I) Visual->SetMaterial(I,Material);
+        Material->SetVectorParameterValue(TEXT("GrimeMin"),FLinearColor(Bounds.Origin-Bounds.BoxExtent));
+        Material->SetVectorParameterValue(TEXT("GrimeSize"),FLinearColor(Bounds.BoxExtent*2));
+        Material->SetVectorParameterValue(TEXT("GrimeScale"),FLinearColor(MeshBaseScale));
+    }
 }
 bool AMCArenaTooth::ReceiveArenaHit(float Damage,FVector Direction)
 {
@@ -143,6 +160,8 @@ void AMCArenaTooth::Tick(float DeltaSeconds)
         Material->SetScalarParameterValue(TEXT("Damage"),1-State.Health/Settings.MaxHealth);
         Material->SetScalarParameterValue(TEXT("HitFlash"),Since<0.16f?(1-Since/0.16f):0);
     }
+    UpdateGrime(DeltaSeconds);
+    Label->SetVisibility(bShowCareLabel && !State.bLost);
     Label->SetText(FText::FromString(FString::Printf(TEXT("%02d | HP %.0f\nBRUSH %d/%d | REPAIR %d"),State.ToothId,State.Health,Status->State.CoffeeLeft,Status->State.CoffeeTotal,Status->State.RepairLeft)));
     Label->SetTextRenderColor(IsLoose()?FColor(255,177,69):FColor(135,255,218));
     if (const APlayerController* PC=GetWorld()->GetFirstPlayerController(); PC && PC->PlayerCameraManager)
@@ -162,4 +181,6 @@ void AMCArenaTooth::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCArenaTooth,State); DOREPLIFETIME(AMCArenaTooth,Settings);
     DOREPLIFETIME(AMCArenaTooth,Appearance);
+    DOREPLIFETIME(AMCArenaTooth,GrimeMask); DOREPLIFETIME(AMCArenaTooth,GrimeAmount);
+    DOREPLIFETIME(AMCArenaTooth,BrushLocal); DOREPLIFETIME(AMCArenaTooth,BrushAt);
 }

@@ -77,6 +77,10 @@ public:
     // Call before FinishSpawning. The actor root is the mesh bounds centre, independent of its asset pivot.
     void SetAppearance(UStaticMesh* Mesh,FVector Scale,UMaterialInterface* GameplayMaterial=nullptr);
     void StatusChanged();
+    void ResetGrime();
+    bool BrushGrime(class AMCToothCharacter* Worker,float Seconds);
+    UPROPERTY(ReplicatedUsing=OnRep_Grime,BlueprintReadOnly,Category="Care") TArray<uint8> GrimeMask;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Care") bool bShowCareLabel=false;
     bool ConsumeForRespawn();
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") bool ReceiveArenaHit(float Damage,FVector Direction);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") void SetCoffee(float Amount);
@@ -87,12 +91,26 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena Tooth") FMCArenaToothSettings Settings;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UBoxComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> BrushSurface;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<class UProceduralMeshComponent> GrimeRelief;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> Label;
 private:
     UFUNCTION() void ApplyAppearance();
     UPROPERTY(ReplicatedUsing=ApplyAppearance) FMCArenaToothAppearance Appearance;
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
+    UFUNCTION() void OnRep_Grime();
+    void UpdateGrime(float Dt);
+    void BuildGrimeRelief();
+    UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> ReliefMaterial;
+    UPROPERTY() TObjectPtr<class UTexture2D> GrimeTexture;
+    UPROPERTY(Replicated) FVector BrushLocal=FVector::ZeroVector;
+    UPROPERTY(Replicated) float BrushAt=-100;
+    UPROPERTY(Replicated) float GrimeAmount=1;
+    struct FBrushHistory { FVector UV=FVector::ZeroVector; double At=-100; float Clock=0; };
+    TMap<TWeakObjectPtr<AActor>,FBrushHistory> BrushHistory;
+    float GrimeFinish=1,GrimeUploadElapsed=0;
+    bool bGrimeDirty=true;
     FVector MeshBaseLocation=FVector::ZeroVector;
     FVector MeshBaseScale=FVector::OneVector;
     double LastPhysicsHit=-100;

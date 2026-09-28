@@ -534,6 +534,8 @@ void AMCToothCharacter::AdvanceCare(float Dt)
     if (CareTarget!=Target->GetOwner() || bLastContactBrush!=bBrushing) { ResetContact(); CareTarget=Target->GetOwner(); bLastContactBrush=bBrushing; }
     if (!FMath::IsFinite(Dt) || Dt<=0) return;
     if (bBrushing) if (auto* Surface=Cast<AMCMouthSurface>(Target->GetOwner())) Surface->BrushLiquid(this,FMath::Min(Dt,.1f));
+    if (bBrushing) if (auto* Arena=Cast<AMCArenaTooth>(Target->GetOwner()))
+        if (!Arena->BrushGrime(this,FMath::Min(Dt,.1f))) { ResetContact(); return; }
     ContactElapsed+=FMath::Min(Dt,.1f);
     const float Seconds=Target->Settings.ContactSeconds;
     ContactProgress=FMath::Clamp(ContactElapsed/Seconds,0.f,1.f);

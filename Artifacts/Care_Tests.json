@@ -1,0 +1,65 @@
+{
+  "tests": [
+    {
+      "name": "MessControl.Care.LocalToothCleaning",
+      "state": "Success",
+      "duration": 0.0690751001238823,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.DayOne.UlcerProtectionAndCoffeeControl",
+      "state": "Success",
+      "duration": 0.06929370015859604,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.WorkValidationAndCooperation",
+      "state": "Success",
+      "duration": 0.03198369964957237,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.ArtistMeshContacts",
+      "state": "Success",
+      "duration": 0.48423701524734497,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.ContactAndRelease",
+      "state": "Success",
+      "duration": 0.29988598823547363,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.HeavyArtistFoodMoves",
+      "state": "Success",
+      "duration": 0.7741652727127075,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.PhysicalTurning",
+      "state": "Success",
+      "duration": 0.7868664860725403,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.PrimaryCarryAndCare",
+      "state": "Success",
+      "duration": 0.6177186965942383,
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "passed": 8,
+  "failed": 0,
+  "skipped": 0,
+  "total": 8,
+  "duration": 3.133225917816162
+}

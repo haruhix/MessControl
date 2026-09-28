@@ -22,6 +22,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Area;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Visual;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Ulcer") TObjectPtr<class UDecalComponent> UlcerDecal;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> Liquid;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Liquid") bool bShowCareLabel=false;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") bool bRandomizeLiquidSize=true;
@@ -64,10 +65,11 @@ private:
     TArray<FProcMeshTangent> LiquidTangents;
     TMap<TWeakObjectPtr<AActor>,FVector2D> PreviousBrush;
     TWeakObjectPtr<AMCTongue> BoundTongue;
-    float Finish=0,TextureElapsed=0,BrushClock=0;
+    float Finish=0,TextureElapsed=0,GeometryElapsed=0,BrushClock=0;
     bool bWipeDirty=true;
     UPROPERTY(Replicated) TObjectPtr<class AMCTongue> Tongue;
     UPROPERTY(Replicated) FVector TongueAnchor=FVector::ZeroVector;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
+    UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> UlcerMID;
     float ContactCooldown=0;
 };

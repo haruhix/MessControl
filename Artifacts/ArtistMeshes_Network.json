@@ -1,0 +1,14 @@
+{
+  "liquid": [
+    "[2026.09.27-22.44.27:085][941]LogTemp: Display: MC_VALIDATION_PASS LIQUID net=2 seen=259 masks= 2243:169.056:MI_CoffeePuddle:e37e9c44 3818:159.344:MI_CurryPuddle:ee4fd2a8 2373:110.305:MI_FoodSaucePuddle:22b9d1a8 1262:213.724:MI_CoffeePuddle:7d3a43a5",
+    "[2026.09.27-22.44.24:118][744]LogTemp: Display: MC_VALIDATION_PASS LIQUID net=3 seen=259 masks= 2243:169.056:MI_CoffeePuddle:e37e9c44 3818:159.344:MI_CurryPuddle:ee4fd2a8 2373:110.305:MI_FoodSaucePuddle:22b9d1a8 1262:213.724:MI_CoffeePuddle:7d3a43a5",
+    "[2026.09.27-22.44.24:118][702]LogTemp: Display: MC_VALIDATION_PASS LIQUID net=3 seen=259 masks= 2243:169.056:MI_CoffeePuddle:e37e9c44 3818:159.344:MI_CurryPuddle:ee4fd2a8 2373:110.305:MI_FoodSaucePuddle:22b9d1a8 1262:213.724:MI_CoffeePuddle:7d3a43a5",
+    "[2026.09.27-22.44.24:127][664]LogTemp: Display: MC_VALIDATION_PASS LIQUID net=3 seen=259 masks= 2243:169.056:MI_CoffeePuddle:e37e9c44 3818:159.344:MI_CurryPuddle:ee4fd2a8 2373:110.305:MI_FoodSaucePuddle:22b9d1a8 1262:213.724:MI_CoffeePuddle:7d3a43a5"
+  ],
+  "pressure": [
+    "[2026.09.27-22.45.55:424][939]LogTemp: Display: MC_VALIDATION_PASS PRESSURE net=2 seen=16383 collisionError=0.0000 invalid=0",
+    "[2026.09.27-22.45.55:431][397]LogTemp: Display: MC_VALIDATION_PASS PRESSURE net=3 seen=16383 collisionError=0.0000 invalid=0",
+    "[2026.09.27-22.45.55:414][354]LogTemp: Display: MC_VALIDATION_PASS PRESSURE net=3 seen=16383 collisionError=0.0000 invalid=0",
+    "[2026.09.27-22.45.55:414][314]LogTemp: Display: MC_VALIDATION_PASS PRESSURE net=3 seen=16383 collisionError=0.0000 invalid=0"
+  ]
+}

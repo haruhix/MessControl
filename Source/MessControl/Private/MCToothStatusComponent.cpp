@@ -63,6 +63,7 @@ void UMCToothStatusComponent::ApplyCoffee(float Amount)
     State.CoffeeTotal=Settings.CoffeeContacts;
     if (auto* Surface=Cast<AMCMouthSurface>(GetOwner())) Surface->ResetLiquid();
     State.CoffeeLeft=FMath::CeilToInt(FMath::Clamp(Amount,0.f,1.f)*State.CoffeeTotal); Changed(true);
+    if (auto* Arena=Cast<AMCArenaTooth>(GetOwner())) Arena->ResetGrime();
 }
 void UMCToothStatusComponent::Loosen()
 {

@@ -7,6 +7,7 @@
 #include "MCFoodActor.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/DecalComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -27,6 +28,10 @@ AMCMouthSurface::AMCMouthSurface()
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetRelativeScale3D(FVector(1.24,1.24,.065));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Engine/BasicShapes/Sphere"));
     if (Mesh.Succeeded()) Visual->SetStaticMesh(Mesh.Object);
+    UlcerDecal=CreateDefaultSubobject<UDecalComponent>(TEXT("BlendedUlcer")); UlcerDecal->SetupAttachment(Area);
+    UlcerDecal->SetRelativeRotation(FRotator(-90,0,0));
+    UlcerDecal->DecalSize=FVector(18,82,82); UlcerDecal->SetFadeScreenSize(.002f);
+    UlcerDecal->SetVisibility(false);
     Liquid=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("CoffeeLiquid")); Liquid->SetupAttachment(Area);
     Liquid->SetCollisionEnabled(ECollisionEnabled::NoCollision); Liquid->SetCastShadow(false);
     Liquid->SetCanEverAffectNavigation(false);
@@ -88,8 +93,7 @@ void AMCMouthSurface::Tick(float Dt)
         {
             // Keep the liquid's UV heading stable as the tongue normal changes.
             // A basis built from Z alone can spin around that normal on nearly flat tissue.
-            const FRotator Rotation=bUlcer?FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator():
-                FRotationMatrix::MakeFromZX(Hit.ImpactNormal,FVector::ForwardVector).Rotator();
+            const FRotator Rotation=FRotationMatrix::MakeFromZX(Hit.ImpactNormal,FVector::ForwardVector).Rotator();
             SetActorLocationAndRotation(Hit.ImpactPoint+Hit.ImpactNormal*5,Rotation);
         }
     }
@@ -122,7 +126,17 @@ void AMCMouthSurface::Tick(float Dt)
         if (Healing>=1) { Destroy(); return; }
     }
     UpdateLiquid(Dt);
-    Visual->SetVisibility(bUlcer); Label->SetVisibility(bUlcer || (bShowCareLabel && !IsClean()));
+    if (bUlcer && !UlcerMID)
+        if (auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Care/M_UlcerBlend.M_UlcerBlend")))
+        { UlcerMID=UMaterialInstanceDynamic::Create(Base,this); UlcerDecal->SetDecalMaterial(UlcerMID); }
+    UlcerDecal->SetVisibility(bUlcer && UlcerMID!=nullptr);
+    if (UlcerMID)
+    {
+        UlcerMID->SetScalarParameterValue(TEXT("Healing"),Healing);
+        UlcerMID->SetScalarParameterValue(TEXT("Disturbed"),bDisturbed?1.f:0.f);
+        UlcerMID->SetScalarParameterValue(TEXT("Seed"),LiquidSeed);
+    }
+    Visual->SetVisibility(bUlcer && !UlcerMID); Label->SetVisibility(bShowCareLabel && (bUlcer || !IsClean()));
     if (Material) Material->SetVectorParameterValue(TEXT("Tint"),bUlcer?FLinearColor(.6f,.01f,.035f):FLinearColor(.11f,.035f,.008f));
     if (bUlcer) { Visual->SetRelativeScale3D(FVector(1.24,1.24,.07f+FMath::Sin(GetWorld()->GetTimeSeconds()*5)*.015f)); Label->SetText(FText::FromString(FString::Printf(TEXT("ULCER %d%% | %s"),FMath::RoundToInt(Healing*100),bDisturbed?TEXT("DISTURBED!"):TEXT("KEEP CLEAR")))); }
     else if (bShowCareLabel) Label->SetText(FText::FromString(FString::Printf(TEXT("BRUSH %d"),Status->State.CoffeeLeft)));

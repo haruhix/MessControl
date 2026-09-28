@@ -1,0 +1,68 @@
+{
+  "tests": [
+    {
+      "name": "MessControl.DayOne.MenuFragmentsMassAndSpoilage",
+      "state": "Success",
+      "duration": 0.093511201441288,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.DayOne.SequenceAndNoGlobalDeadline",
+      "state": "Success",
+      "duration": 0.085447296500206,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.DayOne.UlcerProtectionAndCoffeeControl",
+      "state": "Success",
+      "duration": 0.052250899374485016,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.WorkValidationAndCooperation",
+      "state": "Success",
+      "duration": 0.03417510166764259,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Liquid.AuthoritativeBrushContact",
+      "state": "Success",
+      "duration": 0.03171909973025322,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Liquid.PersistentLocalWipe",
+      "state": "Success",
+      "duration": 0.009158201515674591,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Liquid.SpawnIgnoresDynamicObstacles",
+      "state": "Success",
+      "duration": 0.053053200244903564,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.Tongue.WeightContactsAndRecovery",
+      "state": "Success",
+      "duration": 3.314509153366089,
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "passed": 8,
+  "failed": 0,
+  "skipped": 0,
+  "total": 8,
+  "duration": 3.6738240718841553
+}

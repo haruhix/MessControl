@@ -14,6 +14,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "EngineUtils.h"
+#include "Engine/StaticMesh.h"
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
 
@@ -122,20 +123,30 @@ bool AMCFoodActor::FindGripSurface(FVector From,FHitResult& Hit) const
     FVector Near=Bounds.GetClosestPointTo(From),Center=Visual->Bounds.Origin;
     const double ZMargin=FMath::Min(4.,Bounds.GetExtent().Z*.5);
     Center.Z=FMath::Clamp(From.Z,Bounds.Min.Z+ZMargin,Bounds.Max.Z-ZMargin);
+    bool Found=false; double Best=DBL_MAX;
+    auto TryRay=[&](FVector Aim)
+    {
+        const FVector Direction=(Aim-From).GetSafeNormal();
+        if (Direction.IsNearlyZero()) return;
+        FHitResult Candidate;
+        if (GripSurface->LineTraceComponent(Candidate,From,Aim+Direction*Visual->Bounds.SphereRadius*2,Params))
+        {
+            const double Distance=FVector::DistSquared(From,Candidate.ImpactPoint);
+            if (Distance<Best) { Best=Distance; Hit=Candidate; Found=true; }
+        }
+    };
     FVector Closest;
     if (GripSurface->GetClosestPointOnCollision(From,Closest)>=0)
+        TryRay(Closest);
+    TryRay(Near); TryRay(Center);
+    // A horizontal ray can hit a narrow stalk beyond arm reach although a floret
+    // just above it is reachable. Search the actual outline before refusing a grip.
+    for (const float Height:{-.7f,0.f,.7f})
     {
-        const FVector Direction=(Closest-From).GetSafeNormal();
-        if (!Direction.IsNearlyZero() && GripSurface->LineTraceComponent(Hit,From-Direction*Visual->Bounds.SphereRadius*2,Closest+Direction*Visual->Bounds.SphereRadius*2,Params)) return true;
+        FVector Aim=Visual->Bounds.Origin; Aim.Z+=Bounds.GetExtent().Z*Height;
+        TryRay(Aim); TryRay(FMath::Lerp(Near,Aim,.5));
     }
-    for (const float Bias:{0.f,.25f,.5f,1.f})
-    {
-        const FVector Aim=FMath::Lerp(Near,Center,Bias);
-        const FVector Start=From+(From-Center).GetSafeNormal()*Visual->Bounds.SphereRadius*2;
-        const FVector Direction=(Aim-Start).GetSafeNormal();
-        if (!Direction.IsNearlyZero() && GripSurface->LineTraceComponent(Hit,Start,Aim+Direction*Visual->Bounds.SphereRadius*2,Params)) return true;
-    }
-    return false;
+    return Found;
 }
 void AMCFoodActor::Release(AMCToothCharacter* Hero)
 {
@@ -328,7 +339,17 @@ void AMCFoodActor::OnRep_Item()
 {
     if (ItemMesh) { Visual->SetStaticMesh(ItemMesh); Visual->SetRelativeLocation(FVector::ZeroVector); Visual->SetRelativeScale3D(FVector(bFragment?.5f:1.f)); }
     if (bBrushTool) { Body->SetCollisionObjectType(ECC_GameTraceChannel1); Body->SetBoxExtent(FVector(12,12,40)); Visual->SetRelativeLocation(FVector(0,0,-35)); Visual->SetRelativeScale3D(FVector(.8)); }
+    else if (ItemMesh)
+    {
+        // Imported variants have different pivots and sizes. Keep the physical centre,
+        // visible surface and hand contacts together, including half-size fragments.
+        const FBoxSphereBounds Bounds=ItemMesh->GetBounds();
+        const FVector Scale=Visual->GetRelativeScale3D();
+        Visual->SetRelativeLocation(-Bounds.Origin*Scale);
+        Body->SetBoxExtent((Bounds.BoxExtent*Scale).ComponentMax(FVector(3)));
+    }
     else if (!ItemName.IsNone()) Body->SetBoxExtent(FoodData.HalfExtent*(bFragment?.5f:1.f));
+    Label->SetRelativeLocation(FVector(0,0,Body->GetUnscaledBoxExtent().Z+28));
     GripSurface->SetStaticMesh(Visual->GetStaticMesh());
 }
 void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment)

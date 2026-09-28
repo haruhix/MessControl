@@ -57,34 +57,36 @@ wall_probes={}
 for name in ('SM_Gum','SM_Hole','SM_Wall_01'):
     mesh=u.load_asset('/Game/Art/Meshes/Arena/'+name)
     assert mesh.get_editor_property('body_setup').get_editor_property('collision_trace_flag')==u.CollisionTraceFlag.CTF_USE_COMPLEX_AS_SIMPLE, name
-    actor=next(a for a in actors if isinstance(a,u.StaticMeshActor) and a.static_mesh_component.static_mesh==mesh)
-    assert actor.static_mesh_component.get_collision_enabled()==u.CollisionEnabled.QUERY_AND_PHYSICS
-    origin,extent=actor.get_actor_bounds(False)
-    center=[origin.x,origin.y,origin.z]; half=[extent.x,extent.y,extent.z]
-    ignored=[a for a in actors if a!=actor]
-    count,sweeps,max_error=0,0,0
-    for axis in range(3):
-        side_axes=[i for i in range(3) if i!=axis]
-        for u_value in (-.8,-.4,0,.4,.8):
-            for v_value in (-.8,-.4,0,.4,.8):
-                for direction in (-1,1):
-                    a=center.copy(); b=center.copy()
-                    for side,value in zip(side_axes,(u_value,v_value)):
-                        a[side]=b[side]=center[side]+half[side]*value
-                    a[axis]-=direction*(half[axis]+150); b[axis]+=direction*(half[axis]+150)
-                    start,end=u.Vector(*a),u.Vector(*b)
-                    visual=trace(start,end,True,ignored)
-                    physical=trace(start,end,False,ignored)
-                    assert bool(visual)==bool(physical), 'Missing or phantom collision: '+name
-                    if not visual: continue
-                    error=distance(visual[5],physical[5]); max_error=max(error,max_error)
-                    assert error<.1, 'Collider differs from visible triangles: '+name
-                    count+=1
-                    sweep=u.SystemLibrary.capsule_trace_single(world,start,end,28,58,u.TraceTypeQuery.TRACE_TYPE_QUERY1,False,ignored,u.DrawDebugTrace.NONE,True)
-                    assert sweep and sweep.to_tuple()[0] and sweep.to_tuple()[9]==actor, 'Character capsule passes through '+name
-                    sweeps+=1
-    assert count>=10, 'Insufficient collision samples: '+name
-    wall_probes[name]=dict(line_hits=count,capsule_hits=sweeps,max_error_cm=max_error)
+    instances=[a for a in actors if isinstance(a,u.StaticMeshActor) and a.static_mesh_component.static_mesh==mesh]
+    assert instances, 'Mesh not placed: '+name
+    for actor in instances:
+        assert actor.static_mesh_component.get_collision_enabled()==u.CollisionEnabled.QUERY_AND_PHYSICS
+        origin,extent=actor.get_actor_bounds(False)
+        center=[origin.x,origin.y,origin.z]; half=[extent.x,extent.y,extent.z]
+        ignored=[a for a in actors if a!=actor]
+        count,sweeps,max_error=0,0,0
+        for axis in range(3):
+            side_axes=[i for i in range(3) if i!=axis]
+            for u_value in (-.8,-.4,0,.4,.8):
+                for v_value in (-.8,-.4,0,.4,.8):
+                    for direction in (-1,1):
+                        a=center.copy(); b=center.copy()
+                        for side,value in zip(side_axes,(u_value,v_value)):
+                            a[side]=b[side]=center[side]+half[side]*value
+                        a[axis]-=direction*(half[axis]+150); b[axis]+=direction*(half[axis]+150)
+                        start,end=u.Vector(*a),u.Vector(*b)
+                        visual=trace(start,end,True,ignored)
+                        physical=trace(start,end,False,ignored)
+                        assert bool(visual)==bool(physical), 'Missing or phantom collision: '+name
+                        if not visual: continue
+                        error=distance(visual[5],physical[5]); max_error=max(error,max_error)
+                        assert error<.1, 'Collider differs from visible triangles: '+name
+                        count+=1
+                        sweep=u.SystemLibrary.capsule_trace_single(world,start,end,28,58,u.TraceTypeQuery.TRACE_TYPE_QUERY1,False,ignored,u.DrawDebugTrace.NONE,True)
+                        assert sweep and sweep.to_tuple()[0] and sweep.to_tuple()[9]==actor, 'Character capsule passes through '+name
+                        sweeps+=1
+        assert count>=10, 'Insufficient collision samples: '+name
+        wall_probes[actor.get_actor_label()]=dict(line_hits=count,capsule_hits=sweeps,max_error_cm=max_error)
 markers=[a for a in actors if isinstance(a,u.MCFoodDisposal)]
 if len(markers)!=2 or sum(bool(a.get_editor_property('brush_bin')) for a in markers)!=1: raise RuntimeError('Expected separate food and brush exits')
 profile=u.load_asset('/Game/Data/DA_ArenaTooth')

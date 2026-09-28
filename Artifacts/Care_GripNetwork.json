@@ -1,0 +1,11 @@
+{
+  "packetLossPercent": 2,
+  "passed": true,
+  "latencyMs": 75,
+  "results": [
+    "[2026.09.27-23.58.05:269][274]LogTemp: Display: MC_VALIDATION_PASS GRIP net=2 seen=131071 error=0.03 ready=9.7/9.7/9.7/9.7 invalid=0",
+    "[2026.09.27-23.58.02:399][622]LogTemp: Display: MC_VALIDATION_PASS GRIP net=3 seen=131071 error=0.03 ready=9.7/9.7/9.7/9.7 invalid=0",
+    "[2026.09.27-23.58.02:388][508]LogTemp: Display: MC_VALIDATION_PASS GRIP net=3 seen=131071 error=2.66 ready=9.7/9.7/9.7/9.7 invalid=0",
+    "[2026.09.27-23.58.02:386][450]LogTemp: Display: MC_VALIDATION_PASS GRIP net=3 seen=131071 error=2.16 ready=9.7/9.7/9.7/9.7 invalid=0"
+  ]
+}
