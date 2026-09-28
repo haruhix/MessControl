@@ -12,7 +12,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "Net/UnrealNetwork.h"
 
-float FMCEmoteEntry::Length() const { return Animation?Animation->GetPlayLength():FMath::Clamp(Duration,.5f,10.f); }
+float FMCEmoteEntry::Length() const { return Animation && !bHoldFinalPose?Animation->GetPlayLength():FMath::Clamp(Duration,.5f,10.f); }
 UMCExpressionComponent::UMCExpressionComponent()
 {
     SetIsReplicatedByDefault(true); PrimaryComponentTick.bCanEverTick=true;
@@ -35,7 +35,7 @@ bool UMCExpressionComponent::CanPlay(const FMCEmoteEntry& Entry) const
 {
     if (!Tooth || !Tooth->ToothPhysics->CanAct() || !Tooth->Status->IsAlive()) return false;
     if (!Tooth->Status->State.bCareReaction && Now()-Tooth->Status->State.ReactionAt<.65) return false;
-    return !Entry.Animation || (!Tooth->bHandling && !Tooth->bBrushing && !Tooth->HeldFood && !Tooth->ClingTooth
+    return !Entry.Animation || Entry.bFaceOnly || (!Tooth->bHandling && !Tooth->bBrushing && !Tooth->HeldFood && !Tooth->ClingTooth
         && Tooth->GetVelocity().Size2D()<25 && Tooth->GetCharacterMovement()->IsMovingOnGround());
 }
 void UMCExpressionComponent::ServerPlayEmote_Implementation(FName Id)
@@ -56,7 +56,7 @@ float UMCExpressionComponent::EmoteAlpha() const
 }
 float UMCExpressionComponent::BodyAlpha() const
 {
-    const auto* E=ActiveEntry(); return E && E->Animation?EmoteAlpha():0;
+    const auto* E=ActiveEntry(); return E && E->Animation && !E->bFaceOnly?EmoteAlpha():0;
 }
 void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction)
 {
@@ -114,13 +114,13 @@ void UMCExpressionComponent::BuildBodyPose(TArray<FTransform>& Pose,const FRefer
     if (!Entry || Alpha<.001f || !Tooth->ToothPhysics->CanAct()) return;
     const auto* Skeleton=Entry->Animation->GetSkeleton(); if (!Skeleton) return;
     const double SampleNow=State.StoppedAt>=0?FMath::Min(Now(),State.StoppedAt):Now();
-    const double Time=FMath::Clamp(SampleNow-State.StartedAt,0.,double(Entry->Length()));
+    const double Time=FMath::Clamp(SampleNow-State.StartedAt,0.,double(Entry->Animation->GetPlayLength()));
     FAnimExtractContext Context(Time,false);
     for (int32 I=0;I<Pose.Num();++I)
     {
         const FName Name=Ref.GetBoneName(I); const FString Bone=Name.ToString();
         // Facial controls remain available to gaze, blinking, reactions and speech.
-        if (Bone.StartsWith(TEXT("c_"))) continue;
+        if (Bone.StartsWith(TEXT("c_")) && !Bone.Contains(TEXT("index")) && !Bone.Contains(TEXT("thumb")) && !Bone.Contains(TEXT("middle")) && !Bone.Contains(TEXT("ring")) && !Bone.Contains(TEXT("pinky"))) continue;
         const int32 Index=Skeleton->GetReferenceSkeleton().FindBoneIndex(Name); if (Index<0) continue;
         FTransform Sample;
         Entry->Animation->GetBoneTransform(Sample,FSkeletonPoseBoneIndex(Index),Context,false);
@@ -170,6 +170,23 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         Pose[I].AddToTranslation(Parent>=0?RestCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
     };
     const bool MorphMouth=UpdateMouthShapes(Dt,Strength,Pain>.01f);
+    // Artist brow poses coexist with the runtime morph mouth, blink and gaze.
+    const auto* Artist=ActiveEntry();
+    const float ArtistAlpha=Artist && Artist->bFaceOnly && Artist->Animation && Pain<.01f?EmoteAlpha():0;
+    if (ArtistAlpha>.001f)
+    {
+        const auto* Skeleton=Artist->Animation->GetSkeleton();
+        FAnimExtractContext Context(FMath::Min(Now()-State.StartedAt,double(Artist->Animation->GetPlayLength())),false);
+        for (int32 I=0;I<Pose.Num();++I)
+        {
+            const FName Name=Ref.GetBoneName(I);
+            if (!Name.ToString().StartsWith(TEXT("c_eyebrow")) || !Skeleton) continue;
+            const int32 Index=Skeleton->GetReferenceSkeleton().FindBoneIndex(Name); if (Index<0) continue;
+            FTransform Sample,Blended; Artist->Animation->GetBoneTransform(Sample,FSkeletonPoseBoneIndex(Index),Context,false);
+            Blended.Blend(Pose[I],Sample,ArtistAlpha); Pose[I]=Blended;
+        }
+    }
+
     if (!MorphMouth)
     {
         Offset(TEXT("c_jawbone_x"),FVector(0,0,-2.8f*Jaw));
@@ -180,9 +197,9 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     {
         const float Sign=Side==TEXT("l")?1.f:-1.f;
         if (!MorphMouth) Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
-        Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f));
-        Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f));
-        Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f));
+        Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)));
+        Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)));
+        Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f*(1-ArtistAlpha)));
     }
 }
 void UMCExpressionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

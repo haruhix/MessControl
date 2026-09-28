@@ -10,6 +10,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MCFoodActor.h"
 #include "TwoBoneIK.h"
+#include "Animation/AnimSequence.h"
+#include "Animation/Skeleton.h"
 
 class FMCToothAnimProxy final : public FAnimInstanceProxy
 {
@@ -18,6 +20,44 @@ public:
     TArray<FTransform> Pose;
     FVector PlantedFeet[2]={FVector::ZeroVector,FVector::ZeroVector};
     bool FootPlanted[2]={false,false};
+    float ArtistHandAlpha[2]={0,0};
+    float ArtistPushAlpha=0,ArtistTiredAlpha=0;
+    void ArtistWorkPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        if (!Tooth->AnimationProfile || !Tooth->Grip) return;
+        const auto* Profile=Tooth->AnimationProfile.Get();
+        auto Apply=[&](UAnimSequence* Clip,float Alpha,int32 Side,bool BodyOnly)
+        {
+            if (!Clip || Alpha<.001f || !Clip->GetSkeleton()) return;
+            // The 13-frame artist clips are reach/hold poses, not repeating loops.
+            FAnimExtractContext Context(double(Clip->GetPlayLength())*FMath::Clamp(Alpha,0.f,1.f),false);
+            for (int32 I=0;I<Pose.Num();++I)
+            {
+                const FName Name=Ref.GetBoneName(I); const FString Bone=Name.ToString();
+                bool Include=false;
+                if (BodyOnly) Include=Name==Tooth->RigBone(TEXT("body")) || Name==Tooth->RigBone(TEXT("gaze_head"));
+                else
+                {
+                    const int32 Arm=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("arm_l"):TEXT("arm_r")));
+                    for (int32 P=I;P>=0;P=Ref.GetParentIndex(P)) if (P==Arm) { Include=true; break; }
+                }
+                if (!Include) continue;
+                const int32 Index=Clip->GetSkeleton()->GetReferenceSkeleton().FindBoneIndex(Name); if (Index<0) continue;
+                FTransform Sample,Blended; Clip->GetBoneTransform(Sample,FSkeletonPoseBoneIndex(Index),Context,false);
+                Blended.Blend(Pose[I],Sample,Alpha); Pose[I]=Blended;
+            }
+        };
+        const bool Active=Tooth->ToothPhysics->CanAct();
+        for (int32 Side=0;Side<2;++Side)
+        {
+            ArtistHandAlpha[Side]=FMath::FInterpConstantTo(ArtistHandAlpha[Side],Active && Tooth->Grip->HandOccupied(Side==0)?1.f:0.f,Dt,4.f);
+            Apply(Side==0?Profile->GrabLeft:Profile->GrabRight,ArtistHandAlpha[Side],Side,false);
+        }
+        ArtistPushAlpha=FMath::FInterpTo(ArtistPushAlpha,Active && Tooth->Grip->Frame.Food && Tooth->Grip->Frame.Pose==EMCGripPose::Push?.55f:0.f,Dt,8.f);
+        Apply(Profile->Push,ArtistPushAlpha,0,true);
+        ArtistTiredAlpha=FMath::FInterpTo(ArtistTiredAlpha,Active && Tooth->Grip->LoadMass()>8 && Tooth->GetVelocity().Size2D()<25?.18f:0.f,Dt,3.f);
+        Apply(Profile->Tired,ArtistTiredAlpha,0,true);
+    }
     void PlaceFeet(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
     {
         if (!Tooth->ToothPhysics->CanAct() || Tooth->GetCharacterMovement()->IsFalling() || Tooth->AnimationSwim>.05f || Tooth->bPreviewAnimation
@@ -39,6 +79,7 @@ public:
             if (!Stance) { FootPlanted[Side]=false; continue; }
             FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFootGround),false,Tooth);
             if (Tooth->HeldFood) Params.AddIgnoredActor(Tooth->HeldFood);
+            if (Tooth->Grip->Secondary.Food) Params.AddIgnoredActor(Tooth->Grip->Secondary.Food);
             if (!Tooth->GetWorld()->LineTraceSingleByChannel(Hit,Animated+FVector(0,0,22),Animated-FVector(0,0,35),ECC_Visibility,Params)
                 || Hit.ImpactNormal.Z<.65f) { FootPlanted[Side]=false; continue; }
             FVector Target=Animated;
@@ -117,6 +158,7 @@ public:
             for (int32 I=0;I<Pose.Num();++I) { FTransform Blended; Blended.Blend(Ground[I],Pose[I],Tooth->AnimationSwim); Pose[I]=Blended; }
         }
         if (Tooth->Expression) Tooth->Expression->BuildBodyPose(Pose,Ref);
+        ArtistWorkPose(Tooth,Ref,Dt);
         if (Tooth->Grip) Tooth->Grip->BuildPose(Pose,Ref,Dt);
         PlaceFeet(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);

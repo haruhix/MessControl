@@ -15,6 +15,7 @@ struct FMCFoodRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FText Label;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<TSoftObjectPtr<UStaticMesh>> WholeMeshes;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<TSoftObjectPtr<UStaticMesh>> FragmentMeshes;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.01",UIMin="0.1",UIMax="3",ToolTip="Size multiplier for the mesh and collision on each axis. Fragments also keep their half-size multiplier. Mass is configured separately.")) FVector Scale=FVector::OneVector;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) float SelectionWeight=1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) float Health=75;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) float Mass=9;

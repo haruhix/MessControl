@@ -86,15 +86,16 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             FMCFoodRow Row; Row.Label=FText::FromString(TEXT("GRIP PRACTICE")); Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
             Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
             FRandomStream GripRandom(1); Food->ConfigureItem(TEXT("GripPractice"),Row,GripRandom); Food->Tags.Add(TEXT("DevGripFood")); Food->FinishSpawning(T);
-            FHitResult SmallFloor;
-            if (It->SurfacePoint(Hit.ImpactPoint+Hero->GetActorRightVector()*180,SmallFloor))
+            for (const float Side:{146.f,214.f})
             {
+                FHitResult SmallFloor;
+                if (!It->SurfacePoint(Hit.ImpactPoint+Hero->GetActorRightVector()*Side,SmallFloor)) continue;
                 const FTransform SmallT(SmallFloor.ImpactPoint+FVector(0,0,35));
                 auto* Small=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),SmallT);
                 Row.FragmentMeshes=Row.WholeMeshes; Row.Label=FText::FromString(TEXT("CARRY PRACTICE"));
                 Small->ConfigureItem(TEXT("CarryPractice"),Row,GripRandom,true); Small->Tags.Add(TEXT("DevGripFood")); Small->FinishSpawning(SmallT);
             }
-            return FText::FromString(TEXT("Держи ЛКМ возле куба: большой волочится, маленький поднимается на руки. WASD разворачивает героя. Отпусти ЛКМ, чтобы положить, Q — бросить. Настройки — DA_Grip."));
+            return FText::FromString(TEXT("Держи ЛКМ: большой куб волочится, два маленьких занимают руки автоматически. WASD — движение, отпустить ЛКМ — сбросить оба, Q — бросить. Настройки — DA_Grip."));
         }
         return FText::FromString(TEXT("Нужны игрок и подвижный язык."));
     case EMCDevAction::TongueWeightToggle:

@@ -2,6 +2,7 @@
 #include "MCToothMovementComponent.h"
 #include "MCCoffeeFlood.h"
 #include "MCGazeComponent.h"
+#include "MCGripComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -43,6 +44,19 @@ void UMCToothPhysicsComponent::BeginPlay()
         // Newly spawned actors can be created after the mesh tick this frame. Prime the cache
         // before the first control update so targets never read an empty skeleton buffer.
         Tooth->GetMesh()->RefreshBoneTransforms(); Muscles->UpdateTargetCaches(0.f);
+        FPhysicsControlData Balance;
+        Balance.LinearStrength=12; Balance.LinearDampingRatio=.9f;
+        Balance.AngularStrength=5; Balance.AngularDampingRatio=.65f;
+        Balance.bUseSkeletalAnimation=false; Balance.bDisableCollision=true;
+        Balance.bOnlyControlChildObject=true;
+        const auto& Ref=Tooth->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+        FTransform BodyRest=FTransform::Identity;
+        for (int32 B=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));B>=0;B=Ref.GetParentIndex(B)) BodyRest=BodyRest*Ref.GetRefBonePose()[B];
+        BodyRest=BodyRest*Tooth->StandingMeshTransform();
+        FPhysicsControlTarget BalanceTarget; BalanceTarget.TargetPosition=BodyRest.GetLocation();
+        BalanceTarget.TargetOrientation=BodyRest.Rotator(); BalanceTarget.bApplyControlPointToTarget=true;
+        BalanceControl=Muscles->CreateControl(Tooth->GetCapsuleComponent(),NAME_None,Tooth->GetMesh(),
+            Tooth->RigBone(TEXT("body")),Balance,BalanceTarget,TEXT("Balance"));
     }
     OnRep_Settings(); EnterStanding();
     if (!Tooth->HasAuthority() && Frame.State!=EMCBodyState::Standing) OnRep_Frame();
@@ -54,7 +68,7 @@ float UMCToothPhysicsComponent::ServerTime() const
 }
 void UMCToothPhysicsComponent::SetMuscles(bool bEnable)
 {
-    if (Muscles) Muscles->SetControlsInSetEnabled(TEXT("Limbs"),bEnable);
+    if (Muscles) { Muscles->SetControlsInSetEnabled(TEXT("Limbs"),bEnable); Muscles->SetControlsInSetEnabled(TEXT("Balance"),bEnable); }
 }
 void UMCToothPhysicsComponent::OnRep_Settings()
 {
@@ -100,6 +114,7 @@ void UMCToothPhysicsComponent::EnterRagdoll()
     Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Tooth->SetReplicateMovement(false);
     auto* Mesh=Tooth->GetMesh();
+    Mesh->PhysicsTransformUpdateMode=EPhysicsTransformUpdateMode::SimulationUpatesComponentTransform;
     SetMuscles(false); Mesh->SetAllBodiesSimulatePhysics(false);
     Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
     Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Block);
@@ -200,15 +215,17 @@ void UMCToothPhysicsComponent::EnterStanding()
 {
     if (!Tooth || !Tooth->GetMesh()->GetSkeletalMeshAsset()) return;
     auto* Mesh=Tooth->GetMesh(); Mesh->SetAllBodiesSimulatePhysics(false);
+    Mesh->PhysicsTransformUpdateMode=EPhysicsTransformUpdateMode::ComponentTransformIsKinematic;
     Mesh->AttachToComponent(Tooth->GetCapsuleComponent(),FAttachmentTransformRules::KeepWorldTransform);
     Mesh->SetRelativeTransform(Tooth->StandingMeshTransform());
     Tooth->GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-    // Limb bodies follow the procedural target with spring/damper controls. The body stays kinematic.
+    // The torso also follows a finite-strength balance motor: impacts and turns
+    // can displace it while CharacterMovement supplies collision-safe locomotion.
     Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     // The capsule receives incoming food while standing; dangling toes must not kick it out of reach.
     Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
-    Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,false);
-    Mesh->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(TEXT("body")),1.f,false,false);
+    Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,true);
+    Mesh->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(TEXT("body")),1.f,false,true);
     bGripLeft=bGripRight=false; SetMuscles(true); DisplayPose.Reset();
     auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
     Tooth->GetCharacterMovement()->SetMovementMode(Movement && Movement->DeepWaterAt(Tooth->GetActorLocation(),true)?MOVE_Swimming:MOVE_Walking); Tooth->SetReplicateMovement(true);
@@ -217,6 +234,11 @@ void UMCToothPhysicsComponent::EnterStanding()
 void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
 {
     if (!Tooth || LocalState!=EMCBodyState::Standing) { bGripLeft=bGripRight=false; return; }
+    // Contact IK is authored in the animated torso space. A second post-animation
+    // torso displacement would move both solved hands away from their anchors.
+    // Keep simulating balance, but use the contact pose while hands are occupied.
+    if (auto* Body=Tooth->GetMesh()->GetBodyInstance(Tooth->RigBone(TEXT("body"))))
+        Body->PhysicsBlendWeight=Left || Right?0.f:1.f;
     bool* Flags[]={&bGripLeft,&bGripRight}; const bool Values[]={Left,Right};
     for (int32 I=0;I<2;++I) if (*Flags[I]!=Values[I])
     {

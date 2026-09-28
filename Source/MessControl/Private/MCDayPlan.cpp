@@ -4,6 +4,7 @@ void FMCFoodRow::Sanitize()
     auto Safe=[](float V,float D,float Lo,float Hi){return FMath::IsFinite(V)?FMath::Clamp(V,Lo,Hi):D;};
     SelectionWeight=Safe(SelectionWeight,1,0,100); Health=Safe(Health,75,1,1000);
     Mass=Safe(Mass,9,1,50); SpoilSeconds=Safe(SpoilSeconds,35,3,600); Fragments=FMath::Clamp(Fragments,2,5);
+    for (int32 Axis=0;Axis<3;++Axis) Scale[Axis]=FMath::IsFinite(Scale[Axis])?FMath::Max(.01,Scale[Axis]):1.;
     if (HalfExtent.ContainsNaN()) HalfExtent=FVector(45,35,35);
     HalfExtent=HalfExtent.GetAbs().BoundToBox(FVector(10),FVector(100));
 }

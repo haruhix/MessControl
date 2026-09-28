@@ -7,7 +7,7 @@ $taskMode='GripNetwork'
 $taskFrames=Join-Path $taskRoot ('Saved\'+$taskFolder)
 if (-not $ReuseFrames) {
     New-Item -ItemType Directory -Path $taskFrames -Force | Out-Null
-    Get-ChildItem -LiteralPath $taskFrames -Filter 'Grip_*.png' -File | ForEach-Object { Remove-Item -LiteralPath $_.FullName }
+    Get-ChildItem -LiteralPath $taskFrames -Filter 'Grip_*' -File | Where-Object { $_.Extension -in '.png','.bmp' } | ForEach-Object { Remove-Item -LiteralPath $_.FullName }
     & "$PSScriptRoot\Test.ps1" -EngineRoot $EngineRoot -Mode $taskMode -PacketLagMs 75 -PacketLoss 2 -CaptureGrip
 }
 $taskCulture=[Globalization.CultureInfo]::InvariantCulture
@@ -37,7 +37,7 @@ Style: Default,Arial,27,&H00FFFFFF,&H00FFFFFF,&H00202020,&H80202020,0,0,0,0,100,
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:03.00,Default,,0,0,0,,01  Две руки: подвод к поверхности
 Dialogue: 0,0:00:03.00,0:00:06.00,Default,,0,0,0,,02  Толкание перед собой
-Dialogue: 0,0:00:06.00,0:00:09.00,Default,,0,0,0,,03  Боковой хват ближней рукой
+Dialogue: 0,0:00:06.00,0:00:09.00,Default,,0,0,0,,03  Два маленьких предмета: по одному в каждой руке
 Dialogue: 0,0:00:09.00,0:00:12.00,Default,,0,0,0,,04  Тяга двумя руками за спиной
 Dialogue: 0,0:00:12.00,0:00:15.00,Default,,0,0,0,,05  Плавное отпускание
 Dialogue: 0,0:00:15.00,0:00:22.50,Default,,0,0,0,,06  Повторный хват, удар и ragdoll

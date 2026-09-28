@@ -21,6 +21,8 @@ struct FMCEmoteEntry
     UPROPERTY(EditAnywhere,BlueprintReadWrite) FText Label;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) TObjectPtr<UAnimSequence> Animation;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) EMCEmotion Emotion=EMCEmotion::Neutral;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bFaceOnly=false;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bHoldFinalPose=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="0.5",ClampMax="10")) float Duration=3;
     float Length() const;
 };

@@ -56,7 +56,7 @@ if ($Mode -eq 'Unit') {
             if($Mode -eq 'GripNetwork') { $taskArguments+='-MCGripTest' }
             if($CaptureGrip -and $Mode -eq 'GripNetwork' -and $taskIndex -eq 0) {
                 $taskArguments=@($taskArguments | Where-Object { $_ -ne '-nullrhi' -and $_ -notlike '-ExecCmds=*' })
-                $taskArguments+=@('-MCGripCapture','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages','-ExecCmds="t.MaxFPS 60,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,sg.PostProcessQuality 1,r.ScreenPercentage 75"')
+                $taskArguments+=@('-MCGripCapture','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages','-ExecCmds="t.MaxFPS 60,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,sg.PostProcessQuality 1,r.ScreenPercentage 75,Trace.Disable Screenshot"')
             }
             if($Mode -eq 'SwimNetwork') { $taskArguments+='-MCSwimTest' }
             if($Mode -eq 'GazeNetwork') { $taskArguments+='-MCGazeTest' }

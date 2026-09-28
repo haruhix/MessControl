@@ -2,7 +2,10 @@
 #include "MCCoffeeFlood.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCGripComponent.h"
+#include "MCToothAnimInstance.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "EngineUtils.h"
 
 UMCToothMovementComponent::UMCToothMovementComponent()
@@ -35,6 +38,27 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
         if (!IsSwimming()) SetMovementMode(MOVE_Swimming);
     }
     else if (IsSwimming()) SetMovementMode(MOVE_Falling);
+}
+void UMCToothMovementComponent::TickCharacterPose(float Dt)
+{
+    // Movement packets may arrive before Chaos and grip contacts update. This
+    // procedural animation has no root motion or notifies: evaluate it once in
+    // the mesh tick after the grip, not once per network move with stale targets.
+    if (CharacterOwner && Cast<UMCToothAnimInstance>(CharacterOwner->GetMesh()->GetAnimInstance())) return;
+    Super::TickCharacterPose(Dt);
+}
+void UMCToothMovementComponent::CalcVelocity(float Dt,float Friction,bool bFluid,float BrakingDeceleration)
+{
+    Super::CalcVelocity(Dt,Friction,bFluid,BrakingDeceleration);
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if (!Hero || !Hero->Grip || !Hero->ToothPhysics->CanAct()) return;
+    // External pulls act after voluntary braking; otherwise idle characters cancel
+    // all modest forces every frame and cannot be dragged by another player.
+    FVector A=Hero->Grip->ReactionAcceleration()-Hero->Grip->PlayerPullAcceleration()*.45f;
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+        if (It->Grip && It->Grip->GrabbedPlayer==Hero) A+=It->Grip->PlayerPullAcceleration();
+    Velocity+=FVector(A.X,A.Y,0).GetClampedToMaxSize(1500)*Dt;
+    Velocity=Hero->Grip->ConstrainGripVelocity(Velocity,Dt);
 }
 void UMCToothMovementComponent::PhysSwimming(float Dt,int32 Iterations)
 {

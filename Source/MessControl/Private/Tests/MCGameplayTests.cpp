@@ -315,6 +315,20 @@ bool FMCArtistRigTest::RunTest(const FString& Parameters)
     }
     Hero->GetCharacterMovement()->DisableMovement();
     for (int32 I=0;I<7;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
+    // Match CharacterMovement: teleport the capsule while preserving the mesh world pose,
+    // then apply the separate mesh correction without a teleport flag.
+    const FVector BodyBefore=Hero->ToothPhysics->PhysicalLocation();
+    const FVector MeshBefore=Hero->GetMesh()->GetComponentLocation();
+    const FVector Correction(600,0,0);
+    {
+        const FScopedPreventAttachedComponentMove PreventMeshMove(Hero->GetMesh());
+        Hero->SetActorLocation(Hero->GetActorLocation()+Correction,false,nullptr,ETeleportType::TeleportPhysics);
+    }
+    Hero->GetMesh()->SetWorldLocation(MeshBefore+Correction,false,nullptr,ETeleportType::None);
+    ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,1.f/60);
+    const FVector BodyAfter=Hero->ToothPhysics->PhysicalLocation();
+    TestTrue(*FString::Printf(TEXT("Large capsule correction also moves the simulated body: before %s, after %s"),*BodyBefore.ToString(),*BodyAfter.ToString()),
+        FVector::Dist2D(BodyAfter,BodyBefore+Correction)<20);
     Hero->ToothPhysics->ApplyHit(FVector(450,0,250),Hero->GetActorLocation());
     TestEqual(TEXT("Artist rig enters ragdoll"),Hero->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
     TestTrue(TEXT("Artist core actually simulates"),Hero->GetMesh()->IsSimulatingPhysics(Hero->RigBone(TEXT("body"))));
@@ -636,7 +650,11 @@ bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
     if (!TestNotNull(TEXT("Editable menu table exists"),Table)) return false;
     const auto* Row=Table->FindRow<FMCFoodRow>(TEXT("Broccoli"),TEXT("Test")); if (!TestNotNull(TEXT("Broccoli row exists"),Row)) return false;
     TestEqual(TEXT("Whole variants A B C"),Row->WholeMeshes.Num(),3); TestEqual(TEXT("Fragment variants A B C"),Row->FragmentMeshes.Num(),3);
-    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,160),FRotator::ZeroRotator); Food->ConfigureItem(TEXT("Broccoli"),*Row,Random);
+    FMCFoodRow ScaledRow=*Row; ScaledRow.Scale=FVector(.5,.75,1.25);
+    auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,160),FRotator::ZeroRotator); Food->ConfigureItem(TEXT("Broccoli"),ScaledRow,Random);
+    TestTrue(TEXT("Menu scale reaches the rendered food"),Food->Visual->GetRelativeScale3D().Equals(ScaledRow.Scale));
+    TestTrue(TEXT("Scaled collision fits the visible food"),Food->Body->Bounds.BoxExtent.Equals(Food->Visual->Bounds.BoxExtent,.01));
+    TestTrue(TEXT("Grip queries inherit the visible scale"),Food->GripSurface->GetComponentScale().Equals(Food->Visual->GetComponentScale()));
     Food->Batch=22; Food->SpoilAt=35;
     const float Heavy=Food->DragSpeed(); Food->Settings.Mass=3; TestTrue(TEXT("Lighter food can be dragged faster"),Food->DragSpeed()>Heavy); Food->Settings.Mass=Row->Mass;
     Food->HitFood(Row->Health,FVector::ForwardVector);
@@ -646,6 +664,8 @@ bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
         ++Count; Mass+=It->Settings.Mass; TestEqual(TEXT("Pieces keep the objective batch"),It->Batch,22);
         TestEqual(TEXT("Breaking does not reset expiry"),It->SpoilAt,35.);
         TestNotNull(TEXT("Fragment mesh loaded"),It->ItemMesh.Get());
+        TestTrue(TEXT("Broken pieces inherit the menu scale and fragment multiplier"),It->Visual->GetRelativeScale3D().Equals(ScaledRow.Scale*.5));
+        TestTrue(TEXT("Fragment collision fits the resized mesh"),It->Body->Bounds.BoxExtent.Equals(It->Visual->Bounds.BoxExtent,.01));
         It->HitFood(10000,FVector::ForwardVector); TestFalse(TEXT("Hitting fragments does not delete cleanup work"),It->IsDisposed());
     }
     TestEqual(TEXT("Configured number of pieces"),Count,Row->Fragments); TestTrue(TEXT("Fragment mass conserves whole mass"),FMath::IsNearlyEqual(Mass,Row->Mass));
@@ -927,7 +947,7 @@ bool FMCGripContactTest::RunTest(const FString&)
     TestTrue(*FString::Printf(TEXT("Hands reach their fixed surface points; error %.2f"),Hero->Grip->ContactError()),Hero->Grip->IsReady() && Hero->Grip->ContactError()<=Hero->Grip->Settings.ContactTolerance);
     TestEqual(TEXT("Front grip uses both hands"),Hero->Grip->Frame.Pose,EMCGripPose::FrontPull);
     TestTrue(TEXT("Holding permits turning along movement"),Hero->GetCharacterMovement()->bOrientRotationToMovement);
-    TestTrue(TEXT("Grip keeps more clearance from the food"),FVector::Dist2D(Hero->GetActorLocation(),Food->Visual->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation()))>50);
+    TestTrue(TEXT("Grip does not project the capsule into the food"),FVector::Dist2D(Hero->GetActorLocation(),Food->Visual->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation()))>=Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()-1);
     Hero->SetActorRotation(FRotator(0,90,0)); Step(.5f);
     TestEqual(TEXT("Turning away leaves the near hand holding"),Hero->Grip->Frame.Pose,EMCGripPose::LeftHand);
     const FVector Anchor=Hero->Grip->Frame.LeftPoint;
@@ -962,7 +982,7 @@ bool FMCPrimaryCarryTest::RunTest(const FString&)
     for (int32 I=0;I<16;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f); }
     TestTrue(*FString::Printf(TEXT("Primary action lifts a small item: %s"),*Hero->Grip->DebugFailure),Hero->HeldFood==Food && Food->Phase==EMCFoodPhase::Carried);
     TestTrue(*FString::Printf(TEXT("Carried food lifts clear of the floor: z=%.1f"),Food->GetActorLocation().Z),Food->GetActorLocation().Z>45);
-    TestFalse(TEXT("Carried food does not simulate separately from its holder"),Food->Body->IsSimulatingPhysics());
+    TestTrue(TEXT("Carried food keeps Chaos collision and momentum"),Food->Body->IsSimulatingPhysics());
     bool ContinuousCarry=true;
     const int32 CarrySerial=Hero->Grip->Frame.Serial;
     for (int32 I=0;I<120;++I)
@@ -1428,6 +1448,72 @@ bool FMCHeavyFoodDragTest::RunTest(const FString&)
         TestTrue(*FString::Printf(TEXT("%s retains physical contact: %.2fs"),Name,Contact),Contact>2.3f && H->HeldFood==Food);
         TestTrue(TEXT("Heavy food remains a simulated body"),Food->Body->IsSimulatingPhysics() && Food->Phase==EMCFoodPhase::Free);
     }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDualHandTest,"MessControl.Grip.TwoSmallObjects",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDualHandTest::RunTest(const FString&)
+{
+    for (float FPS:{10.f,30.f,60.f})
+    {
+        FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+        auto* Floor=M.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+        Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1500,1500,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+        auto Spawn=[&](float Y)
+        {
+            const FTransform T(FVector(0,Y,26)); auto* F=M.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
+            FMCFoodRow R; R.Mass=6; R.SpoilSeconds=300; R.FragmentMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+            FRandomStream Random(4); F->ConfigureItem(TEXT("SmallFixture"),R,Random,true); F->FinishSpawning(T); return F;
+        };
+        auto* A=Spawn(-32); auto* B=Spawn(32); auto* H=M.Worker(); H->SetActorLocation(FVector(-64,0,61));
+        auto* Move=H->GetCharacterMovement(); Move->bRunPhysicsWithNoController=true; Move->SetMovementMode(MOVE_Walking);
+        M.Step(.5); H->ServerSetPrimary(true);
+        for (int32 N=0;N<int32(FPS*3);++N) { ++GFrameCounter; M.World->Tick(LEVELTICK_All,1/FPS); }
+        TestTrue(*FString::Printf(TEXT("One held button acquires both small objects at %.0f FPS: %s"),FPS,*H->Grip->DebugFailure),H->Grip->Holds(A) && H->Grip->Holds(B));
+        TestTrue(TEXT("Each object has its own hand"),H->Grip->Frame.Pose!=H->Grip->Secondary.Pose && !H->Grip->HasFreeHand());
+        TestTrue(TEXT("Both remain physical and lifted"),A->Body->IsSimulatingPhysics() && B->Body->IsSimulatingPhysics() && A->GetActorLocation().Z>40 && B->GetActorLocation().Z>40);
+        TestTrue(*FString::Printf(TEXT("Both palms follow current physics contacts at %.0f FPS (error %.2f cm)"),FPS,H->Grip->ContactError()),H->Grip->ContactError()<8);
+        auto* First=H->Grip->Frame.Food.Get(); auto* Second=H->Grip->Secondary.Food.Get();
+        if (First && Second)
+        {
+            First->Dispose(); M.Step(.2f);
+            TestTrue(TEXT("Disposing one item preserves the other hand and holder"),H->HeldFood==Second && H->Grip->Holds(Second) && Second->Holders.Contains(H));
+            H->ToothPhysics->ApplyHit(FVector(0,0,450),H->GetActorLocation()); M.Step(.1f);
+            TestTrue(TEXT("Knockdown clears all hand state"),!H->HeldFood && !H->Grip->Frame.Food && !H->Grip->Secondary.Food && Second->Holders.IsEmpty());
+        }
+        H->ServerSetPrimary(false);
+        TestFalse(TEXT("Release clears secondary"),bool(H->Grip->Secondary.Food));
+    }
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPlayerGripTest,"MessControl.Grip.PlayerPullAndThrow",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPlayerGripTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=M.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1000,1000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    auto* H=M.Worker(); auto* P=M.Worker(); H->SetActorLocation(FVector(-90,0,61)); P->SetActorLocation(FVector(0,0,61));
+    for (auto* C:{H,P}) { C->GetCharacterMovement()->bRunPhysicsWithNoController=true; C->GetCharacterMovement()->SetMovementMode(MOVE_Walking); }
+    M.Step(1); H->bHandling=true;
+    TestFalse(TEXT("Cannot grab self"),H->Grip->BeginPlayerGrip(H));
+    TestTrue(TEXT("Nearby player is grabbable"),H->Grip->BeginPlayerGrip(P));
+    M.Step(.5); const FVector Start=P->GetActorLocation();
+    for (int32 N=0;N<90;++N) { H->AddMovementInput(FVector(-1,0,0),.4f); M.Step(1.f/60); }
+    TestTrue(TEXT("Pulling moves the other player with bounded force"),FVector::Dist2D(Start,P->GetActorLocation())>10 && !P->GetActorLocation().ContainsNaN());
+    H->Grip->ThrowPlayer(); M.Step(.1f);
+    TestTrue(TEXT("Throw releases grip and activates ragdoll"),!H->Grip->GrabbedPlayer && P->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArtistClipTest,"MessControl.Animation.Teeth3Layers",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCArtistClipTest::RunTest(const FString&)
+{
+    auto* Profile=LoadObject<UMCAnimationProfile>(nullptr,TEXT("/Game/Data/DA_ToothAnimation.DA_ToothAnimation"));
+    if (!TestNotNull(TEXT("Animation profile"),Profile)) return false;
+    for (auto* Clip:{Profile->GrabLeft.Get(),Profile->GrabRight.Get(),Profile->Push.Get(),Profile->Tired.Get()})
+        if (TestNotNull(TEXT("Artist work clip assigned"),Clip)) TestTrue(TEXT("Clip contains a playable pose transition"),Clip->GetPlayLength()>.3f && Clip->GetSkeleton()!=nullptr);
+    auto* Lib=LoadObject<UMCEmoteLibrary>(nullptr,TEXT("/Game/Data/DA_Emotes.DA_Emotes"));
+    for (const FName Id:{FName("dance1"),FName("dance2"),FName("hello2"),FName("highfive2")})
+        TestTrue(*FString::Printf(TEXT("Emote %s is playable"),*Id.ToString()),Lib && Lib->Entries.ContainsByPredicate([&](const FMCEmoteEntry& E){return E.Id==Id && E.Animation && E.Animation->GetPlayLength()>1;}));
     return true;
 }
 #endif

@@ -165,7 +165,10 @@ void UMCValidationSubsystem::TickEmotes(float Dt)
         for (const FName Role:{FName(TEXT("body")),FName(TEXT("hand_l")),FName(TEXT("hand_r"))})
         {
             const FVector P=H->GetMesh()->GetSocketLocation(H->RigBone(Role));
-            bInvalidPhysics|=P.ContainsNaN() || FVector::Dist(P,H->GetActorLocation())>450;
+            const bool Invalid=P.ContainsNaN() || FVector::Dist(P,H->GetActorLocation())>450;
+            if (Invalid && !bInvalidPhysics)
+                UE_LOG(LogTemp,Error,TEXT("MC_EMOTE_INVALID t=%.3f hero=%s role=%s bone=%s actor=%s mesh=%s"),T,*H->GetName(),*Role.ToString(),*P.ToString(),*H->GetActorLocation().ToString(),*H->GetMesh()->GetComponentLocation().ToString());
+            bInvalidPhysics|=Invalid;
         }
     }
     if (Hello) DevSeen|=1; if (Highfive) DevSeen|=2; if (Happy) DevSeen|=4; if (Pain) DevSeen|=8; if (Speech) DevSeen|=16;

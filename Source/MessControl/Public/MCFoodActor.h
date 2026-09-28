@@ -75,10 +75,10 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) FVector PullDirection=FVector(0,1,0);
     UPROPERTY(Replicated, BlueprintReadOnly) TArray<TObjectPtr<AMCToothCharacter>> Holders;
     UPROPERTY(ReplicatedUsing=OnRep_Item, BlueprintReadOnly) TObjectPtr<UStaticMesh> ItemMesh;
-    UPROPERTY(Replicated, BlueprintReadOnly) FMCFoodRow FoodData;
+    UPROPERTY(ReplicatedUsing=OnRep_Item, BlueprintReadOnly) FMCFoodRow FoodData;
     UPROPERTY(Replicated, BlueprintReadOnly) FName ItemName;
     UPROPERTY(Replicated, BlueprintReadOnly) float Health=75;
-    UPROPERTY(Replicated, BlueprintReadOnly) bool bFragment=false;
+    UPROPERTY(ReplicatedUsing=OnRep_Item, BlueprintReadOnly) bool bFragment=false;
     UPROPERTY(Replicated, BlueprintReadOnly) bool bBrushTool=false;
     UPROPERTY(Replicated, BlueprintReadOnly) bool bSpoiled=false;
     UPROPERTY(Replicated, BlueprintReadOnly) double SpoilAt=0;

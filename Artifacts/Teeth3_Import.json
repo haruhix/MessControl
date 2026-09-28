@@ -1,0 +1,163 @@
+{
+  "fps": 30.0,
+  "source": "C:\\Users\\user\\Downloads\\Telegram Desktop\\Teeth2 (3).blend",
+  "target_bones": 107,
+  "clips": [
+    {
+      "name": "dance1",
+      "frames": [
+        1,
+        44
+      ],
+      "max_motion_cm": 80.1534111367945,
+      "max_endpoint_error_cm": 2.4201541024111786e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Dance1.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Dance1.A_Teeth_Dance1",
+      "seconds": 1.4333332777023315
+    },
+    {
+      "name": "dance2",
+      "frames": [
+        1,
+        56
+      ],
+      "max_motion_cm": 83.57762353803355,
+      "max_endpoint_error_cm": 2.5303839037745665e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Dance2.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Dance2.A_Teeth_Dance2",
+      "seconds": 1.8333333730697632
+    },
+    {
+      "name": "emo_happy",
+      "frames": [
+        1,
+        13
+      ],
+      "max_motion_cm": 25.678683584822142,
+      "max_endpoint_error_cm": 1.7059844799040144e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Emo_Happy.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Emo_Happy.A_Teeth_Emo_Happy",
+      "seconds": 0.4000000059604645
+    },
+    {
+      "name": "emo_sad",
+      "frames": [
+        1,
+        13
+      ],
+      "max_motion_cm": 11.678783409824732,
+      "max_endpoint_error_cm": 1.1444091796875e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Emo_Sad.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Emo_Sad.A_Teeth_Emo_Sad",
+      "seconds": 0.4000000059604645
+    },
+    {
+      "name": "emo_shock",
+      "frames": [
+        0,
+        13
+      ],
+      "max_motion_cm": 12.704139059021553,
+      "max_endpoint_error_cm": 1.1444091796875e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Emo_Shock.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Emo_Shock.A_Teeth_Emo_Shock",
+      "seconds": 0.4333333373069763
+    },
+    {
+      "name": "grab_left",
+      "frames": [
+        1,
+        13
+      ],
+      "max_motion_cm": 60.47983866605263,
+      "max_endpoint_error_cm": 1.7066507499860077e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Grab_Left.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Grab_Left.A_Teeth_Grab_Left",
+      "seconds": 0.4000000059604645
+    },
+    {
+      "name": "grab_right",
+      "frames": [
+        1,
+        13
+      ],
+      "max_motion_cm": 45.43822519597306,
+      "max_endpoint_error_cm": 1.7481138973067626e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Grab_Right.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Grab_Right.A_Teeth_Grab_Right",
+      "seconds": 0.4000000059604645
+    },
+    {
+      "name": "hello1",
+      "frames": [
+        1,
+        50
+      ],
+      "max_motion_cm": 100.12360250614535,
+      "max_endpoint_error_cm": 2.560753170413504e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Hello1.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1.A_Teeth_Hello1",
+      "seconds": 1.6333333253860474
+    },
+    {
+      "name": "hello2",
+      "frames": [
+        1,
+        44
+      ],
+      "max_motion_cm": 112.45719268171356,
+      "max_endpoint_error_cm": 2.3203897591774824e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Hello2.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello2.A_Teeth_Hello2",
+      "seconds": 1.4333332777023315
+    },
+    {
+      "name": "highfive1",
+      "frames": [
+        0,
+        40
+      ],
+      "max_motion_cm": 163.3843500856455,
+      "max_endpoint_error_cm": 3.908901506790008e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Highfive1.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Highfive1.A_Teeth_Highfive1",
+      "seconds": 1.3333333730697632
+    },
+    {
+      "name": "highfive2",
+      "frames": [
+        0,
+        40
+      ],
+      "max_motion_cm": 235.52407344550426,
+      "max_endpoint_error_cm": 5.0499734096045405e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Highfive2.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Highfive2.A_Teeth_Highfive2",
+      "seconds": 1.3333333730697632
+    },
+    {
+      "name": "push",
+      "frames": [
+        1,
+        13
+      ],
+      "max_motion_cm": 16.479196554061208,
+      "max_endpoint_error_cm": 1.5728399755926745e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Push.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Push.A_Teeth_Push",
+      "seconds": 0.4000000059604645
+    },
+    {
+      "name": "tired",
+      "frames": [
+        1,
+        13
+      ],
+      "max_motion_cm": 125.6798465471891,
+      "max_endpoint_error_cm": 1.5728399755926745e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Teeth3\\A_Teeth_Tired.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Tired.A_Teeth_Tired",
+      "seconds": 0.4000000059604645
+    }
+  ]
+}

@@ -13,5 +13,7 @@ public:
     UMCToothMovementComponent();
     AMCCoffeeFlood* DeepWaterAt(FVector Position,bool Continuing=false) const;
     virtual void UpdateCharacterStateBeforeMovement(float Dt) override;
+    virtual void CalcVelocity(float Dt,float Friction,bool bFluid,float BrakingDeceleration) override;
+    virtual void TickCharacterPose(float Dt) override;
     virtual void PhysSwimming(float Dt,int32 Iterations) override;
 };

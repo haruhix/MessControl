@@ -10,6 +10,8 @@
 #include "MCDayDirector.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "PhysicsEngine/BodyInstance.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -38,7 +40,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     const FString Folder=FPaths::ProjectSavedDir()/TEXT("GripFrames");
     auto Finish=[&]()
     {
-        const bool Pass=DevSeen==131071 && !bTongueInvalid;
+        const bool Pass=DevSeen==1048575 && !bTongueInvalid;
         if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(Folder/TEXT("times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GRIP net=%d seen=%d error=%.2f ready=%.1f/%.1f/%.1f/%.1f invalid=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,GripWorstError,GripReadySeconds[0],GripReadySeconds[1],GripReadySeconds[2],GripReadySeconds[3],bTongueInvalid);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
@@ -88,6 +90,12 @@ void UMCValidationSubsystem::TickGrip(float Dt)
                 Row.FragmentMeshes=Row.WholeMeshes;
                 FRandomStream Random(1); Food->ConfigureItem(FName(*FString::Printf(TEXT("Grip%d"),I)),Row,Random,I==2); Food->Batch=I;
                 Food->FinishSpawning(T);
+                if (I==2)
+                {
+                    const FTransform OtherTransform(T.GetLocation()+FVector(0,-64,0));
+                    auto* Other=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),OtherTransform);
+                    Other->ConfigureItem(TEXT("GripSecond"),Row,Random,true); Other->FinishSpawning(OtherTransform);
+                }
                 Place(Heroes[I],Point+FVector(-220,0,0),0);
             }
             if (Capture)
@@ -103,8 +111,12 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     if (GS->bDevManualEvents && DevStartedAt<0) DevStartedAt=GS->DayStartedAt;
     const float T=DevStartedAt<0?-1:GS->GetServerWorldTimeSeconds()-DevStartedAt;
     AMCFoodActor* Food[4]={nullptr,nullptr,nullptr,nullptr};
+    AMCFoodActor* Second=nullptr;
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
+    {
+        if (It->ItemName==TEXT("GripSecond")) Second=*It;
         for (int32 I=0;I<4;++I) if (It->ItemName==FName(*FString::Printf(TEXT("Grip%d"),I))) Food[I]=*It;
+    }
     if (!Food[0] || !Food[1] || !Food[2] || !Food[3]) { if (T>21) Finish(); return; }
     if (Host && DevStage==1 && T>1)
     {
@@ -126,6 +138,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
             { bTongueInvalid=true; UE_LOG(LogTemp,Display,TEXT("MC_GRIP_BEGIN_FAIL %d %s"),I,*Heroes[I]->Grip->DebugFailure); }
             Heroes[I]->ForceNetUpdate();
         }
+        if (!Second || !Second->TryGrab(Heroes[2])) { bTongueInvalid=true; UE_LOG(LogTemp,Display,TEXT("MC_GRIP_SECOND_FAIL %s"),*Heroes[2]->Grip->DebugFailure); }
         ++DevStage;
     }
     if (T>2 && GripStarts[0].IsNearlyZero()) for (int32 I=0;I<4;++I) GripStarts[I]=Food[I]->GetActorLocation();
@@ -138,7 +151,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
             Heroes[I]->AddMovementInput(FVector(I==0 || I==2?-1:1,0,0),.35f);
     if (Host && DevStage==3 && T>12)
     {
-        for (int32 I=0;I<4;++I) { Food[I]->Release(Heroes[I]); Heroes[I]->bHandling=false; Heroes[I]->ForceNetUpdate(); }
+        for (int32 I=0;I<4;++I) { Heroes[I]->DropFood(); Heroes[I]->bHandling=false; Heroes[I]->ForceNetUpdate(); }
         ++DevStage;
     }
     if (Host && DevStage==4 && T>15)
@@ -161,6 +174,12 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     if (Host && DevStage==6 && T>18)
     { Heroes[1]->ToothPhysics->ApplyHit(FVector(0,0,450),Heroes[1]->GetActorLocation()); ++DevStage; }
     const EMCGripPose Expected[]={EMCGripPose::FrontPull,EMCGripPose::Push,EMCGripPose::Carry,EMCGripPose::RearPull};
+    if (T>3 && T<12 && Second && Heroes[2]->Grip->Holds(Second) && Heroes[2]->Grip->IsReady(Second))
+    {
+        DevSeen|=131072;
+        if (Heroes[2]->Grip->HandOccupied(true) && Heroes[2]->Grip->HandOccupied(false) && Heroes[2]->Grip->Frame.Food!=Heroes[2]->Grip->Secondary.Food) DevSeen|=524288;
+    }
+    if (T>13 && T<15 && Second && Second->Holders.IsEmpty() && !Heroes[2]->Grip->Secondary.Food) DevSeen|=262144;
     if(T>4 && T<12 && Heroes[0]->HeldFood==Food[0] && Food[0]->Phase==EMCFoodPhase::Free && FMath::Abs(Food[0]->GetActorRotation().Yaw)>10)DevSeen|=65536;
     if (T>2 && T<12) for (int32 I=0;I<4;++I)
     {
@@ -169,7 +188,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
         {
             GripReadySeconds[I]+=Dt;
             if (GripReadySeconds[I]>.75f) DevSeen|=1<<I;
-            if (Grip->Frame.Pose==Expected[I]) DevSeen|=1<<(I+4);
+            if (I==2?(Food[I]->Phase==EMCFoodPhase::Carried && (Grip->Frame.Pose==EMCGripPose::LeftHand || Grip->Frame.Pose==EMCGripPose::RightHand)):Grip->Frame.Pose==Expected[I]) DevSeen|=1<<(I+4);
             if (FVector::Dist2D(GripStarts[I],Food[I]->GetActorLocation())>60) DevSeen|=1<<(I+8);
         }
         if (Grip->IsReady() && Grip->Blend()>.99f && Grip->Frame.Food && T>4.3f && T<5)
@@ -198,7 +217,9 @@ void UMCValidationSubsystem::TickGrip(float Dt)
         CoffeeCamera->SetActorLocationAndRotation(Camera,(Focus-Camera).Rotation());
         if (T>=CoffeeNextFrame)
         {
-            const FString Name=FString::Printf(TEXT("Grip_%04d.png"),CoffeeFrame++);
+            // PNG compression blocks the game thread long enough to change the
+            // physics being measured. Record uncompressed frames; encode later.
+            const FString Name=FString::Printf(TEXT("Grip_%04d.bmp"),CoffeeFrame++);
             FScreenshotRequest::RequestScreenshot(Folder/Name,false,false); CoffeeTiming+=FString::Printf(TEXT("%s,%.6f\n"),*Name,T); CoffeeNextFrame=T+.1f;
         }
     }
@@ -206,6 +227,12 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     {
         NextLog=Age+3;
         UE_LOG(LogTemp,Display,TEXT("MC_GRIP net=%d t=%.1f seen=%d err=%.1f/%.1f/%.1f/%.1f held=%d/%d/%d/%d invalid=%d"),int32(GetWorld()->GetNetMode()),T,DevSeen,Heroes[0]->Grip->ContactError(),Heroes[1]->Grip->ContactError(),Heroes[2]->Grip->ContactError(),Heroes[3]->Grip->ContactError(),Food[0]->Holders.Num(),Food[1]->Holders.Num(),Food[2]->Holders.Num(),Food[3]->Holders.Num(),bTongueInvalid);
+        for (int32 I=0;I<4;++I) if (Heroes[I]->Grip->IsReady() && Heroes[I]->Grip->ContactError()>12)
+        {
+            UE_LOG(LogTemp,Display,TEXT("MC_GRIP_POSE i=%d local=%d actor=%s mesh=%s palm=%s target=%s pose=%d blend=%.2f"),I,Heroes[I]->IsLocallyControlled(),*Heroes[I]->GetActorTransform().ToHumanReadableString(),*Heroes[I]->GetMesh()->GetComponentTransform().ToHumanReadableString(),*Heroes[I]->Grip->PalmPoint(true).ToString(),*Heroes[I]->Grip->ContactPoint(true).ToString(),int32(Heroes[I]->Grip->Frame.Pose),Heroes[I]->Grip->Blend());
+            auto* M=Heroes[I]->GetMesh(); auto* B=M->GetBodyInstance(Heroes[I]->RigBone(TEXT("body"))); auto* Arm=M->GetBodyInstance(Heroes[I]->RigBone(TEXT("hand_l")));
+            UE_LOG(LogTemp,Display,TEXT("MC_GRIP_ANIM class=%s auto=%d ticked=%d pause=%d skip=%d enable=%d body=%.1f arm=%.1f blendphysics=%d"),*GetNameSafe(M->GetAnimInstance()),M->bOnlyAllowAutonomousTickPose,M->PoseTickedThisFrame(),M->bPauseAnims,M->bNoSkeletonUpdate,M->bEnableAnimation,B?B->PhysicsBlendWeight:-1,Arm?Arm->PhysicsBlendWeight:-1,M->bBlendPhysics);
+        }
     }
     if (T>(Host?27:24) || (DevStartedAt<0 && Age>180)) Finish();
 #endif

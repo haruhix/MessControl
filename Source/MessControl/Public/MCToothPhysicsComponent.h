@@ -51,4 +51,5 @@ private:
     float LastHitTime = -10.f;
     float RecoveryInvulnerableUntil = 0.f;
     bool bGripLeft=false,bGripRight=false;
+    FName BalanceControl;
 };

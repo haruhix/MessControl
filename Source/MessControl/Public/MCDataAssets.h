@@ -6,6 +6,7 @@
 class USkeletalMesh;
 class UPhysicsAsset;
 class UMaterialInterface;
+class UAnimSequence;
 
 // Maps gameplay roles to an artist's skeleton without renaming the source rig.
 UCLASS(BlueprintType)
@@ -53,6 +54,10 @@ class MESSCONTROL_API UMCAnimationProfile : public UPrimaryDataAsset
     GENERATED_BODY()
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FMCAnimationSettings Settings;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> GrabLeft;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> GrabRight;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> Push;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Artist Clips") TObjectPtr<UAnimSequence> Tired;
 };
 
 USTRUCT(BlueprintType)
