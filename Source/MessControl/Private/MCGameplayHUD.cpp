@@ -18,7 +18,8 @@
 #include "Styling/CoreStyle.h"
 #include "GameFramework/GameStateBase.h"
 
-namespace
+// Unity builds combine this file with the prototype widgets and mouth renderer.
+namespace MCGameplayHUDPrivate
 {
 const FLinearColor Ink(.012f,.020f,.033f,.90f),White(.98f,.97f,.93f),Muted(.56f,.66f,.72f),Mint(.26f,.91f,.71f),Amber(1.f,.64f,.23f),Blue(.22f,.65f,1.f);
 FString StepName(EMCDayStep Step)
@@ -88,7 +89,7 @@ struct FHUDPainter
 int32 UMCHUDIcon::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
 {
     const float S=FMath::Min(Geometry.GetLocalSize().X/80,Geometry.GetLocalSize().Y/80);
-    FHUDPainter P{Geometry,Elements,Layer,S};
+    MCGameplayHUDPrivate::FHUDPainter P{Geometry,Elements,Layer,S};
     if(bTooth) P.Face(40,34,.95f,bDead,bSad,bHappy,GetWorld()?GetWorld()->GetTimeSeconds():0);
     else P.Tool(40,40,ToolSlot,Tint,1.15f);
     return Layer+3;
@@ -109,6 +110,7 @@ void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
 }
 void UMCGameplayHUD::RefreshState()
 {
+    namespace HUD = MCGameplayHUDPrivate;
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr; if(!GS) return;
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     auto Text=[&](FName Name,const FString& Value) { if(auto* T=Cast<UTextBlock>(Find(Name));T && !T->GetText().ToString().Equals(Value)) T->SetText(FText::FromString(Value)); };
@@ -118,7 +120,7 @@ void UMCGameplayHUD::RefreshState()
     const double Now=GS->GetServerWorldTimeSeconds();
     const bool HasStep=GS->DayPlan && GS->DayPlan->Steps.IsValidIndex(GS->StepIndex);
     const bool Finished=GS->bDayOneComplete || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost;
-    FString Title=HasStep?StepName(GS->DayPlan->Steps[GS->StepIndex].Step):GS->CurrentEvent?GS->CurrentEvent->Title.ToString():TEXT("СКОРО НАЧНЁМ");
+    FString Title=HasStep?HUD::StepName(GS->DayPlan->Steps[GS->StepIndex].Step):GS->CurrentEvent?GS->CurrentEvent->Title.ToString():TEXT("СКОРО НАЧНЁМ");
     if(Finished) Title=GS->Phase==EMCShiftPhase::Lost?TEXT("РОТ НЕ СПАСЁН"):TEXT("ДЕНЬ ЗАВЕРШЁН");
     Text(TEXT("DayTitle"),FString::Printf(TEXT("ДЕНЬ %d"),FMath::Max(1,GS->Day))); Text(TEXT("EventTitle"),Title);
     const float Done=GS->TasksTotal>0?1-float(GS->TasksLeft)/GS->TasksTotal:0;
@@ -139,10 +141,10 @@ void UMCGameplayHUD::RefreshState()
     const float Progress=Timed?FMath::Clamp(1-GS->SecondsLeft()/Duration,0.f,1.f):Done;
     Text(TEXT("TimerValue"),Timed?FString::Printf(TEXT("%02d:%02d"),Seconds/60,Seconds%60):TEXT("--:--"));
     Text(TEXT("TimerLabel"),Finished?TEXT("ИТОГИ ДНЯ"):Timed?TEXT("ДО СЛЕД. СОБЫТИЯ"):TEXT("БЕЗ ЛИМИТА ВРЕМЕНИ")); Bar(TEXT("TimerProgress"),Finished?1:Progress);
-    if(auto* T=Cast<UTextBlock>(Find(TEXT("TimerValue")))) T->SetColorAndOpacity(FSlateColor(Timed && Seconds<10?Amber:White));
+    if(auto* T=Cast<UTextBlock>(Find(TEXT("TimerValue")))) T->SetColorAndOpacity(FSlateColor(Timed && Seconds<10?HUD::Amber:HUD::White));
     TArray<APlayerState*> Players; for(const auto& Player:GS->PlayerArray) if(IsValid(Player)) Players.Add(Player.Get());
     Players.Sort([](const APlayerState& A,const APlayerState& B){return A.GetPlayerId()<B.GetPlayerId();});
-    const FLinearColor Colors[]={Blue,FLinearColor(1,.27f,.31f),Amber,Mint};
+    const FLinearColor Colors[]={HUD::Blue,FLinearColor(1,.27f,.31f),HUD::Amber,HUD::Mint};
     if(auto* Strip=Find(TEXT("PlayersPanel"))) Strip->SetRenderTranslation(FVector2D(76*(4-FMath::Min(4,Players.Num())),0));
     for(int32 I=0;I<4;++I) {
         const FString N=FString::Printf(TEXT("Player%d"),I+1); Show(FName(N),Players.IsValidIndex(I)); if(!Players.IsValidIndex(I)) continue;
@@ -159,18 +161,18 @@ void UMCGameplayHUD::RefreshState()
         const bool Visible=HasStep?GS->DayPlan->Steps.IsValidIndex(Index):I==0; Show(FName(N),Visible); if(!Visible) continue;
         const bool Past=HasStep && Index<GS->StepIndex,Current=!HasStep || Index==GS->StepIndex,Failed=Past && GS->PreviousStepFailed;
         Text(FName(N+TEXT("Label")),Past?Failed?TEXT("ПРОШЛО · НЕ ПОЛНОСТЬЮ"):TEXT("ВЫПОЛНЕНО"):Current?TEXT("СЕЙЧАС"):TEXT("ДАЛЕЕ"));
-        Text(FName(N+TEXT("Title")),HasStep?StepName(GS->DayPlan->Steps[Index].Step):Title);
+        Text(FName(N+TEXT("Title")),HasStep?HUD::StepName(GS->DayPlan->Steps[Index].Step):Title);
         Bar(FName(N+TEXT("Fill")),Past?1:Current?Finished?1:Progress:0);
         if(auto* B=Cast<UProgressBar>(Find(FName(N+TEXT("Fill"))))) B->SetFillColorAndOpacity(Failed?FLinearColor(.36f,.14f,.035f,.65f):FLinearColor(.04f,.24f,.24f,.66f));
-        Color(FName(N+TEXT("Accent")),Current?Mint:Past?Failed?Amber:Muted:FLinearColor(.12f,.17f,.22f));
+        Color(FName(N+TEXT("Accent")),Current?HUD::Mint:Past?Failed?HUD::Amber:HUD::Muted:FLinearColor(.12f,.17f,.22f));
     }
     Show(TEXT("InventoryPanel"),Hero!=nullptr); Show(TEXT("HintPanel"),Hero!=nullptr);
     if(Hero && Hero->Inventory) {
         const auto* Inv=Hero->Inventory.Get(); Text(TEXT("ToolTitle"),Inv->ToolName());
         for(int32 I=0;I<4;++I) {
             const FString N=FString::Printf(TEXT("Tool%d"),I+1); const bool Selected=uint8(Inv->Selected)==I;
-            Color(FName(N+TEXT("Frame")),Selected?Mint:FLinearColor(.15f,.23f,.29f,.8f));
-            Color(FName(N+TEXT("KeyBG")),Selected?Mint:White);
+            Color(FName(N+TEXT("Frame")),Selected?HUD::Mint:FLinearColor(.15f,.23f,.29f,.8f));
+            Color(FName(N+TEXT("KeyBG")),Selected?HUD::Mint:HUD::White);
         }
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0);
         Text(TEXT("CooldownValue"),FString::Printf(TEXT("%.1f"),Cool)); Bar(TEXT("CooldownProgress"),1-Cool/Inv->CooldownSeconds());

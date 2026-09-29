@@ -2,6 +2,29 @@
 
 Среда: Windows, Unreal Engine 5.8.1, MSVC 14.44, Windows SDK 10.0.22621, Blender 5.1.0.
 
+## Сборка HUD после коммита — 30.09.2026
+
+На `23526f2` воспроизведён сбой объединённой (Unity) сборки: `White`
+из `MCGameplayHUD.cpp` вызывает C4459 в `MCMouthLiquid.cpp`, а `Mint`
+повторно определяется в `MCPrototypeWidget.cpp` (C2374/C2086).
+Предыдущие проверки пропустили это: Adaptive Unity компилировал изменённые
+файлы отдельно. Служебные имена HUD перенесены в `MCGameplayHUDPrivate`,
+обращения к ним из методов виджетов явно квалифицированы.
+
+После исправления **Editor и Game Win64 Development собраны успешно**
+с `-DisableAdaptiveUnity -MaxParallelActions=2`. Этот режим объединяет
+исходники независимо от незакоммиченных изменений. Для повторной проверки:
+
+```powershell
+$taskEngine = 'E:\UE\UE_5.8' # Укажите свою папку движка
+$taskProject = (Resolve-Path '.\MessControl.uproject').Path
+& "$taskEngine\Engine\Build\BatchFiles\Build.bat" MessControlEditor Win64 Development "-Project=$taskProject" -WaitMutex -NoHotReloadFromIDE -DisableAdaptiveUnity -MaxParallelActions=2
+& "$taskEngine\Engine\Build\BatchFiles\Build.bat" MessControl Win64 Development "-Project=$taskProject" -WaitMutex -NoHotReloadFromIDE -DisableAdaptiveUnity -MaxParallelActions=2
+```
+
+Локальные логи: `Saved/ColleagueUnityBuild.log` (воспроизведение),
+`Saved/ColleagueUnityEditorFixed.log`, `Saved/ColleagueUnityGameFixed.log`.
+
 ## Бег, сцепление и перенос — 29.09.2026
 
 Сборки **Editor и Game Development успешны** после итогового изменения.
