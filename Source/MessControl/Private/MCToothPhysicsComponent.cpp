@@ -28,6 +28,9 @@ UMCToothPhysicsComponent::UMCToothPhysicsComponent()
 void UMCToothPhysicsComponent::BeginPlay()
 {
     Super::BeginPlay(); Tooth=CastChecked<AMCToothCharacter>(GetOwner());
+    // Recovery changes attachment, component space and the presentation pose.
+    // Publish all three before the mesh evaluates, never one frame apart.
+    Tooth->GetMesh()->AddTickPrerequisiteComponent(this);
     if (Tooth->HasAuthority()) { Settings=Profile?Profile->Settings:FMCPhysicsSettings(); Settings.Sanitize(); }
     Muscles=Tooth->FindComponentByClass<UPhysicsControlComponent>();
     FPhysicsControlData Data;
@@ -227,6 +230,7 @@ void UMCToothPhysicsComponent::EnterStanding()
     Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,true);
     Mesh->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(TEXT("body")),1.f,false,true);
     bGripLeft=bGripRight=false; StandingPhysicsWeight=1; ArmPhysicsWeights[0]=ArmPhysicsWeights[1]=1; SetMuscles(true); DisplayPose.Reset();
+    ArmSettleSeconds[0]=ArmSettleSeconds[1]=0;
     auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
     Tooth->GetCharacterMovement()->SetMovementMode(Movement && Movement->DeepWaterAt(Tooth->GetActorLocation(),true)?MOVE_Swimming:MOVE_Walking); Tooth->SetReplicateMovement(true);
     RecoveryInvulnerableUntil=ServerTime()+0.6f;
@@ -240,7 +244,7 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
     // Keep the torso and legs in the same presentation space. Fully physical
     // legs under an animated, reaching torso fought the foot IK and popped at
     // every contact transition. Chaos still simulates their mass and constraints.
-    const float Goal=Left || Right?0.f:1.f;
+    const float Goal=Left || Right?0.f:.25f;
     // Let the physical pose settle before revealing it after release. A quick
     // drop/reacquire otherwise exposes the lagging feet for a few frames.
     const float BlendRate=Goal==0?16.f:6.f;
@@ -248,23 +252,27 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
     if (FMath::Abs(StandingPhysicsWeight-Goal)<.001f) StandingPhysicsWeight=Goal;
     if (auto* Body=Tooth->GetMesh()->GetBodyInstance(Tooth->RigBone(TEXT("body")))) Body->PhysicsBlendWeight=StandingPhysicsWeight;
     for (const FName Role:{FName("leg_l"),FName("leg_r")})
-        Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),StandingPhysicsWeight,false,true);
+        Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),StandingPhysicsWeight*.2f,false,true);
     bool* Flags[]={&bGripLeft,&bGripRight}; const bool Values[]={Left,Right};
     for (int32 I=0;I<2;++I)
     {
         const FName Role=I==0?TEXT("arm_l"):TEXT("arm_r");
-        const float ArmGoal=Values[I]?0.f:1.f;
+        // A reaching hand can leave the physical joint's range. Making it
+        // kinematic drags the simulated torso through that constraint and shakes
+        // the OTHER hand. Keep the hidden limb dynamic, with its motor released;
+        // only the rendered pose follows the contact. No body changes ownership.
+        if (*Flags[I]!=Values[I])
+        {
+            if (Muscles) Muscles->SetControlsInSetEnabled(Role,!Values[I]);
+            // Releasing a stretched contact changes the cached motor target.
+            // Give the dynamic limb time to settle before making it visible.
+            ArmSettleSeconds[I]=Values[I]?0.f:.18f;
+            *Flags[I]=Values[I];
+        }
+        ArmSettleSeconds[I]=FMath::Max(0.f,ArmSettleSeconds[I]-GetWorld()->GetDeltaSeconds());
+        const float ArmGoal=Values[I] || ArmSettleSeconds[I]>0?0.f:.7f;
         ArmPhysicsWeights[I]=FMath::Lerp(ArmPhysicsWeights[I],ArmGoal,1.f-FMath::Exp(-(ArmGoal==0?20.f:8.f)*GetWorld()->GetDeltaSeconds()));
         if (FMath::Abs(ArmPhysicsWeights[I]-ArmGoal)<.001f) ArmPhysicsWeights[I]=ArmGoal;
-        // Finish the visual blend before disabling simulation. On release start
-        // simulation at zero weight, then reveal it gradually as the drive settles.
-        const bool Kinematic=Values[I] && ArmPhysicsWeights[I]==0;
-        if (*Flags[I]!=Kinematic)
-        {
-            if (Muscles) Muscles->SetControlsInSetEnabled(Role,!Kinematic);
-            Tooth->GetMesh()->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(Role),!Kinematic,true);
-            *Flags[I]=Kinematic;
-        }
         Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),ArmPhysicsWeights[I],false,true);
     }
 }

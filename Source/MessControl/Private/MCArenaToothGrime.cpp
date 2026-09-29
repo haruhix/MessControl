@@ -1,6 +1,7 @@
 #include "MCArenaTooth.h"
 #include "MCSurfaceWipe.h"
 #include "MCToothCharacter.h"
+#include "MCBrushContactComponent.h"
 #include "MCToothStatusComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
@@ -13,13 +14,15 @@
 void AMCArenaTooth::BuildGrimeRelief()
 {
     if (!Visual->GetStaticMesh() || !BrushSurface->IsPhysicsStateCreated()) return;
+    GrimeSamples.Reset();
     const FTransform Transform=Visual->GetComponentTransform();
     const FBoxSphereBounds Bounds=Visual->GetStaticMesh()->GetBounds();
     FRandomStream Random(State.ToothId*193+71);
     TArray<FVector> Vertices,Normals; TArray<int32> Triangles; TArray<FVector2D> UV;
     TArray<FLinearColor> Colors; TArray<FProcMeshTangent> Tangents;
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCGrimeCoating),true);
-    const FVector Inward=(-GetActorLocation()).GetSafeNormal2D();
+    FVector Inward=(-GetActorLocation()).GetSafeNormal2D();
+    if(Inward.IsNearlyZero()) Inward=-GetActorForwardVector();
     const float Side=GetActorLocation().Y<0?-1.f:1.f;
     auto SmoothUnion=[](float A,float B,float K)
     {
@@ -79,6 +82,11 @@ void AMCArenaTooth::BuildGrimeRelief()
             UV.Add((Q+FVector2D(1,1))*.5);
             Colors.Add(FLinearColor(Coverage,.5f+.5f*FMath::Sin(Q.Y*5+Q.X*9+State.ToothId),Interior,1));
             Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(X).GetSafeNormal(),false));
+            if(bHit && Coverage>.5f && R%2==0 && C%2==0) {
+                const FVector Local=Transform.InverseTransformPosition(Hit.ImpactPoint);
+                GrimeSamples.Add({Local,Transform.InverseTransformVectorNoScale(Hit.ImpactNormal).GetSafeNormal(),
+                    (Local-(Bounds.Origin-Bounds.BoxExtent))/(Bounds.BoxExtent*2),Coverage});
+            }
         }
         for (int32 R=0;R<=Rows;++R) for (int32 C=0;C<=Columns;++C)
         {
@@ -98,7 +106,7 @@ void AMCArenaTooth::BuildGrimeRelief()
             }
         }
     }
-    GrimeRelief->CreateMeshSection_LinearColor(0,Vertices,Triangles,Normals,UV,Colors,Tangents,false);
+    if(FApp::CanEverRender()) GrimeRelief->CreateMeshSection_LinearColor(0,Vertices,Triangles,Normals,UV,Colors,Tangents,false);
 }
 
 void AMCArenaTooth::ResetGrime()
@@ -110,29 +118,68 @@ void AMCArenaTooth::ResetGrime()
 }
 void AMCArenaTooth::OnRep_Grime() { bGrimeDirty=true; }
 
+float AMCArenaTooth::RemainingGrime() const
+{
+    float Total=0,Left=0;
+    for(const auto& S:GrimeSamples) { Total+=S.Weight; Left+=S.Weight*FMath::Clamp((FMCSurfaceWipe::Sample(GrimeMask,S.UV)-.25f)/.75f,0.f,1.f); }
+    return Total>0?Left/Total:1.f;
+}
+bool AMCArenaTooth::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred)
+{
+    if(!IsAvailable() || !Status->NeedsCare(true) || !IsValid(Worker) || !Worker->BrushContact->CanAcquireSurface(this)) return false;
+    if(GrimeSamples.IsEmpty()) BuildGrimeRelief();
+    const FTransform T=Visual->GetComponentTransform();
+    const FVector Origin=Worker->GetActorLocation(),Aim=Origin+Worker->GetActorForwardVector()*65+FVector(0,0,65);
+    float Best=MAX_flt; SelectedSample=INDEX_NONE;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCDirtyTarget),false,Worker); Query.AddIgnoredActor(this);
+    for(int32 I=0;I<GrimeSamples.Num();++I) {
+        const auto& S=GrimeSamples[I]; if(FMCSurfaceWipe::Sample(GrimeMask,S.UV)<=.28f) continue;
+        const FVector P=T.TransformPosition(S.Point),N=T.TransformVectorNoScale(S.Normal).GetSafeNormal(),D=P-Origin;
+        if(D.Size()>Worker->BrushContact->SurfaceReach || FVector::DotProduct(N,(Origin-P).GetSafeNormal())<.05f
+            || !Worker->BrushContact->CanReach(P,N)) continue;
+        const bool Locked=Worker->BrushContact->Target==this && Worker->BrushContact->Alpha()>.5f;
+        const float Distance=Locked?FVector::DistSquared(P,Worker->BrushContact->ContactPoint())*.7f+FVector::DistSquared(P,Aim)*.3f:FVector::DistSquared(P,Aim);
+        const float Score=Distance*(I==Preferred?.3f:1.f);
+        if(Score>=Best) continue;
+        FHitResult Block; if(GetWorld()->LineTraceSingleByChannel(Block,Origin+FVector(0,0,40),P-N*2,ECC_Visibility,Query)) continue;
+        Best=Score; SelectedSample=I; Point=P; Normal=N;
+    }
+    return SelectedSample!=INDEX_NONE;
+}
+
 bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
 {
     if (!HasAuthority() || !IsAvailable() || !Status->NeedsCare(true) || !IsValid(Worker) ||
         !Worker->bBrushing || !Worker->HasBrush() || Worker->HeldFood || Worker->bInCoffee ||
-        !Worker->CanContact(this) || !FMath::IsFinite(Seconds) || Seconds<=0 || !Visual->GetStaticMesh()) return false;
+        !Worker->BrushContact->CanAcquireSurface(this) || !FMath::IsFinite(Seconds) || Seconds<=0 || !Visual->GetStaticMesh()) return false;
     const auto* GS=GetWorld()->GetGameState();
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     auto& History=BrushHistory.FindOrAdd(Worker); History.Clock+=FMath::Min(Seconds,.1f);
-    const FVector Side=Worker->GetActorRightVector();
-    const FVector Sweep=Side*(FMath::Sin(History.Clock*18)*15)+FVector(0,0,FMath::Sin(History.Clock*11)*10);
-    const FVector From=Worker->GetActorLocation()+Sweep;
-    FVector Aim=Visual->Bounds.Origin;
-    Aim.Z=FMath::Clamp(From.Z,Visual->Bounds.GetBox().Min.Z+4,Visual->Bounds.GetBox().Max.Z-4);
+    FVector Aim,N; if(!FindDirtyContact(Worker,Aim,N,History.Sample)) return false;
+    History.Sample=SelectedSample;
+    const FTransform Surface=Visual->GetComponentTransform();
+    if(Now-History.At<.2) {
+        Aim=FMath::VInterpConstantTo(Surface.TransformPosition(History.Aim),Aim,FMath::Min(Seconds,.1f),220.f);
+        N=FMath::Lerp(Surface.TransformVectorNoScale(History.Normal),N,1-FMath::Exp(-24.f*Seconds)).GetSafeNormal();
+    }
+    History.Aim=Surface.InverseTransformPosition(Aim); History.Normal=Surface.InverseTransformVectorNoScale(N);
+    const FVector Up=FVector::VectorPlaneProject(FVector::UpVector,N).GetSafeNormal(),Side=FVector::CrossProduct(Up,N).GetSafeNormal();
+    // Small tangential strokes stay on the chosen stain; project each stroke back onto enamel.
+    const FVector Sweep=Side*(FMath::Sin(History.Clock*24)*7)+Up*(FMath::Sin(History.Clock*12)*5);
+    const FVector From=Aim+Sweep+N*25;
     FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCToothBrush),true,Worker);
-    // Keep the stroke under the facing brush instead of pulling every ray
-    // toward the center of a large tooth. Retain the nearby care-target fallback.
-    const FVector ForwardEnd=From+Worker->GetActorForwardVector()*(Worker->Status->Settings.Reach+30);
-    if (!BrushSurface->LineTraceComponent(Hit,From,ForwardEnd,Query) &&
-        !BrushSurface->LineTraceComponent(Hit,From,Aim+(Aim-From).GetSafeNormal()*20,Query)) return false;
-    if (FVector::Dist(Hit.ImpactPoint,Worker->GetActorLocation())>Worker->Status->Settings.Reach+20) return false;
+    if (!BrushSurface->LineTraceComponent(Hit,From,Aim+Sweep-N*25,Query)
+        || !Worker->BrushContact->CanReach(Hit.ImpactPoint,Hit.ImpactNormal))
+    {
+        // At the edge of hand reach, shorten the scrub stroke instead of losing
+        // and reacquiring the same reachable stain every few frames.
+        if(!BrushSurface->LineTraceComponent(Hit,Aim+N*25,Aim-N*25,Query)) return false;
+    }
+    if (FVector::Dist(Hit.ImpactPoint,Worker->GetActorLocation())>Worker->BrushContact->SurfaceReach+20
+        || !Worker->BrushContact->CanReach(Hit.ImpactPoint,Hit.ImpactNormal)) return false;
     // Validate the real visible contact as well as the broad-phase care target.
     FHitResult Block; Query.AddIgnoredActor(this);
-    if (GetWorld()->LineTraceSingleByChannel(Block,From,Hit.ImpactPoint,ECC_Visibility,Query)) return false;
+    if (GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation()+FVector(0,0,40),Hit.ImpactPoint,ECC_Visibility,Query)) return false;
     const auto Bounds=Visual->GetStaticMesh()->GetBounds();
     const FVector Size=Bounds.BoxExtent*2;
     BrushLocal=Visual->GetComponentTransform().InverseTransformPosition(Hit.ImpactPoint);
@@ -140,8 +187,12 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     const FVector Dimensions=Size*Visual->GetComponentScale().GetAbs();
     const bool Continuous=Now-History.At<.2 && ((UV-History.UV)*Dimensions).Size()<65;
     if (GrimeMask.Num()!=FMCSurfaceWipe::Count) FMCSurfaceWipe::Reset(GrimeMask);
-    if (FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,34,Seconds)) OnRep_Grime();
+    Worker->BrushContact->Contact(this,Hit.ImpactPoint,Hit.ImpactNormal);
+    if (FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,28,Seconds*.9f)) OnRep_Grime();
     History.UV=UV; History.At=Now; BrushAt=Now;
+    const float Left=RemainingGrime();
+    const int32 RemainingLayers=Left<.025f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
+    while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true); ++Worker->SuccessfulBrushContacts; }
     return true;
 }
 

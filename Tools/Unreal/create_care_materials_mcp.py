@@ -97,12 +97,12 @@ return float4(dirt,foam,wet,crack);
 custom('cleaningColor','''
 float3 pigment=Tint*lerp(.62,1.60,saturate(Pigment.r*2.5));
 pigment*=lerp(1.3,.83,smoothstep(.35,1,F.x));
-float3 color=lerp(Enamel*float3(.93,.80,.63),pigment,F.x);
+float3 color=lerp(Enamel*float3(1,.98,.94),pigment,F.x);
 color=lerp(color,float3(.075,.024,.012),F.w*.85);
 color=lerp(color,float3(.91,.98,.95),F.y*.95);
 return lerp(color,float3(1,.3,.08),saturate(Flash)*.55);
 ''',{'Enamel':('artistColor','RGB'),'F':('localFilm',''),'Pigment':('pigmentColor',''),'Tint':('tint',''),'Flash':('flash','')},'Float3'); out('cleaningColor','BaseColor')
-custom('cleaningRoughness','return lerp(lerp(lerp(max(Base,.19),.12,F.x),.12,F.z*.6),.42,F.y);',{'Base':('artistRough',''),'F':('localFilm','')}); out('cleaningRoughness','Roughness')
+custom('cleaningRoughness','return lerp(lerp(lerp(clamp(Base,.16,.24),.12,F.x),.12,F.z*.6),.42,F.y);',{'Base':('artistRough',''),'F':('localFilm','')}); out('cleaningRoughness','Roughness')
 scalar('filmSpecular','Specular',.65); out('filmSpecular','Specular')
 custom('filmHeight',noise+'''
 float bead=smoothstep(.39,.67,S.value(P*.18+Seed));

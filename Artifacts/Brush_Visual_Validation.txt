@@ -1,0 +1,1 @@
+[2026.09.28-22.54.10:247][540]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=104 hash=2537716990 contactError=6.76 contacts=55 handTravel=88.59 wristStretch=1.000 groundClearance=84.33

@@ -23,12 +23,18 @@
 #if !UE_BUILD_SHIPPING
 void MCTickLiquidPerformance(UWorld* World);
 void MCTickCareValidation(UWorld* World);
+void MCTickBrushValidation(UWorld* World);
+void MCTickCameraValidation(UWorld* World);
 #endif
 
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
     if (FParse::Param(FCommandLine::Get(),TEXT("MCSwimTest"))) { TickSwim(DeltaSeconds); return; }
 #if !UE_BUILD_SHIPPING
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCThroatTest"))) { TickThroat(DeltaSeconds); return; }
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCBrushTest"))) { MCTickBrushValidation(GetWorld()); return; }
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCCameraTest"))) { MCTickCameraValidation(GetWorld()); return; }
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCLocomotionTest"))) { TickLocomotion(DeltaSeconds); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCCareTest"))) { MCTickCareValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLiquidPerf"))) { MCTickLiquidPerformance(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCEmoteTest")) || FParse::Param(FCommandLine::Get(),TEXT("MCMouthTest")) || FParse::Param(FCommandLine::Get(),TEXT("MCPupilTest"))) { TickEmotes(DeltaSeconds); return; }

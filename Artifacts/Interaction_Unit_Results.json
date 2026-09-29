@@ -1,0 +1,1043 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "WINDOWS-Q8HM2VG",
+			"instance": "0854EAD643CD6985CEE99BB8869A541B",
+			"instanceName": "WINDOWS-Q8HM2VG-11820",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9168] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 3080",
+			"cPUModel": "AMD Ryzen 9 5950X 16-Core Processor            ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.09.28-22.53.18",
+	"succeeded": 52,
+	"succeededWithWarnings": 1,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 26.098133087158203,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "ConnectedMouthMorphs",
+			"fullTestPath": "MessControl.Animation.ConnectedMouthMorphs",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.87623649835586548,
+			"dateTime": "2026.09.28-22.52.51",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EmotesReactionsAndSpeech",
+			"fullTestPath": "MessControl.Animation.EmotesReactionsAndSpeech",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.52763950824737549,
+			"dateTime": "2026.09.28-22.52.52",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "GripPoseContinuity",
+			"fullTestPath": "MessControl.Animation.GripPoseContinuity",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 4.1686954498291016,
+			"dateTime": "2026.09.28-22.52.53",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (30 FPS): max leg step 0.045 cm, rotation 0.166 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.53"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (30 FPS): max leg step 0.523 cm, rotation 1.488 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.53"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (30 FPS): max leg step 0.362 cm, rotation 0.751 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.54"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (30 FPS): max leg step 2.199 cm, rotation 6.583 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.54"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (30 FPS): max leg step 1.202 cm, rotation 2.049 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.54"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (60 FPS): max leg step 0.046 cm, rotation 0.166 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (60 FPS): max leg step 0.517 cm, rotation 1.316 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (60 FPS): max leg step 0.561 cm, rotation 0.742 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (60 FPS): max leg step 2.826 cm, rotation 6.480 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (60 FPS): max leg step 1.942 cm, rotation 2.150 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (0 FPS): max leg step 0.050 cm, rotation 0.190 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (0 FPS): max leg step 0.961 cm, rotation 2.143 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (0 FPS): max leg step 0.374 cm, rotation 0.679 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (0 FPS): max leg step 2.297 cm, rotation 6.673 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.57"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (0 FPS): max leg step 1.208 cm, rotation 1.685 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.52.57"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Teeth3Layers",
+			"fullTestPath": "MessControl.Animation.Teeth3Layers",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.0039306990802288055,
+			"dateTime": "2026.09.28-22.52.57",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LocalToothCleaning",
+			"fullTestPath": "MessControl.Care.LocalToothCleaning",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.06668420135974884,
+			"dateTime": "2026.09.28-22.52.57",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ControlledSwimming",
+			"fullTestPath": "MessControl.Coffee.ControlledSwimming",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.62386012077331543,
+			"dateTime": "2026.09.28-22.52.57",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PourAndDrain",
+			"fullTestPath": "MessControl.Coffee.PourAndDrain",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.13228949904441833,
+			"dateTime": "2026.09.28-22.52.58",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SurfaceAndRagdollSwimming",
+			"fullTestPath": "MessControl.Coffee.SurfaceAndRagdollSwimming",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.57222121953964233,
+			"dateTime": "2026.09.28-22.52.58",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MenuFragmentsMassAndSpoilage",
+			"fullTestPath": "MessControl.DayOne.MenuFragmentsMassAndSpoilage",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.099071800708770752,
+			"dateTime": "2026.09.28-22.52.58",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PhysicalBrushAndCorrectDisposal",
+			"fullTestPath": "MessControl.DayOne.PhysicalBrushAndCorrectDisposal",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.056056000292301178,
+			"dateTime": "2026.09.28-22.52.58",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SequenceAndNoGlobalDeadline",
+			"fullTestPath": "MessControl.DayOne.SequenceAndNoGlobalDeadline",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.1171582043170929,
+			"dateTime": "2026.09.28-22.52.58",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "UlcerProtectionAndCoffeeControl",
+			"fullTestPath": "MessControl.DayOne.UlcerProtectionAndCoffeeControl",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.063952803611755371,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EventSandbox",
+			"fullTestPath": "MessControl.Development.EventSandbox",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.17626520991325378,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArenaAuthoredPlacement",
+			"fullTestPath": "MessControl.Gameplay.ArenaAuthoredPlacement",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.061316099017858505,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArenaBrushHit",
+			"fullTestPath": "MessControl.Gameplay.ArenaBrushHit",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.072485603392124176,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArenaToothLifecycle",
+			"fullTestPath": "MessControl.Gameplay.ArenaToothLifecycle",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.067818097770214081,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ConcreteReserveRespawn",
+			"fullTestPath": "MessControl.Gameplay.ConcreteReserveRespawn",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.069140002131462097,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FoodGripPullAndImpact",
+			"fullTestPath": "MessControl.Gameplay.FoodGripPullAndImpact",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.20277410745620728,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RestingFoodDoesNotLaunchPlayers",
+			"fullTestPath": "MessControl.Gameplay.RestingFoodDoesNotLaunchPlayers",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.10232549905776978,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RunRules",
+			"fullTestPath": "MessControl.Gameplay.RunRules",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.079577505588531494,
+			"dateTime": "2026.09.28-22.52.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SevenDayVictory",
+			"fullTestPath": "MessControl.Gameplay.SevenDayVictory",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.068053901195526123,
+			"dateTime": "2026.09.28-22.53.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SharedStatusAndCare",
+			"fullTestPath": "MessControl.Gameplay.SharedStatusAndCare",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.061517100781202316,
+			"dateTime": "2026.09.28-22.53.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TimeoutAndLoss",
+			"fullTestPath": "MessControl.Gameplay.TimeoutAndLoss",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.050678398460149765,
+			"dateTime": "2026.09.28-22.53.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WorkValidationAndCooperation",
+			"fullTestPath": "MessControl.Gameplay.WorkValidationAndCooperation",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.06134440004825592,
+			"dateTime": "2026.09.28-22.53.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AttentionAndOcclusion",
+			"fullTestPath": "MessControl.Gaze.AttentionAndOcclusion",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.061570301651954651,
+			"dateTime": "2026.09.28-22.53.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PupilResponseAndRecovery",
+			"fullTestPath": "MessControl.Gaze.PupilResponseAndRecovery",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.71029180288314819,
+			"dateTime": "2026.09.28-22.53.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AnglesAndBounds",
+			"fullTestPath": "MessControl.Grip.AnglesAndBounds",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.0081980973482131958,
+			"dateTime": "2026.09.28-22.53.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArtistMeshContacts",
+			"fullTestPath": "MessControl.Grip.ArtistMeshContacts",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.30978640913963318,
+			"dateTime": "2026.09.28-22.53.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ContactAndRelease",
+			"fullTestPath": "MessControl.Grip.ContactAndRelease",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.50245672464370728,
+			"dateTime": "2026.09.28-22.53.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EmptyMenuSlots",
+			"fullTestPath": "MessControl.Grip.EmptyMenuSlots",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.054035097360610962,
+			"dateTime": "2026.09.28-22.53.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "HeavyArtistFoodMoves",
+			"fullTestPath": "MessControl.Grip.HeavyArtistFoodMoves",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 1.329777717590332,
+			"dateTime": "2026.09.28-22.53.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PhysicalTurning",
+			"fullTestPath": "MessControl.Grip.PhysicalTurning",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 1.6062184572219849,
+			"dateTime": "2026.09.28-22.53.03",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PlayerPullAndThrow",
+			"fullTestPath": "MessControl.Grip.PlayerPullAndThrow",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.51365482807159424,
+			"dateTime": "2026.09.28-22.53.04",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PrimaryCarryAndCare",
+			"fullTestPath": "MessControl.Grip.PrimaryCarryAndCare",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 1.07593834400177,
+			"dateTime": "2026.09.28-22.53.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TwoSmallObjects",
+			"fullTestPath": "MessControl.Grip.TwoSmallObjects",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 1.1096279621124268,
+			"dateTime": "2026.09.28-22.53.06",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AuthoritativeBrushContact",
+			"fullTestPath": "MessControl.Liquid.AuthoritativeBrushContact",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.062803104519844055,
+			"dateTime": "2026.09.28-22.53.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PersistentLocalWipe",
+			"fullTestPath": "MessControl.Liquid.PersistentLocalWipe",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.0074237026274204254,
+			"dateTime": "2026.09.28-22.53.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SpawnIgnoresDynamicObstacles",
+			"fullTestPath": "MessControl.Liquid.SpawnIgnoresDynamicObstacles",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.06245880201458931,
+			"dateTime": "2026.09.28-22.53.07",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.53.07"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.53.07"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CleanedPuddleFooting",
+			"fullTestPath": "MessControl.Locomotion.CleanedPuddleFooting",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.053311102092266083,
+			"dateTime": "2026.09.28-22.53.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FootCycleContinuity",
+			"fullTestPath": "MessControl.Locomotion.FootCycleContinuity",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.0084427036345005035,
+			"dateTime": "2026.09.28-22.53.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SprintSurfacesAndMomentum",
+			"fullTestPath": "MessControl.Locomotion.SprintSurfacesAndMomentum",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 1.1212778091430664,
+			"dateTime": "2026.09.28-22.53.07",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk 340.0 run 560.0 dry stop 95.4 slippery stop 382.2",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-22.53.08"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArtistRigIntegration",
+			"fullTestPath": "MessControl.Physics.ArtistRigIntegration",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.11025330424308777,
+			"dateTime": "2026.09.28-22.53.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AuthorityAndActionGates",
+			"fullTestPath": "MessControl.Physics.AuthorityAndActionGates",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.11437709629535675,
+			"dateTime": "2026.09.28-22.53.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RigAndTuning",
+			"fullTestPath": "MessControl.Physics.RigAndTuning",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.0066860988736152649,
+			"dateTime": "2026.09.28-22.53.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "BoundsHeldFoodAndReset",
+			"fullTestPath": "MessControl.Throat.BoundsHeldFoodAndReset",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.090788304805755615,
+			"dateTime": "2026.09.28-22.53.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ClosedUntilWeightedLanding",
+			"fullTestPath": "MessControl.Throat.ClosedUntilWeightedLanding",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.094164803624153137,
+			"dateTime": "2026.09.28-22.53.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "OrderJumpEscapeAndSpasm",
+			"fullTestPath": "MessControl.Throat.OrderJumpEscapeAndSpasm",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.088442198932170868,
+			"dateTime": "2026.09.28-22.53.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AutomaticJoltAndReset",
+			"fullTestPath": "MessControl.Tongue.AutomaticJoltAndReset",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.78938251733779907,
+			"dateTime": "2026.09.28-22.53.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DesignerPresets",
+			"fullTestPath": "MessControl.Tongue.DesignerPresets",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.053026501089334488,
+			"dateTime": "2026.09.28-22.53.10",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EventProfiles",
+			"fullTestPath": "MessControl.Tongue.EventProfiles",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.1932746022939682,
+			"dateTime": "2026.09.28-22.53.10",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PlayerWeightAndLanding",
+			"fullTestPath": "MessControl.Tongue.PlayerWeightAndLanding",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 3.214846134185791,
+			"dateTime": "2026.09.28-22.53.10",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WaveTimingAndSafety",
+			"fullTestPath": "MessControl.Tongue.WaveTimingAndSafety",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 0.0081840008497238159,
+			"dateTime": "2026.09.28-22.53.13",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WeightContactsAndRecovery",
+			"fullTestPath": "MessControl.Tongue.WeightContactsAndRecovery",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"0854EAD643CD6985CEE99BB8869A541B"
+			],
+			"duration": 4.3563442230224609,
+			"dateTime": "2026.09.28-22.53.13",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

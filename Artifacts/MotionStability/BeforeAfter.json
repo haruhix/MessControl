@@ -1,0 +1,19 @@
+{
+  "before": "Saved\\MotionDiagnostics\\brush_before_20260929_080211_MCToothCharacter_1.csv",
+  "after": "Saved\\MotionDiagnostics\\solo_brush_60_20260929_083130_MCToothCharacter_1.csv",
+  "window_seconds": [
+    3.5,
+    15
+  ],
+  "units": "cm per 1/60 second",
+  "bones": {
+    "hand_l": {
+      "before": 6.2245,
+      "after": 0.358
+    },
+    "hand_r": {
+      "before": 17.0616,
+      "after": 6.471
+    }
+  }
+}

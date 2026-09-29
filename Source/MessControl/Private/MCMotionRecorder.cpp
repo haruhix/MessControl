@@ -3,6 +3,7 @@
 #include "MCToothAnimInstance.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
+#include "MCBrushContactComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "EngineUtils.h"
@@ -43,7 +44,7 @@ void UMCMotionRecorder::Start(float Seconds,const FString& Label)
     const FString Folder=FPaths::ProjectSavedDir()/TEXT("MotionDiagnostics");
     IFileManager::Get().MakeDirectory(*Folder,true);
     Filename=Folder/(FPaths::MakeValidFileName(Label)+TEXT("_")+FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"))+TEXT("_")+Hero->GetName()+TEXT(".csv"));
-    Rows=TEXT("time,dt,role,state,speed,grip,pose,bone,actor_x,actor_y,actor_z,x,y,z,qx,qy,qz,qw,target_x,target_y,target_z,physics_x,physics_y,physics_z,weight,simulating,foot_hit,foot_planted,foot_target_z,surface\n");
+    Rows=TEXT("time,dt,role,state,speed,grip,pose,bone,actor_x,actor_y,actor_z,x,y,z,qx,qy,qz,qw,target_x,target_y,target_z,physics_x,physics_y,physics_z,weight,simulating,foot_hit,foot_planted,foot_target_z,surface,stage,actor_qx,actor_qy,actor_qz,actor_qw,velocity_x,velocity_y,velocity_z,mode,brush,target_qx,target_qy,target_qz,target_qw\n");
     SetComponentTickEnabled(true);
     UE_LOG(LogTemp,Display,TEXT("MC_MOTION_START %s"),*Filename);
 }
@@ -66,17 +67,21 @@ void UMCMotionRecorder::TickComponent(float Dt,ELevelTick Type,FActorComponentTi
     const auto* H=CastChecked<AMCToothCharacter>(GetOwner()); auto* M=H->GetMesh();
     const auto* A=Cast<UMCToothAnimInstance>(M->GetAnimInstance());
     const FVector Origin=H->GetActorLocation();
-    for (const FName Role:{FName("body"),FName("leg_l"),FName("knee_l"),FName("foot_l"),FName("leg_r"),FName("knee_r"),FName("foot_r"),FName("hand_l"),FName("hand_r")})
+    for (const FName Role:{FName("body"),FName("leg_l"),FName("knee_l"),FName("foot_l"),FName("leg_r"),FName("knee_r"),FName("foot_r"),FName("arm_l"),FName("forearm_l"),FName("hand_l"),FName("arm_r"),FName("forearm_r"),FName("hand_r")})
     {
         const FName Bone=H->RigBone(Role); const int32 Index=M->GetBoneIndex(Bone);
         const FTransform Final=M->GetBoneTransform(Index); const FVector P=Final.GetLocation(); const FQuat Q=Final.GetRotation();
         const FVector Target=A && A->DiagnosticPose.IsValidIndex(Index)?M->GetComponentTransform().TransformPosition(A->DiagnosticPose[Index].GetLocation()):P;
+        const FQuat TQ=A && A->DiagnosticPose.IsValidIndex(Index)?M->GetComponentQuat()*A->DiagnosticPose[Index].GetRotation():Q;
+        const FQuat AQ=H->GetActorQuat(); const FVector V=H->GetVelocity();
         const auto* B=M->GetBodyInstance(Bone); const FVector Physical=B?B->GetUnrealWorldTransform().GetLocation():P;
         const int32 Side=Role.ToString().EndsWith(TEXT("_r"))?1:0;
         const FMCFootContactDebug Foot=A?A->FootContacts[Side]:FMCFootContactDebug();
-        Rows+=FString::Printf(TEXT("%.6f,%.6f,%d,%d,%.4f,%.4f,%d,%s,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.6f,%.6f,%.6f,%.6f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%d,%d,%d,%.4f,%s\n"),
+        Rows+=FString::Printf(TEXT("%.6f,%.6f,%d,%d,%.4f,%.4f,%d,%s,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.6f,%.6f,%.6f,%.6f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%d,%d,%d,%.4f,%s"),
             GetWorld()->GetTimeSeconds(),Dt,int32(H->GetLocalRole()),int32(H->ToothPhysics->GetBodyState()),H->GetVelocity().Size2D(),H->Grip->Blend(),int32(H->Grip->Frame.Pose),*Role.ToString(),
             Origin.X,Origin.Y,Origin.Z,P.X,P.Y,P.Z,Q.X,Q.Y,Q.Z,Q.W,Target.X,Target.Y,Target.Z,Physical.X,Physical.Y,Physical.Z,B?B->PhysicsBlendWeight:0.f,B && B->IsInstanceSimulatingPhysics(),Foot.bHit,Foot.bPlanted,Foot.Target.Z,*Foot.Surface.ToString());
+        Rows+=FString::Printf(TEXT(",%s,%.6f,%.6f,%.6f,%.6f,%.4f,%.4f,%.4f,%d,%.4f,%.6f,%.6f,%.6f,%.6f\n"),
+            *Stage.Replace(TEXT(","),TEXT("_")),AQ.X,AQ.Y,AQ.Z,AQ.W,V.X,V.Y,V.Z,int32(H->GetCharacterMovement()->MovementMode),H->BrushContact->Alpha(),TQ.X,TQ.Y,TQ.Z,TQ.W);
     }
     Remaining-=Dt; if (Remaining<=0) Stop();
 }

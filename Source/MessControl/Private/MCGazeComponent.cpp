@@ -1,6 +1,7 @@
 #include "MCGazeComponent.h"
 #include "MCExpressionComponent.h"
 #include "MCToothCharacter.h"
+#include "MCBrushContactComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCFoodActor.h"
@@ -55,6 +56,8 @@ FVector UMCGazeComponent::EyePosition() const
 }
 FVector UMCGazeComponent::TargetPoint() const
 {
+    if(Tooth && Tooth->bBrushing && Tooth->BrushContact && Tooth->BrushContact->Target && Tooth->BrushContact->Alpha()>.1f)
+        return Tooth->BrushContact->ContactPoint();
     return IsValid(Target.Actor)?Target.Actor->GetActorTransform().TransformPosition(Target.Offset):FVector(Target.Point);
 }
 bool UMCGazeComponent::CanSee(AActor* Actor,FVector Point) const

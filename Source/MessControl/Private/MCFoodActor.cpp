@@ -12,6 +12,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "EngineUtils.h"
 #include "Engine/StaticMesh.h"
@@ -79,19 +80,46 @@ void AMCFoodActor::OnRep_ReplicatedMovement()
         SetActorLocationAndRotation(NetworkLocation,NetworkRotation,false,nullptr,ETeleportType::TeleportPhysics);
     bReceivedMotion=true;
 }
+void AMCFoodActor::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+    Super::PreReplication(ChangedPropertyTracker);
+    CarryPresentation.Holder=Phase==EMCFoodPhase::Carried && Holders.Num()==1?Holders[0].Get():nullptr;
+    if (IsValid(CarryPresentation.Holder))
+    {
+        const FTransform Relative=GetActorTransform().GetRelativeTransform(CarryPresentation.Holder->GetActorTransform());
+        CarryPresentation.Location=Relative.GetLocation(); CarryPresentation.Rotation=Relative.Rotator();
+    }
+}
+void AMCFoodActor::UpdateCarryPresentation(float Dt)
+{
+    auto* Carrier=CarryPresentation.Holder.Get();
+    if (HasAuthority() || Phase!=EMCFoodPhase::Carried || !IsValid(Carrier) || !Carrier->Grip->Holds(this)) return;
+    const FTransform RenderedCarrier=Carrier->StandingMeshTransform().Inverse()*Carrier->GetMesh()->GetComponentTransform();
+    if (PresentationCarrier.Get()!=Carrier)
+    {
+        PresentationCarrier=Carrier;
+        SmoothedCarryRelative=GetActorTransform().GetRelativeTransform(RenderedCarrier);
+    }
+    const float Alpha=1-FMath::Exp(-25.f*Dt);
+    SmoothedCarryRelative.SetLocation(FMath::Lerp(SmoothedCarryRelative.GetLocation(),FVector(CarryPresentation.Location),Alpha));
+    SmoothedCarryRelative.SetRotation(FQuat::Slerp(SmoothedCarryRelative.GetRotation(),CarryPresentation.Rotation.Quaternion(),Alpha));
+    const FTransform Pose=SmoothedCarryRelative*RenderedCarrier;
+    // Only proxies use this presentation. Collision and release momentum remain server physics.
+    SetActorLocationAndRotation(Pose.GetLocation(),Pose.GetRotation(),false,nullptr,ETeleportType::TeleportPhysics);
+}
 void AMCFoodActor::OnRep_Phase()
 {
     const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped;
     const bool bSimulate=HasAuthority() && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
     // Stop Chaos before disabling collision, including disposal while the item is still moving.
     if (!bSimulate) Body->SetSimulatePhysics(false);
-    SetActorHiddenInGame(bGone); Body->SetCollisionEnabled(bGone?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
+    SetActorHiddenInGame(bGone); Body->SetCollisionEnabled((bGone || Phase==EMCFoodPhase::Swallowing)?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
     // Simulated proxies are kinematic; only the server applies springs and impact damage.
     if (bSimulate) Body->SetSimulatePhysics(true);
 }
 bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
 {
-    if (!HasAuthority() || !IsValid(Hero) || IsDisposed() || Phase==EMCFoodPhase::Equipped || !Hero->CanWork() || (!bBrushTool && !Holders.Contains(Hero) && !Hero->Grip->CanAcquire(this))) return false;
+    if (!HasAuthority() || !IsValid(Hero) || IsDisposed() || Phase==EMCFoodPhase::Swallowing || Phase==EMCFoodPhase::Equipped || !Hero->CanWork() || (!bBrushTool && !Holders.Contains(Hero) && !Hero->Grip->CanAcquire(this))) return false;
     if (Holders.Contains(Hero)) return true;
     if (Phase==EMCFoodPhase::Carried) return false;
     const FVector Offset=GetActorLocation()-Hero->GetActorLocation();
@@ -219,12 +247,13 @@ void AMCFoodActor::Tick(float Dt)
         CollisionIgnoredCarrier=IgnoredCarrier;
         if (IgnoredCarrier) { Body->IgnoreActorWhenMoving(IgnoredCarrier,true); IgnoredCarrier->GetCapsuleComponent()->IgnoreActorWhenMoving(this,true); }
     }
-    if (!HasAuthority() && bReceivedMotion)
+    if (Phase!=EMCFoodPhase::Carried) PresentationCarrier.Reset();
+    if (!HasAuthority() && bReceivedMotion && !(Phase==EMCFoodPhase::Carried && IsValid(CarryPresentation.Holder) && CarryPresentation.Holder->Grip->Holds(this)))
     {
         const float Alpha=1-FMath::Exp(-25.f*Dt);
         SetActorLocationAndRotation(FMath::Lerp(GetActorLocation(),NetworkLocation,Alpha),FQuat::Slerp(GetActorQuat(),NetworkRotation,Alpha),false,nullptr,ETeleportType::TeleportPhysics);
     }
-    if (HasAuthority() && !IsDisposed())
+    if (HasAuthority() && !IsDisposed() && Phase!=EMCFoodPhase::Swallowing)
     {
         if (Phase==EMCFoodPhase::Equipped) { if (IsValid(EquippedBy)) SetActorLocation(EquippedBy->GetActorLocation()); return; }
         if (Phase==EMCFoodPhase::Stuck && IsValid(StuckTooth))
@@ -291,12 +320,14 @@ void AMCFoodActor::Tick(float Dt)
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("INFECTED"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
     if (bBrushTool) Caption=TEXT("LMB: PICK UP BRUSH\nQ: THROW OVERBOARD");
     Label->SetText(FText::FromString(Caption));
+    Label->SetVisibility(Phase!=EMCFoodPhase::Swallowing);
     if (const auto* PC=GetWorld()->GetFirstPlayerController(); PC && PC->PlayerCameraManager)
         Label->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Label->GetComponentLocation()).Rotation());
 }
 void AMCFoodActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCFoodActor,Settings); DOREPLIFETIME(AMCFoodActor,Phase);
+    DOREPLIFETIME(AMCFoodActor,CarryPresentation);
     DOREPLIFETIME(AMCFoodActor,PullProgress); DOREPLIFETIME(AMCFoodActor,PullDirection); DOREPLIFETIME(AMCFoodActor,Holders);
     DOREPLIFETIME(AMCFoodActor,ItemMesh); DOREPLIFETIME(AMCFoodActor,FoodData); DOREPLIFETIME(AMCFoodActor,ItemName); DOREPLIFETIME(AMCFoodActor,Health);
     DOREPLIFETIME(AMCFoodActor,bFragment); DOREPLIFETIME(AMCFoodActor,bBrushTool); DOREPLIFETIME(AMCFoodActor,bSpoiled); DOREPLIFETIME(AMCFoodActor,SpoilAt);
@@ -363,7 +394,14 @@ void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream&
     if (bFragment) { FoodData.Mass/=FoodData.Fragments; FoodData.Health=25; }
     Health=FoodData.Health; Settings.Mass=FoodData.Mass;
     const auto& Choices=bFragment?FoodData.FragmentMeshes:FoodData.WholeMeshes;
-    if (!Choices.IsEmpty()) ItemMesh=Choices[Random.RandRange(0,Choices.Num()-1)].LoadSynchronous();
+    TArray<UStaticMesh*> Available;
+    for (const auto& Choice:Choices) if (!Choice.IsNull()) if (auto* Mesh=Choice.LoadSynchronous()) Available.Add(Mesh);
+    ItemMesh=Available.IsEmpty()?nullptr:Available[Random.RandRange(0,Available.Num()-1)];
+    if (!ItemMesh)
+    {
+        UE_LOG(LogTemp,Warning,TEXT("Food row %s has no usable %s mesh; using the prototype mesh"),*Name.ToString(),Fragment?TEXT("fragment"):TEXT("whole"));
+        ItemMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Art/Meshes/SM_Food.SM_Food"));
+    }
     OnRep_Item(); ForceNetUpdate();
 }
 void AMCFoodActor::ConfigureBrush()
@@ -385,7 +423,7 @@ void AMCFoodActor::Throw(AMCToothCharacter* Hero)
 }
 bool AMCFoodActor::HitFood(float Damage,FVector Direction)
 {
-    if (!HasAuthority() || bBrushTool || IsDisposed() || Phase==EMCFoodPhase::Stuck || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
+    if (!HasAuthority() || bBrushTool || IsDisposed() || Phase==EMCFoodPhase::Swallowing || Phase==EMCFoodPhase::Stuck || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
     Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();
     if (Health>0 || bFragment) { Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
     FRandomStream Random(FMath::Rand()); const FVector P=GetActorLocation();
@@ -399,6 +437,16 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction)
         UGameplayStatics::FinishSpawningActor(Part,T); Part->Body->SetPhysicsLinearVelocity(Offset*3);
     }
     Dispose(); return true;
+}
+bool AMCFoodActor::BeginSwallow()
+{
+    if (!HasAuthority() || bBrushTool || !Holders.IsEmpty() || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
+    Phase=EMCFoodPhase::Swallowing; OnRep_Phase(); ForceNetUpdate(); return true;
+}
+void AMCFoodActor::CancelSwallow()
+{
+    if (!HasAuthority() || Phase!=EMCFoodPhase::Swallowing) return;
+    Phase=EMCFoodPhase::Free; OnRep_Phase(); ForceNetUpdate();
 }
 void AMCFoodActor::Spoil()
 {

@@ -148,7 +148,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     // Stop by distance so the test remains inside the arena at every frame rate.
     if (T>5 && T<9)
         for (int32 I=0;I<4;++I) if (Heroes[I]->IsLocallyControlled() && FVector::Dist2D(GripStarts[I],Food[I]->GetActorLocation())<110)
-            Heroes[I]->AddMovementInput(FVector(I==0 || I==2?-1:1,0,0),.35f);
+            Heroes[I]->AddMovementInput(I==0 && T>6?FVector(0,1,0):FVector(I==0 || I==2?-1:1,0,0),.35f);
     if (Host && DevStage==3 && T>12)
     {
         for (int32 I=0;I<4;++I) { Heroes[I]->DropFood(); Heroes[I]->bHandling=false; Heroes[I]->ForceNetUpdate(); }
@@ -191,12 +191,14 @@ void UMCValidationSubsystem::TickGrip(float Dt)
             if (I==2?(Food[I]->Phase==EMCFoodPhase::Carried && (Grip->Frame.Pose==EMCGripPose::LeftHand || Grip->Frame.Pose==EMCGripPose::RightHand)):Grip->Frame.Pose==Expected[I]) DevSeen|=1<<(I+4);
             if (FVector::Dist2D(GripStarts[I],Food[I]->GetActorLocation())>60) DevSeen|=1<<(I+8);
         }
-        if (Grip->IsReady() && Grip->Blend()>.99f && Grip->Frame.Food && T>4.3f && T<5)
+        if (Grip->IsReady() && Grip->Blend()>.99f && Grip->Frame.Food && T>4.3f && T<12)
         {
             GripWorstError=FMath::Max(GripWorstError,Grip->ContactError());
             // A delayed transform can briefly precede its matching pose on a client.
             // Fail a sustained detached hand, while retaining the raw peak in the log.
             GripBadContactSeconds[I]=Grip->ContactError()>12?GripBadContactSeconds[I]+Dt:0;
+            if (GripBadContactSeconds[I]>.25f && GripBadContactSeconds[I]-Dt<=.25f)
+                UE_LOG(LogTemp,Display,TEXT("MC_GRIP_DETACHED i=%d t=%.2f error=%.2f pose=%d"),I,T,Grip->ContactError(),int32(Grip->Frame.Pose));
             bTongueInvalid|=GripBadContactSeconds[I]>.25f;
         }
     }

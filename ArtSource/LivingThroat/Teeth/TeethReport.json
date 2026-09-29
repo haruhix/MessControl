@@ -1,0 +1,52 @@
+[
+  {
+    "mesh": "SM_ReferenceTooth_01",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_01_Mirrored",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_02",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_02_Mirrored",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_03",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_03_Mirrored",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_04",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_04_Mirrored",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_05",
+    "vertices": 18626,
+    "triangles": 37248
+  },
+  {
+    "mesh": "SM_ReferenceTooth_05_Mirrored",
+    "vertices": 18626,
+    "triangles": 37248
+  }
+]

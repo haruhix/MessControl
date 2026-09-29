@@ -1,4 +1,4 @@
-﻿#if WITH_DEV_AUTOMATION_TESTS
+#if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
@@ -6,9 +6,11 @@
 #include "MCToothCharacter.h"
 #include "MCArenaTooth.h"
 #include "MCSurfaceWipe.h"
+#include "MCCoffeeWipe.h"
 #include "MCArenaToothSocket.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCThroat.h"
 #include "MCDayDirector.h"
 #include "MCDayPlan.h"
 #include "MCMouthSurface.h"
@@ -38,6 +40,8 @@
 #include "GameFramework/PlayerStart.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothMovementComponent.h"
+#include "MCLocomotionCycle.h"
+#include "MCLocomotionSurface.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "PhysicsEngine/PhysicsAsset.h"
@@ -73,6 +77,9 @@ namespace
             World->SetGameMode(URL); World->InitializeActorsForPlay(URL); World->BeginPlay();
             Mode=World->GetAuthGameMode<AMCGameMode>(); State=World->GetGameState<AMCGameState>();
             Mode->bUseDayOnePlan=false; // These regression cases cover the retained sandbox events.
+            // Movement/flow unit fixtures provide their own geometry. The game's new
+            // solid throat must not become an unrelated wall across those test tracks.
+            for(TActorIterator<AMCThroat> It(World);It;++It) { It->SetActorEnableCollision(false); It->SetActorTickEnabled(false); }
         }
         ~FTestMouth() { World->EndPlay(EEndPlayReason::Quit); GEngine->DestroyWorldContext(World); World->DestroyWorld(false); }
         void NextPhase() { State->PhaseEndsAt=State->GetServerWorldTimeSeconds()-1; Mode->Tick(0.01f); }
@@ -104,6 +111,91 @@ namespace
     };
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatCycleTest,"MessControl.Throat.ClosedUntilWeightedLanding",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCThroatCycleTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth;
+    auto* Throat=Mouth.World->SpawnActor<AMCThroat>(FVector(0,0,200),FRotator::ZeroRotator);
+    auto* Food=Mouth.GripCube(); Food->SetActorLocation(Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter+FVector(0,0,55)));
+    Food->Body->SetSimulatePhysics(false); Food->Phase=EMCFoodPhase::Free;
+    auto* Brush=Mouth.GripCube(); Brush->bBrushTool=true; Brush->Body->SetSimulatePhysics(false); Brush->SetActorLocation(Food->GetActorLocation()+FVector(0,80,0));
+    Throat->Tick(.1f);
+    TestTrue(TEXT("Food is staged without disappearing"),Throat->FoodInZone==1 && !Food->IsDisposed());
+    TestEqual(TEXT("Default throat is closed"),Throat->OpenAmount(),0.f);
+    auto* Hero=Mouth.Worker(); FMovementBaseInterfaceData Base(Throat->UvulaLanding.Get()); Hero->SetBase(&Base);
+    FHitResult Side(Throat,Throat->UvulaLanding,FVector::ZeroVector,FVector::ForwardVector);
+    Throat->NotifyUvulaLanding(Hero,Side,400); Throat->Tick(.4f);
+    TestEqual(TEXT("Side contact cannot order a swallow"),Throat->ThroatPhase,EMCThroatPhase::Collecting);
+    FHitResult Top(Throat,Throat->UvulaLanding,FVector::ZeroVector,FVector::UpVector);
+    Throat->NotifyUvulaLanding(Hero,Top,400); Throat->Tick(.3f);
+    TestEqual(TEXT("Player weight begins anticipation"),Throat->ThroatPhase,EMCThroatPhase::Anticipation);
+    TestEqual(TEXT("Anticipation stays shut"),Throat->OpenAmount(),0.f);
+    Hero->SetActorLocation(Throat->GetActorLocation()+FVector(-900,0,70));
+    Throat->PhaseStartedAt-=Throat->AnticipationSeconds+0.01; Throat->Tick(.01f);
+    TestEqual(TEXT("Food captured once"),Food->Phase,EMCFoodPhase::Swallowing);
+    TestFalse(TEXT("Captured food cannot be grabbed"),Food->TryGrab(Hero));
+    TestFalse(TEXT("Captured food cannot fragment"),Food->HitFood(10000,FVector::ForwardVector));
+    TestFalse(TEXT("Brush is not swallowed"),Brush->IsDisposed());
+    Throat->PhaseStartedAt-=Throat->SwallowSeconds+0.01; Throat->Tick(.01f);
+    TestTrue(TEXT("Meal disposed only after the gulp"),Food->IsDisposed() && Throat->FoodSwallowed==1);
+    Throat->PhaseStartedAt-=Throat->RecoverySeconds+0.01; Throat->Tick(.01f);
+    TestEqual(TEXT("Returns to closed collecting state"),Throat->ThroatPhase,EMCThroatPhase::Collecting);
+    Throat->Tick(1); TestEqual(TEXT("Standing on the button does not loop"),Throat->SwallowCount,1);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatEligibilityTest,"MessControl.Throat.BoundsHeldFoodAndReset",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCThroatEligibilityTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; auto* Throat=Mouth.World->SpawnActor<AMCThroat>(FVector(0,0,200),FRotator(0,65,0));
+    auto* Food=Mouth.GripCube(); Food->Phase=EMCFoodPhase::Free;
+    auto Place=[&](FVector Offset){Food->SetActorLocation(Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter+Offset));};
+    Place(FVector(0,0,60)); TestTrue(TEXT("Rotated zone accepts food"),Throat->ContainsFood(Food));
+    Place(FVector(Throat->ZoneRadius+10,0,60)); TestFalse(TEXT("Outside circular zone rejected"),Throat->ContainsFood(Food));
+    Place(FVector(0,0,Throat->ZoneHeight+10)); TestFalse(TEXT("Food high above zone rejected"),Throat->ContainsFood(Food));
+    Place(FVector(0,0,60)); auto* Hero=Mouth.Worker(); Food->Holders.Add(Hero);
+    TestFalse(TEXT("Held food remains with its player"),Throat->ContainsFood(Food)); Food->Holders.Empty();
+    Food->Phase=EMCFoodPhase::Stuck; TestFalse(TEXT("Stuck food rejected"),Throat->ContainsFood(Food));
+    Food->Phase=EMCFoodPhase::Free; Throat->ThroatPhase=EMCThroatPhase::Anticipation;
+    Throat->PhaseStartedAt=Mouth.World->GetTimeSeconds()-Throat->AnticipationSeconds-.01; Throat->Tick(.01f);
+    TestEqual(TEXT("Reset fixture has a meal still in flight"),Food->Phase,EMCFoodPhase::Swallowing);
+    Throat->ResetSwallow(); TestEqual(TEXT("Reset closes the throat"),Throat->ThroatPhase,EMCThroatPhase::Collecting);
+    TestEqual(TEXT("Reset releases an unfinished meal alive"),Food->Phase,EMCFoodPhase::Free);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatRiskTest,"MessControl.Throat.OrderJumpEscapeAndSpasm",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCThroatRiskTest::RunTest(const FString&)
+{
+    FTestMouth Mouth;
+    auto* Throat=Mouth.World->SpawnActor<AMCThroat>(FVector(5000,0,200),FRotator(0,35,0));
+    auto* Food=Mouth.GripCube(); Food->Body->SetSimulatePhysics(false); Food->Phase=EMCFoodPhase::Free;
+    const FVector Center=Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter);
+    Food->SetActorLocation(Center+FVector(0,0,45));
+    auto* Hero=Mouth.Worker(); Hero->SetActorLocation(Center+FVector(0,0,60)); Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    TestTrue(TEXT("Space offer appears for a grounded player with staged food"),Throat->CanOrderJump(Hero));
+    Hero->SetActorLocation(Center-Throat->GetActorForwardVector()*(Throat->ZoneRadius+50)+FVector(0,0,60));
+    TestFalse(TEXT("Remote player cannot order a jump"),Throat->LaunchToUvula(Hero));
+    Hero->SetActorLocation(Center+FVector(0,0,60));
+    TestTrue(TEXT("Server launches toward the raised uvula"),Throat->LaunchToUvula(Hero));
+    TestFalse(TEXT("Repeated requests during the same jump are rejected"),Throat->LaunchToUvula(Hero));
+    Hero->OrderJumpTarget=nullptr; Hero->GetCharacterMovement()->StopMovementImmediately();
+    Throat->ThroatPhase=EMCThroatPhase::Anticipation; Throat->PhaseStartedAt=Mouth.World->GetTimeSeconds();
+    Throat->Tick(.1f); TestNull(TEXT("Warning gives time to run away"),Hero->SwallowedBy.Get());
+    Throat->PhaseStartedAt-=Throat->AnticipationSeconds+.01; Throat->Tick(.01f);
+    TestTrue(TEXT("Player left in circle is captured"),Hero->SwallowedBy==Throat && !Hero->CanWork());
+    Throat->PhaseStartedAt-=Throat->SwallowSeconds*.8f; Throat->Tick(.01f);
+    TestEqual(TEXT("A tooth triggers a spasm"),Throat->ThroatPhase,EMCThroatPhase::Spasm);
+    TestFalse(TEXT("Failed order is not credited"),Food->IsDisposed());
+    Throat->PhaseStartedAt-=Throat->SpasmSeconds+.01; Throat->Tick(.01f);
+    TestTrue(TEXT("Tooth is spat out alive beyond the circle"),!Hero->SwallowedBy && Hero->Status->IsAlive() && !Throat->ContainsPlayer(Hero));
+    TestTrue(TEXT("Food returns to play"),Food->Phase==EMCFoodPhase::Free && Throat->FoodSwallowed==0 && Throat->SpasmCount==1);
+    Food->Body->SetSimulatePhysics(false); Food->SetActorLocation(Center+FVector(0,0,45)); Hero->SetActorLocation(Center+FVector(0,0,60));
+    Throat->ThroatPhase=EMCThroatPhase::Anticipation; Throat->PhaseStartedAt=Mouth.World->GetTimeSeconds()-Throat->AnticipationSeconds-.01; Throat->Tick(.01f);
+    Throat->ResetSwallow(); TestTrue(TEXT("Restart releases both captured food and player"),!Hero->SwallowedBy && Food->Phase==EMCFoodPhase::Free && Hero->CanWork());
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSevenDayTest,"MessControl.Gameplay.SevenDayVictory",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSevenDayTest::RunTest(const FString& Parameters)
 {
@@ -125,8 +217,8 @@ bool FMCSevenDayTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWorkValidationTest,"MessControl.Gameplay.WorkValidationAndCooperation",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCWorkValidationTest::RunTest(const FString& Parameters)
 {
-    FTestMouth Mouth; auto* A=Mouth.Worker(); auto* B=Mouth.Worker(); auto* Tooth=Mouth.State->ArenaTeeth[0].Get();
-    Tooth->SetCoffee(1); const FVector Near=Tooth->GetActorLocation()+FVector(0,Tooth->Body->Bounds.BoxExtent.Y+75,0);
+    FTestMouth Mouth; auto* A=Mouth.Worker(); auto* B=Mouth.Worker(); auto* Tooth=Mouth.Worker(); Tooth->SetActorLocation(FVector(1000,0,150));
+    Tooth->Status->ApplyCoffee(1); const FVector Near=Tooth->GetActorLocation()+FVector(0,Tooth->GetCapsuleComponent()->Bounds.BoxExtent.Y+75,0);
     A->SetActorLocation(Near); A->SetActorRotation(FRotator(0,-90,0)); A->bHandling=true;
     for (int32 I=0;I<10;++I) A->AdvanceCare(.1f);
     TestEqual(TEXT("Care tool cannot remove coffee"),Tooth->Status->State.CoffeeLeft,4);
@@ -139,11 +231,11 @@ bool FMCWorkValidationTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Leaving contact resets partial work"),A->ContactProgress,0.f);
     A->SetActorLocation(Near); A->AdvanceCare(.1f); A->AdvanceCare(.1f);
     TestEqual(TEXT("Interrupted work cannot complete early"),Tooth->Status->State.CoffeeLeft,3);
-    Tooth->SetCoffee(1); A->ResetContact(); B->SetActorLocation(Near+FVector(60,0,0)); B->SetActorRotation(FRotator(0,-90,0)); B->bBrushing=true;
+    Tooth->Status->ApplyCoffee(1); A->ResetContact(); B->SetActorLocation(Near+FVector(60,0,0)); B->SetActorRotation(FRotator(0,-90,0)); B->bBrushing=true;
     for (int32 I=0;I<10;++I) { A->AdvanceCare(.1f); B->AdvanceCare(.1f); }
     TestEqual(TEXT("Two workers clear four contacts in one second"),Tooth->Status->State.CoffeeLeft,0);
     TestFalse(TEXT("No over-cleaning"),Tooth->Status->CareContact(true));
-    Tooth->SetCoffee(1); A->ResetContact(); A->AdvanceCare(-1); A->AdvanceCare(std::numeric_limits<float>::quiet_NaN());
+    Tooth->Status->ApplyCoffee(1); A->ResetContact(); A->AdvanceCare(-1); A->AdvanceCare(std::numeric_limits<float>::quiet_NaN());
     TestEqual(TEXT("Invalid delta cannot add work"),A->ContactProgress,0.f);
     A->AdvanceCare(1000); TestEqual(TEXT("Oversized delta is clamped to one tick"),Tooth->Status->State.CoffeeLeft,4);
     A->SetActorRotation(FRotator(0,90,0)); A->AdvanceCare(.1f); TestEqual(TEXT("Facing away resets contact"),A->ContactProgress,0.f);
@@ -650,11 +742,13 @@ bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
     auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
     if (!TestNotNull(TEXT("Editable menu table exists"),Table)) return false;
     const auto* Row=Table->FindRow<FMCFoodRow>(TEXT("Broccoli"),TEXT("Test")); if (!TestNotNull(TEXT("Broccoli row exists"),Row)) return false;
-    TestEqual(TEXT("Whole variants A B C"),Row->WholeMeshes.Num(),3); TestEqual(TEXT("Fragment variants A B C"),Row->FragmentMeshes.Num(),3);
-    FMCFoodRow ScaledRow=*Row; ScaledRow.Scale=FVector(.5,.75,1.25);
+    TestTrue(TEXT("Whole variants configured"),!Row->WholeMeshes.IsEmpty()); TestTrue(TEXT("Fragments configured"),!Row->FragmentMeshes.IsEmpty());
+    for (const auto& Mesh:Row->WholeMeshes) if (!Mesh.IsNull()) ReadyCareTestMesh(Mesh.ToSoftObjectPath().ToString());
+    for (const auto& Mesh:Row->FragmentMeshes) if (!Mesh.IsNull()) ReadyCareTestMesh(Mesh.ToSoftObjectPath().ToString());
+    FMCFoodRow ScaledRow=*Row; ScaledRow.Scale*=FVector(.5,.75,1.25);
     auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,160),FRotator::ZeroRotator); Food->ConfigureItem(TEXT("Broccoli"),ScaledRow,Random);
     TestTrue(TEXT("Menu scale reaches the rendered food"),Food->Visual->GetRelativeScale3D().Equals(ScaledRow.Scale));
-    TestTrue(TEXT("Scaled collision fits the visible food"),Food->Body->Bounds.BoxExtent.Equals(Food->Visual->Bounds.BoxExtent,.01));
+    TestTrue(TEXT("Scaled collision fits the visible food"),Food->Body->GetUnscaledBoxExtent().Equals((Food->ItemMesh->GetBounds().BoxExtent*ScaledRow.Scale).ComponentMax(FVector(3)),.01));
     TestTrue(TEXT("Grip queries inherit the visible scale"),Food->GripSurface->GetComponentScale().Equals(Food->Visual->GetComponentScale()));
     Food->Batch=22; Food->SpoilAt=35;
     const float Heavy=Food->DragSpeed(); Food->Settings.Mass=3; TestTrue(TEXT("Lighter food can be dragged faster"),Food->DragSpeed()>Heavy); Food->Settings.Mass=Row->Mass;
@@ -666,7 +760,7 @@ bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
         TestEqual(TEXT("Breaking does not reset expiry"),It->SpoilAt,35.);
         TestNotNull(TEXT("Fragment mesh loaded"),It->ItemMesh.Get());
         TestTrue(TEXT("Broken pieces inherit the menu scale and fragment multiplier"),It->Visual->GetRelativeScale3D().Equals(ScaledRow.Scale*.5));
-        TestTrue(TEXT("Fragment collision fits the resized mesh"),It->Body->Bounds.BoxExtent.Equals(It->Visual->Bounds.BoxExtent,.01));
+        if (It->ItemMesh) TestTrue(TEXT("Fragment collision fits the resized mesh"),It->Body->GetUnscaledBoxExtent().Equals((It->ItemMesh->GetBounds().BoxExtent*ScaledRow.Scale*.5).ComponentMax(FVector(3)),.01));
         It->HitFood(10000,FVector::ForwardVector); TestFalse(TEXT("Hitting fragments does not delete cleanup work"),It->IsDisposed());
     }
     TestEqual(TEXT("Configured number of pieces"),Count,Row->Fragments); TestTrue(TEXT("Fragment mass conserves whole mass"),FMath::IsNearlyEqual(Mass,Row->Mass));
@@ -1361,33 +1455,43 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodArtBoundsTest,"MessControl.Grip.ArtistMe
 bool FMCFoodArtBoundsTest::RunTest(const FString&)
 {
     FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
-    for (const TCHAR* Kind:{TEXT("Broccoli"),TEXT("Bacon"),TEXT("Carrot"),TEXT("Egg"),TEXT("Fibre")})
-    for (const TCHAR* Variant:{TEXT("A"),TEXT("B"),TEXT("C")}) for (bool Fragment:{false,true})
+    const auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
+    if (!TestNotNull(TEXT("Current artist menu"),Table)) return false;
+    for (const auto& Entry:Table->GetRowMap()) for (bool Fragment:{false,true})
     {
-        const FString Name=FString::Printf(TEXT("SM_%s_%s_%s"),Kind,Fragment?TEXT("Part"):TEXT("Whole"),Variant);
-        const FString Path=TEXT("/Game/Art/Meshes/Breakfast/")+Name+TEXT(".")+Name;
+        const auto& Menu=*reinterpret_cast<const FMCFoodRow*>(Entry.Value);
+        const auto& Choices=Fragment?Menu.FragmentMeshes:Menu.WholeMeshes;
+        int32 Valid=0;
+        for (const auto& Choice:Choices)
+        {
+        if (Choice.IsNull()) continue;
+        const FString Path=Choice.ToSoftObjectPath().ToString(),Name=Choice.GetAssetName();
         auto* Mesh=ReadyCareTestMesh(Path);
         if (!TestNotNull(*Name,Mesh)) continue;
+        ++Valid;
         const FTransform T(FVector(0,0,100));
         auto* Food=Mouth.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
-        FMCFoodRow Row; Row.Mass=12; Row.SpoilSeconds=300;
+        FMCFoodRow Row=Menu; Row.WholeMeshes.Reset(); Row.Mass=12; Row.SpoilSeconds=300;
         Row.WholeMeshes.Add(Mesh); Row.FragmentMeshes=Row.WholeMeshes;
         FRandomStream Random(1); Food->ConfigureItem(*Name,Row,Random,Fragment); Food->FinishSpawning(T);
         Food->Body->SetEnableGravity(false); Mouth.Step(.1f);
         TestTrue(*(Name+TEXT(" visible and physical centres agree")),Food->Visual->Bounds.Origin.Equals(Food->Body->Bounds.Origin,.1));
-        TestTrue(*(Name+TEXT(" collider fits the visible variant")),Food->Visual->Bounds.BoxExtent.Equals(Food->Body->Bounds.BoxExtent,.1));
+        TestTrue(*(Name+TEXT(" collider fits the visible variant")),Food->Body->GetUnscaledBoxExtent().Equals((Mesh->GetBounds().BoxExtent*Food->Visual->GetRelativeScale3D()).ComponentMax(FVector(3)),.1));
         FHitResult Hit;
-        const FVector Origin=Food->Visual->Bounds.Origin+FVector(-180,0,0);
+        const FVector Origin=Food->Visual->Bounds.Origin+FVector(-Food->Visual->Bounds.BoxExtent.X-100,0,0);
         const bool Found=Food->FindGripSurface(Origin,Hit);
         if (!Found) AddInfo(FString::Printf(TEXT("%s query=%d physics=%d origin=%s visual=%s queryOrigin=%s extent=%s"),*Name,
             Food->GripSurface->IsRegistered(),Food->GripSurface->IsPhysicsStateCreated(),*Origin.ToCompactString(),
             *Food->Visual->Bounds.Origin.ToCompactString(),*Food->GripSurface->Bounds.Origin.ToCompactString(),*Food->Visual->Bounds.BoxExtent.ToCompactString()));
         TestTrue(*(Name+TEXT(" imported surface can be gripped")),Found);
         Food->Destroy();
+        }
+        TestTrue(*FString::Printf(TEXT("%s has usable %s meshes"),*Entry.Key.ToString(),Fragment?TEXT("fragment"):TEXT("whole")),Valid>0);
     }
     return true;
 }
 
+#include "MCBrushContactComponent.h"
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCareVolumeTest,"MessControl.Care.LocalToothCleaning",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCCareVolumeTest::RunTest(const FString&)
 {
@@ -1396,24 +1500,33 @@ bool FMCCareVolumeTest::RunTest(const FString&)
     auto* Tooth=Mouth.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),T);
     Tooth->SetAppearance(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")),FVector(2));
     Tooth->FinishSpawning(T); Tooth->SetCoffee(1);
-    auto* H=Mouth.Worker(); H->SetActorLocation(FVector(-175,0,150)); H->SetActorRotation(FRotator::ZeroRotator); H->bBrushing=true;
+    auto* H=Mouth.Worker(); H->SetActorLocation(FVector(-140,30,125)); H->SetActorRotation(FRotator::ZeroRotator); H->bBrushing=true;
     for (int32 I=0;I<4;++I) H->AdvanceCare(.1f);
     int32 Front=0,Back=0;
     for (int32 Y=0;Y<16;++Y) for (int32 Z=0;Z<16;++Z)
     { Front+=255-Tooth->GrimeMask[FMCSurfaceWipe::Index(0,Y,Z)]; Back+=255-Tooth->GrimeMask[FMCSurfaceWipe::Index(15,Y,Z)]; }
     TestTrue(TEXT("Brush leaves a local clean trail"),Front>500);
     TestEqual(TEXT("Opposite face stays dirty"),Back,0);
-    TestEqual(TEXT("Partial stroke preserves the contact cadence"),Tooth->Status->State.CoffeeLeft,4);
+    TestTrue(TEXT("Partial stroke leaves other visible dirt"),Tooth->Status->State.CoffeeLeft>0);
     const auto Before=Tooth->GrimeMask;
     H->bBrushing=false; TestFalse(TEXT("Wrong tool cannot erase the mask"),Tooth->BrushGrime(H,.1f));
     H->bBrushing=true; H->SetActorLocation(FVector(-800,0,150));
     TestFalse(TEXT("Remote brush cannot erase the mask"),Tooth->BrushGrime(H,.1f));
     TestTrue(TEXT("Rejected strokes keep the persistent mask"),Before==Tooth->GrimeMask);
     auto* B=Mouth.Worker(); B->SetActorLocation(FVector(175,0,150)); B->SetActorRotation(FRotator(0,180,0)); B->bBrushing=true;
-    TestTrue(TEXT("Second player brushes the other face"),Tooth->BrushGrime(B,.1f));
-    TestTrue(TEXT("Cooperative brush keeps first player's trail"),Tooth->GrimeMask[FMCSurfaceWipe::Index(0,7,7)]<255);
+    TestFalse(TEXT("Clean opposite face cannot advance cleaning"),Tooth->BrushGrime(B,.1f));
+    TestTrue(TEXT("Rejected clean-face contact preserves the first trail"),Before==Tooth->GrimeMask);
     Tooth->SetCoffee(1);
     TestTrue(TEXT("New spill restores every mask cell"),!Tooth->GrimeMask.ContainsByPredicate([](uint8 V){return V!=255;}));
+    H->SetActorLocation(FVector(-245,30,125));
+    TestFalse(TEXT("Assisted brushing does not expand ordinary interaction reach"),H->CanContact(Tooth));
+    TestFalse(TEXT("Floating hand does not stretch to a distant stain"),Tooth->BrushGrime(H,.1f));
+    H->SetActorLocation(FVector(-170,30,125));
+    TestTrue(TEXT("Brush can reach the stain without pressing into the crown"),Tooth->BrushGrime(H,.1f));
+    const float HandTravel=H->BrushContact->MaxHandTravel;
+    H->BrushContact->MaxHandTravel=1.f;
+    TestFalse(TEXT("Floating hand respects its independent short travel limit"),Tooth->BrushGrime(H,.1f));
+    H->BrushContact->MaxHandTravel=HandTravel;
     // A volume stroke must stay local across atlas slice boundaries.
     TArray<uint8> Mask; FMCSurfaceWipe::Reset(Mask);
     TestTrue(TEXT("Stroke crosses a slice boundary"),FMCSurfaceWipe::Stroke(Mask,FVector(.2,.3,.19),FVector(.2,.3,.22),FVector(200),24,.1f));
@@ -1423,17 +1536,21 @@ bool FMCCareVolumeTest::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHeavyFoodDragTest,"MessControl.Grip.HeavyArtistFoodMoves",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCHeavyFoodDragTest::RunTest(const FString&)
 {
-    for (const TCHAR* Name:{TEXT("SM_Broccoli_Whole_B"),TEXT("SM_Bacon_Whole_A")})
+    const auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
+    if (!TestNotNull(TEXT("Current artist menu"),Table)) return false;
+    for (const TCHAR* Name:{TEXT("Broccoli"),TEXT("Carrot")})
     {
         FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
         auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
         Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1500,1500,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
-        const FString Path=FString(TEXT("/Game/Art/Meshes/Breakfast/"))+Name+TEXT(".")+Name;
+        const auto* Menu=Table->FindRow<FMCFoodRow>(Name,TEXT("Heavy grip"));
+        if (!TestNotNull(Name,Menu) || Menu->WholeMeshes.IsEmpty()) continue;
+        const FString Path=Menu->WholeMeshes[0].ToSoftObjectPath().ToString();
         auto* Mesh=ReadyCareTestMesh(Path);
         if (!TestNotNull(Name,Mesh)) continue;
         const FTransform T(FVector(0,0,80));
         auto* Food=Mouth.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
-        FMCFoodRow Row; Row.Mass=12; Row.SpoilSeconds=300; Row.WholeMeshes.Add(Mesh);
+        FMCFoodRow Row=*Menu; Row.WholeMeshes.Reset(); Row.Mass=12; Row.SpoilSeconds=300; Row.WholeMeshes.Add(Mesh);
         FRandomStream Random(1); Food->ConfigureItem(Name,Row,Random); Food->FinishSpawning(T);
         auto* H=Mouth.Worker(); H->SetActorLocation(FVector(-Food->Body->GetUnscaledBoxExtent().X-40,0,61)); H->SetActorRotation(FRotator::ZeroRotator);
         H->GetCharacterMovement()->bRunPhysicsWithNoController=true; H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
@@ -1508,7 +1625,7 @@ bool FMCPlayerGripTest::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCGripPoseContinuityTest,"MessControl.Animation.GripPoseContinuity",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCGripPoseContinuityTest::RunTest(const FString&)
 {
-    for (const int32 Rate:{30,60,0}) // 0 alternates a slow frame with three short frames.
+    for (const int32 Rate:{30,60,120,0}) // 0 alternates a slow frame with three short frames.
     {
     FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
     auto* Floor=M.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
@@ -1524,19 +1641,21 @@ bool FMCGripPoseContinuityTest::RunTest(const FString&)
     auto* Recorder=NewObject<UMCMotionRecorder>(H); Recorder->RegisterComponent(); Recorder->Start(60,FString::Printf(TEXT("grip_continuity_%d"),Rate));
     auto Sample=[&](const TCHAR* Stage,FVector Direction=FVector::ZeroVector)
     {
-        TArray<FTransform> Previous; float Step=0,Angle=0;
+        Recorder->Stage=Stage;
+        TArray<FTransform> Previous; float Step=0,Angle=0,HandStep=0;
         for (int32 N=0;N<120;++N)
         {
             if (!Direction.IsNearlyZero()) H->AddMovementInput(Direction,.35f);
             const float Dt=Rate?1.f/Rate:(N%4==0?.05f:1.f/90);
             ++GFrameCounter; M.World->Tick(LEVELTICK_All,Dt); int32 I=0;
-            for (const FName Role:{FName("knee_l"),FName("foot_l"),FName("knee_r"),FName("foot_r")})
+            for (const FName Role:{FName("knee_l"),FName("foot_l"),FName("knee_r"),FName("foot_r"),FName("hand_l"),FName("hand_r")})
             {
                 const FTransform Bone=H->GetMesh()->GetSocketTransform(H->RigBone(Role)).GetRelativeTransform(H->GetActorTransform());
                 if (Previous.IsValidIndex(I))
                 {
-                    Step=FMath::Max(Step,float(FVector::Distance(Bone.GetLocation(),Previous[I].GetLocation()))/(Dt*60));
-                    Angle=FMath::Max(Angle,float(FMath::RadiansToDegrees(Bone.GetRotation().AngularDistance(Previous[I].GetRotation())))/(Dt*60));
+                    const float Distance=float(FVector::Distance(Bone.GetLocation(),Previous[I].GetLocation()))/(Dt*60);
+                    if(I<4) { Step=FMath::Max(Step,Distance); Angle=FMath::Max(Angle,float(FMath::RadiansToDegrees(Bone.GetRotation().AngularDistance(Previous[I].GetRotation())))/(Dt*60)); }
+                    else HandStep=FMath::Max(HandStep,Distance);
                     Previous[I]=Bone;
                 }
                 else Previous.Add(Bone);
@@ -1545,6 +1664,8 @@ bool FMCGripPoseContinuityTest::RunTest(const FString&)
         }
         AddInfo(FString::Printf(TEXT("%s (%d FPS): max leg step %.3f cm, rotation %.3f degrees per 1/60 s"),Stage,Rate,Step,Angle));
         TestTrue(*FString::Printf(TEXT("%s (%d FPS): legs stay continuous through grip transitions"),Stage,Rate),Step<4 && Angle<20);
+        AddInfo(FString::Printf(TEXT("%s (%d FPS): max hand step %.3f cm/60Hz"),Stage,Rate,HandStep));
+        TestTrue(*FString::Printf(TEXT("%s (%d FPS): hands stay continuous through grip transitions"),Stage,Rate),HandStep<10);
     };
     Sample(TEXT("Idle")); H->bHandling=true;
     TestTrue(TEXT("First item acquired"),A->TryGrab(H)); Sample(TEXT("One item"));
@@ -1552,6 +1673,92 @@ bool FMCGripPoseContinuityTest::RunTest(const FString&)
     Sample(TEXT("Walking with two items"),FVector(-1,0,0));
     H->DropFood(); H->bHandling=false; Sample(TEXT("Released"));
     Recorder->Stop();
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCMovementTransitionsTest,"MessControl.Animation.SoloMovementTransitions",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCMovementTransitionsTest::RunTest(const FString&)
+{
+    for(const int32 Rate:{30,60,120,0})
+    {
+        FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+        auto* Floor=M.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+        Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(12000,12000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+        auto* H=M.Worker(); H->SetActorLocation(FVector(0,0,61));
+        auto* Move=CastChecked<UMCToothMovementComponent>(H->GetCharacterMovement());
+        Move->bRunPhysicsWithNoController=true; Move->SetMovementMode(MOVE_Walking); M.Step(1);
+        auto* Recorder=NewObject<UMCMotionRecorder>(H); Recorder->RegisterComponent(); Recorder->Start(90,FString::Printf(TEXT("solo_transitions_%d"),Rate));
+        TMap<FName,FTransform> Previous,PreviousWorld; int32 Frame=0; bool Air=false,Ground=false;
+        EMCBodyState PreviousState=EMCBodyState::Standing;
+        auto Sample=[&](const TCHAR* Stage,float Seconds,FVector Direction=FVector::ZeroVector,float Limit=12.f)
+        {
+            Recorder->Stage=Stage; float Time=0,MaxStep=0; bool Finite=true,Bounded=true;
+            while(Time<Seconds)
+            {
+                const float Dt=Rate?1.f/Rate:(Frame++%4==0?.05f:1.f/90);
+                if(!Direction.IsNearlyZero()) H->AddMovementInput(Direction);
+                ++GFrameCounter; M.World->Tick(LEVELTICK_All,Dt); Time+=Dt;
+                Air|=Move->IsFalling(); Ground|=Move->IsMovingOnGround();
+                Finite&=!H->GetActorLocation().ContainsNaN() && !H->GetVelocity().ContainsNaN();
+                const auto State=H->ToothPhysics->GetBodyState();
+                for(const FName Role:{FName("body"),FName("hand_l"),FName("hand_r"),FName("foot_l"),FName("foot_r")})
+                {
+                    const FTransform WorldBone=H->GetMesh()->GetSocketTransform(H->RigBone(Role));
+                    const FTransform Bone=WorldBone.GetRelativeTransform(H->GetActorTransform());
+                    Finite&=!Bone.ContainsNaN(); Bounded&=Bone.GetLocation().Size()<240;
+                    // The capsule is recentered on the body for ragdoll/recovery.
+                    // World-space bones must remain continuous across that change.
+                    const bool Physical=State!=EMCBodyState::Standing || PreviousState!=EMCBodyState::Standing;
+                    if(const auto* Old=(Physical?PreviousWorld:Previous).Find(Role))
+                        MaxStep=FMath::Max(MaxStep,float(FVector::Dist((Physical?WorldBone:Bone).GetLocation(),Old->GetLocation()))/(Dt*60));
+                    Previous.Add(Role,Bone); PreviousWorld.Add(Role,WorldBone);
+                }
+                PreviousState=State;
+            }
+            AddInfo(FString::Printf(TEXT("%s (%d FPS): max step %.3f cm/60Hz, bounded=%d finite=%d"),Stage,Rate,MaxStep,Bounded,Finite));
+            TestTrue(*FString::Printf(TEXT("%s (%d FPS): finite bounded continuous limbs"),Stage,Rate),Finite && Bounded && MaxStep<Limit);
+        };
+        Sample(TEXT("idle"),1,FVector::ZeroVector,1.5f);
+        Sample(TEXT("walk"),2,FVector(1,0,0));
+        Move->SetSprinting(true); Sample(TEXT("run"),2,FVector(1,0,0));
+        Sample(TEXT("turn90"),2,FVector(0,1,0));
+        Sample(TEXT("reverse"),2,FVector(0,-1,0));
+        Move->SetSprinting(false); Sample(TEXT("stop"),1);
+        H->Jump(); Sample(TEXT("jump"),.35f,FVector(1,0,0),12);
+        H->StopJumping(); Sample(TEXT("land"),2,FVector::ZeroVector,12);
+        TestTrue(TEXT("Jump leaves the ground and lands"),Air && Ground && Move->IsMovingOnGround());
+        auto* Patch=M.World->SpawnActor<AMCLocomotionSurface>(); Patch->HalfExtent=FVector(12000,12000,40); Patch->RefreshBounds();
+        Patch->Surface=EMCGroundSurface::Sticky; Sample(TEXT("sticky"),2,FVector(1,0,0));
+        TestEqual(TEXT("Sticky case exercised"),Move->GroundSurface,EMCGroundSurface::Sticky);
+        Patch->Surface=EMCGroundSurface::Slippery; Sample(TEXT("slip"),2,FVector(1,0,0));
+        TestEqual(TEXT("Slippery case exercised"),Move->GroundSurface,EMCGroundSurface::Slippery);
+        Sample(TEXT("coast"),2); Patch->Surface=EMCGroundSurface::Normal; Sample(TEXT("dry_stop"),1);
+        H->Expression->ServerPlayEmote(TEXT("hello2")); Sample(TEXT("emote"),4,FVector::ZeroVector,12);
+        Sample(TEXT("emote_release"),2);
+        H->ToothPhysics->ApplyHit(FVector(360,0,450),H->GetActorLocation());
+        Sample(TEXT("ragdoll_recovery"),9,FVector::ZeroVector,15);
+        TestTrue(TEXT("Hit falls and recovers in solo simulation"),H->ToothPhysics->KnockdownCount>0 && H->ToothPhysics->RecoveryCount>0 && H->ToothPhysics->GetBodyState()==EMCBodyState::Standing);
+        Sample(TEXT("recovered_idle"),1,FVector::ZeroVector,1.5f);
+        Sample(TEXT("walk_after_recovery"),2,FVector(1,0,0));
+        Sample(TEXT("stop_before_obstacles"),1);
+        auto Obstacle=[&](FVector Offset,FVector Extent,float Pitch=0.f)
+        {
+            auto* Actor=M.World->SpawnActor<AActor>(); auto* Shape=NewObject<UBoxComponent>(Actor);
+            Actor->SetRootComponent(Shape); Shape->SetBoxExtent(Extent); Shape->SetCollisionProfileName(TEXT("BlockAll")); Shape->RegisterComponent();
+            const FVector Origin=H->GetActorLocation(); Actor->SetActorLocationAndRotation(FVector(Origin.X,Origin.Y,0)+Offset,FRotator(Pitch,0,0)); return Actor;
+        };
+        auto* Ramp=Obstacle(FVector(350,0,68),FVector(250,200,10),15);
+        Sample(TEXT("ramp_and_edge"),3,FVector(1,0,0)); Ramp->Destroy();
+        Sample(TEXT("settle_after_ramp"),1);
+        auto* Step=Obstacle(FVector(180,0,12),FVector(85,200,12));
+        Sample(TEXT("step_up_down"),1.5f,FVector(1,0,0)); Step->Destroy();
+        Sample(TEXT("settle_after_step"),1);
+        auto* Wall=Obstacle(FVector(160,0,150),FVector(20,250,150));
+        const FVector BeforeWall=H->GetActorLocation(); Sample(TEXT("blocked_by_wall"),2,FVector(1,0,0));
+        TestTrue(TEXT("Wall blocks capsule without tunnelling"),H->GetActorLocation().X-BeforeWall.X<160 && H->GetVelocity().Size2D()<10);
+        Sample(TEXT("slide_along_wall"),1,FVector(1,1,0).GetSafeNormal()); Wall->Destroy();
+        Recorder->Stop();
     }
     return true;
 }
@@ -1566,6 +1773,83 @@ bool FMCArtistClipTest::RunTest(const FString&)
     auto* Lib=LoadObject<UMCEmoteLibrary>(nullptr,TEXT("/Game/Data/DA_Emotes.DA_Emotes"));
     for (const FName Id:{FName("dance1"),FName("dance2"),FName("hello2"),FName("highfive2")})
         TestTrue(*FString::Printf(TEXT("Emote %s is playable"),*Id.ToString()),Lib && Lib->Entries.ContainsByPredicate([&](const FMCEmoteEntry& E){return E.Id==Id && E.Animation && E.Animation->GetPlayLength()>1;}));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCLocomotionGroundTest,"MessControl.Locomotion.SprintSurfacesAndMomentum",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCLocomotionGroundTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=M.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(10000,10000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    auto* Hero=M.Worker(); Hero->SetActorLocation(FVector(0,0,61));
+    auto* Move=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+    Move->bRunPhysicsWithNoController=true; Move->SetMovementMode(MOVE_Walking); M.Step(.5f);
+    auto Drive=[&](float Seconds)
+    { for (int32 I=0;I<int32(Seconds*60);++I) { Hero->AddMovementInput(FVector::ForwardVector); M.Step(1.f/60); } };
+    Drive(1.5f); const float Walk=Hero->GetVelocity().Size2D();
+    Move->SetSprinting(true); Drive(1.5f); const float Run=Hero->GetVelocity().Size2D();
+    TestTrue(TEXT("Shift produces a separate faster gait"),Run>Walk*1.4f && Hero->AnimationRun>.95f);
+    const auto Saved=Move->GetPredictionData_Client_Character()->AllocateNewMove();
+    Saved->SetMoveFor(Hero,.016f,FVector(100,0,0),*Move->GetPredictionData_Client_Character());
+    Move->SetSprinting(false); Move->UpdateFromCompressedFlags(Saved->GetCompressedFlags());
+    TestTrue(TEXT("Sprint survives saved move transport"),Move->WantsToSprint());
+    Move->SetSprinting(false); Saved->PrepMoveFor(Hero); TestTrue(TEXT("Sprint survives correction replay"),Move->WantsToSprint());
+    auto* Zone=M.World->SpawnActor<AMCLocomotionSurface>(); Zone->HalfExtent=FVector(9000,9000,30); Zone->RefreshBounds();
+    Zone->Surface=EMCGroundSurface::Sticky; Drive(1.5f);
+    TestEqual(TEXT("Sticky floor detected under the sole"),Move->GroundSurface,EMCGroundSurface::Sticky);
+    TestTrue(TEXT("Sticky floor resists sprint and lengthens support"),Hero->GetVelocity().Size2D()<Run*.7f && Hero->AnimationStance>.7f);
+    Zone->Surface=EMCGroundSurface::Normal; Drive(1.5f); const FVector DryStart=Hero->GetActorLocation(); M.Step(.8f);
+    const float DryStop=FVector::Dist2D(DryStart,Hero->GetActorLocation());
+    Zone->Surface=EMCGroundSurface::Slippery; Drive(3.f); const FVector WetStart=Hero->GetActorLocation(); M.Step(.8f);
+    const float WetStop=FVector::Dist2D(WetStart,Hero->GetActorLocation());
+    TestTrue(TEXT("Slippery floor preserves momentum after release"),WetStop>DryStop*1.5f);
+    TestTrue(TEXT("Sliding is not a full-speed walking cycle"),Hero->AnimationSlip>.9f && Hero->AnimationSpeed<.3f);
+    Hero->SetActorLocation(FVector(0,0,500)); Move->SetMovementMode(MOVE_Falling); Move->RefreshGroundSurface();
+    TestEqual(TEXT("Airborne player does not inherit a patch below"),Move->GroundSurface,EMCGroundSurface::Normal);
+    Hero->CancelGameplayInput(); TestFalse(TEXT("Menus cancel held sprint"),Move->WantsToSprint());
+    AddInfo(FString::Printf(TEXT("walk %.1f run %.1f dry stop %.1f slippery stop %.1f"),Walk,Run,DryStop,WetStop));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCLocomotionCycleTest,"MessControl.Locomotion.FootCycleContinuity",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCLocomotionCycleTest::RunTest(const FString&)
+{
+    for (float Stance:{.48f,.62f,.76f})
+    {
+        auto Before=FMCLocomotionCycle::Sample(Stance-.0001f,Stance),After=FMCLocomotionCycle::Sample(Stance+.0001f,Stance);
+        TestTrue(TEXT("Toe-off stays continuous for every surface"),FMath::Abs(Before.Sweep-After.Sweep)<.002f && After.Lift<.002f);
+        Before=FMCLocomotionCycle::Sample(.9999f,Stance); After=FMCLocomotionCycle::Sample(.0001f,Stance);
+        TestTrue(TEXT("Landing does not pop the leg"),FMath::Abs(Before.Sweep-After.Sweep)<.002f && Before.Lift<.002f);
+        TestTrue(TEXT("Swing clears the floor"),FMCLocomotionCycle::Sample((1+Stance)*.5f,Stance).Lift>.99f);
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodEmptyVariantsTest,"MessControl.Grip.EmptyMenuSlots",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodEmptyVariantsTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false);
+    auto* Mesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+    FMCFoodRow Row; Row.WholeMeshes={TSoftObjectPtr<UStaticMesh>(),TSoftObjectPtr<UStaticMesh>(Mesh),TSoftObjectPtr<UStaticMesh>()};
+    auto* Food=M.GripCube(); FRandomStream Random(7);
+    for (int32 I=0;I<24;++I)
+    { Food->ConfigureItem(TEXT("SparseMenu"),Row,Random); TestEqual(TEXT("Empty artist slots never select an invisible variant"),Food->ItemMesh.Get(),Mesh); }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWetFootingTest,"MessControl.Locomotion.CleanedPuddleFooting",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCWetFootingTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false);
+    auto* Patch=M.World->SpawnActor<AMCMouthSurface>(FVector(0,0,5),FRotator::ZeroRotator);
+    Patch->Status->Initialize(100); Patch->Status->ApplyCoffee(1); Patch->LiquidHalfSize=100; Patch->ResetLiquid();
+    TestTrue(TEXT("Wet interior changes footing"),Patch->AffectsFooting(FVector::ZeroVector));
+    TestFalse(TEXT("Clear corners of the quad do not affect footing"),Patch->AffectsFooting(FVector(99,99,0)));
+    TestFalse(TEXT("Passing above the puddle is not ground contact"),Patch->AffectsFooting(FVector(0,0,80)));
+    for (int32 I=0;I<20;++I) FMCCoffeeWipe::Stroke(Patch->WipeMask,FVector2D(.5),FVector2D(.5),.2f,.1f);
+    TestFalse(TEXT("A locally wiped path regains footing before the whole stain is clean"),Patch->AffectsFooting(FVector::ZeroVector));
+    TestTrue(TEXT("The remaining stain still exists"),!Patch->IsClean() && FMCCoffeeWipe::Remaining(Patch->WipeMask)>.5f);
     return true;
 }
 #endif

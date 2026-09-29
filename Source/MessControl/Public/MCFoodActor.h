@@ -3,6 +3,7 @@
 #include "Engine/DataAsset.h"
 #include "GameFramework/Actor.h"
 #include "MCDayPlan.h"
+#include "Engine/NetSerialization.h"
 #include "MCFoodActor.generated.h"
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -38,7 +39,17 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Food") FMCFoodSettings Settings;
 };
 UENUM(BlueprintType)
-enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped, Carried };
+enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped, Carried, Swallowing };
+
+/** Server physics pose relative to its carrier, rebased onto the predicted/smoothed character. */
+USTRUCT()
+struct FMCCarryPresentation
+{
+    GENERATED_BODY()
+    UPROPERTY() TObjectPtr<AMCToothCharacter> Holder;
+    UPROPERTY() FVector_NetQuantize10 Location=FVector::ZeroVector;
+    UPROPERTY() FRotator Rotation=FRotator::ZeroRotator;
+};
 
 /** Server-simulated rigid food. Clients receive motion and interaction state. */
 UCLASS(Blueprintable)
@@ -51,13 +62,17 @@ public:
     virtual void Tick(float Dt) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void OnRep_ReplicatedMovement() override;
+    virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Initialize(bool bJam,FVector ExtractionDirection);
     bool TryGrab(AMCToothCharacter* Hero);
     bool FindGripSurface(FVector From,FHitResult& Hit) const;
     bool BeginCarry(AMCToothCharacter* Hero);
+    void UpdateCarryPresentation(float Dt);
     void Release(AMCToothCharacter* Hero);
     void Dispose();
+    bool BeginSwallow();
+    void CancelSwallow();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
     void ConfigureBrush();
     bool HitFood(float Damage,FVector Direction);
@@ -87,6 +102,9 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AActor> StuckTooth;
     int32 ConfirmedImpacts=0;
 private:
+    UPROPERTY(Replicated) FMCCarryPresentation CarryPresentation;
+    TWeakObjectPtr<AMCToothCharacter> PresentationCarrier;
+    FTransform SmoothedCarryRelative=FTransform::Identity;
     bool bReceivedMotion=false;
     FVector NetworkLocation=FVector::ZeroVector;
     FQuat NetworkRotation=FQuat::Identity;

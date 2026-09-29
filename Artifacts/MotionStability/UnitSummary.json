@@ -1,0 +1,19 @@
+{
+  "passed": 54,
+  "failed": 0,
+  "not_run": 0,
+  "log_warnings": [
+    {
+      "test": "MessControl.Animation.SoloMovementTransitions",
+      "message": "LogHttp: HTTP request timed out after 3.00 seconds URL=https://www.google.com/generate_204"
+    },
+    {
+      "test": "MessControl.Liquid.SpawnIgnoresDynamicObstacles",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+    },
+    {
+      "test": "MessControl.Liquid.SpawnIgnoresDynamicObstacles",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+    }
+  ]
+}

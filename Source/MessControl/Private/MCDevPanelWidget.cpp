@@ -106,6 +106,9 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Steps,TEXT("Обычный день 1 — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычные таймеры и переходы."),EMCDevAction::RestartDay);
     AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
     AddAction(Actions,TEXT("Руки — хват, тяга и толкание"),TEXT("Большой куб для тяги и маленький для переноски. Держи ЛКМ и двигайся. Дистанция, масса переноски и руки — DA_Grip."),EMCDevAction::GripPractice);
+    AddAction(Actions,TEXT("Движение — липкий участок"),TEXT("Создать участок под ногами для проверки усилия и бега с Shift."),EMCDevAction::LocomotionGround,1);
+    AddAction(Actions,TEXT("Движение — скользкий участок"),TEXT("Проверить инерцию, торможение и тягу при слабом сцеплении."),EMCDevAction::LocomotionGround,2);
+    AddAction(Actions,TEXT("Движение — убрать участок"),TEXT("Вернуть исходные свойства пола."),EMCDevAction::LocomotionGround,0);
     AddAction(Actions,TEXT("Инфекция — испорченная еда + язва"),TEXT("Ускоряет порчу одного нового куска. Он создаёт настоящую язву и мешает её заживлению."),EMCDevAction::Infection);
     AddAction(Actions,TEXT("Язык — язва и волна боли"),TEXT("Язва без еды перед игроком. Наступи на неё: движение языка, красная волна и один толчок каждому. Язва заживает сама."),EMCDevAction::TongueUlcer);
     AddAction(Actions,TEXT("Язык — сильный рывок / ragdoll"),TEXT("Поджатие, резкий подъём и бросок игроков с едой. В обычном дне повторяется редко; в ручном тесте запускается этой кнопкой."),EMCDevAction::TongueJolt);

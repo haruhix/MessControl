@@ -6,6 +6,7 @@
 #include "MCArenaTooth.h"
 #include "MCFoodActor.h"
 #include "MCTongue.h"
+#include "MCThroat.h"
 #include "MCGripComponent.h"
 #include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
@@ -120,6 +121,18 @@ void AMCCoreScenario::Tick(float Dt)
         }
         else if (Stage==5 && Elapsed>4 && Food->Phase==EMCFoodPhase::Free) NextStage();
         else if (Stage==6 && Food->IsDisposed()) NextStage();
+        else if (Stage==6 && Food)
+        {
+            for(TActorIterator<AMCThroat> It(GetWorld());It;++It) if(It->ContainsFood(Food) && It->ThroatPhase==EMCThroatPhase::Collecting)
+            {
+                auto* Worker=Heroes[2].Get();
+                if(Worker->GetMovementBaseObject()!=It->UvulaLanding && !Worker->GetCharacterMovement()->IsFalling())
+                {
+                    MoveHero(2,It->UvulaLanding->GetComponentLocation()+FVector(-20,0,150),FRotator::ZeroRotator);
+                    Worker->GetCharacterMovement()->SetMovementMode(MOVE_Falling); Worker->GetCharacterMovement()->Velocity=FVector(0,0,-100);
+                }
+            }
+        }
         if (Stage>0 && Stage<7 && Elapsed>30) { bFailed=true; Stage=7; StageAt=Now; ForceNetUpdate(); }
     }
     auto* PC=GetWorld()->GetFirstPlayerController();
@@ -144,9 +157,10 @@ void AMCCoreScenario::Tick(float Dt)
         {
             FVector Destination(965,0,95);
             for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (!It->bBrushBin)
-            { Destination=It->GetActorLocation(); break; }
+            { Destination=It->GetActorLocation(); if(auto* Living=Cast<AMCThroat>(*It)) Destination=Living->GetActorTransform().TransformPosition(Living->ZoneCenter); break; }
             // Both carriers steer the shared object toward the exit, not two competing pawn destinations.
             if (Food && FVector::DistSquared2D(Destination,Food->GetActorLocation())>FMath::Square(35.f)) Hero->AddMovementInput((Destination-Food->GetActorLocation()).GetSafeNormal2D());
+            else Hero->StopHandle();
         }
     }
     if (Target && Target->Status->State.CoffeeLeft==4 && Stage==1) Observed|=1;

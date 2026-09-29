@@ -53,5 +53,6 @@ private:
     bool bGripLeft=false,bGripRight=false;
     float StandingPhysicsWeight=1;
     float ArmPhysicsWeights[2]={1,1};
+    float ArmSettleSeconds[2]={0,0};
     FName BalanceControl;
 };

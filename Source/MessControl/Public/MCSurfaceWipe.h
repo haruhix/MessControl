@@ -7,6 +7,17 @@ struct FMCSurfaceWipe
     static constexpr int32 Size=16, Atlas=64, Count=Size*Size*Size;
     static int32 Index(int32 X,int32 Y,int32 Z) { return X+(Z%4)*Size+(Y+(Z/4)*Size)*Atlas; }
     static void Reset(TArray<uint8>& Mask) { Mask.Init(255,Count); }
+    static float Sample(const TArray<uint8>& Mask,FVector UV)
+    {
+        if(Mask.Num()!=Count) return 1;
+        const FVector P=UV.ComponentMax(FVector::ZeroVector).ComponentMin(FVector::OneVector)*(Size-1);
+        const int32 X=FMath::FloorToInt(P.X),Y=FMath::FloorToInt(P.Y),Z=FMath::FloorToInt(P.Z);
+        float V=0;
+        for(int32 K=0;K<2;++K) for(int32 J=0;J<2;++J) for(int32 I=0;I<2;++I)
+            V+=Mask[Index(FMath::Min(X+I,Size-1),FMath::Min(Y+J,Size-1),FMath::Min(Z+K,Size-1))]/255.f*
+                (I?P.X-X:1-P.X+X)*(J?P.Y-Y:1-P.Y+Y)*(K?P.Z-Z:1-P.Z+Z);
+        return V;
+    }
     static bool Stroke(TArray<uint8>& Mask,FVector From,FVector To,FVector Dimensions,float Radius,float Seconds)
     {
         if (Mask.Num()!=Count || From.ContainsNaN() || To.ContainsNaN() || Dimensions.ContainsNaN() ||

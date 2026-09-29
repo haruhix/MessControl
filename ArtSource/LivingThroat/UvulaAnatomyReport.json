@@ -1,0 +1,42 @@
+{
+  "mesh": "SM_Uvula",
+  "vertices": 18434,
+  "triangles": 36864,
+  "watertight": true,
+  "signed_volume_m3": 7.962319280299101,
+  "profile": [
+    [
+      -1.6,
+      3.8
+    ],
+    [
+      -1.0,
+      1.8
+    ],
+    [
+      -0.55,
+      0.72
+    ],
+    [
+      -0.2,
+      0.37
+    ],
+    [
+      0.16,
+      0.29
+    ],
+    [
+      0.4,
+      0.32
+    ],
+    [
+      0.6,
+      0.4
+    ],
+    [
+      0.78,
+      0.46
+    ]
+  ],
+  "export": "E:\\DEVGAME\\MessControl\\ArtSource\\LivingThroat\\SM_Uvula.fbx"
+}

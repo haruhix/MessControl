@@ -1,5 +1,6 @@
 #include "MCPrototypeWidget.h"
 #include "MCToothCharacter.h"
+#include "MCThroat.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
@@ -77,7 +78,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
     ControlsPanel=FooterBorder; SetPlayerOverlayVisible(bPlayerOverlayVisible);
-    AddText(Footer,TEXT("WASD  MOVE    SPACE  HOP    HOLD LMB  INTERACT    Q  THROW    RMB  BONK"),15,Cream);
+    AddText(Footer,TEXT("WASD  MOVE    SHIFT  RUN    SPACE  HOP    HOLD LMB  INTERACT    Q  THROW    RMB  BONK"),15,Cream);
 #if !UE_BUILD_SHIPPING
     AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
 #else
@@ -184,6 +185,14 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
         else if (IsValid(Hero->CareTarget))
             if (auto* Target=Hero->CareTarget->FindComponentByClass<UMCToothStatusComponent>())
                 Hint=FString::Printf(TEXT("%s | %s | CONTACT %.0f%%"),Hero->CareTarget==Hero?TEXT("SELF"):TEXT("TARGET"),*Target->Summary(),Progress*100);
+        for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
+            if(It->CanOrderJump(Hero)) Hint=TEXT("SPACE: JUMP TO UVULA / SEND ORDER");
+            else if(It->ThroatPhase==EMCThroatPhase::Anticipation && It->ContainsPlayer(Hero)) {
+                Hint=FString::Printf(TEXT("RUN OUT OF THE RED CIRCLE!  %.1fs"),FMath::Max(0.,It->AnticipationSeconds-(State->GetServerWorldTimeSeconds()-It->PhaseStartedAt)));
+                Progress=1-FMath::Clamp(float(State->GetServerWorldTimeSeconds()-It->PhaseStartedAt)/It->AnticipationSeconds,0.f,1.f);
+            }
+        }
+        if(Hero->SwallowedBy) Hint=TEXT("WRONG INGREDIENT!  HOLD ON...");
         ContactLabel->SetText(FText::FromString(Hint)); ContactBar->SetPercent(Progress);
     }
     ArenaLabel->SetText(FText::FromString(FString::Printf(TEXT("ARENA TEETH  %d / %d"),State->AvailableArenaTeeth(),State->ArenaTeeth.Num())));

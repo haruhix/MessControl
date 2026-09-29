@@ -3,6 +3,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
+#include "MCBrushContactComponent.h"
 #include "MCExpressionComponent.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -10,6 +11,7 @@
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MCFoodActor.h"
+#include "MCLocomotionCycle.h"
 #include "TwoBoneIK.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
@@ -23,6 +25,9 @@ public:
     bool FootPlanted[2]={false,false};
     FVector FootOffsets[2]={FVector::ZeroVector,FVector::ZeroVector};
     float FootWeights[2]={0,0};
+    TWeakObjectPtr<UPrimitiveComponent> FootBases[2];
+    FVector FootBasePoints[2]={FVector::ZeroVector,FVector::ZeroVector};
+    bool FootReleased[2]={false,false};
     FVector PreviousMeshLocation=FVector::ZeroVector;
     float ArtistHandAlpha[2]={0,0};
     float ArtistPushAlpha=0,ArtistTiredAlpha=0;
@@ -45,6 +50,11 @@ public:
                 {
                     const int32 Arm=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("arm_l"):TEXT("arm_r")));
                     for (int32 P=I;P>=0;P=Ref.GetParentIndex(P)) if (P==Arm) { Include=true; break; }
+                    // A large load is contacted with the palm. Preserve relaxed finger bones
+                    // rather than curling them through a flat surface with the grab clip.
+                    const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+                    if (Tooth->Grip->Frame.Food && !Tooth->Grip->CanCarry(Tooth->Grip->Frame.Food) && I!=Hand)
+                        for (int32 P=I;P>=0;P=Ref.GetParentIndex(P)) if (P==Hand) { Include=false; break; }
                 }
                 if (!Include) continue;
                 const int32 Index=Clip->GetSkeleton()->GetReferenceSkeleton().FindBoneIndex(Name); if (Index<0) continue;
@@ -71,7 +81,7 @@ public:
         PreviousMeshLocation=World.GetLocation();
         if (Reset)
         {
-            for (int32 Side=0;Side<2;++Side) { FootPlanted[Side]=false; FootWeights[Side]=0; FootOffsets[Side]=FVector::ZeroVector; }
+            for (int32 Side=0;Side<2;++Side) { FootPlanted[Side]=false; FootReleased[Side]=false; FootBases[Side].Reset(); FootWeights[Side]=0; FootOffsets[Side]=FVector::ZeroVector; }
             return;
         }
         const bool Allowed=!Tooth->GetCharacterMovement()->IsFalling() && Tooth->AnimationSwim<.05f && !Tooth->bPreviewAnimation
@@ -88,17 +98,24 @@ public:
             if (Upper<0 || Lower<0 || Foot<0) continue;
             const FVector Animated=World.TransformPosition(CS[Foot].GetLocation());
             Feet[Side].Animated=Feet[Side].Target=Animated;
-            const float Phase=Tooth->AnimationGait+(Side==0?0:PI);
-            const bool Stance=Allowed && (Tooth->AnimationSpeed<.05f || FMath::Sin(Phase)<=0);
+            const auto Cycle=FMCLocomotionCycle::Sample(Tooth->AnimationGait/(2*PI)+Side*.5f,Tooth->AnimationStance);
+            const bool Stance=Allowed && (Tooth->AnimationSpeed<.05f || Cycle.bStance);
+            if (!Stance || Tooth->AnimationSpeed<.05f) FootReleased[Side]=false;
+            if (FootPlanted[Side] && FootBases[Side].IsValid()) PlantedFeet[Side]=FootBases[Side]->GetComponentTransform().TransformPosition(FootBasePoints[Side]);
+            const FVector Probe=FootPlanted[Side] && Stance?PlantedFeet[Side]:Animated;
             FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFootGround),false,Tooth);
-            const bool Grounded=Stance && Tooth->GetWorld()->LineTraceSingleByObjectType(Hit,Animated+FVector(0,0,45),Animated-FVector(0,0,55),
+            const bool Grounded=Stance && !FootReleased[Side] && Tooth->GetWorld()->LineTraceSingleByObjectType(Hit,Probe+FVector(0,0,45),Probe-FVector(0,0,55),
                 FCollisionObjectQueryParams(ECC_WorldStatic),Params) && Hit.ImpactNormal.Z>.65f;
             float Weight=0;
             if (Grounded)
             {
                 Feet[Side].bHit=true; Feet[Side].Surface=Hit.GetComponent()->GetFName();
-                const double LockDistance=FMath::Min(10.,(FVector::Distance(CS[Upper].GetLocation(),CS[Lower].GetLocation())+FVector::Distance(CS[Lower].GetLocation(),CS[Foot].GetLocation()))*.3);
-                if (!FootPlanted[Side] || FVector::Dist2D(PlantedFeet[Side],Animated)>LockDistance) PlantedFeet[Side]=Animated;
+                const double LockDistance=FMath::Min(20.,(FVector::Distance(CS[Upper].GetLocation(),CS[Lower].GetLocation())+FVector::Distance(CS[Lower].GetLocation(),CS[Foot].GetLocation()))*.5);
+                if (!FootPlanted[Side])
+                {
+                    PlantedFeet[Side]=Animated; FootBases[Side]=Hit.GetComponent();
+                    FootBasePoints[Side]=Hit.GetComponent()->GetComponentTransform().InverseTransformPosition(Animated);
+                }
                 FootPlanted[Side]=true;
                 FVector Target=PlantedFeet[Side];
                 // An ankle is above the sole. Driving the ankle itself into the
@@ -111,7 +128,11 @@ public:
                 const FVector Horizontal=FVector(Offset.X,Offset.Y,0).GetClampedToMaxSize(LockDistance);
                 Offset.X=Horizontal.X; Offset.Y=Horizontal.Y;
                 FootOffsets[Side]=FMath::Lerp(FootOffsets[Side],Offset,1.f-FMath::Exp(-18.f*Dt));
-                Weight=Tooth->AnimationSpeed<.05f?1.f:FMath::Clamp(-FMath::Sin(Phase)*4.f,0.f,1.f);
+                Weight=1-Tooth->AnimationSlip*.8f;
+                // Release an overextended step once, then wait for swing. Repeatedly
+                // relocating a planted foot was the source of visible contact searching.
+                if (FVector::Dist2D(PlantedFeet[Side],Animated)>LockDistance*1.5)
+                { FootReleased[Side]=true; FootPlanted[Side]=false; Weight=0; }
             }
             else FootPlanted[Side]=false;
             // Losing a ray or entering swing fades the last correction instead
@@ -127,6 +148,15 @@ public:
             const double Reach=(FVector::Distance(U.GetLocation(),L.GetLocation())+FVector::Distance(L.GetLocation(),F.GetLocation()))*.97;
             const FVector Goal=U.GetLocation()+(World.InverseTransformPosition(Target)-U.GetLocation()).GetClampedToMaxSize(Reach);
             AnimationCore::SolveTwoBoneIK(U,L,F,Pole,Goal,false,1.,1.);
+            if (Grounded)
+            {
+                const FVector Normal=World.InverseTransformVectorNoScale(Hit.ImpactNormal).GetSafeNormal();
+                const FVector Up=World.InverseTransformVectorNoScale(FVector::UpVector).GetSafeNormal();
+                FQuat Tilt=FQuat::FindBetweenNormals(Up,Normal);
+                const float Angle=Tilt.GetAngle();
+                if (Angle>PI/6) Tilt=FQuat::Slerp(FQuat::Identity,Tilt,(PI/6)/Angle);
+                F.SetRotation((Tilt*F.GetRotation()).GetNormalized());
+            }
             const int32 Bones[]={Upper,Lower,Foot}; const FTransform Solved[]={U,L,F};
             for (int32 J=0;J<3;++J)
             {
@@ -165,17 +195,24 @@ public:
         };
         const auto& A=Tooth->AnimationSettings; const float G=Tooth->AnimationGait;
         const float Speed=Tooth->AnimationSpeed;
-        Rotate(TEXT("body"),FRotator(Tooth->AnimationPitch-Tooth->AnimationBrake*7,Tooth->AnimationTurn*-5,FMath::Sin(G)*Speed*A.Lean*0.35f-Tooth->AnimationTurn*6));
-        Translate(TEXT("body"),FVector(0,0,Tooth->AnimationBob));
-        Rotate(TEXT("leg_l"),FRotator(FMath::Sin(G)*28*Speed,0,0));
-        Rotate(TEXT("leg_r"),FRotator(-FMath::Sin(G)*28*Speed,0,0));
-        Rotate(TEXT("knee_l"),FRotator(-FMath::Max(0.f,FMath::Sin(G))*18*Speed,0,0));
-        Rotate(TEXT("knee_r"),FRotator(-FMath::Max(0.f,-FMath::Sin(G))*18*Speed,0,0));
-        Rotate(TEXT("foot_l"),FRotator(-FMath::Sin(G-0.35f)*13*Speed,0,0));
-        Rotate(TEXT("foot_r"),FRotator(FMath::Sin(G-0.35f)*13*Speed,0,0));
-        Rotate(TEXT("arm_l"),FRotator(-FMath::Sin(G-0.25f)*24*Speed,0,-10));
+        Rotate(TEXT("body"),FRotator(Tooth->AnimationPitch*Tooth->AnimationDirection.X-Tooth->AnimationBrake*7+Tooth->AnimationInertia.X*9,
+            Tooth->AnimationTurn*-5,FMath::Sin(G)*Speed*A.Lean*.2f-Tooth->AnimationTurn*6-Tooth->AnimationInertia.Y*9));
+        Translate(TEXT("body"),FVector(0,0,Tooth->AnimationBob-Tooth->AnimationLanding*4));
+        for (int32 Side=0;Side<2;++Side)
+        {
+            const FString S=Side==0?TEXT("_l"):TEXT("_r");
+            const auto Cycle=FMCLocomotionCycle::Sample(G/(2*PI)+Side*.5f,Tooth->AnimationStance);
+            const float Step=Cycle.Sweep*Speed*(24+Tooth->AnimationRun*7)*(1-Tooth->AnimationSticky*.25f);
+            const float Lift=Cycle.Lift*Speed*(22+Tooth->AnimationRun*16+Tooth->AnimationSticky*14);
+            Rotate(FName(*(TEXT("leg")+S)),FRotator(Step*Tooth->AnimationDirection.X+Tooth->AnimationAir*18,0,-Step*Tooth->AnimationDirection.Y));
+            Rotate(FName(*(TEXT("knee")+S)),FRotator(-Lift-Tooth->AnimationAir*30-Tooth->AnimationLanding*10,0,0));
+            Rotate(FName(*(TEXT("foot")+S)),FRotator(-Step*.35f+Lift*.3f,0,Step*Tooth->AnimationDirection.Y*.25f));
+        }
+        // Free hands trail acceleration and spread on slippery ground to recover balance.
+        Rotate(TEXT("gaze_head"),FRotator(-Tooth->AnimationInertia.X*3,Tooth->AnimationTurn*4,Tooth->AnimationInertia.Y*3));
+        Rotate(TEXT("arm_l"),FRotator(-FMath::Sin(G-.25f)*24*Speed-Tooth->AnimationInertia.X*8,0,-10-Tooth->AnimationSlip*18));
         // Stay inside the shoulder/wrist stops even at the strongest F1 preset.
-        Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle+FMath::Sin(G-0.25f)*18*Speed,-50.f,50.f),0,10));
+        Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle+FMath::Sin(G-.25f)*18*Speed-Tooth->AnimationInertia.X*8,-50.f,50.f),0,10+Tooth->AnimationSlip*18));
         Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle*0.3f,-35.f,35.f),0,0));
         // Blend a readable dog-paddle over locomotion; contact IK still owns a held hand.
         if (Tooth->AnimationSwim>.001f)
@@ -200,6 +237,7 @@ public:
         if (Tooth->Expression) Tooth->Expression->BuildBodyPose(Pose,Ref);
         ArtistWorkPose(Tooth,Ref,Dt);
         if (Tooth->Grip) Tooth->Grip->BuildPose(Pose,Ref,Dt);
+        if (Tooth->BrushContact) Tooth->BrushContact->BuildPose(Pose,Ref,Dt);
         PlaceFeet(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);

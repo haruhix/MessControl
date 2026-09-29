@@ -1,0 +1,12 @@
+{
+  "boundary_max_gap_cm": 0.03623963186615307,
+  "finite_morph_vertices": true,
+  "valve_closed_height_cm": 2.502506598830223,
+  "valve_open_height_cm": 632.9428195953369,
+  "morph_names": [
+    "Basis",
+    "SwallowOpen",
+    "Breath",
+    "Peristalsis"
+  ]
+}

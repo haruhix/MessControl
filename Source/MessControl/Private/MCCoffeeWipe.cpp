@@ -1,5 +1,23 @@
 #include "MCCoffeeWipe.h"
 
+bool FMCCoffeeWipe::WetAt(const TArray<uint8>& Mask,FVector2D UV,int32 Seed)
+{
+    if (UV.ContainsNaN() || UV.X<0 || UV.Y<0 || UV.X>1 || UV.Y>1) return false;
+    const float Angle=Seed*2.39996f; const FVector2D U=(UV-FVector2D(.5))*2;
+    FVector2D P(U.X*FMath::Cos(Angle)-U.Y*FMath::Sin(Angle),U.X*FMath::Sin(Angle)+U.Y*FMath::Cos(Angle));
+    P.Y*=1.06+.20*FMath::Sin(Seed*1.731);
+    auto Join=[](double A,double B) { const double H=FMath::Max(.065-FMath::Abs(A-B),0.)/.065; return FMath::Max(A,B)+H*H*.01625; };
+    double D=.48-P.Size();
+    D=Join(D,.30+.045*FMath::Sin(Seed*2.17)-(P-FVector2D(.32,.08)).Size());
+    D=Join(D,.27+.045*FMath::Cos(Seed*3.11)-(P-FVector2D(-.35,-.09)).Size());
+    D=Join(D,.25-(P-FVector2D(-.12,.34)).Size()); D=Join(D,.24-(P-FVector2D(.20,-.30)).Size());
+    D+=.018*FMath::Sin(P.X*24+Seed)*FMath::Sin(P.Y*19-Seed);
+    // Tiny decorative droplets have no movement penalty. Cleaned mask cells are dry immediately.
+    if (D<.025) return false;
+    const int32 X=FMath::Clamp(int32(UV.X*Size),0,Size-1),Y=FMath::Clamp(int32(UV.Y*Size),0,Size-1);
+    return Mask.Num()!=Count || Mask[Y*Size+X]>100;
+}
+
 bool FMCCoffeeWipe::Stroke(TArray<uint8>& Mask,FVector2D From,FVector2D To,float Radius,float Seconds)
 {
     if (From.ContainsNaN() || To.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0 ||

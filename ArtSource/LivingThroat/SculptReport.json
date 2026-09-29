@@ -1,0 +1,11 @@
+{
+  "throat_vertices": 21809,
+  "throat_triangles": 43008,
+  "uvula_vertices": 18721,
+  "morphs": [
+    "SwallowOpen",
+    "Breath",
+    "Peristalsis"
+  ],
+  "skeletal_export": "E:\\DEVGAME\\MessControl\\ArtSource\\LivingThroat\\SK_LivingThroat.fbx"
+}

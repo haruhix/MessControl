@@ -1,4 +1,4 @@
-param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','TongueNetwork','TongueJoltNetwork','TonguePressureNetwork','GripNetwork','EmoteNetwork','Mouth','Pupils','SwimVisual','SwimNetwork','GazeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee,[switch]$CaptureTongue,[switch]$CaptureGaze,[switch]$CapturePressure,[switch]$CaptureGrip,[switch]$CaptureEmotes)
+param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','TongueNetwork','TongueJoltNetwork','TonguePressureNetwork','GripNetwork','LocomotionNetwork','EmoteNetwork','Mouth','Pupils','SwimVisual','SwimNetwork','GazeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee,[switch]$CaptureTongue,[switch]$CaptureGaze,[switch]$CapturePressure,[switch]$CaptureGrip,[switch]$CaptureEmotes,[switch]$CaptureLocomotion)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 if (-not $EngineRoot) {
@@ -52,6 +52,11 @@ if ($Mode -eq 'Unit') {
             if($CaptureEmotes -and $Mode -eq 'EmoteNetwork' -and $taskIndex -eq 0) {
                 $taskArguments=@($taskArguments | Where-Object { $_ -ne '-nullrhi' -and $_ -notlike '-ExecCmds=*' })
                 $taskArguments+=@('-MCEmoteCapture','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages','-ExecCmds="t.MaxFPS 60,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,sg.PostProcessQuality 1,r.ScreenPercentage 100"')
+            }
+            if($Mode -eq 'LocomotionNetwork') { $taskArguments+='-MCLocomotionTest' }
+            if($CaptureLocomotion -and $Mode -eq 'LocomotionNetwork' -and $taskIndex -eq 0) {
+                $taskArguments=@($taskArguments | Where-Object { $_ -ne '-nullrhi' -and $_ -notlike '-ExecCmds=*' })
+                $taskArguments+=@('-MCLocomotionCapture','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages','-ExecCmds="t.MaxFPS 60,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,r.ScreenPercentage 100,Trace.Disable Screenshot"')
             }
             if($Mode -eq 'GripNetwork') { $taskArguments+='-MCGripTest' }
             if($CaptureGrip -and $Mode -eq 'GripNetwork' -and $taskIndex -eq 0) {

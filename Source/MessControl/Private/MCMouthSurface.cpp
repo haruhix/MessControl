@@ -144,6 +144,7 @@ void AMCMouthSurface::Tick(float Dt)
 }
 void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
+    DOREPLIFETIME(AMCMouthSurface,GroundResponse);
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCMouthSurface,Tongue); DOREPLIFETIME(AMCMouthSurface,TongueAnchor);
     DOREPLIFETIME(AMCMouthSurface,WipeMask); DOREPLIFETIME(AMCMouthSurface,LiquidSeed);

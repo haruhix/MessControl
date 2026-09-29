@@ -1,5 +1,7 @@
 ﻿#include "MCGripComponent.h"
 #include "MCToothCharacter.h"
+#include "MCBrushContactComponent.h"
+#include "MCToothMovementComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCExpressionComponent.h"
 #include "MCToothStatusComponent.h"
@@ -252,6 +254,7 @@ float UMCGripComponent::ContactError() const
 FVector UMCGripComponent::InputDirection() const
 {
     if (!Tooth) return FVector::ZeroVector;
+    if (Tooth->GetLocalRole()==ROLE_SimulatedProxy) return CastChecked<UMCToothMovementComponent>(Tooth->GetCharacterMovement())->Intent();
     const FVector A=Tooth->GetCharacterMovement()->GetCurrentAcceleration();
     return A.SizeSquared2D()>1?A.GetSafeNormal2D():Tooth->GetPendingMovementInputVector().GetSafeNormal2D();
 }
@@ -286,7 +289,7 @@ FVector UMCGripComponent::DriveForce(const AMCFoodActor* Food) const
     if (StableDamping<Settings.Damping && !Intent.IsNearlyZero())
         Force+=Intent*FloorFrictionForce(ContactFrame.Food)*(1-StableDamping/Settings.Damping);
     Force.Z=FMath::Clamp(Force.Z,-Settings.DriveForce*.15f,Settings.DriveForce*.15f);
-    return Force.GetClampedToMaxSize(Settings.DriveForce*1.2f);
+    return Force.GetClampedToMaxSize(Settings.DriveForce*1.2f)*CastChecked<UMCToothMovementComponent>(Tooth->GetCharacterMovement())->Traction();
 }
 float UMCGripComponent::FloorFrictionForce(const AMCFoodActor* Food) const
 {
@@ -304,7 +307,9 @@ FVector UMCGripComponent::DriveTorque(const AMCFoodActor* Food) const
     const FMCGripFrame& ContactFrame=*Selected;
     if (ContactFrame.Food->Phase!=EMCFoodPhase::Free && ContactFrame.Food->Phase!=EMCFoodPhase::Carried) return FVector::ZeroVector;
     const float Error=FMath::FindDeltaAngleDegrees(ContactFrame.Food->GetActorRotation().Yaw,Tooth->GetActorRotation().Yaw+ContactFrame.RelativeYaw);
-    const float Rate=FMath::DegreesToRadians(FMath::Clamp(Error*2.2f,-Settings.TurnRate,Settings.TurnRate));
+    const bool Carried=ContactFrame.Food->Phase==EMCFoodPhase::Carried;
+    const float TurnRate=Settings.TurnRate*(Carried?3.f:1.f);
+    const float Rate=FMath::DegreesToRadians(FMath::Clamp(Error*(Carried?6.f:2.2f),-TurnRate,TurnRate));
     const float Spin=ContactFrame.Food->Body->GetPhysicsAngularVelocityInRadians().Z;
     const float Strength=UsesHand(ContactFrame.Pose,true) && UsesHand(ContactFrame.Pose,false)?1.f:.85f;
     const FVector LocalAxis=ContactFrame.Food->Body->GetComponentQuat().UnrotateVector(FVector::UpVector);
@@ -366,6 +371,8 @@ FVector UMCGripComponent::PlayerPullAcceleration() const
 void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction)
 {
     Super::TickComponent(Dt,Type,TickFunction); if (!Tooth || !bRigReady) return;
+    if (!Tooth->HasAuthority())
+        for (auto* Food:{Frame.Food.Get(),Secondary.Food.Get()}) if (IsValid(Food)) Food->UpdateCarryPresentation(Dt);
     FVector DesiredReach=Frame.Food?ReachFor(Frame.Food):FVector::ZeroVector;
     if (Secondary.Food) DesiredReach=(DesiredReach+ReachFor(Secondary.Food))*.5;
     // Adding/removing the other hand changes the centre of the load. Move the
@@ -441,7 +448,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     }
     PresentationPose=Frame.Pose;
     const float LeanSign=PresentationPose==EMCGripPose::Push?1.f:-1.f;
-    const float Effort=PresentationPose==EMCGripPose::Carry?.15f:IsReady() && !InputDirection().IsNearlyZero()?FMath::Clamp(LoadMass()/28.f,.2f,1.f):.1f;
+    const float Effort=Frame.Food && CanCarry(Frame.Food)?.15f:IsReady() && !InputDirection().IsNearlyZero()?FMath::Clamp(Tooth->AnimationEffort+.2f,.2f,1.f):.1f;
     PresentationLean=FMath::Lerp(PresentationLean,LeanSign*Settings.Lean*Effort,1.f-FMath::Exp(-10.f*Dt));
     for (int32 I=0;I<2;++I)
     {
@@ -454,7 +461,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     }
     const bool Emote=Tooth->Expression && Tooth->Expression->BodyAlpha()>.001f;
     const bool Swimming=Tooth->AnimationSwim>.05f;
-    Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote || Swimming,HandAlpha[1]>.001f || Emote || Swimming);
+    Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote || Swimming,HandAlpha[1]>.001f || Emote || Swimming || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting()));
 }
 bool UMCGripComponent::BeginPlayerGrip(AMCToothCharacter* Player)
 {

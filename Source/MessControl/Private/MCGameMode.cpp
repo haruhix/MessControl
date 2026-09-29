@@ -1,5 +1,6 @@
 #include "MCGameMode.h"
 #include "MCTongue.h"
+#include "MCThroat.h"
 #include "MCDayDirector.h"
 #include "MCMouthSurface.h"
 #include "MCCoffeeFlood.h"
@@ -104,8 +105,9 @@ void AMCGameMode::RestartShift()
     if (!IsValid(Throat))
     {
         for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (!It->bBrushBin) { Throat=*It; break; }
-        if (!Throat) Throat=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(920,0,180),FRotator::ZeroRotator);
+        if (!Throat) Throat=GetWorld()->SpawnActor<AMCThroat>(FVector(920,0,180),FRotator::ZeroRotator);
     }
+    if (auto* LivingThroat=Cast<AMCThroat>(Throat)) LivingThroat->ResetSwallow();
     const UMCRunRules* Rules = RunRulesProfile.LoadSynchronous();
     State->RunSettings = Rules ? Rules->Settings : FMCRunSettings();
     State->RunSettings.Sanitize();

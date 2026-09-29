@@ -37,6 +37,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<class UMCBrushContactComponent> BrushContact;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Gaze") TObjectPtr<UMCGazeComponent> Gaze;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Grip") TObjectPtr<UMCGripComponent> Grip;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Emotes") TObjectPtr<UMCExpressionComponent> Expression;
@@ -58,11 +59,19 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
     bool CanWork() const;
+    UPROPERTY(ReplicatedUsing=OnRep_ThroatCapture,BlueprintReadOnly,Category="Throat") TObjectPtr<class AMCThroat> SwallowedBy;
+    UPROPERTY(Replicated) FVector ThroatCaptureStart=FVector::ZeroVector;
+    UPROPERTY(Replicated) TObjectPtr<class AMCThroat> OrderJumpTarget;
+    UFUNCTION(Server,Reliable) void ServerOrderJump(class AMCThroat* Throat);
+    UFUNCTION(Client,Reliable) void ClientOrderLaunch(FVector Velocity);
+    UFUNCTION(Client,Reliable) void ClientThroatExit(FVector Location,FVector Velocity);
+    void SetThroatCapture(class AMCThroat* Throat);
     void StatusChanged();
     void DropFood();
     void CancelGameplayInput();
     UFUNCTION(Server,Reliable) void ServerSetPrimary(bool bActive);
     bool CanContact(AActor* Target) const;
+    void UpdateMouthCamera(float Dt);
     UMCToothStatusComponent* FindCareTarget(bool bBrush) const;
     void AdvanceCare(float Dt);
     void ResetContact();
@@ -86,6 +95,10 @@ public:
     UFUNCTION(BlueprintCallable, Category="Physics") void SpawnPracticeTooth();
     float AnimationGait=0.f, AnimationSpeed=0.f, AnimationBob=0.f, AnimationPitch=0.f, AnimationBrushAngle=0.f;
     float AnimationSwim=0,AnimationStroke=0,AnimationSwimEffort=0,AnimationTurn=0,AnimationBrake=0;
+    float AnimationRun=0,AnimationSticky=0,AnimationSlip=0,AnimationEffort=0,AnimationStance=.6f;
+    float AnimationAir=0,AnimationLanding=0;
+    FVector AnimationDirection=FVector::ForwardVector;
+    FVector AnimationInertia=FVector::ZeroVector;
     int32 ValidatedSwingCount=0, ConfirmedHitCount=0;
     int32 SuccessfulBrushContacts=0;
 protected:
@@ -99,6 +112,8 @@ private:
     void MoveForward(const FInputActionValue& Value);
     void MoveRight(const FInputActionValue& Value);
     void StartJump(); void StopJump();
+    void StartSprint(); void StopSprint();
+    void UpdateLocomotion(float Dt);
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void StartPrimary(); void StopPrimary();
     void ResolvePrimaryAction();
@@ -107,6 +122,9 @@ private:
     void ToggleSelfCare();
     UFUNCTION(Server, Reliable) void ServerToggleSelfCare();
     UFUNCTION() void OnRep_Working();
+    UFUNCTION() void OnRep_ThroatCapture();
+    float OrderJumpAirControl=.05f;
+    TArray<TWeakObjectPtr<AActor>> OrderJumpIgnoredActors;
     void FindWork(float DeltaSeconds);
     UFUNCTION(Server,Reliable) void ServerSwingBrush();
     UFUNCTION(NetMulticast,Reliable) void MulticastSwing();
@@ -118,6 +136,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> ForwardAction;
     UPROPERTY() TObjectPtr<UInputAction> RightAction;
     UPROPERTY() TObjectPtr<UInputAction> JumpAction;
+    UPROPERTY() TObjectPtr<UInputAction> SprintAction;
     UPROPERTY() TObjectPtr<UInputAction> BrushAction;
     UPROPERTY() TObjectPtr<UInputAction> HandleAction;
     UPROPERTY() TObjectPtr<UInputAction> PanelAction;
@@ -146,5 +165,6 @@ private:
     FVector2D LocalPaddle=FVector2D::ZeroVector;
     float PaddleSendElapsed=0;
     float PreviousAnimationYaw=0,PreviousAnimationSpeed=0;
+    FVector PreviousLocomotionVelocity=FVector::ZeroVector;
     double LastPaddleAt=0;
 };

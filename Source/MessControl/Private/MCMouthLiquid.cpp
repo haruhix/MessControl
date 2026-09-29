@@ -16,6 +16,13 @@ static TAutoConsoleVariable<int32> CVarMCLiquidRender(TEXT("mc.LiquidRender"),1,
 static TAutoConsoleVariable<float> CVarMCLiquidMeshHz(TEXT("mc.LiquidMeshHz"),60.f,
     TEXT("Maximum visual liquid mesh updates per second. 0 updates every frame. Brush masks and gameplay are independent."));
 
+bool AMCMouthSurface::AffectsFooting(FVector Sole) const
+{
+    if (bUlcer || IsClean() || GroundResponse==EMCGroundSurface::Normal || LiquidHalfSize<=0) return false;
+    const FVector P=GetActorTransform().InverseTransformPosition(Sole);
+    return FMath::Abs(P.Z)<18 && FMCCoffeeWipe::WetAt(WipeMask,FVector2D(P)/(2*LiquidHalfSize)+FVector2D(.5),LiquidSeed);
+}
+
 void AMCMouthSurface::SetLiquidAppearance(UMaterialInterface* Preset)
 {
     if (!HasAuthority() || !Preset) return;

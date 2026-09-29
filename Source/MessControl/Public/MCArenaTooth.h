@@ -79,6 +79,8 @@ public:
     void StatusChanged();
     void ResetGrime();
     bool BrushGrime(class AMCToothCharacter* Worker,float Seconds);
+    bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred=INDEX_NONE);
+    float RemainingGrime() const;
     UPROPERTY(ReplicatedUsing=OnRep_Grime,BlueprintReadOnly,Category="Care") TArray<uint8> GrimeMask;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Care") bool bShowCareLabel=false;
     bool ConsumeForRespawn();
@@ -107,8 +109,11 @@ private:
     UPROPERTY(Replicated) FVector BrushLocal=FVector::ZeroVector;
     UPROPERTY(Replicated) float BrushAt=-100;
     UPROPERTY(Replicated) float GrimeAmount=1;
-    struct FBrushHistory { FVector UV=FVector::ZeroVector; double At=-100; float Clock=0; };
+    struct FBrushHistory { FVector UV=FVector::ZeroVector,Aim=FVector::ZeroVector,Normal=FVector::UpVector; double At=-100; float Clock=0; int32 Sample=INDEX_NONE; };
     TMap<TWeakObjectPtr<AActor>,FBrushHistory> BrushHistory;
+    struct FGrimeSample { FVector Point,Normal,UV; float Weight; };
+    TArray<FGrimeSample> GrimeSamples;
+    int32 SelectedSample=INDEX_NONE;
     float GrimeFinish=1,GrimeUploadElapsed=0;
     bool bGrimeDirty=true;
     FVector MeshBaseLocation=FVector::ZeroVector;

@@ -1,0 +1,146 @@
+[
+  {
+    "actor": "ARENA | Tooth 01",
+    "position": [
+      -510,
+      -970.0,
+      20.0
+    ],
+    "variant": 1
+  },
+  {
+    "actor": "ART | Reference row L 01",
+    "position": [
+      -275,
+      -965.9183673469388,
+      25.640488608528255
+    ],
+    "variant": 2
+  },
+  {
+    "actor": "ARENA | Tooth 03",
+    "position": [
+      -40,
+      -953.6734693877551,
+      30.163809272084386
+    ],
+    "variant": 2
+  },
+  {
+    "actor": "ART | Reference row L 03",
+    "position": [
+      195,
+      -933.265306122449,
+      32.674062858363705
+    ],
+    "variant": 3
+  },
+  {
+    "actor": "ARENA | Tooth 05",
+    "position": [
+      430,
+      -904.6938775510205,
+      32.674062858363705
+    ],
+    "variant": 3
+  },
+  {
+    "actor": "ART | Reference row L 05",
+    "position": [
+      655,
+      -867.9591836734694,
+      30.16380927208439
+    ],
+    "variant": 4
+  },
+  {
+    "actor": "ARENA | Tooth 07",
+    "position": [
+      850,
+      -823.0612244897959,
+      25.64048860852826
+    ],
+    "variant": 4
+  },
+  {
+    "actor": "ART | Far tooth Left",
+    "position": [
+      1025,
+      -770.0,
+      20.0
+    ],
+    "variant": 5
+  },
+  {
+    "actor": "ARENA | Tooth 02",
+    "position": [
+      -510,
+      910.0,
+      20.0
+    ],
+    "variant": 1
+  },
+  {
+    "actor": "ART | Reference row R 01",
+    "position": [
+      -275,
+      905.9183673469388,
+      25.640488608528255
+    ],
+    "variant": 2
+  },
+  {
+    "actor": "ARENA | Tooth 04",
+    "position": [
+      -40,
+      893.6734693877551,
+      30.163809272084386
+    ],
+    "variant": 2
+  },
+  {
+    "actor": "ART | Reference row R 03",
+    "position": [
+      195,
+      873.265306122449,
+      32.674062858363705
+    ],
+    "variant": 3
+  },
+  {
+    "actor": "ARENA | Tooth 06",
+    "position": [
+      430,
+      844.6938775510205,
+      32.674062858363705
+    ],
+    "variant": 3
+  },
+  {
+    "actor": "ART | Reference row R 05",
+    "position": [
+      655,
+      807.9591836734694,
+      30.16380927208439
+    ],
+    "variant": 4
+  },
+  {
+    "actor": "ARENA | Tooth 08",
+    "position": [
+      850,
+      763.0612244897959,
+      25.64048860852826
+    ],
+    "variant": 4
+  },
+  {
+    "actor": "ART | Far tooth Right",
+    "position": [
+      1025,
+      710.0,
+      20.0
+    ],
+    "variant": 5
+  }
+]

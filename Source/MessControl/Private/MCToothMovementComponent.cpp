@@ -4,13 +4,127 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
 #include "MCToothAnimInstance.h"
+#include "MCFoodActor.h"
+#include "MCMouthSurface.h"
+#include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "EngineUtils.h"
 
 UMCToothMovementComponent::UMCToothMovementComponent()
 {
+    SetIsReplicatedByDefault(true);
     MaxSwimSpeed=320; GetNavAgentPropertiesRef().bCanSwim=true;
+}
+namespace
+{
+    class FMCStrideMove final : public FSavedMove_Character
+    {
+    public:
+        using Super=FSavedMove_Character;
+        bool Sprint=false;
+        virtual void Clear() override { Super::Clear(); Sprint=false; }
+        virtual uint8 GetCompressedFlags() const override { return Super::GetCompressedFlags() | (Sprint?FLAG_Custom_0:0); }
+        virtual bool CanCombineWith(const FSavedMovePtr& Move,ACharacter* Hero,float MaxDelta) const override
+        { return Sprint==static_cast<const FMCStrideMove*>(Move.Get())->Sprint && Super::CanCombineWith(Move,Hero,MaxDelta); }
+        virtual void SetMoveFor(ACharacter* Hero,float Dt,FVector const& Accel,FNetworkPredictionData_Client_Character& Data) override
+        { Super::SetMoveFor(Hero,Dt,Accel,Data); Sprint=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->WantsToSprint(); }
+        virtual void PrepMoveFor(ACharacter* Hero) override
+        { Super::PrepMoveFor(Hero); CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->SetSprinting(Sprint); }
+    };
+    class FMCStridePrediction final : public FNetworkPredictionData_Client_Character
+    {
+    public:
+        explicit FMCStridePrediction(const UCharacterMovementComponent& Movement):FNetworkPredictionData_Client_Character(Movement) {}
+        virtual FSavedMovePtr AllocateNewMove() override { return FSavedMovePtr(new FMCStrideMove()); }
+    };
+}
+FNetworkPredictionData_Client* UMCToothMovementComponent::GetPredictionData_Client() const
+{
+    if (!ClientPredictionData) const_cast<UMCToothMovementComponent*>(this)->ClientPredictionData=new FMCStridePrediction(*this);
+    return ClientPredictionData;
+}
+void UMCToothMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
+{ Super::UpdateFromCompressedFlags(Flags); bWantsToSprint=(Flags&FSavedMove_Character::FLAG_Custom_0)!=0; }
+void UMCToothMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME_CONDITION(UMCToothMovementComponent,GroundSurface,COND_SimulatedOnly);
+    DOREPLIFETIME_CONDITION(UMCToothMovementComponent,MovementIntent,COND_SimulatedOnly);
+    DOREPLIFETIME_CONDITION(UMCToothMovementComponent,bSprintActive,COND_SimulatedOnly);
+}
+bool UMCToothMovementComponent::HasHeavyGrip() const
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    return Hero && Hero->Grip && (Hero->Grip->GrabbedPlayer || (Hero->HeldFood && !Hero->Grip->CanCarry(Hero->HeldFood)));
+}
+bool UMCToothMovementComponent::CanSprint() const
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    return Hero && Hero->ToothPhysics && Hero->ToothPhysics->CanAct() && !Hero->ClingTooth && !Hero->bBrushing && !HasHeavyGrip() && !IsSwimming();
+}
+float UMCToothMovementComponent::Traction() const { return GroundSurface==EMCGroundSurface::Slippery?.32f:1.f; }
+FVector UMCToothMovementComponent::Intent() const
+{
+    return CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy?FVector(MovementIntent):Acceleration.GetSafeNormal2D();
+}
+float UMCToothMovementComponent::GetMaxSpeed() const
+{
+    if (!IsMovingOnGround() && !IsFalling()) return Super::GetMaxSpeed();
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if (!Hero || !Hero->Grip) return WalkSpeed;
+    if (Hero->ClingTooth) return 0;
+    float Speed=bWantsToSprint && CanSprint()?SprintSpeed:WalkSpeed;
+    if (Hero->HeldFood && HasHeavyGrip()) Speed=FMath::Min(Speed,Hero->HeldFood->DragSpeed());
+    if (Hero->Grip->GrabbedPlayer) Speed=FMath::Min(Speed,220.f);
+    Speed/=FMath::Sqrt(1+Hero->Grip->LoadMass()/35.f);
+    return Speed*(IsMovingOnGround() && GroundSurface==EMCGroundSurface::Sticky?.58f:1.f);
+}
+float UMCToothMovementComponent::GetMaxAcceleration() const
+{
+    if (!IsMovingOnGround()) return Super::GetMaxAcceleration();
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    const float Load=Hero && Hero->Grip?Hero->Grip->LoadMass():0;
+    return GroundAcceleration*Traction()*(GroundSurface==EMCGroundSurface::Sticky?.72f:1.f)/(1+Load/22.f);
+}
+float UMCToothMovementComponent::GetMaxBrakingDeceleration() const
+{
+    if (!IsMovingOnGround()) return Super::GetMaxBrakingDeceleration();
+    return GroundSurface==EMCGroundSurface::Slippery?90.f:GroundSurface==EMCGroundSurface::Sticky?1050.f:650.f;
+}
+void UMCToothMovementComponent::RefreshGroundSurface()
+{
+    GroundSurface=EMCGroundSurface::Normal;
+    if (!CharacterOwner || !IsMovingOnGround()) return;
+    const FVector Sole=UpdatedComponent->GetComponentLocation()-FVector(0,0,CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+    FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCLocomotionGround),false,CharacterOwner); Query.bReturnPhysicalMaterial=true;
+    if (GetWorld()->LineTraceSingleByChannel(Hit,Sole+FVector(0,0,12),Sole-FVector(0,0,25),ECC_Visibility,Query))
+        if (const auto* Material=Cast<UMCLocomotionMaterial>(Hit.PhysMaterial.Get())) GroundSurface=Material->GroundSurface;
+    for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It)
+        if (It->AffectsFooting(Sole) && (GroundSurface==EMCGroundSurface::Normal || It->GroundResponse==EMCGroundSurface::Sticky)) GroundSurface=It->GroundResponse;
+    int32 Priority=MIN_int32; FString Selected;
+    for (TActorIterator<AMCLocomotionSurface> It(GetWorld());It;++It)
+        if (It->ContainsSole(Sole) && (It->Priority>Priority || (It->Priority==Priority && It->GetName()<Selected)))
+        { Priority=It->Priority; Selected=It->GetName(); GroundSurface=It->Surface; }
+}
+FRotator UMCToothMovementComponent::ComputeOrientToMovementRotation(const FRotator& Current,float Dt,FRotator& Delta) const
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    FRotator Desired=Super::ComputeOrientToMovementRotation(Current,Dt,Delta);
+    if (HasHeavyGrip() && Acceleration.SizeSquared2D()>1)
+    {
+        const FVector Target=Hero->HeldFood?Hero->HeldFood->GetActorLocation():Hero->Grip->GrabbedPlayer->GetActorLocation();
+        const FVector ToLoad=(Target-Hero->GetActorLocation()).GetSafeNormal2D();
+        // A backward pull keeps the chest facing the load; orbiting it turns the body gradually.
+        if (!ToLoad.IsNearlyZero())
+        {
+            const FVector Input=Acceleration.GetSafeNormal2D();
+            const float Side=1-FMath::SmoothStep(.3f,.7f,FMath::Abs(float(FVector::DotProduct(Input,ToLoad))));
+            const float Yaw=ToLoad.Rotation().Yaw+(Hero->Grip->Frame.Pose==EMCGripPose::RearPull?180.f:0.f);
+            Desired=FRotator(0,Yaw+FMath::FindDeltaAngleDegrees(Yaw,Input.Rotation().Yaw)*Side,0);
+        }
+    }
+    return Desired;
 }
 AMCCoffeeFlood* UMCToothMovementComponent::DeepWaterAt(FVector P,bool Continuing) const
 {
@@ -33,6 +147,12 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
     Super::UpdateCharacterStateBeforeMovement(Dt);
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if (!Hero || !Hero->ToothPhysics || !Hero->ToothPhysics->CanAct()) return;
+    RefreshGroundSurface();
+    bSprintActive=bWantsToSprint && CanSprint();
+    MovementIntent=Acceleration.GetSafeNormal2D();
+    // Keep turn speed predictable on the owner and server. A constraint based on
+    // delayed food transforms can leave their facing directions permanently different.
+    RotationRate.Yaw=IsSwimming()?180:HasHeavyGrip()?FMath::Min(60.f,Hero->Grip->Settings.TurnRate):Hero->Grip->LoadMass()>0?90:bSprintActive?240:380;
     if (DeepWaterAt(UpdatedComponent->GetComponentLocation(),IsSwimming()))
     {
         if (!IsSwimming()) SetMovementMode(MOVE_Swimming);
@@ -49,6 +169,7 @@ void UMCToothMovementComponent::TickCharacterPose(float Dt)
 }
 void UMCToothMovementComponent::CalcVelocity(float Dt,float Friction,bool bFluid,float BrakingDeceleration)
 {
+    if (IsMovingOnGround()) Friction=GroundSurface==EMCGroundSurface::Slippery?.22f:GroundSurface==EMCGroundSurface::Sticky?6.f:2.6f;
     Super::CalcVelocity(Dt,Friction,bFluid,BrakingDeceleration);
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if (!Hero || !Hero->Grip || !Hero->ToothPhysics->CanAct()) return;

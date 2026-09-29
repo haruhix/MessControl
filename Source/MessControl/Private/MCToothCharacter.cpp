@@ -1,5 +1,7 @@
 ﻿#include "MCToothCharacter.h"
 #include "MCMouthSurface.h"
+#include "MCThroat.h"
+#include "MCBrushContactComponent.h"
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
@@ -64,6 +66,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     Muscles->bAttemptToRecreateDisabledControls=true;
     ToothPhysics=CreateDefaultSubobject<UMCToothPhysicsComponent>(TEXT("ToothPhysics"));
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
+    BrushContact=CreateDefaultSubobject<UMCBrushContactComponent>(TEXT("BrushContact"));
     Gaze=CreateDefaultSubobject<UMCGazeComponent>(TEXT("Gaze"));
     Grip=CreateDefaultSubobject<UMCGripComponent>(TEXT("Grip"));
     Expression=CreateDefaultSubobject<UMCExpressionComponent>(TEXT("Expression"));
@@ -76,8 +79,8 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     CameraBoom->SetUsingAbsoluteRotation(true); CameraBoom->SetRelativeRotation(FRotator(-16,0,0));
     CameraBoom->TargetArmLength = 1350; CameraBoom->TargetOffset = FVector(120,0,130);
     CameraBoom->bUsePawnControlRotation = false; CameraBoom->bEnableCameraLag = true;
-    CameraBoom->CameraLagSpeed = 5; CameraBoom->CameraLagMaxDistance = 170;
-    CameraBoom->bDoCollisionTest = false;
+    CameraBoom->CameraLagSpeed = 7; CameraBoom->CameraLagMaxDistance = 80;
+    CameraBoom->bDoCollisionTest = true; CameraBoom->ProbeSize=24; CameraBoom->ProbeChannel=ECC_Camera;
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera")); Camera->SetupAttachment(CameraBoom);
     Camera->FieldOfView = 55;
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> ToothAsset(TEXT("/Game/Art/Rig/SK_ToothHero"));
@@ -166,6 +169,8 @@ void AMCToothCharacter::BuildInput()
     SwingAction=Action(EInputActionValueType::Boolean);
     SelfCareAction=Action(EInputActionValueType::Boolean);
     ThrowAction=Action(EInputActionValueType::Boolean);
+    SprintAction=Action(EInputActionValueType::Boolean);
+    InputMap->MapKey(SprintAction,EKeys::LeftShift); InputMap->MapKey(SprintAction,EKeys::Gamepad_LeftThumbstick);
     InputMap->MapKey(ThrowAction,EKeys::Q); InputMap->MapKey(ThrowAction,EKeys::Gamepad_FaceButton_Top);
     InputMap->MapKey(SelfCareAction,EKeys::C); InputMap->MapKey(SelfCareAction,EKeys::Gamepad_RightThumbstick);
     InputMap->MapKey(SwingAction,EKeys::RightMouseButton); InputMap->MapKey(SwingAction,EKeys::Gamepad_LeftShoulder);
@@ -201,6 +206,9 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(RightAction, ETriggerEvent::Triggered, this, &AMCToothCharacter::MoveRight);
     Input->BindAction(JumpAction, ETriggerEvent::Started, this, &AMCToothCharacter::StartJump);
     Input->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopJump);
+    Input->BindAction(SprintAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartSprint);
+    Input->BindAction(SprintAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopSprint);
+    Input->BindAction(SprintAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopSprint);
     Input->BindAction(BrushAction, ETriggerEvent::Started, this, &AMCToothCharacter::StartPrimary);
     Input->BindAction(BrushAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopPrimary);
     Input->BindAction(BrushAction, ETriggerEvent::Canceled, this, &AMCToothCharacter::StopPrimary);
@@ -218,8 +226,43 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 }
 void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=Value.Get<float>(); if (!ClingTooth) AddMovementInput(FVector::ForwardVector, LocalPaddle.X); }
 void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=Value.Get<float>(); if (!ClingTooth) AddMovementInput(FVector::RightVector, LocalPaddle.Y); }
-void AMCToothCharacter::StartJump() { if (ToothPhysics->CanAct()) Jump(); }
+void AMCToothCharacter::StartJump()
+{
+    if(!CanWork()) return;
+    for(TActorIterator<AMCThroat> It(GetWorld());It;++It) if(It->CanOrderJump(this)) { ServerOrderJump(*It); return; }
+    Jump();
+}
+void AMCToothCharacter::ServerOrderJump_Implementation(AMCThroat* Throat)
+{
+    if(IsValid(Throat)) Throat->LaunchToUvula(this);
+}
+void AMCToothCharacter::ClientOrderLaunch_Implementation(FVector Velocity)
+{
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(!It->IsDisposed()) {
+        GetCapsuleComponent()->IgnoreActorWhenMoving(*It,true); OrderJumpIgnoredActors.Add(*It);
+    }
+    if(GetCharacterMovement()->AirControl>0) OrderJumpAirControl=GetCharacterMovement()->AirControl;
+    GetCharacterMovement()->AirControl=0; LaunchCharacter(Velocity,true,true);
+}
+void AMCToothCharacter::SetThroatCapture(AMCThroat* Throat)
+{
+    if(!HasAuthority()) return;
+    CancelGameplayInput(); OrderJumpTarget=nullptr; if(Throat) ThroatCaptureStart=GetActorLocation(); SwallowedBy=Throat; OnRep_ThroatCapture(); ForceNetUpdate();
+}
+void AMCToothCharacter::ClientThroatExit_Implementation(FVector Location,FVector Velocity)
+{
+    SwallowedBy=nullptr; OnRep_ThroatCapture(); SetActorLocation(Location,false,nullptr,ETeleportType::TeleportPhysics); LaunchCharacter(Velocity,true,true);
+}
+void AMCToothCharacter::OnRep_ThroatCapture()
+{
+    GetCharacterMovement()->StopMovementImmediately();
+    GetCharacterMovement()->SetMovementMode(SwallowedBy?MOVE_None:MOVE_Falling);
+    GetCapsuleComponent()->SetCollisionEnabled(SwallowedBy?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
+    if(!SwallowedBy) GetCharacterMovement()->AirControl=OrderJumpAirControl;
+}
 void AMCToothCharacter::StopJump() { StopJumping(); }
+void AMCToothCharacter::StartSprint() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(true); }
+void AMCToothCharacter::StopSprint() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(false); }
 void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
 void AMCToothCharacter::StartHandle() { ServerSetWorking(false,true); }
@@ -264,6 +307,8 @@ void AMCToothCharacter::ResolvePrimaryAction()
         return FVector::DistSquared(Point,GetActorLocation());
     };
     auto* Clean=HasBrush()?FindCareTarget(true):nullptr;
+    // Keep scrubbing the acquired tooth while LMB is held, even beside loose food.
+    if(bBrushing && Clean && Clean->GetOwner()==CareTarget && Cast<AMCArenaTooth>(CareTarget)) { bHandling=false; return; }
     auto* Repair=FindCareTarget(false);
     bool BrushMode=Clean && (!Repair || Distance(Clean->GetOwner())<=Distance(Repair->GetOwner()));
     float BestDistance=BrushMode?Distance(Clean->GetOwner()):Repair?Distance(Repair->GetOwner()):MAX_flt;
@@ -295,6 +340,7 @@ void AMCToothCharacter::ResolvePrimaryAction()
 }
 void AMCToothCharacter::CancelGameplayInput()
 {
+    StopSprint();
     StopPrimary(); StopBrush(); StopHandle(); StopJump(); LocalPaddle=FVector2D::ZeroVector; ServerPaddle(LocalPaddle);
     GetCharacterMovement()->StopMovementImmediately();
 }
@@ -314,7 +360,13 @@ void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActiv
 void AMCToothCharacter::OnRep_Working() { WorkStartedAt = GetWorld()->GetTimeSeconds(); }
 void AMCToothCharacter::Landed(const FHitResult& Hit)
 {
+    if (auto* Throat=Cast<AMCThroat>(Hit.GetActor())) Throat->NotifyUvulaLanding(this,Hit,-GetVelocity().Z);
     Super::Landed(Hit); LandingImpulse = 1.f;
+    if(OrderJumpTarget || !OrderJumpIgnoredActors.IsEmpty()) {
+        OrderJumpTarget=nullptr; GetCharacterMovement()->AirControl=OrderJumpAirControl;
+        for(const auto& Entry:OrderJumpIgnoredActors) if(auto* A=Entry.Get()) GetCapsuleComponent()->IgnoreActorWhenMoving(A,false);
+        OrderJumpIgnoredActors.Reset();
+    }
     if (SoundPalette) SoundPalette->Play(this,TEXT("Jump"),GetActorLocation());
 }
 void AMCToothCharacter::FindWork(float DeltaSeconds)
@@ -340,6 +392,14 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    UpdateMouthCamera(DeltaSeconds);
+    if(!HasAuthority() && SwallowedBy) {
+        const auto* GS=GetWorld()->GetGameState(); const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+        const float T=SwallowedBy->ThroatPhase==EMCThroatPhase::Spasm?1.f:FMath::Clamp(float(Now-SwallowedBy->PhaseStartedAt)/SwallowedBy->SwallowSeconds,0.f,1.f);
+        const FVector End=SwallowedBy->GetActorTransform().TransformPosition(SwallowedBy->GateCenter+FVector(1050,0,20));
+        FVector P=FMath::Lerp(ThroatCaptureStart,End,FMath::SmoothStep(0.f,.72f,T)); P.Z+=FMath::Sin(T*PI)*100;
+        SetActorLocation(P,false,nullptr,ETeleportType::TeleportPhysics);
+    }
     if (IsLocallyControlled() && !bLoadedLocalTuning)
     {
         bLoadedLocalTuning = true;
@@ -357,10 +417,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     }
     if (IsLocallyControlled() && bInCoffee)
     { PaddleSendElapsed+=DeltaSeconds; if (PaddleSendElapsed>=.05f) { ServerPaddle(LocalPaddle); PaddleSendElapsed=0; } }
-    GetCharacterMovement()->MaxWalkSpeed=ClingTooth?0:HeldFood?HeldFood->DragSpeed()/FMath::Sqrt(1+Grip->LoadMass()/35):Grip->GrabbedPlayer?220.f:440.f;
-    GetCharacterMovement()->MaxAcceleration=950.f/(1+Grip->LoadMass()/16.f);
     const bool Swimming=GetCharacterMovement()->IsSwimming();
-    GetCharacterMovement()->RotationRate.Yaw=Swimming?180:HeldFood || Grip->GrabbedPlayer?160:300;
     const FVector StrokeIntent=GetCharacterMovement()->GetCurrentAcceleration().GetClampedToMaxSize(GetCharacterMovement()->GetMaxAcceleration())/FMath::Max(1.f,GetCharacterMovement()->GetMaxAcceleration());
     if (HasAuthority()) SwimIntent=Swimming?StrokeIntent:FVector::ZeroVector;
     AnimationSwim=FMath::FInterpTo(AnimationSwim,Swimming?1.f:0.f,DeltaSeconds,7.f);
@@ -383,10 +440,8 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const auto& A = AnimationSettings;
     const float Time = GetWorld()->GetTimeSeconds();
     const float PreviewTime = FMath::Fmod(Time,8.f);
-    const float TargetSpeed = bPreviewAnimation ? (PreviewTime<3.f ? 0.8f : 0.f) : FMath::Clamp(GetVelocity().Size2D()/440.f, 0.f, 1.f)*(1-AnimationSwim);
-    const float Speed=FMath::FInterpTo(AnimationSpeed,TargetSpeed,DeltaSeconds,10.f);
-    // Distance-driven cadence: stopping freezes the cycle while the stride fades to idle.
-    if (!GetCharacterMovement()->IsFalling()) Gait=FMath::Fmod(Gait+DeltaSeconds*TargetSpeed*15.f*A.Tempo,2.f*PI);
+    UpdateLocomotion(DeltaSeconds);
+    const float Speed=AnimationSpeed;
     LandingImpulse = FMath::FInterpTo(LandingImpulse,0.f,DeltaSeconds,11.f);
     const bool bAir = GetCharacterMovement()->IsFalling() || (bPreviewAnimation && PreviewTime>6.f);
     const bool bVisualBrush = bBrushing || (bPreviewAnimation && PreviewTime>=3.f && PreviewTime<6.f);
@@ -401,14 +456,16 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     for (const auto& FaceMaterial:FaceMaterials) FaceMaterial->SetScalarParameterValue(TEXT("BodyStretch"),BodyStretch);
     GetMesh()->SetMorphTarget(TEXT("Squash"),ToothPhysics->CanAct()?FMath::Clamp(Squash/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f)*(1-GripBlend):0.f);
-    const float Bob = bAir ? 0.f : FMath::Abs(FMath::Sin(Gait))*A.Bob*Speed + FMath::Sin(Time*2.f)*0.7f;
+    const float Bob = bAir ? 0.f : (FMath::Abs(FMath::Sin(Gait))-.5f)*A.Bob*Speed*(1-.5f*AnimationSticky) + FMath::Sin(Time*2.f)*0.7f;
     const float Pitch = Speed*A.Lean + Anticipation*15.f + (bHandling ? FMath::Sin(Time*13.f)*7.f : 0.f);
     const float AttackTime=Time-SwingStartedAt;
     const float AttackAngle=AttackTime<0.16f?FMath::Lerp(0.f,-75.f,AttackTime/0.16f):AttackTime<0.30f?FMath::Lerp(-75.f,95.f,(AttackTime-0.16f)/0.14f):AttackTime<0.65f?FMath::Lerp(95.f,-12.f,(AttackTime-0.30f)/0.35f):-12.f;
     const float Swing = AttackTime<0.65f?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
     BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,18.f-12.f*A.FollowThrough);
-    AnimationGait=Gait; AnimationSpeed=Speed; AnimationBob=Bob; AnimationPitch=Pitch+(Status->IsLoose()?FMath::Sin(Time*7)*7:0); AnimationBrushAngle=BrushAngle*A.Exaggeration;
-    AnimationBob*=1-.85f*GripBlend; AnimationPitch*=1-GripBlend;
+    AnimationGait=Gait; AnimationBrushAngle=BrushAngle*A.Exaggeration;
+    const float PoseEase=1-FMath::Exp(-16.f*DeltaSeconds);
+    AnimationBob=FMath::Lerp(AnimationBob,Bob*(1-.85f*GripBlend),PoseEase);
+    AnimationPitch=FMath::Lerp(AnimationPitch,(Pitch+(Status->IsLoose()?FMath::Sin(Time*7)*7:0))*(1-GripBlend),PoseEase);
     SoundAccumulator += DeltaSeconds;
     if (ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
     { SoundAccumulator = 0; SoundPalette->Play(this,bBrushing ? TEXT("Brush") : bHandling ? TEXT("Pull") : TEXT("Step"),GetActorLocation()); }
@@ -512,12 +569,14 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCToothCharacter,HeldFood); DOREPLIFETIME(AMCToothCharacter,RespawnAt); DOREPLIFETIME(AMCToothCharacter,RespawnSourceId);
     DOREPLIFETIME(AMCToothCharacter,EquippedBrush); DOREPLIFETIME(AMCToothCharacter,bInCoffee); DOREPLIFETIME(AMCToothCharacter,ClingTooth);
     DOREPLIFETIME(AMCToothCharacter,SwimIntent);
+    DOREPLIFETIME(AMCToothCharacter,SwallowedBy); DOREPLIFETIME(AMCToothCharacter,OrderJumpTarget);
+    DOREPLIFETIME(AMCToothCharacter,ThroatCaptureStart);
 }
 
 bool AMCToothCharacter::CanWork() const
 {
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
-    return Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
+    return !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
 }
 void AMCToothCharacter::ToggleSelfCare() { ServerToggleSelfCare(); }
 void AMCToothCharacter::ServerToggleSelfCare_Implementation()
@@ -532,7 +591,7 @@ void AMCToothCharacter::DropFood()
     if (IsValid(HeldFood)) HeldFood->Release(this);
     Grip->ReleasePlayer();
 }
-void AMCToothCharacter::ResetContact() { CareTarget=nullptr; ContactElapsed=0; ContactProgress=0; }
+void AMCToothCharacter::ResetContact() { CareTarget=nullptr; ContactElapsed=0; ContactProgress=0; BrushContact->Release(); }
 bool AMCToothCharacter::CanContact(AActor* Target) const
 {
     if (!IsValid(Target) || !CanWork()) return false;
@@ -555,8 +614,13 @@ UMCToothStatusComponent* AMCToothCharacter::FindCareTarget(bool bBrush) const
         if (*It==this) continue;
         auto* Candidate=It->FindComponentByClass<UMCToothStatusComponent>();
         if (const auto* Patch=Cast<AMCMouthSurface>(*It); Patch && (Patch->bUlcer || !bBrush)) continue;
-        if (!Candidate || !Candidate->NeedsCare(bBrush) || !CanContact(*It)) continue;
-        const float D=FVector::DistSquared(GetActorLocation(),It->GetActorLocation());
+        if (!Candidate || !Candidate->NeedsCare(bBrush)) continue;
+        FVector Contact=It->GetActorLocation();
+        if(auto* Arena=Cast<AMCArenaTooth>(*It); bBrush && Arena) {
+            FVector N; if(!Arena->FindDirtyContact(const_cast<AMCToothCharacter*>(this),Contact,N)) continue;
+            if(CareTarget==Arena) return Candidate;
+        } else if(!CanContact(*It)) continue;
+        const float D=FVector::DistSquared(GetActorLocation(),Contact);
         if (D<Distance) { Best=Candidate; Distance=D; }
     }
     return Best;
@@ -571,7 +635,11 @@ void AMCToothCharacter::AdvanceCare(float Dt)
     if (!FMath::IsFinite(Dt) || Dt<=0) return;
     if (bBrushing) if (auto* Surface=Cast<AMCMouthSurface>(Target->GetOwner())) Surface->BrushLiquid(this,FMath::Min(Dt,.1f));
     if (bBrushing) if (auto* Arena=Cast<AMCArenaTooth>(Target->GetOwner()))
-        if (!Arena->BrushGrime(this,FMath::Min(Dt,.1f))) { ResetContact(); return; }
+    {
+        if (!Arena->BrushGrime(this,FMath::Min(Dt,.1f))) ResetContact();
+        else ContactProgress=1-Arena->RemainingGrime();
+        return;
+    }
     ContactElapsed+=FMath::Min(Dt,.1f);
     const float Seconds=Target->Settings.ContactSeconds;
     ContactProgress=FMath::Clamp(ContactElapsed/Seconds,0.f,1.f);

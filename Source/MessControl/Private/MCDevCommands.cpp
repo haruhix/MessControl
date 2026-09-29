@@ -12,6 +12,9 @@
 #include "MCArenaTooth.h"
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
+#include "MCLocomotionSurface.h"
+#include "Components/CapsuleComponent.h"
+#include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 
@@ -46,7 +49,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         DayDirector->Start(Plan,StepIndex,true);
         return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::TonguePressureClear))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::LocomotionGround))
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -60,6 +63,19 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::LocomotionGround:
+        if (Hero && StepIndex>=0 && StepIndex<=2)
+        {
+            for (TActorIterator<AMCLocomotionSurface> It(GetWorld());It;++It) if (It->ActorHasTag(TEXT("DevStrideSurface"))) It->Destroy();
+            if (StepIndex==0) return FText::FromString(TEXT("Проверочная поверхность убрана. WASD — шаг, Shift — бег."));
+            const FVector Center=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+            auto* Patch=GetWorld()->SpawnActor<AMCLocomotionSurface>(Center,FRotator::ZeroRotator);
+            Patch->Tags.Add(TEXT("DevStrideSurface")); Patch->HalfExtent=FVector(350,250,50);
+            Patch->Surface=StepIndex==1?EMCGroundSurface::Sticky:EMCGroundSurface::Slippery; Patch->RefreshBounds(); Patch->ForceNetUpdate();
+            DrawDebugBox(GetWorld(),Center,Patch->HalfExtent,StepIndex==1?FColor::Orange:FColor::Cyan,false,15);
+            return FText::FromString(StepIndex==1?TEXT("Липкий участок 7 × 5 м под игроком: длиннее опора, тяжелее отрыв ноги. Shift — попытка бега."):TEXT("Скользкий участок 7 × 5 м: разгонись и отпусти WASD, затем потяни груз. Граница видна 15 секунд."));
+        }
+        return FText::FromString(TEXT("Нужен живой игрок и тип поверхности 0–2."));
     case EMCDevAction::TonguePressurePreset:
         for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
         {

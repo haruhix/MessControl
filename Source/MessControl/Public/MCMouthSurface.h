@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
+#include "MCLocomotionSurface.h"
 #include "MCMouthSurface.generated.h"
 class UBoxComponent;
 class UStaticMeshComponent;
@@ -25,6 +26,8 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Ulcer") TObjectPtr<class UDecalComponent> UlcerDecal;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> Liquid;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Liquid") bool bShowCareLabel=false;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Liquid") EMCGroundSurface GroundResponse=EMCGroundSurface::Slippery;
+    bool AffectsFooting(FVector Sole) const;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") bool bRandomizeLiquidSize=true;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") FVector2D LiquidSizeRange=FVector2D(28,220);
     UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidSize,BlueprintReadOnly,Category="Liquid",meta=(ClampMin="20",ClampMax="260")) float LiquidHalfSize=92;

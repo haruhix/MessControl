@@ -15,6 +15,10 @@ public:
 private:
     void TickEmotes(float Dt);
     void TickGrip(float Dt);
+    void TickLocomotion(float Dt);
+    void TickThroat(float Dt);
+    float StrideWalk[4]={},StrideRun[4]={},StrideSticky[4]={},StrideDrift[4]={};
+    uint8 StrideSurfaces[4]={};
     FVector GripStarts[4];
     float GripReadySeconds[4]={0,0,0,0};
     float GripBadContactSeconds[4]={0,0,0,0};

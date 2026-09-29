@@ -12,6 +12,7 @@ public:
     UMCMotionRecorder();
     void Start(float Seconds,const FString& Label);
     void Stop();
+    FString Stage=TEXT("gameplay");
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:

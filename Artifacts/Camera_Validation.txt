@@ -1,0 +1,8 @@
+[2026.09.28-22.22.02:449][136]LogTemp: Display: MC_CAMERA_VIEW 0 blocked=0 facing=0.993 eye=X=-1101.000 Y=-437.118 Z=291.428
+[2026.09.28-22.22.04:572][191]LogTemp: Display: MC_CAMERA_VIEW 1 blocked=0 facing=0.997 eye=X=-1101.000 Y=-276.333 Z=416.724
+[2026.09.28-22.22.06:276][245]LogTemp: Display: MC_CAMERA_VIEW 2 blocked=0 facing=0.997 eye=X=-600.021 Y=-230.727 Z=434.612
+[2026.09.28-22.22.07:835][299]LogTemp: Display: MC_CAMERA_VIEW 3 blocked=0 facing=0.993 eye=X=-1101.000 Y=410.847 Z=288.586
+[2026.09.28-22.22.09:499][353]LogTemp: Display: MC_CAMERA_VIEW 4 blocked=0 facing=0.997 eye=X=-600.022 Y=204.263 Z=425.587
+[2026.09.28-22.22.11:164][407]LogTemp: Display: MC_CAMERA_VIEW 5 blocked=0 facing=0.997 eye=X=-200.012 Y=-11.719 Z=418.223
+[2026.09.28-22.22.12:722][461]LogTemp: Display: MC_CAMERA_VIEW 6 blocked=0 facing=0.995 eye=X=274.485 Y=-9.002 Z=592.998
+[2026.09.28-22.22.13:230][470]LogTemp: Display: MC_CAMERA_PASS viewpoints=7

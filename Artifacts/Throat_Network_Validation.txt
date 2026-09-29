@@ -1,0 +1,4 @@
+[2026.09.28-22.24.18:403][114]LogTemp: Display: MC_VALIDATION_PASS THROAT net=2 seen=2047 cycles=2 swallowed=1 spasms=1
+[2026.09.28-22.24.13:515][166]LogTemp: Display: MC_VALIDATION_PASS THROAT net=3 seen=2047 cycles=2 swallowed=1 spasms=1
+[2026.09.28-22.24.13:491][ 82]LogTemp: Display: MC_VALIDATION_PASS THROAT net=3 seen=2047 cycles=2 swallowed=1 spasms=1
+[2026.09.28-22.24.13:514][114]LogTemp: Display: MC_VALIDATION_PASS THROAT net=3 seen=2047 cycles=2 swallowed=1 spasms=1

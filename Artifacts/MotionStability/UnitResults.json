@@ -1,0 +1,2523 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "WINDOWS-Q8HM2VG",
+			"instance": "9880D2564D3A869A2944CB8BE63E251A",
+			"instanceName": "WINDOWS-Q8HM2VG-58464",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9168] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 3080",
+			"cPUModel": "AMD Ryzen 9 5950X 16-Core Processor            ",
+			"rAMInGB": 32,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.09.28-23.32.15",
+	"succeeded": 52,
+	"succeededWithWarnings": 2,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 38.604011535644531,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "ConnectedMouthMorphs",
+			"fullTestPath": "MessControl.Animation.ConnectedMouthMorphs",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.74806678295135498,
+			"dateTime": "2026.09.28-23.31.36",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EmotesReactionsAndSpeech",
+			"fullTestPath": "MessControl.Animation.EmotesReactionsAndSpeech",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.46136420965194702,
+			"dateTime": "2026.09.28-23.31.37",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "GripPoseContinuity",
+			"fullTestPath": "MessControl.Animation.GripPoseContinuity",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 4.765561580657959,
+			"dateTime": "2026.09.28-23.31.37",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (30 FPS): max leg step 0.044 cm, rotation 0.165 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.37"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (30 FPS): max hand step 0.020 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.37"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (30 FPS): max leg step 0.483 cm, rotation 1.293 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.38"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (30 FPS): max hand step 5.019 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.38"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (30 FPS): max leg step 0.362 cm, rotation 0.751 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.38"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (30 FPS): max hand step 3.288 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.38"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (30 FPS): max leg step 2.199 cm, rotation 6.586 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.38"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (30 FPS): max hand step 1.517 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.38"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (30 FPS): max leg step 1.256 cm, rotation 2.221 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.38"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (30 FPS): max hand step 8.119 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.38"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (60 FPS): max leg step 0.044 cm, rotation 0.164 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.39"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (60 FPS): max hand step 0.020 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.39"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (60 FPS): max leg step 0.467 cm, rotation 1.404 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.39"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (60 FPS): max hand step 5.115 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.39"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (60 FPS): max leg step 0.561 cm, rotation 0.742 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.39"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (60 FPS): max hand step 2.961 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.39"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (60 FPS): max leg step 2.826 cm, rotation 6.482 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.39"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (60 FPS): max hand step 1.509 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.39"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (60 FPS): max leg step 2.059 cm, rotation 2.119 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (60 FPS): max hand step 7.684 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (120 FPS): max leg step 0.044 cm, rotation 0.164 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (120 FPS): max hand step 0.021 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (120 FPS): max leg step 0.600 cm, rotation 1.468 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (120 FPS): max hand step 5.126 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (120 FPS): max leg step 0.703 cm, rotation 0.729 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (120 FPS): max hand step 3.369 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (120 FPS): max leg step 2.121 cm, rotation 6.428 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (120 FPS): max hand step 1.524 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.40"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (120 FPS): max leg step 2.432 cm, rotation 2.830 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (120 FPS): max hand step 8.368 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (0 FPS): max leg step 0.049 cm, rotation 0.192 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Idle (0 FPS): max hand step 0.023 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (0 FPS): max leg step 0.539 cm, rotation 1.485 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One item (0 FPS): max hand step 5.004 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (0 FPS): max leg step 0.374 cm, rotation 0.679 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Two items (0 FPS): max hand step 2.892 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.41"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (0 FPS): max leg step 2.297 cm, rotation 6.676 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Walking with two items (0 FPS): max hand step 1.484 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (0 FPS): max leg step 1.418 cm, rotation 1.819 degrees per 1/60 s",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "Released (0 FPS): max hand step 7.996 cm/60Hz",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SoloMovementTransitions",
+			"fullTestPath": "MessControl.Animation.SoloMovementTransitions",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 17.180524826049805,
+			"dateTime": "2026.09.28-23.31.42",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "idle (30 FPS): max step 0.020 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk (30 FPS): max step 4.525 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "run (30 FPS): max step 8.611 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "turn90 (30 FPS): max step 8.828 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "reverse (30 FPS): max step 8.423 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.42"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "stop (30 FPS): max step 6.340 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "jump (30 FPS): max step 4.661 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "land (30 FPS): max step 3.922 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "sticky (30 FPS): max step 2.823 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "slip (30 FPS): max step 2.132 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "coast (30 FPS): max step 1.402 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "dry_stop (30 FPS): max step 1.074 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "emote (30 FPS): max step 6.912 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "emote_release (30 FPS): max step 0.020 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.43"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "ragdoll_recovery (30 FPS): max step 9.060 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "recovered_idle (30 FPS): max step 0.020 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk_after_recovery (30 FPS): max step 4.488 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "stop_before_obstacles (30 FPS): max step 3.092 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "ramp_and_edge (30 FPS): max step 5.158 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "settle_after_ramp (30 FPS): max step 2.984 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.44"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "step_up_down (30 FPS): max step 4.389 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.45"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "settle_after_step (30 FPS): max step 2.927 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.45"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "blocked_by_wall (30 FPS): max step 3.913 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.45"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogHttp: HTTP request timed out after 3.00 seconds URL=https://www.google.com/generate_204",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.45"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "slide_along_wall (30 FPS): max step 4.472 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.45"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "idle (60 FPS): max step 0.020 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.45"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk (60 FPS): max step 4.768 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.45"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "run (60 FPS): max step 8.902 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.45"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "turn90 (60 FPS): max step 9.844 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "reverse (60 FPS): max step 8.889 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "stop (60 FPS): max step 7.870 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "jump (60 FPS): max step 5.096 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "land (60 FPS): max step 3.942 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "sticky (60 FPS): max step 3.493 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "slip (60 FPS): max step 2.633 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.46"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "coast (60 FPS): max step 1.786 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "dry_stop (60 FPS): max step 1.684 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "emote (60 FPS): max step 6.970 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "emote_release (60 FPS): max step 0.019 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.47"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "ragdoll_recovery (60 FPS): max step 9.081 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.48"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "recovered_idle (60 FPS): max step 0.020 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.48"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk_after_recovery (60 FPS): max step 4.768 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.48"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "stop_before_obstacles (60 FPS): max step 3.307 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.48"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "ramp_and_edge (60 FPS): max step 4.766 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.48"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "settle_after_ramp (60 FPS): max step 4.035 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.48"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "step_up_down (60 FPS): max step 4.757 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.49"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "settle_after_step (60 FPS): max step 3.392 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.49"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "blocked_by_wall (60 FPS): max step 4.675 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.49"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "slide_along_wall (60 FPS): max step 4.546 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.49"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "idle (120 FPS): max step 0.020 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.49"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk (120 FPS): max step 4.857 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.49"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "run (120 FPS): max step 9.160 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.50"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "turn90 (120 FPS): max step 10.150 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.50"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "reverse (120 FPS): max step 9.165 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.50"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "stop (120 FPS): max step 7.398 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.50"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "jump (120 FPS): max step 5.296 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.50"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "land (120 FPS): max step 6.545 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.51"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "sticky (120 FPS): max step 3.513 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.51"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "slip (120 FPS): max step 2.199 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.51"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "coast (120 FPS): max step 1.825 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.52"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "dry_stop (120 FPS): max step 1.695 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.52"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "emote (120 FPS): max step 7.051 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.52"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "emote_release (120 FPS): max step 0.019 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.53"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "ragdoll_recovery (120 FPS): max step 9.770 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.54"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "recovered_idle (120 FPS): max step 0.021 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.54"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk_after_recovery (120 FPS): max step 4.857 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.54"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "stop_before_obstacles (120 FPS): max step 4.714 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.54"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "ramp_and_edge (120 FPS): max step 5.527 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "settle_after_ramp (120 FPS): max step 3.612 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "step_up_down (120 FPS): max step 5.008 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "settle_after_step (120 FPS): max step 4.838 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "blocked_by_wall (120 FPS): max step 4.452 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.55"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "slide_along_wall (120 FPS): max step 4.656 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "idle (0 FPS): max step 0.028 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk (0 FPS): max step 4.591 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "run (0 FPS): max step 9.834 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "turn90 (0 FPS): max step 9.620 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "reverse (0 FPS): max step 9.060 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "stop (0 FPS): max step 6.699 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "jump (0 FPS): max step 3.926 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.56"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "land (0 FPS): max step 4.541 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.57"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "sticky (0 FPS): max step 3.237 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.57"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "slip (0 FPS): max step 2.804 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.57"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "coast (0 FPS): max step 1.702 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.57"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "dry_stop (0 FPS): max step 1.589 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.57"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "emote (0 FPS): max step 6.538 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.57"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "emote_release (0 FPS): max step 0.028 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.57"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "ragdoll_recovery (0 FPS): max step 9.247 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.58"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "recovered_idle (0 FPS): max step 0.029 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.58"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk_after_recovery (0 FPS): max step 4.838 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.58"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "stop_before_obstacles (0 FPS): max step 3.464 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.58"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "ramp_and_edge (0 FPS): max step 5.531 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.58"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "settle_after_ramp (0 FPS): max step 3.551 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.59"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "step_up_down (0 FPS): max step 4.853 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.59"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "settle_after_step (0 FPS): max step 3.814 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.59"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "blocked_by_wall (0 FPS): max step 3.457 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.59"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "slide_along_wall (0 FPS): max step 4.664 cm/60Hz, bounded=1 finite=1",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.31.59"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Teeth3Layers",
+			"fullTestPath": "MessControl.Animation.Teeth3Layers",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.0081049017608165741,
+			"dateTime": "2026.09.28-23.31.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "LocalToothCleaning",
+			"fullTestPath": "MessControl.Care.LocalToothCleaning",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.048703201115131378,
+			"dateTime": "2026.09.28-23.31.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ControlledSwimming",
+			"fullTestPath": "MessControl.Coffee.ControlledSwimming",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.54923731088638306,
+			"dateTime": "2026.09.28-23.31.59",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PourAndDrain",
+			"fullTestPath": "MessControl.Coffee.PourAndDrain",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.10065470635890961,
+			"dateTime": "2026.09.28-23.32.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SurfaceAndRagdollSwimming",
+			"fullTestPath": "MessControl.Coffee.SurfaceAndRagdollSwimming",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.38880690932273865,
+			"dateTime": "2026.09.28-23.32.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MenuFragmentsMassAndSpoilage",
+			"fullTestPath": "MessControl.DayOne.MenuFragmentsMassAndSpoilage",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.062980800867080688,
+			"dateTime": "2026.09.28-23.32.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PhysicalBrushAndCorrectDisposal",
+			"fullTestPath": "MessControl.DayOne.PhysicalBrushAndCorrectDisposal",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.042871102690696716,
+			"dateTime": "2026.09.28-23.32.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SequenceAndNoGlobalDeadline",
+			"fullTestPath": "MessControl.DayOne.SequenceAndNoGlobalDeadline",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.065372496843338013,
+			"dateTime": "2026.09.28-23.32.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "UlcerProtectionAndCoffeeControl",
+			"fullTestPath": "MessControl.DayOne.UlcerProtectionAndCoffeeControl",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.043742701411247253,
+			"dateTime": "2026.09.28-23.32.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EventSandbox",
+			"fullTestPath": "MessControl.Development.EventSandbox",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.11286440491676331,
+			"dateTime": "2026.09.28-23.32.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArenaAuthoredPlacement",
+			"fullTestPath": "MessControl.Gameplay.ArenaAuthoredPlacement",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.043662399053573608,
+			"dateTime": "2026.09.28-23.32.00",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArenaBrushHit",
+			"fullTestPath": "MessControl.Gameplay.ArenaBrushHit",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.050968799740076065,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArenaToothLifecycle",
+			"fullTestPath": "MessControl.Gameplay.ArenaToothLifecycle",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.045630797743797302,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ConcreteReserveRespawn",
+			"fullTestPath": "MessControl.Gameplay.ConcreteReserveRespawn",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.049704298377037048,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FoodGripPullAndImpact",
+			"fullTestPath": "MessControl.Gameplay.FoodGripPullAndImpact",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.14065510034561157,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RestingFoodDoesNotLaunchPlayers",
+			"fullTestPath": "MessControl.Gameplay.RestingFoodDoesNotLaunchPlayers",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.078380092978477478,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RunRules",
+			"fullTestPath": "MessControl.Gameplay.RunRules",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.059190701693296432,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SevenDayVictory",
+			"fullTestPath": "MessControl.Gameplay.SevenDayVictory",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.049346603453159332,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SharedStatusAndCare",
+			"fullTestPath": "MessControl.Gameplay.SharedStatusAndCare",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.041930500417947769,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TimeoutAndLoss",
+			"fullTestPath": "MessControl.Gameplay.TimeoutAndLoss",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.040678497403860092,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WorkValidationAndCooperation",
+			"fullTestPath": "MessControl.Gameplay.WorkValidationAndCooperation",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.043420501053333282,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AttentionAndOcclusion",
+			"fullTestPath": "MessControl.Gaze.AttentionAndOcclusion",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.046742599457502365,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PupilResponseAndRecovery",
+			"fullTestPath": "MessControl.Gaze.PupilResponseAndRecovery",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.55069231986999512,
+			"dateTime": "2026.09.28-23.32.01",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AnglesAndBounds",
+			"fullTestPath": "MessControl.Grip.AnglesAndBounds",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.008800700306892395,
+			"dateTime": "2026.09.28-23.32.02",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArtistMeshContacts",
+			"fullTestPath": "MessControl.Grip.ArtistMeshContacts",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.24985620379447937,
+			"dateTime": "2026.09.28-23.32.02",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ContactAndRelease",
+			"fullTestPath": "MessControl.Grip.ContactAndRelease",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.37399199604988098,
+			"dateTime": "2026.09.28-23.32.02",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EmptyMenuSlots",
+			"fullTestPath": "MessControl.Grip.EmptyMenuSlots",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.040738701820373535,
+			"dateTime": "2026.09.28-23.32.02",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "HeavyArtistFoodMoves",
+			"fullTestPath": "MessControl.Grip.HeavyArtistFoodMoves",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.97232872247695923,
+			"dateTime": "2026.09.28-23.32.03",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PhysicalTurning",
+			"fullTestPath": "MessControl.Grip.PhysicalTurning",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 1.0244802236557007,
+			"dateTime": "2026.09.28-23.32.03",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PlayerPullAndThrow",
+			"fullTestPath": "MessControl.Grip.PlayerPullAndThrow",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.35066741704940796,
+			"dateTime": "2026.09.28-23.32.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PrimaryCarryAndCare",
+			"fullTestPath": "MessControl.Grip.PrimaryCarryAndCare",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.77067309617996216,
+			"dateTime": "2026.09.28-23.32.05",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TwoSmallObjects",
+			"fullTestPath": "MessControl.Grip.TwoSmallObjects",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.93091011047363281,
+			"dateTime": "2026.09.28-23.32.06",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AuthoritativeBrushContact",
+			"fullTestPath": "MessControl.Liquid.AuthoritativeBrushContact",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.046062897890806198,
+			"dateTime": "2026.09.28-23.32.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PersistentLocalWipe",
+			"fullTestPath": "MessControl.Liquid.PersistentLocalWipe",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.0081914998590946198,
+			"dateTime": "2026.09.28-23.32.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SpawnIgnoresDynamicObstacles",
+			"fullTestPath": "MessControl.Liquid.SpawnIgnoresDynamicObstacles",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.045393098145723343,
+			"dateTime": "2026.09.28-23.32.07",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.32.07"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.32.07"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CleanedPuddleFooting",
+			"fullTestPath": "MessControl.Locomotion.CleanedPuddleFooting",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.041171099990606308,
+			"dateTime": "2026.09.28-23.32.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FootCycleContinuity",
+			"fullTestPath": "MessControl.Locomotion.FootCycleContinuity",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.0084303021430969238,
+			"dateTime": "2026.09.28-23.32.07",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SprintSurfacesAndMomentum",
+			"fullTestPath": "MessControl.Locomotion.SprintSurfacesAndMomentum",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.94581401348114014,
+			"dateTime": "2026.09.28-23.32.07",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "walk 340.0 run 560.0 dry stop 95.4 slippery stop 382.2",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-23.32.08"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ArtistRigIntegration",
+			"fullTestPath": "MessControl.Physics.ArtistRigIntegration",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.098663896322250366,
+			"dateTime": "2026.09.28-23.32.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AuthorityAndActionGates",
+			"fullTestPath": "MessControl.Physics.AuthorityAndActionGates",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.11399370431900024,
+			"dateTime": "2026.09.28-23.32.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RigAndTuning",
+			"fullTestPath": "MessControl.Physics.RigAndTuning",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.0077451989054679871,
+			"dateTime": "2026.09.28-23.32.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "BoundsHeldFoodAndReset",
+			"fullTestPath": "MessControl.Throat.BoundsHeldFoodAndReset",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.080544598400592804,
+			"dateTime": "2026.09.28-23.32.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ClosedUntilWeightedLanding",
+			"fullTestPath": "MessControl.Throat.ClosedUntilWeightedLanding",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.081213697791099548,
+			"dateTime": "2026.09.28-23.32.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "OrderJumpEscapeAndSpasm",
+			"fullTestPath": "MessControl.Throat.OrderJumpEscapeAndSpasm",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.074339002370834351,
+			"dateTime": "2026.09.28-23.32.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AutomaticJoltAndReset",
+			"fullTestPath": "MessControl.Tongue.AutomaticJoltAndReset",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.66075950860977173,
+			"dateTime": "2026.09.28-23.32.08",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DesignerPresets",
+			"fullTestPath": "MessControl.Tongue.DesignerPresets",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.037476599216461182,
+			"dateTime": "2026.09.28-23.32.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EventProfiles",
+			"fullTestPath": "MessControl.Tongue.EventProfiles",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.1464063972234726,
+			"dateTime": "2026.09.28-23.32.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PlayerWeightAndLanding",
+			"fullTestPath": "MessControl.Tongue.PlayerWeightAndLanding",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 2.3901982307434082,
+			"dateTime": "2026.09.28-23.32.09",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WaveTimingAndSafety",
+			"fullTestPath": "MessControl.Tongue.WaveTimingAndSafety",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 0.0080891996622085571,
+			"dateTime": "2026.09.28-23.32.11",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WeightContactsAndRecovery",
+			"fullTestPath": "MessControl.Tongue.WeightContactsAndRecovery",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"9880D2564D3A869A2944CB8BE63E251A"
+			],
+			"duration": 3.2671990394592285,
+			"dateTime": "2026.09.28-23.32.11",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}
