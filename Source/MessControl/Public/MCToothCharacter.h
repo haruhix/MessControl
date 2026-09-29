@@ -62,8 +62,13 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_ThroatCapture,BlueprintReadOnly,Category="Throat") TObjectPtr<class AMCThroat> SwallowedBy;
     UPROPERTY(Replicated) FVector ThroatCaptureStart=FVector::ZeroVector;
     UPROPERTY(Replicated) TObjectPtr<class AMCThroat> OrderJumpTarget;
+    UPROPERTY(Replicated) double OrderJumpStartedAt=-100;
+    UPROPERTY(Replicated) bool bOrderJumpLaunched=false;
+    static constexpr float OrderPrepareSeconds=.34f;
+    void ClearOrderJump();
     UFUNCTION(Server,Reliable) void ServerOrderJump(class AMCThroat* Throat);
     UFUNCTION(Client,Reliable) void ClientOrderLaunch(FVector Velocity);
+    UFUNCTION(Client,Reliable) void ClientUvulaHop(FVector Velocity);
     UFUNCTION(Client,Reliable) void ClientThroatExit(FVector Location,FVector Velocity);
     void SetThroatCapture(class AMCThroat* Throat);
     void StatusChanged();
@@ -97,6 +102,7 @@ public:
     float AnimationSwim=0,AnimationStroke=0,AnimationSwimEffort=0,AnimationTurn=0,AnimationBrake=0;
     float AnimationRun=0,AnimationSticky=0,AnimationSlip=0,AnimationEffort=0,AnimationStance=.6f;
     float AnimationAir=0,AnimationLanding=0;
+    float AnimationOrderPrepare=0,AnimationOrderFlight=0,AnimationOrderPress=0;
     FVector AnimationDirection=FVector::ForwardVector;
     FVector AnimationInertia=FVector::ZeroVector;
     int32 ValidatedSwingCount=0, ConfirmedHitCount=0;

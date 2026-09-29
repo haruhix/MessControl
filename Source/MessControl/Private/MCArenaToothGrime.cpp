@@ -30,7 +30,7 @@ void AMCArenaTooth::BuildGrimeRelief()
         return FMath::Lerp(B,A,H)-K*H*(1-H);
     };
     // Two continuous coatings projected onto the actual artist mesh. A shallow
-    // meniscus and fused ridges catch light; no floating balls or extra collision.
+    // meniscus and rounded clumps catch light; no floating balls or extra collision.
     for (int32 Patch=0;Patch<2;++Patch)
     {
         const float Angle=Side*(Patch==0?-.30f:.43f)+Random.FRandRange(-.10f,.10f);
@@ -45,16 +45,23 @@ void AMCArenaTooth::BuildGrimeRelief()
         const FVector X=FVector::CrossProduct(Y,N).GetSafeNormal();
         const float Width=(Patch==0?54.f:42.f)*Random.FRandRange(.85f,1.12f);
         const float Height=(Patch==0?78.f:30.f)*Random.FRandRange(.90f,1.1f);
-        constexpr int32 Columns=32;
-        const int32 Rows=Patch==0?68:28,Base=Vertices.Num();
+        constexpr int32 Columns=48;
+        const int32 Rows=Patch==0?96:40,Base=Vertices.Num();
         struct FLobe { FVector2D Center,Radius; };
         TArray<FLobe> Lobes;
         for (int32 L=0;L<11;++L)
         {
-            const float V=-.72f+L*.144f;
-            Lobes.Add({FVector2D(Random.FRandRange(-.30f,.30f),V),
-                FVector2D(Random.FRandRange(.17f,.34f),Random.FRandRange(.11f,.23f))});
+            const float V=-.72f+L*.144f+Random.FRandRange(-.045f,.045f);
+            const float U=Random.FRandRange(-.30f,.30f),R=Width*Random.FRandRange(.17f,.34f);
+            // Author these lobes in centimetres: normalized UV radii flattened
+            // the short gumline patch into a stack of horizontal pancakes.
+            Lobes.Add({FVector2D(U,V),FVector2D(R/Width,R*Random.FRandRange(.85f,1.15f)/Height)});
         }
+        struct FClump { FVector2D Center; float Radius,Height; };
+        TArray<FClump> Clumps;
+        for(int32 I=0;I<32;++I)
+            Clumps.Add({FVector2D(Random.FRandRange(-Width*.42f,Width*.42f),Random.FRandRange(-Height*.78f,Height*.78f)),
+                float(Random.FRandRange(3.f,8.f)),float(Random.FRandRange(.8f,2.8f))});
         TArray<FVector> WorldPoints; TArray<bool> Valid;
         for (int32 R=0;R<=Rows;++R) for (int32 C=0;C<=Columns;++C)
         {
@@ -73,14 +80,20 @@ void AMCArenaTooth::BuildGrimeRelief()
             const bool bHit=D<.18f && BrushSurface->LineTraceComponent(Hit,Plane+N*150,Plane-N*210,Query)
                 && FVector::DotProduct(Hit.ImpactNormal,N)>.22f;
             const float Interior=FMath::Pow(FMath::Clamp(-D*8,0.f,1.f),.65f);
-            const float Ridges=.5f+.5f*FMath::Sin(Q.Y*23+FMath::Sin(Q.X*11)*2);
-            const float Depth=.70f+Interior*(2.7f+Ridges*1.1f);
+            const FVector2D PatchPoint(Q.X*Width,Q.Y*Height);
+            const float Grain=FMath::Clamp(.5f+.5f*FMath::PerlinNoise2D(PatchPoint*.19f+FVector2D(State.ToothId*17,Patch*31)),0.f,1.f);
+            float ClumpDepth=0;
+            for(const auto& Clump:Clumps) {
+                const float R2=(PatchPoint-Clump.Center).SizeSquared()/FMath::Square(Clump.Radius);
+                ClumpDepth+=Clump.Height*FMath::Exp(-R2*2.f);
+            }
+            const float Depth=.16f+Interior*(.25f+FMath::Min(ClumpDepth,3.8f));
             const FVector WorldPoint=bHit?Hit.ImpactPoint+Hit.ImpactNormal*Depth:Plane;
             WorldPoints.Add(WorldPoint); Valid.Add(bHit);
             Vertices.Add(Transform.InverseTransformPosition(WorldPoint));
             Normals.Add((Transform.InverseTransformVectorNoScale(bHit?Hit.ImpactNormal:N)*Transform.GetScale3D()).GetSafeNormal());
             UV.Add((Q+FVector2D(1,1))*.5);
-            Colors.Add(FLinearColor(Coverage,.5f+.5f*FMath::Sin(Q.Y*5+Q.X*9+State.ToothId),Interior,1));
+            Colors.Add(FLinearColor(Coverage,Grain,FMath::Clamp((Depth-.16f)/2.2f,0.f,1.f),1));
             Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(X).GetSafeNormal(),false));
             if(bHit && Coverage>.5f && R%2==0 && C%2==0) {
                 const FVector Local=Transform.InverseTransformPosition(Hit.ImpactPoint);
@@ -135,12 +148,11 @@ bool AMCArenaTooth::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FV
     for(int32 I=0;I<GrimeSamples.Num();++I) {
         const auto& S=GrimeSamples[I]; if(FMCSurfaceWipe::Sample(GrimeMask,S.UV)<=.28f) continue;
         const FVector P=T.TransformPosition(S.Point),N=T.TransformVectorNoScale(S.Normal).GetSafeNormal(),D=P-Origin;
-        if(D.Size()>Worker->BrushContact->SurfaceReach || FVector::DotProduct(N,(Origin-P).GetSafeNormal())<.05f
-            || !Worker->BrushContact->CanReach(P,N)) continue;
+        if(D.Size2D()>Worker->BrushContact->SurfaceReach || FVector::DotProduct(N,(Origin-P).GetSafeNormal())<.05f) continue;
         const bool Locked=Worker->BrushContact->Target==this && Worker->BrushContact->Alpha()>.5f;
         const float Distance=Locked?FVector::DistSquared(P,Worker->BrushContact->ContactPoint())*.7f+FVector::DistSquared(P,Aim)*.3f:FVector::DistSquared(P,Aim);
         const float Score=Distance*(I==Preferred?.3f:1.f);
-        if(Score>=Best) continue;
+        if(Score>=Best || !Worker->BrushContact->CanReach(P,N)) continue;
         FHitResult Block; if(GetWorld()->LineTraceSingleByChannel(Block,Origin+FVector(0,0,40),P-N*2,ECC_Visibility,Query)) continue;
         Best=Score; SelectedSample=I; Point=P; Normal=N;
     }
@@ -156,6 +168,7 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     auto& History=BrushHistory.FindOrAdd(Worker); History.Clock+=FMath::Min(Seconds,.1f);
     FVector Aim,N; if(!FindDirtyContact(Worker,Aim,N,History.Sample)) return false;
+    const FVector SelectedPoint=Aim,SelectedNormal=N;
     History.Sample=SelectedSample;
     const FTransform Surface=Visual->GetComponentTransform();
     if(Now-History.At<.2) {
@@ -165,21 +178,22 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     History.Aim=Surface.InverseTransformPosition(Aim); History.Normal=Surface.InverseTransformVectorNoScale(N);
     const FVector Up=FVector::VectorPlaneProject(FVector::UpVector,N).GetSafeNormal(),Side=FVector::CrossProduct(Up,N).GetSafeNormal();
     // Small tangential strokes stay on the chosen stain; project each stroke back onto enamel.
-    const FVector Sweep=Side*(FMath::Sin(History.Clock*24)*7)+Up*(FMath::Sin(History.Clock*12)*5);
-    const FVector From=Aim+Sweep+N*25;
+    const FVector Sweep=Side*(FMath::Sin(History.Clock*24)*3)+Up*(FMath::Sin(History.Clock*12)*2.5f);
     FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCToothBrush),true,Worker);
-    if (!BrushSurface->LineTraceComponent(Hit,From,Aim+Sweep-N*25,Query)
-        || !Worker->BrushContact->CanReach(Hit.ImpactPoint,Hit.ImpactNormal))
-    {
-        // At the edge of hand reach, shorten the scrub stroke instead of losing
-        // and reacquiring the same reachable stain every few frames.
-        if(!BrushSurface->LineTraceComponent(Hit,Aim+N*25,Aim-N*25,Query)) return false;
+    auto ValidContact=[&](FVector Point,FVector Normal) {
+        if(FVector::Dist2D(Point,Worker->GetActorLocation())>Worker->BrushContact->SurfaceReach+20
+            || !Worker->BrushContact->CanReach(Point,Normal)) return false;
+        FHitResult Block; FCollisionQueryParams Occlusion(SCENE_QUERY_STAT(MCBrushOcclusion),false,Worker); Occlusion.AddIgnoredActor(this);
+        return !GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation()+FVector(0,0,40),Point-Normal*2,ECC_Visibility,Occlusion);
+    };
+    const bool Projected=BrushSurface->LineTraceComponent(Hit,Aim+Sweep+N*25,Aim+Sweep-N*25,Query)
+        && ValidContact(Hit.ImpactPoint,Hit.ImpactNormal);
+    if(!Projected) {
+        // A rounded lower edge can occlude the tangential stroke. Keep the
+        // already validated dirty sample instead of repeatedly dropping it.
+        Hit.ImpactPoint=SelectedPoint; Hit.ImpactNormal=SelectedNormal;
+        if(!ValidContact(Hit.ImpactPoint,Hit.ImpactNormal)) return false;
     }
-    if (FVector::Dist(Hit.ImpactPoint,Worker->GetActorLocation())>Worker->BrushContact->SurfaceReach+20
-        || !Worker->BrushContact->CanReach(Hit.ImpactPoint,Hit.ImpactNormal)) return false;
-    // Validate the real visible contact as well as the broad-phase care target.
-    FHitResult Block; Query.AddIgnoredActor(this);
-    if (GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation()+FVector(0,0,40),Hit.ImpactPoint,ECC_Visibility,Query)) return false;
     const auto Bounds=Visual->GetStaticMesh()->GetBounds();
     const FVector Size=Bounds.BoxExtent*2;
     BrushLocal=Visual->GetComponentTransform().InverseTransformPosition(Hit.ImpactPoint);
@@ -188,7 +202,8 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     const bool Continuous=Now-History.At<.2 && ((UV-History.UV)*Dimensions).Size()<65;
     if (GrimeMask.Num()!=FMCSurfaceWipe::Count) FMCSurfaceWipe::Reset(GrimeMask);
     Worker->BrushContact->Contact(this,Hit.ImpactPoint,Hit.ImpactNormal);
-    if (FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,28,Seconds*.9f)) OnRep_Grime();
+    if(!Worker->BrushContact->IsTouchingSurface()) { History.At=Now; return true; }
+    if (FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,36,Seconds)) OnRep_Grime();
     History.UV=UV; History.At=Now; BrushAt=Now;
     const float Left=RemainingGrime();
     const int32 RemainingLayers=Left<.025f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));

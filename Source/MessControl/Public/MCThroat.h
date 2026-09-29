@@ -38,7 +38,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone") FVector ZoneCenter=FVector(-280,0,-40);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone",meta=(ClampMin="80")) float ZoneRadius=290;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone",meta=(ClampMin="40")) float ZoneHeight=240;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.1")) float PressSeconds=.25f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.1")) float PressSeconds=.48f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="1")) float AnticipationSeconds=3.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.5")) float SwallowSeconds=1.65f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.2")) float RecoverySeconds=1.1f;
@@ -56,6 +56,8 @@ public:
     void NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed);
     bool ContainsPlayer(const AMCToothCharacter* Hero) const;
     bool CanOrderJump(const AMCToothCharacter* Hero) const;
+    /** Conservative clearance from the authored uvula profile, including body margin. */
+    float UvulaBodyClearance(FVector Center,float Radius,float HalfHeight) const;
     bool LaunchToUvula(AMCToothCharacter* Hero);
     void ResetSwallow();
 private:
@@ -65,8 +67,11 @@ private:
     void UpdatePresentation(float Dt);
     void BuildRing();
     void CaptureMeal();
+    bool OrderVelocity(const AMCToothCharacter* Hero,FVector& Velocity) const;
+    void UpdateOrderJumps();
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> RingMID;
     TArray<TWeakObjectPtr<AMCToothCharacter>> LandedPlayers;
+    TArray<TWeakObjectPtr<AMCToothCharacter>> PreparingPlayers;
     struct FMealPiece { TWeakObjectPtr<AMCFoodActor> Food; FVector Start; FQuat Rotation; };
     TArray<FMealPiece> Meal;
     struct FSwallowedPlayer { TWeakObjectPtr<AMCToothCharacter> Hero; FVector Start; };

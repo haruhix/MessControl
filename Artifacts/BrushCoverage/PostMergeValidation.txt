@@ -1,0 +1,18 @@
+Post-merge validation: origin/main 4a3f258 (egg)
+Map: remote map plus local lighting; 83 non-lighting actors retained.
+Other 15 colleague asset paths match origin/main exactly.
+Unit: 52 succeeded, 2 succeeded with warnings, 0 failed, 0 not run.
+Standalone gameplay only; no network gameplay tests run.
+
+[2026.09.29-10.48.55:807][159]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=229 hash=1770078366 contactError=15.71 contacts=348 handTravel=124.81 wristStretch=1.000 groundClearance=62.02
+[2026.09.29-10.48.55:807][159]LogTemp: Display: MC_BRUSH_FREE_HAND maxStep60=0.389 cm (limit 1.5, including start/stop/reacquire)
+[2026.09.29-10.48.55:807][159]LogTemp: Display: MC_BRUSH_WORK_HAND maxStep60=6.713 cm (limit 10)
+[2026.09.29-10.49.26:901][159]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=116 hash=2565770835 contactError=15.71 contacts=174 handTravel=124.63 wristStretch=1.000 groundClearance=69.35
+[2026.09.29-10.49.26:901][159]LogTemp: Display: MC_BRUSH_FREE_HAND maxStep60=0.389 cm (limit 1.5, including start/stop/reacquire)
+[2026.09.29-10.49.26:901][159]LogTemp: Display: MC_BRUSH_WORK_HAND maxStep60=5.804 cm (limit 10)
+[2026.09.29-10.49.26:901][159]LogTemp: Display: MC_BRUSH_MOTION pass=1 air=1 speed=560.0 returnTravel=125.90 samples=70
+[2026.09.29-10.51.20:672][486]LogTemp: Display: MC_BRUSH_COVERAGE_PASS cases=10/10
+[2026.09.29-10.51.20:918][761]LogTemp: Display: MC_UVULA_ANIMATION pass=1 prepare=1 flight=1 press=1 hop=1 drop=27.33 clearance=10.98 invalid=0
+[2026.09.29-10.51.20:918][761]LogTemp: Display: MC_VALIDATION_PASS THROAT net=0 seen=2047 cycles=2 swallowed=1 spasms=1
+
+Git LFS fsck HEAD: OK.

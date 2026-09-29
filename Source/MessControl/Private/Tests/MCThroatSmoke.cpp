@@ -7,6 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/DataTable.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -39,6 +40,35 @@ void UMCValidationSubsystem::TickThroat(float Dt)
     Heroes.Sort([](const AMCToothCharacter& A,const AMCToothCharacter& B){return A.GetPlayerState()->GetPlayerId()<B.GetPlayerState()->GetPlayerId();});
     int32 Expected=4; FParse::Value(FCommandLine::Get(),TEXT("MCExpectedPlayers="),Expected);
     const double Now=GS->GetServerWorldTimeSeconds();
+    struct FOrderCheck { TWeakObjectPtr<UWorld> World; bool Prepared=false,Flight=false,Pressed=false,Hopped=false,Invalid=false; float Drop=0,Clearance=MAX_flt; FVector PrepareStart=FVector::ZeroVector; bool Preparing=false; };
+    static FOrderCheck Order;
+    if(Order.World.Get()!=GetWorld()) { Order=FOrderCheck(); Order.World=GetWorld(); }
+    if(Host && Heroes.Num()) {
+        const auto* H=Heroes[0];
+        if(H->OrderJumpTarget && !H->bOrderJumpLaunched) {
+            if(!Order.Preparing) Order.PrepareStart=H->GetActorLocation();
+            Order.Preparing=true; Order.Prepared|=H->AnimationOrderPrepare>.55f;
+            const float Drift=FVector::Dist(Order.PrepareStart,H->GetActorLocation());
+            if(Drift>3 && !Order.Invalid) UE_LOG(LogTemp,Error,TEXT("MC_UVULA_PREP_DRIFT %.2f delta=%s velocity=%s base=%s stage=%d"),Drift,*(H->GetActorLocation()-Order.PrepareStart).ToString(),*H->GetVelocity().ToString(),*GetNameSafe(H->GetMovementBaseObject()),DevStage);
+            Order.Invalid|=Drift>3;
+        } else Order.Preparing=false;
+        Order.Flight|=H->bOrderJumpLaunched && H->AnimationOrderFlight>.5f && H->GetVelocity().Z>100;
+        if(H->bOrderJumpLaunched || H->GetMovementBaseObject()==Throat->UvulaLanding) {
+            const float Gap=Throat->UvulaBodyClearance(H->GetActorLocation(),H->GetCapsuleComponent()->GetScaledCapsuleRadius()+6,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+4);
+            Order.Clearance=FMath::Min(Order.Clearance,Gap);
+            if(Gap<0 && !Order.Invalid) UE_LOG(LogTemp,Error,TEXT("MC_UVULA_BODY_CLEARANCE %.2f"),Gap);
+            Order.Invalid|=Gap<0;
+        }
+        if(H->GetMovementBaseObject()==Throat->UvulaLanding) {
+            Order.Pressed|=H->AnimationOrderPress>.6f;
+            Order.Drop=FMath::Max(Order.Drop,float(Throat->Uvula->GetRelativeScale3D().Z*100-Throat->UvulaLength));
+            const float Feet=H->GetActorLocation().Z-H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+            const float Gap=Feet-Throat->UvulaLanding->Bounds.GetBox().Max.Z;
+            if(Gap<-3 && !Order.Invalid) UE_LOG(LogTemp,Error,TEXT("MC_UVULA_FEET_GAP %.2f"),Gap);
+            Order.Invalid|=Gap<-3;
+        }
+        Order.Hopped|=Throat->ThroatPhase==EMCThroatPhase::Anticipation && H->GetCharacterMovement()->IsFalling() && H->GetVelocity().Z>100;
+    }
     AMCFoodActor* Meal=nullptr; AMCFoodActor* Brush=nullptr; AMCFoodActor* Outside=nullptr;
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
         if(It->Batch==901) Meal=*It; if(It->Batch==902) Brush=*It; if(It->Batch==903) Outside=*It;
@@ -84,7 +114,10 @@ void UMCValidationSubsystem::TickThroat(float Dt)
             FHitResult Floor; Tongue->SurfacePoint(Center+FVector(-100,0,0),Floor);
             auto* Hero=Heroes[0]; Hero->GetCharacterMovement()->StopMovementImmediately();
             Hero->SetActorLocation(Floor.ImpactPoint+FVector(0,0,62),false,nullptr,ETeleportType::TeleportPhysics);
-            Outside->SetActorLocation(Floor.ImpactPoint+FVector(80,70,32)); Outside->ForceNetUpdate();
+            // Keep the second meal outside the reset pawn's capsule. The old
+            // fixture embedded a broccoli collider and measured depenetration
+            // as preparation drift when the character turned toward the uvula.
+            Outside->SetActorLocation(Floor.ImpactPoint+FVector(180,160,32)); Outside->ForceNetUpdate();
             DevStage=3; DevStartedAt=Now;
         }
         if(DevStage==3 && Now-DevStartedAt>2) {
@@ -108,10 +141,11 @@ void UMCValidationSubsystem::TickThroat(float Dt)
         for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->Label->SetVisibility(false);
         const FString Folder=FPaths::ProjectSavedDir()/TEXT("ThroatFrames");
         if(!CoffeeCamera) {
-            CoffeeCamera=GetWorld()->SpawnActor<ACameraActor>(); CoffeeCamera->GetCameraComponent()->SetFieldOfView(68);
+            CoffeeCamera=GetWorld()->SpawnActor<ACameraActor>(); CoffeeCamera->GetCameraComponent()->SetFieldOfView(65);
             CoffeeCamera->GetCameraComponent()->SetAspectRatio(1.5f);
             IFileManager::Get().MakeDirectory(*Folder,true); PC->SetViewTarget(CoffeeCamera);
-            const FVector Eye(-850,0,620),Aim(800,0,-250);
+            const FVector Center=Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter);
+            const FVector Eye=Center+FVector(-700,-580,480),Aim=(Center+Throat->UvulaLanding->GetComponentLocation())*.5+FVector(0,0,100);
             CoffeeCamera->SetActorLocationAndRotation(Eye,(Aim-Eye).Rotation());
         }
         if(Now>=CoffeeNextFrame) {
@@ -127,7 +161,9 @@ void UMCValidationSubsystem::TickThroat(float Dt)
     }
     if(DevSeen==2047 && CoffeeReadyAt<0) CoffeeReadyAt=Now;
     if((CoffeeReadyAt>=0 && Now-CoffeeReadyAt>(Host?6:1)) || Age>75) {
-        const bool Pass=DevSeen==2047 && !bTongueInvalid;
+        const bool OrderPass=!Host || (Order.Prepared && Order.Flight && Order.Pressed && Order.Hopped && Order.Drop>18 && !Order.Invalid);
+        const bool Pass=DevSeen==2047 && !bTongueInvalid && OrderPass;
+        UE_LOG(LogTemp,Display,TEXT("MC_UVULA_ANIMATION pass=%d prepare=%d flight=%d press=%d hop=%d drop=%.2f clearance=%.2f invalid=%d"),OrderPass,Order.Prepared,Order.Flight,Order.Pressed,Order.Hopped,Order.Drop,Order.Clearance,Order.Invalid);
         if(Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(FPaths::ProjectSavedDir()/TEXT("ThroatFrames/times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s THROAT net=%d seen=%d cycles=%d swallowed=%d spasms=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,Throat->SwallowCount,Throat->FoodSwallowed,Throat->SpasmCount);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);

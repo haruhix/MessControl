@@ -1,0 +1,24 @@
+{
+  "date": "2026.09.29-02.33.57",
+  "engine": "Unreal Engine 5.8",
+  "mode": "Unit",
+  "succeeded": 51,
+  "succeededWithWarnings": 3,
+  "failed": 0,
+  "notRun": 0,
+  "warnings": [
+    {
+      "testDisplayName": "SoloMovementTransitions",
+      "warnings": 1
+    },
+    {
+      "testDisplayName": "SpawnIgnoresDynamicObstacles",
+      "warnings": 2
+    },
+    {
+      "testDisplayName": "WeightContactsAndRecovery",
+      "warnings": 1
+    }
+  ],
+  "networkGameplayTestsRun": false
+}

@@ -51,14 +51,15 @@ bool FMCCoffeeContactTest::RunTest(const FString&)
     for (auto* Worker:{A,B}) { Worker->GetCharacterMovement()->DisableMovement(); Worker->bBrushing=true; }
     for (int32 I=0;I<4;++I) A->AdvanceCare(.1f);
     TestTrue(TEXT("Held brush makes a persistent local trail"),FMCCoffeeWipe::Remaining(Patch->WipeMask)<.99f);
-    TestEqual(TEXT("Visual trail does not complete a contact early"),Patch->Status->State.CoffeeLeft,4);
+    TestTrue(TEXT("A local trail leaves the rest of the stain dirty"),Patch->Status->State.CoffeeLeft>0);
     const auto Mask=Patch->WipeMask;
     A->SetActorLocation(FVector(2000,0,80)); A->AdvanceCare(.1f);
     TestTrue(TEXT("Out of reach preserves trail"),Mask==Patch->WipeMask);
     A->SetActorLocation(FVector(235,0,80)); Patch->Status->ApplyCoffee(); A->ResetContact(); B->ResetContact();
     TestEqual(TEXT("Reapplying same amount resets old trail"),FMCCoffeeWipe::Remaining(Patch->WipeMask),1.f);
-    for (int32 I=0;I<10;++I) { A->AdvanceCare(.1f); B->AdvanceCare(.1f); }
-    TestTrue(TEXT("Two workers retain existing cleaning cadence"),Patch->IsClean());
+    for (int32 I=0;I<160 && !Patch->IsClean();++I) { A->AdvanceCare(.1f); B->AdvanceCare(.1f); }
+    TestTrue(TEXT("Two stationary workers seek and clean the remaining visible dirt"),Patch->IsClean());
+    TestTrue(TEXT("Completion follows actual visible coverage"),Patch->RemainingLiquid()<.025f);
     Patch->Status->ApplyCoffee(); GS->bPhysicalBrushes=true;
     Patch->BrushLiquid(A,.1f);
     TestEqual(TEXT("Missing brush cannot erase liquid"),FMCCoffeeWipe::Remaining(Patch->WipeMask),1.f);

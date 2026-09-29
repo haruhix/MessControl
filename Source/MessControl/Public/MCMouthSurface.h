@@ -46,7 +46,9 @@ public:
     void Disturb();
     void ResetLiquid();
     // Called only after the character's authoritative reach/tool/occlusion checks.
-    void BrushLiquid(class AMCToothCharacter* Worker,float Seconds);
+    bool BrushLiquid(class AMCToothCharacter* Worker,float Seconds);
+    bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
+    float RemainingLiquid() const;
     UPROPERTY(ReplicatedUsing=OnRep_Wipe,BlueprintReadOnly,Category="Liquid") TArray<uint8> WipeMask;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Liquid") int32 LiquidSeed=0;
 private:

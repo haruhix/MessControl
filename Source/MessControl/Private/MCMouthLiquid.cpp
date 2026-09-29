@@ -2,6 +2,7 @@
 #include "MCCoffeeWipe.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
+#include "MCBrushContactComponent.h"
 #include "MCToothStatusComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/Texture2D.h"
@@ -48,29 +49,81 @@ void AMCMouthSurface::ResetLiquid()
 }
 void AMCMouthSurface::OnRep_Wipe() { bWipeDirty=true; }
 
-void AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
+float AMCMouthSurface::RemainingLiquid() const
+{
+    int32 Total=0; float Left=0;
+    const TArray<uint8> Full;
+    for(int32 Y=0;Y<FMCCoffeeWipe::Size;++Y) for(int32 X=0;X<FMCCoffeeWipe::Size;++X) {
+        const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
+        if(!FMCCoffeeWipe::WetAt(Full,UV,LiquidSeed)) continue;
+        ++Total;
+        const float Value=WipeMask.Num()==FMCCoffeeWipe::Count?WipeMask[Y*FMCCoffeeWipe::Size+X]/255.f:1.f;
+        Left+=FMath::Clamp((Value-.25f)/.75f,0.f,1.f);
+    }
+    return Total>0?Left/Total:0.f;
+}
+bool AMCMouthSurface::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const
+{
+    if(!IsValid(Worker) || !Worker->BrushContact->CanAcquireSurface(this)) return false;
+    const auto* Contact=Worker->BrushContact.Get();
+    const FVector Origin=Worker->GetActorLocation();
+    const FVector Aim=Contact->Target==this && Contact->Alpha()>.5f?Contact->ContactPoint():Origin+Worker->GetActorForwardVector()*65;
+    float Best=MAX_flt;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCLiquidBrushTarget),false,Worker); Query.AddIgnoredActor(this);
+    const TArray<uint8> Full;
+    // Sample the same seeded outline and persistent mask used by the material.
+    for(int32 Y=1;Y<FMCCoffeeWipe::Size;Y+=2) for(int32 X=1;X<FMCCoffeeWipe::Size;X+=2) {
+        const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
+        if(!FMCCoffeeWipe::WetAt(Full,UV,LiquidSeed)
+            || (WipeMask.Num()==FMCCoffeeWipe::Count && WipeMask[Y*FMCCoffeeWipe::Size+X]<=71)) continue;
+        FVector P=GetActorTransform().TransformPosition(FVector((UV.X-.5)*2*LiquidHalfSize,(UV.Y-.5)*2*LiquidHalfSize,0));
+        const float Score=FVector::DistSquared2D(P,Aim);
+        if(Score>=Best || FVector::Dist2D(P,Origin)>Contact->SurfaceReach) continue;
+        FVector N=GetActorUpVector(); FHitResult Floor;
+        if(Tongue && Tongue->SurfacePoint(P,Floor)) { P=Floor.ImpactPoint+Floor.ImpactNormal*2; N=Floor.ImpactNormal; }
+        if(!Contact->CanReach(P,N)) continue;
+        FHitResult Block;
+        if(GetWorld()->LineTraceSingleByChannel(Block,Origin+FVector(0,0,35),P+N*4,ECC_Visibility,Query)) continue;
+        Best=Score; Point=P; Normal=N;
+    }
+    return Best<MAX_flt;
+}
+bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
 {
     if (!HasAuthority() || bUlcer || IsClean() || !IsValid(Worker) || !Worker->bBrushing ||
-        !Worker->HasBrush() || Worker->HeldFood || Worker->bInCoffee || !Worker->CanContact(this) ||
-        !FMath::IsFinite(Seconds) || Seconds<=0) return;
+        !Worker->HasBrush() || Worker->HeldFood || Worker->bInCoffee || !Worker->BrushContact->CanAcquireSurface(this) ||
+        !FMath::IsFinite(Seconds) || Seconds<=0) return false;
     Seconds=FMath::Min(Seconds,.1f); BrushClock+=Seconds;
-    const FVector Local=GetActorTransform().InverseTransformPosition(Worker->GetActorLocation());
+    FVector Point,Normal; if(!FindDirtyContact(Worker,Point,Normal)) return false;
+    const auto* GS=GetWorld()->GetGameState();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const auto* Contact=Worker->BrushContact.Get();
+    if(Contact->Target==this && Now-Contact->ContactAt<.2)
+        Point=FMath::VInterpConstantTo(Contact->ContactPoint(),Point,Seconds,180.f);
     const FVector Facing=GetActorTransform().InverseTransformVectorNoScale(Worker->GetActorForwardVector());
     const FVector2D Forward=FVector2D(Facing).GetSafeNormal();
     const FVector2D Side(-Forward.Y,Forward.X);
-    // The bristles sweep across the reachable surface in front of the character.
-    // Movement shifts this sweep; a stationary held brush still scrubs back and forth.
-    FVector2D Center=FVector2D(Local)+Forward*62;
-    Center=Center.GetClampedToMaxSize(LiquidHalfSize*.58);
-    const FVector2D Tip=Center+Side*(FMath::Sin(BrushClock*18)*24)+Forward*(FMath::Sin(BrushClock*7)*10);
-    const FVector2D UV=Tip/(2*LiquidHalfSize)+FVector2D(.5,.5);
+    const FVector Base=Point;
+    const FVector Stroke=GetActorTransform().TransformVectorNoScale(FVector(Side.X,Side.Y,0))*FMath::Sin(BrushClock*22)*6;
+    Point+=Stroke;
+    FHitResult Floor;
+    if(Tongue && Tongue->SurfacePoint(Point,Floor)) { Point=Floor.ImpactPoint+Floor.ImpactNormal*2; Normal=Floor.ImpactNormal; }
+    if(!Contact->CanReach(Point,Normal)) Point=Base;
+    if(!Contact->CanReach(Point,Normal)) return false;
+    const FVector2D UV=FVector2D(GetActorTransform().InverseTransformPosition(Point))/(2*LiquidHalfSize)+FVector2D(.5);
     const FVector2D* Previous=PreviousBrush.Find(Worker);
     // Never connect a teleport or a changed target with a long erased stripe.
     const FVector2D From=Previous && FVector2D::Distance(*Previous,UV)<.3?*Previous:UV;
-    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,26/(2*LiquidHalfSize),Seconds)) OnRep_Wipe();
+    Worker->BrushContact->Contact(this,Point,Normal);
+    if(!Worker->BrushContact->IsTouchingSurface()) return true;
+    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,36/(2*LiquidHalfSize),Seconds)) OnRep_Wipe();
     BrushDirection=(UV-From).IsNearlyZero()?Side:(UV-From).GetSafeNormal();
     BrushUV=UV; PreviousBrush.Add(Worker,UV);
-    const auto* GS=GetWorld()->GetGameState(); BrushAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    BrushAt=Now;
+    const float Left=RemainingLiquid();
+    const int32 RemainingLayers=Left<.025f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
+    while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true); ++Worker->SuccessfulBrushContacts; }
+    return true;
 }
 
 void AMCMouthSurface::BuildLiquid()

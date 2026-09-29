@@ -27,15 +27,17 @@
 #include "ShaderCompiler.h"
 #endif
 
+void MCTickBrushCoverage(UWorld* World);
 void MCTickBrushValidation(UWorld* World)
 {
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCBrushCoverage"))) { MCTickBrushCoverage(World); return; }
     struct FRun {
         TWeakObjectPtr<UWorld> World; TWeakObjectPtr<AMCToothCharacter> Hero; TWeakObjectPtr<AMCArenaTooth> Tooth;
         TWeakObjectPtr<ACameraActor> Camera; bool Setup=false,Invalid=false; float Age=0,NextFrame=0,LastFrame=-1,MaxError=0,MaxTravel=0,MaxWristStretch=1,MinHandClearance=MAX_flt;
         int32 Seen=0,Frame=0,Contacts=0; uint32 PausedHash=0; FString Timing;
         FVector LastFreeHand=FVector::ZeroVector,LastWorkHand=FVector::ZeroVector; float FreeHandStep=0,WorkHandStep=0; bool HadFreeHand=false;
         TWeakObjectPtr<UMCMotionRecorder> Recorder;
-        bool Moving=false,Jumped=false,Air=false; int32 ReturnSamples=0; FVector MotionStart=FVector::ZeroVector; float MotionSpeed=0,ReturnTravel=0;
+        bool Moving=false,Jumped=false,Air=false; int32 ReturnSamples=0; FVector MotionStart=FVector::ZeroVector; float MotionSpeed=0,ReturnTravel=0,ReachExcess=0;
     };
     static FRun R; if(R.World.Get()!=World) {R=FRun();R.World=World;}
     R.Age+=World->GetDeltaSeconds();
@@ -104,7 +106,9 @@ void MCTickBrushValidation(UWorld* World)
                 ++R.ReturnSamples;
                 const auto* Mesh=H->GetMesh(); const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton(); FTransform Rest=FTransform::Identity;
                 for(int32 I=Ref.FindBoneIndex(H->RigBone(TEXT("hand_r")));I>=0;I=Ref.GetParentIndex(I)) Rest=Rest*Ref.GetRefBonePose()[I];
-                R.ReturnTravel=FMath::Max(R.ReturnTravel,float(FVector::Distance(Mesh->GetSocketLocation(H->RigBone(TEXT("hand_r"))),Mesh->GetComponentTransform().TransformPosition(Rest.GetLocation()))));
+                const FVector Offset=Mesh->GetSocketLocation(H->RigBone(TEXT("hand_r")))-Mesh->GetComponentTransform().TransformPosition(Rest.GetLocation());
+                R.ReturnTravel=FMath::Max(R.ReturnTravel,float(Offset.Size()));
+                R.ReachExcess=FMath::Max(R.ReachExcess,float((Offset-H->BrushContact->ClampHandOffset(Offset)).Size()));
             }
         }
         const FVector Hand=H->GetActorTransform().InverseTransformPosition(H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_l"))));
@@ -112,13 +116,15 @@ void MCTickBrushValidation(UWorld* World)
         if(R.HadFreeHand && T>1 && T<(MovementCase?3.2f:12.f)) {
             R.FreeHandStep=FMath::Max(R.FreeHandStep,float(FVector::Distance(Hand,R.LastFreeHand))/(World->GetDeltaSeconds()*60));
             R.WorkHandStep=FMath::Max(R.WorkHandStep,float(FVector::Distance(WorkHand,R.LastWorkHand))/(World->GetDeltaSeconds()*60));
+            if(FVector::Distance(WorkHand,R.LastWorkHand)/(World->GetDeltaSeconds()*60)>10)
+                UE_LOG(LogTemp,Warning,TEXT("MC_BRUSH_STEP time=%.3f blend=%.3f work=%d previous=%s current=%s contact=%s normal=%s"),T,H->BrushContact->Alpha(),H->bBrushing,*R.LastWorkHand.ToString(),*WorkHand.ToString(),*H->BrushContact->ContactPoint().ToString(),*H->BrushContact->ContactNormal().ToString());
         }
         R.LastFreeHand=Hand; R.LastWorkHand=WorkHand; R.HadFreeHand=true;
     }
     int32 Changed=0; for(uint8 V:Tooth->GrimeMask) Changed+=V<255;
     const uint32 Hash=FCrc::MemCrc32(Tooth->GrimeMask.GetData(),Tooth->GrimeMask.Num());
     if(T<1.4f && Tooth->Status->State.CoffeeLeft>0 && !Changed) R.Seen|=1;
-    for(TActorIterator<AMCToothCharacter> It(World);It;++It) if(It->BrushContact->Target==Tooth && It->BrushContact->Alpha()>.99f && It->bBrushing) {
+    for(TActorIterator<AMCToothCharacter> It(World);It;++It) if(It->BrushContact->Target==Tooth && It->BrushContact->IsTouchingSurface() && It->bBrushing) {
         R.Seen|=2;
         if(Measure) {
             const float Error=FVector::Dist(It->BrushContact->BristlePoint(),It->BrushContact->ContactPoint()); R.MaxError=FMath::Max(R.MaxError,Error); ++R.Contacts;
@@ -126,6 +132,8 @@ void MCTickBrushValidation(UWorld* World)
             auto Rest=[&](FName Role) { FTransform P=FTransform::Identity; for(int32 I=Ref.FindBoneIndex(It->RigBone(Role));I>=0;I=Ref.GetParentIndex(I)) P=P*Ref.GetRefBonePose()[I]; return Mesh->GetComponentTransform().TransformPosition(P.GetLocation()); };
             const FVector Hand=Mesh->GetSocketLocation(It->RigBone(TEXT("hand_r"))),Lower=Mesh->GetSocketLocation(It->RigBone(TEXT("forearm_r")));
             R.MaxTravel=FMath::Max(R.MaxTravel,float(FVector::Dist(Hand,Rest(TEXT("hand_r")))));
+            const FVector Offset=Hand-Rest(TEXT("hand_r"));
+            R.ReachExcess=FMath::Max(R.ReachExcess,float((Offset-It->BrushContact->ClampHandOffset(Offset)).Size()));
             R.MaxWristStretch=FMath::Max(R.MaxWristStretch,float(FVector::Dist(Hand,Lower)/FVector::Dist(Rest(TEXT("hand_r")),Rest(TEXT("forearm_r")))));
             for(TActorIterator<AMCTongue> Tongue(World);Tongue;++Tongue) { FHitResult Floor; if(Tongue->SurfacePoint(Hand,Floor)) R.MinHandClearance=FMath::Min(R.MinHandClearance,float(Hand.Z-Floor.ImpactPoint.Z)); break; }
         }
@@ -140,8 +148,8 @@ void MCTickBrushValidation(UWorld* World)
         FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("BrushFrames")/FString::Printf(TEXT("Frame%05d.png"),R.Frame++),false,false); R.LastFrame=T;
     }
     if(T>(Host?15:13) || R.Age>60) {
-        const bool MotionPass=!MovementCase || (R.ReturnSamples>2 && R.ReturnTravel>30 && R.Air && R.MotionSpeed>470 && FVector::Dist2D(R.MotionStart,R.Hero->GetActorLocation())>300 && R.ReturnTravel<=R.Hero->BrushContact->MaxHandTravel+12);
-        const bool Pass=MotionPass && R.Seen==31 && !R.Invalid && (!Host || (R.FreeHandStep<1.5f && R.WorkHandStep<10)) && (!Measure || (R.Contacts>20 && R.MaxError<18 && R.MaxTravel<=R.Hero->BrushContact->MaxHandTravel+12 && R.MaxWristStretch<1.05f && R.MinHandClearance>=8));
+        const bool MotionPass=!MovementCase || (R.ReturnSamples>2 && R.ReturnTravel>30 && R.Air && R.MotionSpeed>470 && FVector::Dist2D(R.MotionStart,R.Hero->GetActorLocation())>300 && R.ReachExcess<=12);
+        const bool Pass=MotionPass && R.Seen==31 && !R.Invalid && (!Host || (R.FreeHandStep<1.5f && R.WorkHandStep<10)) && (!Measure || (R.Contacts>20 && R.MaxError<18 && R.ReachExcess<=12 && R.MaxWristStretch<1.05f && R.MinHandClearance>=8));
         if(Capture) FFileHelper::SaveStringToFile(R.Timing,*(FPaths::ProjectSavedDir()/TEXT("BrushFrames/times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_%s net=%d seen=%d cells=%d hash=%u contactError=%.2f contacts=%d handTravel=%.2f wristStretch=%.3f groundClearance=%.2f"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),R.Seen,Changed,Hash,R.MaxError,R.Contacts,R.MaxTravel,R.MaxWristStretch,R.MinHandClearance);
         UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_FREE_HAND maxStep60=%.3f cm (limit 1.5, including start/stop/reacquire)"),R.FreeHandStep);

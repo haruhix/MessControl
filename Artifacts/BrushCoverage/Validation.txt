@@ -1,0 +1,23 @@
+[2026.09.29-02.35.49:712][540]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=273 hash=240859207 contactError=15.23 contacts=109 handTravel=136.20 wristStretch=1.000 groundClearance=66.44
+[2026.09.29-02.35.49:712][540]LogTemp: Display: MC_BRUSH_FREE_HAND maxStep60=0.290 cm (limit 1.5, including start/stop/reacquire)
+[2026.09.29-02.35.49:712][540]LogTemp: Display: MC_BRUSH_WORK_HAND maxStep60=7.048 cm (limit 10)
+[2026.09.29-02.36.13:931][540]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=126 hash=2046176852 contactError=15.23 contacts=42 handTravel=111.80 wristStretch=1.000 groundClearance=66.44
+[2026.09.29-02.36.13:932][540]LogTemp: Display: MC_BRUSH_FREE_HAND maxStep60=0.290 cm (limit 1.5, including start/stop/reacquire)
+[2026.09.29-02.36.13:932][540]LogTemp: Display: MC_BRUSH_WORK_HAND maxStep60=5.711 cm (limit 10)
+[2026.09.29-02.36.13:932][540]LogTemp: Display: MC_BRUSH_MOTION pass=1 air=1 speed=560.0 returnTravel=94.04 samples=20
+[2026.09.29-02.36.41:643][ 80]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=242 hash=4066729948 contactError=14.82 contacts=173 handTravel=124.15 wristStretch=1.000 groundClearance=62.31
+[2026.09.29-02.36.41:644][ 80]LogTemp: Display: MC_BRUSH_FREE_HAND maxStep60=0.358 cm (limit 1.5, including start/stop/reacquire)
+[2026.09.29-02.36.41:644][ 80]LogTemp: Display: MC_BRUSH_WORK_HAND maxStep60=6.386 cm (limit 10)
+[2026.09.29-02.37.09:733][ 80]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=127 hash=2355905881 contactError=14.82 contacts=87 handTravel=121.97 wristStretch=1.000 groundClearance=70.06
+[2026.09.29-02.37.09:733][ 80]LogTemp: Display: MC_BRUSH_FREE_HAND maxStep60=0.358 cm (limit 1.5, including start/stop/reacquire)
+[2026.09.29-02.37.09:733][ 80]LogTemp: Display: MC_BRUSH_WORK_HAND maxStep60=5.742 cm (limit 10)
+[2026.09.29-02.37.09:734][ 80]LogTemp: Display: MC_BRUSH_MOTION pass=1 air=1 speed=560.0 returnTravel=127.41 samples=34
+[2026.09.29-02.37.42:865][159]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=229 hash=1770078366 contactError=15.71 contacts=348 handTravel=124.81 wristStretch=1.000 groundClearance=62.02
+[2026.09.29-02.37.42:865][159]LogTemp: Display: MC_BRUSH_FREE_HAND maxStep60=0.389 cm (limit 1.5, including start/stop/reacquire)
+[2026.09.29-02.37.42:865][159]LogTemp: Display: MC_BRUSH_WORK_HAND maxStep60=6.713 cm (limit 10)
+[2026.09.29-02.38.14:710][159]LogTemp: Display: MC_BRUSH_PASS net=0 seen=31 cells=116 hash=2565770835 contactError=15.71 contacts=174 handTravel=124.63 wristStretch=1.000 groundClearance=69.35
+[2026.09.29-02.38.14:710][159]LogTemp: Display: MC_BRUSH_FREE_HAND maxStep60=0.389 cm (limit 1.5, including start/stop/reacquire)
+[2026.09.29-02.38.14:710][159]LogTemp: Display: MC_BRUSH_WORK_HAND maxStep60=5.804 cm (limit 10)
+[2026.09.29-02.38.14:710][159]LogTemp: Display: MC_BRUSH_MOTION pass=1 air=1 speed=560.0 returnTravel=125.90 samples=70
+[2026.09.29-02.22.33:227][892]LogTemp: Display: MC_UVULA_ANIMATION pass=1 prepare=1 flight=1 press=1 hop=1 drop=27.33 clearance=11.04 invalid=0
+[2026.09.29-02.22.33:227][892]LogTemp: Display: MC_VALIDATION_PASS THROAT net=0 seen=2047 cycles=2 swallowed=1 spasms=1

@@ -1,14 +1,5 @@
 [
   {
-    "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_brush_60.json",
-    "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_brush_60.log",
-    "standalone": true,
-    "fps": 60,
-    "trace": "E:\\DEVGAME\\MessControl\\Saved\\MotionDiagnostics\\solo_brush_60_20260929_083130_MCToothCharacter_1.csv",
-    "passed": true,
-    "case": "Brush"
-  },
-  {
     "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_swim_60.json",
     "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_swim_60.log",
     "standalone": true,
@@ -45,12 +36,21 @@
     "case": "Throat"
   },
   {
-    "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_brushmove_60.json",
+    "standalone": true,
+    "trace": "E:\\DEVGAME\\MessControl\\Saved\\MotionDiagnostics\\solo_brush_60_20260929_113630_MCToothCharacter_1.csv",
+    "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_brush_60.log",
+    "fps": 60,
+    "case": "Brush",
+    "passed": true,
+    "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_brush_60.json"
+  },
+  {
+    "standalone": true,
+    "trace": "E:\\DEVGAME\\MessControl\\Saved\\MotionDiagnostics\\solo_brushmove_60_20260929_113659_MCToothCharacter_1.csv",
+    "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_brushmove_60.log",
+    "fps": 60,
     "case": "BrushMove",
     "passed": true,
-    "fps": 60,
-    "trace": "E:\\DEVGAME\\MessControl\\Saved\\MotionDiagnostics\\solo_brushmove_60_20260929_083817_MCToothCharacter_1.csv",
-    "standalone": true,
-    "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_brushmove_60.log"
+    "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_brushmove_60.json"
   }
 ]

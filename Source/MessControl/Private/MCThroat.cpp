@@ -30,7 +30,7 @@ AMCThroat::AMCThroat()
     Uvula=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Uvula")); Uvula->SetupAttachment(Volume);
     Uvula->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     UvulaLanding=CreateDefaultSubobject<UBoxComponent>(TEXT("UvulaLanding")); UvulaLanding->SetupAttachment(Volume);
-    UvulaLanding->SetBoxExtent(FVector(35,43,16)); UvulaLanding->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+    UvulaLanding->SetBoxExtent(FVector(28,38,16)); UvulaLanding->SetCollisionProfileName(TEXT("BlockAllDynamic"));
     UvulaLanding->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore); UvulaLanding->SetCanEverAffectNavigation(false);
     ClosedBarrier=CreateDefaultSubobject<UBoxComponent>(TEXT("ClosedThroat")); ClosedBarrier->SetupAttachment(Volume);
     ClosedBarrier->SetCollisionProfileName(TEXT("BlockAllDynamic")); ClosedBarrier->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
@@ -71,7 +71,7 @@ void AMCThroat::BeginPlay()
     SculptedTissue->SetRelativeLocation(GateCenter); SculptedTissue->SetRelativeScale3D(FVector(1,GateSize.X/660,GateSize.Y/500));
     SculptedTissue->SetMaterial(0,TissueMaterial); Tissue->SetVisibility(!SculptedTissue->GetSkeletalMeshAsset());
     if (RingMaterial) { RingMID=UMaterialInstanceDynamic::Create(RingMaterial,this); ZoneRing->SetMaterial(0,RingMID); }
-    BuildRing();
+    BuildRing(); UpdatePresentation(0);
 }
 void AMCThroat::RebuildAppearance() { OnConstruction(GetActorTransform()); }
 void AMCThroat::EndPlay(const EEndPlayReason::Type Reason) { ResetSwallow(); Super::EndPlay(Reason); }
@@ -98,36 +98,94 @@ bool AMCThroat::CanOrderJump(const AMCToothCharacter* Hero) const
 {
     if(!IsValid(Hero) || !Hero->CanWork() || Hero->OrderJumpTarget || !Hero->GetCharacterMovement()->IsMovingOnGround()
         || ThroatPhase!=EMCThroatPhase::Collecting || !ContainsPlayer(Hero)) return false;
-    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) return true;
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) { FVector Velocity; return OrderVelocity(Hero,Velocity); }
     return false;
 }
 bool AMCThroat::LaunchToUvula(AMCToothCharacter* Hero)
 {
     if(!HasAuthority() || !CanOrderJump(Hero)) return false;
+    FVector Velocity; if(!OrderVelocity(Hero,Velocity)) return false;
+    Hero->CancelGameplayInput(); Hero->DropFood();
+    Hero->OrderJumpTarget=this; Hero->OrderJumpStartedAt=ServerNow(); Hero->bOrderJumpLaunched=false;
+    Hero->GetCharacterMovement()->StopMovementImmediately();
+    PreparingPlayers.AddUnique(Hero); Hero->ForceNetUpdate(); return true;
+}
+float AMCThroat::UvulaBodyClearance(FVector Center,float Radius,float HalfHeight) const
+{
+    // Circumscribed bands of the profile authored in refine_uvula_anatomy.py.
+    // This also covers the palatal root, which has no gameplay collision mesh.
+    const FVector2D Profile[]={{-1.6,380},{-1,180},{-.55,72},{-.20,37},{.16,29},{.40,32},{.60,40},{.78,46},{1,46}};
+    const FTransform Shape=Uvula->GetComponentTransform();
+    const FVector Scale=Shape.GetScale3D().GetAbs();
+    const float Length=FMath::Max(1.f,100*Scale.Z);
+    float Clearance=MAX_flt;
+    const float Stem=FMath::Max(0.f,HalfHeight-Radius);
+    for(int32 I=0;I<=8;++I) {
+        const FVector P=Shape.InverseTransformPositionNoScale(Center+FVector(0,0,FMath::Lerp(-Stem,Stem,I/8.f)));
+        const float T=FMath::Clamp(float(-P.Z/Length),-1.6f,1.f);
+        float R=46;
+        for(int32 J=1;J<UE_ARRAY_COUNT(Profile);++J) if(T<=Profile[J].X) { R=FMath::Max(Profile[J-1].Y,Profile[J].Y); break; }
+        const float Rx=R*.82f*Scale.X+4,Ry=R*Scale.Y+4;
+        const float Radial=(FVector2D(P.X/Rx,P.Y/Ry).Size()-1)*FMath::Min(Rx,Ry);
+        const float Axial=FMath::Abs(float(P.Z+T*Length));
+        const float Distance=Axial>0?FVector2D(FMath::Max(0.f,Radial),Axial).Size():Radial;
+        // Four extra centimetres enclose the gaps between sampled capsule spheres.
+        Clearance=FMath::Min(Clearance,Distance-Radius-4);
+    }
+    return Clearance;
+}
+bool AMCThroat::OrderVelocity(const AMCToothCharacter* Hero,FVector& Velocity) const
+{
     const FVector Goal=UvulaLanding->GetComponentLocation()+FVector(0,0,16+Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3);
     constexpr float Flight=1.05f;
-    FVector Velocity=(Goal-Hero->GetActorLocation())/Flight;
+    Velocity=(Goal-Hero->GetActorLocation())/Flight;
     Velocity.Z+=FMath::Abs(Hero->GetCharacterMovement()->GetGravityZ())*Flight*.5f;
     // Validate the complete capsule arc before committing the assisted jump.
     const FVector Start=Hero->GetActorLocation(); FVector Previous=Start;
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCOrderJump),false,Hero); Query.AddIgnoredActor(this);
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) Query.AddIgnoredActor(*It);
-    for(int32 I=1;I<=16;++I) {
-        const float T=Flight*I/16; const FVector P=Start+Velocity*T+FVector(0,0,Hero->GetCharacterMovement()->GetGravityZ()*T*T*.5f);
+    for(int32 I=1;I<=32;++I) {
+        const float T=Flight*I/32; const FVector P=Start+Velocity*T+FVector(0,0,Hero->GetCharacterMovement()->GetGravityZ()*T*T*.5f);
+        if(UvulaBodyClearance(P,Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+6,
+            Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+4)<2) return false;
         FHitResult Hit; if(GetWorld()->SweepSingleByChannel(Hit,Previous,P,FQuat::Identity,ECC_Pawn,
             FCollisionShape::MakeCapsule(Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()*.85f,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*.95f),Query)) return false;
         Previous=P;
     }
-    Hero->DropFood(); Hero->OrderJumpTarget=this;
-    Hero->ClientOrderLaunch_Implementation(Velocity);
-    if(!Hero->IsLocallyControlled()) Hero->ClientOrderLaunch(Velocity);
-    Hero->ForceNetUpdate(); return true;
+    return true;
+}
+void AMCThroat::UpdateOrderJumps()
+{
+    for(int32 I=PreparingPlayers.Num()-1;I>=0;--I) {
+        auto* Hero=PreparingPlayers[I].Get();
+        if(!Hero || Hero->OrderJumpTarget!=this) { PreparingPlayers.RemoveAtSwap(I); continue; }
+        bool HasMeal=false;
+        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) { HasMeal=true; break; }
+        if(!Hero->CanWork() || !Hero->GetCharacterMovement()->IsMovingOnGround()
+            || !ContainsPlayer(Hero) || ThroatPhase!=EMCThroatPhase::Collecting || !HasMeal) {
+            Hero->ClearOrderJump(); PreparingPlayers.RemoveAtSwap(I); continue;
+        }
+        Hero->GetCharacterMovement()->StopMovementImmediately();
+        const FRotator Facing=(UvulaLanding->GetComponentLocation()-Hero->GetActorLocation()).GetSafeNormal2D().Rotation();
+        Hero->SetActorRotation(FMath::RInterpTo(Hero->GetActorRotation(),Facing,GetWorld()->GetDeltaSeconds(),14.f));
+        if(ServerNow()-Hero->OrderJumpStartedAt<AMCToothCharacter::OrderPrepareSeconds) continue;
+        FVector Velocity;
+        // The scene can change during the crouch: recheck the arc at takeoff.
+        if(OrderVelocity(Hero,Velocity)) {
+            Hero->bOrderJumpLaunched=true;
+            Hero->ClientOrderLaunch_Implementation(Velocity);
+            if(!Hero->IsLocallyControlled()) Hero->ClientOrderLaunch(Velocity);
+            Hero->ForceNetUpdate();
+        } else Hero->ClearOrderJump();
+        PreparingPlayers.RemoveAtSwap(I);
+    }
 }
 void AMCThroat::NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed)
 {
     if (!HasAuthority() || !IsValid(Hero) || !Hero->CanWork() || Hit.GetComponent()!=UvulaLanding
         || Hit.ImpactNormal.Z<.55f || DownSpeed<30) return;
     LandedPlayers.AddUnique(Hero);
+    Hero->GetCharacterMovement()->StopMovementImmediately();
 }
 void AMCThroat::SetPhase(EMCThroatPhase Phase,double At)
 {
@@ -173,6 +231,8 @@ void AMCThroat::ResetSwallow()
 {
     if (!HasAuthority()) return;
     SpitOut(true);
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->OrderJumpTarget==this) It->ClearOrderJump();
+    PreparingPlayers.Reset();
     Meal.Reset(); LandedPlayers.Reset(); PressTime=Weight=0; bPressConsumed=false;
     SetPhase(EMCThroatPhase::Collecting,ServerNow());
 }
@@ -183,6 +243,7 @@ void AMCThroat::Tick(float Dt)
     if (HasAuthority())
     {
         const double Now=ServerNow();
+        UpdateOrderJumps();
         LandedPlayers.RemoveAll([this](const auto& Entry){auto* H=Entry.Get(); return !IsValid(H) || !H->CanWork() || H->GetMovementBaseObject()!=UvulaLanding;});
         Weight=FMath::Min(2.f,float(LandedPlayers.Num()));
         if (Weight<=0) { PressTime=0; bPressConsumed=false; }
@@ -190,12 +251,16 @@ void AMCThroat::Tick(float Dt)
         if (ThroatPhase==EMCThroatPhase::Collecting && Weight>0 && !bPressConsumed)
         {
             PressTime+=Dt*Weight;
-            if (PressTime>=PressSeconds)
+            if (PressTime>=FMath::Max(.48f,PressSeconds))
             {
                 bPressConsumed=true;
                 if (FoodInZone>0) {
                     SetPhase(EMCThroatPhase::Anticipation,Now);
-                    for(const auto& Entry:LandedPlayers) if(auto* Hero=Entry.Get()) Hero->LaunchCharacter(-GetActorForwardVector()*130+FVector(0,0,70),true,true);
+                    for(const auto& Entry:LandedPlayers) if(auto* Hero=Entry.Get()) {
+                        const FVector Hop=-GetActorForwardVector()*330+FVector(0,0,280);
+                        Hero->LaunchCharacter(Hop,true,true);
+                        if(!Hero->IsLocallyControlled()) Hero->ClientUvulaHop(Hop);
+                    }
                 }
             }
         }
@@ -231,17 +296,19 @@ void AMCThroat::UpdatePresentation(float Dt)
 {
     const float Time=ServerNow(),Open=OpenAmount();
     const float Target=Weight>0?1.f:0.f;
-    VisualWeight=Dt>0?FMath::FInterpTo(VisualWeight,Target,Dt,8.f):Target;
-    const float Pull=VisualWeight*38+((ThroatPhase==EMCThroatPhase::Anticipation)?18.f:0.f);
+    VisualWeight=Dt>0?FMath::Lerp(VisualWeight,Target,1-FMath::Exp(-8.f*Dt)):Target;
+    const float Pull=VisualWeight*28;
     const float Length=UvulaLength+Pull;
     // The authored uvula is 100 cm long, top-pivoted. The sphere is only a missing-asset fallback.
     const bool Authored=Uvula->GetStaticMesh() && Uvula->GetStaticMesh()->GetName()==TEXT("SM_Uvula");
     Uvula->SetRelativeLocation(Authored?UvulaTop:UvulaTop-FVector(0,0,Length*.5f));
     Uvula->SetRelativeScale3D(FVector(.7f,.85f,Length/100.f));
-    UvulaLanding->SetBoxExtent(FVector(35,43,16),false);
+    UvulaLanding->SetBoxExtent(FVector(28,38,16),false);
     const float Sway=FMath::Sin(Time*1.8f)*1.2f*(1-VisualWeight)+(ThroatPhase==EMCThroatPhase::Spasm?FMath::Sin(Time*28)*12:0);
     Uvula->SetRelativeRotation(FRotator(0,0,Sway));
-    UvulaLanding->SetRelativeLocation(UvulaTop+FRotator(0,0,Sway).RotateVector(FVector(0,0,-Length*.81f))-FVector(0,0,16));
+    // The character braces against the front of the bulb. A pad on its central
+    // axis let the visible stalk pass through the body despite a valid landing.
+    UvulaLanding->SetRelativeLocation(UvulaTop+FRotator(0,0,Sway).RotateVector(FVector(-86,0,-Length*.81f))-FVector(0,0,16));
     // The back wall always contains pawns and brushes. Captured food follows a kinematic arc.
     ClosedBarrier->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     const FLinearColor Color=ThroatPhase==EMCThroatPhase::Collecting?FLinearColor(.05f,1.f,.31f):

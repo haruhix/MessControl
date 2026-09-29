@@ -1,20 +1,20 @@
 [
   {
-    "fps": 30,
-    "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_brush_30.json",
-    "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_brush_30.log",
-    "case": "Brush",
     "standalone": true,
-    "trace": "E:\\DEVGAME\\MessControl\\Saved\\MotionDiagnostics\\solo_brush_30_20260929_083819_MCToothCharacter_1.csv",
-    "passed": true
+    "trace": "E:\\DEVGAME\\MessControl\\Saved\\MotionDiagnostics\\solo_brush_30_20260929_113541_MCToothCharacter_1.csv",
+    "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_brush_30.log",
+    "fps": 30,
+    "case": "Brush",
+    "passed": true,
+    "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_brush_30.json"
   },
   {
-    "fps": 30,
-    "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_brushmove_30.json",
-    "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_brushmove_30.log",
-    "case": "BrushMove",
     "standalone": true,
-    "trace": "E:\\DEVGAME\\MessControl\\Saved\\MotionDiagnostics\\solo_brushmove_30_20260929_083846_MCToothCharacter_1.csv",
-    "passed": true
+    "trace": "E:\\DEVGAME\\MessControl\\Saved\\MotionDiagnostics\\solo_brushmove_30_20260929_113606_MCToothCharacter_1.csv",
+    "log": "E:\\DEVGAME\\MessControl\\Saved\\Logs\\solo_brushmove_30.log",
+    "fps": 30,
+    "case": "BrushMove",
+    "passed": true,
+    "analysis": "E:\\DEVGAME\\MessControl\\Artifacts\\MotionStability\\solo_brushmove_30.json"
   }
 ]

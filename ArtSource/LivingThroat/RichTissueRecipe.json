@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-29",
+  "project": "MouthTissue.spp",
+  "texture_set": "Tissue",
+  "export": {"profile": "unreal-engine", "resolution": 4096},
+  "layers": {
+    "01 • Warm living tissue": {"srgb": [0.58, 0.055, 0.115], "roughness": 0.24, "metallic": 0},
+    "02 • Fine mucosal grain": {"height_opacity": 0.075, "uv_scale": [7, 7]},
+    "03 • Wet surface variation": {"roughness_opacity": 0.36},
+    "04 • Soft tissue mottling": {"base_color_blend": "Multiply", "opacity": 0.22, "contrast": 0.18, "disorder": 0.38},
+    "05 • Subtle capillary pattern": {"preserved": true}
+  },
+  "unreal_finish": "Tools/Unreal/finish_rich_mouth.py",
+  "notes": "Exported MouthPainting_Tissue_* maps replace TissueSwatch_Tissue_* in Textures. The Unreal script preserves cleaning masks and tongue pressure inputs."
+}

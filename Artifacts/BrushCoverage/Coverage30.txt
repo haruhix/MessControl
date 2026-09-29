@@ -1,0 +1,11 @@
+[2026.09.29-10.50.57:881][261]LogTemp: Display: MC_BRUSH_COVERAGE case=0 pass=1 left=0.0202 time=4.70 height=127.7 error=13.28 clearance=6.69 stretch=1.000 contacts=109
+[2026.09.29-10.51.00:089][388]LogTemp: Display: MC_BRUSH_COVERAGE case=1 pass=1 left=0.0210 time=4.20 height=141.3 error=15.33 clearance=1.00 stretch=1.000 contacts=95
+[2026.09.29-10.51.02:504][505]LogTemp: Display: MC_BRUSH_COVERAGE case=2 pass=1 left=0.0203 time=3.87 height=146.9 error=14.14 clearance=5.00 stretch=1.000 contacts=85
+[2026.09.29-10.51.04:865][621]LogTemp: Display: MC_BRUSH_COVERAGE case=3 pass=1 left=0.0218 time=3.83 height=129.8 error=15.83 clearance=6.52 stretch=1.000 contacts=83
+[2026.09.29-10.51.07:198][749]LogTemp: Display: MC_BRUSH_COVERAGE case=4 pass=1 left=0.0224 time=4.23 height=145.5 error=14.77 clearance=7.22 stretch=1.000 contacts=95
+[2026.09.29-10.51.09:968][880]LogTemp: Display: MC_BRUSH_COVERAGE case=5 pass=1 left=0.0226 time=4.33 height=129.2 error=13.44 clearance=4.29 stretch=1.000 contacts=98
+[2026.09.29-10.51.12:612][ 22]LogTemp: Display: MC_BRUSH_COVERAGE case=6 pass=1 left=0.0176 time=4.70 height=132.6 error=14.18 clearance=1.00 stretch=1.000 contacts=109
+[2026.09.29-10.51.15:402][154]LogTemp: Display: MC_BRUSH_COVERAGE case=7 pass=1 left=0.0240 time=4.37 height=122.9 error=15.76 clearance=4.81 stretch=1.000 contacts=99
+[2026.09.29-10.51.16:539][224]LogTemp: Display: MC_BRUSH_COVERAGE case=8 pass=1 left=0.0229 time=2.30 height=16.0 error=2.04 clearance=7.66 stretch=1.000 contacts=37
+[2026.09.29-10.51.20:672][486]LogTemp: Display: MC_BRUSH_COVERAGE case=9 pass=1 left=0.0247 time=8.70 height=39.7 error=6.13 clearance=7.34 stretch=1.000 contacts=229
+[2026.09.29-10.51.20:672][486]LogTemp: Display: MC_BRUSH_COVERAGE_PASS cases=10/10

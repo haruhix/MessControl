@@ -11,6 +11,9 @@
 #include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MCFoodActor.h"
+#include "MCThroat.h"
+#include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "MCLocomotionCycle.h"
 #include "TwoBoneIK.h"
 #include "Animation/AnimSequence.h"
@@ -31,6 +34,7 @@ public:
     FVector PreviousMeshLocation=FVector::ZeroVector;
     float ArtistHandAlpha[2]={0,0};
     float ArtistPushAlpha=0,ArtistTiredAlpha=0;
+    TWeakObjectPtr<AMCThroat> BraceThroat;
     FMCFootContactDebug Feet[2];
     void ArtistWorkPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
     {
@@ -236,10 +240,46 @@ public:
         }
         if (Tooth->Expression) Tooth->Expression->BuildBodyPose(Pose,Ref);
         ArtistWorkPose(Tooth,Ref,Dt);
+        const float Prepare=Tooth->AnimationOrderPrepare,Flight=Tooth->AnimationOrderFlight,Press=Tooth->AnimationOrderPress;
+        // Anticipation, reach in flight, then a short weighted crouch on the uvula.
+        Translate(TEXT("body"),FVector(0,0,-10*Prepare-4*Press));
+        Rotate(TEXT("body"),FRotator(10*Prepare-5*Flight+6*Press,0,0));
+        for(int32 Side=0;Side<2;++Side) {
+            const FString S=Side==0?TEXT("_l"):TEXT("_r"); const float Sign=Side==0?-1.f:1.f;
+            Rotate(FName(*(TEXT("arm")+S)),FRotator(22*Prepare-48*Flight,0,Sign*(10*Flight+6*Press)));
+            Rotate(FName(*(TEXT("forearm")+S)),FRotator(-14*Prepare-20*Flight,0,0));
+            Rotate(FName(*(TEXT("leg")+S)),FRotator(22*Prepare+8*Flight+12*Press,0,0));
+            Rotate(FName(*(TEXT("knee")+S)),FRotator(-36*Prepare-15*Flight-18*Press,0,0));
+        }
         if (Tooth->Grip) Tooth->Grip->BuildPose(Pose,Ref,Dt);
         if (Tooth->BrushContact) Tooth->BrushContact->BuildPose(Pose,Ref,Dt);
         PlaceFeet(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
+        // Brace both compact mittens against the uvula while the body stays in
+        // front of the stalk. Move each weighted wrist branch rigidly.
+        const auto* Base=Cast<UPrimitiveComponent>(Tooth->GetMovementBaseObject());
+        auto* Uvula=Base?Cast<AMCThroat>(Base->GetOwner()):nullptr;
+        if(Uvula && Uvula->UvulaLanding==Base) BraceThroat=Uvula;
+        if(Press<=.001f || !Tooth->ToothPhysics->CanAct()) BraceThroat.Reset();
+        // Keep the last support during release so the mittens return with the
+        // same press blend instead of snapping home when the movement base clears.
+        if(BraceThroat.IsValid() && Press>.001f) {
+            TArray<FTransform> CS;CS.SetNum(Pose.Num());
+            for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)>=0?Pose[I]*CS[Ref.GetParentIndex(I)]:Pose[I];
+            const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+            for(int32 Side=0;Side<2;++Side) {
+                const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+                const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
+                if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
+                const FVector Touch=BraceThroat->Uvula->GetComponentTransform().TransformPosition(FVector(-30,Side==0?-29:29,-48));
+                FTransform Goal=CS[Hand];
+                Goal.SetLocation(FMath::Lerp(Goal.GetLocation(),World.InverseTransformPosition(Touch),Press));
+                const int32 Parent=Ref.GetParentIndex(Lower);
+                const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Goal;
+                Pose[Lower]=Parent>=0?Branch.GetRelativeTransform(CS[Parent]):Branch;
+                Pose[Hand]=Ref.GetRefBonePose()[Hand];
+            }
+        }
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);
         if (auto* Diagnostics=Cast<UMCToothAnimInstance>(Instance); Diagnostics && Diagnostics->bRecordMotion)
