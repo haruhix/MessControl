@@ -1,0 +1,5 @@
+[2026.09.29-16.10.45:395][492]LogTemp: Display: MC_INVENTORY_CHECK PASS tool damages matching food
+[2026.09.29-16.10.45:395][492]LogTemp: Display: MC_INVENTORY_CHECK PASS pickaxe wrist travels through a broad arc
+[2026.09.29-16.10.47:681][649]LogTemp: Display: MC_INVENTORY_CHECK PASS tool damages matching food
+[2026.09.29-16.10.49:896][806]LogTemp: Display: MC_INVENTORY_CHECK PASS spray protects and heals with cooldown
+[2026.09.29-16.10.56:589][277]LogTemp: Display: MC_INVENTORY_PASS

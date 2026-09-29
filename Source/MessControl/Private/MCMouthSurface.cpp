@@ -71,9 +71,21 @@ void AMCMouthSurface::BeginPlay()
     }
 }
 bool AMCMouthSurface::IsClean() const { return !bUlcer && Status->State.CoffeeLeft==0; }
+bool AMCMouthSurface::IsNumb() const
+{
+    const auto* GS=GetWorld()->GetGameState();
+    return bUlcer && NumbUntil>(GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds());
+}
+bool AMCMouthSurface::ApplyAnesthetic(float Seconds)
+{
+    if(!HasAuthority() || !bUlcer || IsNumb() || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
+    const auto* GS=GetWorld()->GetGameState();
+    NumbUntil=(GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds())+FMath::Clamp(Seconds,1.f,60.f);
+    bDisturbed=false; ContactCooldown=0; ForceNetUpdate(); return true;
+}
 void AMCMouthSurface::Disturb()
 {
-    if (!HasAuthority() || !bUlcer) return;
+    if (!HasAuthority() || !bUlcer || IsNumb()) return;
     Healing=0;
     if (ContactCooldown<=0)
     {
@@ -121,8 +133,10 @@ void AMCMouthSurface::Tick(float Dt)
             const FBox Box=It->Body->Bounds.GetBox(); const FVector P=GetActorLocation();
             if (Box.Min.Z<P.Z+18 && Box.Max.Z>P.Z-10 && FVector::DistSquared2D(Box.GetClosestPointTo(P),P)<FMath::Square(62.f)) bDisturbed=true;
         }
+        if(IsNumb()) bDisturbed=false;
         if (bDisturbed) Disturb(); else Healing=FMath::Min(1.f,Healing+Dt/FMath::Max(1.f,HealSeconds));
-        auto* GS=GetWorld()->GetGameState<AMCGameState>(); GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DamagePerSecond*Dt);
+        auto* GS=GetWorld()->GetGameState<AMCGameState>();
+        if(!IsNumb()) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DamagePerSecond*Dt);
         if (Healing>=1) { Destroy(); return; }
     }
     UpdateLiquid(Dt);
@@ -135,6 +149,7 @@ void AMCMouthSurface::Tick(float Dt)
         UlcerMID->SetScalarParameterValue(TEXT("Healing"),Healing);
         UlcerMID->SetScalarParameterValue(TEXT("Disturbed"),bDisturbed?1.f:0.f);
         UlcerMID->SetScalarParameterValue(TEXT("Seed"),LiquidSeed);
+        UlcerMID->SetScalarParameterValue(TEXT("Frozen"),IsNumb()?1.f:0.f);
     }
     Visual->SetVisibility(bUlcer && !UlcerMID); Label->SetVisibility(bShowCareLabel && (bUlcer || !IsClean()));
     if (Material) Material->SetVectorParameterValue(TEXT("Tint"),bUlcer?FLinearColor(.6f,.01f,.035f):FLinearColor(.11f,.035f,.008f));
@@ -152,5 +167,6 @@ void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCMouthSurface,LiquidMaterial);
     DOREPLIFETIME(AMCMouthSurface,BrushUV); DOREPLIFETIME(AMCMouthSurface,BrushDirection); DOREPLIFETIME(AMCMouthSurface,BrushAt);
     DOREPLIFETIME(AMCMouthSurface,bUlcer); DOREPLIFETIME(AMCMouthSurface,Healing); DOREPLIFETIME(AMCMouthSurface,HealSeconds);
+    DOREPLIFETIME(AMCMouthSurface,NumbUntil);
     DOREPLIFETIME(AMCMouthSurface,DamagePerSecond); DOREPLIFETIME(AMCMouthSurface,DisturbDamage); DOREPLIFETIME(AMCMouthSurface,bDisturbed); DOREPLIFETIME(AMCMouthSurface,Batch);
 }

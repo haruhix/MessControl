@@ -5,6 +5,7 @@
 #include "MCMouthSurface.h"
 #include "MCCoffeeFlood.h"
 #include "MCGameState.h"
+#include "MCInventoryComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCCoreScenario.h"
@@ -145,6 +146,7 @@ void AMCGameMode::RestartShift()
     if (!SeedOption.IsEmpty()) State->RunSeed = FCString::Atoi(*SeedOption);
     Random.Initialize(State->RunSeed); PreviousEvent = INDEX_NONE;
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 8.;
+    State->StepStartedAt=State->GetServerWorldTimeSeconds(); State->PreviousStepFailed=false;
     State->ForceNetUpdate();
 }
 void AMCGameMode::Tick(float DeltaSeconds)
@@ -179,6 +181,7 @@ void AMCGameMode::StartDay()
     PreviousEvent = Choice;
     UMCDayEvent* Event = EventPool[Choice];
     State->CurrentEvent = Event; State->Phase = EMCShiftPhase::Working;
+    State->StepStartedAt=State->GetServerWorldTimeSeconds();
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + FMath::Max(25.f, Event->Duration - (State->Day-1)*4.f);
     const int32 Count = FMath::Clamp(Event->BaseTaskCount + (State->Day-1)/2 + FMath::Max(0, GetNumPlayers()-1), 1, 16);
     Objectives.Empty();
@@ -227,10 +230,13 @@ void AMCGameMode::FinishDay(bool bTimedOut)
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State || State->Phase != EMCShiftPhase::Working) return;
     if (bTimedOut) State->MouthHealth = FMath::Max(0.f, State->MouthHealth - State->TasksLeft * State->CurrentEvent->MissedTaskDamage);
+    State->PreviousStepFailed=bTimedOut;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) It->NotifyTaskFeedback(!bTimedOut);
     // Unfinished coffee, damage and food persist into the following day.
     State->TasksLeft = 0;
     State->Phase = State->MouthHealth <= 0 ? EMCShiftPhase::Lost : State->Day >= State->RunSettings.DaysToSurvive && (GetNumPlayers()==0 || HasLivingPlayers()) ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 7.;
+    State->StepStartedAt=State->GetServerWorldTimeSeconds();
     State->ForceNetUpdate();
 }
 
@@ -288,6 +294,8 @@ void AMCGameMode::ProcessRespawns()
         if (!Reserve->ConsumeForRespawn()) { NewHero->Destroy(); ++I; continue; }
         if (Old->Status->Settings.bInheritReserveStatus) NewHero->Status->Restore(Inherited);
         NewHero->RespawnSourceId=Reserve->State.ToothId;
+        NewHero->Inventory->bWaterJetUnlocked=Old->Inventory->bWaterJetUnlocked;
+        NewHero->Inventory->SprayReadyAt=Old->Inventory->SprayReadyAt;
         for (auto& O:Objectives) if (!O.bCompleted && (O.Target==Old || O.Target==Reserve)) O.Target=NewHero;
         AController* Controller=Old->GetController(); Controller->Possess(NewHero);
         Old->RespawnAt=0; Old->SetLifeSpan(3); NewHero->ForceNetUpdate();

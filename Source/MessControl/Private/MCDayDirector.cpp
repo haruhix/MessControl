@@ -108,6 +108,7 @@ void AMCDayDirector::EnterStep()
         GS->bDayOneComplete=true; GS->Phase=EMCShiftPhase::Intermission; GS->PhaseEndsAt=0; GS->TasksLeft=0; GS->ForceNetUpdate(); return;
     }
     const auto& Step=Settings->Steps[GS->StepIndex]; StepStartedAt=GS->GetServerWorldTimeSeconds();
+    GS->StepStartedAt=StepStartedAt;
     GS->PhaseEndsAt=!GS->bDevManualEvents && Step.Seconds>0?StepStartedAt+Step.Seconds:0; GS->TasksTotal=0; GS->TasksLeft=0;
     // A directly selected cleanup/discard step needs the objects normally left by its predecessor.
     if (GS->bDevManualEvents && Step.Step==EMCDayStep::DiscardBrushes) DropBrushes();
@@ -141,6 +142,8 @@ void AMCDayDirector::Next(bool bFailed)
     if (!HasAuthority() || !Settings) return;
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if (!GS || GS->bDayOneComplete || !Settings->Steps.IsValidIndex(GS->StepIndex)) return;
     if (bFailed) { ++GS->FailedEvents; GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-Settings->Steps[GS->StepIndex].FailureDamage); }
+    GS->PreviousStepFailed=bFailed;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) It->NotifyTaskFeedback(!bFailed);
     if (Flood) Flood->Stop();
     ++GS->StepIndex; EnterStep();
 }

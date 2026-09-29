@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "MessControl.Inventory.NiagaraAsset",
+      "state": "Success",
+      "duration": 0.029097601771354675,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Inventory.SelectionAndMaterial",
+      "state": "Success",
+      "duration": 0.14445990324020386,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Inventory.SprayCooldownAndNaturalHealing",
+      "state": "Success",
+      "duration": 0.071915403008461,
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "passed": 3,
+  "failed": 0,
+  "skipped": 0,
+  "total": 3,
+  "duration": 0.24547290802001953
+}

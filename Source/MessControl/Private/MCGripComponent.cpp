@@ -461,7 +461,9 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     }
     const bool Emote=Tooth->Expression && Tooth->Expression->BodyAlpha()>.001f;
     const bool Swimming=Tooth->AnimationSwim>.05f;
-    Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote || Swimming,HandAlpha[1]>.001f || Emote || Swimming || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting()));
+    const bool ToolSwing=!Tooth->AnimationToolOffset.IsNearlyZero();
+    Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote || Swimming || ToolSwing,
+        HandAlpha[1]>.001f || Emote || Swimming || ToolSwing || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting()));
 }
 bool UMCGripComponent::BeginPlayerGrip(AMCToothCharacter* Player)
 {

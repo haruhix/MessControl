@@ -3,6 +3,7 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCFoodActor.h"
@@ -158,6 +159,7 @@ void AMCDayOneScenario::Tick(float Dt)
             if (Stage==1) H->StartHandle();
             if (Stage==2) H->StartBrush();
             if (Stage==3) H->ThrowItem();
+            if (Stage==4 && Food) H->Inventory->ServerSelect(Food->IsHardFood()?EMCToolSlot::Pickaxe:EMCToolSlot::Knife);
             if (Stage==6 && Slot==0) H->StartHandle();
         }
         if (Stage==4 && Slot==0 && Age>NextSwing) { H->SwingBrush(); NextSwing=Age+1; }

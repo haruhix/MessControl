@@ -25,12 +25,14 @@ void MCTickLiquidPerformance(UWorld* World);
 void MCTickCareValidation(UWorld* World);
 void MCTickBrushValidation(UWorld* World);
 void MCTickCameraValidation(UWorld* World);
+void MCTickInventoryValidation(UWorld* World);
 #endif
 
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
     if (FParse::Param(FCommandLine::Get(),TEXT("MCSwimTest"))) { TickSwim(DeltaSeconds); return; }
 #if !UE_BUILD_SHIPPING
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCInventoryTest"))) { MCTickInventoryValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCThroatTest"))) { TickThroat(DeltaSeconds); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCBrushTest"))) { MCTickBrushValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCCameraTest"))) { MCTickCameraValidation(GetWorld()); return; }

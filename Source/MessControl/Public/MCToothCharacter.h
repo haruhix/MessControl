@@ -53,6 +53,11 @@ public:
     FVector2D PaddleInput=FVector2D::ZeroVector;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Swimming") FVector_NetQuantizeNormal SwimIntent=FVector::ZeroVector;
     bool HasBrush() const;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Tools") TObjectPtr<class UMCInventoryComponent> Inventory;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Feedback") double TaskSuccessAt=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Feedback") double TaskFailureAt=-100;
+    void NotifyTaskFeedback(bool Success);
+    bool CanSwitchTool() const;
     UFUNCTION(BlueprintCallable, Category="Tools") void ThrowItem();
     UFUNCTION(Server,Reliable) void ServerThrowItem();
     UFUNCTION(Server,Unreliable) void ServerPaddle(FVector2D Direction);
@@ -88,6 +93,10 @@ public:
     FTransform StandingMeshTransform() const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<UCameraComponent> Camera;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="1500",ClampMax="1780")) float OverviewDistance=1750;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="500",ClampMax="700")) float OverviewHeight=620;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="75",ClampMax="95")) float OverviewFOV=86;
+    bool bMouthCameraInitialized=false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TObjectPtr<UMCAnimationProfile> AnimationProfile;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") TObjectPtr<UMCSoundPalette> SoundPalette;
     UPROPERTY(BlueprintReadWrite, Category="Animation") FMCAnimationSettings AnimationSettings;
@@ -105,6 +114,7 @@ public:
     float AnimationOrderPrepare=0,AnimationOrderFlight=0,AnimationOrderPress=0;
     FVector AnimationDirection=FVector::ForwardVector;
     FVector AnimationInertia=FVector::ZeroVector;
+    FVector AnimationToolOffset=FVector::ZeroVector;
     int32 ValidatedSwingCount=0, ConfirmedHitCount=0;
     int32 SuccessfulBrushContacts=0;
 protected:
@@ -122,6 +132,7 @@ private:
     void UpdateLocomotion(float Dt);
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void StartPrimary(); void StopPrimary();
+    void SelectBrush(); void SelectPickaxe(); void SelectKnife(); void SelectSpray();
     void ResolvePrimaryAction();
     void TogglePanel(); void ToggleConnection(); void RestartRun();
     UFUNCTION(Server, Reliable) void ServerSetWorking(bool bBrush, bool bActive);
@@ -151,6 +162,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> SwingAction;
     UPROPERTY() TObjectPtr<UInputAction> SelfCareAction;
     UPROPERTY() TObjectPtr<UInputAction> ThrowAction;
+    UPROPERTY() TArray<TObjectPtr<UInputAction>> ToolActions;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StatusMaterial;
     UPROPERTY() TArray<TObjectPtr<UMaterialInstanceDynamic>> FaceMaterials;
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;

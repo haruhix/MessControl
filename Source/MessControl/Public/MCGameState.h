@@ -20,6 +20,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 TasksLeft = 0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 TasksTotal = 0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") double PhaseEndsAt = 0.;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Shift") double StepStartedAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Shift") bool PreviousStepFailed=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") TObjectPtr<UMCDayEvent> CurrentEvent;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Shift") int32 RunSeed = 0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Day Plan") TObjectPtr<UMCDayPlan> DayPlan;

@@ -10,6 +10,10 @@
 #include "MCGameState.h"
 #include "MCMotionRecorder.h"
 #include "MCTongue.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystemInstanceController.h"
+#include "NiagaraSystemInstance.h"
+#include "NiagaraEmitterInstance.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -28,13 +32,15 @@
 #endif
 
 void MCTickBrushCoverage(UWorld* World);
+void MCTickBrushFacingValidation(UWorld* World);
 void MCTickBrushValidation(UWorld* World)
 {
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCBrushFacing"))) { MCTickBrushFacingValidation(World); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCBrushCoverage"))) { MCTickBrushCoverage(World); return; }
     struct FRun {
         TWeakObjectPtr<UWorld> World; TWeakObjectPtr<AMCToothCharacter> Hero; TWeakObjectPtr<AMCArenaTooth> Tooth;
         TWeakObjectPtr<ACameraActor> Camera; bool Setup=false,Invalid=false; float Age=0,NextFrame=0,LastFrame=-1,MaxError=0,MaxTravel=0,MaxWristStretch=1,MinHandClearance=MAX_flt;
-        int32 Seen=0,Frame=0,Contacts=0; uint32 PausedHash=0; FString Timing;
+        int32 Seen=0,Frame=0,Contacts=0,PeakFoam=0,ReleasedFoam=-1; uint32 PausedHash=0; FString Timing;
         FVector LastFreeHand=FVector::ZeroVector,LastWorkHand=FVector::ZeroVector; float FreeHandStep=0,WorkHandStep=0; bool HadFreeHand=false;
         TWeakObjectPtr<UMCMotionRecorder> Recorder;
         bool Moving=false,Jumped=false,Air=false; int32 ReturnSamples=0; FVector MotionStart=FVector::ZeroVector; float MotionSpeed=0,ReturnTravel=0,ReachExcess=0;
@@ -139,6 +145,15 @@ void MCTickBrushValidation(UWorld* World)
         }
     }
     if(Changed>0) R.Seen|=4;
+    if(Measure && R.Hero.IsValid()) {
+        int32 Particles=0;
+        if(auto* Foam=R.Hero->FindComponentByClass<UNiagaraComponent>()) if(auto Controller=Foam->GetSystemInstanceController()) {
+            Controller->WaitForConcurrentTickAndFinalize();
+            if(auto* System=Controller->GetSystemInstance_Unsafe()) for(const auto& Emitter:System->GetEmitters()) Particles+=Emitter->GetNumParticles();
+        }
+        R.PeakFoam=FMath::Max(R.PeakFoam,Particles);
+        if(T>11.5f) R.ReleasedFoam=Particles;
+    }
     if(T>4.5f && T<5.3f) {if(!R.PausedHash) R.PausedHash=Hash; R.Invalid|=R.PausedHash!=Hash; R.Seen|=8;}
     if(Changed>0 && Tooth->Status->State.CoffeeLeft>0) R.Seen|=16;
     if(Capture && T>=R.NextFrame && T<12) {
@@ -149,11 +164,12 @@ void MCTickBrushValidation(UWorld* World)
     }
     if(T>(Host?15:13) || R.Age>60) {
         const bool MotionPass=!MovementCase || (R.ReturnSamples>2 && R.ReturnTravel>30 && R.Air && R.MotionSpeed>470 && FVector::Dist2D(R.MotionStart,R.Hero->GetActorLocation())>300 && R.ReachExcess<=12);
-        const bool Pass=MotionPass && R.Seen==31 && !R.Invalid && (!Host || (R.FreeHandStep<1.5f && R.WorkHandStep<10)) && (!Measure || (R.Contacts>20 && R.MaxError<18 && R.ReachExcess<=12 && R.MaxWristStretch<1.05f && R.MinHandClearance>=8));
+        const bool Pass=MotionPass && R.Seen==31 && !R.Invalid && (!Host || (R.FreeHandStep<1.5f && R.WorkHandStep<10)) && (!Measure || (R.Contacts>20 && R.MaxError<18 && R.ReachExcess<=12 && R.MaxWristStretch<1.05f && R.MinHandClearance>=8 && R.PeakFoam>0 && R.ReleasedFoam==0));
         if(Capture) FFileHelper::SaveStringToFile(R.Timing,*(FPaths::ProjectSavedDir()/TEXT("BrushFrames/times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_%s net=%d seen=%d cells=%d hash=%u contactError=%.2f contacts=%d handTravel=%.2f wristStretch=%.3f groundClearance=%.2f"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),R.Seen,Changed,Hash,R.MaxError,R.Contacts,R.MaxTravel,R.MaxWristStretch,R.MinHandClearance);
         UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_FREE_HAND maxStep60=%.3f cm (limit 1.5, including start/stop/reacquire)"),R.FreeHandStep);
         UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_WORK_HAND maxStep60=%.3f cm (limit 10)"),R.WorkHandStep);
+        if(Measure) UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_NIAGARA peakParticles=%d releasedParticles=%d"),R.PeakFoam,R.ReleasedFoam);
         if(MovementCase) UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_MOTION pass=%d air=%d speed=%.1f returnTravel=%.2f samples=%d"),MotionPass,R.Air,R.MotionSpeed,R.ReturnTravel,R.ReturnSamples);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     }

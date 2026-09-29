@@ -22,7 +22,11 @@ public:
     void Release();
     bool CanReach(FVector Point,FVector Normal) const;
     bool CanAcquireSurface(const AActor* Surface) const;
+    bool CanBrushToward(FVector Point) const;
+    bool WantsFacing(FVector& Direction) const;
+    bool IsFacingContact() const;
     UPROPERTY(EditAnywhere, Category="Brush") float SurfaceReach=210.f;
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Brush|VFX") TSoftObjectPtr<class UNiagaraSystem> FoamSystem;
     // World-space travel from the resting wrist, independent of bone lengths.
     UPROPERTY(EditAnywhere, Category="Brush", meta=(ClampMin="1")) float MaxHandTravel=135.f;
     UPROPERTY(EditAnywhere, Category="Brush", meta=(ClampMin="1")) float MaxHandVerticalTravel=250.f;
@@ -43,12 +47,10 @@ private:
     FTransform SurfaceTransform() const;
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
     TWeakObjectPtr<class AMCTongue> Tongue;
-    UPROPERTY() TObjectPtr<class UInstancedStaticMeshComponent> Foam;
-    struct FBubble { FVector Position,Velocity; float Age=0,Life=1,Radius=1; };
-    TArray<FBubble> Bubbles;
-    float Blend=0,SpawnClock=0;
+    UPROPERTY() TObjectPtr<class UNiagaraComponent> Foam;
+    bool bFoamEmitting=false;
+    float Blend=0;
     mutable FTransform PresentedHand=FTransform::Identity;
     mutable FTransform PresentationBase=FTransform::Identity;
     mutable bool bHandPresented=false;
-    FRandomStream Random{781};
 };

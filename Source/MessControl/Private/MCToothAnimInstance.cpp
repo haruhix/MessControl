@@ -1,5 +1,6 @@
-#include "MCToothAnimInstance.h"
+﻿#include "MCToothAnimInstance.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
@@ -215,9 +216,17 @@ public:
         // Free hands trail acceleration and spread on slippery ground to recover balance.
         Rotate(TEXT("gaze_head"),FRotator(-Tooth->AnimationInertia.X*3,Tooth->AnimationTurn*4,Tooth->AnimationInertia.Y*3));
         Rotate(TEXT("arm_l"),FRotator(-FMath::Sin(G-.25f)*24*Speed-Tooth->AnimationInertia.X*8,0,-10-Tooth->AnimationSlip*18));
-        // Stay inside the shoulder/wrist stops even at the strongest F1 preset.
-        Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle+FMath::Sin(G-.25f)*18*Speed-Tooth->AnimationInertia.X*8,-50.f,50.f),0,10+Tooth->AnimationSlip*18));
-        Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle*0.3f,-35.f,35.f),0,0));
+        // Pickaxe reach is positioned below; its wrist supplies the tool rotation.
+        const bool WideSwing=Tooth->Inventory && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe;
+        Rotate(TEXT("arm_r"),FRotator(FMath::Clamp((WideSwing?0:Tooth->AnimationBrushAngle)+FMath::Sin(G-.25f)*18*Speed-Tooth->AnimationInertia.X*8,-60.f,65.f),0,10+Tooth->AnimationSlip*18));
+        Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle*(WideSwing?1.f:.3f),WideSwing?-115.f:-35.f,WideSwing?115.f:35.f),0,0));
+        // The current character has compact floating mittens. Move the wrist branch
+        // through a visible overhead arc while preserving palm/finger proportions.
+        if(WideSwing && !Tooth->AnimationToolOffset.IsNearlyZero()) {
+            Translate(TEXT("forearm_r"),Tooth->StandingMeshTransform().InverseTransformVectorNoScale(Tooth->AnimationToolOffset));
+            Rotate(TEXT("body"),FRotator(Tooth->AnimationToolOffset.X*.10f,0,-Tooth->AnimationToolOffset.Z*.04f));
+            Rotate(TEXT("arm_l"),FRotator(-Tooth->AnimationToolOffset.Z*.22f,0,-Tooth->AnimationToolOffset.Z*.10f));
+        }
         // Blend a readable dog-paddle over locomotion; contact IK still owns a held hand.
         if (Tooth->AnimationSwim>.001f)
         {

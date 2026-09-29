@@ -1,0 +1,2196 @@
+{
+  "info": {
+    "parentClass": {
+      "refPath": "/Script/MessControl.MCGameplayHUD"
+    },
+    "rootWidgetClass": {
+      "refPath": "/Script/UMG.ScaleBox"
+    },
+    "widgetCount": 115,
+    "inheritedWidgetCount": 0,
+    "namedSlotCount": 0
+  },
+  "widgets": [
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ViewportScale"
+      },
+      "parent": "None",
+      "slot": "None",
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ScaleBox"
+      },
+      "widgetName": "ViewportScale",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.DesignSize"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ViewportScale"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ViewportScale.ScaleBoxSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.SizeBox"
+      },
+      "widgetName": "DesignSize",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.DesignSize"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.DesignSize.SizeBoxSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "HUDRoot",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "ObjectivesPanel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.DayBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "DayBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.DayTitle"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "DayTitle",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventTitle"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "EventTitle",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "TaskCard",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "TaskBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskIcon"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "TaskIcon",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskLabel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "TaskLabel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskProgress"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "TaskProgress",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskValue"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TaskCard.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "TaskValue",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "CleanCard",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "CleanBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanIcon"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "CleanIcon",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanLabel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "CleanLabel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanProgress"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "CleanProgress",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanValue"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CleanCard.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "CleanValue",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ObjectivesPanel.CanvasPanelSlot_5"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "HealthCard",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "HealthBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthIcon"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "HealthIcon",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthLabel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "HealthLabel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthProgress"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "HealthProgress",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthValue"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HealthCard.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "HealthValue",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "TimerPanel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "TimerBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerValue"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "TimerValue",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerLabel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "TimerLabel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerProgress"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.TimerPanel.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "TimerProgress",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "PlayersPanel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Player1",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1Frame"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Player1Frame",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Player1BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1Face"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "Player1Face",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1Name"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Player1Name",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1Health"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player1.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "Player1Health",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Player2",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2Frame"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Player2Frame",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Player2BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2Face"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "Player2Face",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2Name"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Player2Name",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2Health"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player2.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "Player2Health",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Player3",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3Frame"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Player3Frame",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Player3BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3Face"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "Player3Face",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3Name"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Player3Name",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3Health"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player3.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "Player3Health",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.PlayersPanel.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Player4",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4Frame"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Player4Frame",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Player4BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4Face"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "Player4Face",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4Name"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Player4Name",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4Health"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Player4.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "Player4Health",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "EventsPanel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsLabel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "EventsLabel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Timeline0",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Timeline0BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0Fill"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "Timeline0Fill",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0Accent"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Timeline0Accent",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0Label"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Timeline0Label",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0Title"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline0.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Timeline0Title",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Timeline1",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Timeline1BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1Fill"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "Timeline1Fill",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1Accent"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Timeline1Accent",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1Label"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Timeline1Label",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1Title"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline1.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Timeline1Title",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.EventsPanel.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Timeline2",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Timeline2BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2Fill"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "Timeline2Fill",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2Accent"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Timeline2Accent",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2Label"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Timeline2Label",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2Title"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Timeline2.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Timeline2Title",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "InventoryPanel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ToolTitleBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "ToolTitleBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ToolTitle"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "ToolTitle",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Tool1",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1Frame"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool1Frame",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool1BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1Icon"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "Tool1Icon",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1KeyBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool1KeyBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1Key"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool1.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Tool1Key",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Tool2",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2Frame"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool2Frame",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool2BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2Icon"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "Tool2Icon",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2KeyBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool2KeyBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2Key"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool2.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Tool2Key",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Tool3",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3Frame"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool3Frame",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool3BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3Icon"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "Tool3Icon",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3KeyBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool3KeyBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3Key"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool3.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Tool3Key",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel.CanvasPanelSlot_5"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "Tool4",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4Frame"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool4Frame",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4BG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool4BG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4Icon"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/MessControl.MCHUDIcon"
+      },
+      "widgetName": "Tool4Icon",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4KeyBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4.CanvasPanelSlot_3"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "Tool4KeyBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4Key"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.Tool4.CanvasPanelSlot_4"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "Tool4Key",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.SprayCooldown"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.InventoryPanel.CanvasPanelSlot_6"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "SprayCooldown",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CooldownBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.SprayCooldown"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.SprayCooldown.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "CooldownBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CooldownValue"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.SprayCooldown"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.SprayCooldown.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "CooldownValue",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.CooldownProgress"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.SprayCooldown"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.SprayCooldown.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "CooldownProgress",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ToolHelp"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot.CanvasPanelSlot_5"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "ToolHelp",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HintPanel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot.CanvasPanelSlot_6"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "HintPanel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HintBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HintPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HintPanel.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "HintBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ActionHint"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HintPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HintPanel.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "ActionHint",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ContactProgress"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HintPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HintPanel.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.ProgressBar"
+      },
+      "widgetName": "ContactProgress",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultsPanel"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.HUDRoot.CanvasPanelSlot_7"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.CanvasPanel"
+      },
+      "widgetName": "ResultsPanel",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultsBG"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultsPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultsPanel.CanvasPanelSlot_0"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.Image"
+      },
+      "widgetName": "ResultsBG",
+      "bIsVariable": true,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultTitle"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultsPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultsPanel.CanvasPanelSlot_1"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "ResultTitle",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    },
+    {
+      "widget": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultDetail"
+      },
+      "parent": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultsPanel"
+      },
+      "slot": {
+        "refPath": "/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD:WidgetTree.ResultsPanel.CanvasPanelSlot_2"
+      },
+      "namedSlotHost": "None",
+      "widgetClassPath": {
+        "refPath": "/Script/UMG.TextBlock"
+      },
+      "widgetName": "ResultDetail",
+      "bIsVariable": false,
+      "bInherited": false,
+      "uIComponents": []
+    }
+  ]
+}

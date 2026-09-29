@@ -5,10 +5,12 @@
 #include "EngineUtils.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCToothMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
-#include "Components/InstancedStaticMeshComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 #include "Engine/SkeletalMesh.h"
 #include "Engine/StaticMesh.h"
 #include "GameFramework/GameStateBase.h"
@@ -18,17 +20,18 @@
 UMCBrushContactComponent::UMCBrushContactComponent()
 {
     PrimaryComponentTick.bCanEverTick=true; SetIsReplicatedByDefault(true);
+    FoamSystem=TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_BrushFoam.NS_BrushFoam")));
 }
 void UMCBrushContactComponent::BeginPlay()
 {
     Super::BeginPlay(); Hero=Cast<AMCToothCharacter>(GetOwner());
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
     if (!Hero || GetNetMode()==NM_DedicatedServer) return;
-    Foam=NewObject<UInstancedStaticMeshComponent>(Hero,TEXT("BrushFoam"));
-    Foam->SetupAttachment(Hero->GetRootComponent()); Foam->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    Foam->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Sphere.Sphere")));
-    Foam->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Care/M_BrushFoam.M_BrushFoam")));
-    Foam->SetCastShadow(false); Foam->RegisterComponent(); Hero->AddInstanceComponent(Foam);
+    if(auto* System=FoamSystem.LoadSynchronous()) {
+        Foam=NewObject<UNiagaraComponent>(Hero,TEXT("BrushFoamNiagara"));
+        Foam->SetupAttachment(Hero->GetRootComponent()); Foam->SetAutoActivate(false);
+        Foam->SetAsset(System); Foam->SetCastShadow(false); Foam->RegisterComponent(); Hero->AddInstanceComponent(Foam);
+    }
     PrimaryComponentTick.AddPrerequisite(Hero,Hero->PrimaryActorTick);
 }
 FTransform UMCBrushContactComponent::SurfaceTransform() const
@@ -44,7 +47,7 @@ FVector UMCBrushContactComponent::BristlePoint() const
 { return Hero?Hero->Brush->GetComponentTransform().TransformPosition(FVector(72,0,-20)):FVector::ZeroVector; }
 bool UMCBrushContactComponent::IsTouchingSurface() const
 {
-    if(!IsValid(Target)) return false;
+    if(!IsValid(Target) || !IsFacingContact()) return false;
     // Headless simulation has no evaluated visible wrist. The server still
     // validates the same surface, reach and mask; rendered play waits for contact.
     if(!FApp::CanEverRender() || !GetWorld()->GetGameViewport()) return true;
@@ -117,7 +120,7 @@ FVector UMCBrushContactComponent::ClampHandOffset(FVector Offset) const
 bool UMCBrushContactComponent::CanReach(FVector Point,FVector Normal) const
 {
     const auto* H=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
-    if (!H || !H->GetMesh()->GetSkeletalMeshAsset() || !Hero) return false;
+    if (!H || !H->GetMesh()->GetSkeletalMeshAsset() || !Hero || !CanBrushToward(Point)) return false;
     const auto& Ref=H->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
     auto Rest=[&](FName Role) { FTransform T=FTransform::Identity; for(int32 I=Ref.FindBoneIndex(H->RigBone(Role));I>=0;I=Ref.GetParentIndex(I)) T=T*Ref.GetRefBonePose()[I]; return H->GetMesh()->GetComponentTransform().TransformPosition(T.GetLocation()); };
     const FVector Offset=HandGoal(Point,Normal).GetLocation()-Rest(TEXT("hand_r"));
@@ -132,8 +135,35 @@ bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
     else if(const auto* Patch=Cast<AMCMouthSurface>(Surface)) { if(Patch->bUlcer || Patch->IsClean()) return false; Bounds=Patch->Area; }
     if(!Bounds) return false;
     const FVector D=Bounds->Bounds.GetBox().GetClosestPointTo(H->GetActorLocation())-H->GetActorLocation();
-    return D.Size2D()<=SurfaceReach && FMath::Abs(D.Z)<=MaxHandVerticalTravel+70
-        && (Target==Surface || FVector::DotProduct(D.GetSafeNormal2D(),H->GetActorForwardVector())>-.5f);
+    // Facing is checked against the actual stain, not the nearest point of a
+    // large bounding box. Retaining a surface never bypasses that check.
+    return D.Size2D()<=SurfaceReach && FMath::Abs(D.Z)<=MaxHandVerticalTravel+70;
+}
+bool UMCBrushContactComponent::CanBrushToward(FVector Point) const
+{
+    const auto* H=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
+    if(!H) return false;
+    const FVector Direction=(Point-H->GetActorLocation()).GetSafeNormal2D();
+    if(Direction.IsNearlyZero() || FVector::DotProduct(Direction,H->GetActorForwardVector())<.25f) return false;
+    const auto* Move=Cast<UMCToothMovementComponent>(H->GetCharacterMovement());
+    // Walking away releases the stain immediately; the brush must not drag
+    // behind the body or turn the player against their movement input.
+    return !Move || FVector::DotProduct(Move->Intent(),Direction)>=-.15f;
+}
+bool UMCBrushContactComponent::WantsFacing(FVector& Direction) const
+{
+    if(!Hero || !IsValid(Target) || !Hero->bBrushing || !Hero->HasBrush() || !Hero->CanWork()
+        || Hero->HeldFood || Hero->bInCoffee || !CanBrushToward(ContactPoint())) return false;
+    const auto* GS=GetWorld()->GetGameState();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    if(Now-ContactAt>=.3) return false;
+    Direction=(ContactPoint()-Hero->GetActorLocation()).GetSafeNormal2D();
+    return !Direction.IsNearlyZero();
+}
+bool UMCBrushContactComponent::IsFacingContact() const
+{
+    return Hero && IsValid(Target) && CanBrushToward(ContactPoint())
+        && FVector::DotProduct((ContactPoint()-Hero->GetActorLocation()).GetSafeNormal2D(),Hero->GetActorForwardVector())>=.85f;
 }
 void UMCBrushContactComponent::Contact(AActor* Surface,FVector Point,FVector Normal)
 {
@@ -149,24 +179,15 @@ void UMCBrushContactComponent::TickComponent(float Dt,ELevelTick Type,FActorComp
     if(!Hero) return;
     const double Now=GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     const bool Active=IsValid(Target) && Now-ContactAt<.3 && Hero->bBrushing && Hero->CanWork() && !Hero->HeldFood
-        && CanAcquireSurface(Target) && CanReach(ContactPoint(),ContactNormal());
+        && IsFacingContact() && CanAcquireSurface(Target) && CanReach(ContactPoint(),ContactNormal());
     Blend=FMath::FInterpConstantTo(Blend,Active?1.f:0.f,Dt,3.f);
     if(!Active && Blend<=0 && !bHandPresented && GetOwner()->HasAuthority()) Target=nullptr;
     if(!Foam) return;
-    SpawnClock+=Dt;
-    if(Active && IsTouchingSurface() && SpawnClock>=.035f) {
-        SpawnClock=0; const FVector N=ContactNormal();
-        const FVector Side=FVector::CrossProduct(N,FMath::Abs(N.Z)>.9f?Hero->GetActorForwardVector():FVector::UpVector).GetSafeNormal();
-        for(int32 I=0;I<2 && Bubbles.Num()<90;++I)
-            Bubbles.Add({ContactPoint()+N*3+Side*Random.FRandRange(-10,10)+FVector::UpVector*Random.FRandRange(-8,8),
-                N*Random.FRandRange(6,22)+Side*Random.FRandRange(-16,16)+FVector::UpVector*Random.FRandRange(5,20),0,float(Random.FRandRange(.35f,.85f)),float(Random.FRandRange(1.2f,3.5f))});
-    }
-    Foam->ClearInstances();
-    for(int32 I=Bubbles.Num()-1;I>=0;--I) {
-        auto& B=Bubbles[I]; B.Age+=Dt; if(B.Age>=B.Life) {Bubbles.RemoveAtSwap(I);continue;}
-        B.Velocity.Z-=65*Dt; B.Position+=B.Velocity*Dt;
-        const float Size=B.Radius*(1-FMath::SmoothStep(B.Life*.55f,B.Life,B.Age))/50;
-        Foam->AddInstance(FTransform(FQuat::Identity,B.Position,FVector(Size)),true);
+    const bool Emit=Active && Hero->HasBrush() && IsTouchingSurface();
+    if(Emit) Foam->SetWorldLocationAndRotation(ContactPoint()+ContactNormal()*3,FRotationMatrix::MakeFromZ(ContactNormal()).Rotator());
+    if(Emit!=bFoamEmitting) {
+        if(Emit) Foam->Activate(true); else Foam->Deactivate();
+        bFoamEmitting=Emit;
     }
 }
 void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt) const
@@ -174,7 +195,7 @@ void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferen
     if(!Hero || !Hero->ToothPhysics->CanAct()) { bHandPresented=false; return; }
     const FTransform World=Hero->GetMesh()->GetComponentTransform();
     if(bHandPresented && FVector::DistSquared(World.GetLocation(),PresentationBase.GetLocation())>FMath::Square(200.f)) bHandPresented=false;
-    const bool Contact=IsValid(Target) && Blend>.001f && CanAcquireSurface(Target);
+    const bool Contact=IsValid(Target) && Blend>.001f && CanAcquireSurface(Target) && IsFacingContact();
     if(!Contact && !bHandPresented) return;
     const int32 Hand=Ref.FindBoneIndex(Hero->RigBone(TEXT("hand_r")));
     const int32 Lower=Ref.FindBoneIndex(Hero->RigBone(TEXT("forearm_r")));

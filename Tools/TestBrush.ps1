@@ -1,8 +1,8 @@
-param([string]$EngineRoot='E:\UE\UE_5.8',[switch]$Capture,[switch]$Solo,[int]$PacketLagMs=75,[int]$PacketLoss=2)
+param([string]$EngineRoot='E:\UE\UE_5.8',[switch]$Capture,[switch]$Solo,[ValidateRange(2,4)][int]$Players=4,[int]$PacketLagMs=75,[int]$PacketLoss=2)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 $taskExe=Join-Path $EngineRoot 'Engine\Binaries\Win64\UnrealEditor-Cmd.exe'
-$taskCount=if($Solo){1}else{4}
+$taskCount=if($Solo){1}else{$Players}
 $taskProcesses=@()
 try {
     for($taskIndex=0;$taskIndex -lt $taskCount;$taskIndex++) {

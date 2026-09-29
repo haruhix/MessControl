@@ -37,6 +37,9 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(Replicated, BlueprintReadOnly) bool bUlcer=false;
     UPROPERTY(Replicated, BlueprintReadOnly) float Healing=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") double NumbUntil=0;
+    UFUNCTION(BlueprintPure,Category="Ulcer") bool IsNumb() const;
+    bool ApplyAnesthetic(float Seconds);
     UPROPERTY(Replicated) float HealSeconds=15;
     UPROPERTY(Replicated) float DamagePerSecond=.35f;
     UPROPERTY(Replicated) float DisturbDamage=1;

@@ -76,6 +76,7 @@ public:
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
     void ConfigureBrush();
     bool HitFood(float Damage,FVector Direction);
+    bool IsHardFood() const;
     void Throw(AMCToothCharacter* Hero);
     float DragSpeed() const;
     bool IsDisposed() const { return Phase==EMCFoodPhase::Disposed; }

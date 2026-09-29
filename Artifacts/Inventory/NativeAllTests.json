@@ -1,0 +1,411 @@
+{
+  "tests": [
+    {
+      "name": "MessControl.Animation.ConnectedMouthMorphs",
+      "state": "Success",
+      "duration": 0.5962563157081604,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Animation.EmotesReactionsAndSpeech",
+      "state": "Success",
+      "duration": 0.2986530065536499,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Animation.GripPoseContinuity",
+      "state": "Success",
+      "duration": 3.875406503677368,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Animation.SoloMovementTransitions",
+      "state": "Success",
+      "duration": 18.408851623535156,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Animation.Teeth3Layers",
+      "state": "Success",
+      "duration": 0.007251199334859848,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Care.LocalToothCleaning",
+      "state": "Success",
+      "duration": 0.08466199785470963,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Coffee.ControlledSwimming",
+      "state": "Success",
+      "duration": 0.7254037857055664,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Coffee.PourAndDrain",
+      "state": "Success",
+      "duration": 0.1877695918083191,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Coffee.SurfaceAndRagdollSwimming",
+      "state": "Success",
+      "duration": 0.5058211088180542,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.DayOne.MenuFragmentsMassAndSpoilage",
+      "state": "Success",
+      "duration": 0.08616329729557037,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.DayOne.PhysicalBrushAndCorrectDisposal",
+      "state": "Success",
+      "duration": 0.0947054997086525,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.DayOne.SequenceAndNoGlobalDeadline",
+      "state": "Success",
+      "duration": 0.11967679858207703,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.DayOne.UlcerProtectionAndCoffeeControl",
+      "state": "Success",
+      "duration": 0.07200880348682404,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Development.EventSandbox",
+      "state": "Success",
+      "duration": 0.3180854916572571,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.ArenaAuthoredPlacement",
+      "state": "Success",
+      "duration": 0.06422270089387894,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.ArenaBrushHit",
+      "state": "Success",
+      "duration": 0.09167700260877609,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.ArenaToothLifecycle",
+      "state": "Success",
+      "duration": 0.0632098987698555,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.ConcreteReserveRespawn",
+      "state": "Success",
+      "duration": 0.07474619895219803,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.FoodGripPullAndImpact",
+      "state": "Success",
+      "duration": 0.1868395060300827,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.RestingFoodDoesNotLaunchPlayers",
+      "state": "Success",
+      "duration": 0.14127320051193237,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.RunRules",
+      "state": "Success",
+      "duration": 0.09244140237569809,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.SevenDayVictory",
+      "state": "Success",
+      "duration": 0.08118519932031631,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.SharedStatusAndCare",
+      "state": "Success",
+      "duration": 0.07323430478572845,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.TimeoutAndLoss",
+      "state": "Success",
+      "duration": 0.06205819919705391,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gameplay.WorkValidationAndCooperation",
+      "state": "Success",
+      "duration": 0.07076139748096466,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gaze.AttentionAndOcclusion",
+      "state": "Success",
+      "duration": 0.08009889721870422,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Gaze.PupilResponseAndRecovery",
+      "state": "Success",
+      "duration": 0.8093116879463196,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.AnglesAndBounds",
+      "state": "Success",
+      "duration": 0.00986430048942566,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.ArtistMeshContacts",
+      "state": "Success",
+      "duration": 0.2602168023586273,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.ContactAndRelease",
+      "state": "Success",
+      "duration": 0.518383800983429,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.EmptyMenuSlots",
+      "state": "Success",
+      "duration": 0.05746689811348915,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.HeavyArtistFoodMoves",
+      "state": "Success",
+      "duration": 1.2918287515640259,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.PhysicalTurning",
+      "state": "Success",
+      "duration": 1.614986538887024,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.PlayerPullAndThrow",
+      "state": "Success",
+      "duration": 0.4374488890171051,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.PrimaryCarryAndCare",
+      "state": "Success",
+      "duration": 0.8347010016441345,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Grip.TwoSmallObjects",
+      "state": "Success",
+      "duration": 0.8079115152359009,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Inventory.NiagaraAsset",
+      "state": "Success",
+      "duration": 0.009110599756240845,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Inventory.SelectionAndMaterial",
+      "state": "Success",
+      "duration": 0.07245460152626038,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Inventory.SprayCooldownAndNaturalHealing",
+      "state": "Success",
+      "duration": 0.061370600014925,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Liquid.AuthoritativeBrushContact",
+      "state": "Success",
+      "duration": 0.08109930157661438,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Liquid.PersistentLocalWipe",
+      "state": "Success",
+      "duration": 0.009018801152706146,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Liquid.SpawnIgnoresDynamicObstacles",
+      "state": "Success",
+      "duration": 0.06739199906587601,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.Locomotion.CleanedPuddleFooting",
+      "state": "Success",
+      "duration": 0.05134560167789459,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Locomotion.FootCycleContinuity",
+      "state": "Success",
+      "duration": 0.00841519981622696,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Locomotion.SprintSurfacesAndMomentum",
+      "state": "Success",
+      "duration": 0.8234620094299316,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Physics.ArtistRigIntegration",
+      "state": "Success",
+      "duration": 0.10754460096359253,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Physics.AuthorityAndActionGates",
+      "state": "Success",
+      "duration": 0.17292529344558716,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Physics.RigAndTuning",
+      "state": "Success",
+      "duration": 0.008090797811746597,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Throat.BoundsHeldFoodAndReset",
+      "state": "Success",
+      "duration": 0.08245180547237396,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Throat.ClosedUntilWeightedLanding",
+      "state": "Success",
+      "duration": 0.08266069740056992,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Throat.OrderJumpEscapeAndSpasm",
+      "state": "Success",
+      "duration": 0.07992050051689148,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Tongue.AutomaticJoltAndReset",
+      "state": "Success",
+      "duration": 0.6158413290977478,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Tongue.DesignerPresets",
+      "state": "Success",
+      "duration": 0.0502437986433506,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Tongue.EventProfiles",
+      "state": "Success",
+      "duration": 0.15941470861434937,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Tongue.PlayerWeightAndLanding",
+      "state": "Success",
+      "duration": 2.449323892593384,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Tongue.WaveTimingAndSafety",
+      "state": "Success",
+      "duration": 0.04449710249900818,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Tongue.WeightContactsAndRecovery",
+      "state": "Success",
+      "duration": 3.409985303878784,
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "passed": 57,
+  "failed": 0,
+  "skipped": 0,
+  "total": 57,
+  "duration": 41.5511474609375
+}

@@ -1,4 +1,2 @@
-[2026.09.28-22.55.38:682][596]LogTemp: Display: MC_BRUSH_PASS net=2 seen=31 cells=108 hash=2949345144 contactError=0.00 contacts=0 handTravel=0.00 wristStretch=1.000 groundClearance=340282346638528859811704183484516925440.00
-[2026.09.28-22.55.36:801][715]LogTemp: Display: MC_BRUSH_PASS net=3 seen=31 cells=108 hash=2949345144 contactError=0.00 contacts=0 handTravel=0.00 wristStretch=1.000 groundClearance=340282346638528859811704183484516925440.00
-[2026.09.28-22.55.36:813][774]LogTemp: Display: MC_BRUSH_PASS net=3 seen=31 cells=108 hash=2949345144 contactError=0.00 contacts=0 handTravel=0.00 wristStretch=1.000 groundClearance=340282346638528859811704183484516925440.00
-[2026.09.28-22.55.36:791][837]LogTemp: Display: MC_BRUSH_PASS net=3 seen=31 cells=108 hash=2949345144 contactError=0.00 contacts=0 handTravel=0.00 wristStretch=1.000 groundClearance=340282346638528859811704183484516925440.00
+[2026.09.29-17.06.25:541][835]LogTemp: Display: MC_BRUSH_PASS net=2 seen=31 cells=268 hash=3900449120 contactError=0.00 contacts=0 handTravel=0.00 wristStretch=1.000 groundClearance=340282346638528859811704183484516925440.00
+[2026.09.29-17.06.23:699][707]LogTemp: Display: MC_BRUSH_PASS net=3 seen=31 cells=268 hash=3900449120 contactError=0.00 contacts=0 handTravel=0.00 wristStretch=1.000 groundClearance=340282346638528859811704183484516925440.00

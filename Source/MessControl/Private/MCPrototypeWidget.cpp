@@ -1,5 +1,6 @@
 #include "MCPrototypeWidget.h"
 #include "MCToothCharacter.h"
+#include "MCGameplayHUD.h"
 #include "MCThroat.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
@@ -50,6 +51,10 @@ void UMCPrototypeWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized(); SetIsFocusable(true);
     UCanvasPanel* Root = WidgetTree->ConstructWidget<UCanvasPanel>(); WidgetTree->RootWidget = Root;
+    auto* HUDClass=LoadClass<UMCGameplayHUD>(nullptr,TEXT("/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD_C"));
+    auto* GameplayHUD=CreateWidget<UMCGameplayHUD>(GetOwningPlayer(),HUDClass?HUDClass:UMCGameplayHUD::StaticClass());
+    GameplayHUD->SetVisibility(ESlateVisibility::HitTestInvisible);
+    auto* HUDSlot=Root->AddChildToCanvas(GameplayHUD); HUDSlot->SetAnchors(FAnchors(0,0,1,1)); HUDSlot->SetOffsets(FMargin(0)); HUDSlot->SetZOrder(-1);
     auto Panel = [&](FVector2D Position,FVector2D Size,FAnchors Anchors,FVector2D Alignment,UBorder*& Border)
     {
         Border = WidgetTree->ConstructWidget<UBorder>(); Border->SetBrushColor(FLinearColor(0.022f,0.052f,0.060f,0.94f)); Border->SetPadding(FMargin(22,16));
@@ -68,6 +73,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     HealthLabel = AddText(Health,TEXT("MOUTH HEALTH / --"),15,Cream);
     HealthBar = WidgetTree->ConstructWidget<UProgressBar>(); HealthBar->SetFillColorAndOpacity(Mint); HealthBar->SetPercent(1); Health->AddChildToVerticalBox(HealthBar)->SetPadding(FMargin(0,8));
     TimeLabel = AddText(Health,TEXT("SHIFT STARTS IN 08"),19,Mint);
+    HeaderBorder->SetVisibility(ESlateVisibility::Collapsed); HealthBorder->SetVisibility(ESlateVisibility::Collapsed);
     UBorder* CareBorder; auto* Care=Panel(FVector2D(0,-110),FVector2D(790,110),FAnchors(.5f,1),FVector2D(.5f,1),CareBorder);
     CarePanel=CareBorder;
     PlayerStatusLabel=AddText(Care,TEXT(""),14,Cream);

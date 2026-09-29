@@ -438,6 +438,11 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction)
     }
     Dispose(); return true;
 }
+bool AMCFoodActor::IsHardFood() const
+{
+    if(FoodData.Resistance!=EMCFoodResistance::Automatic) return FoodData.Resistance==EMCFoodResistance::Hard;
+    return ItemName==TEXT("Carrot") || ItemName==TEXT("Nut") || ItemName==TEXT("Crust") || ItemName==TEXT("Tartar");
+}
 bool AMCFoodActor::BeginSwallow()
 {
     if (!HasAuthority() || bBrushTool || !Holders.IsEmpty() || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;

@@ -11,6 +11,7 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCGameState, RunSettings);
+    DOREPLIFETIME(AMCGameState,StepStartedAt); DOREPLIFETIME(AMCGameState,PreviousStepFailed);
     DOREPLIFETIME(AMCGameState, bDevManualEvents);
     DOREPLIFETIME(AMCGameState, DayPlan); DOREPLIFETIME(AMCGameState, StepIndex); DOREPLIFETIME(AMCGameState, bPhysicalBrushes);
     DOREPLIFETIME(AMCGameState, bDayOneComplete); DOREPLIFETIME(AMCGameState, DayStartedAt); DOREPLIFETIME(AMCGameState, FailedEvents);

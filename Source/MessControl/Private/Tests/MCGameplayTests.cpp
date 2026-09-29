@@ -1524,6 +1524,11 @@ bool FMCCareVolumeTest::RunTest(const FString&)
     TestEqual(TEXT("Opposite face stays dirty"),Back,0);
     TestTrue(TEXT("Partial stroke leaves other visible dirt"),Tooth->Status->State.CoffeeLeft>0);
     const auto Before=Tooth->GrimeMask;
+    H->SetActorRotation(FRotator(0,180,0));
+    TestFalse(TEXT("Retained stain cannot be cleaned behind the player's back"),Tooth->BrushGrime(H,.1f));
+    TestFalse(TEXT("Headless contact also requires facing the stain"),H->BrushContact->IsTouchingSurface());
+    TestTrue(TEXT("Turning away preserves the mask"),Before==Tooth->GrimeMask);
+    H->SetActorRotation(FRotator::ZeroRotator);
     H->bBrushing=false; TestFalse(TEXT("Wrong tool cannot erase the mask"),Tooth->BrushGrime(H,.1f));
     H->bBrushing=true; H->SetActorLocation(FVector(-800,0,150));
     TestFalse(TEXT("Remote brush cannot erase the mask"),Tooth->BrushGrime(H,.1f));
