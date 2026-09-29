@@ -39,7 +39,7 @@ AMCFoodActor::AMCFoodActor()
     Body->SetLinearDamping(.7f); Body->SetAngularDamping(2.f);
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FoodMesh")); Visual->SetupAttachment(Body);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetRelativeLocation(FVector(0,0,-25)); Visual->SetRelativeScale3D(FVector(1.5));
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Art/Meshes/SM_Food"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Stylized_Vegetables/Meshes/SM_Broccoli"));
     if (Mesh.Succeeded()) Visual->SetStaticMesh(Mesh.Object);
     GripSurface=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GripSurface")); GripSurface->SetupAttachment(Visual);
     GripSurface->SetVisibility(false); GripSurface->SetHiddenInGame(true); GripSurface->SetCastShadow(false);

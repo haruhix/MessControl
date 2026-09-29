@@ -19,7 +19,7 @@ AMCTaskActor::AMCTaskActor()
     Label->SetRelativeLocation(FVector(0,0,145)); Label->SetRelativeRotation(FRotator(0,180,0));
     Label->SetHorizontalAlignment(EHTA_Center); Label->SetWorldSize(23); Label->SetTextRenderColor(FColor(255,240,194));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Coffee(TEXT("/Game/Art/Meshes/SM_Coffee"));
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> Food(TEXT("/Game/Art/Meshes/SM_Food"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Food(TEXT("/Game/Stylized_Vegetables/Meshes/SM_Broccoli"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Tooth(TEXT("/Game/Art/Meshes/SM_ToothProp"));
     static ConstructorHelpers::FObjectFinder<UMCSoundPalette> Sound(TEXT("/Game/Data/DA_MouthSounds"));
     CoffeeMesh = Coffee.Object; FoodMesh = Food.Object; ToothMesh = Tooth.Object; SoundPalette = Sound.Object;
