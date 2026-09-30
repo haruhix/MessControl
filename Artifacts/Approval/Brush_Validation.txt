@@ -1,4 +1,4 @@
-[2026.09.30-03.10.29:205][178]LogTemp: Display: MC_BRUSH_FACING_CASE stage=0 pass=1 contacts=27 minFacing=0.995 turnError=0.1 retreat=635.7
-[2026.09.30-03.10.36:248][301]LogTemp: Display: MC_BRUSH_FACING_CASE stage=1 pass=1 contacts=22 minFacing=0.983 turnError=0.1 retreat=635.4
-[2026.09.30-03.10.43:294][440]LogTemp: Display: MC_BRUSH_FACING_CASE stage=2 pass=1 contacts=14 minFacing=0.991 turnError=0.6 retreat=566.0
-[2026.09.30-03.10.43:294][440]LogTemp: Display: MC_BRUSH_FACING_PASS cases=3/3
+[2026.09.30-19.01.33:508][602]LogTemp: Display: MC_BRUSH_FACING_CASE stage=0 pass=1 contacts=72 minFacing=0.998 turnError=0.0 retreat=627.7
+[2026.09.30-19.02.01:516][991]LogTemp: Display: MC_BRUSH_FACING_CASE stage=1 pass=1 contacts=64 minFacing=0.994 turnError=0.0 retreat=628.9
+[2026.09.30-19.02.29:566][343]LogTemp: Display: MC_BRUSH_FACING_CASE stage=2 pass=1 contacts=31 minFacing=0.993 turnError=0.1 retreat=456.1
+[2026.09.30-19.02.29:566][343]LogTemp: Display: MC_BRUSH_FACING_PASS cases=3/3

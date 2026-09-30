@@ -1,0 +1,39 @@
+[2026.09.30-18.56.59:187][512]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS reset starts from a live frozen drink, swimming pose, hidden pickaxe and spawned ice
+[2026.09.30-18.56.59:196][512]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS restart installs a fresh eight-second intermission
+[2026.09.30-18.56.59:196][512]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS restart clears old timeline and objectives
+[2026.09.30-18.57.06:381][607]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS old actors and possessed pawn are gone after real world ticks
+[2026.09.30-18.57.06:381][607]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS fresh player walks on normal ground with control
+[2026.09.30-18.57.06:381][607]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS swimming, anchoring and traversal pose do not survive reset
+[2026.09.30-18.57.06:381][607]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS previously nonzero climate frost resets to zero
+[2026.09.30-18.57.06:381][607]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS fresh default brush is visible after traversal
+[2026.09.30-18.57.06:381][607]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS old held treatment and spray target do not survive reset
+[2026.09.30-18.57.07:996][624]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS pickaxe can be selected and shown after leaving swimming
+[2026.09.30-18.57.31:249][886]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS automatic scheduler starts the real authored first-day director
+[2026.09.30-18.57.31:249][886]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS new director uses its own start timestamps
+[2026.09.30-18.57.31:249][886]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS new first-step tasks match actual dirt in the arena
+[2026.09.30-18.57.31:249][886]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS first step deadline follows its authored timer setting
+[2026.09.30-18.57.31:249][886]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS no old hazard damages the fresh player or mouth through the new-day start
+[2026.09.30-18.57.45:282][ 65]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS unattended authored food really becomes an untreated ulcer
+[2026.09.30-18.57.50:108][119]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS reset interrupts real LMB treatment with saved partial progress
+[2026.09.30-18.57.50:108][119]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS real throat anticipation has paused a live pepper fuse
+[2026.09.30-18.57.50:108][119]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS warning wave has really ticked and its hit is still pending
+[2026.09.30-18.57.50:117][119]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS restart installs a fresh eight-second intermission
+[2026.09.30-18.57.50:117][119]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS restart clears old timeline and objectives
+[2026.09.30-18.57.57:342][196]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS old actors and possessed pawn are gone after real world ticks
+[2026.09.30-18.57.57:342][196]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS fresh player walks on normal ground with control
+[2026.09.30-18.57.57:342][196]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS swimming, anchoring and traversal pose do not survive reset
+[2026.09.30-18.57.57:342][196]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS previously nonzero climate frost resets to zero
+[2026.09.30-18.57.57:342][196]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS fresh default brush is visible after traversal
+[2026.09.30-18.57.57:342][196]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS old held treatment and spray target do not survive reset
+[2026.09.30-18.57.57:342][196]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS reset cancels the old swallow anticipation
+[2026.09.30-18.57.57:342][196]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS the first real director is replaced on the second reset
+[2026.09.30-18.57.58:978][213]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS pickaxe also returns after a reset during treatment
+[2026.09.30-18.58.22:173][452]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS automatic scheduler starts the real authored first-day director
+[2026.09.30-18.58.22:173][452]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS new director uses its own start timestamps
+[2026.09.30-18.58.22:173][452]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS new first-step tasks match actual dirt in the arena
+[2026.09.30-18.58.22:173][452]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS first step deadline follows its authored timer setting
+[2026.09.30-18.58.22:173][452]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS removed hazards stay gone and canceled anticipation produces no later vomit
+[2026.09.30-18.58.22:173][452]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS new director transition installs its own timed event
+[2026.09.30-18.58.24:564][477]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS fresh timed event really spawns food and owns its live task counters
+[2026.09.30-18.58.24:566][477]LogTemp: Display: MC_SHIFT_RESET_CHECK PASS both full runtime reset paths ran before approval
+[2026.09.30-18.58.24:566][477]LogTemp: Display: MC_VALIDATION_PASS SHIFT_RESET resets=2 checks=38 frost=1.000 swimming=0.50

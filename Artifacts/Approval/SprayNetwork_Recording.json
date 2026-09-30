@@ -1,17 +1,17 @@
 {
-  "case": "Grip",
+  "case": "SprayNetwork",
   "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
-  "frames": 142,
-  "seconds": 27.057,
-  "sample_fps": 5.21,
-  "caption": "Grab / carry / push / pull | procedural hand contact and body weight reactions",
-  "encodedUtc": "2026-09-30T18:55:56.092978+00:00",
-  "videoSha256": "bd3aec0da8a9542a3fbea23cefe40bdd9f705ca4bea60a1b1f1ce530b78160ee",
+  "frames": 81,
+  "seconds": 15.126,
+  "sample_fps": 5.29,
+  "caption": "Remote owning client: hold and release spray twice without a healing target | four real network peers",
+  "encodedUtc": "2026-09-30T18:52:28.010350+00:00",
+  "videoSha256": "bada5dd116af6a5733ee839a9d124dedfc186d0993308ef4b9cf2ea869f1d16e",
   "captureFingerprint": {
     "schemaVersion": 1,
-    "case": "Grip",
-    "startedUtc": "2026-09-30T18:54:46.8774883Z",
-    "completedUtc": "2026-09-30T18:55:42.6070228Z",
+    "case": "SprayNetwork",
+    "startedUtc": "2026-09-30T18:51:25.5368070Z",
+    "completedUtc": "2026-09-30T18:52:21.5075416Z",
     "captureMode": "Unreal offscreen game render target",
     "editorDll": {
       "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
@@ -44,9 +44,19 @@
       "maxFPS": 20,
       "timeScale": 1.0
     },
+    "network": {
+      "mode": "SprayNetwork",
+      "players": 4,
+      "hostPeer": 0,
+      "renderedPeer": 1,
+      "packetLagMs": 0,
+      "packetLossPercent": 0,
+      "timeScale": 1.0
+    },
     "validation": {
       "result": "PASS",
-      "sha256": "c0ece97f5579f28b5d14565ea1cbdca965287d901344d4479cc21d1ccc89f80d"
+      "successfulProcessRuns": 4,
+      "sha256": "0ac4ff30004b0643ba8e941fa260660b4e48d2713143a61cd834e5e3156f2d4d"
     }
   },
   "fingerprintValidationMatches": true

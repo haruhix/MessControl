@@ -3,5 +3,53 @@
   "source": "Throat.mp4",
   "chapterStart": 0,
   "chapterDuration": 13,
-  "capture": "Unreal game render target"
+  "capture": "Unreal game render target",
+  "sourceRecording": "Throat_Recording.json",
+  "sourceVideoSha256": "7ba9e54a732c0eec0749d52593decd130c3bf6a92d28613f2fbb0cf04571b1e8",
+  "encodedUtc": "2026-09-30T19:19:52.943082+00:00",
+  "videoSha256": "94e1f4a44754d4f2eded025c8bcbc0a07ee1e9b4ff44e1a5e7e4572ff1d5bb3f",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Throat",
+    "startedUtc": "2026-09-30T19:04:15.5927419Z",
+    "completedUtc": "2026-09-30T19:06:32.6818143Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "e0a1b5be79beb4b00a6f08add68142a1b00d1b7bcaeb992c279238c004dc9f9b"
+    }
+  },
+  "fingerprintValidationMatches": true,
+  "sample_fps": 15.05
 }

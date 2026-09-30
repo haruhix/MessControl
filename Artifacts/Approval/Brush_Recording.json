@@ -1,7 +1,53 @@
 {
   "case": "Brush",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 209,
-  "seconds": 21.107,
-  "caption": "Real tooth and tongue cleaning contact | character faces target | Niagara contact foam"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 317,
+  "seconds": 20.982,
+  "sample_fps": 15.06,
+  "caption": "Real tooth and tongue cleaning contact | character faces target | Niagara contact foam",
+  "encodedUtc": "2026-09-30T19:02:40.796474+00:00",
+  "videoSha256": "d0444627f410b621e9f974f4bceb69a778310de934a749c14c63514b9e8d7b4d",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Brush",
+    "startedUtc": "2026-09-30T19:00:38.9425357Z",
+    "completedUtc": "2026-09-30T19:02:31.0934467Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "fe8169999fecfdf13c9495c2c52130bfcc842d5aa74d60ba71a8c3e950348051"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

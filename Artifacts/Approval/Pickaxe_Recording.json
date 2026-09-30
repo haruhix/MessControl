@@ -1,7 +1,53 @@
 {
   "case": "Pickaxe",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 118,
-  "seconds": 11.98,
-  "caption": "Wide pickaxe swings on the tongue and next to an actual tooth | hand and tool surface constraint"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 242,
+  "seconds": 15.967,
+  "sample_fps": 15.09,
+  "caption": "Wide pickaxe swings on the tongue and next to an actual tooth | hand and tool surface constraint",
+  "encodedUtc": "2026-09-30T18:51:23.147299+00:00",
+  "videoSha256": "c4253044bc9a96b54b60df819e528240f1ea6a1ce89246729b8d729fe9d77a79",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Pickaxe",
+    "startedUtc": "2026-09-30T18:49:38.1036219Z",
+    "completedUtc": "2026-09-30T18:51:13.6574875Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "85f77d3baddb3e13facffe1c2480421ea441eb51600f5ee8e15a0546c65cfcbe"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

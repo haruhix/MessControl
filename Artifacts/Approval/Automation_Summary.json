@@ -1,10 +1,12 @@
 {
-  "reportCreatedOn": "2026.09.30-02.57.29",
-  "succeeded": 59,
+  "reportCreatedOn": "2026.09.30-18.36.23",
+  "succeeded": 63,
   "succeededWithWarnings": 5,
   "failed": 0,
   "notRun": 0,
-  "totalDuration": 38.34925842285156,
+  "totalDuration": 39.02071762084961,
+  "inProcess": 0,
+  "totalTests": 68,
   "tests": [
     {
       "name": "MessControl.Animation.AuthoredThroatApertureAndVomit",
@@ -259,6 +261,12 @@
       "errors": 0
     },
     {
+      "name": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
       "name": "MessControl.Inventory.HoldSprayAndPreserveProgress",
       "state": "Success",
       "warnings": 0,
@@ -337,6 +345,12 @@
       "errors": 0
     },
     {
+      "name": "MessControl.Run.RestartClearsLiveHazards",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
       "name": "MessControl.Throat.BoundsHeldFoodAndReset",
       "state": "Success",
       "warnings": 0,
@@ -389,6 +403,19 @@
       "state": "Success",
       "warnings": 1,
       "errors": 0
+    },
+    {
+      "name": "MessControl.VFX.SavedParticleMeshSlots",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.VFX.SprayContinuousCone",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
     }
-  ]
+  ],
+  "reportCreatedOnUtc": "2026-09-30T18:36:23+00:00"
 }

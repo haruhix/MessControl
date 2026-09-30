@@ -1,7 +1,53 @@
 {
   "case": "Hazards",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 106,
-  "seconds": 13.494,
-  "caption": "Pepper fuse, pulsing red warning and detonation | jump over low ulcer shockwave"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 200,
+  "seconds": 13.307,
+  "sample_fps": 14.95,
+  "caption": "Pepper fuse, pulsing red warning and detonation | jump over low ulcer shockwave",
+  "encodedUtc": "2026-09-30T19:04:13.339857+00:00",
+  "videoSha256": "404aaa3a15c5e1ce07eefc67d79010191120f038ebfb8eb0e75946c6088fff50",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Hazards",
+    "startedUtc": "2026-09-30T19:02:43.2915085Z",
+    "completedUtc": "2026-09-30T19:04:06.7778517Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "231ee652d66022ecb22e1b84bb79b322f1edbca91b9c44a6177dfbf6caa700d0"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

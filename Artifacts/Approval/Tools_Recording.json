@@ -1,7 +1,53 @@
 {
   "case": "Tools",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 176,
-  "seconds": 18.408,
-  "caption": "Four inventory slots: brush, pickaxe, knife, spray | procedural hand and body poses"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 274,
+  "seconds": 18.242,
+  "sample_fps": 14.97,
+  "caption": "Four inventory slots: brush, pickaxe, knife, spray | procedural hand and body poses",
+  "encodedUtc": "2026-09-30T19:00:37.035394+00:00",
+  "videoSha256": "ce139979fbfc3234ee53e811dfe17168abc7c2ac8d183fc3af658b92314d86dd",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Tools",
+    "startedUtc": "2026-09-30T18:58:46.8975320Z",
+    "completedUtc": "2026-09-30T19:00:29.5655334Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "d9901937ba355398c96157b4cb1c5e19703ad1b7d8a601167b58415bc9faf753"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

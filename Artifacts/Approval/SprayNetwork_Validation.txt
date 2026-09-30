@@ -1,0 +1,105 @@
+# peer=0 log=Saved/Logs/SprayNetwork0.log
+[2026.09.30-18.52.01:526][ 93]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=0.00 local=0 held=0 selected=3 emit=0 phases=0,0,0,0 rendered=0
+[2026.09.30-18.52.03:531][205]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=2.01 local=0 held=1 selected=3 emit=0 phases=0,0,0,0 rendered=0
+[2026.09.30-18.52.05:536][318]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=4.01 local=0 held=1 selected=3 emit=1 phases=15,0,0,0 rendered=0
+[2026.09.30-18.52.07:540][426]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=6.02 local=0 held=0 selected=3 emit=1 phases=15,0,0,0 rendered=0
+[2026.09.30-18.52.09:534][534]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=8.01 local=0 held=0 selected=3 emit=0 phases=15,15,0,0 rendered=0
+[2026.09.30-18.52.11:528][646]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=10.01 local=0 held=1 selected=3 emit=1 phases=15,15,15,0 rendered=0
+[2026.09.30-18.52.13:525][760]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=12.01 local=0 held=1 selected=3 emit=1 phases=15,15,15,0 rendered=0
+[2026.09.30-18.52.15:528][873]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=14.01 local=0 held=0 selected=3 emit=0 phases=15,15,15,15 rendered=0
+[2026.09.30-18.52.17:512][987]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=2 t=16.00 local=0 held=0 selected=3 emit=0 phases=15,15,15,15 rendered=0
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=0 slot=0 stable=2.487 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=0 slot=1 stable=2.487 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=0 slot=2 stable=2.487 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=0 slot=3 stable=2.487 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=1 slot=0 stable=1.519 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=1 slot=1 stable=1.519 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=1 slot=2 stable=1.519 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=1 slot=3 stable=1.519 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=2 slot=0 stable=2.508 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=2 slot=1 stable=2.508 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=2 slot=2 stable=2.508 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=2 slot=3 stable=2.508 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=3 slot=0 stable=1.501 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=3 slot=1 stable=1.501 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=3 slot=2 stable=1.501 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=2 phase=3 slot=3 stable=1.501 bad=0.000
+[2026.09.30-18.52.19:524][106]LogTemp: Display: MC_VALIDATION_PASS SPRAY_NETWORK net=2 hold1=15 release1=15 hold2=15 release2=15 proxies=14 expected_proxies=14 rendered_activation=0 invalid=0
+# peer=1 log=Saved/Logs/SprayNetwork1.log
+[2026.09.30-18.52.01:521][ 28]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=0.04 local=3 held=0 selected=0 emit=0 phases=0,0,0,0 rendered=1
+[2026.09.30-18.52.03:880][ 48]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=2.21 local=3 held=0 selected=3 emit=0 phases=0,0,0,0 rendered=1
+[2026.09.30-18.52.05:735][ 58]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=4.14 local=3 held=1 selected=3 emit=1 phases=15,0,0,0 rendered=1
+[2026.09.30-18.52.07:701][ 68]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=6.13 local=3 held=1 selected=3 emit=1 phases=15,0,0,0 rendered=1
+[2026.09.30-18.52.09:625][ 78]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=8.07 local=3 held=0 selected=3 emit=0 phases=15,15,0,0 rendered=1
+[2026.09.30-18.52.11:628][ 89]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=10.09 local=3 held=1 selected=3 emit=1 phases=15,15,15,0 rendered=1
+[2026.09.30-18.52.13:636][100]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=12.11 local=3 held=1 selected=3 emit=1 phases=15,15,15,0 rendered=1
+[2026.09.30-18.52.15:658][111]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=14.13 local=3 held=0 selected=3 emit=0 phases=15,15,15,15 rendered=1
+[2026.09.30-18.52.17:645][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=0 stable=2.252 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=1 stable=2.252 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=2 stable=2.252 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=3 stable=2.252 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=0 stable=1.509 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=1 stable=1.509 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=2 stable=1.509 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=3 stable=1.509 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=0 stable=2.566 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=1 stable=2.566 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=2 stable=2.566 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=3 stable=2.566 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=0 stable=1.445 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=1 stable=1.445 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=2 stable=1.445 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=3 stable=1.445 bad=0.000
+[2026.09.30-18.52.17:647][122]LogTemp: Display: MC_VALIDATION_PASS SPRAY_NETWORK net=3 hold1=15 release1=15 hold2=15 release2=15 proxies=7 expected_proxies=7 rendered_activation=1 invalid=0
+# peer=2 log=Saved/Logs/SprayNetwork2.log
+[2026.09.30-18.52.01:541][334]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=0.01 local=1 held=0 selected=0 emit=0 phases=0,0,0,0 rendered=0
+[2026.09.30-18.52.03:542][449]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=2.01 local=1 held=0 selected=3 emit=0 phases=0,0,0,0 rendered=0
+[2026.09.30-18.52.05:544][565]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=4.01 local=1 held=1 selected=3 emit=1 phases=15,0,0,0 rendered=0
+[2026.09.30-18.52.07:572][676]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=6.02 local=1 held=1 selected=3 emit=1 phases=15,0,0,0 rendered=0
+[2026.09.30-18.52.09:546][787]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=8.01 local=1 held=0 selected=3 emit=0 phases=15,15,0,0 rendered=0
+[2026.09.30-18.52.11:547][902]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=10.01 local=1 held=1 selected=3 emit=1 phases=15,15,15,0 rendered=0
+[2026.09.30-18.52.13:549][ 19]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=12.01 local=1 held=1 selected=3 emit=1 phases=15,15,15,0 rendered=0
+[2026.09.30-18.52.15:549][135]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=14.01 local=1 held=0 selected=3 emit=0 phases=15,15,15,15 rendered=0
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=0 stable=2.495 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=1 stable=2.495 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=2 stable=2.495 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=3 stable=2.495 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=0 stable=1.496 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=1 stable=1.496 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=2 stable=1.496 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=3 stable=1.496 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=0 stable=2.499 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=1 stable=2.499 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=2 stable=2.499 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=3 stable=2.499 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=0 stable=1.500 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=1 stable=1.500 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=2 stable=1.500 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=3 stable=1.500 bad=0.000
+[2026.09.30-18.52.17:552][250]LogTemp: Display: MC_VALIDATION_PASS SPRAY_NETWORK net=3 hold1=15 release1=15 hold2=15 release2=15 proxies=13 expected_proxies=13 rendered_activation=0 invalid=0
+# peer=3 log=Saved/Logs/SprayNetwork3.log
+[2026.09.30-18.52.01:555][122]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=0.02 local=2 held=0 selected=0 emit=0 phases=0,0,0,0 rendered=0
+[2026.09.30-18.52.03:556][236]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=2.01 local=2 held=0 selected=3 emit=0 phases=0,0,0,0 rendered=0
+[2026.09.30-18.52.05:580][351]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=4.02 local=2 held=1 selected=3 emit=1 phases=15,0,0,0 rendered=0
+[2026.09.30-18.52.07:561][460]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=6.01 local=2 held=1 selected=3 emit=1 phases=15,0,0,0 rendered=0
+[2026.09.30-18.52.09:577][571]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=8.02 local=2 held=0 selected=3 emit=0 phases=15,15,0,0 rendered=0
+[2026.09.30-18.52.11:558][684]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=10.01 local=2 held=1 selected=3 emit=1 phases=15,15,15,0 rendered=0
+[2026.09.30-18.52.13:579][800]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=12.02 local=2 held=1 selected=3 emit=1 phases=15,15,15,0 rendered=0
+[2026.09.30-18.52.15:553][914]LogTemp: Display: MC_SPRAY_NETWORK_PROGRESS net=3 t=14.00 local=2 held=0 selected=3 emit=0 phases=15,15,15,15 rendered=0
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=0 stable=2.507 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=1 stable=2.507 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=2 stable=2.507 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=0 slot=3 stable=2.507 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=0 stable=1.505 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=1 stable=1.505 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=2 stable=1.505 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=1 slot=3 stable=1.505 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=0 stable=2.496 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=1 stable=2.496 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=2 stable=2.496 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=2 slot=3 stable=2.496 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=0 stable=1.511 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=1 stable=1.511 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=2 stable=1.511 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_SPRAY_NETWORK_SLOT net=3 phase=3 slot=3 stable=1.511 bad=0.000
+[2026.09.30-18.52.17:564][ 29]LogTemp: Display: MC_VALIDATION_PASS SPRAY_NETWORK net=3 hold1=15 release1=15 hold2=15 release2=15 proxies=11 expected_proxies=11 rendered_activation=0 invalid=0

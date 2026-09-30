@@ -1,7 +1,13 @@
-[2026.09.30-03.11.15:657][178]LogTemp: Display: MC_APPROVAL_CHECK PASS E and W climb actual gameplay tooth
-[2026.09.30-03.11.15:657][178]LogTemp: Display: MC_APPROVAL_CHECK PASS hang without stamina
-[2026.09.30-03.11.15:657][178]LogTemp: Display: MC_APPROVAL_CHECK PASS crawl sideways on actual tooth
-[2026.09.30-03.11.15:657][178]LogTemp: Display: MC_APPROVAL_CHECK PASS mantle onto tooth crown
-[2026.09.30-03.11.17:756][220]LogTemp: Display: MC_APPROVAL_CHECK PASS reattach before wall jump
-[2026.09.30-03.11.19:656][258]LogTemp: Display: MC_APPROVAL_CHECK PASS Space jumps away from wall
-[2026.09.30-03.11.19:656][258]LogTemp: Display: MC_VALIDATION_PASS APPROVAL_Climb
+[2026.09.30-18.42.20:883][299]LogTemp: Display: MC_APPROVAL_CHECK PASS E plus movement attaches from the tongue without an air teleport
+[2026.09.30-18.42.22:136][310]LogTemp: Display: MC_APPROVAL_CHECK PASS released upward input settles while E remains held
+[2026.09.30-18.42.26:946][362]LogTemp: Display: MC_APPROVAL_CHECK PASS held E keeps a stable wall hang without stamina
+[2026.09.30-18.42.30:986][406]LogTemp: Display: MC_APPROVAL_CHECK PASS held E crawls sideways across the tooth
+[2026.09.30-18.42.33:144][427]LogTemp: Display: MC_APPROVAL_CHECK PASS mantle ends walking on this tooth crown
+[2026.09.30-18.42.33:144][427]LogTemp: Display: MC_APPROVAL_CHECK PASS both rendered hands and feet contact visible enamel
+[2026.09.30-18.42.33:144][427]LogTemp: Display: MC_APPROVAL_CHECK PASS all four rendered limbs move through the procedural cycle
+[2026.09.30-18.42.42:892][530]LogTemp: Display: MC_APPROVAL_CHECK PASS E transfers a real swimmer into climbing without a static coffee anchor
+[2026.09.30-18.42.45:866][561]LogTemp: Display: MC_APPROVAL_CHECK PASS wall hang remains controllable after leaving water
+[2026.09.30-18.42.45:867][561]LogTemp: Display: MC_APPROVAL_CHECK PASS hidden selected pickaxe preserves both rendered swimming hand strokes
+[2026.09.30-18.42.45:867][561]LogTemp: Display: MC_APPROVAL_CHECK PASS hidden selected pickaxe preserves all four rendered climbing contacts and motions
+[2026.09.30-18.42.51:720][623]LogTemp: Display: MC_APPROVAL_CHECK PASS Space launches away from the wall with upward velocity
+[2026.09.30-18.42.51:721][623]LogTemp: Display: MC_VALIDATION_PASS APPROVAL_Climb

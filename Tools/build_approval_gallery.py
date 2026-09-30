@@ -70,12 +70,25 @@ def fingerprint_state(recording, workspace, source, name):
     fingerprint = recording.get('captureFingerprint')
     if not fingerprint:
         return 'UNRECORDED', [], None
+    if (fingerprint.get('schemaVersion') != 1 or fingerprint.get('case') != source or
+            recording.get('case') != name or not fingerprint.get('startedUtc') or
+            not fingerprint.get('completedUtc') or fingerprint.get('validation', {}).get('result') != 'PASS'):
+        return 'INCOMPLETE', [], False
     validation_file = OUT / (source + '_Validation.txt')
     video_file = OUT / (name + '.mp4')
     binding = bool(validation_file.exists() and fingerprint.get('validation', {}).get('sha256') == file_sha256(validation_file)
                    and video_file.exists() and recording.get('videoSha256') == file_sha256(video_file))
-    if fingerprint.get('schemaVersion') != 1 or fingerprint.get('case') != source or recording.get('case') != name or not fingerprint.get('completedUtc') or not binding:
-        return 'INCOMPLETE', [], binding
+    if name != source:
+        # A chapter inherits its source run only while the parent movie and its
+        # recording metadata still agree. Replaced source footage is unbound.
+        parent_video = OUT / (source + '.mp4')
+        parent_recording = recording_metadata(source)
+        binding = bool(binding and parent_video.exists() and
+                       recording.get('sourceVideoSha256') == file_sha256(parent_video) and
+                       parent_recording.get('videoSha256') == recording.get('sourceVideoSha256') and
+                       parent_recording.get('captureFingerprint') == fingerprint)
+    if not binding:
+        return 'INCOMPLETE', [], False
     changed = []
     for key in ('editorDll', 'source', 'savedContent'):
         if fingerprint.get(key, {}).get('sha256') != workspace[key].get('sha256'):
@@ -127,7 +140,7 @@ def network_summary(path):
 
 # Chapters preserve the recorded action and its timing. No frames are synthesized.
 CHAPTERS = [
-    ('Dodge', 'Hazards', 2.85, 1.85),
+    ('Dodge', 'Hazards', 2.85, 1.50),
     ('Pepper', 'Hazards', 4.55, 9.0),
     ('Uvula', 'Throat', 0, 13),
     ('Vomit', 'Throat', 13, 13.1),
@@ -147,6 +160,7 @@ for name, source, start, duration in CHAPTERS:
         'case': name, 'source': source + '.mp4', 'chapterStart': start,
         'chapterDuration': duration, 'capture': 'Unreal game render target',
         'sourceRecording': source + '_Recording.json',
+        'sourceVideoSha256': file_sha256(OUT / (source + '.mp4')),
         'encodedUtc': datetime.now(timezone.utc).isoformat(),
         'videoSha256': file_sha256(OUT / (name + '.mp4')),
     }
@@ -160,7 +174,8 @@ VISUAL_REVIEW = ('Качество материалов и движения ну
 CLIPS = [
     ('Materials', 'Материалы ротовой области', 'Визуал',
      'Общий вид, десна, стенки / нёбо, пищевод и увула. Карты Painter 2K, профиль рассеивания SP_Mucosa и менее контрастная влажная поверхность.',
-     'Материалы пересобраны скриптом refine_mouth_v5.py. Соответствие референсу требует визуальной оценки.', VISUAL_REVIEW),
+     'Материалы пересобраны скриптом refine_mouth_v5.py. Соответствие референсу требует визуальной оценки.',
+     VISUAL_REVIEW + ' В финальном проходе Materials на десне остаётся тёмная рваная полоса; этот дефект изображения ещё требует исправления.'),
     ('Climb', 'Лазание по игровому зубу', 'Движение',
      'Зацеп, подъём, висение, перемещение в сторону, выход на коронку зуба и отскок. Процедурная поза использует контакты рук и ног с поверхностью.',
      'E удерживать у поверхности; W/S вверх и вниз, A/D в стороны, Space оттолкнуться. Стамины нет.', VISUAL_REVIEW),

@@ -1,7 +1,53 @@
 {
   "case": "Ulcer",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 132,
-  "seconds": 15.774,
-  "caption": "Unattended food absorbs into tongue | hold spray 7s | release saves circular treatment progress"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 238,
+  "seconds": 15.943,
+  "sample_fps": 14.87,
+  "caption": "Unattended food absorbs into tongue | hold spray 7s | release saves circular treatment progress",
+  "encodedUtc": "2026-09-30T18:44:51.574435+00:00",
+  "videoSha256": "38482e62c54456b5bc478dfb0dcdaac921daa9aa433581cc1e88812d01ee8bda",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Ulcer",
+    "startedUtc": "2026-09-30T18:43:04.0933182Z",
+    "completedUtc": "2026-09-30T18:44:41.6662740Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "87b962c838e913419f1fbe7f5d98efacc6ad93f3df157c8f2cb42b775ebec166"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

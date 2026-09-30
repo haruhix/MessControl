@@ -1,7 +1,53 @@
 {
   "case": "Climb",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 101,
-  "seconds": 10.29,
-  "caption": "E: attach to an actual arena tooth | W/S: climb | A/D: sideways | SPACE: wall jump"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 148,
+  "seconds": 9.714,
+  "sample_fps": 15.13,
+  "caption": "E: attach to an actual arena tooth | W/S: climb | A/D: sideways | SPACE: wall jump",
+  "encodedUtc": "2026-09-30T18:42:59.626253+00:00",
+  "videoSha256": "c016dbb2eb17ea8fed87865248095da19ad767d60e289cf1d94f6308dbe94509",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Climb",
+    "startedUtc": "2026-09-30T18:41:42.7001664Z",
+    "completedUtc": "2026-09-30T18:42:54.2732988Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "529c2fd257d4d0f73b24d3575334217ee498fda633d9caedd745b0663a50e21f"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

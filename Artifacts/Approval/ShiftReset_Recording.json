@@ -1,17 +1,17 @@
 {
-  "case": "Grip",
+  "case": "ShiftReset",
   "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
-  "frames": 142,
-  "seconds": 27.057,
-  "sample_fps": 5.21,
-  "caption": "Grab / carry / push / pull | procedural hand contact and body weight reactions",
-  "encodedUtc": "2026-09-30T18:55:56.092978+00:00",
-  "videoSha256": "bd3aec0da8a9542a3fbea23cefe40bdd9f705ca4bea60a1b1f1ce530b78160ee",
+  "frames": 432,
+  "seconds": 28.635,
+  "sample_fps": 15.05,
+  "caption": "Two live shift restarts: frozen swimming, then treatment and paused hazards | fresh day director, timer and tasks",
+  "encodedUtc": "2026-09-30T18:58:43.858282+00:00",
+  "videoSha256": "d5dfb266bf8b28979c7b4e4258116437695db683330938f319718a700e72ad6b",
   "captureFingerprint": {
     "schemaVersion": 1,
-    "case": "Grip",
-    "startedUtc": "2026-09-30T18:54:46.8774883Z",
-    "completedUtc": "2026-09-30T18:55:42.6070228Z",
+    "case": "ShiftReset",
+    "startedUtc": "2026-09-30T18:55:58.5308145Z",
+    "completedUtc": "2026-09-30T18:58:26.6283942Z",
     "captureMode": "Unreal offscreen game render target",
     "editorDll": {
       "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
@@ -42,11 +42,11 @@
       "width": 1280,
       "height": 720,
       "maxFPS": 20,
-      "timeScale": 1.0
+      "timeScale": 0.25
     },
     "validation": {
       "result": "PASS",
-      "sha256": "c0ece97f5579f28b5d14565ea1cbdca965287d901344d4479cc21d1ccc89f80d"
+      "sha256": "473c9bf7bde55df1d270bef1f5ad9cf6161292c4b3eeaf9a24daeb014d8cd74c"
     }
   },
   "fingerprintValidationMatches": true

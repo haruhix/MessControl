@@ -1,7 +1,53 @@
 {
   "case": "Materials",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 209,
-  "seconds": 21.058,
-  "caption": "Painter tissue maps, saliva sheen and subsurface shading | gum, palate, throat and uvula"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 317,
+  "seconds": 20.967,
+  "sample_fps": 15.07,
+  "caption": "Painter tissue maps, saliva sheen and subsurface shading | gum, palate, throat and uvula",
+  "encodedUtc": "2026-09-30T18:54:44.144251+00:00",
+  "videoSha256": "5c140fa76d834616f42e9b373a53bcaee7a564afe418249558a1e70096d33b4c",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Materials",
+    "startedUtc": "2026-09-30T18:52:33.0757433Z",
+    "completedUtc": "2026-09-30T18:54:32.6706105Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "8683769976214cda2cbe5e2e97db53099d0887519fb509f6e57ee33891832ee5"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

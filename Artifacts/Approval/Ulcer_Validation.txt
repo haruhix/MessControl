@@ -1,9 +1,12 @@
-[2026.09.30-02.23.29:611][ 57]LogTemp: Display: MC_ULCER_CHECK PASS meal begins with one cleanup task
-[2026.09.30-02.23.33:532][120]LogTemp: Display: MC_ULCER_CHECK PASS sinking food remains unfinished work
-[2026.09.30-02.23.34:798][139]LogTemp: Display: MC_ULCER_CHECK PASS food visibly absorbs and becomes an ulcer
-[2026.09.30-02.23.34:798][139]LogTemp: Display: MC_ULCER_CHECK PASS ulcer inherits the meal task
-[2026.09.30-02.23.35:822][154]LogTemp: Display: MC_ULCER_CHECK PASS idle ulcer never heals automatically
-[2026.09.30-02.23.37:884][188]LogTemp: Display: MC_ULCER_CHECK PASS two seconds of held spray advances treatment
-[2026.09.30-02.23.39:903][221]LogTemp: Display: MC_ULCER_CHECK PASS release preserves treatment progress
-[2026.09.30-02.23.44:896][301]LogTemp: Display: MC_ULCER_CHECK PASS resumed treatment completes seven effective seconds
-[2026.09.30-02.23.44:896][301]LogTemp: Display: MC_ULCER_CHECK PASS curing resolves the meal task
+[2026.09.30-18.43.34:450][195]LogTemp: Display: MC_ULCER_CHECK PASS meal begins with one cleanup task
+[2026.09.30-18.43.50:041][342]LogTemp: Display: MC_ULCER_CHECK PASS sinking food remains unfinished work
+[2026.09.30-18.43.54:853][393]LogTemp: Display: MC_ULCER_CHECK PASS food visibly absorbs and becomes an ulcer
+[2026.09.30-18.43.54:853][393]LogTemp: Display: MC_ULCER_CHECK PASS ulcer inherits the meal task
+[2026.09.30-18.43.58:845][435]LogTemp: Display: MC_ULCER_CHECK PASS idle ulcer never heals automatically
+[2026.09.30-18.44.06:891][525]LogTemp: Display: MC_ULCER_CHECK PASS held treatment presents its can and active Niagara mist
+[2026.09.30-18.44.06:891][525]LogTemp: Display: MC_ULCER_CHECK PASS spray keeps the original ulcer tissue without frost
+[2026.09.30-18.44.06:891][525]LogTemp: Display: MC_ULCER_CHECK PASS two seconds of held spray advances treatment
+[2026.09.30-18.44.14:901][609]LogTemp: Display: MC_ULCER_CHECK PASS release preserves treatment progress
+[2026.09.30-18.44.34:898][834]LogTemp: Display: MC_ULCER_CHECK PASS resumed treatment completes seven effective seconds
+[2026.09.30-18.44.34:898][834]LogTemp: Display: MC_ULCER_CHECK PASS curing resolves the meal task
+[2026.09.30-18.44.38:909][879]LogTemp: Display: MC_ULCER_PASS saved=0.2874

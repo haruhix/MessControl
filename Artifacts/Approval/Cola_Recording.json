@@ -1,7 +1,53 @@
 {
   "case": "Cola",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 322,
-  "seconds": 32.372,
-  "caption": "Cold cola: top-down drink, growing frost, slippery ground, falling ice | pickaxe breaks every shape"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 491,
+  "seconds": 32.571,
+  "sample_fps": 15.04,
+  "caption": "Cold cola: top-down drink, growing frost, slippery ground, falling ice | pickaxe breaks every shape",
+  "encodedUtc": "2026-09-30T18:49:34.690029+00:00",
+  "videoSha256": "0e14aa051d9fd537905b691b4629f0e7eea4628ebb71d73cd91f8b7da6fb98a6",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Cola",
+    "startedUtc": "2026-09-30T18:46:31.9842852Z",
+    "completedUtc": "2026-09-30T18:49:14.4171674Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "2ad824dc36cc68739bc8a4b56eee49fec7eae2ef1cce425f9133884114ab24ef"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

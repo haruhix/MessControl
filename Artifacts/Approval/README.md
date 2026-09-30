@@ -1,32 +1,42 @@
-# Видео для проверки — 30 сентября 2026
+# Видео для проверки — 2026-10-01 04:20 UTC+9
 
 Записи настоящего игрового render target. Сценарии выполняют действия программно; совместный проход четырьмя людьми пока не проверен.
 
-Сборки Editor и Game успешны. 64 автоматических теста: 59 Success, 5 SuccessWithWarnings, 0 ошибок.
+Автотесты: 68 из 68 пройдены; 63 без предупреждений, 5 с предупреждениями, ошибок 0, не запущено 0, выполняется 0. Отчёт: 2026-10-01 03:36:23 UTC+9.
 
-Галерея: [index.html](index.html). Данные: [Manifest.json](Manifest.json), [Automation_Summary.json](Automation_Summary.json).
+Сеть: PASS, успешны 16 из 16 запусков процессов в 4 сценариях; по 4 игрока. лазание: 0 мс, 0% потерь; NullRHI, проверка сетевых состояний; лазание: 100 мс, 1% потерь; NullRHI, проверка сетевых состояний; плавание: 100 мс, 1% потерь; NullRHI, проверка сетевых состояний; кофе: 100 мс, 1% потерь; NullRHI, проверка сетевых состояний. Отчёт: 2026-10-01 00:42:07 UTC+9.
 
-| Пункт | Видео | Проверка |
-| --- | --- | --- |
-| Материалы ротовой области | [21.27 с](Materials.mp4) | [лог](Materials_Validation.txt) |
-| Лазание по игровому зубу | [10.53 с](Climb.mp4) | [лог](Climb_Validation.txt) |
-| Кофе и управляемое плавание | [14.2 с](Coffee.mp4) | [лог](Coffee_Validation.txt) |
-| Следящая камера и передняя граница | [15.23 с](Camera.mp4) | [лог](Camera_Validation.txt) |
-| Кирка рядом с поверхностями | [12.13 с](Pickaxe.mp4) | [лог](Pickaxe_Validation.txt) |
-| Холодная кола, иней и лёд | [32.6 с](Cola.mp4) | [лог](Cola_Validation.txt) |
-| Чистка и направление персонажа | [21.23 с](Brush.mp4) | [лог](Brush_Validation.txt) |
-| Четыре слота и работа инструментов | [18.63 с](Tools.mp4) | [лог](Tools_Validation.txt) |
-| Еда впитывается → язва → лечение | [16.0 с](Ulcer.mp4) | [лог](Ulcer_Validation.txt) |
-| Захват, перенос, тяга и толкание | [27.13 с](Grip.mp4) | [лог](Grip_Validation.txt) |
-| Функциональная увула и проглатывание | [13.0 с](Uvula.mp4) | [лог](Throat_Validation.txt) |
-| Рвота и возврат партии | [13.1 с](Vomit.mp4) | [лог](Throat_Validation.txt) |
-| Дыхание рта | [5.1 с](Breathing.mp4) | [лог](Materials_Validation.txt) |
-| Прыжок через волну язвы | [1.83 с](Dodge.mp4) | [лог](Hazards_Validation.txt) |
-| Перец: предупреждение и детонация | [8.97 с](Pepper.mp4) | [лог](Hazards_Validation.txt) |
-| Эмоции портрета игрока | [7.93 с](Portraits.mp4) | [лог](Tools_Validation.txt) |
+[Сетевой отчёт](TraversalNetwork_Validation.json). Режим рендеринга указан у каждого сценария; художественное качество оценивается по видео.
 
-У нескольких записей сохранён предыдущий цвет ткани; это отмечено в галерее. Актуальный визуальный проход — Materials, Climb, Cola, Brush, Tools и Grip.
+Сеть: PASS, успешны 12 из 12 запусков процессов в 3 сценариях; по 4 игрока. спрей: 0 мс, 0% потерь; NullRHI, проверка сетевых состояний; спрей: 100 мс, 1% потерь; NullRHI, проверка сетевых состояний; спрей: 0 мс, 0% потерь; рендер client 1, активация Niagara PASS. Отчёт: 2026-10-01 04:08:53 UTC+9.
 
-Painter: `ArtSource/MouthV4/Painter`; карты: `ArtSource/MouthV4/Textures`; создание материалов: `Tools/Unreal/refine_mouth_v4.py`.
+[Сетевой отчёт](SprayNetwork_Validation.json). Режим рендеринга указан у каждого сценария; художественное качество оценивается по видео.
+
+Галерея: [index.html](index.html). Данные: [Manifest.json](Manifest.json), [Unit_Validation.json](Unit_Validation.json), [Automation_Summary.json](Automation_Summary.json).
+
+| Пункт | Видео | Проверка запуска | Запись |
+| --- | --- | --- | --- |
+| Материалы ротовой области | [21.2 с](Materials.mp4) | [PASS](Materials_Validation.txt) | SHA256 совпадают; 2026-10-01 03:52:33 UTC+9 |
+| Лазание по игровому зубу | [9.83 с](Climb.mp4) | [PASS](Climb_Validation.txt) | SHA256 совпадают; 2026-10-01 03:41:42 UTC+9 |
+| Кофе и управляемое плавание | [14.2 с](Coffee.mp4) | [PASS](Coffee_Validation.txt) | SHA256 совпадают; 2026-10-01 03:44:54 UTC+9 |
+| Следящая камера и передняя граница | [15.2 с](Camera.mp4) | [PASS](Camera_Validation.txt) | SHA256 совпадают; 2026-10-01 03:39:50 UTC+9 |
+| Кирка рядом с поверхностями | [16.2 с](Pickaxe.mp4) | [PASS](Pickaxe_Validation.txt) | SHA256 совпадают; 2026-10-01 03:49:38 UTC+9 |
+| Холодная кола, иней и лёд | [32.8 с](Cola.mp4) | [PASS](Cola_Validation.txt) | SHA256 совпадают; 2026-10-01 03:46:31 UTC+9 |
+| Два перезапуска смены и новый таймер | [28.77 с](ShiftReset.mp4) | [PASS](ShiftReset_Validation.txt) | SHA256 совпадают; 2026-10-01 03:55:58 UTC+9 |
+| Чистка и направление персонажа | [21.13 с](Brush.mp4) | [PASS](Brush_Validation.txt) | SHA256 совпадают; 2026-10-01 04:00:38 UTC+9 |
+| Четыре слота и работа инструментов | [18.47 с](Tools.mp4) | [PASS](Tools_Validation.txt) | SHA256 совпадают; 2026-10-01 03:58:46 UTC+9 |
+| Еда впитывается → язва → лечение | [16.07 с](Ulcer.mp4) | [PASS](Ulcer_Validation.txt) | SHA256 совпадают; 2026-10-01 03:43:04 UTC+9 |
+| Спрей без цели: нажатие и отпускание по сети | [15.37 с](SprayNetwork.mp4) | [PASS](SprayNetwork_Validation.txt) | SHA256 совпадают; 2026-10-01 03:51:25 UTC+9 |
+| Захват, перенос, тяга и толкание | [27.27 с](Grip.mp4) | [PASS](Grip_Validation.txt) | SHA256 совпадают; 2026-10-01 03:54:46 UTC+9 |
+| Функциональная увула и проглатывание | [13.0 с](Uvula.mp4) | [PASS](Throat_Validation.txt) | SHA256 совпадают; 2026-10-01 04:04:15 UTC+9 |
+| Рвота и возврат партии | [13.1 с](Vomit.mp4) | [PASS](Throat_Validation.txt) | SHA256 совпадают; 2026-10-01 04:04:15 UTC+9 |
+| Дыхание рта | [5.1 с](Breathing.mp4) | [PASS](Materials_Validation.txt) | SHA256 совпадают; 2026-10-01 03:52:33 UTC+9 |
+| Прыжок через волну язвы | [1.47 с](Dodge.mp4) | [PASS](Hazards_Validation.txt) | SHA256 совпадают; 2026-10-01 04:02:43 UTC+9 |
+| Перец: предупреждение и детонация | [8.87 с](Pepper.mp4) | [PASS](Hazards_Validation.txt) | SHA256 совпадают; 2026-10-01 04:02:43 UTC+9 |
+| Эмоции портрета игрока | [7.9 с](Portraits.mp4) | [PASS](Tools_Validation.txt) | SHA256 совпадают; 2026-10-01 03:58:46 UTC+9 |
+
+Версия каждого нового запуска фиксируется до старта Unreal: SHA256 Editor DLL, исходников Source/MessControl и сохранённых пакетов Content. При сборке галереи эти значения сравниваются с файлами проекта; главы наследуют сведения исходного ролика. У старых записей без fingerprint версия не установлена. Художественное качество и соответствие референсу требуют визуальной оценки.
+
+Painter: `ArtSource/MouthV4/Painter`; карты: `ArtSource/MouthV4/Textures`; создание материалов и профиля SP_Mucosa: `Tools/Unreal/refine_mouth_v5.py`.
 
 Воспроизведение проверок: `Tools/CaptureApproval.ps1 -Case <пункт>`; сборка галереи: `C:/Python314/python.exe Tools/build_approval_gallery.py`.
