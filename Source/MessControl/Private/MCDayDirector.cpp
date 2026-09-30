@@ -7,6 +7,7 @@
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
 #include "MCCoffeeFlood.h"
+#include "MCColdCola.h"
 #include "Components/BoxComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "EngineUtils.h"
@@ -37,7 +38,7 @@ int32 AMCDayDirector::CountDirt() const
     int32 Count=0;
     for (TActorIterator<AActor> It(GetWorld());It;++It)
     {
-        if (const auto* Patch=Cast<AMCMouthSurface>(*It); Patch && Patch->bUlcer) continue;
+        if (const auto* Patch=Cast<AMCMouthSurface>(*It); Patch && Patch->bUlcer) { Count+=!Patch->IsHealed(); continue; }
         if (const auto* Tooth=Cast<AMCArenaTooth>(*It); Tooth && !Tooth->IsAvailable()) continue;
         if (const auto* Status=It->FindComponentByClass<UMCToothStatusComponent>(); Status && Status->NeedsCare(true)) ++Count;
     }
@@ -46,6 +47,7 @@ int32 AMCDayDirector::CountDirt() const
 int32 AMCDayDirector::CountFood(int32 Batch) const
 {
     int32 Count=0; for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->bBrushTool && !It->IsDisposed() && It->Batch==Batch) ++Count;
+    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->bUlcer && !It->IsHealed() && It->Batch==Batch) ++Count;
     return Count;
 }
 void AMCDayDirector::DropBrushes()
@@ -123,6 +125,7 @@ void AMCDayDirector::EnterStep()
         GS->PhaseEndsAt=GS->bDevManualEvents?0:StepStartedAt+Flood->Seconds;
     }
     if (Step.Step==EMCDayStep::CoffeeCleanup) { if (Flood) Flood->Stop(); DirtyMouth(true); DropBrushes(); }
+    if (Step.Step==EMCDayStep::ColdCola) { ColdCola=GetWorld()->SpawnActor<AMCColdColaEvent>(); ColdCola->Start(Settings); }
     if (Step.Step==EMCDayStep::StuckFood)
     {
         int32 Spawned=0;
@@ -145,6 +148,7 @@ void AMCDayDirector::Next(bool bFailed)
     GS->PreviousStepFailed=bFailed;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) It->NotifyTaskFeedback(!bFailed);
     if (Flood) Flood->Stop();
+    if (ColdCola) { ColdCola->Stop(); ColdCola->Destroy(); ColdCola=nullptr; }
     ++GS->StepIndex; EnterStep();
 }
 void AMCDayDirector::Tick(float Dt)
@@ -174,6 +178,7 @@ void AMCDayDirector::Tick(float Dt)
     case EMCDayStep::BreakfastCleanup: Left=CountFood(2); break;
     case EMCDayStep::CoffeeWaves: bWait=Flood && Flood->IsActive(); Left=bWait?FMath::Max(1,Flood->Waves-Flood->Wave+1):0; break;
     case EMCDayStep::StuckFood: Left=CountFood(3); break;
+    case EMCDayStep::ColdCola: Left=ColdCola?ColdCola->IceLeft():0; bWait=ColdCola && !ColdCola->IsComplete(); break;
     default: break;
     }
     GS->TasksLeft=Left; GS->TasksTotal=FMath::Max(GS->TasksTotal,Left);

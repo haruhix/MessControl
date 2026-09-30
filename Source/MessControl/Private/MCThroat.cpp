@@ -2,6 +2,7 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCTongue.h"
+#include "MCMouthSurface.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -27,6 +28,10 @@ AMCThroat::AMCThroat()
     SculptedTissue->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
     SculptedTissue->SetSkeletalMesh(LoadObject<USkeletalMesh>(nullptr,TEXT("/Game/Gameplay/Throat/SK_Throat.SK_Throat")));
     SculptedTissue->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+    AuthoredMouth=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("AuthoredMouth")); AuthoredMouth->SetupAttachment(Volume);
+    AuthoredMouth->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    AuthoredMouth->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+    AuthoredMouth->SetAnimationMode(EAnimationMode::AnimationSingleNode);
     Uvula=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Uvula")); Uvula->SetupAttachment(Volume);
     Uvula->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     UvulaLanding=CreateDefaultSubobject<UBoxComponent>(TEXT("UvulaLanding")); UvulaLanding->SetupAttachment(Volume);
@@ -82,8 +87,8 @@ double AMCThroat::ServerNow() const
 }
 bool AMCThroat::ContainsFood(const AMCFoodActor* Food) const
 {
-    if (!IsValid(Food) || Food->bBrushTool || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Stuck
-        || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Swallowing || !Food->Holders.IsEmpty()) return false;
+    if (!IsValid(Food) || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Stuck
+        || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Swallowing || Food->Phase==EMCFoodPhase::Absorbing || !Food->Holders.IsEmpty()) return false;
     const FVector P=GetActorTransform().InverseTransformPosition(Food->GetActorLocation())-ZoneCenter;
     return P.SizeSquared2D()<=FMath::Square(ZoneRadius) && P.Z>=-30 && P.Z<=ZoneHeight;
 }
@@ -137,22 +142,34 @@ float AMCThroat::UvulaBodyClearance(FVector Center,float Radius,float HalfHeight
 bool AMCThroat::OrderVelocity(const AMCToothCharacter* Hero,FVector& Velocity) const
 {
     const FVector Goal=UvulaLanding->GetComponentLocation()+FVector(0,0,16+Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3);
-    constexpr float Flight=1.05f;
-    Velocity=(Goal-Hero->GetActorLocation())/Flight;
-    Velocity.Z+=FMath::Abs(Hero->GetCharacterMovement()->GetGravityZ())*Flight*.5f;
-    // Validate the complete capsule arc before committing the assisted jump.
-    const FVector Start=Hero->GetActorLocation(); FVector Previous=Start;
+    const FVector Start=Hero->GetActorLocation();
+    const float Gravity=Hero->GetCharacterMovement()->GetGravityZ();
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCOrderJump),false,Hero); Query.AddIgnoredActor(this);
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) Query.AddIgnoredActor(*It);
-    for(int32 I=1;I<=32;++I) {
-        const float T=Flight*I/32; const FVector P=Start+Velocity*T+FVector(0,0,Hero->GetCharacterMovement()->GetGravityZ()*T*T*.5f);
-        if(UvulaBodyClearance(P,Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+6,
-            Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+4)<2) return false;
-        FHitResult Hit; if(GetWorld()->SweepSingleByChannel(Hit,Previous,P,FQuat::Identity,ECC_Pawn,
-            FCollisionShape::MakeCapsule(Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()*.85f,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*.95f),Query)) return false;
-        Previous=P;
+    // Keep the original arc when it fits. A lower palate needs a shorter arc,
+    // still descending onto the pad, with the same full-body clearance checks.
+    for(float Flight:{1.05f,.9f,.75f,.65f}) {
+        const FVector Candidate=(Goal-Start)/Flight+FVector(0,0,FMath::Abs(Gravity)*Flight*.5f);
+        if(Candidate.Z+Gravity*Flight>-30) continue;
+        bool Clear=true; FVector Previous=Start;
+        for(int32 I=1;I<=32;++I) {
+            const float T=Flight*I/32; const FVector P=Start+Candidate*T+FVector(0,0,Gravity*T*T*.5f);
+            if(UvulaBodyClearance(P,Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+6,
+                Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+4)<2) {Clear=false;break;}
+            FHitResult Hit;
+            if(GetWorld()->SweepSingleByChannel(Hit,Previous,P,FQuat::Identity,ECC_Pawn,
+                FCollisionShape::MakeCapsule(Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()*.85f,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()*.95f),Query)) {
+                // The moving tongue can rise into the grounded capsule between
+                // ticks. An upward takeoff may leave that initial floor contact.
+                const bool LeavingFloor=I==1 && Hit.bStartPenetrating && Hit.GetComponent()==Hero->GetMovementBaseObject()
+                    && Hit.ImpactNormal.Z>.65f && FVector::DotProduct(Candidate,Hit.ImpactNormal)>0;
+                if(!LeavingFloor) {Clear=false;break;}
+            }
+            Previous=P;
+        }
+        if(Clear) {Velocity=Candidate;return true;}
     }
-    return true;
+    return false;
 }
 void AMCThroat::UpdateOrderJumps()
 {
@@ -204,7 +221,8 @@ void AMCThroat::CaptureMeal()
     Meal.Reset();
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
         if (ContainsFood(*It) && It->BeginSwallow()) Meal.Add({*It,It->GetActorLocation(),It->GetActorQuat()});
-    FoodInZone=Meal.Num(); ++SwallowCount;
+    FoodInZone=Meal.Num(); ++SwallowCount; ++MealSequence;
+    for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get()) Food->PauseFuse(this);
     SwallowedPlayers.Reset();
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(ContainsPlayer(*It) && !It->SwallowedBy) {
         SwallowedPlayers.Add({*It,It->GetActorLocation()}); It->SetThroatCapture(this);
@@ -223,14 +241,32 @@ void AMCThroat::SpitOut(bool Reset)
     SwallowedPlayers.Reset();
     for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get(); IsValid(Food) && !Food->IsDisposed()) {
         Food->SetActorLocation(Reset?Piece.Start:GetActorTransform().TransformPosition(ZoneCenter+FVector(-ZoneRadius-60,(I++%5-2)*45,130)),false,nullptr,ETeleportType::TeleportPhysics);
-        Food->CancelSwallow(); if(!Reset) Food->Body->SetPhysicsLinearVelocity(-Forward*430+FVector(0,0,330));
+        Food->CancelSwallow(); Food->ResumeFuse(this); if(!Reset) Food->Body->SetPhysicsLinearVelocity(-Forward*430+FVector(0,0,330));
     }
     Meal.Reset();
+}
+void AMCThroat::SpawnVomitLiquid()
+{
+    // Dirt belongs to this rejected gulp. Other food batches retain their state.
+    for(int32 I=0;I<3;++I) {
+        FVector P=GetActorTransform().TransformPosition(ZoneCenter+FVector(-ZoneRadius-180-I*135,(I%2?1:-1)*100,0));
+        FHitResult Floor; bool Found=false;
+        for(TActorIterator<AMCTongue> T(GetWorld());T;++T) if(T->SurfacePoint(P,Floor)) { Found=true; break; }
+        if(!Found) continue;
+        const FTransform Transform(FRotationMatrix::MakeFromZ(Floor.ImpactNormal).Rotator(),Floor.ImpactPoint+Floor.ImpactNormal*5);
+        auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Transform);
+        if(Patch) {
+            Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=60+I*14; Patch->Batch=10000+MealSequence;
+            Patch->LiquidMaterial=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Gameplay/Hazards/MI_VomitPuddle.MI_VomitPuddle")));
+            Patch->FinishSpawning(Transform); Patch->Status->ApplyCoffee(.65f);
+        }
+    }
 }
 void AMCThroat::ResetSwallow()
 {
     if (!HasAuthority()) return;
     SpitOut(true);
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->ResumeFuse(this);
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->OrderJumpTarget==this) It->ClearOrderJump();
     PreparingPlayers.Reset();
     Meal.Reset(); LandedPlayers.Reset(); PressTime=Weight=0; bPressConsumed=false;
@@ -268,6 +304,10 @@ void AMCThroat::Tick(float Dt)
         {
             const double At=PhaseStartedAt+AnticipationSeconds; CaptureMeal(); SetPhase(EMCThroatPhase::Swallowing,At);
         }
+        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+            if(ThroatPhase==EMCThroatPhase::Anticipation && ContainsFood(*It)) It->PauseFuse(this);
+            else if(It->Phase!=EMCFoodPhase::Swallowing) It->ResumeFuse(this);
+        }
         if (ThroatPhase==EMCThroatPhase::Swallowing)
         {
             const float T=FMath::Clamp(float(Now-PhaseStartedAt)/SwallowSeconds,0.f,1.f);
@@ -277,16 +317,20 @@ void AMCThroat::Tick(float Dt)
             {
                 FVector P=FMath::Lerp(Piece.Start,End,Alpha); P.Z+=FMath::Sin(Alpha*PI)*80;
                 Food->SetActorLocationAndRotation(P,FQuat(FVector::RightVector,Alpha*PI)*Piece.Rotation,false,nullptr,ETeleportType::TeleportPhysics);
-                if (T>=1 && SwallowedPlayers.IsEmpty()) { Food->Dispose(); ++FoodSwallowed; }
             }
             for(const auto& Entry:SwallowedPlayers) if(auto* Hero=Entry.Hero.Get()) {
                 FVector P=FMath::Lerp(Entry.Start,End,FMath::SmoothStep(0.f,.72f,T)); P.Z+=FMath::Sin(T*PI)*100;
                 Hero->SetActorLocation(P,false,nullptr,ETeleportType::TeleportPhysics);
             }
-            if (!SwallowedPlayers.IsEmpty() && T>=.78f) { ++SpasmCount; SetPhase(EMCThroatPhase::Spasm,Now); }
-            else if (T>=1) { Meal.Reset(); SetPhase(EMCThroatPhase::Recovering,PhaseStartedAt+SwallowSeconds); }
+            bool Wrong=!SwallowedPlayers.IsEmpty();
+            for(const auto& Piece:Meal) if(const auto* Food=Piece.Food.Get()) Wrong|=Food->IsWrongIngredient();
+            if (Wrong && T>=.78f) { ++SpasmCount; SetPhase(EMCThroatPhase::Spasm,Now); }
+            else if (T>=1) {
+                for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get(); IsValid(Food) && !Food->IsDisposed()) { Food->Dispose(); ++FoodSwallowed; }
+                Meal.Reset(); SetPhase(EMCThroatPhase::Recovering,PhaseStartedAt+SwallowSeconds);
+            }
         }
-        if(ThroatPhase==EMCThroatPhase::Spasm && Now-PhaseStartedAt>=SpasmSeconds) { SpitOut(); SetPhase(EMCThroatPhase::Recovering,Now); }
+        if(ThroatPhase==EMCThroatPhase::Spasm && Now-PhaseStartedAt>=SpasmSeconds) { SpawnVomitLiquid(); SpitOut(); ++VomitCount; SetPhase(EMCThroatPhase::Recovering,Now); }
         if (ThroatPhase==EMCThroatPhase::Recovering && Now-PhaseStartedAt>=RecoverySeconds) SetPhase(EMCThroatPhase::Collecting,Now);
     }
     UpdatePresentation(Dt);
@@ -295,6 +339,13 @@ void AMCThroat::Tick(float Dt)
 void AMCThroat::UpdatePresentation(float Dt)
 {
     const float Time=ServerNow(),Open=OpenAmount();
+    if(AuthoredMouth->GetSkeletalMeshAsset()) {
+        const float Breath=.015f+.012f*FMath::Sin(Time*1.35f);
+        const float Aperture=FMath::Clamp(Open+Breath,0.f,1.f);
+        AuthoredMouth->SetMorphTarget(TEXT("Open"),bReverseAuthoredOpen?1-Aperture:Aperture);
+        AuthoredMouth->SetMorphTarget(TEXT("vomit"),ThroatPhase==EMCThroatPhase::Spasm?FMath::SmoothStep(0.f,.25f,float(Time-PhaseStartedAt))*(.65f+.35f*FMath::Square(FMath::Sin(Time*12))):0.f);
+        SculptedTissue->SetVisibility(false); Tissue->SetVisibility(false);
+    }
     const float Target=Weight>0?1.f:0.f;
     VisualWeight=Dt>0?FMath::Lerp(VisualWeight,Target,1-FMath::Exp(-8.f*Dt)):Target;
     const float Pull=VisualWeight*28;
@@ -387,4 +438,5 @@ void AMCThroat::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
     DOREPLIFETIME(AMCThroat,ThroatPhase); DOREPLIFETIME(AMCThroat,PhaseStartedAt); DOREPLIFETIME(AMCThroat,Weight);
     DOREPLIFETIME(AMCThroat,FoodInZone); DOREPLIFETIME(AMCThroat,SwallowCount); DOREPLIFETIME(AMCThroat,FoodSwallowed);
     DOREPLIFETIME(AMCThroat,SpasmCount);
+    DOREPLIFETIME(AMCThroat,VomitCount); DOREPLIFETIME(AMCThroat,MealSequence);
 }

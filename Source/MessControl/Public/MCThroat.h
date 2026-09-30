@@ -25,12 +25,15 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> Tissue;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> SculptedTissue;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> AuthoredMouth;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Uvula;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UBoxComponent> UvulaLanding;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> ClosedBarrier;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> ZoneRing;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") TObjectPtr<UMaterialInterface> TissueMaterial;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") TObjectPtr<UMaterialInterface> RingMaterial;
+    // The current artist's Open target collapses the aperture rather than opening it.
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") bool bReverseAuthoredOpen=true;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Shape") FVector GateCenter=FVector(150,0,-200);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Shape") FVector2D GateSize=FVector2D(500,500);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Shape") FVector UvulaTop=FVector(-120,0,430);
@@ -49,6 +52,8 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 SwallowCount=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 FoodSwallowed=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 SpasmCount=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 VomitCount=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 MealSequence=0;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing") float SpasmSeconds=1.2f;
     UFUNCTION(BlueprintPure,Category="Throat") bool ContainsFood(const AMCFoodActor* Food) const;
     UFUNCTION(BlueprintPure,Category="Throat") float OpenAmount() const;
@@ -67,6 +72,7 @@ private:
     void UpdatePresentation(float Dt);
     void BuildRing();
     void CaptureMeal();
+    void SpawnVomitLiquid();
     bool OrderVelocity(const AMCToothCharacter* Hero,FVector& Velocity) const;
     void UpdateOrderJumps();
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> RingMID;

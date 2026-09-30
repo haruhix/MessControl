@@ -5,6 +5,9 @@
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCFoodActor.h"
+#include "MCUlcerProgressWidget.h"
+#include "Components/WidgetComponent.h"
+#include "MCHazardWave.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/DecalComponent.h"
@@ -32,6 +35,10 @@ AMCMouthSurface::AMCMouthSurface()
     UlcerDecal->SetRelativeRotation(FRotator(-90,0,0));
     UlcerDecal->DecalSize=FVector(18,82,82); UlcerDecal->SetFadeScreenSize(.002f);
     UlcerDecal->SetVisibility(false);
+    TreatmentIndicator=CreateDefaultSubobject<UWidgetComponent>(TEXT("TreatmentProgress")); TreatmentIndicator->SetupAttachment(Area);
+    TreatmentIndicator->SetWidgetSpace(EWidgetSpace::Screen); TreatmentIndicator->SetWidgetClass(UMCUlcerProgressWidget::StaticClass());
+    TreatmentIndicator->SetDrawSize(FVector2D(84,84)); TreatmentIndicator->SetRelativeLocation(FVector(0,0,80));
+    TreatmentIndicator->SetCollisionEnabled(ECollisionEnabled::NoCollision); TreatmentIndicator->SetVisibility(false);
     Liquid=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("CoffeeLiquid")); Liquid->SetupAttachment(Area);
     Liquid->SetCollisionEnabled(ECollisionEnabled::NoCollision); Liquid->SetCastShadow(false);
     Liquid->SetCanEverAffectNavigation(false);
@@ -86,13 +93,24 @@ bool AMCMouthSurface::ApplyAnesthetic(float Seconds)
 void AMCMouthSurface::Disturb()
 {
     if (!HasAuthority() || !bUlcer || IsNumb()) return;
-    Healing=0;
     if (ContactCooldown<=0)
     {
         if (auto* GS=GetWorld()->GetGameState<AMCGameState>()) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DisturbDamage);
         ContactCooldown=1;
         if (Tongue) Tongue->TriggerPain(GetActorLocation());
     }
+}
+bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds)
+{
+    if(!HasAuthority() || !bUlcer || IsHealed() || !IsValid(Worker) || !Worker->CanWork() || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
+    if(LastTreatmentFrame==GFrameCounter) return true; // Shared lesion cannot heal faster from duplicate calls or teammates.
+    LastTreatmentFrame=GFrameCounter;
+    const auto* GS=GetWorld()->GetGameState(); const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    NumbUntil=Now+.15; bDisturbed=false; PulseClock=0;
+    HealSeconds=FMath::Clamp(HealSeconds,6.f,8.f);
+    Healing=FMath::Min(1.f,Healing+FMath::Min(Seconds,.2f)/HealSeconds);
+    if(Healing>=.99999f) { Healing=1; NumbUntil=Now+1; SetLifeSpan(.4f); Worker->NotifyTaskFeedback(true); }
+    ForceNetUpdate(); return true;
 }
 void AMCMouthSurface::Tick(float Dt)
 {
@@ -110,7 +128,7 @@ void AMCMouthSurface::Tick(float Dt)
         }
     }
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
-    if (HasAuthority() && bUlcer && State && !State->bDayOneComplete && State->Phase!=EMCShiftPhase::Won && State->Phase!=EMCShiftPhase::Lost)
+    if (HasAuthority() && bUlcer && !IsHealed() && State && !State->bDayOneComplete && State->Phase!=EMCShiftPhase::Won && State->Phase!=EMCShiftPhase::Lost)
     {
         ContactCooldown=FMath::Max(0.f,ContactCooldown-Dt); bDisturbed=false;
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
@@ -133,13 +151,31 @@ void AMCMouthSurface::Tick(float Dt)
             const FBox Box=It->Body->Bounds.GetBox(); const FVector P=GetActorLocation();
             if (Box.Min.Z<P.Z+18 && Box.Max.Z>P.Z-10 && FVector::DistSquared2D(Box.GetClosestPointTo(P),P)<FMath::Square(62.f)) bDisturbed=true;
         }
-        if(IsNumb()) bDisturbed=false;
-        if (bDisturbed) Disturb(); else Healing=FMath::Min(1.f,Healing+Dt/FMath::Max(1.f,HealSeconds));
+        if(IsNumb()) { bDisturbed=false; PulseClock=0; }
+        else if((PulseClock+=Dt)>=FMath::Max(1.f,PulseInterval))
+        {
+            PulseClock=0;
+            int32 Active=0; for(TActorIterator<AMCHazardWave> It(GetWorld());It;++It) ++Active;
+            if(Active<6) {
+                const FTransform T(GetActorRotation(),GetActorLocation());
+                auto* Wave=GetWorld()->SpawnActorDeferred<AMCHazardWave>(AMCHazardWave::StaticClass(),T);
+                if(Wave) { Wave->Source=this; Wave->MaxRadius=PulseRadius; Wave->Damage=PulseDamage; Wave->FinishSpawning(T); }
+            }
+        }
+        if (bDisturbed) Disturb();
         auto* GS=GetWorld()->GetGameState<AMCGameState>();
         if(!IsNumb()) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DamagePerSecond*Dt);
-        if (Healing>=1) { Destroy(); return; }
     }
     UpdateLiquid(Dt);
+    if(GetNetMode()!=NM_DedicatedServer) {
+        TreatmentIndicator->SetVisibility(bUlcer);
+        if(bUlcer) {
+            TreatmentIndicator->InitWidget();
+            if(auto* Widget=Cast<UMCUlcerProgressWidget>(TreatmentIndicator->GetUserWidgetObject())) {
+                Widget->Source=this; Widget->InvalidateLayoutAndVolatility();
+            }
+        }
+    }
     if (bUlcer && !UlcerMID)
         if (auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Care/M_UlcerBlend.M_UlcerBlend")))
         { UlcerMID=UMaterialInstanceDynamic::Create(Base,this); UlcerDecal->SetDecalMaterial(UlcerMID); }
@@ -153,7 +189,7 @@ void AMCMouthSurface::Tick(float Dt)
     }
     Visual->SetVisibility(bUlcer && !UlcerMID); Label->SetVisibility(bShowCareLabel && (bUlcer || !IsClean()));
     if (Material) Material->SetVectorParameterValue(TEXT("Tint"),bUlcer?FLinearColor(.6f,.01f,.035f):FLinearColor(.11f,.035f,.008f));
-    if (bUlcer) { Visual->SetRelativeScale3D(FVector(1.24,1.24,.07f+FMath::Sin(GetWorld()->GetTimeSeconds()*5)*.015f)); Label->SetText(FText::FromString(FString::Printf(TEXT("ULCER %d%% | %s"),FMath::RoundToInt(Healing*100),bDisturbed?TEXT("DISTURBED!"):TEXT("KEEP CLEAR")))); }
+    if (bUlcer) { Visual->SetRelativeScale3D(FVector(1.24,1.24,.07f+FMath::Sin(GetWorld()->GetTimeSeconds()*5)*.015f)); Label->SetText(FText::FromString(FString::Printf(TEXT("ULCER %d%% | HOLD SPRAY"),FMath::RoundToInt(Healing*100)))); }
     else if (bShowCareLabel) Label->SetText(FText::FromString(FString::Printf(TEXT("BRUSH %d"),Status->State.CoffeeLeft)));
     if (const auto* PC=GetWorld()->GetFirstPlayerController(); PC && PC->PlayerCameraManager) Label->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Label->GetComponentLocation()).Rotation());
 }
@@ -168,5 +204,6 @@ void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCMouthSurface,BrushUV); DOREPLIFETIME(AMCMouthSurface,BrushDirection); DOREPLIFETIME(AMCMouthSurface,BrushAt);
     DOREPLIFETIME(AMCMouthSurface,bUlcer); DOREPLIFETIME(AMCMouthSurface,Healing); DOREPLIFETIME(AMCMouthSurface,HealSeconds);
     DOREPLIFETIME(AMCMouthSurface,NumbUntil);
+    DOREPLIFETIME(AMCMouthSurface,PulseInterval); DOREPLIFETIME(AMCMouthSurface,PulseRadius); DOREPLIFETIME(AMCMouthSurface,PulseDamage);
     DOREPLIFETIME(AMCMouthSurface,DamagePerSecond); DOREPLIFETIME(AMCMouthSurface,DisturbDamage); DOREPLIFETIME(AMCMouthSurface,bDisturbed); DOREPLIFETIME(AMCMouthSurface,Batch);
 }

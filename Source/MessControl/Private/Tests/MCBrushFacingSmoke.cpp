@@ -7,6 +7,7 @@
 #include "MCMouthSurface.h"
 #include "MCGameState.h"
 #include "MCTongue.h"
+#include "MCFoodActor.h"
 #include "EngineUtils.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -56,21 +57,32 @@ void MCTickBrushFacingValidation(UWorld* World)
         R.At=R.Age;R.Contacts=0;R.MinFacing=1;R.TurnError=180;R.Invalid=false;R.Turned=false;R.Restored=false;R.Away=false;R.Shot=false;
         H->GetCharacterMovement()->StopMovementImmediately();H->GetCharacterMovement()->DisableMovement();
         for(AMCArenaTooth* T:GS->ArenaTeeth)if(T)T->SetCoffee(0);
-        if(R.Stage==0) {for(TActorIterator<AMCMouthSurface> It(World);It;++It)It->Destroy();}
-        FVector Contact,Normal;bool Found=false;
+        if(R.Stage==0) {
+            for(TActorIterator<AMCMouthSurface> It(World);It;++It)It->Destroy();
+            // The new row is closer to the seeded food. Isolate the facing
+            // test so LMB tests brushing rather than picking up nearby food.
+            H->DropFood();
+            for(TActorIterator<AMCFoodActor> It(World);It;++It)It->Dispose();
+        }
+        FVector Contact,Normal;bool Found=false;FRotator StartRotation=FRotator::ZeroRotator;
         if(R.Stage<2) {
             for(AMCArenaTooth* T:GS->ArenaTeeth)if(T && T->State.ToothId==3+R.Stage)R.Tooth=T;
             if(R.Tooth.IsValid()) {
                 auto* T=R.Tooth.Get();T->SetCoffee(1);
                 const FVector Inward=(-T->GetActorLocation()).GetSafeNormal2D(),Side=FVector::CrossProduct(Inward,FVector::UpVector);
                 const FVector E=T->Visual->Bounds.BoxExtent;const float Radius=FMath::Abs(Inward.X)*E.X+FMath::Abs(Inward.Y)*E.Y;
-                for(float Gap:{80.f,100.f,120.f}) {
+                for(float Gap:{50.f,65.f,80.f,100.f,120.f}) {
                     for(int32 I:{0,-1,1,-2,2,-3,3,-4,4}) {
                         FVector P=T->GetActorLocation()+Inward*(Radius+Gap)+Side*(I*16);FHitResult Floor;
                         if(!Tongue->SurfacePoint(P,Floor))continue;
                         P.Z=Floor.ImpactPoint.Z+H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+2;
                         H->SetActorLocationAndRotation(P,(-Inward).Rotation(),false,nullptr,ETeleportType::TeleportPhysics);
-                        if(T->FindDirtyContact(H,Contact,Normal)){Found=true;break;}
+                        if(!T->FindDirtyContact(H,Contact,Normal))continue;
+                        // This fixture starts with a 45 degree turn. New crowns
+                        // are narrower: a reachable straight-on point can be
+                        // outside the wrist's reach after that initial turn.
+                        H->SetActorRotation((Contact-P).Rotation()+FRotator(0,45,0));
+                        if(T->FindDirtyContact(H,Contact,Normal)){StartRotation=H->GetActorRotation();Found=true;break;}
                     }
                     if(Found)break;
                 }
@@ -88,7 +100,7 @@ void MCTickBrushFacingValidation(UWorld* World)
         }
         if(!Found){UE_LOG(LogTemp,Error,TEXT("MC_BRUSH_FACING_FAIL no fixture stage=%d"),R.Stage);FPlatformMisc::RequestExitWithStatus(false,1);return;}
         R.Facing=(Contact-H->GetActorLocation()).GetSafeNormal2D();R.Start=H->GetActorLocation();
-        H->SetActorRotation(R.Facing.Rotation()+FRotator(0,45,0));H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+        H->SetActorRotation(R.Stage<2?StartRotation:R.Facing.Rotation()+FRotator(0,45,0));H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
         if(FParse::Param(FCommandLine::Get(),TEXT("MCBrushCapture"))) {
             if(!R.Camera.IsValid()){R.Camera=World->SpawnActor<ACameraActor>();R.Camera->GetCameraComponent()->SetFieldOfView(54);PC->SetViewTarget(R.Camera.Get());}
             const FVector Aim=(R.Start+Contact)*.5+FVector(0,0,20),Eye=Aim-R.Facing*320+FVector::CrossProduct(R.Facing,FVector::UpVector)*250+FVector(0,0,190);

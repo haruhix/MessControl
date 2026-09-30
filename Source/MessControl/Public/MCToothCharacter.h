@@ -24,6 +24,7 @@ UCLASS(Blueprintable)
 class MESSCONTROL_API AMCToothCharacter : public ACharacter
 {
     GENERATED_BODY()
+    friend void MCTickApprovalValidation(UWorld* World);
 public:
     AMCToothCharacter(const FObjectInitializer& ObjectInitializer=FObjectInitializer::Get());
     virtual void OnConstruction(const FTransform& Transform) override;
@@ -64,6 +65,7 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
     bool CanWork() const;
+    bool IsPrimaryHeld() const { return bPrimaryHeld; }
     UPROPERTY(ReplicatedUsing=OnRep_ThroatCapture,BlueprintReadOnly,Category="Throat") TObjectPtr<class AMCThroat> SwallowedBy;
     UPROPERTY(Replicated) FVector ThroatCaptureStart=FVector::ZeroVector;
     UPROPERTY(Replicated) TObjectPtr<class AMCThroat> OrderJumpTarget;
@@ -93,10 +95,14 @@ public:
     FTransform StandingMeshTransform() const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<UCameraComponent> Camera;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="1500",ClampMax="1780")) float OverviewDistance=1750;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="500",ClampMax="700")) float OverviewHeight=620;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="75",ClampMax="95")) float OverviewFOV=86;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="400",ClampMax="1600")) float FollowDistance=1100;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="150",ClampMax="700")) float FollowHeight=440;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="45",ClampMax="95")) float FollowFOV=55;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="1",ClampMax="20")) float FollowSpeed=7;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ToolTip="Movement in centimetres allowed around the tracked point before the camera follows.")) FVector CameraDeadZone=FVector(110,80,90);
     bool bMouthCameraInitialized=false;
+    FVector MouthCameraFocus=FVector::ZeroVector, MouthCameraEye=FVector::ZeroVector;
+    TWeakObjectPtr<AActor> MouthCameraBounds;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TObjectPtr<UMCAnimationProfile> AnimationProfile;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") TObjectPtr<UMCSoundPalette> SoundPalette;
     UPROPERTY(BlueprintReadWrite, Category="Animation") FMCAnimationSettings AnimationSettings;
@@ -111,6 +117,7 @@ public:
     float AnimationSwim=0,AnimationStroke=0,AnimationSwimEffort=0,AnimationTurn=0,AnimationBrake=0;
     float AnimationRun=0,AnimationSticky=0,AnimationSlip=0,AnimationEffort=0,AnimationStance=.6f;
     float AnimationAir=0,AnimationLanding=0;
+    float AnimationClimb=0,AnimationClimbPhase=0;
     float AnimationOrderPrepare=0,AnimationOrderFlight=0,AnimationOrderPress=0;
     FVector AnimationDirection=FVector::ForwardVector;
     FVector AnimationInertia=FVector::ZeroVector;

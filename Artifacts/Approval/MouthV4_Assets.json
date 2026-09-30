@@ -1,0 +1,11 @@
+{
+  "materials": [
+    "/Game/Gameplay/MouthV3/M_GumV3.M_GumV3",
+    "/Game/Gameplay/MouthV3/M_PalateV3.M_PalateV3",
+    "/Game/Gameplay/MouthV3/M_ExitV3.M_ExitV3",
+    "/Game/Art/Materials/M_LivingTissue.M_LivingTissue",
+    "/Game/Art/Materials/M_ThroatSculpt.M_ThroatSculpt"
+  ],
+  "textures": "Painter 2048px packed Unreal maps",
+  "reflection": "SSR"
+}

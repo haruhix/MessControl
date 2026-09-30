@@ -1,0 +1,3 @@
+[2026.09.30-02.56.53:179][291]LogTemp: Display: MC_PICKAXE_CLEARANCE samples=180 min=0.95
+[2026.09.30-02.56.53:179][291]LogTemp: Display: MC_APPROVAL_CHECK PASS pickaxe pose stays above tongue and tooth surfaces
+[2026.09.30-02.56.53:179][291]LogTemp: Display: MC_VALIDATION_PASS APPROVAL_Pickaxe

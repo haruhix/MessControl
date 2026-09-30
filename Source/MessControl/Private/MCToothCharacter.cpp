@@ -1,5 +1,6 @@
 ﻿#include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
+#include "MCColdCola.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
 #include "MCBrushContactComponent.h"
@@ -234,11 +235,13 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(ForwardAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveRight);
 }
-void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=Value.Get<float>(); if (!ClingTooth && !OrderJumpTarget) AddMovementInput(FVector::ForwardVector, LocalPaddle.X); }
-void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=Value.Get<float>(); if (!ClingTooth && !OrderJumpTarget) AddMovementInput(FVector::RightVector, LocalPaddle.Y); }
+void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:FVector::ForwardVector, LocalPaddle.X); }
+void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():FVector::RightVector, LocalPaddle.Y); }
 void AMCToothCharacter::StartJump()
 {
     if(!CanWork() || OrderJumpTarget) return;
+    auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
+    if(Move->IsClimbing()) { Jump(); return; }
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It) if(It->CanOrderJump(this)) { ServerOrderJump(*It); return; }
     Jump();
 }
@@ -285,8 +288,8 @@ void AMCToothCharacter::StartSprint() { CastChecked<UMCToothMovementComponent>(G
 void AMCToothCharacter::StopSprint() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(false); }
 void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
-void AMCToothCharacter::StartHandle() { ServerSetWorking(false,true); }
-void AMCToothCharacter::StopHandle() { ServerSetWorking(false,false); }
+void AMCToothCharacter::StartHandle() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(true); ServerSetWorking(false,true); }
+void AMCToothCharacter::StopHandle() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false); ServerSetWorking(false,false); }
 void AMCToothCharacter::StartPrimary() { ServerSetPrimary(true); }
 void AMCToothCharacter::SelectBrush() { Inventory->ServerSelect(EMCToolSlot::Brush); }
 void AMCToothCharacter::SelectPickaxe() { Inventory->ServerSelect(EMCToolSlot::Pickaxe); }
@@ -386,6 +389,7 @@ void AMCToothCharacter::ToggleConnection() { StopPrimary(); StopBrush(); StopHan
 void AMCToothCharacter::RestartRun() { if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->RequestRestart(); }
 void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActive)
 {
+    if(!bBrush) CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(bActive);
     if (!bBrush) { bWantsCling=bActive && Status->IsAlive(); if (!bActive) ClingTooth=nullptr; }
     if (bActive && (!CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-0.3f)) return;
     if ((bBrush?bBrushing:bHandling)==bActive) return;
@@ -404,6 +408,7 @@ void AMCToothCharacter::Landed(const FHitResult& Hit)
 }
 void AMCToothCharacter::FindWork(float DeltaSeconds)
 {
+    if(CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()) { bBrushing=false; DropFood(); ResetContact(); return; }
     if(OrderJumpTarget) { bBrushing=false; bHandling=false; ResetContact(); return; }
     if (bPrimaryHeld) ResolvePrimaryAction();
     if (!CanWork() || (!bBrushing && !bHandling)) { ResetContact(); DropFood(); return; }
@@ -472,7 +477,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float GroundSpeed=GetVelocity().Size2D();
     AnimationBrake=FMath::FInterpTo(AnimationBrake,FMath::Clamp((PreviousAnimationSpeed-GroundSpeed)/FMath::Max(DeltaSeconds,.001f)/1600.f,0.f,1.f),DeltaSeconds,9.f);
     PreviousAnimationSpeed=GroundSpeed;
-    Brush->SetVisibility(HasBrush() && !HeldFood && !OrderJumpTarget && AnimationOrderPress<.05f && AnimationOrderFlight<.05f
+    Brush->SetVisibility(HasBrush() && !HeldFood && AnimationClimb<.05f && !OrderJumpTarget && AnimationOrderPress<.05f && AnimationOrderFlight<.05f
         && (!Grip || Grip->Blend()<.05f) && (!Expression || Expression->BodyAlpha()<.01f));
     if (StatusMaterial)
     {
@@ -503,9 +508,9 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     GetMesh()->SetMorphTarget(TEXT("Squash"),ToothPhysics->CanAct()?FMath::Clamp(Squash/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     const float Bob = bAir ? 0.f : (FMath::Abs(FMath::Sin(Gait))-.5f)*A.Bob*Speed*(1-.5f*AnimationSticky) + FMath::Sin(Time*2.f)*0.7f;
-    const float Pitch = Speed*A.Lean + Anticipation*15.f + (bHandling ? FMath::Sin(Time*13.f)*7.f : 0.f);
+    const float Pitch = Speed*A.Lean + Anticipation*15.f + (bHandling && !HeldFood && !Grip->GrabbedPlayer && AnimationClimb<.05f ? FMath::Sin(Time*13.f)*7.f : 0.f);
     const float AttackTime=Time-SwingStartedAt;
-    AnimationToolOffset=UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime);
+    AnimationToolOffset=GetActorRotation().RotateVector(UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime));
     const float AttackAngle=UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
     const float Swing = AttackTime<Inventory->SwingDuration()?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
     BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,Inventory->Selected==EMCToolSlot::Pickaxe?25.f:18.f-12.f*A.FollowThrough);
@@ -537,6 +542,14 @@ void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location) { if 
 void AMCToothCharacter::ResolveSwing()
 {
     if (!HasAuthority() || !CanWork()) return;
+    if(Inventory->Selected==EMCToolSlot::Pickaxe) {
+        AMCIceBlock* BestIce=nullptr; float Distance=FMath::Square(180.f);
+        for(TActorIterator<AMCIceBlock> It(GetWorld());It;++It) {
+            const FVector D=It->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();
+            if(!It->bBroken && D.SizeSquared()<Distance && FVector::DotProduct(D.GetSafeNormal2D(),GetActorForwardVector())>.25f && CanContact(*It)) { BestIce=*It; Distance=D.SizeSquared(); }
+        }
+        if(BestIce && BestIce->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestIce->GetActorLocation()); if(BestIce->bBroken) NotifyTaskFeedback(true); return; }
+    }
     AMCFoodActor* FoodTarget=nullptr; float FoodDistance=FMath::Square(180.f);
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
     {

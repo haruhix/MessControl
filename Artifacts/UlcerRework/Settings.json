@@ -1,0 +1,110 @@
+{
+  "treatment_seconds": 7.0,
+  "rows": [
+    {
+      "Name": "Broccoli",
+      "Scale": {
+        "X": 6,
+        "Y": 6,
+        "Z": 6
+      },
+      "FragmentScale": {
+        "X": 3.0,
+        "Y": 3.0,
+        "Z": 3.0
+      },
+      "SpoilSeconds": 35,
+      "AbsorbSeconds": 2
+    },
+    {
+      "Name": "Egg",
+      "Scale": {
+        "X": 0.5,
+        "Y": 0.5,
+        "Z": 0.5
+      },
+      "FragmentScale": {
+        "X": 0.25,
+        "Y": 0.25,
+        "Z": 0.25
+      },
+      "SpoilSeconds": 25,
+      "AbsorbSeconds": 2
+    },
+    {
+      "Name": "Bacon",
+      "Scale": {
+        "X": 6,
+        "Y": 6,
+        "Z": 6
+      },
+      "FragmentScale": {
+        "X": 3.0,
+        "Y": 3.0,
+        "Z": 3.0
+      },
+      "SpoilSeconds": 40,
+      "AbsorbSeconds": 2
+    },
+    {
+      "Name": "Carrot",
+      "Scale": {
+        "X": 6,
+        "Y": 6,
+        "Z": 6
+      },
+      "FragmentScale": {
+        "X": 3.0,
+        "Y": 3.0,
+        "Z": 3.0
+      },
+      "SpoilSeconds": 45,
+      "AbsorbSeconds": 2
+    },
+    {
+      "Name": "Fibre",
+      "Scale": {
+        "X": 6,
+        "Y": 6,
+        "Z": 6
+      },
+      "FragmentScale": {
+        "X": 3.0,
+        "Y": 3.0,
+        "Z": 3.0
+      },
+      "SpoilSeconds": 35,
+      "AbsorbSeconds": 2
+    },
+    {
+      "Name": "Tomato",
+      "Scale": {
+        "X": 6,
+        "Y": 6,
+        "Z": 6
+      },
+      "FragmentScale": {
+        "X": 3.0,
+        "Y": 3.0,
+        "Z": 3.0
+      },
+      "SpoilSeconds": 35,
+      "AbsorbSeconds": 2
+    },
+    {
+      "Name": "SpicyPepper",
+      "Scale": {
+        "X": 2,
+        "Y": 2,
+        "Z": 2
+      },
+      "FragmentScale": {
+        "X": 1.0,
+        "Y": 1.0,
+        "Z": 1.0
+      },
+      "SpoilSeconds": 600,
+      "AbsorbSeconds": 2
+    }
+  ]
+}

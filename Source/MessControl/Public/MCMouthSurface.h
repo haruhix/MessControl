@@ -24,6 +24,7 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Area;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Ulcer") TObjectPtr<class UDecalComponent> UlcerDecal;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Ulcer") TObjectPtr<class UWidgetComponent> TreatmentIndicator;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> Liquid;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Liquid") bool bShowCareLabel=false;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Liquid") EMCGroundSurface GroundResponse=EMCGroundSurface::Slippery;
@@ -40,11 +41,16 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") double NumbUntil=0;
     UFUNCTION(BlueprintPure,Category="Ulcer") bool IsNumb() const;
     bool ApplyAnesthetic(float Seconds);
-    UPROPERTY(Replicated) float HealSeconds=15;
+    bool Treat(class AMCToothCharacter* Worker,float Seconds);
+    bool IsHealed() const { return bUlcer && Healing>=1.f; }
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") float HealSeconds=7;
     UPROPERTY(Replicated) float DamagePerSecond=.35f;
     UPROPERTY(Replicated) float DisturbDamage=1;
     UPROPERTY(Replicated) bool bDisturbed=false;
     UPROPERTY(Replicated) int32 Batch=0;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ulcer") float PulseInterval=3;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ulcer") float PulseRadius=260;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ulcer") float PulseDamage=12;
     bool IsClean() const;
     void Disturb();
     void ResetLiquid();
@@ -80,4 +86,6 @@ private:
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> UlcerMID;
     float ContactCooldown=0;
+    float PulseClock=0;
+    uint64 LastTreatmentFrame=MAX_uint64;
 };

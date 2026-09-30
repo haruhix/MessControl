@@ -449,7 +449,8 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     PresentationPose=Frame.Pose;
     const float LeanSign=PresentationPose==EMCGripPose::Push?1.f:-1.f;
     const float Effort=Frame.Food && CanCarry(Frame.Food)?.15f:IsReady() && !InputDirection().IsNearlyZero()?FMath::Clamp(Tooth->AnimationEffort+.2f,.2f,1.f):.1f;
-    PresentationLean=FMath::Lerp(PresentationLean,LeanSign*Settings.Lean*Effort,1.f-FMath::Exp(-10.f*Dt));
+    const float Brace=FMath::Sin(Tooth->AnimationGait*2)*Effort*1.3f;
+    PresentationLean=FMath::Lerp(PresentationLean,LeanSign*Settings.Lean*Effort+Brace,1.f-FMath::Exp(-10.f*Dt));
     for (int32 I=0;I<2;++I)
     {
         const auto* F=HandFrame(I==0);
@@ -460,7 +461,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         if (!Tooth->ToothPhysics->CanAct()) HandAlpha[I]=0;
     }
     const bool Emote=Tooth->Expression && Tooth->Expression->BodyAlpha()>.001f;
-    const bool Swimming=Tooth->AnimationSwim>.05f;
+    const bool Swimming=Tooth->AnimationSwim>.05f || Tooth->AnimationClimb>.05f;
     const bool ToolSwing=!Tooth->AnimationToolOffset.IsNearlyZero();
     Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote || Swimming || ToolSwing,
         HandAlpha[1]>.001f || Emote || Swimming || ToolSwing || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting()));

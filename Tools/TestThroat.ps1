@@ -1,4 +1,4 @@
-param([string]$EngineRoot='E:\UE\UE_5.8',[switch]$Capture,[switch]$Solo,[int]$PacketLagMs=75,[int]$PacketLoss=2)
+param([string]$EngineRoot='E:\UE\UE_5.8',[switch]$Capture,[switch]$Solo,[int]$PacketLagMs=75,[int]$PacketLoss=2,[int]$Width=1536,[int]$Height=1024,[int]$FrameLimit=60,[switch]$LowLoad)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 $taskExe=Join-Path $EngineRoot 'Engine\Binaries\Win64\UnrealEditor-Cmd.exe'
@@ -13,7 +13,11 @@ try {
         if(-not $Solo) {$taskArgs+=@("-PktLag=$PacketLagMs","-PktLoss=$PacketLoss")}
         if($Capture -and $taskIndex -eq 0) {
             $taskArgs=@($taskArgs | Where-Object {$_ -ne '-nullrhi' -and $_ -notlike '*ExecCmds=*'})
-            $taskArgs+=@('-MCThroatCapture','-RenderOffscreen','-windowed','-ForceRes','-ResX=1536','-ResY=1024','-NoScreenMessages','"-ExecCmds=t.MaxFPS 60,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 2,sg.ReflectionQuality 2,sg.ShadowQuality 3,r.ScreenPercentage 100,Trace.Disable Screenshot"')
+            $taskArgs+=@('-MCThroatCapture','-RenderOffscreen','-windowed','-ForceRes',"-ResX=$Width","-ResY=$Height",'-NoScreenMessages',"`"-ExecCmds=t.MaxFPS $FrameLimit,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 2,sg.ReflectionQuality 2,sg.ShadowQuality 3,r.ScreenPercentage 100,Trace.Disable Screenshot`"")
+            if($LowLoad){
+                $taskArgs=@($taskArgs | Where-Object {$_ -notlike '*ExecCmds=*'})
+                $taskArgs+="`"-ExecCmds=t.MaxFPS $FrameLimit,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,r.Streaming.PoolSize 256,r.ScreenPercentage 80,Trace.Disable Screenshot`""
+            }
             if($Solo){$taskArgs+=@('-UseFixedTimeStep','-FPS=30')}
         }
         $taskProcesses+=Start-Process -FilePath $taskExe -ArgumentList $taskArgs -PassThru -WindowStyle Hidden

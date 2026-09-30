@@ -39,7 +39,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Food") FMCFoodSettings Settings;
 };
 UENUM(BlueprintType)
-enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped, Carried, Swallowing };
+enum class EMCFoodPhase : uint8 { Falling, Stuck, Free, Disposed, Equipped, Carried, Swallowing, Absorbing };
 
 /** Server physics pose relative to its carrier, rebased onto the predicted/smoothed character. */
 USTRUCT()
@@ -77,6 +77,12 @@ public:
     void ConfigureBrush();
     bool HitFood(float Damage,FVector Direction);
     bool IsHardFood() const;
+    void AttendFood();
+    void UpdateAbsorption(float Dt);
+    float AbsorptionProgress() const;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") double AbsorbStartedAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") bool bAbsorbed=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") TObjectPtr<class AMCMouthSurface> AbsorbedUlcer;
     void Throw(AMCToothCharacter* Hero);
     float DragSpeed() const;
     bool IsDisposed() const { return Phase==EMCFoodPhase::Disposed; }
@@ -99,6 +105,17 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) bool bSpoiled=false;
     UPROPERTY(Replicated, BlueprintReadOnly) double SpoilAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly) int32 Batch=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Hazard") double FuseEndsAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Hazard") float PausedFuse=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Hazard") bool bFusePaused=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Hazard") int32 HazardRound=1;
+    bool IsWrongIngredient() const;
+    float FuseRemaining() const;
+    float DetonationRadius() const;
+    void ArmSpicy();
+    void PauseFuse(class AMCThroat* Throat);
+    void ResumeFuse(class AMCThroat* Throat);
+    void Detonate();
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCToothCharacter> EquippedBy;
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AActor> StuckTooth;
     int32 ConfirmedImpacts=0;
@@ -120,7 +137,15 @@ private:
     // Sampled in the actor's PrePhysics tick, before contact impulses change velocity.
     FVector PrePhysicsVelocity=FVector::ZeroVector;
     TMap<TWeakObjectPtr<AActor>,double> LastHit;
+    UPROPERTY(Replicated) TObjectPtr<class AMCTongue> AbsorptionTongue;
+    UPROPERTY(Replicated) FVector AbsorptionAnchor=FVector::ZeroVector;
+    bool FindAbsorptionFloor(FHitResult& Hit,class AMCTongue*& Tongue) const;
+    void FinishAbsorption();
     void Spoil();
+    void UpdateHazard(float Dt);
+    double HazardNow() const;
+    TWeakObjectPtr<class AMCThroat> FuseOwner;
+    UPROPERTY() TArray<TObjectPtr<class UMaterialInstanceDynamic>> HazardMaterials;
 };
 
 /** Replaceable level marker: ordinary food is disposed towards the throat. */

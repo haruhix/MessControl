@@ -27,7 +27,7 @@
 namespace {
 void TickInventoryNetwork(UWorld* World)
 {
-    struct FRun { TWeakObjectPtr<UWorld> World; float Age=0; int32 Stage=-1,Checked=-1,Seen=0; bool Setup=false,Sprayed=false,Failed=false; };
+    struct FRun { TWeakObjectPtr<UWorld> World; float Age=0; int32 Stage=-1,Checked=-1,Seen=0; bool Setup=false,Sprayed=false,Failed=false,Sink=false,Absorbed=false; };
     static FRun R; if(R.World!=World) { R=FRun(); R.World=World; }
     R.Age+=World->GetDeltaSeconds();
     auto* GS=World->GetGameState<AMCGameState>(); auto* PC=World->GetFirstPlayerController();
@@ -45,21 +45,38 @@ void TickInventoryNetwork(UWorld* World)
             It->GetCharacterMovement()->StopMovementImmediately(); It->GetCharacterMovement()->DisableMovement();
             FVector U=P+FVector(125,0,-60);
             for(TActorIterator<AMCTongue> Tongue(World);Tongue;++Tongue) { FHitResult Hit; if(Tongue->SurfacePoint(U,Hit)) U=Hit.ImpactPoint+Hit.ImpactNormal*5; break; }
-            auto* Patch=World->SpawnActor<AMCMouthSurface>(U,FRotator::ZeroRotator); Patch->bUlcer=true; Patch->HealSeconds=60;
+            auto* Patch=World->SpawnActor<AMCMouthSurface>(U,FRotator::ZeroRotator); Patch->bUlcer=true; Patch->HealSeconds=7;
+            Patch->PulseInterval=60; // Keep the inventory routing fixture free of knockdowns from the separate wave mechanic.
         }
         GS->bPhysicalBrushes=false; GS->bDevManualEvents=true; GS->Phase=EMCShiftPhase::Working;
+        auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
+        if(const auto* Row=Table?Table->FindRow<FMCFoodRow>(TEXT("Egg"),TEXT("Absorption network")):nullptr) {
+            FVector P(400,0,70);
+            for(TActorIterator<AMCTongue> It(World);It;++It) { FHitResult Hit; if(It->SurfacePoint(P,Hit)) P=Hit.ImpactPoint+FVector(0,0,70); break; }
+            const FTransform Transform(P); auto* Food=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform);
+            FMCFoodRow Config=*Row; Config.SpoilSeconds=3; FRandomStream Random(41);
+            Food->ConfigureItem(TEXT("Egg"),Config,Random); Food->Batch=876; Food->FinishSpawning(Transform);
+        }
         GS->TasksTotal=4321; GS->StepIndex=0; GS->StepStartedAt=Now; GS->ForceNetUpdate(); R.Setup=true;
     }
     if(GS->TasksTotal!=4321) {
         if(R.Age>45) { UE_LOG(LogTemp,Error,TEXT("MC_INVENTORY_NET_FAIL setup timeout")); FPlatformMisc::RequestExitWithStatus(false,1); }
         return;
     }
+    for(TActorIterator<AMCFoodActor> It(World);It;++It) if(It->Batch==876) {
+        if(It->Phase==EMCFoodPhase::Absorbing && It->AbsorptionProgress()>.5f) {
+            for(TActorIterator<AMCTongue> Floor(World);Floor;++Floor) {
+                FHitResult Hit; if(Floor->SurfacePoint(It->GetActorLocation(),Hit)) R.Sink|=It->GetActorLocation().Z<Hit.ImpactPoint.Z+It->Body->Bounds.BoxExtent.Z*.2;
+            }
+        }
+        R.Absorbed|=It->bAbsorbed && It->IsDisposed() && It->AbsorbedUlcer && It->AbsorbedUlcer->bUlcer && It->AbsorbedUlcer->Batch==876;
+    }
     if(Host && Now-GS->StepStartedAt>3.2) { ++GS->StepIndex; GS->StepStartedAt=Now; GS->ForceNetUpdate(); }
     if(GS->StepIndex>=4) {
         // Give the final state time to reach the client before closing the listen server.
         if(!Host || Now-GS->StepStartedAt>2) {
-            const bool Pass=!R.Failed && R.Seen==15;
-            UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_NET_%s net=%d stages=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),R.Seen);
+            const bool Pass=!R.Failed && R.Seen==15 && R.Sink && R.Absorbed;
+            UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_NET_%s net=%d stages=%d sink=%d absorbed=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),R.Seen,R.Sink,R.Absorbed);
             FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
         }
         return;
@@ -67,12 +84,12 @@ void TickInventoryNetwork(UWorld* World)
     const EMCToolSlot Slots[]={EMCToolSlot::Pickaxe,EMCToolSlot::Knife,EMCToolSlot::Spray,EMCToolSlot::Brush};
     const int32 Stage=GS->StepIndex;
     if(R.Stage!=Stage) { R.Stage=Stage; R.Sprayed=false; H->Inventory->ServerSelect(Slots[Stage]); }
-    if(Stage==2 && !R.Sprayed && H->Inventory->Selected==EMCToolSlot::Spray) { H->Inventory->ServerSpray(); R.Sprayed=true; }
+    if(Stage==2 && !R.Sprayed && H->Inventory->Selected==EMCToolSlot::Spray) { H->ServerSetPrimary(true); R.Sprayed=true; }
     if(R.Checked!=Stage && Now-GS->StepStartedAt>2) {
         int32 Players=0,Numb=0; bool OK=true;
         for(TActorIterator<AMCToothCharacter> It(World);It;++It) if(It->GetPlayerState()) {
             ++Players; OK&=It->Inventory->Selected==Slots[Stage];
-            if(Stage==2) OK&=It->Inventory->SpraySecondsLeft()>0;
+            if(Stage==2) OK&=It->Inventory->HealingTarget && It->Inventory->HealingTarget->Healing>0;
         }
         if(Stage==2) { for(TActorIterator<AMCMouthSurface> It(World);It;++It) if(It->IsNumb()) ++Numb; OK&=Numb==2; }
         OK&=Players==2; R.Failed|=!OK; if(OK) R.Seen|=1<<Stage; R.Checked=Stage;
@@ -99,7 +116,7 @@ void MCTickInventoryValidation(UWorld* World)
     if(R.Stage<0 || Age>2.6f) {
         if(R.Stage==1 || R.Stage==2) Check(R.Food.IsValid() && R.Food->Health<100,TEXT("tool damages matching food"));
         if(R.Stage==1) { Check(R.HandTravel>60,TEXT("pickaxe wrist travels through a broad arc")); UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_PICK_ARC %.1f cm"),R.HandTravel); }
-        if(R.Stage==3) Check(R.Ulcer.IsValid() && R.Ulcer->IsNumb() && R.Ulcer->Healing>0 && H->Inventory->SpraySecondsLeft()>0,TEXT("spray protects and heals with cooldown"));
+        if(R.Stage==3) Check(R.Ulcer.IsValid() && R.Ulcer->IsNumb() && R.Ulcer->Healing>0,TEXT("held spray protects and treats ulcer"));
         ++R.Stage; R.StageAt=R.Age; R.Shot=false;
         if(R.Stage>=7) { UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_%s"),R.Failed?TEXT("FAIL"):TEXT("PASS")); FPlatformMisc::RequestExitWithStatus(false,R.Failed?1:0); return; }
         H->ServerSetPrimary(false); H->GetCharacterMovement()->DisableMovement();
@@ -130,7 +147,7 @@ void MCTickInventoryValidation(UWorld* World)
             FVector P=H->GetActorLocation()+FVector(140,0,-60);
             for(TActorIterator<AMCTongue> It(World);It;++It) { FHitResult Hit; if(It->SurfacePoint(P,Hit)) P=Hit.ImpactPoint+Hit.ImpactNormal*5; break; }
             auto* Ulcer=World->SpawnActor<AMCMouthSurface>(P,FRotator::ZeroRotator); Ulcer->bUlcer=true; R.Ulcer=Ulcer;
-            H->Inventory->ServerSpray();
+            H->ServerSetPrimary(true);
         }
         if(R.Stage==4) H->NotifyTaskFeedback(true);
         if(R.Stage==5) H->NotifyTaskFeedback(false);

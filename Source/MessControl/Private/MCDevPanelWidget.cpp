@@ -105,12 +105,15 @@ void UMCDevPanelWidget::RefreshActions()
     }
     AddAction(Steps,TEXT("Обычный день 1 — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычные таймеры и переходы."),EMCDevAction::RestartDay);
     AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
+    AddAction(Actions,TEXT("Перец — таймер и красная волна"),TEXT("Настоящий предмет из таблицы. Проглоти до детонации; от волны можно перепрыгнуть."),EMCDevAction::SpicyPepper);
+    AddAction(Actions,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);
+    AddAction(Actions,TEXT("Рвота — испорченный заказ"),TEXT("Два куска в круге проглатывания. Войди в круг, Space — увула; затем убери возвращённую еду и жидкость."),EMCDevAction::VomitMeal);
     AddAction(Actions,TEXT("Руки — хват, тяга и толкание"),TEXT("Большой куб для тяги и маленький для переноски. Держи ЛКМ и двигайся. Дистанция, масса переноски и руки — DA_Grip."),EMCDevAction::GripPractice);
     AddAction(Actions,TEXT("Движение — липкий участок"),TEXT("Создать участок под ногами для проверки усилия и бега с Shift."),EMCDevAction::LocomotionGround,1);
     AddAction(Actions,TEXT("Движение — скользкий участок"),TEXT("Проверить инерцию, торможение и тягу при слабом сцеплении."),EMCDevAction::LocomotionGround,2);
     AddAction(Actions,TEXT("Движение — убрать участок"),TEXT("Вернуть исходные свойства пола."),EMCDevAction::LocomotionGround,0);
-    AddAction(Actions,TEXT("Инфекция — испорченная еда + язва"),TEXT("Ускоряет порчу одного нового куска. Он создаёт настоящую язву и мешает её заживлению."),EMCDevAction::Infection);
-    AddAction(Actions,TEXT("Язык — язва и волна боли"),TEXT("Язва без еды перед игроком. Наступи на неё: движение языка, красная волна и один толчок каждому. Язва заживает сама."),EMCDevAction::TongueUlcer);
+    AddAction(Actions,TEXT("Еда — впитывание и язва"),TEXT("Новый кусок: 3 секунды без взаимодействия на языке, затем впитывание. Слот 4 + удерживать ЛКМ — лечить язву."),EMCDevAction::Infection);
+    AddAction(Actions,TEXT("Язык — язва и волна боли"),TEXT("Язва перед игроком. Space — перепрыгнуть волну. Слот 4 + удерживать ЛКМ — лечить; отпускание сохраняет прогресс."),EMCDevAction::TongueUlcer);
     AddAction(Actions,TEXT("Язык — сильный рывок / ragdoll"),TEXT("Поджатие, резкий подъём и бросок игроков с едой. В обычном дне повторяется редко; в ручном тесте запускается этой кнопкой."),EMCDevAction::TongueJolt);
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It) if (It->Profile)
     {

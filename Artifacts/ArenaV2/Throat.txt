@@ -1,0 +1,2 @@
+[2026.09.29-21.29.35:977][874]LogTemp: Display: MC_VALIDATION_PASS THROAT net=0 seen=2047 cycles=2 swallowed=1 spasms=1
+[2026.09.29-21.29.35:973][874]LogTemp: Display: MC_UVULA_ANIMATION pass=1 prepare=1 flight=1 press=1 hop=1 drop=27.33 clearance=7.77 invalid=0

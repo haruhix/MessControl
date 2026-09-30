@@ -1,6 +1,8 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCGameMode.h"
+#include "MCColdCola.h"
+#include "MCInventoryComponent.h"
 #include "MCGameState.h"
 #include "MCTaskActor.h"
 #include "MCToothCharacter.h"
@@ -11,6 +13,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCThroat.h"
+#include "MCHazardWave.h"
 #include "MCDayDirector.h"
 #include "MCDayPlan.h"
 #include "MCMouthSurface.h"
@@ -118,7 +121,7 @@ bool FMCThroatCycleTest::RunTest(const FString& Parameters)
     auto* Throat=Mouth.World->SpawnActor<AMCThroat>(FVector(0,0,200),FRotator::ZeroRotator);
     auto* Food=Mouth.GripCube(); Food->SetActorLocation(Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter+FVector(0,0,55)));
     Food->Body->SetSimulatePhysics(false); Food->Phase=EMCFoodPhase::Free;
-    auto* Brush=Mouth.GripCube(); Brush->bBrushTool=true; Brush->Body->SetSimulatePhysics(false); Brush->SetActorLocation(Food->GetActorLocation()+FVector(0,80,0));
+    auto* Brush=Mouth.GripCube(); Brush->bBrushTool=true; Brush->Body->SetSimulatePhysics(false); Brush->SetActorLocation(Food->GetActorLocation()+FVector(0,800,0));
     Throat->Tick(.1f);
     TestTrue(TEXT("Food is staged without disappearing"),Throat->FoodInZone==1 && !Food->IsDisposed());
     TestEqual(TEXT("Default throat is closed"),Throat->OpenAmount(),0.f);
@@ -137,7 +140,7 @@ bool FMCThroatCycleTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Food captured once"),Food->Phase,EMCFoodPhase::Swallowing);
     TestFalse(TEXT("Captured food cannot be grabbed"),Food->TryGrab(Hero));
     TestFalse(TEXT("Captured food cannot fragment"),Food->HitFood(10000,FVector::ForwardVector));
-    TestFalse(TEXT("Brush is not swallowed"),Brush->IsDisposed());
+    TestFalse(TEXT("A brush outside this gulp is not swallowed"),Brush->IsDisposed());
     Throat->PhaseStartedAt-=Throat->SwallowSeconds+0.01; Throat->Tick(.01f);
     TestTrue(TEXT("Meal disposed only after the gulp"),Food->IsDisposed() && Throat->FoodSwallowed==1);
     Throat->PhaseStartedAt-=Throat->RecoverySeconds+0.01; Throat->Tick(.01f);
@@ -682,7 +685,10 @@ bool FMCDayOneSequenceTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Failure costs configured mouth health"),Mouth.State->MouthHealth<Before && Mouth.State->FailedEvents==1);
     TestTrue(TEXT("Coffee starts a real volume"),D->Flood && D->Flood->IsActive());
     D->Next(); TestFalse(TEXT("Coffee ends before cleaning"),D->Flood->IsActive());
-    D->Next(); TestTrue(TEXT("Stuck food exists at arena teeth"),D->CountFood(3)>0);
+    D->Next(); TestTrue(TEXT("Cold cola is a real next event"),D->ColdCola && D->ColdCola->bActive);
+    TestTrue(TEXT("Cola starts its own drink"),D->ColdCola && D->ColdCola->Drink && D->ColdCola->Drink->IsActive());
+    D->Next(); TestNull(TEXT("Leaving cold cola clears its actor"),D->ColdCola.Get());
+    TestTrue(TEXT("Stuck food exists at arena teeth"),D->CountFood(3)>0);
     for (TActorIterator<AMCFoodActor> It(Mouth.World);It;++It) if (It->Batch==3)
     { TestNotNull(TEXT("Stuck anchor is an arena tooth"),Cast<AMCArenaTooth>(It->StuckTooth)); TestEqual(TEXT("Food remains stuck until pulled"),It->Phase,EMCFoodPhase::Stuck); }
     D->Next(); TestTrue(TEXT("Stops at day one, does not invent the foam party"),Mouth.State->bDayOneComplete);
@@ -760,7 +766,7 @@ bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Whole variants configured"),!Row->WholeMeshes.IsEmpty()); TestTrue(TEXT("Fragments configured"),!Row->FragmentMeshes.IsEmpty());
     for (const auto& Mesh:Row->WholeMeshes) if (!Mesh.IsNull()) ReadyCareTestMesh(Mesh.ToSoftObjectPath().ToString());
     for (const auto& Mesh:Row->FragmentMeshes) if (!Mesh.IsNull()) ReadyCareTestMesh(Mesh.ToSoftObjectPath().ToString());
-    FMCFoodRow ScaledRow=*Row; ScaledRow.Scale*=FVector(.5,.75,1.25);
+    FMCFoodRow ScaledRow=*Row; ScaledRow.Scale*=FVector(.5,.75,1.25); ScaledRow.FragmentScale=FVector(.27,.41,.63);
     auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,160),FRotator::ZeroRotator); Food->ConfigureItem(TEXT("Broccoli"),ScaledRow,Random);
     TestTrue(TEXT("Menu scale reaches the rendered food"),Food->Visual->GetRelativeScale3D().Equals(ScaledRow.Scale));
     TestTrue(TEXT("Scaled collision fits the visible food"),Food->Body->GetUnscaledBoxExtent().Equals((Food->ItemMesh->GetBounds().BoxExtent*ScaledRow.Scale).ComponentMax(FVector(3)),.01));
@@ -772,19 +778,54 @@ bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
     for (TActorIterator<AMCFoodActor> It(Mouth.World);It;++It) if (It->bFragment && !It->IsDisposed())
     {
         ++Count; Mass+=It->Settings.Mass; TestEqual(TEXT("Pieces keep the objective batch"),It->Batch,22);
-        TestEqual(TEXT("Breaking does not reset expiry"),It->SpoilAt,35.);
+        TestEqual(TEXT("New pieces share the attended parent's deadline"),It->SpoilAt,Food->SpoilAt);
         TestNotNull(TEXT("Fragment mesh loaded"),It->ItemMesh.Get());
-        TestTrue(TEXT("Broken pieces inherit the menu scale and fragment multiplier"),It->Visual->GetRelativeScale3D().Equals(ScaledRow.Scale*.5));
-        if (It->ItemMesh) TestTrue(TEXT("Fragment collision fits the resized mesh"),It->Body->GetUnscaledBoxExtent().Equals((It->ItemMesh->GetBounds().BoxExtent*ScaledRow.Scale*.5).ComponentMax(FVector(3)),.01));
+        TestTrue(TEXT("Fragment scale is independent of whole food scale"),It->Visual->GetRelativeScale3D().Equals(ScaledRow.FragmentScale));
+        if (It->ItemMesh) TestTrue(TEXT("Fragment collision fits its independent scale"),It->Body->GetUnscaledBoxExtent().Equals((It->ItemMesh->GetBounds().BoxExtent*ScaledRow.FragmentScale).ComponentMax(FVector(3)),.01));
         It->HitFood(10000,FVector::ForwardVector); TestFalse(TEXT("Hitting fragments does not delete cleanup work"),It->IsDisposed());
     }
     TestEqual(TEXT("Configured number of pieces"),Count,Row->Fragments); TestTrue(TEXT("Fragment mass conserves whole mass"),FMath::IsNearlyEqual(Mass,Row->Mass));
     auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor); Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1000,1000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
     auto* Rot=Mouth.World->SpawnActor<AMCFoodActor>(FVector(300,300,80),FRotator::ZeroRotator); Rot->ConfigureItem(TEXT("Egg"),*Row,Random); Rot->SpoilAt=.001;
     ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.05f); Rot->Tick(.1f);
-    TestTrue(TEXT("Expired food becomes infected"),Rot->bSpoiled);
+    TestFalse(TEXT("Generic floor cannot absorb food"),Rot->bSpoiled);
     int32 Ulcers=0; for (TActorIterator<AMCMouthSurface> It(Mouth.World);It;++It) if (It->bUlcer) ++Ulcers;
-    TestTrue(TEXT("Spoilage leaves a lesion on the actual floor"),Ulcers>0);
+    TestEqual(TEXT("Ulcers only emerge on the tongue"),Ulcers,0);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodAbsorptionTest,"MessControl.DayOne.UnattendedFoodBecomesTreatmentTask",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodAbsorptionTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working; Mouth.State->bDevManualEvents=true;
+    const FTransform FloorTransform(FQuat::Identity,FVector::ZeroVector,FVector(30,30,1));
+    auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FloorTransform);
+    Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Plane.Plane")); Tongue->FinishSpawning(FloorTransform);
+    ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.1f);
+    const auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
+    const auto* Row=Table?Table->FindRow<FMCFoodRow>(TEXT("Egg"),TEXT("Absorption test")):nullptr;
+    if(!TestNotNull(TEXT("Food row exists"),Row)) return false;
+    for(const auto& Mesh:Row->WholeMeshes) if(!Mesh.IsNull()) ReadyCareTestMesh(Mesh.ToSoftObjectPath().ToString());
+    FRandomStream Random(41); auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(); Food->ConfigureItem(TEXT("Egg"),*Row,Random);
+    Food->Phase=EMCFoodPhase::Free; Food->Body->SetSimulatePhysics(false); Food->Batch=22;
+    FHitResult Floor; if(!TestTrue(TEXT("Real tongue supports food"),Tongue->SurfacePoint(FVector::ZeroVector,Floor))) return false;
+    Food->SetActorLocation(Floor.ImpactPoint+FVector(0,0,Food->Body->Bounds.BoxExtent.Z+2));
+    Food->SpoilAt=10; Food->UpdateAbsorption(.1f); TestEqual(TEXT("Fresh food remains free"),Food->Phase,EMCFoodPhase::Free);
+    Food->SpoilAt=.001; Food->UpdateAbsorption(.1f); TestEqual(TEXT("Neglected food starts sinking"),Food->Phase,EMCFoodPhase::Absorbing);
+    const float StartZ=Food->GetActorLocation().Z;
+    Food->AbsorbStartedAt-=Food->FoodData.AbsorbSeconds*.5; Food->UpdateAbsorption(.1f);
+    TestTrue(TEXT("Food visibly sinks before becoming a lesion"),Food->GetActorLocation().Z<StartZ && !Food->IsDisposed());
+    Food->AttendFood(); TestEqual(TEXT("Attention rescues the sinking food"),Food->Phase,EMCFoodPhase::Free);
+    TestTrue(TEXT("Attention resets the unattended deadline"),Food->SpoilAt>0 && Food->GetActorLocation().Z>Floor.ImpactPoint.Z);
+    Food->Body->SetSimulatePhysics(false); Food->SpoilAt=.001; Food->UpdateAbsorption(.1f);
+    Food->AbsorbStartedAt-=Food->FoodData.AbsorbSeconds+.01; Food->UpdateAbsorption(.1f);
+    auto* Patch=Food->AbsorbedUlcer.Get(); if(!TestNotNull(TEXT("Fully absorbed food creates an ulcer"),Patch)) return false;
+    TestTrue(TEXT("The old food is hidden and cannot be eaten"),Food->bAbsorbed && Food->IsDisposed());
+    TestTrue(TEXT("Ulcer keeps the food's objective batch"),Patch->bUlcer && Patch->Batch==22);
+    auto* Director=Mouth.World->SpawnActor<AMCDayDirector>();
+    TestEqual(TEXT("Absorption does not count as successful cleanup"),Director->CountFood(22),1);
+    Patch->Tick(10); TestEqual(TEXT("Ulcer requires spray, with no automatic healing"),Patch->Healing,0.f);
+    Patch->Healing=1; TestEqual(TEXT("Curing the ulcer resolves the meal's work"),Director->CountFood(22),0);
     return true;
 }
 
@@ -792,15 +833,15 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCUlcerAndFloodTest,"MessControl.DayOne.UlcerP
 bool FMCUlcerAndFloodTest::RunTest(const FString& Parameters)
 {
     FTestMouth Mouth; Mouth.State->Phase=EMCShiftPhase::Working;
-    auto* Patch=Mouth.World->SpawnActor<AMCMouthSurface>(FVector(300,300,5),FRotator::ZeroRotator); Patch->bUlcer=true; Patch->HealSeconds=2;
+    auto* Patch=Mouth.World->SpawnActor<AMCMouthSurface>(FVector(300,300,5),FRotator::ZeroRotator); Patch->bUlcer=true; Patch->HealSeconds=7;
     const float Before=Mouth.State->MouthHealth; Patch->Tick(.5f);
-    TestTrue(TEXT("Untouched ulcer heals automatically while hurting mouth"),Patch->Healing>0 && Mouth.State->MouthHealth<Before);
+    TestTrue(TEXT("Untreated ulcer hurts mouth without healing"),Patch->Healing==0 && Mouth.State->MouthHealth<Before);
     auto* Hero=Mouth.Worker(); Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
     Hero->SetActorLocation(FVector(300,300,65)); Patch->Tick(.1f);
-    TestEqual(TEXT("Walking over ulcer resets healing"),Patch->Healing,0.f);
+    Patch->Healing=.25f; Patch->Disturb(); TestEqual(TEXT("Walking over ulcer preserves treatment progress"),Patch->Healing,.25f);
     Hero->GetCharacterMovement()->SetMovementMode(MOVE_Falling); Patch->Tick(.1f);
-    TestTrue(TEXT("Passing over ulcer in the air does not count as stepping"),Patch->Healing>0);
-    Hero->SetActorLocation(FVector(0,0,95)); Patch->Tick(2.1f); TestTrue(TEXT("Protected ulcer closes itself"),Patch->IsActorBeingDestroyed());
+    TestFalse(TEXT("Passing over ulcer in the air does not count as stepping"),Patch->bDisturbed);
+    Hero->SetActorLocation(FVector(0,0,95)); Patch->Tick(20); TestEqual(TEXT("Idle time never completes treatment"),Patch->Healing,.25f);
     auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
     Flood->StartedAt=Mouth.World->GetTimeSeconds()-3.8; Flood->Tick(.05f);
     TestTrue(TEXT("Rising coffee reaches the hero"),Hero->bInCoffee && Flood->Contains(Hero->GetActorLocation()));
@@ -812,6 +853,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDevEventsTest,"MessControl.Development.Event
 bool FMCDevEventsTest::RunTest(const FString& Parameters)
 {
     FTestMouth Mouth;
+    const FTransform TongueTransform(FQuat::Identity,FVector::ZeroVector,FVector(30,30,1));
+    auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),TongueTransform);
+    Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Plane.Plane")); Tongue->FinishSpawning(TongueTransform);
     auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
     Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(3000,2000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
     Mouth.World->SpawnActor<APlayerStart>(FVector(-500,0,100),FRotator::ZeroRotator);
@@ -842,10 +886,10 @@ bool FMCDevEventsTest::RunTest(const FString& Parameters)
     Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StopCoffee);
     TestFalse(TEXT("Drain stops real flood"),Mouth.Mode->DayDirector->Flood->IsActive());
     Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::Infection);
-    for (int32 I=0;I<8;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.05f); }
+    for (int32 I=0;I<160;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,.05f); }
     AMCMouthSurface* Ulcer=nullptr;
     for (TActorIterator<AMCMouthSurface> It(Mouth.World);It;++It) if (It->bUlcer) Ulcer=*It;
-    TestNotNull(TEXT("Infection button produces actual food spoilage lesion"),Ulcer);
+    TestNotNull(TEXT("Infection button produces a lesion through unattended absorption"),Ulcer);
     if (Ulcer)
     {
         const float HP=Mouth.State->MouthHealth; Ulcer->Tick(.1f);
@@ -953,7 +997,8 @@ bool FMCCoffeePourDrainTest::RunTest(const FString& Parameters)
     Obstacle->Destroy();
     // The artist tongue slopes below the original flat arena. Its front is still in the wave.
     auto* LowHero=Mouth.Worker();
-    // Let the normal 0.6 second spawn/recovery protection expire before the test impact.
+    // Let spawn protection expire, then verify the artist's lower floor receives
+    // the coffee stain while the new front-wave behavior preserves control.
     Flood->SetActorTickEnabled(false);
     for (int32 I=0;I<45;++I) { ++GFrameCounter; Mouth.World->Tick(LEVELTICK_All,1.f/60); }
     Flood->SetActorTickEnabled(true);
@@ -961,7 +1006,8 @@ bool FMCCoffeePourDrainTest::RunTest(const FString& Parameters)
     Flood->WaterSettings.DryHeight=-200;
     Flood->StartedAt=Mouth.World->GetTimeSeconds()-(.25f+500.f/Flood->WaterSettings.FrontSpeed);
     Flood->Tick(.016f);
-    TestTrue(TEXT("Impact reaches players on the lower artist tongue"),LowHero->ToothPhysics->KnockdownCount>0);
+    TestTrue(TEXT("Coffee reaches players on the lower artist tongue"),LowHero->Status->State.CoffeeLeft>0);
+    TestTrue(TEXT("Coffee front preserves player control"),LowHero->ToothPhysics->CanAct() && LowHero->ToothPhysics->KnockdownCount==0);
     Flood->StartedAt=Mouth.World->GetTimeSeconds()-4.7; Flood->Tick(.016f);
     TestTrue(TEXT("Real actor enters drain and hides jet"),Flood->GetPhase()==EMCCoffeePhase::Draining && !Flood->Jet->IsVisible() && Flood->DrainRibbon->IsVisible());
     Flood->Stop();
@@ -1870,6 +1916,158 @@ bool FMCWetFootingTest::RunTest(const FString&)
     for (int32 I=0;I<20;++I) FMCCoffeeWipe::Stroke(Patch->WipeMask,FVector2D(.5),FVector2D(.5),.2f,.1f);
     TestFalse(TEXT("A locally wiped path regains footing before the whole stain is clean"),Patch->AffectsFooting(FVector::ZeroVector));
     TestTrue(TEXT("The remaining stain still exists"),!Patch->IsClean() && FMCCoffeeWipe::Remaining(Patch->WipeMask)>.5f);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCAuthoredThroatMorphTest,"MessControl.Animation.AuthoredThroatApertureAndVomit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCAuthoredThroatMorphTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false);
+    auto* Throat=M.World->SpawnActor<AMCThroat>(FVector(5000,0,200),FRotator::ZeroRotator);
+    auto* Mesh=LoadObject<USkeletalMesh>(nullptr,TEXT("/Game/FromBlender2/SK_Exit.SK_Exit"));
+    if(!TestNotNull(TEXT("Imported artist throat"),Mesh)) return false;
+    TestNotNull(TEXT("Open morph exists"),Mesh->FindMorphTarget(TEXT("Open")));
+    TestNotNull(TEXT("vomit morph exists"),Mesh->FindMorphTarget(TEXT("vomit")));
+    Throat->AuthoredMouth->SetSkeletalMesh(Mesh); Throat->Tick(.01f);
+    TestTrue(TEXT("Artist's closing target is active at rest"),Throat->AuthoredMouth->GetMorphTarget(TEXT("Open"))>.95f);
+    Throat->ThroatPhase=EMCThroatPhase::Swallowing; Throat->PhaseStartedAt=M.World->GetTimeSeconds()-.4;
+    Throat->Tick(.01f);
+    TestTrue(TEXT("Swallow releases the closing target to reveal the aperture"),Throat->AuthoredMouth->GetMorphTarget(TEXT("Open"))<.03f);
+    Throat->ThroatPhase=EMCThroatPhase::Spasm; Throat->PhaseStartedAt=M.World->GetTimeSeconds()-.4;
+    Throat->Tick(.01f); TestTrue(TEXT("Spasm drives the imported vomit pose"),Throat->AuthoredMouth->GetMorphTarget(TEXT("vomit"))>.5f);
+    return true;
+}
+// A rejected gulp is atomic even when a frame passes the entire swallow interval.
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCVomitMealTest,"MessControl.Hazards.VomitReturnsOnlyCurrentGulp",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCVomitMealTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false);
+    auto* Throat=M.World->SpawnActor<AMCThroat>(FVector(5000,0,200),FRotator::ZeroRotator);
+    const FVector Center=Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter);
+    auto* Good=M.GripCube(); auto* Bad=M.GripCube(); auto* Outside=M.GripCube();
+    for(auto* F:{Good,Bad,Outside}) { F->Phase=EMCFoodPhase::Free; F->Body->SetSimulatePhysics(false); F->Batch=77; }
+    for(bool Spoiled:{false,true}) {
+        Bad->bSpoiled=Spoiled; Bad->FoodData.Kind=Spoiled?EMCFoodKind::Food:EMCFoodKind::ForeignObject;
+        Good->SetActorLocation(Center+FVector(0,-65,50)); Bad->SetActorLocation(Center+FVector(0,65,50));
+        Outside->SetActorLocation(Center+FVector(0,1000,50));
+        Throat->ThroatPhase=EMCThroatPhase::Anticipation; Throat->PhaseStartedAt=M.World->GetTimeSeconds()-Throat->AnticipationSeconds-.01;
+        Throat->Tick(.01f);
+        TestTrue(TEXT("Both pieces enter the same gulp"),Good->Phase==EMCFoodPhase::Swallowing && Bad->Phase==EMCFoodPhase::Swallowing);
+        Throat->PhaseStartedAt-=Throat->SwallowSeconds+1; Throat->Tick(.01f);
+        TestEqual(TEXT("Late frame still rejects before committing any piece"),Throat->ThroatPhase,EMCThroatPhase::Spasm);
+        TestTrue(TEXT("Healthy part of rejected meal remains alive"),!Good->IsDisposed() && Throat->FoodSwallowed==0);
+        Throat->PhaseStartedAt-=Throat->SpasmSeconds+.01; Throat->Tick(.01f);
+        TestTrue(TEXT("Whole current meal returns"),Good->Phase==EMCFoodPhase::Free && Bad->Phase==EMCFoodPhase::Free);
+        TestTrue(TEXT("An item from the same batch outside the gulp stays put"),Outside->Phase==EMCFoodPhase::Free && Outside->GetActorLocation().Equals(Center+FVector(0,1000,50)));
+        TestEqual(TEXT("Returned item keeps batch identity"),Good->Batch,77);
+        Good->Body->SetSimulatePhysics(false); Bad->Body->SetSimulatePhysics(false); Throat->ResetSwallow();
+    }
+    TestEqual(TEXT("Exactly one vomit per rejected gulp"),Throat->VomitCount,2);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpicyFuseTest,"MessControl.Hazards.SpicyFusePauseResumeAndRound",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpicyFuseTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false);
+    auto* Throat=M.World->SpawnActor<AMCThroat>(FVector(5000,0,200),FRotator::ZeroRotator);
+    auto* Pepper=M.GripCube(); Pepper->Body->SetSimulatePhysics(false); Pepper->SetActorTickEnabled(false);
+    Pepper->FoodData.Kind=EMCFoodKind::Spicy; Pepper->Phase=EMCFoodPhase::Free;
+    Pepper->SetActorLocation(Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter+FVector(0,0,50)));
+    M.State->Day=1; Pepper->ArmSpicy(); TestEqual(TEXT("First round gives eight seconds"),Pepper->FuseRemaining(),8.f);
+    Pepper->FuseEndsAt-=3; const float Remaining=Pepper->FuseRemaining();
+    Throat->ThroatPhase=EMCThroatPhase::Anticipation; Throat->PhaseStartedAt=M.World->GetTimeSeconds(); Throat->Tick(.01f);
+    TestTrue(TEXT("Uvula anticipation immediately pauses fuse"),Pepper->bFusePaused);
+    M.Step(.2f); TestEqual(TEXT("Paused time is retained"),Pepper->FuseRemaining(),Remaining);
+    Pepper->SetActorLocation(Pepper->GetActorLocation()+FVector(0,1000,0)); Throat->Tick(.01f);
+    TestFalse(TEXT("Leaving collecting circle resumes the fuse"),Pepper->bFusePaused);
+    TestTrue(TEXT("Leaving cannot refresh the countdown"),FMath::IsNearlyEqual(Pepper->FuseRemaining(),Remaining,.02f));
+    const float FirstRadius=Pepper->DetonationRadius();
+    auto* Later=M.GripCube(); Later->Body->SetSimulatePhysics(false); Later->FoodData.Kind=EMCFoodKind::Spicy;
+    M.State->Day=7; Later->ArmSpicy(); TestEqual(TEXT("Later round clamps to six seconds"),Later->FuseRemaining(),6.f);
+    TestTrue(TEXT("Later round has wider pulse"),Later->DetonationRadius()>FirstRadius);
+    Later->PauseFuse(Throat); Later->Detonate(); TestFalse(TEXT("Paused pepper cannot detonate"),Later->IsDisposed());
+    Throat->ResetSwallow(); TestFalse(TEXT("Reset releases owned fuses"),Later->bFusePaused);
+    Later->Detonate(); TestTrue(TEXT("Unpaused detonation consumes pepper"),Later->IsDisposed());
+    int32 Waves=0; for(TActorIterator<AMCHazardWave> It(M.World);It;++It) if(It->bSpicy) ++Waves;
+    TestEqual(TEXT("Exactly one spicy wave"),Waves,1);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWaveDodgeTest,"MessControl.Hazards.JumpClearsSweptWave",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCWaveDodgeTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false);
+    auto* Low=M.Worker(); auto* High=M.Worker();
+    Low->SetActorLocation(FVector(5000,100,Low->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+    High->SetActorLocation(FVector(5000,-100,High->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+90));
+    auto* Wave=M.World->SpawnActor<AMCHazardWave>(FVector(5000,0,0),FRotator::ZeroRotator);
+    Wave->MaxRadius=300; Wave->WarningSeconds=.1f; Wave->Damage=12; Wave->TravelSeconds=1;
+    const float LowHP=Low->Status->State.Health,HighHP=High->Status->State.Health;
+    // A large timestep still sweeps across the annulus rather than skipping it.
+    Wave->StartedAt=M.World->GetTimeSeconds()-.75; Wave->Tick(.75f);
+    TestTrue(TEXT("Grounded player is hit"),Low->Status->State.Health<LowHP);
+    TestEqual(TEXT("Airborne player's feet clear the wave"),High->Status->State.Health,HighHP);
+    High->SetActorLocation(FVector(5000,-100,High->GetCapsuleComponent()->GetScaledCapsuleHalfHeight())); Wave->Tick(.01f);
+    TestEqual(TEXT("Landing behind a crossed wave is safe"),High->Status->State.Health,HighHP);
+    TestEqual(TEXT("A wave damages a player only once"),Wave->HitCount,1);
+    TestTrue(TEXT("Moving through an expanding wave is swept"),AMCHazardWave::Crosses(250,10,20,200,20));
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCClimbTest,"MessControl.Locomotion.ClimbHangReleaseAndPredictedJump",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCClimbTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false);
+    auto* Wall=M.World->SpawnActor<AActor>(FVector(5100,0,350),FRotator::ZeroRotator);
+    auto* Box=NewObject<UBoxComponent>(Wall); Wall->SetRootComponent(Box); Box->SetBoxExtent(FVector(20,300,350));
+    Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Box->SetWorldLocation(FVector(5100,0,350));
+    auto* Hero=M.Worker(); Hero->SetActorLocation(FVector(5000,0,150));
+    auto* Move=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement()); Move->bRunPhysicsWithNoController=true; Move->SetMovementMode(MOVE_Falling);
+    Move->SetWantsClimb(true); Move->UpdateCharacterStateBeforeMovement(.01f);
+    TestTrue(TEXT("Reachable solid wall starts climbing"),Move->IsClimbing());
+    const float StartZ=Hero->GetActorLocation().Z;
+    for(int32 I=0;I<24;++I) { Hero->AddMovementInput(FVector::UpVector); M.Step(1.f/60); }
+    TestTrue(TEXT("Up input climbs the wall"),Hero->GetActorLocation().Z>StartZ+25);
+    const FVector Hanging=Hero->GetActorLocation();
+    M.Step(1.2f);
+    TestTrue(TEXT("No stamina loss or gravity while hanging"),Move->IsClimbing() && FMath::Abs(Hero->GetActorLocation().Z-Hanging.Z)<3);
+    Hero->Jump(); M.Step(1.f/60);
+    TestTrue(TEXT("Normal predicted jump input launches away from wall"),Move->IsFalling() && Move->Velocity.X<-100 && Move->Velocity.Z>200);
+    Hero->StopJumping(); Move->UpdateFromCompressedFlags(FSavedMove_Character::FLAG_Custom_1);
+    TestTrue(TEXT("Network flag restores climb intent"),Move->WantsClimb());
+    Move->UpdateFromCompressedFlags(0); TestFalse(TEXT("Network flag releases intent"),Move->WantsClimb());
+    // An ordinary narrow ledge can be mounted with full capsule sweeps.
+    M.Step(.6f);
+    Hero->SetActorLocation(FVector(5000,0,610)); Move->SetMovementMode(MOVE_Falling); Move->SetWantsClimb(true);
+    bool Mantled=false;
+    for(int32 I=0;I<70 && !Mantled;++I) {
+        Hero->AddMovementInput(FVector::UpVector); M.Step(1.f/60);
+        Mantled=Move->IsMovingOnGround() && Hero->GetActorLocation().Z>740;
+    }
+    TestTrue(TEXT("Climbing over the lip ends on the top surface"),Mantled);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCIceToolTest,"MessControl.ColdCola.ToolRangeAndHealth",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCIceToolTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+    auto* Hero=M.Worker(); Hero->GetCharacterMovement()->DisableMovement();
+    Hero->SetActorLocationAndRotation(FVector(5000,0,100),FRotator::ZeroRotator,false,nullptr,ETeleportType::TeleportPhysics);
+    M.Step(.7f);
+    const FTransform T(FVector(5100,0,100));
+    auto* Ice=M.World->SpawnActorDeferred<AMCIceBlock>(AMCIceBlock::StaticClass(),T);
+    Ice->Health=Ice->MaxHealth=120; Ice->Size=FVector(95,65,110); Ice->FinishSpawning(T); Ice->Body->SetSimulatePhysics(false);
+    Hero->Inventory->ServerSelect(EMCToolSlot::Knife);
+    TestFalse(TEXT("Knife cannot break ice"),Ice->HitWithPickaxe(Hero,40));
+    Hero->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
+    TestFalse(TEXT("Invalid damage is rejected"),Ice->HitWithPickaxe(Hero,std::numeric_limits<float>::quiet_NaN()));
+    Hero->SetActorRotation(FRotator(0,180,0));
+    TestFalse(TEXT("An ice block behind the player cannot be hit"),Ice->HitWithPickaxe(Hero,40));
+    Hero->SetActorLocationAndRotation(FVector(4700,0,100),FRotator::ZeroRotator,false,nullptr,ETeleportType::TeleportPhysics);
+    TestFalse(TEXT("A distant ice block cannot be hit"),Ice->HitWithPickaxe(Hero,40));
+    Hero->SetActorLocation(FVector(5000,0,100),false,nullptr,ETeleportType::TeleportPhysics);
+    TestTrue(TEXT("Facing nearby pickaxe hit succeeds"),Ice->HitWithPickaxe(Hero,40)); Ice->Body->SetSimulatePhysics(false);
+    TestEqual(TEXT("Configured ice health survives the first hit"),Ice->Health,80.f);
+    TestTrue(TEXT("Finishing hit succeeds"),Ice->HitWithPickaxe(Hero,80));
+    TestTrue(TEXT("Broken ice disables its solid obstacle"),Ice->bBroken && Ice->Body->GetCollisionEnabled()==ECollisionEnabled::NoCollision);
+    TestFalse(TEXT("A broken block cannot be counted twice"),Ice->HitWithPickaxe(Hero,40));
     return true;
 }
 #endif

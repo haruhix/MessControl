@@ -8,5 +8,6 @@ enum class EMCDevAction : uint8
     StartStep, DropFood, Infection, DropBrushes, CoffeeDirt, LooseTeeth,
     DamageSelf, Ragdoll, KillSelf, RestoreMouth, StopCoffee, RestartDay, TongueUlcer, TongueJolt,
     GazePractice, TongueMotion, TongueWeight, TongueWeightToggle, GripPractice,
-    TonguePressurePreset, TonguePressureReload, TonguePressureClear, LocomotionGround
+    TonguePressurePreset, TonguePressureReload, TonguePressureClear, LocomotionGround,
+    SpicyPepper, VomitMeal, ColdCola
 };

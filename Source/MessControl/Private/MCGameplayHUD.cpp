@@ -1,6 +1,7 @@
 #include "MCGameplayHUD.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
+#include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCFoodActor.h"
@@ -31,6 +32,7 @@ FString StepName(EMCDayStep Step)
     case EMCDayStep::BreakfastCleanup:return TEXT("УБРАТЬ ОСТАТКИ");
     case EMCDayStep::CoffeeWaves:return TEXT("ГОРЯЧИЙ КОФЕ");
     case EMCDayStep::CoffeeCleanup:return TEXT("СМЫТЬ КОФЕ");
+    case EMCDayStep::ColdCola:return TEXT("ХОЛОДНАЯ КОЛА");
     case EMCDayStep::StuckFood:return TEXT("МЕЖДУ ЗУБАМИ");
     default:return TEXT("ДЕНЬ ЗАВЕРШЁН"); }
 }
@@ -176,9 +178,10 @@ void UMCGameplayHUD::RefreshState()
         }
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0);
         Text(TEXT("CooldownValue"),FString::Printf(TEXT("%.1f"),Cool)); Bar(TEXT("CooldownProgress"),1-Cool/Inv->CooldownSeconds());
-        FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("ЛКМ · ОБЕЗБОЛИТЬ ЯЗВУ"):Hero->HasBrush()?TEXT("ЛКМ · ЧИСТИТЬ"):TEXT("E · ПОДОБРАТЬ ЩЁТКУ");
+        FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):Hero->HasBrush()?TEXT("ЛКМ · ЧИСТИТЬ"):TEXT("E · ПОДОБРАТЬ ЩЁТКУ");
         if(Hero->HeldFood) Hint=TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
         if(Hero->bInCoffee) Hint=TEXT("WASD · ПЛЫТЬ     ЛКМ · ЗАЦЕПИТЬСЯ");
+        if(const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement()); Move && Move->IsClimbing()) Hint=TEXT("WASD · ЛАЗАТЬ     E · ДЕРЖАТЬСЯ     SPACE · ОТПРЫГНУТЬ");
         if(!Hero->Status->IsAlive()) Hint=GS->AvailableArenaTeeth()>0?FString::Printf(TEXT("ВОЗРОЖДЕНИЕ ЧЕРЕЗ %.0f С"),FMath::Max(0.,Hero->RespawnAt-Now)):TEXT("НЕТ ЗАПАСНЫХ ЗУБОВ");
         for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
             if(It->CanOrderJump(Hero)) Hint=TEXT("SPACE · ПРЫГНУТЬ НА ЯЗЫЧОК");

@@ -1,0 +1,7 @@
+{
+  "case": "Breathing",
+  "source": "Materials.mp4",
+  "chapterStart": 16,
+  "chapterDuration": 5.1,
+  "capture": "Unreal game render target"
+}

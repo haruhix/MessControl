@@ -7,6 +7,7 @@
 class AMCToothCharacter;
 class AMCFoodActor;
 class UStaticMeshComponent;
+class AMCMouthSurface;
 
 UENUM(BlueprintType)
 enum class EMCToolSlot : uint8 { Brush, Pickaxe, Knife, Spray };
@@ -27,8 +28,9 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform WaterJetTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="0.1")) float PickaxeDamage=40;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="0.1")) float KnifeDamage=25;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="1")) float SprayCooldown=8;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="1")) float NumbSeconds=10;
+    // Retained for loading old assets; treatment now follows held input without a cooldown.
+    UPROPERTY() float SprayCooldown=8;
+    UPROPERTY() float NumbSeconds=10;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="10")) float SprayReach=235;
 };
 
@@ -46,6 +48,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") bool bWaterJetUnlocked=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double SprayReadyAt=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double LastSprayAt=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<AMCMouthSurface> HealingTarget;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSelect(EMCToolSlot Slot);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSpray();
     // Called by the authoritative upgrade/shop system. Clients cannot grant upgrades.
@@ -59,6 +62,7 @@ public:
     float SwingContactTime() const;
     static float SwingAngle(EMCToolSlot Slot,float Elapsed);
     static FVector SwingOffset(EMCToolSlot Slot,float Elapsed);
+    FVector ConstrainPickaxeGrip(const FTransform& WristWorld) const;
     FString ToolName() const;
 private:
     double Now() const;
@@ -69,4 +73,5 @@ private:
     EMCToolSlot Presented=EMCToolSlot::Brush;
     bool bPresentedUpgrade=false;
     void RefreshMesh();
+    AMCMouthSurface* FindSprayTarget() const;
 };

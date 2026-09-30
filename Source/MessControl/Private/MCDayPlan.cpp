@@ -4,13 +4,20 @@ void FMCFoodRow::Sanitize()
     auto Safe=[](float V,float D,float Lo,float Hi){return FMath::IsFinite(V)?FMath::Clamp(V,Lo,Hi):D;};
     SelectionWeight=Safe(SelectionWeight,1,0,100); Health=Safe(Health,75,1,1000);
     Mass=Safe(Mass,9,1,50); SpoilSeconds=Safe(SpoilSeconds,35,3,600); Fragments=FMath::Clamp(Fragments,2,5);
-    for (int32 Axis=0;Axis<3;++Axis) Scale[Axis]=FMath::IsFinite(Scale[Axis])?FMath::Max(.01,Scale[Axis]):1.;
+    FuseSeconds=Safe(FuseSeconds,8,6,8); FirstPulseRadius=Safe(FirstPulseRadius,180,50,600);
+    RadiusPerRound=Safe(RadiusPerRound,90,0,200); PulseDamage=Safe(PulseDamage,18,0,100);
+    AbsorbSeconds=Safe(AbsorbSeconds,2,.5f,10);
+    for (int32 Axis=0;Axis<3;++Axis) {
+        Scale[Axis]=FMath::IsFinite(Scale[Axis])?FMath::Max(.01,Scale[Axis]):1.;
+        FragmentScale[Axis]=FMath::IsFinite(FragmentScale[Axis])?FMath::Max(.01,FragmentScale[Axis]):.5;
+    }
     if (HalfExtent.ContainsNaN()) HalfExtent=FVector(45,35,35);
     HalfExtent=HalfExtent.GetAbs().BoundToBox(FVector(10),FVector(100));
 }
 UMCDayPlan::UMCDayPlan()
 {
     CoffeeProfile=TSoftObjectPtr<UMCCoffeeProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_CoffeeWater.DA_CoffeeWater")));
+    ColdColaProfile=TSoftObjectPtr<UMCColdColaProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_ColdCola.DA_ColdCola")));
     Menu=TSoftObjectPtr<UDataTable>(FSoftObjectPath(TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu")));
     auto Add=[&](EMCDayStep Step,float Seconds,const TCHAR* Title,const TCHAR* Hint)
     { FMCDayStepSettings S; S.Step=Step; S.Seconds=Seconds; S.Title=FText::FromString(Title); S.Instruction=FText::FromString(Hint); Steps.Add(S); };
@@ -20,6 +27,7 @@ UMCDayPlan::UMCDayPlan()
     Add(EMCDayStep::BreakfastCleanup,20,TEXT("BREAKFAST / CLEAN UP"),TEXT("RMB: break food. Hold LMB: drag to THROAT. Q: throw held food. Protect red ulcers."));
     Add(EMCDayStep::CoffeeWaves,6,TEXT("COFFEE / POUR AND DRAIN"),TEXT("Dodge the jet. WASD: paddle. Hold LMB near an arena tooth: cling through the drain."));
     Add(EMCDayStep::CoffeeCleanup,20,TEXT("COFFEE / BRUSH EVERYTHING"),TEXT("Fresh brushes fall in. LMB: pick up. LMB: teeth and floor. C: clean yourself."));
+    Add(EMCDayStep::ColdCola,45,TEXT("ХОЛОДНАЯ КОЛА"),TEXT("Скользко! Слот 2 + ЛКМ: разбей лёд. E у зуба: зацепиться, W/S: лазать, Space: отпрыгнуть."));
     Add(EMCDayStep::StuckFood,35,TEXT("03 / BETWEEN THE TEETH"),TEXT("Hold LMB + move towards centre to pull food free. Then drag it to THROAT."));
 }
 void UMCDayPlan::Sanitize()
@@ -31,8 +39,9 @@ void UMCDayPlan::Sanitize()
     SurfacePatches=FMath::Clamp(SurfacePatches,1,24); WaveCount=FMath::Clamp(WaveCount,1,8);
     FloodHeight=Safe(FloodHeight,155,60,240); FlowAcceleration=Safe(FlowAcceleration,320,0,800);
     PaddleAcceleration=Safe(PaddleAcceleration,400,0,800); AnchorReach=Safe(AnchorReach,160,60,250);
-    UlcerHealSeconds=Safe(UlcerHealSeconds,15,1,120); UlcerDamagePerSecond=Safe(UlcerDamagePerSecond,.35,0,5);
+    UlcerHealSeconds=Safe(UlcerHealSeconds,7,6,8); UlcerDamagePerSecond=Safe(UlcerDamagePerSecond,.35f,0,5);
     UlcerDisturbDamage=Safe(UlcerDisturbDamage,1,0,10);
+    UlcerPulseInterval=Safe(UlcerPulseInterval,3,1,15);
     if (ArenaHalfSize.ContainsNaN()) ArenaHalfSize=FVector(1050,740,220);
     ArenaHalfSize=ArenaHalfSize.GetAbs().BoundToBox(FVector(500,300,100),FVector(3000,2000,600));
     if (ArenaCenter.ContainsNaN()) ArenaCenter=FVector::ZeroVector;

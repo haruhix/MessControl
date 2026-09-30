@@ -90,7 +90,7 @@ void UMCValidationSubsystem::TickTongue(float Dt)
         {
             FHitResult Hit; Tongue->SurfacePoint(FVector(-100,-100,0),Hit);
             auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Hit.ImpactPoint+Hit.ImpactNormal*5,FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
-            Patch->bUlcer=true; Patch->HealSeconds=5; ++DevStage;
+            Patch->bUlcer=true; Patch->HealSeconds=7; ++DevStage;
         }
     }
     if (T>=0)
@@ -154,6 +154,9 @@ void UMCValidationSubsystem::TickTongue(float Dt)
             FHitResult Hit; Tongue->SurfacePoint(It->GetActorLocation(),Hit);
             TonguePatchError=FMath::Max(TonguePatchError,float(FMath::Abs(It->GetActorLocation().Z-Hit.ImpactPoint.Z-5)));
             if (It->Healing>.3) DevSeen|=64;
+            // This validates attachment to the moving surface. Input-driven spray
+            // treatment is covered separately by the inventory network test.
+            if(Host && !JoltTest && T>6 && !Heroes.IsEmpty()) It->Treat(Heroes[0],Dt);
         }
         if (!JoltTest && T>9 && Ulcers==0 && (DevSeen&32)) DevSeen|=128;
         if (Host && T>6 && DevStage==3)

@@ -90,6 +90,11 @@ float AMCCoffeeFlood::SurfaceHeightAt(FVector P) const
 {
     const float T=WaterTime(); return BaseHeight(T)+WaterSettings.SurfaceOffset(P,T);
 }
+float AMCCoffeeFlood::SurfaceVerticalSpeedAt(FVector P) const
+{
+    const float T=WaterTime(),Before=FMath::Max(0.f,T-.04f),After=FMath::Min(Seconds,T+.04f);
+    return FMath::Clamp((BaseHeight(After)+WaterSettings.SurfaceOffset(P,After)-BaseHeight(Before)-WaterSettings.SurfaceOffset(P,Before))/FMath::Max(.001f,After-Before),-220.f,220.f);
+}
 bool AMCCoffeeFlood::Contains(FVector P) const
 {
     if (!bActive || P.ContainsNaN() || FMath::Abs(P.X-ArenaCenter.X)>=HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>=HalfSize.Y || P.Z<=WaterSettings.DryHeight-100 || P.Z>=SurfaceHeightAt(P)+35) return false;
@@ -132,7 +137,7 @@ void AMCCoffeeFlood::Tick(float Dt)
             auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
             Hero->bInCoffee=Contains(P) && Hero->Status->IsAlive();
             if (!Hero->Status->IsAlive() || FMath::Abs(P.X-ArenaCenter.X)>HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>HalfSize.Y) { Hero->ClingTooth=nullptr; continue; }
-            if (Hero->bWantsCling)
+            if (Hero->bWantsCling && Hero->bInCoffee && Hero->GetCharacterMovement()->IsSwimming())
             {
                 if (!IsValid(Hero->ClingTooth))
                 {
@@ -156,7 +161,10 @@ void AMCCoffeeFlood::Tick(float Dt)
             {
                 HitThisWave.Add(Hero);
                 const FVector Away=(P-WaterSettings.Inlet).GetSafeNormal2D(KINDA_SMALL_NUMBER,FVector::ForwardVector);
-                Hero->ToothPhysics->ApplyHit((Away+FVector(0,0,.35f))*WaterSettings.ImpactImpulse,P); Hero->Status->ApplyCoffee();
+                // Entering the drink keeps player control. The current belongs to
+                // swimming movement, not the combat ragdoll / stun system.
+                Hero->GetCharacterMovement()->AddImpulse(Away*FMath::Min(90.f,WaterSettings.ImpactImpulse*.12f),true);
+                Hero->Status->ApplyCoffee();
             }
             if (!Hero->bInCoffee) continue;
             if (Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll)

@@ -1,0 +1,79 @@
+{
+  "layout": [
+    {
+      "id": 1,
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+      "position": [
+        -923.9415354025707,
+        -671.1537027344848,
+        -225.54952621459935
+      ]
+    },
+    {
+      "id": 2,
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+      "position": [
+        -929.9223331917099,
+        615.518615426806,
+        -225.54953384399388
+      ]
+    },
+    {
+      "id": 3,
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+      "position": [
+        -751.8348520344784,
+        -814.2524475748144,
+        -166.83278274536107
+      ]
+    },
+    {
+      "id": 4,
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+      "position": [
+        -759.1528358819046,
+        760.2107093778113,
+        -166.8327999114988
+      ]
+    },
+    {
+      "id": 5,
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+      "position": [
+        -507.72589647840016,
+        -905.2258606705644,
+        -122.80186462402331
+      ]
+    },
+    {
+      "id": 6,
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+      "position": [
+        -515.900357106619,
+        853.4494776031463,
+        -122.80184936523426
+      ]
+    },
+    {
+      "id": 7,
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+      "position": [
+        -196.25891218704135,
+        -905.9867797704017,
+        -62.33442687988281
+      ]
+    },
+    {
+      "id": 8,
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04",
+      "position": [
+        -204.45415066120756,
+        857.106234257031,
+        -62.33442687988282
+      ]
+    }
+  ],
+  "bounds": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.TriggerBox_0",
+  "throat": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0",
+  "uvula": "/Game/Gameplay/Throat/SM_Uvula.SM_Uvula"
+}

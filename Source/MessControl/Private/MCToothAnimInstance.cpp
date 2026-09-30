@@ -89,7 +89,7 @@ public:
             for (int32 Side=0;Side<2;++Side) { FootPlanted[Side]=false; FootReleased[Side]=false; FootBases[Side].Reset(); FootWeights[Side]=0; FootOffsets[Side]=FVector::ZeroVector; }
             return;
         }
-        const bool Allowed=!Tooth->GetCharacterMovement()->IsFalling() && Tooth->AnimationSwim<.05f && !Tooth->bPreviewAnimation
+        const bool Allowed=Tooth->GetCharacterMovement()->IsMovingOnGround() && Tooth->AnimationClimb<.05f && Tooth->AnimationSwim<.05f && !Tooth->bPreviewAnimation
             && (!Tooth->Expression || Tooth->Expression->BodyAlpha()<.01f);
         TArray<FTransform> CS; CS.SetNum(Pose.Num());
         auto Rebuild=[&](){for (int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)>=0?Pose[I]*CS[Ref.GetParentIndex(I)]:Pose[I];};
@@ -249,6 +249,20 @@ public:
         }
         if (Tooth->Expression) Tooth->Expression->BuildBodyPose(Pose,Ref);
         ArtistWorkPose(Tooth,Ref,Dt);
+        if(Tooth->AnimationClimb>.001f) {
+            const float Alpha=Tooth->AnimationClimb,Phase=Tooth->AnimationClimbPhase;
+            Rotate(TEXT("body"),FRotator(-8*Alpha,0,FMath::Sin(Phase)*3*Alpha));
+            Rotate(TEXT("gaze_head"),FRotator(-12*Alpha,0,0));
+            for(int32 Side=0;Side<2;++Side) {
+                const FString S=Side==0?TEXT("_l"):TEXT("_r");
+                const float Stroke=FMath::Sin(Phase+Side*PI);
+                Rotate(FName(*(TEXT("arm")+S)),FRotator((-48-Stroke*18)*Alpha,0,(Side==0?-10:10)*Alpha));
+                Rotate(FName(*(TEXT("forearm")+S)),FRotator(-24*Alpha,0,0));
+                Translate(FName(*(TEXT("forearm")+S)),Tooth->StandingMeshTransform().InverseTransformVectorNoScale(FVector(14,0,28+Stroke*16)*Alpha));
+                Rotate(FName(*(TEXT("leg")+S)),FRotator((22-Stroke*16)*Alpha,0,0));
+                Rotate(FName(*(TEXT("knee")+S)),FRotator((-38+Stroke*12)*Alpha,0,0));
+            }
+        }
         const float Prepare=Tooth->AnimationOrderPrepare,Flight=Tooth->AnimationOrderFlight,Press=Tooth->AnimationOrderPress;
         // Anticipation, reach in flight, then a short weighted crouch on the uvula.
         Translate(TEXT("body"),FVector(0,0,-10*Prepare-4*Press));
@@ -264,6 +278,18 @@ public:
         if (Tooth->BrushContact) Tooth->BrushContact->BuildPose(Pose,Ref,Dt);
         PlaceFeet(Tooth,Ref,Dt);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
+        if(Tooth->Inventory && Tooth->ToothPhysics->CanAct() && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->AnimationClimb<.05f) {
+            TArray<FTransform> CS; CS.SetNum(Pose.Num());
+            for(int32 I=0;I<Pose.Num();++I) { const int32 Parent=Ref.GetParentIndex(I); CS[I]=Parent<0?Pose[I]:Pose[I]*CS[Parent]; }
+            const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r"))),Arm=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));
+            if(Hand>=0 && Arm>=0) {
+                const FTransform MeshWorld=Tooth->GetMesh()->GetComponentTransform();
+                const FVector Correction=Tooth->Inventory->ConstrainPickaxeGrip(CS[Hand]*MeshWorld);
+                const int32 Parent=Ref.GetParentIndex(Arm);
+                const FTransform ParentWorld=Parent<0?MeshWorld:CS[Parent]*MeshWorld;
+                Pose[Arm].AddToTranslation(ParentWorld.InverseTransformVector(Correction));
+            }
+        }
         // Brace both compact mittens against the uvula while the body stays in
         // front of the stalk. Move each weighted wrist branch rigidly.
         const auto* Base=Cast<UPrimitiveComponent>(Tooth->GetMovementBaseObject());

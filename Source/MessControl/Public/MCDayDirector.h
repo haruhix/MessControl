@@ -4,6 +4,7 @@
 #include "MCDayPlan.h"
 #include "MCDayDirector.generated.h"
 class AMCCoffeeFlood;
+class AMCColdColaEvent;
 class AMCFoodActor;
 class AMCGameState;
 UCLASS()
@@ -22,6 +23,7 @@ public:
     void DirtyMouth(bool bCoffee);
     UPROPERTY() TObjectPtr<UMCDayPlan> Settings;
     UPROPERTY() TObjectPtr<AMCCoffeeFlood> Flood;
+    UPROPERTY() TObjectPtr<AMCColdColaEvent> ColdCola;
     int32 RainSpawned=0;
 private:
     void EnterStep();

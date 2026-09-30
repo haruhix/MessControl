@@ -1,0 +1,41 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "materials": {
+    "/Game/Gameplay/MouthV3/M_GumV3": {
+      "expressions": 34
+    },
+    "/Game/Gameplay/MouthV3/M_PalateV3": {
+      "expressions": 34
+    },
+    "/Game/Gameplay/MouthV3/M_ExitV3": {
+      "expressions": 34
+    }
+  },
+  "bindings": [
+    {
+      "actor": "SM_Gum",
+      "component": "StaticMeshComponent0",
+      "materials": [
+        "/Game/Gameplay/MouthV3/M_GumV3.M_GumV3"
+      ]
+    },
+    {
+      "actor": "SM_Roof_Wall",
+      "component": "StaticMeshComponent0",
+      "materials": [
+        "/Game/Gameplay/MouthV3/M_PalateV3.M_PalateV3"
+      ]
+    },
+    {
+      "actor": "GAMEPLAY | Living throat",
+      "component": "AuthoredMouth",
+      "materials": [
+        "/Game/Gameplay/MouthV3/M_ExitV3.M_ExitV3"
+      ]
+    }
+  ],
+  "effects": {
+    "NS_BrushFoam": "/Game/Gameplay/VFX/NS_BrushFoam.NS_BrushFoam",
+    "NS_IceShatter": "/Game/Gameplay/VFX/NS_IceShatter.NS_IceShatter"
+  }
+}

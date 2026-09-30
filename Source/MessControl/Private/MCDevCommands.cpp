@@ -5,7 +5,9 @@
 #include "MCGameState.h"
 #include "MCDayDirector.h"
 #include "MCCoffeeFlood.h"
+#include "MCColdCola.h"
 #include "MCFoodActor.h"
+#include "MCThroat.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
@@ -49,7 +51,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         DayDirector->Start(Plan,StepIndex,true);
         return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::LocomotionGround))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::ColdCola))
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -63,6 +65,42 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::ColdCola:
+        if(DayDirector->ColdCola) { DayDirector->ColdCola->Stop(); DayDirector->ColdCola->Destroy(); }
+        DayDirector->ColdCola=GetWorld()->SpawnActor<AMCColdColaEvent>(); DayDirector->ColdCola->Start(DayDirector->Settings);
+        return FText::FromString(TEXT("Холодная кола сверху, иней и скользкий язык. Слот 2 + ЛКМ: разбей лёд."));
+    case EMCDevAction::SpicyPepper:
+    case EMCDevAction::VomitMeal:
+    {
+        if(!Hero) return FText::FromString(TEXT("Нужен живой игрок хоста."));
+        auto* Menu=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
+        const FName Name=Action==EMCDevAction::SpicyPepper?TEXT("SpicyPepper"):TEXT("Broccoli");
+        const auto* Row=Menu?Menu->FindRow<FMCFoodRow>(Name,TEXT("Hazard practice")):nullptr;
+        if(!Row) return FText::FromString(TEXT("Предмет отсутствует в DT_BreakfastMenu."));
+        FVector P=Hero->GetActorLocation()+Hero->GetActorForwardVector()*170;
+        if(Action==EMCDevAction::VomitMeal) {
+            bool Found=false;
+            for(TActorIterator<AMCThroat> It(GetWorld());It;++It) if(It->ThroatPhase==EMCThroatPhase::Collecting) {
+                P=It->GetActorTransform().TransformPosition(It->ZoneCenter); Found=true; break;
+            }
+            if(!Found) return FText::FromString(TEXT("Дождись окончания проглатывания."));
+        }
+        FHitResult Floor; bool Found=false;
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It) if(It->SurfacePoint(P,Floor)) { Found=true; break; }
+        if(!Found) return FText::FromString(TEXT("Предмету нужно место на языке."));
+        const int32 Count=Action==EMCDevAction::VomitMeal?2:1;
+        for(int32 I=0;I<Count;++I) {
+            const FTransform T(Floor.ImpactPoint+FVector(0,(I-.5f)*100,80));
+            auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
+            if(!Food) continue;
+            FRandomStream R(41+I); Food->ConfigureItem(Name,*Row,R); Food->Batch=12000;
+            Food->FinishSpawning(T);
+            if(Action==EMCDevAction::VomitMeal && I==1) { Food->bSpoiled=true; Food->SpoilAt=0; }
+        }
+        return FText::FromString(Action==EMCDevAction::SpicyPepper?
+            TEXT("Перец падает перед тобой: таймер 8–6 секунд по раунду. E — взять, Q — бросить в круг. Запуск увулы останавливает таймер."):
+            TEXT("В круге два куска, один испорчен. Войди в круг и нажми Space: весь этот заказ вернётся с жидкостью. Щётка очищает лужи."));
+    }
     case EMCDevAction::LocomotionGround:
         if (Hero && StepIndex>=0 && StepIndex<=2)
         {
@@ -165,7 +203,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Hit.ImpactPoint+Hit.ImpactNormal*5,FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
             Patch->bUlcer=true;
             if (const auto* Plan=GS->DayPlan.Get()) { Patch->HealSeconds=Plan->UlcerHealSeconds; Patch->DamagePerSecond=Plan->UlcerDamagePerSecond; Patch->DisturbDamage=Plan->UlcerDisturbDamage; }
-            return FText::FromString(TEXT("Язва перед тобой: наступи на неё — по языку пойдёт красная волна и толкнёт игроков. Без контакта заживает сама."));
+            return FText::FromString(TEXT("Язва перед тобой: Space — перепрыгнуть волну. Слот 4 + удерживать ЛКМ — лечить 7 секунд; отпускание сохраняет прогресс."));
         }
         return FText::FromString(TEXT("Перед игроком нет языка. Переместись ближе к центру."));
     }
@@ -177,9 +215,22 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCDevFood),false,Hero);
         if (!GetWorld()->LineTraceSingleByChannel(Hit,Ahead+FVector(0,0,300),Ahead-FVector(0,0,1000),ECC_WorldStatic,Params))
             return FText::FromString(TEXT("Перед игроком нет пола. Переместись на арену."));
-        auto* Food=DayDirector->SpawnMenuFood(Hit.ImpactPoint+FVector(0,0,Action==EMCDevAction::Infection?100:650),2);
-        if (Food && Action==EMCDevAction::Infection) Food->SpoilAt=GetWorld()->GetTimeSeconds()+.1;
-        return FText::FromString(Food?(Action==EMCDevAction::Infection?TEXT("Перед тобой портится еда: убери её и защищай язву, пока она заживает."):TEXT("Еда падает перед тобой. Бей, хватай и тащи в глотку.")):TEXT("Не удалось создать еду."));
+        AMCFoodActor* Food=nullptr;
+        if(Action==EMCDevAction::Infection) {
+            // Choose ordinary food explicitly: a random spicy row has its own hazard and cannot absorb.
+            auto* Table=GS->DayPlan?GS->DayPlan->Menu.LoadSynchronous():nullptr;
+            const auto* Row=Table?Table->FindRow<FMCFoodRow>(TEXT("Egg"),TEXT("Absorption preview")):nullptr;
+            if(Row) {
+                const FTransform Transform(Hit.ImpactPoint+FVector(0,0,100));
+                Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform);
+                if(Food) {
+                    FMCFoodRow Config=*Row; Config.SpoilSeconds=3; FRandomStream PreviewRandom(41);
+                    Food->ConfigureItem(TEXT("Egg"),Config,PreviewRandom); Food->Batch=2; Food->FinishSpawning(Transform);
+                }
+            }
+        }
+        else Food=DayDirector->SpawnMenuFood(Hit.ImpactPoint+FVector(0,0,650),2);
+        return FText::FromString(Food?(Action==EMCDevAction::Infection?TEXT("Оставь еду на языке на 3 секунды: она впитается и станет язвой. Слот 4 + удерживать ЛКМ — лечить."):TEXT("Еда падает перед тобой. Бей, хватай и тащи в глотку.")):TEXT("Не удалось создать еду."));
     }
     case EMCDevAction::DropBrushes: DayDirector->DropBrushes(); break;
     case EMCDevAction::CoffeeDirt: DayDirector->DirtyMouth(true); DayDirector->DropBrushes(); break;

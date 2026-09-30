@@ -64,27 +64,57 @@ float UMCInventoryComponent::SwingAngle(EMCToolSlot Slot,float T)
 FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 {
     if(Slot!=EMCToolSlot::Pickaxe || T<0 || T>=.95f) return FVector::ZeroVector;
-    const FVector Wind(-35,12,90),Strike(75,-10,-6);
+    const FVector Wind(-35,12,90),Strike(60,-10,30);
     if(T<.30f) return FMath::Lerp(FVector::ZeroVector,Wind,FMath::SmoothStep(0.f,.30f,T));
     if(T<.44f) return FMath::Lerp(Wind,Strike,FMath::SmoothStep(.30f,.44f,T));
     return FMath::Lerp(Strike,FVector::ZeroVector,FMath::SmoothStep(.44f,.95f,T));
 }
-void UMCInventoryComponent::ServerSpray_Implementation()
+FVector UMCInventoryComponent::ConstrainPickaxeGrip(const FTransform& WristWorld) const
 {
-    if(!Hero || !Hero->CanWork() || Hero->bInCoffee || Selected!=EMCToolSlot::Spray || Now()<SprayReadyAt) return;
+    if(!Hero || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe) return FVector::ZeroVector;
+    const FTransform World=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform()*WristWorld;
+    const FBoxSphereBounds Bounds=Tool->GetStaticMesh()->GetBounds();
+    FCollisionQueryParams Q(SCENE_QUERY_STAT(MCPickaxePose),false,Hero);
+    FVector Correction=FVector::ZeroVector;
+    // Constrain the entire posed mesh, then move the hand branch with the tool.
+    // This does not detach the tool from its wrist or teleport gameplay targets.
+    for(int32 Pass=0;Pass<4;++Pass) {
+        // Use the collision-free body as the anchor: the unconstrained wrist
+        // may already be beyond the wall during the forward part of a swing.
+        for(int32 I=0;I<8;++I) {
+            const FVector Corner=World.TransformPosition(Bounds.Origin+FVector(I&1?Bounds.BoxExtent.X:-Bounds.BoxExtent.X,I&2?Bounds.BoxExtent.Y:-Bounds.BoxExtent.Y,I&4?Bounds.BoxExtent.Z:-Bounds.BoxExtent.Z))+Correction;
+            FHitResult Hit;
+            if(Hero->GetWorld()->SweepSingleByChannel(Hit,Hero->GetActorLocation(),Corner,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(4),Q) && !Hit.bStartPenetrating && FMath::Abs(Hit.ImpactNormal.Z)<.7f)
+                Correction+=Hit.ImpactNormal*FMath::Max(0.,5.-FVector::DotProduct(Corner-Hit.ImpactPoint,Hit.ImpactNormal));
+        }
+        for(int32 I=0;I<8;++I) {
+            const FVector Corner=World.TransformPosition(Bounds.Origin+FVector(I&1?Bounds.BoxExtent.X:-Bounds.BoxExtent.X,I&2?Bounds.BoxExtent.Y:-Bounds.BoxExtent.Y,I&4?Bounds.BoxExtent.Z:-Bounds.BoxExtent.Z))+Correction;
+            FHitResult Hit;
+            if(Hero->GetWorld()->LineTraceSingleByChannel(Hit,Corner+FVector(0,0,300),Corner,ECC_Visibility,Q) && Hit.ImpactNormal.Z>.4f)
+                Correction+=Hit.ImpactNormal*FMath::Max(0.,5.-FVector::DotProduct(Corner-Hit.ImpactPoint,Hit.ImpactNormal));
+        }
+    }
+    return Correction.GetClampedToMaxSize(260);
+}
+AMCMouthSurface* UMCInventoryComponent::FindSprayTarget() const
+{
+    if(!Hero || !Hero->CanWork() || Hero->bInCoffee || Hero->HeldFood || Selected!=EMCToolSlot::Spray) return nullptr;
     AMCMouthSurface* Best=nullptr; float Distance=FMath::Square(FMath::Max(10.f,Settings?Settings->SprayReach:235.f));
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) {
-        if(!It->bUlcer || It->IsNumb()) continue;
+        if(!It->bUlcer || It->IsHealed() || It->IsActorBeingDestroyed()) continue;
         const FVector D=It->GetActorLocation()-Hero->GetActorLocation();
         if(D.SizeSquared()>Distance || FVector::DotProduct(D.GetSafeNormal2D(),Hero->GetActorForwardVector())<.15f) continue;
         FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCSpray),false,Hero); Q.AddIgnoredActor(*It);
         if(GetWorld()->LineTraceSingleByChannel(Hit,Hero->GetActorLocation(),It->GetActorLocation()+FVector(0,0,12),ECC_Visibility,Q)) continue;
         Best=*It; Distance=D.SizeSquared();
     }
-    if(!Best || !Best->ApplyAnesthetic(FMath::Max(1.f,Settings?Settings->NumbSeconds:10.f))) return;
-    LastSprayAt=Now(); SprayReadyAt=LastSprayAt+CooldownSeconds(); Hero->NotifyTaskFeedback(true);
-    if(Hero->SoundPalette) Hero->SoundPalette->Play(this,TEXT("Brush"),Best->GetActorLocation());
-    GetOwner()->ForceNetUpdate();
+    return Best;
+}
+void UMCInventoryComponent::ServerSpray_Implementation()
+{
+    // This request only selects a target. Healing time comes from the server tick.
+    if(!Hero || !Hero->IsPrimaryHeld()) return;
+    HealingTarget=FindSprayTarget();
 }
 FString UMCInventoryComponent::ToolName() const
 {
@@ -119,10 +149,19 @@ void UMCInventoryComponent::RefreshMesh()
 }
 void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
-    Super::TickComponent(Dt,Type,Tick); if(!Hero || !Tool) return;
+    Super::TickComponent(Dt,Type,Tick);
+    if(Hero && GetOwner()->HasAuthority()) {
+        auto* Target=Hero->IsPrimaryHeld()?FindSprayTarget():nullptr;
+        if(HealingTarget!=Target) { HealingTarget=Target; GetOwner()->ForceNetUpdate(); }
+        if(Target && Target->Treat(Hero,Dt)) {
+            if(Now()-LastSprayAt>.8 && Hero->SoundPalette) Hero->SoundPalette->Play(this,TEXT("Brush"),Target->GetActorLocation());
+            LastSprayAt=Now(); SprayReadyAt=0;
+        }
+    }
+    if(!Hero || !Tool) return;
     if(Presented!=Selected || bPresentedUpgrade!=bWaterJetUnlocked) RefreshMesh();
     const bool Visible=Hero->Status->IsAlive() && !Hero->HeldFood && !Hero->OrderJumpTarget && !Hero->SwallowedBy
-        && Hero->AnimationOrderPress<.05f && Hero->AnimationOrderFlight<.05f && Hero->Grip->Blend()<.05f && Hero->Expression->BodyAlpha()<.01f;
+        && Hero->AnimationOrderPress<.05f && Hero->AnimationOrderFlight<.05f && Hero->AnimationClimb<.05f && Hero->Grip->Blend()<.05f && Hero->Expression->BodyAlpha()<.01f;
     const bool Custom=Tool->GetStaticMesh()!=nullptr;
     Tool->SetVisibility(Visible && Custom); Detail->SetVisibility(Visible && Custom && (Selected==EMCToolSlot::Knife?Settings->KnifeMesh.IsNull():Selected==EMCToolSlot::Spray && Settings->SprayMesh.IsNull()));
     if(Selected!=EMCToolSlot::Brush || Custom) Hero->Brush->SetVisibility(false);
@@ -131,4 +170,5 @@ void UMCInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCInventoryComponent,Selected);
     DOREPLIFETIME(UMCInventoryComponent,bWaterJetUnlocked); DOREPLIFETIME(UMCInventoryComponent,SprayReadyAt); DOREPLIFETIME(UMCInventoryComponent,LastSprayAt);
+    DOREPLIFETIME(UMCInventoryComponent,HealingTarget);
 }

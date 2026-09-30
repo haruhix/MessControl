@@ -1,0 +1,394 @@
+{
+  "reportCreatedOn": "2026.09.30-02.57.29",
+  "succeeded": 59,
+  "succeededWithWarnings": 5,
+  "failed": 0,
+  "notRun": 0,
+  "totalDuration": 38.34925842285156,
+  "tests": [
+    {
+      "name": "MessControl.Animation.AuthoredThroatApertureAndVomit",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Animation.ConnectedMouthMorphs",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Animation.EmotesReactionsAndSpeech",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Animation.GripPoseContinuity",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Animation.SoloMovementTransitions",
+      "state": "Success",
+      "warnings": 1,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Animation.Teeth3Layers",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Care.LocalToothCleaning",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Coffee.ControlledSwimming",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Coffee.PourAndDrain",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Coffee.SurfaceAndRagdollSwimming",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.ColdCola.ToolRangeAndHealth",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.DayOne.MenuFragmentsMassAndSpoilage",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.DayOne.PhysicalBrushAndCorrectDisposal",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.DayOne.SequenceAndNoGlobalDeadline",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.DayOne.UlcerProtectionAndCoffeeControl",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.DayOne.UnattendedFoodBecomesTreatmentTask",
+      "state": "Success",
+      "warnings": 2,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Development.EventSandbox",
+      "state": "Success",
+      "warnings": 2,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.ArenaAuthoredPlacement",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.ArenaBrushHit",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.ArenaToothLifecycle",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.ConcreteReserveRespawn",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.FoodGripPullAndImpact",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.RestingFoodDoesNotLaunchPlayers",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.RunRules",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.SevenDayVictory",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.SharedStatusAndCare",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.TimeoutAndLoss",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gameplay.WorkValidationAndCooperation",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gaze.AttentionAndOcclusion",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Gaze.PupilResponseAndRecovery",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.AnglesAndBounds",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.ArtistMeshContacts",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.ContactAndRelease",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.EmptyMenuSlots",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.HeavyArtistFoodMoves",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.PhysicalTurning",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.PlayerPullAndThrow",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.PrimaryCarryAndCare",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Grip.TwoSmallObjects",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Hazards.JumpClearsSweptWave",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Hazards.SpicyFusePauseResumeAndRound",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Hazards.VomitReturnsOnlyCurrentGulp",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Inventory.NiagaraAsset",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Inventory.SelectionAndMaterial",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Liquid.AuthoritativeBrushContact",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Liquid.PersistentLocalWipe",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Liquid.SpawnIgnoresDynamicObstacles",
+      "state": "Success",
+      "warnings": 2,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Locomotion.CleanedPuddleFooting",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Locomotion.ClimbHangReleaseAndPredictedJump",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Locomotion.FootCycleContinuity",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Locomotion.SprintSurfacesAndMomentum",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Physics.ArtistRigIntegration",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Physics.AuthorityAndActionGates",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Physics.RigAndTuning",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Throat.BoundsHeldFoodAndReset",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Throat.ClosedUntilWeightedLanding",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Throat.OrderJumpEscapeAndSpasm",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Tongue.AutomaticJoltAndReset",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Tongue.DesignerPresets",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Tongue.EventProfiles",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Tongue.PlayerWeightAndLanding",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Tongue.WaveTimingAndSafety",
+      "state": "Success",
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "name": "MessControl.Tongue.WeightContactsAndRecovery",
+      "state": "Success",
+      "warnings": 1,
+      "errors": 0
+    }
+  ]
+}

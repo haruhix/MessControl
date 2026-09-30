@@ -1,0 +1,2 @@
+[2026.09.30-02.22.29:000][350]LogTemp: Display: MC_APPROVAL_CHECK PASS camera retains distance toward mouth front
+[2026.09.30-02.22.29:000][350]LogTemp: Display: MC_VALIDATION_PASS APPROVAL_Camera

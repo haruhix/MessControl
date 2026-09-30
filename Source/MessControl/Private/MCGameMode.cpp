@@ -1,4 +1,5 @@
 #include "MCGameMode.h"
+#include "MCColdCola.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
 #include "MCDayDirector.h"
@@ -88,7 +89,7 @@ void AMCGameMode::RestartShift()
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { It->ResetPain(); It->ResetPressure(); }
     TArray<AActor*> OldDayActors;
-    for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
+    for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || Cast<AMCColdColaEvent>(*It) || Cast<AMCIceBlock>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
     for (auto* Actor:OldDayActors) Actor->Destroy();
     State->DayPlan=nullptr; State->StepIndex=INDEX_NONE; State->bPhysicalBrushes=false; State->bDayOneComplete=false; State->FailedEvents=0;
     State->bDevManualEvents=false;
@@ -248,7 +249,10 @@ void AMCGameMode::UpdateObjectives()
     {
         if (O.bCompleted) continue;
         bool bDone=false;
-        if (O.Kind==EMCTaskKind::Food) bDone=!IsValid(O.Target) || CastChecked<AMCFoodActor>(O.Target)->IsDisposed();
+        if (O.Kind==EMCTaskKind::Food) {
+            const auto* Food=Cast<AMCFoodActor>(O.Target);
+            bDone=!IsValid(Food) || (Food->IsDisposed() && (!Food->bAbsorbed || !IsValid(Food->AbsorbedUlcer) || Food->AbsorbedUlcer->IsHealed()));
+        }
         else if (IsValid(O.Target))
         {
             auto* Status=O.Target->FindComponentByClass<UMCToothStatusComponent>();

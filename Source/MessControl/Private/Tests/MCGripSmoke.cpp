@@ -222,7 +222,8 @@ void UMCValidationSubsystem::TickGrip(float Dt)
             // PNG compression blocks the game thread long enough to change the
             // physics being measured. Record uncompressed frames; encode later.
             const FString Name=FString::Printf(TEXT("Grip_%04d.bmp"),CoffeeFrame++);
-            FScreenshotRequest::RequestScreenshot(Folder/Name,false,false); CoffeeTiming+=FString::Printf(TEXT("%s,%.6f\n"),*Name,T); CoffeeNextFrame=T+.1f;
+            FString VideoName; if(!FParse::Value(FCommandLine::Get(),TEXT("MCVideo="),VideoName)) FScreenshotRequest::RequestScreenshot(Folder/Name,false,false);
+            CoffeeTiming+=FString::Printf(TEXT("%s,%.6f\n"),*Name,T); CoffeeNextFrame=T+.1f;
         }
     }
     if (T>=0 && Age>=NextLog)

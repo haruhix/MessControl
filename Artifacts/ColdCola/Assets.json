@@ -1,0 +1,23 @@
+{
+  "frostMaterials": [
+    "/Game/Gameplay/MouthV3/M_PalateV3",
+    "/Game/Gameplay/MouthV3/M_GumV3",
+    "/Game/Gameplay/Arena/M_TonguePain",
+    "/Game/Art/Materials/M_ThroatSculpt",
+    "/Game/Art/Materials/M_LivingTissue",
+    "/Game/Gameplay/MouthV3/M_ExitV3",
+    "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2"
+  ],
+  "ice": "/Game/Gameplay/Cold/M_StylizedIce.M_StylizedIce",
+  "profile": "/Game/Data/DA_ColdCola.DA_ColdCola",
+  "steps": [
+    "<MCDayStep.BRUSH_LESSON: 0>",
+    "<MCDayStep.DISCARD_BRUSHES: 1>",
+    "<MCDayStep.BREAKFAST_RAIN: 2>",
+    "<MCDayStep.BREAKFAST_CLEANUP: 3>",
+    "<MCDayStep.COFFEE_WAVES: 4>",
+    "<MCDayStep.COFFEE_CLEANUP: 5>",
+    "<MCDayStep.COLD_COLA: 8>",
+    "<MCDayStep.STUCK_FOOD: 6>"
+  ]
+}

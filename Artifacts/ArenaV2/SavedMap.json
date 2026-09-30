@@ -1,0 +1,8 @@
+{
+  "gameplayTeeth": 8,
+  "cameraBounds": "CAMERA | Follow bounds",
+  "uvula": "/Game/Gameplay/Throat/SM_Uvula.SM_Uvula",
+  "uvulaMaterial": "/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate",
+  "throat": "GAMEPLAY | Living throat",
+  "result": "PASS"
+}

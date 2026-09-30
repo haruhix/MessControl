@@ -38,6 +38,19 @@ public:
     virtual void CalcVelocity(float Dt,float Friction,bool bFluid,float BrakingDeceleration) override;
     virtual void TickCharacterPose(float Dt) override;
     virtual void PhysSwimming(float Dt,int32 Iterations) override;
+    virtual void PhysCustom(float Dt,int32 Iterations) override;
+    virtual bool CanAttemptJump() const override;
+    virtual bool DoJump(bool bReplayingMoves,float DeltaTime) override;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Climbing") float ClimbSpeed=180;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Climbing") FVector_NetQuantizeNormal ClimbNormal=FVector::ForwardVector;
+    bool IsClimbing() const { return MovementMode==MOVE_Custom && CustomMovementMode==1; }
+    void SetWantsClimb(bool Active) { bWantsToClimb=Active; }
+    bool WantsClimb() const { return bWantsToClimb; }
+    void JumpFromWall();
 private:
     bool bWantsToSprint=false;
+    bool bWantsToClimb=false;
+    float ClimbCooldown=0;
+    bool FindClimbWall(FHitResult& Hit) const;
+    bool TryMantle();
 };

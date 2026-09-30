@@ -7,6 +7,7 @@
 #include "MCToothAnimInstance.h"
 #include "MCFoodActor.h"
 #include "MCMouthSurface.h"
+#include "MCArenaTooth.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -23,15 +24,15 @@ namespace
     {
     public:
         using Super=FSavedMove_Character;
-        bool Sprint=false;
-        virtual void Clear() override { Super::Clear(); Sprint=false; }
-        virtual uint8 GetCompressedFlags() const override { return Super::GetCompressedFlags() | (Sprint?FLAG_Custom_0:0); }
+        bool Sprint=false,Climb=false;
+        virtual void Clear() override { Super::Clear(); Sprint=Climb=false; }
+        virtual uint8 GetCompressedFlags() const override { return Super::GetCompressedFlags() | (Sprint?FLAG_Custom_0:0) | (Climb?FLAG_Custom_1:0); }
         virtual bool CanCombineWith(const FSavedMovePtr& Move,ACharacter* Hero,float MaxDelta) const override
-        { return Sprint==static_cast<const FMCStrideMove*>(Move.Get())->Sprint && Super::CanCombineWith(Move,Hero,MaxDelta); }
+        { return Sprint==static_cast<const FMCStrideMove*>(Move.Get())->Sprint && Climb==static_cast<const FMCStrideMove*>(Move.Get())->Climb && Super::CanCombineWith(Move,Hero,MaxDelta); }
         virtual void SetMoveFor(ACharacter* Hero,float Dt,FVector const& Accel,FNetworkPredictionData_Client_Character& Data) override
-        { Super::SetMoveFor(Hero,Dt,Accel,Data); Sprint=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->WantsToSprint(); }
+        { Super::SetMoveFor(Hero,Dt,Accel,Data); const auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement()); Sprint=M->WantsToSprint(); Climb=M->WantsClimb(); }
         virtual void PrepMoveFor(ACharacter* Hero) override
-        { Super::PrepMoveFor(Hero); CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->SetSprinting(Sprint); }
+        { Super::PrepMoveFor(Hero); auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement()); M->SetSprinting(Sprint); M->SetWantsClimb(Climb); }
     };
     class FMCStridePrediction final : public FNetworkPredictionData_Client_Character
     {
@@ -46,13 +47,14 @@ FNetworkPredictionData_Client* UMCToothMovementComponent::GetPredictionData_Clie
     return ClientPredictionData;
 }
 void UMCToothMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
-{ Super::UpdateFromCompressedFlags(Flags); bWantsToSprint=(Flags&FSavedMove_Character::FLAG_Custom_0)!=0; }
+{ Super::UpdateFromCompressedFlags(Flags); bWantsToSprint=(Flags&FSavedMove_Character::FLAG_Custom_0)!=0; bWantsToClimb=(Flags&FSavedMove_Character::FLAG_Custom_1)!=0; }
 void UMCToothMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME_CONDITION(UMCToothMovementComponent,GroundSurface,COND_SimulatedOnly);
     DOREPLIFETIME_CONDITION(UMCToothMovementComponent,MovementIntent,COND_SimulatedOnly);
     DOREPLIFETIME_CONDITION(UMCToothMovementComponent,bSprintActive,COND_SimulatedOnly);
+    DOREPLIFETIME(UMCToothMovementComponent,ClimbNormal);
 }
 bool UMCToothMovementComponent::HasHeavyGrip() const
 {
@@ -62,7 +64,7 @@ bool UMCToothMovementComponent::HasHeavyGrip() const
 bool UMCToothMovementComponent::CanSprint() const
 {
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
-    return Hero && Hero->ToothPhysics && Hero->ToothPhysics->CanAct() && !Hero->ClingTooth && !Hero->bBrushing && !HasHeavyGrip() && !IsSwimming();
+    return Hero && Hero->ToothPhysics && Hero->ToothPhysics->CanAct() && !Hero->ClingTooth && !Hero->bBrushing && !HasHeavyGrip() && !IsSwimming() && !IsClimbing();
 }
 float UMCToothMovementComponent::Traction() const { return GroundSurface==EMCGroundSurface::Slippery?.32f:1.f; }
 FVector UMCToothMovementComponent::Intent() const
@@ -71,6 +73,7 @@ FVector UMCToothMovementComponent::Intent() const
 }
 float UMCToothMovementComponent::GetMaxSpeed() const
 {
+    if(IsClimbing()) return ClimbSpeed;
     if (!IsMovingOnGround() && !IsFalling()) return Super::GetMaxSpeed();
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if (!Hero || !Hero->Grip) return WalkSpeed;
@@ -110,6 +113,7 @@ void UMCToothMovementComponent::RefreshGroundSurface()
 }
 FRotator UMCToothMovementComponent::ComputeOrientToMovementRotation(const FRotator& Current,float Dt,FRotator& Delta) const
 {
+    if(IsClimbing()) return FRotator(0,(-FVector(ClimbNormal)).Rotation().Yaw,0);
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     FRotator Desired=Super::ComputeOrientToMovementRotation(Current,Dt,Delta);
     FVector BrushDirection;
@@ -149,8 +153,17 @@ AMCCoffeeFlood* UMCToothMovementComponent::DeepWaterAt(FVector P,bool Continuing
 void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
 {
     Super::UpdateCharacterStateBeforeMovement(Dt);
+    // Simulated peers receive the movement mode; they have no local E input.
+    if(CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy) return;
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if (!Hero || !Hero->ToothPhysics || !Hero->ToothPhysics->CanAct()) return;
+    ClimbCooldown=FMath::Max(0.f,ClimbCooldown-Dt);
+    const bool Free=Hero->CanWork() && !Hero->HeldFood && !Hero->Grip->GrabbedPlayer && !Hero->OrderJumpTarget && !Hero->ClingTooth;
+    if(IsClimbing() && (!bWantsToClimb || !Free)) SetMovementMode(MOVE_Falling);
+    if(bWantsToClimb && Free && ClimbCooldown<=0 && !IsClimbing() && !IsSwimming()) {
+        FHitResult Wall; if(FindClimbWall(Wall)) { ClimbNormal=Wall.ImpactNormal; Velocity=FVector::ZeroVector; SetMovementMode(MOVE_Custom,1); }
+    }
+    if(IsClimbing()) { bSprintActive=false; MovementIntent=Acceleration.GetSafeNormal(); return; }
     RefreshGroundSurface();
     bSprintActive=bWantsToSprint && CanSprint();
     MovementIntent=Acceleration.GetSafeNormal2D();
@@ -201,7 +214,10 @@ void UMCToothMovementComponent::PhysSwimming(float Dt,int32 Iterations)
         // The old ragdoll paddle could not overcome the drain. A deliberate stroke
         // is stronger, while an idle swimmer still drifts towards the throat.
         const FVector Drive=Input*Water->Paddle*Water->WaterSettings.SwimStrokeMultiplier+Water->FlowAtPosition(Before,Hero);
-        const FVector A=Water->WaterSettings.FloatAcceleration(Water->SurfaceHeightAt(Before),Before,Velocity,Drive,0,Water->WaterSettings.SwimFloatDepth);
+        // Track a rising drink with its vertical speed. Damping against zero
+        // velocity previously left the face submerged during fast filling.
+        const FVector RelativeVelocity=Velocity-FVector(0,0,Water->SurfaceVerticalSpeedAt(Before));
+        const FVector A=Water->WaterSettings.FloatAcceleration(Water->SurfaceHeightAt(Before),Before,RelativeVelocity,Drive,0,Water->WaterSettings.SwimFloatDepth);
         Velocity+=A*Step;
         const FVector Horizontal=FVector(Velocity.X,Velocity.Y,0).GetClampedToMaxSize(MaxSwimSpeed);
         Velocity=FVector(Horizontal.X,Horizontal.Y,FMath::Clamp(Velocity.Z,-220.,260.));

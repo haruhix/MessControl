@@ -3,6 +3,7 @@
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCTongue.h"
+#include "MCMouthSurface.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -93,7 +94,7 @@ void UMCValidationSubsystem::TickThroat(float Dt)
                 F->Body->SetEnableGravity(false); F->Body->SetSimulatePhysics(false); return F;
             };
             const FVector Center=Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter);
-            Meal=Spawn(901,Center+FVector(-55,-65,0),false); Brush=Spawn(902,Center+FVector(0,100,0),true);
+            Meal=Spawn(901,Center+FVector(-55,-65,0),false); Brush=Spawn(902,Center+FVector(0,Throat->ZoneRadius+100,0),true);
             Outside=Spawn(903,Center+FVector(-Throat->ZoneRadius-100,0,0),false);
             for(int32 I=0;I<Heroes.Num();++I) {
                 auto* H=Heroes[I]; FHitResult Hit; FVector P=Center+FVector(I==0?-100:-550,-180+I*110,0);
@@ -137,6 +138,14 @@ void UMCValidationSubsystem::TickThroat(float Dt)
     if(Throat->SpasmCount==1 && Throat->ThroatPhase==EMCThroatPhase::Recovering && Heroes.Num() && !Heroes[0]->SwallowedBy) DevSeen|=512;
     if(Throat->SpasmCount==1 && Throat->SwallowCount==2 && Throat->ThroatPhase==EMCThroatPhase::Collecting && Throat->FoodSwallowed==1) DevSeen|=1024;
     bTongueInvalid |= Throat->SwallowCount>2 || (Brush && Brush->IsDisposed()) || (Outside && Outside->IsDisposed());
+    bTongueInvalid |= !Throat->AuthoredMouth->GetSkeletalMeshAsset();
+    if(Throat->ThroatPhase==EMCThroatPhase::Spasm && Now-Throat->PhaseStartedAt>.3)
+        bTongueInvalid |= Throat->AuthoredMouth->GetMorphTarget(TEXT("vomit"))<.5f;
+    if(Throat->VomitCount>0) {
+        int32 Puddles=0;
+        for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==10000+Throat->MealSequence && !It->IsClean()) ++Puddles;
+        bTongueInvalid |= Puddles!=3;
+    }
     if(Capture && Ready) {
         for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->Label->SetVisibility(false);
         const FString Folder=FPaths::ProjectSavedDir()/TEXT("ThroatFrames");
@@ -152,7 +161,8 @@ void UMCValidationSubsystem::TickThroat(float Dt)
             CoffeeNextFrame=Now+(GetWorld()->GetNetMode()==NM_Standalone?1./30:.1);
             if(CoffeeLastFrame>=0) CoffeeTiming+=FString::Printf(TEXT("duration %.6f\n"),Now-CoffeeLastFrame);
             CoffeeTiming+=FString::Printf(TEXT("file 'Frame%05d.png'\n"),CoffeeFrame);
-            FScreenshotRequest::RequestScreenshot(Folder/FString::Printf(TEXT("Frame%05d.png"),CoffeeFrame++),false,false); CoffeeLastFrame=Now;
+            FString VideoName; if(!FParse::Value(FCommandLine::Get(),TEXT("MCVideo="),VideoName)) FScreenshotRequest::RequestScreenshot(Folder/FString::Printf(TEXT("Frame%05d.png"),CoffeeFrame),false,false);
+            ++CoffeeFrame; CoffeeLastFrame=Now;
         }
     }
     if(Age>=NextLog) {

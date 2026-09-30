@@ -181,7 +181,10 @@ void UMCBrushContactComponent::TickComponent(float Dt,ELevelTick Type,FActorComp
     const bool Active=IsValid(Target) && Now-ContactAt<.3 && Hero->bBrushing && Hero->CanWork() && !Hero->HeldFood
         && IsFacingContact() && CanAcquireSurface(Target) && CanReach(ContactPoint(),ContactNormal());
     Blend=FMath::FInterpConstantTo(Blend,Active?1.f:0.f,Dt,3.f);
-    if(!Active && Blend<=0 && !bHandPresented && GetOwner()->HasAuthority()) Target=nullptr;
+    // A fresh contact also tells movement which way to turn. Keep it while
+    // aligning the body; clearing it here prevented the next movement tick
+    // from turning toward narrower crowns before the hand was presented.
+    if(Now-ContactAt>=.3 && Blend<=0 && !bHandPresented && GetOwner()->HasAuthority()) Target=nullptr;
     if(!Foam) return;
     const bool Emit=Active && Hero->HasBrush() && IsTouchingSurface();
     if(Emit) Foam->SetWorldLocationAndRotation(ContactPoint()+ContactNormal()*3,FRotationMatrix::MakeFromZ(ContactNormal()).Rotator());

@@ -51,19 +51,32 @@ bool FMCInventoryRouting::RunTest(const FString&) {
     I->UnlockWaterJet(); TestTrue(TEXT("Upgrade is retained in slot one"),I->bWaterJetUnlocked);
     return true;
 }
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSprayProtection,"MessControl.Inventory.SprayCooldownAndNaturalHealing",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSprayProtection,"MessControl.Inventory.HoldSprayAndPreserveProgress",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSprayProtection::RunTest(const FString&) {
     FInventoryWorld T; auto* I=T.H->Inventory.Get(); I->ServerSelect(EMCToolSlot::Spray);
-    I->ServerSpray(); TestEqual(TEXT("Missing target does not consume cooldown"),I->SprayReadyAt,0.);
     auto* Patch=T.W->SpawnActor<AMCMouthSurface>(FVector(-470,0,25),FRotator::ZeroRotator); Patch->bUlcer=true;
-    I->ServerSpray(); TestTrue(TEXT("Spray numbs a nearby forward ulcer"),Patch->IsNumb()); TestTrue(TEXT("Cooldown starts on a successful use"),I->SpraySecondsLeft()>7);
-    const double Ready=I->SprayReadyAt,Until=Patch->NumbUntil;
-    I->ServerSpray(); TestEqual(TEXT("Holding fire cannot extend freeze during cooldown"),Patch->NumbUntil,Until); TestEqual(TEXT("Cooldown is stable"),I->SprayReadyAt,Ready);
-    const float HP=T.GS->MouthHealth; Patch->Healing=.25f; Patch->Disturb(); Patch->Tick(.5f);
-    TestTrue(TEXT("Numb ulcer continues natural healing"),Patch->Healing>.25f); TestEqual(TEXT("Numb ulcer does no mouth damage"),T.GS->MouthHealth,HP);
-    Patch->NumbUntil=-1; Patch->Tick(.1f); TestTrue(TEXT("Damage returns after protection expires"),T.GS->MouthHealth<HP);
-    I->SprayReadyAt=0; Patch->SetActorLocation(FVector(-1700,0,25)); I->ServerSpray(); TestEqual(TEXT("Distant ulcer rejected"),I->SprayReadyAt,0.);
-    Patch->SetActorLocation(FVector(-720,0,25)); I->ServerSpray(); TestEqual(TEXT("Ulcer behind player rejected"),I->SprayReadyAt,0.);
+    Patch->HealSeconds=7;
+    auto Tick=[&](int32 Count) { for(int32 N=0;N<Count;++N) { ++GFrameCounter; I->TickComponent(.1f,LEVELTICK_All,nullptr); } };
+    T.H->ServerSetPrimary(true); Tick(20);
+    TestTrue(TEXT("Two seconds of held spray heals two sevenths"),FMath::IsNearlyEqual(Patch->Healing,2.f/7,.0001f));
+    TestTrue(TEXT("Treatment numbs the ulcer"),Patch->IsNumb());
+    const float Saved=Patch->Healing,HP=T.GS->MouthHealth;
+    for(int32 N=0;N<30;++N) I->ServerSpray();
+    TestEqual(TEXT("Repeated requests cannot manufacture treatment time"),Patch->Healing,Saved);
+    I->TickComponent(.1f,LEVELTICK_All,nullptr);
+    TestEqual(TEXT("Duplicate ticks in one frame cannot accelerate treatment"),Patch->Healing,Saved);
+    Patch->Disturb(); Patch->Tick(.5f); TestEqual(TEXT("Protected lesion does no mouth damage"),T.GS->MouthHealth,HP);
+    T.H->ServerSetPrimary(false); Tick(10); Patch->NumbUntil=-1; Patch->Disturb(); Patch->Tick(.5f);
+    TestEqual(TEXT("Release, contact and idle time preserve progress"),Patch->Healing,Saved);
+    TestTrue(TEXT("Damage returns while untreated"),T.GS->MouthHealth<HP);
+    T.H->ServerSetPrimary(true); Patch->SetActorLocation(FVector(-1700,0,25)); Tick(10);
+    TestEqual(TEXT("Distant ulcer cannot be treated"),Patch->Healing,Saved);
+    Patch->SetActorLocation(FVector(-720,0,25)); Tick(10);
+    TestEqual(TEXT("Ulcer behind player cannot be treated"),Patch->Healing,Saved);
+    Patch->SetActorLocation(FVector(-470,0,25)); Tick(49);
+    TestFalse(TEXT("Less than seven seconds is incomplete"),Patch->IsHealed());
+    Tick(1); TestTrue(TEXT("Resumed treatment completes after seven effective seconds"),Patch->IsHealed());
+    Tick(10); TestEqual(TEXT("Completed treatment stays at one"),Patch->Healing,1.f);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoamAsset,"MessControl.Inventory.NiagaraAsset",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

@@ -8,6 +8,8 @@ void AMCToothCharacter::UpdateLocomotion(float Dt)
     const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
     const bool Ground=Move->IsMovingOnGround() && ToothPhysics->CanAct();
     const float Blend=1-FMath::Exp(-10*Dt);
+    AnimationClimb=FMath::Lerp(AnimationClimb,Move->IsClimbing()?1.f:0.f,Blend);
+    if(Move->IsClimbing()) AnimationClimbPhase=FMath::Fmod(AnimationClimbPhase+Dt*GetVelocity().Size()*.04f,2*PI);
     AnimationAir=FMath::Lerp(AnimationAir,Move->IsFalling() && ToothPhysics->CanAct()?1.f:0.f,Blend);
     AnimationLanding=FMath::Lerp(AnimationLanding,LandingImpulse,1-FMath::Exp(-28.f*Dt));
     AnimationRun=FMath::Lerp(AnimationRun,Ground && Move->bSprintActive?1.f:0.f,Blend);

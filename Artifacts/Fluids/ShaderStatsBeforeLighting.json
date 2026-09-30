@@ -1,0 +1,44 @@
+{
+  "/Game/Art/Materials/MI_CoffeeSurface": {
+    "num_pixel_shader_instructions": 2531,
+    "num_vertex_shader_instructions": 421,
+    "num_samplers": 10,
+    "num_pixel_texture_samples": 6,
+    "num_vertex_texture_samples": 0
+  },
+  "/Game/Art/Materials/MI_CoffeePour": {
+    "num_pixel_shader_instructions": 2252,
+    "num_vertex_shader_instructions": 390,
+    "num_samplers": 10,
+    "num_pixel_texture_samples": 1,
+    "num_vertex_texture_samples": 3
+  },
+  "/Game/Art/Materials/MI_CoffeeDrops": {
+    "num_pixel_shader_instructions": 295,
+    "num_vertex_shader_instructions": 136,
+    "num_samplers": 3,
+    "num_pixel_texture_samples": 3,
+    "num_vertex_texture_samples": 0
+  },
+  "/Game/Gameplay/Hazards/MI_VomitPuddle": {
+    "num_pixel_shader_instructions": 1065,
+    "num_vertex_shader_instructions": 326,
+    "num_samplers": 4,
+    "num_pixel_texture_samples": 0,
+    "num_vertex_texture_samples": 3
+  },
+  "arena": {
+    "center": [
+      100.0,
+      -25.0,
+      0.0
+    ],
+    "half_size": [
+      1350.0,
+      850.0,
+      300.0
+    ]
+  },
+  "coffee_wpo_matches_server": true,
+  "vomit_shares_persistent_cleaning_mask": true
+}

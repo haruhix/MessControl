@@ -1,0 +1,5 @@
+[2026.09.30-03.13.35:873][152]LogTemp: Display: MC_INVENTORY_CHECK PASS tool damages matching food
+[2026.09.30-03.13.35:873][152]LogTemp: Display: MC_INVENTORY_CHECK PASS pickaxe wrist travels through a broad arc
+[2026.09.30-03.13.38:506][203]LogTemp: Display: MC_INVENTORY_CHECK PASS tool damages matching food
+[2026.09.30-03.13.41:139][254]LogTemp: Display: MC_INVENTORY_CHECK PASS held spray protects and treats ulcer
+[2026.09.30-03.13.49:039][407]LogTemp: Display: MC_INVENTORY_PASS

@@ -41,6 +41,7 @@ public:
     void Stop();
     bool Contains(FVector Position) const;
     float SurfaceHeightAt(FVector Position) const;
+    float SurfaceVerticalSpeedAt(FVector Position) const;
     bool IsActive() const { return bActive; }
     UFUNCTION(BlueprintPure) EMCCoffeePhase GetPhase() const { return bActive?WaterSettings.Phase(WaterTime()):EMCCoffeePhase::Inactive; }
     float PhaseTime() const { return WaterSettings.CycleTime(WaterTime()); }
