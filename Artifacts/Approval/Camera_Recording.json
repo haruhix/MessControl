@@ -1,7 +1,53 @@
 {
   "case": "Camera",
-  "source": "Unreal FScreenshotRequest offscreen game render",
-  "frames": 148,
-  "seconds": 15.016,
-  "caption": "Gameplay following camera: front teeth boundary, side movement, throat approach"
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 227,
+  "seconds": 14.974,
+  "sample_fps": 15.09,
+  "caption": "Gameplay following camera: front teeth boundary, side movement, throat approach",
+  "encodedUtc": "2026-09-30T18:41:38.434050+00:00",
+  "videoSha256": "5785efef7c08887a1059d7da55e8a0b7d2a80c3acbd102445b69f2a4201985c5",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "Camera",
+    "startedUtc": "2026-09-30T18:39:50.9248142Z",
+    "completedUtc": "2026-09-30T18:41:26.4380006Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "4490d62fe262715b0325864c0439f488b14c01f18ada455ebdf7b8bb52550f64"
+    },
+    "source": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Source/MessControl",
+      "fileCount": 134,
+      "bytes": 1240783,
+      "sha256": "e01b41962b2e4a66eebccd1f967b3df2610ac63986f76ba802b197f69c4fbdee"
+    },
+    "savedContent": {
+      "algorithm": "sha256-tree-v1",
+      "root": "Content",
+      "fileCount": 1042,
+      "bytes": 883772768,
+      "sha256": "41e65b3a57dbb5d675df196c374a011fbb07c98441b10f47a987c6245ed9989b"
+    },
+    "contentExclusions": [
+      "Content/_CodexMapMerge/**"
+    ],
+    "contentExtensions": [
+      ".uasset",
+      ".umap"
+    ],
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 20,
+      "timeScale": 0.25
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "dcfd30537ee8505cbf459198c8391f855da866f08cb0968632063b26b9ffef12"
+    }
+  },
+  "fingerprintValidationMatches": true
 }

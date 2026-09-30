@@ -1,0 +1,113 @@
+{
+  "materials": [
+    "/Game/Gameplay/MouthV3/M_GumV3.M_GumV3",
+    "/Game/Gameplay/MouthV3/M_PalateV3.M_PalateV3",
+    "/Game/Gameplay/MouthV3/M_ExitV3.M_ExitV3",
+    "/Game/Art/Materials/M_LivingTissue",
+    "/Game/Art/Materials/M_ThroatSculpt",
+    "/Game/Gameplay/Arena/Pressure/MI_Pressure_Deep.MI_Pressure_Deep",
+    "/Game/Gameplay/Arena/MI_TonguePain.MI_TonguePain",
+    "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
+    "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
+    "/Game/Gameplay/Arena/Pressure/MI_Pressure_Firm.MI_Pressure_Firm",
+    "/Game/Gameplay/Arena/M_TonguePain.M_TonguePain"
+  ],
+  "profile": "/Game/Gameplay/MouthV3/SP_Mucosa.SP_Mucosa",
+  "normal_strength": {
+    "mucosa": 1.2,
+    "tongue": 0.24
+  },
+  "specular": {
+    "mucosa": 0.44,
+    "tongue": 0.4
+  },
+  "wet_roughness": [
+    0.16,
+    0.24
+  ],
+  "tongue_roughness": [
+    0.18,
+    0.28
+  ],
+  "post_process": {
+    "white_temp": 5400,
+    "exposure_bias": 2.680001,
+    "bloom_intensity": 0.15,
+    "bloom_threshold": 1.2
+  },
+  "activeTongueProfile": {
+    "parent": "/Game/Gameplay/Arena/M_TonguePain.M_TonguePain",
+    "previous": "/Game/Art/Materials/NewSubsurfaceProfile.NewSubsurfaceProfile",
+    "current": "/Game/Gameplay/MouthV3/SP_Mucosa.SP_Mucosa",
+    "instances": [
+      "/Game/Gameplay/Arena/MI_TonguePain.MI_TonguePain",
+      "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
+      "/Game/Gameplay/Arena/Pressure/MI_Pressure_Firm.MI_Pressure_Firm",
+      "/Game/Gameplay/Arena/Pressure/MI_Pressure_Deep.MI_Pressure_Deep"
+    ],
+    "override": false
+  },
+  "authoredVariation": [
+    {
+      "material": "/Game/Gameplay/MouthV3/M_GumV3.M_GumV3",
+      "colorMapWeight": 0.45,
+      "tint": [
+        1.219703,
+        2.399435,
+        1.866061
+      ],
+      "roughMedian": 0.270588,
+      "roughLimits": [
+        0.16,
+        0.24
+      ]
+    },
+    {
+      "material": "/Game/Gameplay/MouthV3/M_PalateV3.M_PalateV3",
+      "colorMapWeight": 0.45,
+      "tint": [
+        1.115446,
+        2.066995,
+        1.732087
+      ],
+      "roughMedian": 0.278431,
+      "roughLimits": [
+        0.16,
+        0.24
+      ]
+    },
+    {
+      "material": "/Game/Gameplay/MouthV3/M_ExitV3.M_ExitV3",
+      "colorMapWeight": 0.45,
+      "tint": [
+        1.015043,
+        1.857617,
+        1.581965
+      ],
+      "roughMedian": 0.235294,
+      "roughLimits": [
+        0.16,
+        0.24
+      ]
+    }
+  ],
+  "shadowRange": [
+    {
+      "actor": "DirectionalLight",
+      "oldCSMDistance": 40000.0,
+      "newCSMDistance": 6000.0
+    }
+  ],
+  "shadowRangeScope": "Follow bounds center (-350,-25,350), half size (1000,640,300); current mouth and camera fit within 6000 cm.",
+  "peerMaterialMerge": {
+    "commit": "5ae36d3",
+    "method": "Peer conflicting packages, then targeted mucosa profile, scalar parameters and one roughness remap. Shared artist MM_Standart_SSS retained.",
+    "tongueInstances": [
+      "/Game/Gameplay/Arena/MI_TonguePain.MI_TonguePain",
+      "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
+      "/Game/Gameplay/Arena/Pressure/MI_Pressure_Firm.MI_Pressure_Firm",
+      "/Game/Gameplay/Arena/Pressure/MI_Pressure_Deep.MI_Pressure_Deep"
+    ],
+    "result": "PASS"
+  }
+}

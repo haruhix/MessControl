@@ -6,6 +6,7 @@
 #include "MCInventoryComponent.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
+#include "MCArenaToothSocket.h"
 #include "MCFoodActor.h"
 #include "MCCoffeeFlood.h"
 #include "MCColdCola.h"
@@ -19,6 +20,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/WorldSettings.h"
 #include "EngineUtils.h"
+#include "Engine/StaticMesh.h"
 #include "Misc/CommandLine.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
@@ -116,6 +118,27 @@ void MCTickApprovalValidation(UWorld* World)
             View(FVector(-100,0,0),FVector(-1350,-700,750)); H->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
         } else if(Case==TEXT("Camera")) {
             Place(Floor(FVector(-800,0,0))+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3)); PC->SetViewTarget(H);
+            TMap<int32,AMCArenaToothSocket*> Sockets;int32 SocketCount=0,ActualToothCount=0;bool UniqueSockets=true,UniqueTeeth=true,MeshesMatch=true,TransformsMatch=true,NoFallback=true,PreviewsHidden=true;
+            for(TActorIterator<AMCArenaToothSocket> It(World);It;++It) {
+                ++SocketCount;UniqueSockets&=!Sockets.Contains(It->ToothId);Sockets.Add(It->ToothId,*It);
+                PreviewsHidden&=It->Preview && It->Preview->bHiddenInGame;
+            }
+            for(TActorIterator<AMCArenaTooth> It(World);It;++It) ++ActualToothCount;
+            TSet<int32> ToothIds;
+            for(const auto& Tooth:GS->ArenaTeeth) {
+                if(!IsValid(Tooth)) {UniqueTeeth=false;MeshesMatch=false;TransformsMatch=false;NoFallback=false;continue;}
+                const int32 Id=Tooth->State.ToothId;UniqueTeeth&=Id>=1 && Id<=8 && !ToothIds.Contains(Id);ToothIds.Add(Id);
+                auto* Socket=Sockets.FindRef(Id);auto* Mesh=Tooth->Visual?Tooth->Visual->GetStaticMesh().Get():nullptr;
+                MeshesMatch&=Socket && Socket->Preview && Mesh && Mesh==Socket->Preview->GetStaticMesh().Get();
+                TransformsMatch&=Socket && Socket->Preview && Tooth->Visual && Tooth->Visual->GetComponentTransform().Equals(Socket->Preview->GetComponentTransform(),.01f);
+                NoFallback&=Mesh && Mesh->GetFName()!=TEXT("SM_ToothProp");
+                UE_LOG(LogTemp,Display,TEXT("MC_CAMERA_ARENA id=%d mesh=%s position=%s socket=%s"),Id,*GetPathNameSafe(Mesh),*Tooth->Visual->GetComponentLocation().ToString(),*GetNameSafe(Socket));
+            }
+            Check(SocketCount==8 && Sockets.Num()==8 && UniqueSockets,TEXT("current mouth map has eight unique authored tooth sockets"));
+            Check(GS->ArenaTeeth.Num()==8 && ActualToothCount==8 && ToothIds.Num()==8 && UniqueTeeth,TEXT("current mouth gameplay has exactly eight teeth with IDs one through eight"));
+            Check(MeshesMatch && NoFallback,TEXT("all gameplay teeth use their authored meshes without the native fallback row"));
+            Check(TransformsMatch,TEXT("initial gameplay tooth transforms match their authored placements"));
+            Check(PreviewsHidden,TEXT("authored placement previews are hidden in gameplay"));
         } else if(Case==TEXT("Materials")) {
             Place(Floor(FVector(-450,450,0))+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3));
             View(FVector(-250,0,30),FVector(-1200,-150,430));

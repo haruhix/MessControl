@@ -1,0 +1,44 @@
+{
+  "result": "PASS",
+  "legacyDependencies": {
+    "/Game/Gameplay/Arena/MI_Wall": [
+      "/Game/Art/Materials/NewSubsurfaceProfile",
+      "/Game/Art/Texture/Arena/Wall_low_Material_002_BaseColor",
+      "/Game/Art/Texture/Arena/Wall_low_Material_002_Normal",
+      "/Game/Art/Texture/Arena/Wall_low_Material_002_OcclusionRoughnessMetallic"
+    ],
+    "/Game/Gameplay/Arena/M_Wall": [
+      "/Game/Art/Materials/NewSubsurfaceProfile"
+    ],
+    "/Game/Art/Materials/MI_MouthCheek": [
+      "/Game/Art/Texture/Arena/Wall_low_Material_002_BaseColor",
+      "/Game/Art/Texture/Arena/Wall_low_Material_002_Normal",
+      "/Game/Art/Texture/Arena/Wall_low_Material_002_OcclusionRoughnessMetallic"
+    ]
+  },
+  "retainedLegacyAssets": [
+    "/Game/Art/Materials/NewSubsurfaceProfile",
+    "/Game/Art/Texture/Arena/Wall_low_Material_002_BaseColor",
+    "/Game/Art/Texture/Arena/Wall_low_Material_002_Normal",
+    "/Game/Art/Texture/Arena/Wall_low_Material_002_OcclusionRoughnessMetallic"
+  ],
+  "gameplayToothSockets": 8,
+  "socketPreviewsHidden": true,
+  "socketMeshes": [
+    "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+    "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+    "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+    "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+    "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+    "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+    "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+    "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04"
+  ],
+  "morphTargets": [
+    "Open",
+    "Vomit"
+  ],
+  "activeMouth": "/Game/FromBlender4/SK_Exit.SK_Exit",
+  "uvula": "/Game/Gameplay/Throat/SM_Uvula.SM_Uvula",
+  "scope": "Saved/native authoring checks; runtime visuals and spawning require separate game validation."
+}

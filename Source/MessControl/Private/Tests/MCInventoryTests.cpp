@@ -128,9 +128,18 @@ bool FMCSprayProtection::RunTest(const FString&) {
     CheckHiddenSpray(TEXT("Climbing with a spray selected"));
     T.H->GetCharacterMovement()->DisableMovement();T.H->AnimationClimb=0;
     auto* Held=T.W->SpawnActor<AMCFoodActor>(T.H->GetActorLocation()+FVector(80,0,0),FRotator::ZeroRotator);
-    T.H->HeldFood=Held;CheckHiddenSpray(TEXT("Holding food with a spray selected"));T.H->HeldFood=nullptr;
+    T.H->HeldFood=Held;CheckHiddenSpray(TEXT("Holding food with a spray selected"));
+    Held->Release(T.H);
+    TestNull(TEXT("Releasing food clears the actual carried object"),T.H->HeldFood.Get());
+    TestTrue(TEXT("Leaving traversal and releasing food restores spray presentation"),I->ShouldPresentTool());
     Anim->bRecordMotion=false;I->ServerSpray();
-    TestEqual(TEXT("Leaving traversal and dropping food reacquires the same ulcer"),I->HealingTarget.Get(),Patch);
+    // A dropped object remains a real visibility obstacle. The fixture must
+    // move it out of the treatment ray before expecting treatment to resume.
+    TestNull(TEXT("Released food in front of the ulcer still blocks treatment"),I->HealingTarget.Get());
+    TestEqual(TEXT("A released visibility obstacle cannot add treatment time"),Patch->Healing,Saved);
+    Held->SetActorLocation(T.H->GetActorLocation()+T.H->GetActorRightVector()*300,false,nullptr,ETeleportType::TeleportPhysics);
+    I->ServerSpray();
+    TestEqual(TEXT("Leaving traversal and moving dropped food aside reacquires the same ulcer"),I->HealingTarget.Get(),Patch);
     TestEqual(TEXT("Reacquiring a treatment target does not manufacture healing time"),Patch->Healing,Saved);
     Patch->Disturb(); Patch->Tick(.5f); TestEqual(TEXT("Protected lesion does no mouth damage"),T.GS->MouthHealth,HP);
     T.H->ServerSetPrimary(false); Tick(10); Patch->NumbUntil=-1; Patch->Disturb(); Patch->Tick(.5f);

@@ -1,0 +1,49 @@
+{
+  "peerCommit": "7aa614574f2331d039c2c140ca5752d3992f625d",
+  "changes": [
+    {
+      "action": "remove peer deleted actor",
+      "actor": "RectLight_0"
+    },
+    {
+      "action": "remove peer deleted actor",
+      "actor": "RectLight_1"
+    },
+    {
+      "action": "remove peer deleted actor",
+      "actor": "SkeletalMeshActor_10"
+    },
+    {
+      "action": "copy peer placement",
+      "actor": "StaticMeshActor_0",
+      "transform": "(Rotation=(X=-0.000000,Y=0.000000,Z=-0.707107,W=0.707107),Translation=(X=33.305420,Y=-32.189453,Z=151.655701),Scale3D=(X=1.000000,Y=1.000000,Z=1.000000))"
+    },
+    {
+      "action": "copy peer placement",
+      "actor": "StaticMeshActor_1",
+      "transform": "(Rotation=(X=-0.000000,Y=0.000000,Z=-0.312889,W=0.949790),Translation=(X=364.472980,Y=-853.323998,Z=-47.023102),Scale3D=(X=1.000000,Y=1.000000,Z=1.000000))"
+    },
+    {
+      "action": "copy peer placement",
+      "actor": "StaticMeshActor_230",
+      "transform": "(Rotation=(X=-0.000000,Y=-0.000000,Z=-0.705462,W=0.708748),Translation=(X=324.472980,Y=796.676002,Z=-57.023102),Scale3D=(X=1.000000,Y=1.000000,Z=1.000000))"
+    }
+  ],
+  "activeMouth": {
+    "mesh": "/Game/FromBlender4/SK_Exit.SK_Exit",
+    "materials": [
+      "/Game/Art/Materials/Arena/M_Exit.M_Exit"
+    ],
+    "transform": "(Rotation=(X=0.000000,Y=0.000000,Z=-0.707107,W=0.707107),Translation=(X=1483.259033,Y=-77.485107,Z=233.778961),Scale3D=(X=1.000000,Y=1.000000,Z=1.000000))",
+    "api": [
+      "get_all_morph_target_names",
+      "morph_targets",
+      "remove_morph_target",
+      "rename_morph_target"
+    ]
+  },
+  "protectedGameplayTransforms": 10,
+  "sourceExitHiddenInGame": true,
+  "result": "PASS",
+  "scope": "Native component integration. Final rendered validation pending."
+}

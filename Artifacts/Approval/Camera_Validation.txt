@@ -1,2 +1,7 @@
-[2026.09.30-02.22.29:000][350]LogTemp: Display: MC_APPROVAL_CHECK PASS camera retains distance toward mouth front
-[2026.09.30-02.22.29:000][350]LogTemp: Display: MC_VALIDATION_PASS APPROVAL_Camera
+[2026.09.30-18.40.28:554][230]LogTemp: Display: MC_APPROVAL_CHECK PASS current mouth map has eight unique authored tooth sockets
+[2026.09.30-18.40.28:554][230]LogTemp: Display: MC_APPROVAL_CHECK PASS current mouth gameplay has exactly eight teeth with IDs one through eight
+[2026.09.30-18.40.28:554][230]LogTemp: Display: MC_APPROVAL_CHECK PASS all gameplay teeth use their authored meshes without the native fallback row
+[2026.09.30-18.40.28:554][230]LogTemp: Display: MC_APPROVAL_CHECK PASS initial gameplay tooth transforms match their authored placements
+[2026.09.30-18.40.28:554][230]LogTemp: Display: MC_APPROVAL_CHECK PASS authored placement previews are hidden in gameplay
+[2026.09.30-18.41.24:602][851]LogTemp: Display: MC_APPROVAL_CHECK PASS camera retains distance toward mouth front
+[2026.09.30-18.41.24:602][851]LogTemp: Display: MC_VALIDATION_PASS APPROVAL_Camera

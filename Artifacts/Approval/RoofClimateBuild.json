@@ -1,0 +1,42 @@
+{
+  "variants": [
+    {
+      "sourceInstance": "/Game/Art/Materials/Arena/MI_Roof_0.MI_Roof_0",
+      "sourceSHA256": "59faad1fafc9b73d5623dd75fb9c93055dcbb11bf74fdc46fd0ea4aeb6f8da21",
+      "sourceMaterial": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS",
+      "climateInstance": "/Game/Gameplay/Cold/MI_Roof_0Climate.MI_Roof_0Climate",
+      "climateMaterial": "/Game/Gameplay/Cold/M_RoofClimate.M_RoofClimate",
+      "profile": "<Object '/Game/NewSubsurfaceProfile.NewSubsurfaceProfile' (0x000001838E70D100) Class 'SubsurfaceProfile'>"
+    },
+    {
+      "sourceInstance": "/Game/Art/Materials/Arena/M_Exit.M_Exit",
+      "sourceSHA256": "f2af56225ebf67ce53d6df00085332aa043ffe0c2c4e3d3964a76735d83b4c76",
+      "sourceMaterial": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS",
+      "climateInstance": "/Game/Gameplay/Cold/M_ExitClimate.M_ExitClimate",
+      "climateMaterial": "/Game/Gameplay/Cold/M_RoofClimate.M_RoofClimate",
+      "profile": "<Object '/Game/NewSubsurfaceProfile.NewSubsurfaceProfile' (0x000001838E70D100) Class 'SubsurfaceProfile'>"
+    }
+  ],
+  "collection": "/Game/Gameplay/Cold/MPC_MouthClimate.MPC_MouthClimate",
+  "scalar": "ColdAmount",
+  "modified": [
+    "/Game/Gameplay/Cold/MI_Roof_0Climate.MI_Roof_0Climate",
+    "/Game/Gameplay/Cold/M_RoofClimate.M_RoofClimate",
+    "/Game/Gameplay/Cold/M_ExitClimate.M_ExitClimate"
+  ],
+  "assignments": [
+    {
+      "actor": "Plane.001",
+      "slot": 0,
+      "source": "/Game/Art/Materials/Arena/MI_Roof_0.MI_Roof_0",
+      "material": "/Game/Gameplay/Cold/MI_Roof_0Climate.MI_Roof_0Climate"
+    },
+    {
+      "actor": "GAMEPLAY | Living throat",
+      "slot": 0,
+      "source": "/Game/Art/Materials/Arena/M_Exit.M_Exit",
+      "material": "/Game/Gameplay/Cold/M_ExitClimate.M_ExitClimate"
+    }
+  ],
+  "unfrozenBehavior": "Original BaseColor and Roughness at ColdAmount=0"
+}
