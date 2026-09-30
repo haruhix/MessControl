@@ -132,7 +132,7 @@ for actor in u.get_editor_subsystem(u.EditorActorSubsystem).get_all_level_actors
         light.set_editor_property('dynamic_shadow_distance_movable_light',6000.)
     if not isinstance(actor,u.PostProcessVolume):continue
     pp=actor.get_editor_property('settings')
-    for name,value in [('white_temp',5400.),('white_tint',0.),('auto_exposure_bias',.2),('bloom_intensity',.15),('bloom_gaussian_intensity',1.),('bloom_threshold',1.2),('color_saturation',u.Vector4(1.10,1.10,1.10,1.))]:
+    for name,value in [('white_temp',5400.),('white_tint',0.),('bloom_intensity',.15),('bloom_gaussian_intensity',1.),('bloom_threshold',1.2),('color_saturation',u.Vector4(1.10,1.10,1.10,1.))]:
         pp.set_editor_property('override_'+name,True);pp.set_editor_property(name,value)
     actor.set_editor_property('settings',pp)
 assert u.get_editor_subsystem(u.LevelEditorSubsystem).save_current_level()
@@ -162,5 +162,5 @@ return lerp(float3(.78,.88,.85),lerp(float3(.025,.32,.20),float3(.9,.98,.96),cro
 assert u.MCVFXAssetBuilder.create_spray_mist()
 for path in ['/Game/Gameplay/VFX/NS_BrushFoam','/Game/Gameplay/VFX/NS_IceShatter']:
     assert u.MCVFXAssetBuilder.repair_mesh_renderer_slots(lib.load_asset(path))>=0
-(root/'Artifacts/Approval/MouthV5_Assets.json').write_text(json.dumps(dict(materials=report,profile=profile.get_path_name(),normal_strength={'mucosa':1.2,'tongue':.24},specular={'mucosa':.44,'tongue':.40},wet_roughness=[.16,.24],tongue_roughness=[.18,.28],post_process={'white_temp':5400,'exposure_bias':.2,'bloom_intensity':.15,'bloom_threshold':1.2}),indent=2))
+(root/'Artifacts/Approval/MouthV5_Assets.json').write_text(json.dumps(dict(materials=report,profile=profile.get_path_name(),normal_strength={'mucosa':1.2,'tongue':.24},specular={'mucosa':.44,'tongue':.40},wet_roughness=[.16,.24],tongue_roughness=[.18,.28],post_process={'white_temp':5400,'bloom_intensity':.15,'bloom_threshold':1.2}),indent=2))
 u.log('MC_MOUTH_V5_READY')

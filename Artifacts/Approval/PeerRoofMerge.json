@@ -1,0 +1,45 @@
+{
+  "peerCommit": "5ae36d355bfd1cb2328f46952949116ad32121fd",
+  "changes": [
+    {
+      "action": "remove old roof",
+      "actor": "StaticMeshActor_219"
+    },
+    {
+      "action": "copy peer actor",
+      "actor": "StaticMeshActor_0",
+      "label": "Plane.001"
+    },
+    {
+      "action": "copy peer actor",
+      "actor": "RectLight_0",
+      "label": "RectLight"
+    },
+    {
+      "action": "copy peer actor",
+      "actor": "RectLight_1",
+      "label": "RectLight2"
+    },
+    {
+      "action": "author gum shadow setting",
+      "castShadow": false
+    },
+    {
+      "action": "paired author lighting",
+      "directionalIntensity": 10,
+      "exposureBias": 2.6800010204315186,
+      "whiteTemp": 5400.0,
+      "bloomIntensity": 0.15000000596046448,
+      "CSMDistance": 6000.0
+    },
+    {
+      "action": "author exit placement",
+      "sourceTransform": "(Rotation=(X=-0.000000,Y=-0.000000,Z=-0.705462,W=0.708748),Translation=(X=1289.522883,Y=-175.991729,Z=242.882690),Scale3D=(X=1.000000,Y=1.000000,Z=1.000000))",
+      "activeMouthTransform": "(Rotation=(X=-0.000000,Y=-0.000000,Z=-0.705462,W=0.708748),Translation=(X=1289.522883,Y=-175.991729,Z=242.882690),Scale3D=(X=1.000000,Y=1.000000,Z=1.000000))",
+      "throatRootPreserved": true
+    }
+  ],
+  "protectedGameplayTransforms": 10,
+  "result": "PASS",
+  "scope": "Actor, component and lighting deltas from native three-way audit. Visual approval pending."
+}
