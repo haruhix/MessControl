@@ -66,5 +66,12 @@ void AMCFoodActor::UpdateHazard(float Dt)
     // The sine phase's derivative rises smoothly from one to five flashes per second.
     const float Age=FoodData.FuseSeconds-FuseRemaining();
     const float Flash=bFusePaused?.15f:.5f+.5f*FMath::Sin(2*PI*(Age+2*Age*Age/FMath::Max(1.f,FoodData.FuseSeconds)));
+    // Only the cosmetic mesh expands. Physics mass and the authoritative body
+    // retain their food-table dimensions, including while carried or swallowed.
+    const float Beat=bFusePaused?0.f:FMath::Pow(Flash,3.f);
+    const float Expansion=1+Beat*FMath::Lerp(.14f,.38f,Urgency);
+    const FVector BaseScale=bFragment?FoodData.FragmentScale:FoodData.Scale;
+    Visual->SetRelativeScale3D(BaseScale*Expansion);
+    if(ItemMesh) Visual->SetRelativeLocation(-ItemMesh->GetBounds().Origin*BaseScale*Expansion);
     for(const auto& MID:HazardMaterials) if(MID) { MID->SetScalarParameterValue(TEXT("Urgency"),Urgency); MID->SetScalarParameterValue(TEXT("Flash"),Flash); }
 }

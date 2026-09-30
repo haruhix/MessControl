@@ -3,6 +3,7 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCToothMovementComponent.h"
 #include "MCFoodActor.h"
 #include "MCArenaTooth.h"
 #include "MCGameState.h"
@@ -137,7 +138,10 @@ void AMCCoffeeFlood::Tick(float Dt)
             auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
             Hero->bInCoffee=Contains(P) && Hero->Status->IsAlive();
             if (!Hero->Status->IsAlive() || FMath::Abs(P.X-ArenaCenter.X)>HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>HalfSize.Y) { Hero->ClingTooth=nullptr; continue; }
-            if (Hero->bWantsCling && Hero->bInCoffee && Hero->GetCharacterMovement()->IsSwimming())
+            const auto* Move=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+            // The old LMB anchor can still brace in water. E belongs to the
+            // predicted climbing movement, including its swim-to-wall transfer.
+            if (Hero->IsPrimaryHeld() && Hero->bWantsCling && !Move->WantsClimb() && Hero->bInCoffee && Move->IsSwimming())
             {
                 if (!IsValid(Hero->ClingTooth))
                 {

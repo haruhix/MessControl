@@ -8,6 +8,7 @@ class AMCToothCharacter;
 class AMCFoodActor;
 class UStaticMeshComponent;
 class AMCMouthSurface;
+class UNiagaraComponent;
 
 UENUM(BlueprintType)
 enum class EMCToolSlot : uint8 { Brush, Pickaxe, Knife, Spray };
@@ -38,6 +39,9 @@ UCLASS(ClassGroup=(MessControl),meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCInventoryComponent : public UActorComponent
 {
     GENERATED_BODY()
+#if !UE_BUILD_SHIPPING
+    friend void MCTickSprayNetworkValidation(UWorld* World);
+#endif
 public:
     UMCInventoryComponent();
     virtual void BeginPlay() override;
@@ -62,6 +66,9 @@ public:
     float SwingContactTime() const;
     static float SwingAngle(EMCToolSlot Slot,float Elapsed);
     static FVector SwingOffset(EMCToolSlot Slot,float Elapsed);
+    // Mesh visibility, hand presentation and collision correction share this
+    // context so a hidden tool cannot displace traversal or grip contacts.
+    bool ShouldPresentTool() const;
     FVector ConstrainPickaxeGrip(const FTransform& WristWorld) const;
     FString ToolName() const;
 private:
@@ -70,8 +77,11 @@ private:
     UPROPERTY() TObjectPtr<UMCEquipmentProfile> Settings;
     UPROPERTY() TObjectPtr<UStaticMeshComponent> Tool;
     UPROPERTY() TObjectPtr<UStaticMeshComponent> Detail;
+    UPROPERTY() TObjectPtr<UNiagaraComponent> SprayMist;
+    bool bSprayEmitting=false;
     EMCToolSlot Presented=EMCToolSlot::Brush;
     bool bPresentedUpgrade=false;
+    bool bPresentedFallback=false;
     void RefreshMesh();
     AMCMouthSurface* FindSprayTarget() const;
 };

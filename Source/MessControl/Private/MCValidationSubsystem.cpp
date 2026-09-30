@@ -30,6 +30,9 @@ void MCTickGameplayV3Validation(UWorld* World);
 void MCTickUlcerReworkValidation(UWorld* World);
 void MCTickApprovalRecorder(UWorld* World);
 void MCTickApprovalValidation(UWorld* World);
+void MCTickClimbNetworkValidation(UWorld* World);
+void MCTickSprayNetworkValidation(UWorld* World);
+void MCTickShiftResetValidation(UWorld* World);
 #endif
 
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
@@ -39,6 +42,9 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
     MCTickApprovalRecorder(GetWorld());
     FString ApprovalCase;
     if(FParse::Value(FCommandLine::Get(),TEXT("MCApproval="),ApprovalCase)) { MCTickApprovalValidation(GetWorld()); return; }
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCShiftResetTest"))) { MCTickShiftResetValidation(GetWorld()); return; }
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCClimbNetworkTest"))) { MCTickClimbNetworkValidation(GetWorld()); return; }
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCSprayNetworkTest"))) { MCTickSprayNetworkValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCUlcerReworkTest"))) { MCTickUlcerReworkValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCGameplayV3Test"))) { MCTickGameplayV3Validation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCInventoryTest"))) { MCTickInventoryValidation(GetWorld()); return; }

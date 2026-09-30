@@ -1,15 +1,18 @@
 """Encode time-stamped real Unreal render-target frames. Never captures a desktop."""
 from pathlib import Path
-import subprocess,csv,sys,json,re
+import subprocess,csv,sys,json,re,hashlib
+from datetime import datetime,timezone
 root=Path(__file__).resolve().parents[1]; name=sys.argv[1]
 folder=root/'Saved/ApprovalFrames'/name; out=root/'Artifacts/Approval'; out.mkdir(parents=True,exist_ok=True)
 rows=[]
 for filename,time in csv.reader((folder/'times.csv').read_text(encoding='utf-8-sig').splitlines()):
     if (folder/filename).exists() and (folder/filename).stat().st_size>54: rows.append((filename,float(time)))
-if name=='Grip':
-    # Clients boot before the grip fixture starts. Keep only the gameplay part.
-    log=(root/'Saved/Logs/Approval_Grip.log').read_text(encoding='utf-8',errors='replace')
-    event=re.search(r'\[([^\]]+)\].*MC_GRIP net=2 t=0\.0 ',log)
+if name in ('Grip','SprayNetwork'):
+    # Peers boot before the network fixture starts. Keep the measured gameplay.
+    log_path='Approval_Grip.log' if name=='Grip' else 'SprayNetwork1.log'
+    log=(root/'Saved/Logs'/log_path).read_text(encoding='utf-8',errors='replace')
+    start_pattern=r'MC_GRIP net=2 t=0\.0 ' if name=='Grip' else r'MC_SPRAY_NETWORK_PROGRESS net=\d+ t=0\.\d+ '
+    event=re.search(r'\[([^\]]+)\].*'+start_pattern,log)
     if event:
         shots=re.findall(r'\[([^\]]+)\].*Tracing Screenshot "(\d+)"',log)
         start=next((int(number) for stamp,number in shots if stamp>=event[1]),0)
@@ -24,8 +27,10 @@ labels={
 'Climb':'E: attach to an actual arena tooth | W/S: climb | A/D: sideways | SPACE: wall jump',
 'Coffee':'Coffee pour: controllable swimming, paddle input, drain | no front-wave stun',
 'Cola':'Cold cola: top-down drink, growing frost, slippery ground, falling ice | pickaxe breaks every shape',
+'ShiftReset':'Two live shift restarts: frozen swimming, then treatment and paused hazards | fresh day director, timer and tasks',
 'Camera':'Gameplay following camera: front teeth boundary, side movement, throat approach',
 'Ulcer':'Unattended food absorbs into tongue | hold spray 7s | release saves circular treatment progress',
+'SprayNetwork':'Remote owning client: hold and release spray twice without a healing target | four real network peers',
 'Tools':'Four inventory slots: brush, pickaxe, knife, spray | procedural hand and body poses',
 'Brush':'Real tooth and tongue cleaning contact | character faces target | Niagara contact foam',
 'Hazards':'Pepper fuse, pulsing red warning and detonation | jump over low ulcer shockwave',
@@ -40,5 +45,15 @@ vf=f"fps=30,drawbox=x=0:y=ih-52:w=iw:h=52:color=black@0.62:t=fill,drawtext=fontf
 subprocess.run(['C:/ffmpeg/ffmpeg.exe','-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',str(folder/'frames.ffconcat'),'-vf',vf,'-c:v','libx264','-threads','2','-crf','19','-pix_fmt','yuv420p','-movflags','+faststart',str(out/(name+'.mp4'))],check=True)
 duration=rows[-1][1]-rows[0][1]
 subprocess.run(['C:/ffmpeg/ffmpeg.exe','-hide_banner','-loglevel','error','-y','-ss',str(min(duration/2,8)),'-i',str(out/(name+'.mp4')),'-frames:v','1','-update','1',str(out/(name+'.png'))],check=True)
-(out/(name+'_Recording.json')).write_text(json.dumps(dict(case=name,source='Unreal FScreenshotRequest offscreen game render',frames=len(rows),seconds=round(duration,3),caption=labels.get(name,name)),indent=2),encoding='utf-8')
+with (out/(name+'.mp4')).open('rb') as video_file:
+    video_sha256=hashlib.file_digest(video_file,'sha256').hexdigest()
+recording=dict(case=name,source='Unreal FScreenshotRequest offscreen game render; encoded from game timestamps',frames=len(rows),seconds=round(duration,3),sample_fps=round((len(rows)-1)/duration,2) if duration>0 else 0,caption=labels.get(name,name),encodedUtc=datetime.now(timezone.utc).isoformat(),videoSha256=video_sha256)
+capture_manifest=folder/'Capture_Manifest.json'
+if capture_manifest.exists():
+    fingerprint=json.loads(capture_manifest.read_text(encoding='utf-8-sig'))
+    if fingerprint.get('case')!=name: raise RuntimeError('Capture manifest belongs to a different scenario')
+    recording['captureFingerprint']=fingerprint
+    validation_file=out/(name+'_Validation.txt')
+    recording['fingerprintValidationMatches']=bool(validation_file.exists() and fingerprint.get('validation',{}).get('sha256')==hashlib.sha256(validation_file.read_bytes()).hexdigest())
+(out/(name+'_Recording.json')).write_text(json.dumps(recording,indent=2),encoding='utf-8')
 print(str(out/(name+'.mp4')))

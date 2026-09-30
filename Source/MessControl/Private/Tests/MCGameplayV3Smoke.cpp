@@ -112,7 +112,7 @@ void MCTickGameplayV3Validation(UWorld* World)
         auto* Pepper=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform);
         FRandomStream Random(41); Pepper->ConfigureItem(TEXT("SpicyPepper"),*Row,Random); Pepper->Phase=EMCFoodPhase::Free;
         Pepper->FinishSpawning(Transform); Pepper->Body->SetSimulatePhysics(false); Pepper->Label->SetHiddenInGame(true); Pepper->ArmSpicy(); R.Pepper=Pepper;
-        View(P+FVector(0,0,40),FVector(-240,-260,200)); R.Stage=3; R.At=Now;
+        View(P+FVector(0,0,40),FVector(-125,-140,105)); R.Stage=3; R.At=Now;
     }
     else if(R.Stage==3 && T>6.5) { Shot(TEXT("PepperWarning.png")); R.Stage=4; }
     else if(R.Stage==4 && T>8.2) {

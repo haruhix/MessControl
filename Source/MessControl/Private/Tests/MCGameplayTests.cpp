@@ -29,6 +29,7 @@
 #include "Engine/StaticMesh.h"
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
+
 #endif
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
@@ -1537,7 +1538,8 @@ bool FMCFoodArtBoundsTest::RunTest(const FString&)
         FRandomStream Random(1); Food->ConfigureItem(*Name,Row,Random,Fragment); Food->FinishSpawning(T);
         Food->Body->SetEnableGravity(false); Mouth.Step(.1f);
         TestTrue(*(Name+TEXT(" visible and physical centres agree")),Food->Visual->Bounds.Origin.Equals(Food->Body->Bounds.Origin,.1));
-        TestTrue(*(Name+TEXT(" collider fits the visible variant")),Food->Body->GetUnscaledBoxExtent().Equals((Mesh->GetBounds().BoxExtent*Food->Visual->GetRelativeScale3D()).ComponentMax(FVector(3)),.1));
+        const FVector GameplayScale=Food->FoodData.Kind==EMCFoodKind::Spicy?(Food->bFragment?Food->FoodData.FragmentScale:Food->FoodData.Scale):Food->Visual->GetRelativeScale3D();
+        TestTrue(*(Name+TEXT(" collider fits its configured variant independently of cosmetic pepper pulses")),Food->Body->GetUnscaledBoxExtent().Equals((Mesh->GetBounds().BoxExtent*GameplayScale).ComponentMax(FVector(3)),.1));
         FHitResult Hit;
         const FVector Origin=Food->Visual->Bounds.Origin+FVector(-Food->Visual->Bounds.BoxExtent.X-100,0,0);
         const bool Found=Food->FindGripSurface(Origin,Hit);
@@ -1981,6 +1983,16 @@ bool FMCSpicyFuseTest::RunTest(const FString&)
     TestFalse(TEXT("Leaving collecting circle resumes the fuse"),Pepper->bFusePaused);
     TestTrue(TEXT("Leaving cannot refresh the countdown"),FMath::IsNearlyEqual(Pepper->FuseRemaining(),Remaining,.02f));
     const float FirstRadius=Pepper->DetonationRadius();
+    const FVector CollisionExtent=Pepper->Body->GetUnscaledBoxExtent();
+    Pepper->FuseEndsAt=M.State->GetServerWorldTimeSeconds()+Pepper->FoodData.FuseSeconds-.236f;
+    Pepper->Tick(.01f);const float Expanded=Pepper->Visual->GetRelativeScale3D().X;
+    auto* PulseMaterial=Cast<UMaterialInstanceDynamic>(Pepper->Visual->GetMaterial(0));
+    const float Bright=PulseMaterial?PulseMaterial->K2_GetScalarParameterValue(TEXT("Flash")):0;
+    Pepper->FuseEndsAt=M.State->GetServerWorldTimeSeconds()+Pepper->FoodData.FuseSeconds-.646f;
+    Pepper->Tick(.01f);const float Rest=Pepper->Visual->GetRelativeScale3D().X;
+    TestTrue(TEXT("Cartoon beat expands mesh and changes shader in the same phase"),Expanded>Rest*1.12f && Bright>.98f && PulseMaterial && PulseMaterial->K2_GetScalarParameterValue(TEXT("Flash"))<.02f);
+    TestTrue(TEXT("Cosmetic pulse leaves collision dimensions unchanged"),Pepper->Body->GetUnscaledBoxExtent().Equals(CollisionExtent));
+    TestTrue(TEXT("Pulsing mesh retains its center"),Pepper->Visual->GetRelativeTransform().TransformPosition(Pepper->ItemMesh->GetBounds().Origin).IsNearlyZero());
     auto* Later=M.GripCube(); Later->Body->SetSimulatePhysics(false); Later->FoodData.Kind=EMCFoodKind::Spicy;
     M.State->Day=7; Later->ArmSpicy(); TestEqual(TEXT("Later round clamps to six seconds"),Later->FuseRemaining(),6.f);
     TestTrue(TEXT("Later round has wider pulse"),Later->DetonationRadius()>FirstRadius);
@@ -2070,4 +2082,27 @@ bool FMCIceToolTest::RunTest(const FString&)
     TestFalse(TEXT("A broken block cannot be counted twice"),Ice->HitWithPickaxe(Hero,40));
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRestartHazardsTest,"MessControl.Run.RestartClearsLiveHazards",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCRestartHazardsTest::RunTest(const FString&)
+{
+    FTestMouth M;M.Mode->SetActorTickEnabled(false);
+    auto* Cola=M.World->SpawnActor<AMCColdColaEvent>();
+    auto* Plan=LoadObject<UMCDayPlan>(nullptr,TEXT("/Game/Data/DA_Day01.DA_Day01"));
+    if(!TestNotNull(TEXT("Authored day plan"),Plan)) return false;
+    Cola->Start(Plan);
+    auto* Floor=Cola->SlipperyFloor.Get();auto* Drink=Cola->Drink.Get();
+    auto* Ice=M.World->SpawnActor<AMCIceBlock>();
+    auto* Ulcer=M.World->SpawnActor<AMCMouthSurface>();Ulcer->bUlcer=true;
+    auto* Wave=M.World->SpawnActor<AMCHazardWave>();Wave->WarningSeconds=30;
+    auto* Pepper=M.GripCube();Pepper->FoodData.Kind=EMCFoodKind::Spicy;Pepper->ArmSpicy();
+    M.State->Day=4;M.Mode->RestartShift();
+    TestTrue(TEXT("Restart removes slippery volume and flood"),Floor->IsActorBeingDestroyed() && Drink->IsActorBeingDestroyed());
+    TestTrue(TEXT("Restart removes ice, ulcers, live waves and armed pepper"),Ice->IsActorBeingDestroyed() && Ulcer->IsActorBeingDestroyed() && Wave->IsActorBeingDestroyed() && Pepper->IsActorBeingDestroyed());
+    TestFalse(TEXT("Restart clears old cold event"),Cola->bActive);
+    TestEqual(TEXT("Restart resets day"),M.State->Day,0);
+    M.NextPhase();TestEqual(TEXT("Fresh day starts after reset"),M.State->Day,1);
+    TestTrue(TEXT("Fresh event has its own timer"),M.State->PhaseEndsAt>M.State->GetServerWorldTimeSeconds());
+    return true;
+}
+
 #endif

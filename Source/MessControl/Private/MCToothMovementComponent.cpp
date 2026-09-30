@@ -155,12 +155,15 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
     Super::UpdateCharacterStateBeforeMovement(Dt);
     // Simulated peers receive the movement mode; they have no local E input.
     if(CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy) return;
-    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if (!Hero || !Hero->ToothPhysics || !Hero->ToothPhysics->CanAct()) return;
     ClimbCooldown=FMath::Max(0.f,ClimbCooldown-Dt);
+    // E takes ownership from the older coffee anchor. A swimmer must be able
+    // to pull onto the wall rather than become pinned at their water position.
+    if(bWantsToClimb && Hero->ClingTooth) {Hero->ClingTooth=nullptr;if(Hero->HasAuthority()) Hero->ForceNetUpdate();}
     const bool Free=Hero->CanWork() && !Hero->HeldFood && !Hero->Grip->GrabbedPlayer && !Hero->OrderJumpTarget && !Hero->ClingTooth;
     if(IsClimbing() && (!bWantsToClimb || !Free)) SetMovementMode(MOVE_Falling);
-    if(bWantsToClimb && Free && ClimbCooldown<=0 && !IsClimbing() && !IsSwimming()) {
+    if(bWantsToClimb && Free && ClimbCooldown<=0 && !IsClimbing()) {
         FHitResult Wall; if(FindClimbWall(Wall)) { ClimbNormal=Wall.ImpactNormal; Velocity=FVector::ZeroVector; SetMovementMode(MOVE_Custom,1); }
     }
     if(IsClimbing()) { bSprintActive=false; MovementIntent=Acceleration.GetSafeNormal(); return; }

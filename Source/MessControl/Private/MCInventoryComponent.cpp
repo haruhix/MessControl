@@ -1,14 +1,19 @@
 #include "MCInventoryComponent.h"
 #include "MCToothCharacter.h"
+#include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCMouthSurface.h"
 #include "MCGripComponent.h"
 #include "MCExpressionComponent.h"
+#include "MCGameState.h"
+#include "MCArenaTooth.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/GameStateBase.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
+#include "NiagaraComponent.h"
+#include "NiagaraSystem.h"
 
 UMCInventoryComponent::UMCInventoryComponent()
 {
@@ -28,6 +33,11 @@ void UMCInventoryComponent::BeginPlay()
         Hero->AddInstanceComponent(Mesh); Mesh->RegisterComponent(); return Mesh;
     };
     Tool=Part(TEXT("InventoryTool")); Detail=Part(TEXT("InventoryDetail"));
+    if(auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NS_SprayMist.NS_SprayMist"))) {
+        SprayMist=NewObject<UNiagaraComponent>(Hero,TEXT("TreatmentSprayNiagara"));
+        SprayMist->SetupAttachment(Hero->GetRootComponent());SprayMist->SetAutoActivate(false);
+        SprayMist->SetAsset(System);SprayMist->SetCastShadow(false);Hero->AddInstanceComponent(SprayMist);SprayMist->RegisterComponent();
+    }
     PrimaryComponentTick.AddPrerequisite(Hero,Hero->PrimaryActorTick); RefreshMesh();
 }
 void UMCInventoryComponent::ServerSelect_Implementation(EMCToolSlot Slot)
@@ -69,23 +79,48 @@ FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
     if(T<.44f) return FMath::Lerp(Wind,Strike,FMath::SmoothStep(.30f,.44f,T));
     return FMath::Lerp(Strike,FVector::ZeroVector,FMath::SmoothStep(.44f,.95f,T));
 }
+bool UMCInventoryComponent::ShouldPresentTool() const
+{
+    if(!Hero || !Hero->Status->IsAlive() || Hero->HeldFood || Hero->OrderJumpTarget || Hero->SwallowedBy) return false;
+    const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+    return (!Move || (!Move->IsSwimming() && !Move->IsClimbing()))
+        && Hero->AnimationOrderPress<.05f && Hero->AnimationOrderFlight<.05f
+        && Hero->AnimationClimb<.05f && Hero->AnimationSwim<.05f
+        && !Hero->Grip->Frame.Food && !Hero->Grip->Secondary.Food && !Hero->Grip->GrabbedPlayer && Hero->Grip->Blend()<.05f;
+}
 FVector UMCInventoryComponent::ConstrainPickaxeGrip(const FTransform& WristWorld) const
 {
-    if(!Hero || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe) return FVector::ZeroVector;
+    if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe) return FVector::ZeroVector;
     const FTransform World=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform()*WristWorld;
     const FBoxSphereBounds Bounds=Tool->GetStaticMesh()->GetBounds();
     FCollisionQueryParams Q(SCENE_QUERY_STAT(MCPickaxePose),false,Hero);
+    FCollisionQueryParams EnamelQ(SCENE_QUERY_STAT(MCPickaxeEnamel),true,Hero);
+    TArray<AMCArenaTooth*,TInlineAllocator<4>> Nearby;
+    if(const auto* GS=Hero->GetWorld()->GetGameState<AMCGameState>())
+        for(const auto& Tooth:GS->ArenaTeeth)
+            if(Tooth && Tooth->IsAvailable() && Tooth->Visual->Bounds.GetBox().ExpandBy(320).IsInside(Hero->GetActorLocation())) Nearby.Add(Tooth);
     FVector Correction=FVector::ZeroVector;
     // Constrain the entire posed mesh, then move the hand branch with the tool.
     // This does not detach the tool from its wrist or teleport gameplay targets.
     for(int32 Pass=0;Pass<4;++Pass) {
+        const FVector Previous=Correction;
         // Use the collision-free body as the anchor: the unconstrained wrist
         // may already be beyond the wall during the forward part of a swing.
         for(int32 I=0;I<8;++I) {
-            const FVector Corner=World.TransformPosition(Bounds.Origin+FVector(I&1?Bounds.BoxExtent.X:-Bounds.BoxExtent.X,I&2?Bounds.BoxExtent.Y:-Bounds.BoxExtent.Y,I&4?Bounds.BoxExtent.Z:-Bounds.BoxExtent.Z))+Correction;
+            const FVector LocalCorner=Bounds.Origin+FVector(I&1?Bounds.BoxExtent.X:-Bounds.BoxExtent.X,I&2?Bounds.BoxExtent.Y:-Bounds.BoxExtent.Y,I&4?Bounds.BoxExtent.Z:-Bounds.BoxExtent.Z);
+            const FVector Corner=World.TransformPosition(LocalCorner)+Correction;
             FHitResult Hit;
             if(Hero->GetWorld()->SweepSingleByChannel(Hit,Hero->GetActorLocation(),Corner,FQuat::Identity,ECC_Visibility,FCollisionShape::MakeSphere(4),Q) && !Hit.bStartPenetrating && FMath::Abs(Hit.ImpactNormal.Z)<.7f)
                 Correction+=Hit.ImpactNormal*FMath::Max(0.,5.-FVector::DotProduct(Corner-Hit.ImpactPoint,Hit.ImpactNormal));
+            // The gameplay box is smaller than the curved enamel. Query the
+            // same visible surface used for cleaning and traversal contacts.
+            for(const auto* Tooth:Nearby) {
+                const FVector P=World.TransformPosition(LocalCorner)+Correction;
+                const FVector Direction=(P-Hero->GetActorLocation()).GetSafeNormal();
+                if(Tooth->BrushSurface->LineTraceComponent(Hit,Hero->GetActorLocation(),P+Direction*60,EnamelQ)
+                    && !Hit.bStartPenetrating && FVector::DotProduct(Hit.ImpactNormal,Direction)<-.1f)
+                    Correction+=Hit.ImpactNormal*FMath::Max(0.,5.-FVector::DotProduct(P-Hit.ImpactPoint,Hit.ImpactNormal));
+            }
         }
         for(int32 I=0;I<8;++I) {
             const FVector Corner=World.TransformPosition(Bounds.Origin+FVector(I&1?Bounds.BoxExtent.X:-Bounds.BoxExtent.X,I&2?Bounds.BoxExtent.Y:-Bounds.BoxExtent.Y,I&4?Bounds.BoxExtent.Z:-Bounds.BoxExtent.Z))+Correction;
@@ -93,12 +128,15 @@ FVector UMCInventoryComponent::ConstrainPickaxeGrip(const FTransform& WristWorld
             if(Hero->GetWorld()->LineTraceSingleByChannel(Hit,Corner+FVector(0,0,300),Corner,ECC_Visibility,Q) && Hit.ImpactNormal.Z>.4f)
                 Correction+=Hit.ImpactNormal*FMath::Max(0.,5.-FVector::DotProduct(Corner-Hit.ImpactPoint,Hit.ImpactNormal));
         }
+        // A complete unchanged pass has already checked every corner against
+        // the same scene. Repeating it would issue identical collision queries.
+        if(Correction.Equals(Previous,.0001f)) break;
     }
     return Correction.GetClampedToMaxSize(260);
 }
 AMCMouthSurface* UMCInventoryComponent::FindSprayTarget() const
 {
-    if(!Hero || !Hero->CanWork() || Hero->bInCoffee || Hero->HeldFood || Selected!=EMCToolSlot::Spray) return nullptr;
+    if(!ShouldPresentTool() || !Hero->CanWork() || Hero->bInCoffee || Selected!=EMCToolSlot::Spray) return nullptr;
     AMCMouthSurface* Best=nullptr; float Distance=FMath::Square(FMath::Max(10.f,Settings?Settings->SprayReach:235.f));
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) {
         if(!It->bUlcer || It->IsHealed() || It->IsActorBeingDestroyed()) continue;
@@ -128,11 +166,13 @@ void UMCInventoryComponent::RefreshMesh()
 {
     if(!Tool || !Detail) return;
     Presented=Selected; bPresentedUpgrade=bWaterJetUnlocked; Detail->SetVisibility(false);
+    Tool->EmptyOverrideMaterials();Detail->EmptyOverrideMaterials();
     UStaticMesh* Mesh=nullptr; FTransform Transform=FTransform::Identity;
     if(Selected==EMCToolSlot::Pickaxe) { Mesh=Settings->PickaxeMesh.LoadSynchronous(); Transform=Settings->PickaxeTransform; }
     if(Selected==EMCToolSlot::Knife) { Mesh=Settings->KnifeMesh.LoadSynchronous(); Transform=Settings->KnifeTransform; }
     if(Selected==EMCToolSlot::Spray) { Mesh=Settings->SprayMesh.LoadSynchronous(); Transform=Settings->SprayTransform; }
     if(Selected==EMCToolSlot::Brush && bWaterJetUnlocked) { Mesh=Settings->WaterJetMesh.LoadSynchronous(); Transform=Settings->WaterJetTransform; }
+    bPresentedFallback=Mesh==nullptr;
     if(!Mesh && Selected==EMCToolSlot::Pickaxe) {
         Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Art/Meshes/Equipments/SM_Pick.SM_Pick"));
         Transform=FTransform(FRotator(0,0,90),FVector(25,0,0),FVector(.65));
@@ -146,6 +186,10 @@ void UMCInventoryComponent::RefreshMesh()
             :FTransform(FRotator::ZeroRotator,FVector(22,0,31),FVector(.23,.08,.08)));
     }
     Tool->SetStaticMesh(Mesh); Tool->SetRelativeTransform(Transform);
+    if(Selected==EMCToolSlot::Spray && bPresentedFallback) {
+        Tool->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Care/M_SprayCan.M_SprayCan")));
+        Detail->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle")));
+    }
 }
 void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
@@ -160,11 +204,17 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
     }
     if(!Hero || !Tool) return;
     if(Presented!=Selected || bPresentedUpgrade!=bWaterJetUnlocked) RefreshMesh();
-    const bool Visible=Hero->Status->IsAlive() && !Hero->HeldFood && !Hero->OrderJumpTarget && !Hero->SwallowedBy
-        && Hero->AnimationOrderPress<.05f && Hero->AnimationOrderFlight<.05f && Hero->AnimationClimb<.05f && Hero->Grip->Blend()<.05f && Hero->Expression->BodyAlpha()<.01f;
+    const bool Visible=ShouldPresentTool();
     const bool Custom=Tool->GetStaticMesh()!=nullptr;
-    Tool->SetVisibility(Visible && Custom); Detail->SetVisibility(Visible && Custom && (Selected==EMCToolSlot::Knife?Settings->KnifeMesh.IsNull():Selected==EMCToolSlot::Spray && Settings->SprayMesh.IsNull()));
+    Tool->SetVisibility(Visible && Custom); Detail->SetVisibility(Visible && Custom && bPresentedFallback && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Spray));
     if(Selected!=EMCToolSlot::Brush || Custom) Hero->Brush->SetVisibility(false);
+    if(SprayMist) {
+        const bool Emit=Visible && Selected==EMCToolSlot::Spray && Hero->CanWork() && (HealingTarget || Hero->IsPrimaryHeld());
+        const FVector Nozzle=Hero->BrushPivot->GetComponentTransform().TransformPosition(FVector(34,0,31));
+        const FVector Aim=HealingTarget?HealingTarget->GetActorLocation()+FVector(0,0,10):Nozzle+Hero->GetActorForwardVector()*180;
+        if(Emit) SprayMist->SetWorldLocationAndRotation(Nozzle,FRotationMatrix::MakeFromZ((Aim-Nozzle).GetSafeNormal()).Rotator());
+        if(Emit!=bSprayEmitting) {if(Emit) SprayMist->Activate(true);else SprayMist->Deactivate();bSprayEmitting=Emit;}
+    }
 }
 void UMCInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

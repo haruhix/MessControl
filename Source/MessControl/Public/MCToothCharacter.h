@@ -25,6 +25,10 @@ class MESSCONTROL_API AMCToothCharacter : public ACharacter
 {
     GENERATED_BODY()
     friend void MCTickApprovalValidation(UWorld* World);
+#if !UE_BUILD_SHIPPING
+    friend void MCTickClimbNetworkValidation(UWorld* World);
+    friend void MCTickSprayNetworkValidation(UWorld* World);
+#endif
 public:
     AMCToothCharacter(const FObjectInitializer& ObjectInitializer=FObjectInitializer::Get());
     virtual void OnConstruction(const FTransform& Transform) override;
@@ -185,7 +189,7 @@ private:
     bool bLoadedLocalTuning = false;
     bool bDeathReported=false;
     bool bLastContactBrush=false;
-    bool bPrimaryHeld=false;
+    UPROPERTY(Replicated) bool bPrimaryHeld=false;
     float ContactElapsed=0;
     FVector2D LocalPaddle=FVector2D::ZeroVector;
     float PaddleSendElapsed=0;

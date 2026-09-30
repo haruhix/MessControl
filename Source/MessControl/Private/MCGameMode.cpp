@@ -1,5 +1,6 @@
 #include "MCGameMode.h"
 #include "MCColdCola.h"
+#include "MCHazardWave.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
 #include "MCDayDirector.h"
@@ -89,7 +90,7 @@ void AMCGameMode::RestartShift()
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { It->ResetPain(); It->ResetPressure(); }
     TArray<AActor*> OldDayActors;
-    for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || Cast<AMCColdColaEvent>(*It) || Cast<AMCIceBlock>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
+    for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || Cast<AMCColdColaEvent>(*It) || Cast<AMCIceBlock>(*It) || Cast<AMCHazardWave>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
     for (auto* Actor:OldDayActors) Actor->Destroy();
     State->DayPlan=nullptr; State->StepIndex=INDEX_NONE; State->bPhysicalBrushes=false; State->bDayOneComplete=false; State->FailedEvents=0;
     State->bDevManualEvents=false;

@@ -1,4 +1,4 @@
-param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','TongueNetwork','TongueJoltNetwork','TonguePressureNetwork','GripNetwork','LocomotionNetwork','EmoteNetwork','Mouth','Pupils','SwimVisual','SwimNetwork','GazeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee,[switch]$CaptureTongue,[switch]$CaptureGaze,[switch]$CapturePressure,[switch]$CaptureGrip,[switch]$CaptureEmotes,[switch]$CaptureLocomotion)
+param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','TongueNetwork','TongueJoltNetwork','TonguePressureNetwork','GripNetwork','LocomotionNetwork','EmoteNetwork','Mouth','Pupils','SwimVisual','SwimNetwork','ClimbNetwork','SprayNetwork','GazeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee,[switch]$CaptureTongue,[switch]$CaptureGaze,[switch]$CapturePressure,[switch]$CaptureGrip,[switch]$CaptureEmotes,[switch]$CaptureLocomotion,[switch]$CaptureSpray)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 if (-not $EngineRoot) {
@@ -64,6 +64,14 @@ if ($Mode -eq 'Unit') {
                 $taskArguments+=@('-MCGripCapture','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages','-ExecCmds="t.MaxFPS 60,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,sg.PostProcessQuality 1,r.ScreenPercentage 75,Trace.Disable Screenshot"')
             }
             if($Mode -eq 'SwimNetwork') { $taskArguments+='-MCSwimTest' }
+            if($Mode -eq 'ClimbNetwork') { $taskArguments+='-MCClimbNetworkTest' }
+            if($Mode -eq 'SprayNetwork') { $taskArguments+='-MCSprayNetworkTest' }
+            if($CaptureSpray -and $Mode -eq 'SprayNetwork' -and $taskIndex -eq 1) {
+                # Record the actual remote owning client; the other three peers
+                # run NullRHI and validate replicated press/release intent.
+                $taskArguments=@($taskArguments | Where-Object { $_ -ne '-nullrhi' -and $_ -notlike '-ExecCmds=*' })
+                $taskArguments+=@('-MCVideo=SprayNetwork','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages','-ExecCmds="t.MaxFPS 20,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 2,sg.ShadowQuality 2,sg.PostProcessQuality 1,r.Streaming.PoolSize 512,r.ScreenPercentage 100"')
+            }
             if($Mode -eq 'GazeNetwork') { $taskArguments+='-MCGazeTest' }
             if($CaptureGaze -and $Mode -eq 'GazeNetwork' -and $taskIndex -eq 0) {
                 $taskArguments=@($taskArguments | Where-Object { $_ -ne '-nullrhi' -and $_ -notlike '-ExecCmds=*' })
@@ -104,9 +112,16 @@ if ($Mode -eq 'Unit') {
         }
         foreach ($taskProcess in $taskProcesses) {
             if (-not $taskProcess.WaitForExit(150000)) { throw 'Network test timed out.' }
+            if ($taskProcess.ExitCode -ne 0) { throw "Network process $($taskProcess.Id) exited with code $($taskProcess.ExitCode). See $Mode logs." }
         }
         for ($taskIndex=0;$taskIndex -lt 4;$taskIndex++) {
-            if (-not (Select-String -Path "$taskLogs\$Mode$taskIndex.log" -Pattern 'MC_VALIDATION_PASS' -Quiet)) { throw "Client $taskIndex failed $Mode validation. See its log." }
+            $taskValidationLog=Join-Path $taskLogs "$Mode$taskIndex.log"
+            if ($Mode -eq 'SprayNetwork') {
+                $taskSprayMarkers=@(Select-String -LiteralPath $taskValidationLog -Pattern '\bMC_VALIDATION_(PASS|FAIL) SPRAY_NETWORK\b')
+                $taskSprayFinal=$taskSprayMarkers | Select-Object -Last 1
+                if ($taskSprayFinal.Line -notmatch '\bMC_VALIDATION_PASS SPRAY_NETWORK\b' -or ($taskSprayMarkers.Line -match '\bMC_VALIDATION_FAIL SPRAY_NETWORK\b')) { throw "Client $taskIndex failed SprayNetwork validation. See its log." }
+                if ($CaptureSpray -and $taskIndex -eq 1 -and $taskSprayFinal.Line -notmatch '\brendered_activation=1\b') { throw 'SprayNetwork capture did not verify rendered client activation. See SprayNetwork1.log.' }
+            } elseif (-not (Select-String -LiteralPath $taskValidationLog -Pattern 'MC_VALIDATION_PASS' -Quiet)) { throw "Client $taskIndex failed $Mode validation. See its log." }
         }
         Write-Output 'PASS: four processes connected and observed authoritative task progress.'
     } finally {

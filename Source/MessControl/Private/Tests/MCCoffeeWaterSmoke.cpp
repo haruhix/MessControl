@@ -93,8 +93,10 @@ void UMCValidationSubsystem::TickCoffeeWater(float Dt)
         if (auto* H=Cast<AMCToothCharacter>(PC->GetPawn()))
         {
             const int32 Slot=Heroes.IndexOfByKey(H);
-            if (Slot==0 && Flood->IsActive() && !H->bWantsCling) H->ServerSetWorking(false,true);
-            if (Slot==0 && !Flood->IsActive() && H->bWantsCling) H->ServerSetWorking(false,false);
+            // Exercise the explicit LMB coffee brace. E now transfers a swimmer
+            // into predicted climbing and is covered by ClimbNetwork instead.
+            if (Slot==0 && Flood->IsActive() && !H->IsPrimaryHeld()) H->ServerSetPrimary(true);
+            if (Slot==0 && !Flood->IsActive() && H->IsPrimaryHeld()) H->ServerSetPrimary(false);
             if (Slot>0 && H->bInCoffee)
             {
                 H->LocalPaddle=Slot==1?FVector2D(0,1):Slot==2?FVector2D(0,-1):FVector2D(-1,0);

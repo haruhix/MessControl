@@ -185,7 +185,8 @@ void AMCMouthSurface::Tick(float Dt)
         UlcerMID->SetScalarParameterValue(TEXT("Healing"),Healing);
         UlcerMID->SetScalarParameterValue(TEXT("Disturbed"),bDisturbed?1.f:0.f);
         UlcerMID->SetScalarParameterValue(TEXT("Seed"),LiquidSeed);
-        UlcerMID->SetScalarParameterValue(TEXT("Frozen"),IsNumb()?1.f:0.f);
+        // Treatment suppresses pain; the lesion keeps its authored tissue appearance.
+        UlcerMID->SetScalarParameterValue(TEXT("Frozen"),0.f);
     }
     Visual->SetVisibility(bUlcer && !UlcerMID); Label->SetVisibility(bShowCareLabel && (bUlcer || !IsClean()));
     if (Material) Material->SetVectorParameterValue(TEXT("Tint"),bUlcer?FLinearColor(.6f,.01f,.035f):FLinearColor(.11f,.035f,.008f));

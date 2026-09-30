@@ -390,7 +390,7 @@ void AMCToothCharacter::RestartRun() { if (auto* PC = Cast<AMCPlayerController>(
 void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActive)
 {
     if(!bBrush) CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(bActive);
-    if (!bBrush) { bWantsCling=bActive && Status->IsAlive(); if (!bActive) ClingTooth=nullptr; }
+    if (!bBrush) { bWantsCling=bPrimaryHeld && Status->IsAlive(); if (!bActive) ClingTooth=nullptr; }
     if (bActive && (!CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-0.3f)) return;
     if ((bBrush?bBrushing:bHandling)==bActive) return;
     if (bBrush) { bBrushing=bActive; if (bActive) { bHandling=false; DropFood(); } }
@@ -477,7 +477,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float GroundSpeed=GetVelocity().Size2D();
     AnimationBrake=FMath::FInterpTo(AnimationBrake,FMath::Clamp((PreviousAnimationSpeed-GroundSpeed)/FMath::Max(DeltaSeconds,.001f)/1600.f,0.f,1.f),DeltaSeconds,9.f);
     PreviousAnimationSpeed=GroundSpeed;
-    Brush->SetVisibility(HasBrush() && !HeldFood && AnimationClimb<.05f && !OrderJumpTarget && AnimationOrderPress<.05f && AnimationOrderFlight<.05f
+    Brush->SetVisibility(HasBrush() && Inventory->ShouldPresentTool() && !HeldFood && AnimationClimb<.05f && AnimationSwim<.05f && !OrderJumpTarget && AnimationOrderPress<.05f && AnimationOrderFlight<.05f
         && (!Grip || Grip->Blend()<.05f) && (!Expression || Expression->BodyAlpha()<.01f));
     if (StatusMaterial)
     {
@@ -628,6 +628,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCToothCharacter,bBrushing); DOREPLIFETIME(AMCToothCharacter,bHandling);
+    DOREPLIFETIME(AMCToothCharacter,bPrimaryHeld);
     DOREPLIFETIME(AMCToothCharacter,bSelfCare); DOREPLIFETIME(AMCToothCharacter,CareTarget); DOREPLIFETIME(AMCToothCharacter,ContactProgress);
     DOREPLIFETIME(AMCToothCharacter,HeldFood); DOREPLIFETIME(AMCToothCharacter,RespawnAt); DOREPLIFETIME(AMCToothCharacter,RespawnSourceId);
     DOREPLIFETIME(AMCToothCharacter,EquippedBrush); DOREPLIFETIME(AMCToothCharacter,bInCoffee); DOREPLIFETIME(AMCToothCharacter,ClingTooth);

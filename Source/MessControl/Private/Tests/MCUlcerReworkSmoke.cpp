@@ -20,6 +20,9 @@
 #include "Misc/Paths.h"
 #include "Misc/FileHelper.h"
 #include "HAL/FileManager.h"
+#include "NiagaraComponent.h"
+#include "Components/DecalComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #if WITH_EDITOR
 #include "ShaderCompiler.h"
 #endif
@@ -71,7 +74,7 @@ void MCTickUlcerReworkValidation(UWorld* World)
         R.Director=World->SpawnActor<AMCDayDirector>(); R.Director->SetActorTickEnabled(false);
         GS->TasksTotal=1; GS->TasksLeft=1;
         if(FParse::Param(FCommandLine::Get(),TEXT("MCUlcerCapture"))) {
-            auto* Camera=World->SpawnActor<ACameraActor>(); const FVector Aim=Hit.ImpactPoint+FVector(-40,0,75),Offset(-430,-330,310);
+            auto* Camera=World->SpawnActor<ACameraActor>(); const FVector Aim=Hit.ImpactPoint+FVector(-50,0,60),Offset(-170,390,280);
             Camera->SetActorLocationAndRotation(Aim+Offset,(-Offset).Rotation()); Camera->GetCameraComponent()->SetFieldOfView(55); PC->SetViewTarget(Camera);
         }
         Check(R.Director->CountFood(77)==1,TEXT("meal begins with one cleanup task")); Shot(TEXT("00_Food.png")); R.Stage=0; R.At=Now;
@@ -91,6 +94,16 @@ void MCTickUlcerReworkValidation(UWorld* World)
         H->Inventory->ServerSelect(EMCToolSlot::Spray); H->ServerSetPrimary(true); R.Stage=2; R.At=Now;
     }
     else if(R.Stage==2 && Now-R.At>=2) {
+        bool Mist=false,Tool=false;
+        TArray<UNiagaraComponent*> FX;H->GetComponents(FX);
+        for(auto* E:FX) if(E->GetFName()==TEXT("TreatmentSprayNiagara")) Mist=E->IsActive();
+        TArray<UStaticMeshComponent*> Equipment;H->GetComponents(Equipment);
+        for(auto* E:Equipment) if(E->GetFName()==TEXT("InventoryTool")) {
+            Tool=E->IsVisible();UE_LOG(LogTemp,Display,TEXT("MC_SPRAY_POSE tool=%s scale=%s visible=%d hand=%s"),*E->GetComponentLocation().ToString(),*E->GetComponentScale().ToString(),Tool,*H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))).ToString());
+        }
+        Check(Mist && Tool,TEXT("held treatment presents its can and active Niagara mist"));
+        TArray<UDecalComponent*> Decals;R.Ulcer->GetComponents(Decals);
+        for(auto* D:Decals) if(auto* M=Cast<UMaterialInstanceDynamic>(D->GetDecalMaterial())) Check(M->K2_GetScalarParameterValue(TEXT("Frozen"))==0,TEXT("spray keeps the original ulcer tissue without frost"));
         R.Saved=R.Ulcer.IsValid()?R.Ulcer->Healing:0;
         Check(R.Saved>.25f && R.Saved<.33f,TEXT("two seconds of held spray advances treatment"));
         H->ServerSetPrimary(false); Shot(TEXT("03_Treatment.png")); R.Stage=3; R.At=Now;

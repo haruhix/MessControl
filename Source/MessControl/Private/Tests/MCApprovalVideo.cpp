@@ -13,9 +13,11 @@
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/WorldSettings.h"
 #include "EngineUtils.h"
 #include "Misc/CommandLine.h"
 #include "Misc/FileHelper.h"
@@ -32,11 +34,18 @@ void MCTickApprovalRecorder(UWorld* World)
 {
     FString Name; if(!FParse::Value(FCommandLine::Get(),TEXT("MCVideo="),Name)) return;
     static TWeakObjectPtr<UWorld> Last; static double At=0,Next=0; static int32 Frame=0;
-    if(Last!=World) { Last=World; At=World->GetTimeSeconds(); Next=0; Frame=0; }
-    const double T=World->GetTimeSeconds()-At; if(T<3 || T<Next) return; Next=T+1./15.;
+    if(Last!=World) {
+        Last=World; At=World->GetTimeSeconds(); Next=0; Frame=0;
+        // Render more samples per game second on a shared GPU. The encoder uses
+        // game timestamps, so the resulting clip keeps the real gameplay timing.
+        float CaptureTimeScale=1;
+        if(FParse::Value(FCommandLine::Get(),TEXT("MCCaptureTimeScale="),CaptureTimeScale))
+            World->GetWorldSettings()->SetTimeDilation(FMath::Clamp(CaptureTimeScale,.25f,1.f));
+    }
+    const double T=World->GetTimeSeconds()-At; if(T<3 || T<Next) return; Next=FMath::Max(Next+1./15.,T-1./15.);
     const FString Dir=FPaths::ProjectSavedDir()/TEXT("ApprovalFrames")/Name;
     IFileManager::Get().MakeDirectory(*Dir,true);
-    const FString File=FString::Printf(TEXT("%06d.bmp"),Frame++);
+    const FString File=FString::Printf(TEXT("%06d.png"),Frame++);
     FScreenshotRequest::RequestScreenshot(Dir/File,true,false);
     const FString Entry=FString::Printf(TEXT("%s,%.6f\n"),*File,T);
     FFileHelper::SaveStringToFile(Entry,*(Dir/TEXT("times.csv")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,&IFileManager::Get(),FILEWRITE_Append);
@@ -49,8 +58,14 @@ void MCTickApprovalValidation(UWorld* World)
         TWeakObjectPtr<AMCArenaTooth> Tooth; TWeakObjectPtr<AMCCoffeeFlood> Coffee; TWeakObjectPtr<AMCColdColaEvent> Cola;
         TArray<TWeakObjectPtr<AMCIceBlock>> Blocks;
         double At=0,StageAt=0; float Age=0,StartZ=0,StartY=0,SwimSeconds=0,Slide=0; FVector StartP;
-        int32 Stage=-1,BlockIndex=0,PoseSamples=0; float LowestPickClearance=MAX_flt;
-        bool Failed=false,Climbed=false,Hung=false,Sideways=false,Mantled=false,Jumped=false,Slippery=false;
+        int32 Stage=-1,BlockIndex=0,PlacedBlock=-1,PoseSamples=0,EnamelSamples=0; float LowestPickClearance=MAX_flt,LowestEnamelClearance=MAX_flt;
+        bool Failed=false,Climbed=false,Hung=false,Sideways=false,Mantled=false,Jumped=false,Slippery=false,ToolVisible=true;
+        bool ClimbStartedWalking=false,ClimbPressSent=false,SwamBeforeClimb=false,ClimbedFromSwim=false,JumpLeftWall=false;
+        uint8 WallContactMask=0,LimbMotionMask=0;
+        FVector FirstLimbPositions[4]={}; bool LimbBaseline=false;
+        bool HiddenPickaxeSafe=true,HiddenPickaxeSeen=false,SwimHandBaseline=false;
+        uint8 SwimHandMotionMask=0;FVector FirstSwimHands[2]={};
+        double NextClimbContactDiagnostic=0;float ClosestClimbContacts[4]={MAX_flt,MAX_flt,MAX_flt,MAX_flt};
     }; static FRun R; if(R.World!=World) { R=FRun(); R.World=World; }
     R.Age+=World->GetDeltaSeconds(); auto* GS=World->GetGameState<AMCGameState>(); auto* PC=World->GetFirstPlayerController();
     auto* H=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
@@ -82,8 +97,11 @@ void MCTickApprovalValidation(UWorld* World)
             for(const auto& Tooth:GS->ArenaTeeth) if(Tooth && Tooth->State.ToothId==8) R.Tooth=Tooth;
             if(!R.Tooth.IsValid()) {Check(false,TEXT("actual arena tooth 8 exists")); Finish(); return;}
             const auto Box=R.Tooth->Body->Bounds.GetBox();
-            const FVector P(Box.GetCenter().X,Box.Min.Y-H->GetCapsuleComponent()->GetScaledCapsuleRadius()-12,Box.Max.Z-160);
-            Place(P,FRotator(0,90,0)); H->StartHandle(); R.StartZ=P.Z; R.StartY=P.X;
+            const FVector Approach(Box.GetCenter().X,Box.Min.Y-H->GetCapsuleComponent()->GetScaledCapsuleRadius()-100,0);
+            FHitResult Ground;
+            if(!Tongue->SurfacePoint(Approach,Ground)) {Check(false,TEXT("walkable tongue approach to actual tooth exists")); Finish(); return;}
+            const FVector P=Ground.ImpactPoint+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3);
+            Place(P,FRotator(0,90,0)); R.StartZ=P.Z; R.StartY=P.X;
             View(Box.GetCenter()+FVector(0,-65,110),FVector(-700,-780,420));
         } else if(Case==TEXT("Coffee")) {
             Place(Floor(FVector(-200,0,0))+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3));
@@ -108,31 +126,124 @@ void MCTickApprovalValidation(UWorld* World)
         } else {Check(false,TEXT("known approval case")); Finish();}
     }
     else if(Case==TEXT("Climb")) {
+        if(H->Inventory->Selected==EMCToolSlot::Pickaxe && (Move->IsSwimming() || Move->IsClimbing())) {
+            R.HiddenPickaxeSeen=true;
+            R.HiddenPickaxeSafe&=!H->Inventory->ShouldPresentTool()
+                && H->Inventory->ConstrainPickaxeGrip(H->GetMesh()->GetSocketTransform(H->RigBone(TEXT("hand_r")))).IsNearlyZero();
+            if(Move->IsSwimming() && H->AnimationSwim>.8f) {
+                for(int32 Side=0;Side<2;++Side) {
+                    const FVector Local=H->GetMesh()->GetComponentTransform().InverseTransformPosition(H->GetMesh()->GetSocketLocation(H->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r"))));
+                    if(!R.SwimHandBaseline) R.FirstSwimHands[Side]=Local;
+                    else if(FVector::Dist(Local,R.FirstSwimHands[Side])>4) R.SwimHandMotionMask|=uint8(1u<<Side);
+                }
+                R.SwimHandBaseline=true;
+            }
+        }
+        // Read the final rendered skeleton, after pose/physics blending. A climb
+        // mode flag cannot prove that the mittens or feet reach visible enamel.
+        if(Move->IsClimbing() && H->AnimationClimb>.9f) {
+            const FName Roles[]={TEXT("hand_l"),TEXT("hand_r"),TEXT("foot_l"),TEXT("foot_r")};
+            const FVector N=Move->ClimbNormal;
+            const bool Diagnose=(R.Stage==5 || R.Stage==6) && Now>=R.NextClimbContactDiagnostic;
+            if(Diagnose) R.NextClimbContactDiagnostic=Now+.2;
+            for(int32 Limb=0;Limb<4;++Limb) {
+                const FVector P=H->GetMesh()->GetSocketLocation(H->RigBone(Roles[Limb]));
+                const FVector Local=H->GetMesh()->GetComponentTransform().InverseTransformPosition(P);
+                if(!R.LimbBaseline) R.FirstLimbPositions[Limb]=Local;
+                else if(FVector::Dist(Local,R.FirstLimbPositions[Limb])>4) R.LimbMotionMask|=uint8(1u<<Limb);
+                FHitResult Touch;FCollisionQueryParams Q(SCENE_QUERY_STAT(MCApprovalClimbContact),true,H);
+                const bool Hit=R.Tooth->BrushSurface->LineTraceComponent(Touch,P+N*40,P-N*80,Q);
+                const float Distance=Hit?float(FVector::Dist(P,Touch.ImpactPoint)):MAX_flt;
+                R.ClosestClimbContacts[Limb]=FMath::Min(R.ClosestClimbContacts[Limb],Distance);
+                if(Hit && Distance<(Limb<2?24.f:27.f)) R.WallContactMask|=uint8(1u<<Limb);
+                if(Diagnose) UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_RENDER_CONTACT stage=%d limb=%d hit=%d distance=%.2f closest=%.2f climb=%.3f swim=%.3f actor=%s socket=%s touch=%s normal=%s"),
+                    R.Stage,Limb,Hit,Distance,R.ClosestClimbContacts[Limb],H->AnimationClimb,H->AnimationSwim,*H->GetActorLocation().ToString(),*P.ToString(),*Touch.ImpactPoint.ToString(),*Touch.ImpactNormal.ToString());
+            }
+            R.LimbBaseline=true;
+        }
         if(R.Stage==0) {
-            if(S<.5) H->AddMovementInput(FVector(0,1,0));
-            else if(S<.75) H->MoveForward(FInputActionValue(1.f));
+            R.ClimbStartedWalking|=Move->IsMovingOnGround() && !R.ClimbPressSent;
+            if(S>.6 && !R.ClimbPressSent) {H->StartHandle();R.ClimbPressSent=true;}
+            if(R.ClimbPressSent) {
+                if(Move->IsClimbing()) {H->MoveRight(FInputActionValue(0.f));H->MoveForward(FInputActionValue(1.f));}
+                else H->MoveRight(FInputActionValue(1.f));
+            }
             R.Climbed|=Move->IsClimbing() && H->GetActorLocation().Z>R.StartZ+25;
-            if(S>.85) {UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_POSE climb P=%s V=%s mode=%d"),*H->GetActorLocation().ToString(),*Move->Velocity.ToString(),int32(Move->MovementMode)); R.Stage=1; R.StageAt=Now; R.StartP=H->GetActorLocation();}
+            if(R.Climbed || S>4) {
+                Check(R.ClimbStartedWalking && R.Climbed,TEXT("E plus movement attaches from the tongue without an air teleport"));
+                if(!R.Climbed) {Finish();return;}
+                UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_POSE climb P=%s V=%s mode=%d"),*H->GetActorLocation().ToString(),*Move->Velocity.ToString(),int32(Move->MovementMode));
+                H->MoveForward(FInputActionValue(0.f));R.Stage=7; R.StageAt=Now;
+            }
+        } else if(R.Stage==7) {
+            // AddMovementInput is accumulated for the next movement tick. The
+            // last upward command above remains queued when this fixture sends
+            // zero, so measure hanging after that command has been consumed.
+            if(S>.3) {
+                R.Hung=Move->IsClimbing() && Move->Velocity.Size()<5;
+                Check(R.Hung,TEXT("released upward input settles while E remains held"));
+                R.StartP=H->GetActorLocation();R.Stage=1;R.StageAt=Now;
+                UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_POSE hang_baseline P=%s V=%s mode=%d"),*R.StartP.ToString(),*Move->Velocity.ToString(),int32(Move->MovementMode));
+            }
         } else if(R.Stage==1) {
-            R.Hung|=Move->IsClimbing() && Move->Velocity.Size()<5;
-            if(S>1.5) {UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_POSE hang P=%s V=%s mode=%d"),*H->GetActorLocation().ToString(),*Move->Velocity.ToString(),int32(Move->MovementMode)); R.Stage=2; R.StageAt=Now; R.StartP=H->GetActorLocation();}
+            R.Hung&=Move->IsClimbing() && Move->Velocity.Size()<5 && FMath::Abs(H->GetActorLocation().Z-R.StartP.Z)<4;
+            if(S>1.2) {Check(R.Hung,TEXT("held E keeps a stable wall hang without stamina")); UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_POSE hang P=%s V=%s mode=%d"),*H->GetActorLocation().ToString(),*Move->Velocity.ToString(),int32(Move->MovementMode)); R.Stage=2; R.StageAt=Now; R.StartP=H->GetActorLocation();}
         } else if(R.Stage==2) {
-            if(S<.45) H->MoveRight(FInputActionValue(1.f));
+            if(S<.45) H->MoveRight(FInputActionValue(1.f));else H->MoveRight(FInputActionValue(0.f));
             R.Sideways|=Move->IsClimbing() && FVector::Dist2D(R.StartP,H->GetActorLocation())>25;
-            if(S>1) {R.Stage=3; R.StageAt=Now;}
+            if(S>1) {Check(R.Sideways,TEXT("held E crawls sideways across the tooth"));R.Stage=3; R.StageAt=Now;}
         } else if(R.Stage==3) {
-            H->MoveForward(FInputActionValue(1.f)); R.Mantled|=Move->IsMovingOnGround() && H->GetActorLocation().Z>R.StartZ+100;
-            if(S>2) { UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_POSE mantle P=%s V=%s mode=%d"),*H->GetActorLocation().ToString(),*Move->Velocity.ToString(),int32(Move->MovementMode)); Check(R.Climbed,TEXT("E and W climb actual gameplay tooth")); Check(R.Hung,TEXT("hang without stamina")); Check(R.Sideways,TEXT("crawl sideways on actual tooth")); Check(R.Mantled,TEXT("mantle onto tooth crown")); R.Stage=4; R.StageAt=Now; }
-        } else if(R.Stage==4 && S>1.5) {
-            const auto Box=R.Tooth->Body->Bounds.GetBox(); const FVector P(Box.GetCenter().X,Box.Min.Y-H->GetCapsuleComponent()->GetScaledCapsuleRadius()-12,Box.Max.Z-110);
-            Place(P,FRotator(0,90,0)); H->StartHandle(); R.Stage=5; R.StageAt=Now;
+            H->MoveForward(FInputActionValue(1.f));
+            R.Mantled=Move->IsMovingOnGround() && H->GetMovementBaseObject()==R.Tooth->Body.Get() && H->GetActorLocation().Z>R.StartZ+50;
+            if(R.Mantled || S>6) {
+                Check(R.Mantled,TEXT("mantle ends walking on this tooth crown"));
+                Check(R.WallContactMask==15,TEXT("both rendered hands and feet contact visible enamel"));
+                Check(R.LimbMotionMask==15,TEXT("all four rendered limbs move through the procedural cycle"));
+                UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_CONTACTS mask=%d motion=%d"),int32(R.WallContactMask),int32(R.LimbMotionMask));
+                H->MoveForward(FInputActionValue(0.f));H->StopHandle();R.Stage=4; R.StageAt=Now;
+            }
+        } else if(R.Stage==4 && S>1) {
+            const auto Box=R.Tooth->Body->Bounds.GetBox();
+            const FVector Approach(Box.GetCenter().X,Box.Min.Y-H->GetCapsuleComponent()->GetScaledCapsuleRadius()-100,0);
+            const FVector Sole=Floor(Approach);
+            Place(Sole+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3),FRotator(0,90,0));
+            H->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
+            R.WallContactMask=0;R.LimbMotionMask=0;R.LimbBaseline=false;
+            for(float& Distance:R.ClosestClimbContacts) Distance=MAX_flt;
+            auto* Plan=DuplicateObject<UMCDayPlan>(GS->DayPlan,World);Plan->FloodHeight=float(Sole.Z+120);
+            R.Coffee=World->SpawnActor<AMCCoffeeFlood>();R.Coffee->Start(Plan);
+            R.Coffee->WaterSettings.DryHeight=float(Sole.Z-40);R.Coffee->WaterSettings.FillSeconds=15;R.Coffee->WaterSettings.DrainSeconds=10;
+            R.Coffee->WaterSettings.RippleHeight=3;R.Coffee->WaterSettings.FrontHeight=0;R.Coffee->Flow=0;R.Coffee->WaterSettings.DrainAcceleration=0;
+            R.Coffee->HalfSize=R.Coffee->HalfSize.ComponentMax(FVector(1400,1000,220));R.Coffee->Seconds=25;R.Coffee->StartedAt=Now-10;
+            R.ClimbPressSent=false;R.Stage=5; R.StageAt=Now;
         } else if(R.Stage==5) {
-            if(S>.6 && !R.Jumped) {Check(Move->IsClimbing(),TEXT("reattach before wall jump")); H->Jump(); R.Jumped=true;}
-            if(S>2.5) {Check(!Move->IsClimbing(),TEXT("Space jumps away from wall")); Finish();}
+            if(Move->IsSwimming() && !R.ClimbPressSent) R.SwamBeforeClimb=true;
+            if(S>1 && R.SwamBeforeClimb && !R.ClimbPressSent) {H->StartHandle();R.ClimbPressSent=true;R.StartZ=H->GetActorLocation().Z;}
+            if(R.ClimbPressSent) {
+                if(Move->IsClimbing()) H->MoveForward(FInputActionValue(1.f));else H->MoveRight(FInputActionValue(1.f));
+                R.ClimbedFromSwim|=Move->IsClimbing() && !H->ClingTooth && H->GetActorLocation().Z>R.StartZ+30;
+            }
+            if(R.ClimbedFromSwim || S>6) {
+                Check(R.SwamBeforeClimb && R.ClimbedFromSwim,TEXT("E transfers a real swimmer into climbing without a static coffee anchor"));
+                H->MoveForward(FInputActionValue(0.f));H->MoveRight(FInputActionValue(0.f));R.Stage=6;R.StageAt=Now;
+            }
+        } else if(R.Stage==6) {
+            // Move again after the swim-to-climb blend settles. Measure a fresh
+            // four-limb cycle with the pickaxe selected and hidden throughout.
+            if(!R.Jumped) H->MoveRight(FInputActionValue(S<.35?1.f:0.f));
+            if(S>.7 && !R.Jumped) {
+                Check(Move->IsClimbing(),TEXT("wall hang remains controllable after leaving water"));
+                Check(R.HiddenPickaxeSeen && R.HiddenPickaxeSafe && R.SwimHandMotionMask==3,TEXT("hidden selected pickaxe preserves both rendered swimming hand strokes"));
+                Check(R.WallContactMask==15 && R.LimbMotionMask==15,TEXT("hidden selected pickaxe preserves all four rendered climbing contacts and motions"));
+                UE_LOG(LogTemp,Display,TEXT("MC_CLIMB_HIDDEN_PICKAXE safe=%d swim_hands=%d contacts=%d motion=%d"),R.HiddenPickaxeSafe,int32(R.SwimHandMotionMask),int32(R.WallContactMask),int32(R.LimbMotionMask));
+                H->Jump();R.Jumped=true;
+            }
+            if(R.Jumped && S<1.2 && !Move->IsClimbing() && FVector::DotProduct(Move->Velocity,FVector(Move->ClimbNormal))>100 && Move->Velocity.Z>100) R.JumpLeftWall=true;
+            if(S>2.2) {Check(R.JumpLeftWall,TEXT("Space launches away from the wall with upward velocity")); H->StopJumping();H->StopHandle();R.Coffee->Stop();Finish();}
         }
     } else if(Case==TEXT("Coffee")) {
         if(T>2 && T<4.5) H->AddMovementInput(FVector(0,1,0));
-        if(T>2) View(H->GetActorLocation()+FVector(0,0,35),FVector(-850,-650,520));
+        if(T>2) View(H->GetActorLocation()+FVector(0,0,25),FVector(-440,-340,230));
         if(Move->IsSwimming()) R.SwimSeconds+=World->GetDeltaSeconds();
         R.Failed|=!H->ToothPhysics->CanAct();
         if(T>13) { Check(R.SwimSeconds>2,TEXT("coffee enters controllable swimming")); Check(H->ToothPhysics->CanAct(),TEXT("coffee front does not stun")); Check(FMath::Abs(H->GetActorLocation().Y-R.StartP.Y)>100,TEXT("swimming input moves player")); Finish(); }
@@ -150,11 +261,12 @@ void MCTickApprovalValidation(UWorld* World)
         } else if(R.Stage==2 && R.BlockIndex<R.Blocks.Num()) {
             auto* Ice=R.Blocks[R.BlockIndex].Get();
             if(!Ice || Ice->bBroken) {++R.BlockIndex; R.StageAt=Now;}
-            else if(S<.15) {
+            else if(R.PlacedBlock!=R.BlockIndex) {
                 const FVector P=Ice->Body->Bounds.Origin;
                 const float Radius=H->GetCapsuleComponent()->GetScaledCapsuleRadius();
                 const FVector Stand=Floor(P+FVector(-Ice->Body->Bounds.BoxExtent.X-Radius-20,0,0))+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3);
                 Place(Stand); View(P+FVector(-30,0,40),FVector(-480,-410,310)); H->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
+                R.PlacedBlock=R.BlockIndex;R.StageAt=Now;
             } else if(S>.8) {
                 const FVector D=Ice->Body->Bounds.GetBox().GetClosestPointTo(H->GetActorLocation())-H->GetActorLocation();
                 H->SetActorRotation(FRotator(0,D.Rotation().Yaw,0));
@@ -178,31 +290,55 @@ void MCTickApprovalValidation(UWorld* World)
         View(Aims[Index]+FVector(100*Pan,0,0),Offsets[Index]+FVector(0,80*Pan,0));
         if(T>20) {Check(true,TEXT("real arena gum palate and throat rendered with updated materials")); Finish();}
     } else if(Case==TEXT("Pickaxe")) {
-        if(T<5) H->SwingBrush();
+        if(T<5) {
+            H->SetActorRotation(FRotator(0,FMath::FloorToFloat(float(T)/1.25f)*90,0));
+            // This fixture teleports yaw after skeletal evaluation. Settle the
+            // new heading before starting and measuring its full swing.
+            if(FMath::Fmod(float(T),1.25f)>.20f) H->SwingBrush();
+        }
         else if(R.Stage==0) {
             for(const auto& Tooth:GS->ArenaTeeth) if(Tooth && Tooth->State.ToothId==8) R.Tooth=Tooth;
             if(!R.Tooth.IsValid()) {Check(false,TEXT("actual tooth exists for surface swing")); Finish(); return;}
             const auto Box=R.Tooth->Body->Bounds.GetBox();
             Place(Floor(FVector(Box.GetCenter().X,Box.Min.Y-55,0))+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3),FRotator(0,90,0));
             View(H->GetActorLocation()+FVector(0,30,45),FVector(-300,-430,190)); R.Stage=1;
-        } else if(T<10) H->SwingBrush();
-        if(T>.5 && T<10 && !(T>5 && T<5.5)) {
+        } else if(T<14) H->SwingBrush();
+        if(T>.5 && T<14 && !(T>5 && T<5.5) && (T>=5 || FMath::Fmod(float(T),1.25f)>.20f)) {
             TArray<UStaticMeshComponent*> Components; H->GetComponents(Components);
             for(auto* Tool:Components) if(Tool->GetFName()==TEXT("InventoryTool") && Tool->GetStaticMesh()) {
+                R.ToolVisible&=Tool->IsVisible();
                 const auto Bounds=Tool->GetStaticMesh()->GetBounds(); const auto Transform=Tool->GetComponentTransform();
                 FCollisionQueryParams Q(SCENE_QUERY_STAT(MCPickApproval),false,H);
                 for(int32 I=0;I<8;++I) {
                     const FVector Corner=Transform.TransformPosition(Bounds.Origin+FVector(I&1?Bounds.BoxExtent.X:-Bounds.BoxExtent.X,I&2?Bounds.BoxExtent.Y:-Bounds.BoxExtent.Y,I&4?Bounds.BoxExtent.Z:-Bounds.BoxExtent.Z));
                     FHitResult Hit;
-                    if(World->LineTraceSingleByChannel(Hit,Corner+FVector(0,0,220),Corner-FVector(0,0,120),ECC_Visibility,Q) && Hit.ImpactNormal.Z>.4)
-                        R.LowestPickClearance=FMath::Min(R.LowestPickClearance,float(FVector::DotProduct(Corner-Hit.ImpactPoint,Hit.ImpactNormal)));
+                    if(World->LineTraceSingleByChannel(Hit,Corner+FVector(0,0,220),Corner-FVector(0,0,120),ECC_Visibility,Q) && Hit.ImpactNormal.Z>.4) {
+                        const float Clearance=FVector::DotProduct(Corner-Hit.ImpactPoint,Hit.ImpactNormal);
+                        if(Clearance<R.LowestPickClearance && Clearance<-3)
+                            UE_LOG(LogTemp,Display,TEXT("MC_PICKAXE_PENETRATION t=%.3f yaw=%.0f corner=%s surface=%s hit=%s clearance=%.2f"),T,H->GetActorRotation().Yaw,*Corner.ToString(),*Hit.ImpactPoint.ToString(),*GetNameSafe(Hit.GetComponent()),Clearance);
+                        R.LowestPickClearance=FMath::Min(R.LowestPickClearance,Clearance);
+                    }
+                    if(R.Tooth.IsValid()) {
+                        FCollisionQueryParams EnamelQ(SCENE_QUERY_STAT(MCPickApprovalEnamel),true,H);
+                        const FVector Direction=(Corner-H->GetActorLocation()).GetSafeNormal();
+                        if(R.Tooth->BrushSurface->LineTraceComponent(Hit,H->GetActorLocation(),Corner+Direction*60,EnamelQ)
+                            && FVector::DotProduct(Hit.ImpactNormal,Direction)<-.1f) {
+                            const float Clearance=FVector::DotProduct(Corner-Hit.ImpactPoint,Hit.ImpactNormal);
+                            if(Clearance<R.LowestEnamelClearance && Clearance<-3)
+                                UE_LOG(LogTemp,Display,TEXT("MC_PICKAXE_ENAMEL_PENETRATION t=%.3f corner=%s surface=%s clearance=%.2f"),T,*Corner.ToString(),*Hit.ImpactPoint.ToString(),Clearance);
+                            R.LowestEnamelClearance=FMath::Min(R.LowestEnamelClearance,Clearance);++R.EnamelSamples;
+                        }
+                    }
                 }
                 ++R.PoseSamples;
             }
         }
-        if(T>11) {
+        if(T>15) {
             UE_LOG(LogTemp,Display,TEXT("MC_PICKAXE_CLEARANCE samples=%d min=%.2f"),R.PoseSamples,R.LowestPickClearance);
-            Check(R.PoseSamples>20 && R.LowestPickClearance>-3,TEXT("pickaxe pose stays above tongue and tooth surfaces")); Finish();
+            UE_LOG(LogTemp,Display,TEXT("MC_PICKAXE_ENAMEL_CLEARANCE samples=%d min=%.2f"),R.EnamelSamples,R.LowestEnamelClearance);
+            Check(R.ToolVisible,TEXT("pickaxe remains visible at four headings and beside an actual tooth"));
+            Check(R.PoseSamples>20 && R.LowestPickClearance>-3,TEXT("pickaxe pose stays above tongue and tooth surfaces"));
+            Check(R.EnamelSamples>20 && R.LowestEnamelClearance>-3,TEXT("pickaxe stays outside visible curved enamel"));Finish();
         }
     }
     if(T>70) {Check(false,TEXT("approval scenario timeout")); Finish();}

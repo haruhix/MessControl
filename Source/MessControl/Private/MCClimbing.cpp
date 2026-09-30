@@ -8,21 +8,32 @@
 bool UMCToothMovementComponent::FindClimbWall(FHitResult& Hit) const
 {
     if(!CharacterOwner || !UpdatedComponent) return false;
-    const FVector Start=UpdatedComponent->GetComponentLocation()+FVector(0,0,15);
-    const FVector Facing=IsClimbing()?-FVector(ClimbNormal):CharacterOwner->GetActorForwardVector();
+    const FVector Center=UpdatedComponent->GetComponentLocation();
+    const float Half=CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+    // Test the actual approach first: facing can lag a turn while walking into
+    // a tooth. A low grip also reaches a crown below the original chest ray.
+    const FVector Approach=Acceleration.GetSafeNormal2D();
+    const FVector Facing=IsClimbing()?-FVector(ClimbNormal):(!Approach.IsNearlyZero()?Approach:CharacterOwner->GetActorForwardVector());
     // Gameplay teeth use a simple box; a complex-only trace misses that body.
     FCollisionQueryParams Q(SCENE_QUERY_STAT(MCClimbWall),false,CharacterOwner);
     const float Reach=CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius()+75;
     for(const float Angle:{0.f,-25.f,25.f,-60.f,60.f,-90.f,90.f})
     {
         const FVector Direction=Facing.RotateAngleAxis(Angle,FVector::UpVector);
-        FHitResult Wall;
-        if(!GetWorld()->LineTraceSingleByChannel(Wall,Start,Start+Direction*Reach,ECC_Visibility,Q)) continue;
-        const auto* A=Wall.GetActor(); const auto* C=Wall.GetComponent();
-        if(!A || !C || A->ActorHasTag(TEXT("MCNoClimb")) || Cast<AMCFoodActor>(A) || Cast<AMCToothCharacter>(A)
-            || (!Cast<AMCArenaTooth>(A) && C->GetCollisionObjectType()!=ECC_WorldStatic && !A->ActorHasTag(TEXT("MCClimbable")))
-            || FMath::Abs(Wall.ImpactNormal.Z)>.6f) continue;
-        Hit=Wall; return true;
+        for(const float Height:{15.f,-Half*.5f,Half*.55f})
+        {
+            const FVector Start=Center+FVector(0,0,Height);
+            FHitResult Wall;
+            if(!GetWorld()->LineTraceSingleByChannel(Wall,Start,Start+Direction*Reach,ECC_Visibility,Q) || Wall.bStartPenetrating) continue;
+            const auto* A=Wall.GetActor(); const auto* C=Wall.GetComponent();
+            const auto* Tooth=Cast<AMCArenaTooth>(A);
+            if(!A || !C || A->ActorHasTag(TEXT("MCNoClimb")) || Cast<AMCFoodActor>(A) || Cast<AMCToothCharacter>(A)
+                || (Tooth && !Tooth->IsAvailable())
+                || (!Tooth && C->GetCollisionObjectType()!=ECC_WorldStatic && !A->ActorHasTag(TEXT("MCClimbable")))
+                || FMath::Abs(Wall.ImpactNormal.Z)>.6f
+                || FVector::DotProduct(Wall.ImpactNormal,Direction)>-.2f) continue;
+            Hit=Wall; return true;
+        }
     }
     return false;
 }
@@ -49,7 +60,10 @@ bool UMCToothMovementComponent::TryMantle()
     bool Found=false;
     for(float Depth:{18.f,35.f,55.f}) {
         const FVector Probe=P+Forward*(R+Depth)+FVector(0,0,Half+45);
-        if(GetWorld()->LineTraceSingleByChannel(Top,Probe,Probe-FVector(0,0,Half+65),ECC_Visibility,Q) && Top.ImpactNormal.Z>=GetWalkableFloorZ()) { Found=true; break; }
+        // A low wall probe remains attached until the capsule center clears
+        // the lip. Search down to its soles so that grip cannot delay mantling
+        // beyond the old chest-only crown search.
+        if(GetWorld()->LineTraceSingleByChannel(Top,Probe,Probe-FVector(0,0,Half*2+65),ECC_Visibility,Q) && Top.ImpactNormal.Z>=GetWalkableFloorZ()) { Found=true; break; }
     }
     if(!Found) return false;
     const FVector Goal=Top.ImpactPoint+FVector(0,0,Half+3);
@@ -67,6 +81,16 @@ void UMCToothMovementComponent::PhysCustom(float Dt,int32 Iterations)
     if(!IsClimbing()) { Super::PhysCustom(Dt,Iterations); return; }
     if(Dt<MIN_TICK_TIME || !HasValidData()) return;
     auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy)
+    {
+        // UE MoveSmooth calls PhysCustom for simulated peers too. Their E
+        // intent is deliberately absent: extrapolate replicated velocity and
+        // retain the server's mode/orientation until the next movement update.
+        FHitResult Hit;
+        SafeMoveUpdatedComponent(Velocity*Dt,UpdatedComponent->GetComponentQuat(),true,Hit);
+        if(Hit.IsValidBlockingHit()) SlideAlongSurface(Velocity*Dt,1-Hit.Time,Hit.Normal,Hit,true);
+        return;
+    }
     if(!Hero || !Hero->CanWork() || !bWantsToClimb) { SetMovementMode(MOVE_Falling); StartNewPhysics(Dt,Iterations); return; }
     FHitResult Wall;
     if(!FindClimbWall(Wall)) {

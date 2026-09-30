@@ -3,6 +3,7 @@
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
 #include "MCToothStatusComponent.h"
+#include "MCGripComponent.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCFoodActor.h"
@@ -11,12 +12,16 @@
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
+#include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "NiagaraSystem.h"
 #include "MCBrushContactComponent.h"
+#include "MCToothAnimInstance.h"
+#include "Engine/SkeletalMesh.h"
 
 namespace {
 struct FInventoryWorld {
@@ -51,6 +56,35 @@ bool FMCInventoryRouting::RunTest(const FString&) {
     I->UnlockWaterJet(); TestTrue(TEXT("Upgrade is retained in slot one"),I->bWaterJetUnlocked);
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCInvisiblePickaxe,"MessControl.Inventory.HiddenPickaxePreservesHandContacts",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCInvisiblePickaxe::RunTest(const FString&) {
+    FInventoryWorld T; auto* I=T.H->Inventory.Get(); I->ServerSelect(EMCToolSlot::Pickaxe); I->TickComponent(1.f/60,LEVELTICK_All,nullptr);
+    UStaticMeshComponent* Tool=nullptr;TArray<UStaticMeshComponent*> Parts;T.H->GetComponents(Parts);
+    for(auto* Part:Parts) if(Part->GetFName()==TEXT("InventoryTool")) Tool=Part;
+    if(!TestNotNull(TEXT("The selected pickaxe has a real presentation mesh"),Tool) || !TestNotNull(TEXT("Pickaxe mesh is loaded"),Tool->GetStaticMesh().Get())) return false;
+    auto* Floor=T.W->SpawnActor<AActor>();auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box);Box->SetBoxExtent(FVector(500,500,10));Box->SetCollisionProfileName(TEXT("BlockAll"));Box->RegisterComponent();
+    Floor->SetActorLocation(T.H->GetActorLocation()-FVector(0,0,100));
+    FTransform Wrist=T.H->GetMesh()->GetSocketTransform(T.H->RigBone(TEXT("hand_r")));
+    const auto Bounds=Tool->GetStaticMesh()->GetBounds();const FTransform Presented=Tool->GetRelativeTransform()*T.H->BrushPivot->GetRelativeTransform()*Wrist;
+    double Highest=-MAX_flt;
+    for(int32 Corner=0;Corner<8;++Corner) Highest=FMath::Max(Highest,Presented.TransformPosition(Bounds.Origin+FVector(Corner&1?Bounds.BoxExtent.X:-Bounds.BoxExtent.X,Corner&2?Bounds.BoxExtent.Y:-Bounds.BoxExtent.Y,Corner&4?Bounds.BoxExtent.Z:-Bounds.BoxExtent.Z)).Z);
+    Wrist.AddToTranslation(FVector(0,0,Floor->GetActorLocation().Z+10-Highest-20));
+    TestTrue(TEXT("An exposed pickaxe corrects a wrist pose whose mesh penetrates the floor"),I->ShouldPresentTool() && !I->ConstrainPickaxeGrip(Wrist).IsNearlyZero());
+    auto CheckHidden=[&](const TCHAR* Context) {
+        TestFalse(*FString::Printf(TEXT("%s hides the selected pickaxe"),Context),I->ShouldPresentTool());
+        TestTrue(*FString::Printf(TEXT("%s leaves the existing hand contact unchanged despite the same floor penetration"),Context),I->ConstrainPickaxeGrip(Wrist).IsNearlyZero());
+    };
+    // The movement mode changes before its cosmetic animation alpha arrives.
+    T.H->AnimationSwim=0;T.H->GetCharacterMovement()->SetMovementMode(MOVE_Swimming);CheckHidden(TEXT("Swimming before the animation blend"));
+    T.H->GetCharacterMovement()->DisableMovement();
+    auto* Food=T.W->SpawnActor<AMCFoodActor>(T.H->GetActorLocation()+FVector(80,0,0),FRotator::ZeroRotator);
+    T.H->HeldFood=Food;CheckHidden(TEXT("Carrying food"));T.H->HeldFood=nullptr;
+    T.H->Grip->Frame.Food=Food;CheckHidden(TEXT("A reaching grip before its blend"));T.H->Grip->Frame.Food=nullptr;
+    T.H->AnimationOrderFlight=1;CheckHidden(TEXT("Flight to the uvula"));T.H->AnimationOrderFlight=0;
+    TestTrue(TEXT("Dropping the object and leaving traversal restores pickaxe presentation"),I->ShouldPresentTool() && !I->ConstrainPickaxeGrip(Wrist).IsNearlyZero());
+    return true;
+}
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSprayProtection,"MessControl.Inventory.HoldSprayAndPreserveProgress",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSprayProtection::RunTest(const FString&) {
     FInventoryWorld T; auto* I=T.H->Inventory.Get(); I->ServerSelect(EMCToolSlot::Spray);
@@ -65,6 +99,39 @@ bool FMCSprayProtection::RunTest(const FString&) {
     TestEqual(TEXT("Repeated requests cannot manufacture treatment time"),Patch->Healing,Saved);
     I->TickComponent(.1f,LEVELTICK_All,nullptr);
     TestEqual(TEXT("Duplicate ticks in one frame cannot accelerate treatment"),Patch->Healing,Saved);
+    auto* Anim=Cast<UMCToothAnimInstance>(T.H->GetMesh()->GetAnimInstance());
+    if(!TestNotNull(TEXT("Spray uses the production procedural animation instance"),Anim)) return false;
+    const int32 Hand=T.H->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton().FindBoneIndex(T.H->RigBone(TEXT("hand_r")));
+    if(!TestTrue(TEXT("The real character rig has a right hand"),Hand!=INDEX_NONE)) return false;
+    Anim->bRecordMotion=true;
+    auto CaptureHand=[&]() {
+        ++GFrameCounter;Anim->UpdateAnimation(.1f,false);
+        return Anim->DiagnosticPose.IsValidIndex(Hand)?Anim->DiagnosticPose[Hand].GetLocation():FVector::ZeroVector;
+    };
+    // First build a live spray aim. Then mimic an old HealingTarget still on a
+    // client when its movement/grip has already claimed the same right hand.
+    for(int32 N=0;N<10;++N) CaptureHand();
+    if(!TestTrue(TEXT("Production animation evaluates a real hand pose"),Anim->DiagnosticPose.IsValidIndex(Hand))) return false;
+    auto CheckHiddenSpray=[&](const TCHAR* Context) {
+        I->HealingTarget=Patch;const FVector StaleTargetHand=CaptureHand();
+        I->HealingTarget=nullptr;const FVector NoTargetHand=CaptureHand();
+        TestTrue(*FString::Printf(TEXT("%s preserves the actual procedural hand pose despite a stale spray target"),Context),StaleTargetHand.Equals(NoTargetHand,.01f));
+        I->HealingTarget=Patch;Tick(10);
+        TestNull(*FString::Printf(TEXT("%s clears the authoritative treatment target"),Context),I->HealingTarget.Get());
+        TestEqual(*FString::Printf(TEXT("%s keeps the existing ulcer progress"),Context),Patch->Healing,Saved);
+        TestEqual(*FString::Printf(TEXT("%s keeps the selected spray slot"),Context),I->Selected,EMCToolSlot::Spray);
+        TestTrue(*FString::Printf(TEXT("%s keeps held input for a later resume"),Context),T.H->IsPrimaryHeld());
+    };
+    T.H->GetCharacterMovement()->SetMovementMode(MOVE_Swimming);T.H->AnimationSwim=1;
+    CheckHiddenSpray(TEXT("Swimming with a spray selected"));
+    T.H->GetCharacterMovement()->SetMovementMode(MOVE_Custom,1);T.H->AnimationSwim=0;T.H->AnimationClimb=1;
+    CheckHiddenSpray(TEXT("Climbing with a spray selected"));
+    T.H->GetCharacterMovement()->DisableMovement();T.H->AnimationClimb=0;
+    auto* Held=T.W->SpawnActor<AMCFoodActor>(T.H->GetActorLocation()+FVector(80,0,0),FRotator::ZeroRotator);
+    T.H->HeldFood=Held;CheckHiddenSpray(TEXT("Holding food with a spray selected"));T.H->HeldFood=nullptr;
+    Anim->bRecordMotion=false;I->ServerSpray();
+    TestEqual(TEXT("Leaving traversal and dropping food reacquires the same ulcer"),I->HealingTarget.Get(),Patch);
+    TestEqual(TEXT("Reacquiring a treatment target does not manufacture healing time"),Patch->Healing,Saved);
     Patch->Disturb(); Patch->Tick(.5f); TestEqual(TEXT("Protected lesion does no mouth damage"),T.GS->MouthHealth,HP);
     T.H->ServerSetPrimary(false); Tick(10); Patch->NumbUntil=-1; Patch->Disturb(); Patch->Tick(.5f);
     TestEqual(TEXT("Release, contact and idle time preserve progress"),Patch->Healing,Saved);

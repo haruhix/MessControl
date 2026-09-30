@@ -5,6 +5,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCExpressionComponent.h"
 #include "MCToothStatusComponent.h"
+#include "MCInventoryComponent.h"
 #include "MCFoodActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -462,9 +463,14 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     }
     const bool Emote=Tooth->Expression && Tooth->Expression->BodyAlpha()>.001f;
     const bool Swimming=Tooth->AnimationSwim>.05f || Tooth->AnimationClimb>.05f;
-    const bool ToolSwing=!Tooth->AnimationToolOffset.IsNearlyZero();
+    const bool ToolPresented=Tooth->Inventory && Tooth->Inventory->ShouldPresentTool();
+    const bool ToolSwing=ToolPresented && !Tooth->AnimationToolOffset.IsNearlyZero();
+    // The wrist pose keeps the pickaxe outside collision surfaces even between
+    // swings. Physical arm blending would overwrite that corrected pose.
+    const bool Pickaxe=ToolPresented && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe;
+    const bool Spraying=Tooth->Inventory && Tooth->Inventory->Selected==EMCToolSlot::Spray && Tooth->Inventory->HealingTarget;
     Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || Emote || Swimming || ToolSwing,
-        HandAlpha[1]>.001f || Emote || Swimming || ToolSwing || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting()));
+        HandAlpha[1]>.001f || Emote || Swimming || ToolSwing || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting()));
 }
 bool UMCGripComponent::BeginPlayerGrip(AMCToothCharacter* Player)
 {

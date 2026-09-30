@@ -1,6 +1,7 @@
 ﻿#include "MCValidationSubsystem.h"
 #include "MCGripComponent.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
@@ -36,13 +37,15 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     AMCTongue* Tongue=nullptr; for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
     if (!GS || !PC || !Tongue) { if (Age>60) FPlatformMisc::RequestExitWithStatus(false,1); return; }
     const bool Host=GetWorld()->GetNetMode()!=NM_Client;
+    static TWeakObjectPtr<UWorld> PickaxeWorld;static uint8 HiddenPickaxeContacts=0;
+    if(PickaxeWorld!=GetWorld()) {PickaxeWorld=GetWorld();HiddenPickaxeContacts=0;}
     const bool Capture=Host && FParse::Param(FCommandLine::Get(),TEXT("MCGripCapture"));
     const FString Folder=FPaths::ProjectSavedDir()/TEXT("GripFrames");
     auto Finish=[&]()
     {
-        const bool Pass=DevSeen==1048575 && !bTongueInvalid;
+        const bool Pass=DevSeen==1048575 && HiddenPickaxeContacts==15 && !bTongueInvalid;
         if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(Folder/TEXT("times.csv")));
-        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GRIP net=%d seen=%d error=%.2f ready=%.1f/%.1f/%.1f/%.1f invalid=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,GripWorstError,GripReadySeconds[0],GripReadySeconds[1],GripReadySeconds[2],GripReadySeconds[3],bTongueInvalid);
+        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GRIP net=%d seen=%d hidden_pickaxe_contacts=%d error=%.2f ready=%.1f/%.1f/%.1f/%.1f invalid=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,int32(HiddenPickaxeContacts),GripWorstError,GripReadySeconds[0],GripReadySeconds[1],GripReadySeconds[2],GripReadySeconds[3],bTongueInvalid);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     };
     TArray<AMCToothCharacter*> Heroes;
@@ -82,6 +85,9 @@ void UMCValidationSubsystem::TickGrip(float Dt)
                 if (auto* Status=It->FindComponentByClass<UMCToothStatusComponent>()) Status->Initialize(Status->State.MaxHealth);
             for (int32 I=0;I<4;++I)
             {
+                // The selected but hidden tool must not overwrite real food
+                // contacts in any carry, push or pull pose on any peer.
+                Heroes[I]->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
                 const FVector Point(I<2?-250:250,I%2==0?-160:160,0); FHitResult Hit; Tongue->SurfacePoint(Point,Hit);
                 const FTransform T(Hit.ImpactPoint+FVector(0,0,I==2?26:51));
                 auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
@@ -193,6 +199,11 @@ void UMCValidationSubsystem::TickGrip(float Dt)
         }
         if (Grip->IsReady() && Grip->Blend()>.99f && Grip->Frame.Food && T>4.3f && T<12)
         {
+            const auto* Inventory=Heroes[I]->Inventory.Get();
+            const bool HiddenSafe=Inventory->Selected==EMCToolSlot::Pickaxe && !Inventory->ShouldPresentTool()
+                && Inventory->ConstrainPickaxeGrip(Heroes[I]->GetMesh()->GetSocketTransform(Heroes[I]->RigBone(TEXT("hand_r")))).IsNearlyZero();
+            bTongueInvalid|=!HiddenSafe;
+            if(HiddenSafe && Grip->ContactError()<=12) HiddenPickaxeContacts|=uint8(1u<<I);
             GripWorstError=FMath::Max(GripWorstError,Grip->ContactError());
             // A delayed transform can briefly precede its matching pose on a client.
             // Fail a sustained detached hand, while retaining the raw peak in the log.
