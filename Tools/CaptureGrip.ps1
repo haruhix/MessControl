@@ -1,7 +1,7 @@
-﻿param([string]$EngineRoot=$env:UE_ROOT,[string]$FFmpeg='C:\ffmpeg\ffmpeg.exe',[switch]$ReuseFrames)
+param([string]$EngineRoot=$env:UE_ROOT,[string]$FFmpeg='C:\ffmpeg\ffmpeg.exe',[switch]$ReuseFrames,[ValidatePattern('^[A-Za-z][A-Za-z0-9_-]*$')][string]$OutputName='Grip')
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
-$taskName='Grip'
+$taskName=$OutputName
 $taskFolder='GripFrames'
 $taskMode='GripNetwork'
 $taskFrames=Join-Path $taskRoot ('Saved\'+$taskFolder)
@@ -37,7 +37,7 @@ Style: Default,Arial,27,&H00FFFFFF,&H00FFFFFF,&H00202020,&H80202020,0,0,0,0,100,
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 Dialogue: 0,0:00:00.00,0:00:03.00,Default,,0,0,0,,01  Две руки: подвод к поверхности
 Dialogue: 0,0:00:03.00,0:00:06.00,Default,,0,0,0,,02  Толкание перед собой
-Dialogue: 0,0:00:06.00,0:00:09.00,Default,,0,0,0,,03  Два маленьких предмета: по одному в каждой руке
+Dialogue: 0,0:00:06.00,0:00:09.00,Default,,0,0,0,,03  Два маленьких предмета над головой: физические руки
 Dialogue: 0,0:00:09.00,0:00:12.00,Default,,0,0,0,,04  Тяга двумя руками за спиной
 Dialogue: 0,0:00:12.00,0:00:15.00,Default,,0,0,0,,05  Плавное отпускание
 Dialogue: 0,0:00:15.00,0:00:22.50,Default,,0,0,0,,06  Повторный хват, удар и ragdoll
@@ -48,6 +48,6 @@ try {
     & $FFmpeg -hide_banner -loglevel warning -y -f concat -safe 0 -i timing.txt -vf 'fps=30,subtitles=captions.ass' -c:v libx264 -crf 20 -pix_fmt yuv420p -movflags +faststart "$taskRoot\Artifacts\$taskName.mp4"
 } finally { Pop-Location }
 if ($LASTEXITCODE -ne 0) { throw 'Grip recording encoding failed.' }
-$taskCoverTime='3'
+$taskCoverTime=if($OutputName -eq 'ObjectGrip'){'7.5'}else{'3'}
 & $FFmpeg -hide_banner -loglevel warning -y -ss $taskCoverTime -i "$taskRoot\Artifacts\$taskName.mp4" -frames:v 1 -update 1 "$taskRoot\Artifacts\$taskName.png"
 if ($LASTEXITCODE -ne 0) { throw 'Grip cover failed.' }

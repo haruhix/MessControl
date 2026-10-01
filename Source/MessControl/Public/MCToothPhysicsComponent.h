@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MCPhysicsTypes.h"
+#include "PhysicsEngine/ConstraintInstance.h"
 #include "MCToothPhysicsComponent.generated.h"
 class AMCToothCharacter;
 class UPhysicsControlComponent;
@@ -29,7 +30,8 @@ public:
     void SaveTuning() const;
     void ResetTuning();
     void BuildPresentationPose(TArray<FTransform>& InOutPose) const;
-    void SetGripArms(bool Left,bool Right);
+    void SetGripArms(bool Left,bool Right,bool PhysicalLeft=false,bool PhysicalRight=false);
+    bool IsPhysicalObjectGrip(bool Left) const { return Left?bPhysicalGripLeft:bPhysicalGripRight; }
     EMCActiveRagdollMode GetActiveRagdollMode() const { return ActiveRagdollMode; }
     bool SetActiveRagdollMode(EMCActiveRagdollMode Mode);
     void SubmitAnimationTargets(const TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
@@ -45,6 +47,8 @@ private:
     void CaptureFrame();
     void SetMuscles(bool bEnable);
     void ConfigureStandingBody();
+    bool UsesActiveMuscles() const { return ActiveRagdollMode!=EMCActiveRagdollMode::Off || bPhysicalGripLeft || bPhysicalGripRight; }
+    void ConfigureGripConstraints();
     float ServerTime() const;
     UFUNCTION() void OnRep_Frame();
     UFUNCTION() void OnRep_Settings();
@@ -59,11 +63,16 @@ private:
     float LastHitTime = -10.f;
     float RecoveryInvulnerableUntil = 0.f;
     bool bGripLeft=false,bGripRight=false;
+    bool bPhysicalGripLeft=false,bPhysicalGripRight=false;
     float StandingPhysicsWeight=1;
     float ArmPhysicsWeights[2]={1,1};
     float ArmSettleSeconds[2]={0,0};
+    float GripReleaseSeconds[2]={0,0};
     FName BalanceControl;
     FTransform BalanceRest=FTransform::Identity;
     struct FJointTarget { FName Control,Role; int32 Parent=INDEX_NONE,Child=INDEX_NONE; };
     TArray<FJointTarget> JointTargets;
+    struct FGripJoint { FName Name,Role; FConstraintProfileProperties Profile; };
+    TArray<FGripJoint> GripJoints;
+    FName HandControls[2];
 };

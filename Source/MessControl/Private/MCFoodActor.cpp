@@ -143,7 +143,7 @@ bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
 bool AMCFoodActor::BeginCarry(AMCToothCharacter* Hero)
 {
     if (!HasAuthority() || !Hero || Holders.Num()!=1 || Holders[0]!=Hero || !Hero->Grip->IsReady(this) || !Hero->Grip->CanCarry(this)) return false;
-    Phase=EMCFoodPhase::Carried; CarryBlockedSeconds=0; OnRep_Phase();
+    Phase=EMCFoodPhase::Carried; Hero->Grip->BeginLift(this); CarryBlockedSeconds=0; OnRep_Phase();
     Body->IgnoreActorWhenMoving(Hero,true); Hero->GetCapsuleComponent()->IgnoreActorWhenMoving(this,true);
     ForceNetUpdate(); return true;
 }
@@ -189,6 +189,10 @@ void AMCFoodActor::Release(AMCToothCharacter* Hero)
     if(!bBrushTool) SpoilAt=HazardNow()+FoodData.SpoilSeconds;
     if (WasCarrier)
     {
+        // A newly released overhead load can brush its carrier on the way down.
+        // Use the existing impact grace period for that player; other targets
+        // still receive thrown/dropped impacts immediately.
+        if (IsValid(Hero)) LastHit.Add(Hero,GetWorld()->GetTimeSeconds());
         Phase=EMCFoodPhase::Free; OnRep_Phase();
         // Chaos already owns the carried velocity. Release preserves linear and angular momentum.
     }

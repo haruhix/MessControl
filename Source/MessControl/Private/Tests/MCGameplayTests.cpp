@@ -1719,6 +1719,57 @@ bool FMCExposedCoatingTest::RunTest(const FString&)
     TestTrue(TEXT("No hidden samples keep the cleaning task open"),Tooth->RemainingGrime()<.025f);
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPhysicalObjectGripTest,"MessControl.Grip.SizeBasedOverheadPhysicalHands",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPhysicalObjectGripTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=M.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(1500,1500,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    const FTransform T(FVector(0,0,26)); auto* Food=M.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
+    FMCFoodRow Row; Row.Mass=6; Row.SpoilSeconds=300;
+    Row.FragmentMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+    FRandomStream R(1); Food->ConfigureItem(TEXT("PhysicalLift"),Row,R,true); Food->FinishSpawning(T);
+    auto* H=M.Worker(); H->SetActorLocation(FVector(-68,0,61));
+    H->GetCharacterMovement()->bRunPhysicsWithNoController=true; H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    M.Step(.5f);
+    Food->Settings.Mass=24; Food->Body->SetMassOverrideInKg(NAME_None,24);
+    TestTrue(TEXT("Small heavy item still selects lifting"),H->Grip->CanCarry(Food));
+    Food->SetActorRotation(FRotator(25,43,65),ETeleportType::TeleportPhysics);
+    TestTrue(TEXT("Rotating the same small item retains the lift selection"),H->Grip->CanCarry(Food));
+    Food->SetActorRotation(FRotator::ZeroRotator,ETeleportType::TeleportPhysics);
+    Food->SetActorScale3D(FVector(3));
+    TestFalse(TEXT("The same mesh enlarged on the map selects drag"),H->Grip->CanCarry(Food));
+    Food->Settings.Mass=.5f;
+    TestFalse(TEXT("Making a large object light cannot select lifting"),H->Grip->CanCarry(Food));
+    Food->SetActorScale3D(FVector(1)); Food->Settings.Mass=24;
+    H->bHandling=true;
+    if(!TestTrue(TEXT("Small heavy item acquires a surface grip"),Food->TryGrab(H))) return false;
+    TestTrue(TEXT("Reaching does not lift before contact"),H->Grip->DriveForce(Food).IsNearlyZero() && Food->Phase!=EMCFoodPhase::Carried);
+    for(int32 I=0;I<90 && Food->Phase!=EMCFoodPhase::Carried;++I) M.Step(1.f/60);
+    TestEqual(TEXT("Physical contact accepts the load"),Food->Phase,EMCFoodPhase::Carried);
+    TestTrue(TEXT("Lift begins at the existing object position"),H->Grip->LiftAlpha(Food)<.05f && FVector::Dist(H->Grip->CarryLocation(Food),Food->GetActorLocation())<8);
+    M.Step(2);
+    const bool Left=H->Grip->Frame.Pose==EMCGripPose::LeftHand;
+    auto* Mesh=H->GetMesh(); auto* Hand=Mesh->GetBodyInstance(H->RigBone(Left?TEXT("hand_l"):TEXT("hand_r")));
+    TestTrue(TEXT("Held hand is fully simulated and visible"),H->ToothPhysics->IsPhysicalObjectGrip(Left) && Hand && Hand->IsInstanceSimulatingPhysics() && Hand->PhysicsBlendWeight>.99f);
+    TestTrue(*FString::Printf(TEXT("Held physical palm stays on the surface: %.2f cm"),H->Grip->ContactError()),H->Grip->ContactError()<8);
+    const float Crown=Mesh->GetSkeletalMeshAsset()->GetImportedBounds().GetBox().TransformBy(Mesh->GetComponentTransform()).Max.Z+3;
+    TestTrue(*FString::Printf(TEXT("Object bottom clears the actual character mesh: bottom %.1f, crown %.1f"),Food->Body->Bounds.GetBox().Min.Z,Crown),
+        Food->Body->Bounds.GetBox().Min.Z>Crown);
+    auto* Motors=H->FindComponentByClass<UPhysicsControlComponent>();
+    TestTrue(TEXT("A finite palm motor drives contact"),Motors && Motors->GetControlEnabled(Motors->GetControlNamesInSet(TEXT("GripPalms"))[Left?0:1]));
+    for(const auto Mode:{EMCActiveRagdollMode::Soft,EMCActiveRagdollMode::Firm,EMCActiveRagdollMode::Off}) {
+        H->ToothPhysics->SetActiveRagdollMode(Mode); M.Step(.3f);
+        TestTrue(TEXT("Changing free-locomotion muscles preserves the overhead contact"),
+            H->Grip->Holds(Food) && H->Grip->ContactError()<8 && H->ToothPhysics->GetBodyState()==EMCBodyState::Standing);
+    }
+    Food->Release(H); H->bHandling=false; M.Step(.9f);
+    TestEqual(TEXT("Dropping an overhead load does not knock down its carrier"),H->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+    const auto* Joint=Mesh->FindConstraintInstance(H->RigBone(Left?TEXT("arm_l"):TEXT("arm_r")));
+    TestTrue(TEXT("Release restores original joint limits"),Joint && Joint->GetLinearXMotion()==LCM_Locked && Joint->GetAngularSwing1Motion()==ACM_Limited);
+    TestTrue(TEXT("Release disables palm servos and restores locomotion root"),!Motors->GetControlEnabled(Motors->GetControlNamesInSet(TEXT("GripPalms"))[Left?0:1]) && Mesh->IsSimulatingPhysics(H->RigBone(TEXT("body"))));
+    return true;
+}
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatCameraTest,"MessControl.Throat.CameraWaitsForSpit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCThroatCameraTest::RunTest(const FString&)
 {

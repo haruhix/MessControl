@@ -2,6 +2,7 @@ Binaries/
 DerivedDataCache/
 Intermediate/
 Saved/
+.codebase-memory/
 .vs/
 .idea/
 *.sln

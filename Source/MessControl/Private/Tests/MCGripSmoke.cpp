@@ -13,6 +13,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "PhysicsEngine/BodyInstance.h"
+#include "PhysicsControlComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
@@ -20,6 +21,7 @@
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/SkeletalMesh.h"
 #include "EngineUtils.h"
 #include "UnrealClient.h"
 #include "Misc/Paths.h"
@@ -37,15 +39,15 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     AMCTongue* Tongue=nullptr; for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
     if (!GS || !PC || !Tongue) { if (Age>60) FPlatformMisc::RequestExitWithStatus(false,1); return; }
     const bool Host=GetWorld()->GetNetMode()!=NM_Client;
-    static TWeakObjectPtr<UWorld> PickaxeWorld;static uint8 HiddenPickaxeContacts=0;
-    if(PickaxeWorld!=GetWorld()) {PickaxeWorld=GetWorld();HiddenPickaxeContacts=0;}
+    static TWeakObjectPtr<UWorld> PickaxeWorld;static uint8 HiddenPickaxeContacts=0,PhysicalHandCases=0; static bool OverheadSeen=false;
+    if(PickaxeWorld!=GetWorld()) {PickaxeWorld=GetWorld();HiddenPickaxeContacts=PhysicalHandCases=0;OverheadSeen=false;}
     const bool Capture=Host && FParse::Param(FCommandLine::Get(),TEXT("MCGripCapture"));
     const FString Folder=FPaths::ProjectSavedDir()/TEXT("GripFrames");
     auto Finish=[&]()
     {
-        const bool Pass=DevSeen==1048575 && HiddenPickaxeContacts==15 && !bTongueInvalid;
+        const bool Pass=DevSeen==1048575 && HiddenPickaxeContacts==15 && PhysicalHandCases==15 && OverheadSeen && !bTongueInvalid;
         if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(Folder/TEXT("times.csv")));
-        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GRIP net=%d seen=%d hidden_pickaxe_contacts=%d error=%.2f ready=%.1f/%.1f/%.1f/%.1f invalid=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,int32(HiddenPickaxeContacts),GripWorstError,GripReadySeconds[0],GripReadySeconds[1],GripReadySeconds[2],GripReadySeconds[3],bTongueInvalid);
+        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GRIP net=%d seen=%d hidden_pickaxe_contacts=%d physical_hands=%d overhead=%d error=%.2f ready=%.1f/%.1f/%.1f/%.1f invalid=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,int32(HiddenPickaxeContacts),int32(PhysicalHandCases),OverheadSeen,GripWorstError,GripReadySeconds[0],GripReadySeconds[1],GripReadySeconds[2],GripReadySeconds[3],bTongueInvalid);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     };
     TArray<AMCToothCharacter*> Heroes;
@@ -109,7 +111,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
                 CoffeeCamera=GetWorld()->SpawnActor<ACameraActor>(); CoffeeCamera->GetCameraComponent()->SetFieldOfView(52); PC->SetViewTarget(CoffeeCamera);
                 IFileManager::Get().MakeDirectory(*Folder,true);
                 for (TActorIterator<AActor> It(GetWorld());It;++It)
-                { TArray<UTextRenderComponent*> Labels; It->GetComponents(Labels); for (auto* Label:Labels) Label->SetVisibility(false); }
+                { TArray<UTextRenderComponent*> Labels; It->GetComponents(Labels); for (auto* Label:Labels) Label->SetHiddenInGame(true); }
             }
             ++DevStage;
         }
@@ -199,6 +201,17 @@ void UMCValidationSubsystem::TickGrip(float Dt)
         }
         if (Grip->IsReady() && Grip->Blend()>.99f && Grip->Frame.Food && T>4.3f && T<12)
         {
+            auto* Physics=Heroes[I]->ToothPhysics.Get(); auto* Mesh=Heroes[I]->GetMesh();
+            bool Physical=!Mesh->IsSimulatingPhysics(Heroes[I]->RigBone(TEXT("body")));
+            for(int32 Hand=0;Hand<2;++Hand) if(Grip->HandOccupied(Hand==0)) {
+                auto* Body=Mesh->GetBodyInstance(Heroes[I]->RigBone(Hand==0?TEXT("hand_l"):TEXT("hand_r")));
+                Physical&=Physics->IsPhysicalObjectGrip(Hand==0) && Body && Body->IsInstanceSimulatingPhysics() && Body->PhysicsBlendWeight>.99f;
+            }
+            if(Physical) PhysicalHandCases|=uint8(1u<<I);
+            if(I==2 && Second && T>4.5f) {
+                const float Crown=Mesh->GetSkeletalMeshAsset()->GetImportedBounds().GetBox().TransformBy(Mesh->GetComponentTransform()).Max.Z+3;
+                OverheadSeen|=Food[I]->Body->Bounds.GetBox().Min.Z>Crown && Second->Body->Bounds.GetBox().Min.Z>Crown;
+            }
             const auto* Inventory=Heroes[I]->Inventory.Get();
             const bool HiddenSafe=Inventory->Selected==EMCToolSlot::Pickaxe && !Inventory->ShouldPresentTool()
                 && Inventory->ConstrainPickaxeGrip(Heroes[I]->GetMesh()->GetSocketTransform(Heroes[I]->RigBone(TEXT("hand_r")))).IsNearlyZero();
@@ -219,7 +232,13 @@ void UMCValidationSubsystem::TickGrip(float Dt)
         if (Released) DevSeen|=4096;
     }
     if (T>17 && Heroes[1]->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll && !Heroes[1]->HeldFood && !Heroes[1]->Grip->Frame.Food) DevSeen|=8192;
-    if (T>20 && (DevSeen&8192) && Heroes[1]->ToothPhysics->CanAct()) DevSeen|=16384;
+    if (T>20 && (DevSeen&8192) && Heroes[1]->ToothPhysics->CanAct()) {
+        auto* Hero=Heroes[1]; auto* Motors=Hero->FindComponentByClass<UPhysicsControlComponent>(); FPhysicsControlData Data;
+        const auto Names=Motors?Motors->GetControlNamesInSet(TEXT("arm_l")):TArray<FName>();
+        if(!Names.IsEmpty() && Motors->GetControlData(Names[0],Data) && Data.bUseSkeletalAnimation
+            && !Hero->ToothPhysics->IsPhysicalObjectGrip(true) && !Hero->ToothPhysics->IsPhysicalObjectGrip(false)
+            && Hero->GetMesh()->IsSimulatingPhysics(Hero->RigBone(TEXT("body")))) DevSeen|=16384;
+    }
     for (auto* Hero:Heroes) bTongueInvalid|=Hero->GetActorLocation().ContainsNaN() || Hero->GetActorLocation().Z<-250;
     if (Capture && T>=0 && T<22)
     {

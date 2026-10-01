@@ -111,7 +111,7 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Перец — таймер и красная волна"),TEXT("Настоящий предмет из таблицы. Проглоти до детонации; от волны можно перепрыгнуть."),EMCDevAction::SpicyPepper);
     AddAction(Actions,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);
     AddAction(Actions,TEXT("Рвота — испорченный заказ"),TEXT("Два куска в круге. Space — увула: глотка выплюнет заказ со струёй и брызгами. Пятна на языке очищаются щёткой."),EMCDevAction::VomitMeal);
-    AddAction(Actions,TEXT("Руки — хват, тяга и толкание"),TEXT("Большой куб для тяги и маленький для переноски. Держи ЛКМ и двигайся. Дистанция, масса переноски и руки — DA_Grip."),EMCDevAction::GripPractice);
+    AddAction(Actions,TEXT("Руки — хват, тяга и толкание"),TEXT("Большой куб для толкания и тяги, два маленьких для подъёма над головой. Выбор по размеру на карте. Держи ЛКМ и двигайся."),EMCDevAction::GripPractice);
     AddAction(Actions,TEXT("Движение — липкий участок"),TEXT("Создать участок под ногами для проверки усилия и бега с Shift."),EMCDevAction::LocomotionGround,1);
     AddAction(Actions,TEXT("Движение — скользкий участок"),TEXT("Проверить инерцию, торможение и тягу при слабом сцеплении."),EMCDevAction::LocomotionGround,2);
     AddAction(Actions,TEXT("Движение — убрать участок"),TEXT("Вернуть исходные свойства пола."),EMCDevAction::LocomotionGround,0);

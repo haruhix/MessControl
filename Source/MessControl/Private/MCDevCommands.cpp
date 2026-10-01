@@ -162,7 +162,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
                 Row.FragmentMeshes=Row.WholeMeshes; Row.Label=FText::FromString(TEXT("CARRY PRACTICE"));
                 Small->ConfigureItem(TEXT("CarryPractice"),Row,GripRandom,true); Small->Tags.Add(TEXT("DevGripFood")); Small->FinishSpawning(SmallT);
             }
-            return FText::FromString(TEXT("Держи ЛКМ: большой куб волочится, два маленьких занимают руки автоматически. WASD — движение, отпустить ЛКМ — сбросить оба, Q — бросить. Настройки — DA_Grip."));
+            return FText::FromString(TEXT("Держи ЛКМ: большой куб толкается или тянется, два маленьких поднимаются над головой. Выбор по размеру на карте. WASD — движение, отпустить ЛКМ — сбросить оба, Q — бросить."));
         }
         return FText::FromString(TEXT("Нужны игрок и подвижный язык."));
     case EMCDevAction::TongueWeightToggle:

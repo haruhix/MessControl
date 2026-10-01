@@ -53,7 +53,20 @@ void UMCToothPhysicsComponent::BeginPlay()
                 int32 Parent=Skeleton.GetParentIndex(Child);
                 while(Parent>=0 && Asset->FindBodyIndex(Skeleton.GetBoneName(Parent))==INDEX_NONE) Parent=Skeleton.GetParentIndex(Parent);
                 if(Parent>=0 && Controls.IsValidIndex(ControlIndex)) JointTargets.Add({Controls[ControlIndex++],Role,Parent,Child});
+                if((Role==TEXT("arm_l") || Role==TEXT("arm_r")))
+                    if(auto* Joint=Tooth->GetMesh()->FindConstraintInstance(Skeleton.GetBoneName(Child)))
+                        GripJoints.Add({Joint->JointName,Role,Joint->ProfileInstance});
             });
+        }
+        // Dedicated palm servos keep contact with a moving prop while the elbow
+        // motors retain a procedural bend. Both act on real simulated bodies.
+        FPhysicsControlData Palm; Palm.bUseSkeletalAnimation=false; Palm.bDisableCollision=true; Palm.bOnlyControlChildObject=true;
+        Palm.LinearStrength=24; Palm.LinearDampingRatio=1.1f; Palm.MaxForce=14000;
+        Palm.AngularStrength=22; Palm.AngularDampingRatio=1; Palm.MaxTorque=350000;
+        for(int32 I=0;I<2;++I) {
+            HandControls[I]=Muscles->CreateControl(Tooth->GetMesh(),Tooth->RigBone(TEXT("body")),Tooth->GetMesh(),
+                Tooth->RigBone(I==0?TEXT("hand_l"):TEXT("hand_r")),Palm,FPhysicsControlTarget(),TEXT("GripPalms"));
+            Muscles->SetControlEnabled(HandControls[I],false);
         }
         // Newly spawned actors can be created after the mesh tick this frame. Prime the cache
         // before the first control update so targets never read an empty skeleton buffer.
@@ -85,7 +98,9 @@ void UMCToothPhysicsComponent::SetMuscles(bool bEnable)
 {
     if (Muscles) {
         Muscles->SetControlsInSetEnabled(TEXT("Limbs"),bEnable);
-        Muscles->SetControlsInSetEnabled(TEXT("Balance"),bEnable && ActiveRagdollMode==EMCActiveRagdollMode::Off);
+        Muscles->SetControlsInSetEnabled(TEXT("Balance"),bEnable && !UsesActiveMuscles());
+        Muscles->SetControlEnabled(HandControls[0],bEnable && bPhysicalGripLeft);
+        Muscles->SetControlEnabled(HandControls[1],bEnable && bPhysicalGripRight);
     }
 }
 void UMCToothPhysicsComponent::ConfigureStandingBody()
@@ -93,7 +108,7 @@ void UMCToothPhysicsComponent::ConfigureStandingBody()
     if(!Tooth || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) return;
     // The reference leaves the pelvis kinematic: locomotion supplies the stable
     // root, while muscles drive the simulated limbs. Full-body falls stay physical.
-    const bool Active=ActiveRagdollMode!=EMCActiveRagdollMode::Off;
+    const bool Active=UsesActiveMuscles();
     if(auto* Body=Tooth->GetMesh()->GetBodyInstance(Tooth->RigBone(TEXT("body")))) {
         if(Body->IsInstanceSimulatingPhysics()==Active) Body->SetInstanceSimulatePhysics(!Active,true,true);
         if(Active) Body->PhysicsBlendWeight=0;
@@ -104,7 +119,7 @@ void UMCToothPhysicsComponent::OnRep_Settings()
     Settings.Sanitize(); if (!Tooth) return;
     if (Muscles)
     {
-        const bool Active=ActiveRagdollMode!=EMCActiveRagdollMode::Off;
+        const bool Active=UsesActiveMuscles();
         const bool Soft=ActiveRagdollMode==EMCActiveRagdollMode::Soft;
         FPhysicsControlData Data; Data.AngularStrength=Settings.MuscleStrength; Data.AngularDampingRatio=Settings.Damping;
         Data.bDisableCollision=true; Data.bOnlyControlChildObject=true;
@@ -126,8 +141,19 @@ void UMCToothPhysicsComponent::OnRep_Settings()
         Muscles->SetControlData(BalanceControl,Balance);
         ConfigureStandingBody();
         SetMuscles(LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy);
-        if(bGripLeft) Muscles->SetControlsInSetEnabled(TEXT("arm_l"),false);
-        if(bGripRight) Muscles->SetControlsInSetEnabled(TEXT("arm_r"),false);
+        for(int32 I=0;I<2;++I) {
+            const bool Physical=I==0?bPhysicalGripLeft:bPhysicalGripRight;
+            const bool Occupied=I==0?bGripLeft:bGripRight;
+            const FName Role=I==0?TEXT("arm_l"):TEXT("arm_r");
+            if(Physical) {
+                FPhysicsControlData Grip=Data; Grip.AngularStrength=Settings.MuscleStrength*1.5f;
+                Grip.LinearStrength=12; Grip.LinearDampingRatio=1.1f; Grip.MaxForce=9000;
+                Grip.bUseSkeletalAnimation=false;
+                Muscles->SetControlDatasInSet(Role,Grip);
+            }
+            Muscles->SetControlsInSetEnabled(Role,LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy && (!Occupied || Physical));
+        }
+        ConfigureGripConstraints();
     }
     if (const auto* Asset=Tooth->GetMesh()->GetPhysicsAsset())
         for (const USkeletalBodySetup* Body:Asset->SkeletalBodySetups)
@@ -145,6 +171,11 @@ bool UMCToothPhysicsComponent::SetActiveRagdollMode(EMCActiveRagdollMode Mode)
 void UMCToothPhysicsComponent::OnRep_ActiveRagdollMode()
 {
     if(!Tooth || !Muscles) return;
+    // Free-locomotion tuning must not reset a palm already supporting a load.
+    // The next animation update continues to supply its procedural grip target.
+    if(LocalState==EMCBodyState::Standing && (bPhysicalGripLeft || bPhysicalGripRight)) {
+        OnRep_Settings(); return;
+    }
     // Reset explicit targets before handing the pose back to the animation cache.
     for(const auto& Joint:JointTargets) Muscles->SetControlTarget(Joint.Control,FPhysicsControlTarget(),false);
     FPhysicsControlTarget Target; Target.TargetPosition=BalanceRest.GetLocation(); Target.TargetOrientation=BalanceRest.Rotator();
@@ -155,14 +186,50 @@ void UMCToothPhysicsComponent::OnRep_ActiveRagdollMode()
 }
 void UMCToothPhysicsComponent::SubmitAnimationTargets(const TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt)
 {
-    if(!Tooth || !Muscles || ActiveRagdollMode==EMCActiveRagdollMode::Off || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) return;
+    if(!Tooth || !Muscles || !UsesActiveMuscles() || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) return;
     TArray<FTransform> CS; CS.SetNum(Pose.Num());
     for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
+    auto GripTarget=[&](FName Name,const FTransform& Parent,const FTransform& Child) {
+        FTransform Goal=Child.GetRelativeTransform(Parent); FPhysicsControlTarget Previous;
+        if(Dt>0 && Muscles->GetControlTarget(Name,Previous)) {
+            // A finite reach speed prevents a corner regrip or replication update
+            // from turning a palm servo into an instantaneous impulse.
+            const FVector P=Previous.TargetPosition;
+            Goal.SetLocation(P+(Goal.GetLocation()-P).GetClampedToMaxSize(200.f*Dt));
+            const FQuat Q=Previous.TargetOrientation.Quaternion(); const float Angle=Q.AngularDistance(Goal.GetRotation());
+            Goal.SetRotation(FQuat::Slerp(Q,Goal.GetRotation(),Angle>.001f?FMath::Min(1.f,6.f*Dt/Angle):1.f).GetNormalized());
+        }
+        const FTransform World=Goal*Parent;
+        Muscles->SetControlTargetPoses(Name,Parent.GetLocation(),Parent.Rotator(),World.GetLocation(),World.Rotator(),Dt,true);
+    };
     for(const auto& Joint:JointTargets) {
         const bool Occupied=Joint.Role==TEXT("arm_l")?bGripLeft:Joint.Role==TEXT("arm_r") && bGripRight;
-        if(Occupied || !CS.IsValidIndex(Joint.Child) || !CS.IsValidIndex(Joint.Parent)) continue;
-        Muscles->SetControlTargetPoses(Joint.Control,CS[Joint.Parent].GetLocation(),CS[Joint.Parent].Rotator(),
-            CS[Joint.Child].GetLocation(),CS[Joint.Child].Rotator(),Dt,true);
+        const bool Physical=Joint.Role==TEXT("arm_l")?bPhysicalGripLeft:Joint.Role==TEXT("arm_r") && bPhysicalGripRight;
+        if((Occupied && !Physical) || !CS.IsValidIndex(Joint.Child) || !CS.IsValidIndex(Joint.Parent)) continue;
+        if(Physical) GripTarget(Joint.Control,CS[Joint.Parent],CS[Joint.Child]);
+        else Muscles->SetControlTargetPoses(Joint.Control,CS[Joint.Parent].GetLocation(),CS[Joint.Parent].Rotator(),
+                CS[Joint.Child].GetLocation(),CS[Joint.Child].Rotator(),Dt,true);
+    }
+    const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+    if(!CS.IsValidIndex(Body)) return;
+    for(int32 I=0;I<2;++I) if(I==0?bPhysicalGripLeft:bPhysicalGripRight) {
+        const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(I==0?TEXT("hand_l"):TEXT("hand_r")));
+        if(CS.IsValidIndex(Hand)) GripTarget(HandControls[I],CS[Body],CS[Hand]);
+    }
+}
+void UMCToothPhysicsComponent::ConfigureGripConstraints()
+{
+    if(!Tooth) return;
+    for(const auto& Saved:GripJoints) if(auto* Joint=Tooth->GetMesh()->FindConstraintInstance(Saved.Name)) {
+        Joint->CopyProfilePropertiesFrom(Saved.Profile);
+        const bool Active=LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy
+            && (Saved.Role==TEXT("arm_l")?bPhysicalGripLeft:bPhysicalGripRight);
+        if(Active) {
+            // The artist's compact floating hands need bounded extension for
+            // overhead lifts. Saved constraints are restored on release/fall.
+            Joint->SetLinearLimits(LCM_Limited,LCM_Limited,LCM_Limited,36);
+            Joint->SetAngularSwing1Motion(ACM_Free); Joint->SetAngularSwing2Motion(ACM_Free); Joint->SetAngularTwistMotion(ACM_Free);
+        }
     }
 }
 void UMCToothPhysicsComponent::SetTuning(FMCPhysicsSettings NewSettings)
@@ -195,6 +262,7 @@ void UMCToothPhysicsComponent::EnterRagdoll()
     auto* Mesh=Tooth->GetMesh();
     Mesh->PhysicsTransformUpdateMode=EPhysicsTransformUpdateMode::SimulationUpatesComponentTransform;
     SetMuscles(false); Mesh->SetAllBodiesSimulatePhysics(false);
+    ConfigureGripConstraints();
     Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
     Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Block);
     Mesh->SetMorphTarget(TEXT("Squash"),0); Mesh->SetMorphTarget(TEXT("Stretch"),0);
@@ -305,24 +373,55 @@ void UMCToothPhysicsComponent::EnterStanding()
     Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
     Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,true);
     Mesh->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(TEXT("body")),1.f,false,true);
-    bGripLeft=bGripRight=false; StandingPhysicsWeight=1; ArmPhysicsWeights[0]=ArmPhysicsWeights[1]=1;
-    ConfigureStandingBody(); SetMuscles(true); DisplayPose.Reset();
+    bGripLeft=bGripRight=bPhysicalGripLeft=bPhysicalGripRight=false; StandingPhysicsWeight=1; ArmPhysicsWeights[0]=ArmPhysicsWeights[1]=1;
+    ConfigureGripConstraints();
+    OnRep_ActiveRagdollMode(); DisplayPose.Reset();
     ArmSettleSeconds[0]=ArmSettleSeconds[1]=0;
+    GripReleaseSeconds[0]=GripReleaseSeconds[1]=0;
     auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
     Tooth->GetCharacterMovement()->SetMovementMode(Movement && Movement->DeepWaterAt(Tooth->GetActorLocation(),true)?MOVE_Swimming:MOVE_Walking); Tooth->SetReplicateMovement(true);
     RecoveryInvulnerableUntil=ServerTime()+0.6f;
 }
-void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
+void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLeft,bool PhysicalRight)
 {
-    if (!Tooth || LocalState!=EMCBodyState::Standing) { bGripLeft=bGripRight=false; return; }
-    // Contact IK is authored in the animated torso space. A second post-animation
-    // torso displacement would move both solved hands away from their anchors.
-    // Keep simulating balance, but use the contact pose while hands are occupied.
-    // Keep the torso and legs in the same presentation space. Fully physical
-    // legs under an animated, reaching torso fought the foot IK and popped at
-    // every contact transition. Chaos still simulates their mass and constraints.
-    const bool Active=ActiveRagdollMode!=EMCActiveRagdollMode::Off;
-    const float Goal=Left || Right?0.f:Active?1.f:.25f;
+    if (!Tooth || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) { bGripLeft=bGripRight=bPhysicalGripLeft=bPhysicalGripRight=false; return; }
+    PhysicalLeft&=Left; PhysicalRight&=Right;
+    bool* Requested[]={&PhysicalLeft,&PhysicalRight}; const bool Occupied[]={Left,Right};
+    for(int32 I=0;I<2;++I) {
+        const bool WasPhysical=I==0?bPhysicalGripLeft:bPhysicalGripRight;
+        if(*Requested[I]) GripReleaseSeconds[I]=.48f;
+        else if(!Occupied[I] && WasPhysical && GripReleaseSeconds[I]>0) {
+            GripReleaseSeconds[I]=FMath::Max(0.f,GripReleaseSeconds[I]-GetWorld()->GetDeltaSeconds());
+            *Requested[I]=true;
+        } else GripReleaseSeconds[I]=0;
+    }
+    if(bPhysicalGripLeft!=PhysicalLeft || bPhysicalGripRight!=PhysicalRight) {
+        if(bPhysicalGripLeft && !PhysicalLeft) ArmSettleSeconds[0]=.18f;
+        if(bPhysicalGripRight && !PhysicalRight) ArmSettleSeconds[1]=.18f;
+        if(Muscles) for(int32 I=0;I<2;++I) if((I==0?PhysicalLeft && !bPhysicalGripLeft:PhysicalRight && !bPhysicalGripRight)) {
+            const FName Role=I==0?TEXT("arm_l"):TEXT("arm_r");
+            const auto* Mesh=Tooth->GetMesh(); const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();
+            for(const auto& Joint:JointTargets) if(Joint.Role==Role) {
+                const FTransform Parent=Mesh->GetSocketTransform(Ref.GetBoneName(Joint.Parent));
+                const FTransform Child=Mesh->GetSocketTransform(Ref.GetBoneName(Joint.Child));
+                Muscles->SetControlTargetPoses(Joint.Control,Parent.GetLocation(),Parent.Rotator(),Child.GetLocation(),Child.Rotator(),0,true);
+            }
+            const FTransform Body=Mesh->GetSocketTransform(Tooth->RigBone(TEXT("body")));
+            const FTransform Hand=Mesh->GetSocketTransform(Tooth->RigBone(I==0?TEXT("hand_l"):TEXT("hand_r")));
+            Muscles->SetControlTargetPoses(HandControls[I],Body.GetLocation(),Body.Rotator(),Hand.GetLocation(),Hand.Rotator(),0,true);
+        }
+        bPhysicalGripLeft=PhysicalLeft; bPhysicalGripRight=PhysicalRight;
+        // Reaching with the second hand must not reset the first hand's motor
+        // to reference pose. Reset offsets only when returning to the cache.
+        if(!UsesActiveMuscles() && Muscles)
+            for(const auto& Joint:JointTargets) Muscles->SetControlTarget(Joint.Control,FPhysicsControlTarget(),false);
+        OnRep_Settings();
+    }
+    // Contact targets share the animated torso and foot-IK space. The root stays
+    // kinematic during an object grip; physical legs remain hidden while reaching
+    // so they cannot fight the foot contacts. Their mass and constraints still simulate.
+    const bool Active=UsesActiveMuscles();
+    const float Goal=Left || Right || bPhysicalGripLeft || bPhysicalGripRight?0.f:Active?1.f:.25f;
     // Let the physical pose settle before revealing it after release. A quick
     // drop/reacquire otherwise exposes the lagging feet for a few frames.
     const float BlendRate=Goal==0?16.f:6.f;
@@ -335,20 +434,19 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
     for (int32 I=0;I<2;++I)
     {
         const FName Role=I==0?TEXT("arm_l"):TEXT("arm_r");
-        // A reaching hand can leave the physical joint's range. Making it
-        // kinematic drags the simulated torso through that constraint and shakes
-        // the OTHER hand. Keep the hidden limb dynamic, with its motor released;
-        // only the rendered pose follows the contact. No body changes ownership.
+        // Object contacts keep the limb simulated and driven. Precision tools
+        // use the authored contact pose while the hidden physical limb settles.
         if (*Flags[I]!=Values[I])
         {
-            if (Muscles) Muscles->SetControlsInSetEnabled(Role,!Values[I]);
+            if (Muscles) Muscles->SetControlsInSetEnabled(Role,!Values[I] || (I==0?bPhysicalGripLeft:bPhysicalGripRight));
             // Releasing a stretched contact changes the cached motor target.
             // Give the dynamic limb time to settle before making it visible.
             ArmSettleSeconds[I]=Values[I]?0.f:.18f;
             *Flags[I]=Values[I];
         }
         ArmSettleSeconds[I]=FMath::Max(0.f,ArmSettleSeconds[I]-GetWorld()->GetDeltaSeconds());
-        const float ArmGoal=Values[I] || ArmSettleSeconds[I]>0?0.f:Active?1.f:.7f;
+        const bool Physical=I==0?bPhysicalGripLeft:bPhysicalGripRight;
+        const float ArmGoal=Physical?1.f:Values[I] || ArmSettleSeconds[I]>0?0.f:Active?1.f:.7f;
         ArmPhysicsWeights[I]=FMath::Lerp(ArmPhysicsWeights[I],ArmGoal,1.f-FMath::Exp(-(ArmGoal==0?20.f:8.f)*GetWorld()->GetDeltaSeconds()));
         if (FMath::Abs(ArmPhysicsWeights[I]-ArmGoal)<.001f) ArmPhysicsWeights[I]=ArmGoal;
         Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),ArmPhysicsWeights[I],false,true);

@@ -23,8 +23,12 @@ struct FMCGripSettings
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Reach",meta=(ClampMin="1",ClampMax="1.15")) float MaxArmStretch=1.08f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Reach",meta=(ClampMin="2",ClampMax="20")) float BreakSlack=14;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Reach",meta=(ClampMin="1",ClampMax="2")) float DragDistanceScale=1.7f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Carry",meta=(ClampMin="0",ClampMax="20")) float CarryMaxMass=6;
+    // Retained for saved profiles; size alone selects lift versus push/pull.
+    UPROPERTY(meta=(DeprecatedProperty,DeprecationMessage="Carry selection uses physical dimensions.")) float CarryMaxMass=6;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Carry",meta=(ClampMin="10",ClampMax="50")) float CarryMaxHalfExtent=30;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Carry",meta=(ClampMin="0.4",ClampMax="1.5")) float LiftSeconds=.8f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Carry",meta=(ClampMin="1.8",ClampMax="3.2")) float OverheadArmStretch=3.2f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Physics") bool bActiveObjectGrip=true;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hands",meta=(ClampMin="2",ClampMax="12")) float PalmLength=7;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hands",meta=(ClampMin="0",ClampMax="6")) float PalmThickness=2.5f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Angles",meta=(ClampMin="30",ClampMax="70")) float FrontAngle=55;
@@ -60,6 +64,10 @@ struct FMCGripFrame
     UPROPERTY() FVector_NetQuantize10 RestOffset=FVector::ZeroVector;
     UPROPERTY() float RelativeYaw=0;
     UPROPERTY() double StartedAt=0;
+    UPROPERTY() double LiftStartedAt=-1;
+    UPROPERTY() FVector_NetQuantize10 LiftStartLocal=FVector::ZeroVector;
+    UPROPERTY() FVector_NetQuantize10 LiftPoint=FVector::ZeroVector;
+    UPROPERTY() FVector_NetQuantizeNormal LiftNormal=-FVector::UpVector;
     UPROPERTY(BlueprintReadOnly) bool bContact=false;
     UPROPERTY() int32 Serial=0;
 };
@@ -103,6 +111,9 @@ public:
     FVector PalmPoint(bool Left) const;
     bool IsReady(const AMCFoodActor* Food=nullptr) const;
     bool CanCarry(const AMCFoodActor* Food) const;
+    void BeginLift(AMCFoodActor* Food);
+    float LiftAlpha(const AMCFoodActor* Food) const;
+    float Effort() const { return PresentationEffort; }
     FVector CarryLocation(const AMCFoodActor* Food=nullptr) const;
     FVector ForcePoint(const AMCFoodActor* Food) const;
     float Blend() const { return FMath::Max(HandAlpha[0],HandAlpha[1]); }
@@ -121,9 +132,10 @@ private:
     };
     FArm Arms[2];
     float HandAlpha[2]={0,0};
+    float HandLift[2]={0,0},HandStretch[2]={1.8f,1.8f};
     FVector Targets[2],Normals[2];
     FVector ReachOffset=FVector::ZeroVector;
-    float PresentationLean=0;
+    float PresentationLean=0,PresentationEffort=0,PresentationRoll=0;
     bool bRigReady=false;
     float LostContact=0,NextAttemptAt=0;
     float SecondaryLostContact=0;
@@ -138,4 +150,5 @@ private:
     float Now() const;
     void CacheRig();
     const FMCGripFrame* HandFrame(bool Left) const;
+    void ResolveContact(bool Left,FVector& Point,FVector& Normal) const;
 };
