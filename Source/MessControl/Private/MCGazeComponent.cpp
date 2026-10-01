@@ -10,6 +10,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
 #include "Misc/ConfigCacheIni.h"
@@ -22,8 +23,9 @@ void FMCGazeSettings::Sanitize()
     YawLimit=C(YawLimit,35,0,45); PitchLimit=C(PitchLimit,25,0,35);
     TurnSpeed=C(TurnSpeed,18,3,40); ReactionDelay=C(ReactionDelay,.12f,0,.5f);
     BlinkMin=C(BlinkMin,2.8f,1,15); BlinkMax=C(BlinkMax,5.2f,BlinkMin,20); BlinkSeconds=C(BlinkSeconds,.22f,.12f,.6f);
-    PupilRest=C(PupilRest,1.f,.6f,1.8f); PupilDanger=C(PupilDanger,1.75f,PupilRest,1.8f);
-    PupilPain=C(PupilPain,1.5f,PupilRest,1.8f); PupilFocus=C(PupilFocus,.8f,.6f,PupilRest);
+    PupilRest=C(PupilRest,1.f,.6f,1.8f); PupilDanger=C(PupilDanger,.65f,.6f,PupilRest);
+    PupilPain=C(PupilPain,.75f,.6f,PupilRest); PupilPositive=C(PupilPositive,1.6f,PupilRest,1.8f);
+    PupilFocus=C(PupilFocus,.8f,.6f,PupilRest);
     PupilReactSpeed=C(PupilReactSpeed,12.f,2.f,30.f); PupilRecoverSpeed=C(PupilRecoverSpeed,2.4f,.5f,10.f);
 }
 UMCGazeComponent::UMCGazeComponent()
@@ -134,18 +136,22 @@ void UMCGazeComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     if (Tooth->Status->IsAlive())
     {
         if (Target.Interest==EMCGazeInterest::Work) Goal=S.PupilFocus;
+        if (ServerTime()-Tooth->TaskSuccessAt<2.) Goal=S.PupilPositive;
         if (const auto* E=Tooth->Expression.Get(); E && E->EmoteAlpha()>.01f)
         {
             if (const auto* Entry=E->ActiveEntry(); Entry)
             {
                 if (Entry->Emotion==EMCEmotion::Angry) Goal=FMath::Lerp(Goal,S.PupilFocus,E->EmoteAlpha());
                 if (Entry->Emotion==EMCEmotion::Surprise) Goal=FMath::Lerp(Goal,S.PupilDanger,E->EmoteAlpha());
+                if (Entry->Emotion==EMCEmotion::Happy) Goal=FMath::Lerp(Goal,S.PupilPositive,E->EmoteAlpha());
+                if (Entry->Emotion==EMCEmotion::Pain) Goal=FMath::Lerp(S.PupilRest,S.PupilPain,E->EmoteAlpha());
             }
         }
         const auto& State=Tooth->Status->State;
         const float Pain=!State.bCareReaction?FMath::Clamp(1.f-(ServerTime()-float(State.ReactionAt))/1.1f,0.f,1.f):0;
-        if (Pain>.001f) Goal=FMath::Max(Goal,FMath::Lerp(S.PupilRest,S.PupilPain,Pain));
-        if (Target.Interest==EMCGazeInterest::Danger || !Tooth->ToothPhysics->CanAct()) Goal=S.PupilDanger;
+        if (Pain>.001f) Goal=FMath::Min(Goal,FMath::Lerp(S.PupilRest,S.PupilPain,Pain));
+        if (Target.Interest==EMCGazeInterest::Danger || !Tooth->ToothPhysics->CanAct()
+            || Tooth->GetCharacterMovement()->IsFalling()) Goal=FMath::Min(Goal,S.PupilDanger);
     }
     // The server already replicates attention, reactions and emotes. Each peer
     // derives the cosmetic pupil response without streaming another float.
@@ -202,6 +208,9 @@ void UMCGazeComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
     const FVector Up=HeadDelta.RotateVector(FVector::UpVector);
     const auto S=VisualSettings();
     const FVector Aim=Tooth->GetMesh()->GetComponentTransform().InverseTransformPosition(TargetPoint());
+    const float Closure=FMath::Max(Blink,Tooth->Expression?Tooth->Expression->Squint():0.f);
+    // Authored facial morphs already supply the emotional squint.
+    const bool MorphBlink=Tooth->Expression && Tooth->Expression->ApplyMorphBlink(Blink);
     for (int32 Side=0;Side<2;++Side)
     {
         const int32 Eye=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("eye_l"):TEXT("eye_r"))); if (Eye==INDEX_NONE) continue;
@@ -220,6 +229,7 @@ void UMCGazeComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
         const int32 Parent=Ref.GetParentIndex(Eye);
         // Replace eye rotation from reference, so a replicated ragdoll face is not rotated twice.
         Pose[Eye].SetRotation((CS[Parent].GetRotation().Inverse()*Delta*HeadDelta*Rest[Eye].GetRotation()).GetNormalized());
+        if (MorphBlink) continue;
         for (int32 Part=0;Part<2;++Part)
         {
             const FName Role=Part==0?(Side==0?TEXT("lid_top_l"):TEXT("lid_top_r")):(Side==0?TEXT("lid_bottom_l"):TEXT("lid_bottom_r"));
@@ -227,7 +237,6 @@ void UMCGazeComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
             if (Lid==INDEX_NONE || !Tooth->Appearance) continue;
             const int32 LidParent=Ref.GetParentIndex(Lid); if (LidParent<0) continue;
             const float Degrees=Part==0?Tooth->Appearance->UpperLidDegrees:Tooth->Appearance->LowerLidDegrees;
-            const float Closure=FMath::Max(Blink,Tooth->Expression?Tooth->Expression->Squint():0.f);
             const FQuat Close(Right,FMath::DegreesToRadians(FMath::Clamp(Degrees,-80.f,80.f)*Closure));
             Pose[Lid].SetRotation((CS[LidParent].GetRotation().Inverse()*Close*HeadDelta*Rest[Lid].GetRotation()).GetNormalized());
         }

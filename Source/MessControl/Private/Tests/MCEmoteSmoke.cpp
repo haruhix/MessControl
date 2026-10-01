@@ -12,6 +12,7 @@
 #include "MCTongue.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Engine/SkeletalMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "Camera/CameraActor.h"
@@ -97,18 +98,26 @@ void UMCValidationSubsystem::TickEmotes(float Dt)
         auto* H=Heroes[0];auto* G=H->Gaze.Get();
         if (DevStage==1 && T>1) { G->NoticePoint(H->GetActorLocation()+FVector(300,0,25),1.4f);++DevStage; }
         if (DevStage==2 && T>6) { H->Expression->ServerPlayEmote(TEXT("angry"));++DevStage; }
-        const float Times[]={.65f,1.8f,5.8f,6.8f};
-        const TCHAR* Names[]={TEXT("Calm"),TEXT("Danger"),TEXT("Recovered"),TEXT("Focus")};
-        if (CaptureStage<4 && T>Times[CaptureStage])
+        if (DevStage==3 && T>9.5f) { H->Expression->ServerPlayEmote(TEXT("happy"));++DevStage; }
+        // Keep the authored closed pose long enough to capture its composition
+        // with the smile; ordinary gameplay still uses the timed blink pulse.
+        if (DevStage==4 && T>10.4f && T<10.65f) G->BlinkStartedAt=GS->GetServerWorldTimeSeconds()-G->Settings.BlinkSeconds*.5;
+        if (DevStage==4 && T>10.7f) { H->Status->Damage(10);++DevStage; }
+        if (DevStage==5 && T>13.5f) { H->Expression->ServerPlayEmote(TEXT("artist_shock"));++DevStage; }
+        const float Times[]={.65f,1.8f,5.8f,6.8f,10.3f,10.55f,11.0f,14.3f};
+        const TCHAR* Names[]={TEXT("Calm"),TEXT("Danger"),TEXT("Recovered"),TEXT("Focus"),TEXT("Positive"),TEXT("PositiveBlink"),TEXT("Pain"),TEXT("Shock")};
+        if (CaptureStage<8 && T>Times[CaptureStage])
         {
             const float Scale=G->PupilScale;
-            bInvalidPhysics|=!FMath::IsFinite(Scale) || (CaptureStage==1?Scale<1.6f:CaptureStage==3?Scale>.87f:FMath::Abs(Scale-1)>.025f);
+            const bool Expected=CaptureStage==1 || CaptureStage==7?Scale<.8f:CaptureStage==3?Scale<.87f:CaptureStage==4 || CaptureStage==5?Scale>1.5f:CaptureStage==6?Scale<.95f:FMath::Abs(Scale-1)<.025f;
+            bInvalidPhysics|=!FMath::IsFinite(Scale) || !Expected;
+            if (CaptureStage==5) bInvalidPhysics|=H->GetMesh()->GetMorphTarget(TEXT("Eyes_Blink"))<.9f;
             UE_LOG(LogTemp,Display,TEXT("MC_PUPIL_STAGE %s scale=%.4f"),Names[CaptureStage],Scale);
             FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/FString::Printf(TEXT("PupilFrames/%s.png"),Names[CaptureStage]),false,false);++CaptureStage;
         }
-        if (T>7.8f)
+        if (T>15.3f)
         {
-            const bool Pass=CaptureStage==4 && !bInvalidPhysics;
+            const bool Pass=CaptureStage==8 && !bInvalidPhysics;
             UE_LOG(LogTemp,Display,TEXT("MC_PUPIL_%s stages=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),CaptureStage);
             FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
         }
@@ -125,7 +134,12 @@ void UMCValidationSubsystem::TickEmotes(float Dt)
             E->SetSpeechInput(Viseme==MCViseme::Closed?0.f:1.f,Viseme);
             if (T-Index*1.25f>.65f && CaptureStage==Index)
             {
-                const float Weight=H->GetMesh()->GetMorphTarget(Shape);
+                float Weight=H->GetMesh()->GetMorphTarget(Shape);
+                if (Viseme==MCViseme::Closed && !H->GetMesh()->GetSkeletalMeshAsset()->FindMorphTarget(Shape))
+                {
+                    float Sum=0; for (FName Name:UMCExpressionComponent::MouthShapes()) Sum+=H->GetMesh()->GetMorphTarget(Name);
+                    Weight=1-Sum;
+                }
                 bInvalidPhysics|=!FMath::IsFinite(Weight) || Weight<.97f;
                 UE_LOG(LogTemp,Display,TEXT("MC_MOUTH_SHAPE %s %.4f"),*Shape.ToString(),Weight);
                 FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/FString::Printf(TEXT("MouthFrames/%s.png"),*Shape.ToString()),false,false);

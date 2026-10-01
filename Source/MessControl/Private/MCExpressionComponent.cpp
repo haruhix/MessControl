@@ -104,7 +104,24 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
         const float Target=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f);
         float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,Target,Alpha);
         if (Weight<.0001f) Weight=0;
-        Mesh->SetMorphTarget(Name,Weight);
+        if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name)) Mesh->SetMorphTarget(Name,Weight);
+    }
+    return true;
+}
+bool UMCExpressionComponent::ApplyMorphBlink(float Closure)
+{
+    if (!Tooth) return false;
+    auto* Mesh=Tooth->GetMesh();
+    if (!Mesh->GetSkeletalMeshAsset() || !Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"))) return false;
+    Closure=FMath::Clamp(Closure,0.f,1.f);
+    Mesh->SetMorphTarget(TEXT("Eyes_Blink"),Closure);
+    // Cancel the expression's eyelid delta as the authored closed pose takes over.
+    // This preserves the mouth and avoids adding a second closure to a squint.
+    for (FName Name:MouthShapes())
+    {
+        const FName Correction(*(TEXT("BlinkCancel_")+Name.ToString()));
+        if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Correction))
+            Mesh->SetMorphTarget(Correction,MouthWeights.FindRef(Name)*Closure);
     }
     return true;
 }
@@ -173,8 +190,10 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     };
     const bool MorphMouth=UpdateMouthShapes(Dt,Strength,Pain>.01f);
     // Artist brow poses coexist with the runtime morph mouth, blink and gaze.
+    const bool AuthoredFace=Tooth->GetMesh()->GetSkeletalMeshAsset()
+        && Tooth->GetMesh()->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"));
     const auto* Artist=ActiveEntry();
-    const float ArtistAlpha=Artist && Artist->bFaceOnly && Artist->Animation && Pain<.01f?EmoteAlpha():0;
+    const float ArtistAlpha=!AuthoredFace && Artist && Artist->bFaceOnly && Artist->Animation && Pain<.01f?EmoteAlpha():0;
     if (ArtistAlpha>.001f)
     {
         const auto* Skeleton=Artist->Animation->GetSkeleton();
@@ -199,9 +218,12 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     {
         const float Sign=Side==TEXT("l")?1.f:-1.f;
         if (!MorphMouth) Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
-        Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)));
-        Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)));
-        Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f*(1-ArtistAlpha)));
+        if (!AuthoredFace)
+        {
+            Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)));
+            Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)));
+            Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f*(1-ArtistAlpha)));
+        }
     }
 }
 void UMCExpressionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

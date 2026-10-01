@@ -1287,9 +1287,14 @@ bool FMCMouthMorphTest::RunTest(const FString&)
     Hero->GetCharacterMovement()->bRunPhysicsWithNoController=true; Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking); Mouth.Step(1.5f);
     auto* Face=Hero->Expression.Get(); auto* Mesh=Hero->GetMesh();
     for (FName Name:UMCExpressionComponent::MouthShapes())
+    {
+        // Character's closed M/B/P is Basis; the importer drops numerical noise.
+        if (Name==TEXT("Mouth_MBP") && Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"))) continue;
         if (!TestNotNull(*FString::Printf(TEXT("Imported mouth shape %s"),*Name.ToString()),Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name))) return false;
-    TestEqual(TEXT("Enamel, lips and cavity have their own material slots"),Mesh->GetNumMaterials(),3);
-    TestTrue(TEXT("Appearance override preserves the lip material"),Mesh->GetMaterial(0)!=Mesh->GetMaterial(1));
+    }
+    TestEqual(TEXT("Character and bag have their own material slots"),Mesh->GetNumMaterials(),2);
+    TestTrue(TEXT("Appearance override preserves the bag material"),Mesh->GetMaterial(0)!=Mesh->GetMaterial(1));
+    if (!TestNotNull(TEXT("Artist blink is imported"),Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink")))) return false;
     auto CheckWeights=[&]()
     {
         float Sum=0;
@@ -1301,6 +1306,9 @@ bool FMCMouthMorphTest::RunTest(const FString&)
         TestTrue(TEXT("Complete mouth poses never add beyond full deformation"),Sum<=1.00001f);
     };
     Face->ServerPlayEmote(TEXT("happy")); Mouth.Step(.3f);
+    Face->ApplyMorphBlink(1);
+    TestEqual(TEXT("A closed blink is applied through the artist morph"),Mesh->GetMorphTarget(TEXT("Eyes_Blink")),1.f);
+    TestTrue(TEXT("Blink replaces the emotional eyelid deformation"),FMath::IsNearlyEqual(Mesh->GetMorphTarget(TEXT("BlinkCancel_Mouth_Smile")),Mesh->GetMorphTarget(TEXT("Mouth_Smile")),.001f));
     for (uint8 I=1;I<=uint8(MCViseme::D);++I)
     {
         const auto Viseme=MCViseme(I);
@@ -1308,7 +1316,12 @@ bool FMCMouthMorphTest::RunTest(const FString&)
         {
             Face->SetSpeechInput(Viseme==MCViseme::Closed?0.f:1.f,Viseme); Mouth.Step(1.f/60); CheckWeights();
         }
-        TestTrue(TEXT("Each viseme drives the imported mesh, including silent closed lips"),Mesh->GetMorphTarget(UMCExpressionComponent::VisemeShape(Viseme))>.98f);
+        if (Viseme==MCViseme::Closed && !Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Mouth_MBP")))
+        {
+            float Sum=0; for (FName Name:UMCExpressionComponent::MouthShapes()) Sum+=Mesh->GetMorphTarget(Name);
+            TestTrue(TEXT("Silent closed lips suppress other poses and return to the artist's neutral mouth"),Sum<.01f);
+        }
+        else TestTrue(TEXT("Each viseme drives the imported mesh"),Mesh->GetMorphTarget(UMCExpressionComponent::VisemeShape(Viseme))>.98f);
     }
     Hero->Status->Damage(10);
     for (int32 Frame=0;Frame<10;++Frame) { Face->SetSpeechInput(1,MCViseme::Open); Mouth.Step(1.f/60); CheckWeights(); }
@@ -1335,17 +1348,29 @@ bool FMCPupilResponseTest::RunTest(const FString&)
     TestTrue(TEXT("Calm pupil has its original size"),FMath::IsNearlyEqual(G->PupilScale,1.f,.01f));
     const FVector Point=Hero->GetActorLocation()+FVector(250,0,25);
     TestTrue(TEXT("Authority can announce nearby danger"),G->NoticePoint(Point,.65f));
-    Mouth.Step(.05f); TestTrue(TEXT("Dilation begins smoothly"),G->PupilScale>1.05f && G->PupilScale<1.6f);
-    Mouth.Step(.3f); TestTrue(TEXT("Danger enlarges the rendered pupil"),G->PupilScale>1.65f && Mesh->GetMorphTarget(TEXT("Pupil_Dilate"))>.8f);
-    Mouth.Step(.55f); TestTrue(TEXT("Pupil recovers gradually after the threat expires"),G->PupilScale>1.1f && G->PupilScale<1.7f);
+    Mouth.Step(.05f); TestTrue(TEXT("Contraction begins smoothly"),G->PupilScale>.7f && G->PupilScale<.98f);
+    Mouth.Step(.3f); TestTrue(TEXT("Danger contracts the rendered pupil"),G->PupilScale<.7f && Mesh->GetMorphTarget(TEXT("Pupil_Contract"))>.75f);
+    TestEqual(TEXT("Danger does not also dilate the pupil"),Mesh->GetMorphTarget(TEXT("Pupil_Dilate")),0.f);
+    Mouth.Step(.55f); TestTrue(TEXT("Pupil recovers gradually after the threat expires"),G->PupilScale>.68f && G->PupilScale<.95f);
     Mouth.Step(2); TestTrue(TEXT("Pupil returns to rest"),FMath::Abs(G->PupilScale-1)<.015f);
-    Hero->Status->Damage(10); Mouth.Step(.15f); TestTrue(TEXT("Pain produces a brief pupil reaction"),G->PupilScale>1.2f);
-    Mouth.Step(2); Hero->Expression->ServerPlayEmote(TEXT("angry")); Mouth.Step(.4f);
+    Hero->Expression->ServerPlayEmote(TEXT("happy")); Mouth.Step(.4f);
+    TestTrue(TEXT("A positive emotion enlarges the pupil"),G->PupilScale>1.5f && Mesh->GetMorphTarget(TEXT("Pupil_Dilate"))>.6f);
+    TestEqual(TEXT("Positive emotion does not also contract the pupil"),Mesh->GetMorphTarget(TEXT("Pupil_Contract")),0.f);
+    Hero->Status->Damage(10); Mouth.Step(.25f); TestTrue(TEXT("Pain contracts the pupil even during a positive emotion"),G->PupilScale<.95f);
+    Mouth.Step(2); Hero->NotifyTaskFeedback(true); Mouth.Step(.4f);
+    TestTrue(TEXT("A successful gameplay task enlarges the pupil"),G->PupilScale>1.5f);
+    G->NoticePoint(Point,1); Mouth.Step(.35f);
+    TestTrue(TEXT("Danger takes priority over positive task feedback"),G->PupilScale<.7f);
+    Mouth.Step(3); Hero->Expression->ServerPlayEmote(TEXT("surprise")); Mouth.Step(.4f);
+    TestTrue(TEXT("Surprise contracts the pupil"),G->PupilScale<.75f);
+    Mouth.Step(3); Hero->Expression->ServerPlayEmote(TEXT("artist_shock")); Mouth.Step(.4f);
+    TestTrue(TEXT("The authored shock animation contracts the pupil"),G->PupilScale<.8f);
+    Mouth.Step(4); Hero->Expression->ServerPlayEmote(TEXT("angry")); Mouth.Step(.4f);
     TestTrue(TEXT("Focused expression contracts the pupil"),G->PupilScale<.9f && Mesh->GetMorphTarget(TEXT("Pupil_Contract"))>.25f);
     G->NoticePoint(Point,1); Mouth.Step(.35f);
-    TestTrue(TEXT("Danger takes priority over a selected expression"),G->PupilScale>1.65f);
-    FMCGazeSettings S; S.PupilRest=100; S.PupilFocus=-100; S.PupilReactSpeed=std::numeric_limits<float>::quiet_NaN(); S.Sanitize();
-    TestTrue(TEXT("Pupil tuning stays inside the authored morph range"),S.PupilRest<=1.8f && S.PupilFocus>=.6f && FMath::IsFinite(S.PupilReactSpeed));
+    TestTrue(TEXT("Danger takes priority over a selected expression"),G->PupilScale<.7f);
+    FMCGazeSettings S; S.PupilRest=100; S.PupilFocus=-100; S.PupilDanger=100; S.PupilPain=100; S.PupilPositive=-100; S.PupilReactSpeed=std::numeric_limits<float>::quiet_NaN(); S.Sanitize();
+    TestTrue(TEXT("Pupil tuning preserves contraction and dilation directions"),S.PupilRest<=1.8f && S.PupilFocus>=.6f && S.PupilDanger<=S.PupilRest && S.PupilPain<=S.PupilRest && S.PupilPositive>=S.PupilRest && FMath::IsFinite(S.PupilReactSpeed));
     return true;
 }
 

@@ -47,7 +47,7 @@ void UMCValidationSubsystem::TickGaze(float Dt)
         // Clients close first. Their pawns are destroyed before the host's exit deadline.
         if (Host && DevStartedAt>=0 && GS->GetServerWorldTimeSeconds()-DevStartedAt>16)
         {
-            const bool Pass=DevSeen==511 && !bTongueInvalid;
+            const bool Pass=DevSeen==1023 && !bTongueInvalid;
             if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(FPaths::ProjectSavedDir()/TEXT("GazeFrames/times.csv")));
             UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GAZE net=%d seen=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen);
             FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
@@ -104,6 +104,7 @@ void UMCValidationSubsystem::TickGaze(float Dt)
             Hero->Gaze->NoticePoint(Hero->GetActorLocation()+FVector(300,230,180),1.4f); ++DevStage;
         }
         if (DevStage==4 && T>8) { Hero->ToothPhysics->ApplyHit(FVector(-80,70,420),Hero->GetActorLocation()); ++DevStage; }
+        if (DevStage==5 && T>13) { Hero->NotifyTaskFeedback(true); ++DevStage; }
     }
     if (T>=0)
     {
@@ -114,7 +115,8 @@ void UMCValidationSubsystem::TickGaze(float Dt)
             bTongueInvalid|=Before!=Hero->Gaze->Target.Serial; bDevClientGuard=true;
         }
         const auto* G=Hero->Gaze.Get();
-        if (G->Target.Interest==EMCGazeInterest::Danger && G->PupilScale>1.3f && Hero->GetMesh()->GetMorphTarget(TEXT("Pupil_Dilate"))>.35f) DevSeen|=256;
+        if (G->Target.Interest==EMCGazeInterest::Danger && G->PupilScale<.8f && Hero->GetMesh()->GetMorphTarget(TEXT("Pupil_Contract"))>.35f) DevSeen|=256;
+        if (T>13 && G->PupilScale>1.3f && Hero->GetMesh()->GetMorphTarget(TEXT("Pupil_Dilate"))>.35f) DevSeen|=512;
         if (G->Target.Actor==Friend && G->Target.Interest==EMCGazeInterest::Player) DevSeen|=1;
         auto* Mesh=Hero->GetMesh(); const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();
         const int32 Eye=Ref.FindBoneIndex(Hero->RigBone(TEXT("eye_l")));
@@ -128,7 +130,11 @@ void UMCValidationSubsystem::TickGaze(float Dt)
         if (Cast<AMCFoodActor>(G->Target.Actor) && G->Target.Interest==EMCGazeInterest::Danger) DevSeen|=4;
         if (T>6 && !G->Target.Actor && G->Target.Interest==EMCGazeInterest::Danger) DevSeen|=8;
         const int32 Lid=Ref.FindBoneIndex(Hero->RigBone(TEXT("lid_top_l")));
-        if (Lid!=INDEX_NONE)
+        if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink")))
+        {
+            if (G->Blink>.1f && Mesh->GetMorphTarget(TEXT("Eyes_Blink"))>.1f) DevSeen|=16;
+        }
+        else if (Lid!=INDEX_NONE)
         {
             const FQuat Actual=Mesh->GetSocketQuaternion(Ref.GetBoneName(Ref.GetParentIndex(Lid))).Inverse()*Mesh->GetSocketQuaternion(Ref.GetBoneName(Lid));
             if (G->Blink>.1 && FMath::RadiansToDegrees(Actual.AngularDistance(Ref.GetRefBonePose()[Lid].GetRotation()))>25) DevSeen|=16;
@@ -153,7 +159,7 @@ void UMCValidationSubsystem::TickGaze(float Dt)
     if (Age>=NextLog) { NextLog+=3; UE_LOG(LogTemp,Display,TEXT("MC_GAZE t=%.2f seen=%d interest=%d actor=%s angles=%s blink=%.2f invalid=%d"),T,DevSeen,int32(Hero->Gaze->Target.Interest),*GetNameSafe(Hero->Gaze->Target.Actor),*Hero->Gaze->LeftAngles.ToString(),Hero->Gaze->Blink,bTongueInvalid); }
     if (T>(Host?21:17) || Age>100)
     {
-        const bool Pass=DevSeen==511 && !bTongueInvalid;
+        const bool Pass=DevSeen==1023 && !bTongueInvalid;
         if (Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(FPaths::ProjectSavedDir()/TEXT("GazeFrames/times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GAZE net=%d seen=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);

@@ -25,8 +25,9 @@ struct FMCGazeSettings
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Blink") float BlinkMax=5.2f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Blink") float BlinkSeconds=.22f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilRest=1.f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilDanger=1.75f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilPain=1.5f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilDanger=.65f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilPain=.75f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilPositive=1.6f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilFocus=.8f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilReactSpeed=12.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Pupils") float PupilRecoverSpeed=2.4f;

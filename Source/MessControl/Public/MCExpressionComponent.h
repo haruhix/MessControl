@@ -64,6 +64,7 @@ public:
     float BodyAlpha() const;
     void BuildBodyPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const;
     void BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
+    bool ApplyMorphBlink(float Closure);
     float Squint() const { return EyeSquint; }
     // Call on the avatar whose voice is being played locally. Timeout returns the mouth to rest.
     // Envelope-only VOIP can use Open; a later lip-sync provider supplies actual visemes.
