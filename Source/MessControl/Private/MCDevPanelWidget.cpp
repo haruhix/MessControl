@@ -104,6 +104,9 @@ void UMCDevPanelWidget::RefreshActions()
         AddAction(Steps,Step.Title.ToString(),Step.Instruction.ToString(),EMCDevAction::StartStep,I);
     }
     AddAction(Steps,TEXT("Обычный день 1 — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычные таймеры и переходы."),EMCDevAction::RestartDay);
+    AddAction(Actions,TEXT("Active Ragdoll — мягкий"),TEXT("Как в ролике: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Для всех текущих игроков."),EMCDevAction::ActiveRagdoll,1);
+    AddAction(Actions,TEXT("Active Ragdoll — упругий"),TEXT("Сравни более сильные мышцы при поворотах, прыжках и ударах. Точные контакты сохраняются."),EMCDevAction::ActiveRagdoll,2);
+    AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Возвращает текущую систему анимаций без перезапуска. Эксперимент по умолчанию выключен."),EMCDevAction::ActiveRagdoll,0);
     AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
     AddAction(Actions,TEXT("Перец — таймер и красная волна"),TEXT("Настоящий предмет из таблицы. Проглоти до детонации; от волны можно перепрыгнуть."),EMCDevAction::SpicyPepper);
     AddAction(Actions,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);

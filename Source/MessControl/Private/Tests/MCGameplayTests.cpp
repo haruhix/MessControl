@@ -55,6 +55,8 @@
 #include "PhysicsEngine/SkeletalBodySetup.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "PhysicsEngine/PhysicsConstraintTemplate.h"
+#include "PhysicsEngine/BodyInstance.h"
+#include "PhysicsControlComponent.h"
 #include <limits>
 
 namespace
@@ -449,6 +451,62 @@ bool FMCArtistRigTest::RunTest(const FString& Parameters)
     Hero->ToothPhysics->ApplyHit(FVector(450,0,250),Hero->GetActorLocation());
     TestEqual(TEXT("Artist rig enters ragdoll"),Hero->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
     TestTrue(TEXT("Artist core actually simulates"),Hero->GetMesh()->IsSimulatingPhysics(Hero->RigBone(TEXT("body"))));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCActiveRagdollTest,"MessControl.Physics.ActiveRagdollComparisonAndContactGates",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCActiveRagdollTest::RunTest(const FString& Parameters)
+{
+    FTestMouth Mouth; auto* H=Mouth.Worker(); auto* Physics=H->ToothPhysics.Get(); auto* Mesh=H->GetMesh();
+    auto* Motors=H->FindComponentByClass<UPhysicsControlComponent>();
+    if(!TestNotNull(TEXT("Physics controls"),Motors)) return false;
+    auto Weight=[&](FName Role) { const auto* B=Mesh->GetBodyInstance(H->RigBone(Role)); return B?B->PhysicsBlendWeight:-1.f; };
+    Mouth.Step(.8f);
+    TestEqual(TEXT("Experiment defaults off"),Physics->GetActiveRagdollMode(),EMCActiveRagdollMode::Off);
+    TestTrue(TEXT("Original leg presentation retained"),FMath::IsNearlyEqual(Weight(TEXT("foot_l")),.05f,.005f));
+    TestFalse(TEXT("Unknown mode rejected"),Physics->SetActiveRagdollMode(static_cast<EMCActiveRagdollMode>(255)));
+    TestTrue(TEXT("Soft comparison enabled"),Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Soft));
+    Mouth.Step(1.f);
+    TestTrue(TEXT("Reference root stays stable while limbs simulate"),!Mesh->IsSimulatingPhysics(H->RigBone(TEXT("body"))) && Weight(TEXT("body"))==0);
+    for(FName Role:{FName("hand_l"),FName("hand_r"),FName("foot_l"),FName("foot_r")})
+        TestTrue(*FString::Printf(TEXT("Fully physical free %s"),*Role.ToString()),Weight(Role)>.99f);
+    FPhysicsControlData Soft; Motors->GetControlData(Motors->GetControlNamesInSet(TEXT("arm_l"))[0],Soft);
+    TestTrue(TEXT("Pure animation targets and finite motor torque"),!Soft.bUseSkeletalAnimation && Soft.MaxTorque>0);
+    const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton(); TArray<FTransform> Pose=Ref.GetRefBonePose();
+    const int32 Arm=Ref.FindBoneIndex(H->RigBone(TEXT("arm_l"))),Root=Ref.FindBoneIndex(H->RigBone(TEXT("body")));
+    Pose[Arm].ConcatenateRotation(FRotator(8,0,0).Quaternion());
+    Physics->SubmitAnimationTargets(Pose,Ref,1.f/60);
+    FPhysicsControlTarget Target; Motors->GetControlTarget(Motors->GetControlNamesInSet(TEXT("arm_l"))[0],Target);
+    TArray<FTransform> CS; CS.SetNum(Pose.Num());
+    for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
+    const FTransform Goal=CS[Arm].GetRelativeTransform(CS[Root]);
+    TestTrue(TEXT("Arm motor follows the unblended authored pose"),Target.TargetOrientation.Quaternion().AngularDistance(Goal.GetRotation())<.001);
+    const FTransform MeshBefore=Mesh->GetRelativeTransform();
+    Mesh->SetRelativeLocation(MeshBefore.GetLocation()+FVector(-120,35,10));
+    Physics->SubmitAnimationTargets(Pose,Ref,0);
+    Motors->GetControlTarget(Motors->GetControlNamesInSet(TEXT("arm_l"))[0],Target);
+    TestTrue(TEXT("Network mesh smoothing cannot displace the parent-space muscle goal"),Target.TargetPosition.Equals(Goal.GetLocation(),.001));
+    Mesh->SetRelativeTransform(MeshBefore);
+    for(int32 I=0;I<90;++I) Physics->SetGripArms(false,true);
+    TestTrue(TEXT("Precision contact returns torso and working hand to IK"),Weight(TEXT("body"))<.001f && Weight(TEXT("hand_r"))<.001f);
+    TestFalse(TEXT("Held hand muscle is released"),Motors->GetControlEnabled(Motors->GetControlNamesInSet(TEXT("arm_r"))[0]));
+    Mouth.Step(1.f); // Real grip update releases the synthetic contact and settles the limb.
+    TestTrue(TEXT("Released physical hand returns smoothly under stable root"),Weight(TEXT("body"))==0 && Weight(TEXT("hand_r"))>.99f);
+    Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Firm);
+    FPhysicsControlData Firm; Motors->GetControlData(Motors->GetControlNamesInSet(TEXT("arm_l"))[0],Firm);
+    TestTrue(TEXT("Firm comparison has stronger muscles"),Firm.AngularStrength>Soft.AngularStrength);
+    Physics->ApplyHit(FVector(350,0,250),H->GetActorLocation());
+    TestEqual(TEXT("Strong hit still falls"),Physics->GetBodyState(),EMCBodyState::Ragdoll);
+    Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Soft);
+    TestFalse(TEXT("Changing comparison cannot wake a fallen balance motor"),Motors->GetControlEnabled(Motors->GetControlNamesInSet(TEXT("Balance"))[0]));
+    TestTrue(TEXT("Changing comparison cannot freeze a fallen body"),Mesh->IsSimulatingPhysics(H->RigBone(TEXT("body"))));
+    Physics->SetThroatCaptured(true);
+    TestFalse(TEXT("Gulp still owns the complete physical body"),Mesh->IsSimulatingPhysics(H->RigBone(TEXT("body"))));
+    Physics->SetThroatCaptured(false); Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Off); Mouth.Step(1.f);
+    TestTrue(TEXT("Returning to the original mode preserves the mesh attachment"),Mesh->GetAttachParent()==H->GetCapsuleComponent());
+    TestTrue(TEXT("Original presentation restored without restart"),FMath::IsNearlyEqual(Weight(TEXT("body")),.25f,.002f) && FMath::IsNearlyEqual(Weight(TEXT("foot_l")),.05f,.002f));
+    Motors->GetControlData(Motors->GetControlNamesInSet(TEXT("arm_l"))[0],Firm);
+    TestTrue(TEXT("Original animation cache and strength restored"),Firm.bUseSkeletalAnimation && Firm.AngularStrength==Physics->Settings.MuscleStrength);
     return true;
 }
 

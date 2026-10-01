@@ -5,6 +5,7 @@
 #include "MCToothPhysicsComponent.generated.h"
 class AMCToothCharacter;
 class UPhysicsControlComponent;
+struct FReferenceSkeleton;
 
 /** Server Chaos simulation; clients interpolate the compact skeleton, including the owning client. */
 UCLASS(ClassGroup=(MessControl), meta=(BlueprintSpawnableComponent))
@@ -29,6 +30,9 @@ public:
     void ResetTuning();
     void BuildPresentationPose(TArray<FTransform>& InOutPose) const;
     void SetGripArms(bool Left,bool Right);
+    EMCActiveRagdollMode GetActiveRagdollMode() const { return ActiveRagdollMode; }
+    bool SetActiveRagdollMode(EMCActiveRagdollMode Mode);
+    void SubmitAnimationTargets(const TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
     float RecoveryAlpha() const;
     FVector PhysicalLocation() const;
     int32 KnockdownCount = 0;
@@ -40,9 +44,12 @@ private:
     void SetState(EMCBodyState NewState);
     void CaptureFrame();
     void SetMuscles(bool bEnable);
+    void ConfigureStandingBody();
     float ServerTime() const;
     UFUNCTION() void OnRep_Frame();
     UFUNCTION() void OnRep_Settings();
+    UFUNCTION() void OnRep_ActiveRagdollMode();
+    UPROPERTY(ReplicatedUsing=OnRep_ActiveRagdollMode) EMCActiveRagdollMode ActiveRagdollMode=EMCActiveRagdollMode::Off;
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
     UPROPERTY() TObjectPtr<UPhysicsControlComponent> Muscles;
     UPROPERTY(ReplicatedUsing=OnRep_Frame) FMCRagdollFrame Frame;
@@ -56,4 +63,7 @@ private:
     float ArmPhysicsWeights[2]={1,1};
     float ArmSettleSeconds[2]={0,0};
     FName BalanceControl;
+    FTransform BalanceRest=FTransform::Identity;
+    struct FJointTarget { FName Control,Role; int32 Parent=INDEX_NONE,Child=INDEX_NONE; };
+    TArray<FJointTarget> JointTargets;
 };

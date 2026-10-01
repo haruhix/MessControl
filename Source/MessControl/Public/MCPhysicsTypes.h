@@ -7,6 +7,10 @@
 UENUM(BlueprintType)
 enum class EMCBodyState : uint8 { Standing, Ragdoll, Recovering };
 
+// Opt-in comparisons; existing profiles keep the current presentation by default.
+UENUM(BlueprintType)
+enum class EMCActiveRagdollMode : uint8 { Off, Soft, Firm };
+
 USTRUCT(BlueprintType)
 struct FMCPhysicsSettings
 {

@@ -43,6 +43,17 @@ void UMCToothPhysicsComponent::BeginPlay()
             const auto Controls=Muscles->CreateControlsFromSkeletalMeshBelow(Tooth->GetMesh(),Tooth->RigBone(Role),true,EPhysicsControlType::ParentSpace,Data,Role);
             FPhysicsControlNames Names;
             Muscles->AddControlsToSet(Names,Controls,TEXT("Limbs")); Muscles->AddControlsToSet(Names,Controls,Role);
+            // Record the same physical hierarchy used by the creation helper.
+            // Active mode receives the unblended pose, never the previous Chaos output.
+            const auto& Skeleton=Tooth->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+            const auto* Asset=Tooth->GetMesh()->GetPhysicsAsset(); int32 ControlIndex=0;
+            Tooth->GetMesh()->ForEachBodyBelow(Tooth->RigBone(Role),true,false,[&](const FBodyInstance* Body) {
+                const int32 Child=Skeleton.FindBoneIndex(Asset->SkeletalBodySetups[Body->InstanceBodyIndex]->BoneName);
+                if(Child<0) return;
+                int32 Parent=Skeleton.GetParentIndex(Child);
+                while(Parent>=0 && Asset->FindBodyIndex(Skeleton.GetBoneName(Parent))==INDEX_NONE) Parent=Skeleton.GetParentIndex(Parent);
+                if(Parent>=0 && Controls.IsValidIndex(ControlIndex)) JointTargets.Add({Controls[ControlIndex++],Role,Parent,Child});
+            });
         }
         // Newly spawned actors can be created after the mesh tick this frame. Prime the cache
         // before the first control update so targets never read an empty skeleton buffer.
@@ -56,6 +67,7 @@ void UMCToothPhysicsComponent::BeginPlay()
         FTransform BodyRest=FTransform::Identity;
         for (int32 B=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));B>=0;B=Ref.GetParentIndex(B)) BodyRest=BodyRest*Ref.GetRefBonePose()[B];
         BodyRest=BodyRest*Tooth->StandingMeshTransform();
+        BalanceRest=BodyRest;
         FPhysicsControlTarget BalanceTarget; BalanceTarget.TargetPosition=BodyRest.GetLocation();
         BalanceTarget.TargetOrientation=BodyRest.Rotator(); BalanceTarget.bApplyControlPointToTarget=true;
         BalanceControl=Muscles->CreateControl(Tooth->GetCapsuleComponent(),NAME_None,Tooth->GetMesh(),
@@ -71,16 +83,51 @@ float UMCToothPhysicsComponent::ServerTime() const
 }
 void UMCToothPhysicsComponent::SetMuscles(bool bEnable)
 {
-    if (Muscles) { Muscles->SetControlsInSetEnabled(TEXT("Limbs"),bEnable); Muscles->SetControlsInSetEnabled(TEXT("Balance"),bEnable); }
+    if (Muscles) {
+        Muscles->SetControlsInSetEnabled(TEXT("Limbs"),bEnable);
+        Muscles->SetControlsInSetEnabled(TEXT("Balance"),bEnable && ActiveRagdollMode==EMCActiveRagdollMode::Off);
+    }
+}
+void UMCToothPhysicsComponent::ConfigureStandingBody()
+{
+    if(!Tooth || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) return;
+    // The reference leaves the pelvis kinematic: locomotion supplies the stable
+    // root, while muscles drive the simulated limbs. Full-body falls stay physical.
+    const bool Active=ActiveRagdollMode!=EMCActiveRagdollMode::Off;
+    if(auto* Body=Tooth->GetMesh()->GetBodyInstance(Tooth->RigBone(TEXT("body")))) {
+        if(Body->IsInstanceSimulatingPhysics()==Active) Body->SetInstanceSimulatePhysics(!Active,true,true);
+        if(Active) Body->PhysicsBlendWeight=0;
+    }
 }
 void UMCToothPhysicsComponent::OnRep_Settings()
 {
     Settings.Sanitize(); if (!Tooth) return;
     if (Muscles)
     {
+        const bool Active=ActiveRagdollMode!=EMCActiveRagdollMode::Off;
+        const bool Soft=ActiveRagdollMode==EMCActiveRagdollMode::Soft;
         FPhysicsControlData Data; Data.AngularStrength=Settings.MuscleStrength; Data.AngularDampingRatio=Settings.Damping;
         Data.bDisableCollision=true; Data.bOnlyControlChildObject=true;
+        Data.bUseSkeletalAnimation=!Active;
+        if(Active) {
+            Data.AngularStrength*=Soft?.38f:.65f;
+            Data.AngularDampingRatio=FMath::Clamp(Settings.Damping*(Soft?.85f:1.05f),.5f,1.4f);
+            Data.MaxTorque=(Soft?200000.f:350000.f)*Settings.Mass/8;
+        }
         Muscles->SetControlDatasInSet(TEXT("Limbs"),Data);
+        if(Active) {
+            Data.AngularStrength=Settings.MuscleStrength*(Soft?.65f:.9f);
+            Muscles->SetControlDatasInSet(TEXT("leg_l"),Data); Muscles->SetControlDatasInSet(TEXT("leg_r"),Data);
+        }
+        FPhysicsControlData Balance; Balance.bUseSkeletalAnimation=false;
+        Balance.bDisableCollision=true; Balance.bOnlyControlChildObject=true;
+        Balance.LinearStrength=12; Balance.LinearDampingRatio=.9f;
+        Balance.AngularStrength=5; Balance.AngularDampingRatio=.65f;
+        Muscles->SetControlData(BalanceControl,Balance);
+        ConfigureStandingBody();
+        SetMuscles(LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy);
+        if(bGripLeft) Muscles->SetControlsInSetEnabled(TEXT("arm_l"),false);
+        if(bGripRight) Muscles->SetControlsInSetEnabled(TEXT("arm_r"),false);
     }
     if (const auto* Asset=Tooth->GetMesh()->GetPhysicsAsset())
         for (const USkeletalBodySetup* Body:Asset->SkeletalBodySetups)
@@ -88,6 +135,35 @@ void UMCToothPhysicsComponent::OnRep_Settings()
             const float Share=Body->BoneName==Tooth->RigBone(TEXT("body"))?.625f:.375f/FMath::Max(1,Asset->SkeletalBodySetups.Num()-1);
             Tooth->GetMesh()->SetMassOverrideInKg(Body->BoneName,Settings.Mass*Share);
         }
+}
+bool UMCToothPhysicsComponent::SetActiveRagdollMode(EMCActiveRagdollMode Mode)
+{
+    if(!Tooth || !Tooth->HasAuthority() || uint8(Mode)>uint8(EMCActiveRagdollMode::Firm)) return false;
+    if(Mode==ActiveRagdollMode) return true;
+    ActiveRagdollMode=Mode; OnRep_ActiveRagdollMode(); Tooth->ForceNetUpdate(); return true;
+}
+void UMCToothPhysicsComponent::OnRep_ActiveRagdollMode()
+{
+    if(!Tooth || !Muscles) return;
+    // Reset explicit targets before handing the pose back to the animation cache.
+    for(const auto& Joint:JointTargets) Muscles->SetControlTarget(Joint.Control,FPhysicsControlTarget(),false);
+    FPhysicsControlTarget Target; Target.TargetPosition=BalanceRest.GetLocation(); Target.TargetOrientation=BalanceRest.Rotator();
+    Target.bApplyControlPointToTarget=true; Muscles->SetControlTarget(BalanceControl,Target,false);
+    OnRep_Settings();
+    const auto& Ref=Tooth->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+    SubmitAnimationTargets(Ref.GetRefBonePose(),Ref,0);
+}
+void UMCToothPhysicsComponent::SubmitAnimationTargets(const TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt)
+{
+    if(!Tooth || !Muscles || ActiveRagdollMode==EMCActiveRagdollMode::Off || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) return;
+    TArray<FTransform> CS; CS.SetNum(Pose.Num());
+    for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
+    for(const auto& Joint:JointTargets) {
+        const bool Occupied=Joint.Role==TEXT("arm_l")?bGripLeft:Joint.Role==TEXT("arm_r") && bGripRight;
+        if(Occupied || !CS.IsValidIndex(Joint.Child) || !CS.IsValidIndex(Joint.Parent)) continue;
+        Muscles->SetControlTargetPoses(Joint.Control,CS[Joint.Parent].GetLocation(),CS[Joint.Parent].Rotator(),
+            CS[Joint.Child].GetLocation(),CS[Joint.Child].Rotator(),Dt,true);
+    }
 }
 void UMCToothPhysicsComponent::SetTuning(FMCPhysicsSettings NewSettings)
 {
@@ -229,7 +305,8 @@ void UMCToothPhysicsComponent::EnterStanding()
     Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
     Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,true);
     Mesh->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(TEXT("body")),1.f,false,true);
-    bGripLeft=bGripRight=false; StandingPhysicsWeight=1; ArmPhysicsWeights[0]=ArmPhysicsWeights[1]=1; SetMuscles(true); DisplayPose.Reset();
+    bGripLeft=bGripRight=false; StandingPhysicsWeight=1; ArmPhysicsWeights[0]=ArmPhysicsWeights[1]=1;
+    ConfigureStandingBody(); SetMuscles(true); DisplayPose.Reset();
     ArmSettleSeconds[0]=ArmSettleSeconds[1]=0;
     auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
     Tooth->GetCharacterMovement()->SetMovementMode(Movement && Movement->DeepWaterAt(Tooth->GetActorLocation(),true)?MOVE_Swimming:MOVE_Walking); Tooth->SetReplicateMovement(true);
@@ -244,15 +321,16 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
     // Keep the torso and legs in the same presentation space. Fully physical
     // legs under an animated, reaching torso fought the foot IK and popped at
     // every contact transition. Chaos still simulates their mass and constraints.
-    const float Goal=Left || Right?0.f:.25f;
+    const bool Active=ActiveRagdollMode!=EMCActiveRagdollMode::Off;
+    const float Goal=Left || Right?0.f:Active?1.f:.25f;
     // Let the physical pose settle before revealing it after release. A quick
     // drop/reacquire otherwise exposes the lagging feet for a few frames.
     const float BlendRate=Goal==0?16.f:6.f;
     StandingPhysicsWeight=FMath::Lerp(StandingPhysicsWeight,Goal,1.f-FMath::Exp(-BlendRate*GetWorld()->GetDeltaSeconds()));
     if (FMath::Abs(StandingPhysicsWeight-Goal)<.001f) StandingPhysicsWeight=Goal;
-    if (auto* Body=Tooth->GetMesh()->GetBodyInstance(Tooth->RigBone(TEXT("body")))) Body->PhysicsBlendWeight=StandingPhysicsWeight;
+    if (auto* Body=Tooth->GetMesh()->GetBodyInstance(Tooth->RigBone(TEXT("body")))) Body->PhysicsBlendWeight=Active?0.f:StandingPhysicsWeight;
     for (const FName Role:{FName("leg_l"),FName("leg_r")})
-        Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),StandingPhysicsWeight*.2f,false,true);
+        Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),StandingPhysicsWeight*(Active?1.f:.2f),false,true);
     bool* Flags[]={&bGripLeft,&bGripRight}; const bool Values[]={Left,Right};
     for (int32 I=0;I<2;++I)
     {
@@ -270,7 +348,7 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right)
             *Flags[I]=Values[I];
         }
         ArmSettleSeconds[I]=FMath::Max(0.f,ArmSettleSeconds[I]-GetWorld()->GetDeltaSeconds());
-        const float ArmGoal=Values[I] || ArmSettleSeconds[I]>0?0.f:.7f;
+        const float ArmGoal=Values[I] || ArmSettleSeconds[I]>0?0.f:Active?1.f:.7f;
         ArmPhysicsWeights[I]=FMath::Lerp(ArmPhysicsWeights[I],ArmGoal,1.f-FMath::Exp(-(ArmGoal==0?20.f:8.f)*GetWorld()->GetDeltaSeconds()));
         if (FMath::Abs(ArmPhysicsWeights[I]-ArmGoal)<.001f) ArmPhysicsWeights[I]=ArmGoal;
         Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),ArmPhysicsWeights[I],false,true);
@@ -362,4 +440,5 @@ void UMCToothPhysicsComponent::EnterDeath()
 void UMCToothPhysicsComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCToothPhysicsComponent,Frame); DOREPLIFETIME(UMCToothPhysicsComponent,Settings);
+    DOREPLIFETIME(UMCToothPhysicsComponent,ActiveRagdollMode);
 }

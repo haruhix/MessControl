@@ -36,6 +36,14 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
 #if !UE_BUILD_SHIPPING
     auto* GS=GetGameState<AMCGameState>();
     if (!GS) return FText::FromString(TEXT("Мир ещё не готов."));
+    if(Action==EMCDevAction::ActiveRagdoll) {
+        if(StepIndex<0 || StepIndex>2) return FText::FromString(TEXT("Неизвестный режим физики."));
+        for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+            It->ToothPhysics->SetActiveRagdollMode(static_cast<EMCActiveRagdollMode>(StepIndex));
+        return FText::FromString(StepIndex==0?TEXT("Исходный режим анимации возвращён всем текущим игрокам."):
+            StepIndex==1?TEXT("Мягкий Active Ragdoll: стабилизированный корпус и физические конечности, как в референсе. WASD, Shift, Space; проверь повороты и удары."):
+            TEXT("Упругий Active Ragdoll: более сильные мышцы. Точный хват, инструменты, плавание и лазание сохраняют контактную позу."));
+    }
     if (Action==EMCDevAction::RestartDay)
     {
         bUseDayOnePlan=true; RestartShift();

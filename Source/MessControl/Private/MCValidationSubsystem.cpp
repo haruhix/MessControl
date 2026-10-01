@@ -30,6 +30,7 @@ void MCTickGameplayV3Validation(UWorld* World);
 void MCTickUlcerReworkValidation(UWorld* World);
 void MCTickApprovalRecorder(UWorld* World);
 void MCTickApprovalValidation(UWorld* World);
+void MCTickActiveRagdollValidation(UWorld* World);
 void MCTickClimbNetworkValidation(UWorld* World);
 void MCTickSprayNetworkValidation(UWorld* World);
 void MCTickShiftResetValidation(UWorld* World);
@@ -40,6 +41,7 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
     if (FParse::Param(FCommandLine::Get(),TEXT("MCSwimTest"))) { TickSwim(DeltaSeconds); return; }
 #if !UE_BUILD_SHIPPING
     MCTickApprovalRecorder(GetWorld());
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCActiveRagdollTest"))) { MCTickActiveRagdollValidation(GetWorld()); return; }
     FString ApprovalCase;
     if(FParse::Value(FCommandLine::Get(),TEXT("MCApproval="),ApprovalCase)) { MCTickApprovalValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCShiftResetTest"))) { MCTickShiftResetValidation(GetWorld()); return; }
