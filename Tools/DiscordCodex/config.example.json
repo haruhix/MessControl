@@ -1,0 +1,12 @@
+{
+  "projectRoot": "../..",
+  "codexExecutable": "codex",
+  "allowedGuildIds": [],
+  "allowedUserIds": [],
+  "allowedChannelIds": [],
+  "operatorUserIds": [],
+  "allowGitUpdates": true,
+  "timeZone": "Asia/Yakutsk",
+  "turnTimeoutMs": 300000,
+  "maxQueuedRequests": 6
+}

@@ -12,6 +12,13 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
 {
     if(!IsLocallyControlled()) return;
     const FVector P=GetActorLocation();
+    if(bMouthCameraHeld && bMouthCameraInitialized) {
+        // The arm is attached to the pawn. Compensate its root translation so
+        // both the camera and its short collision sweep stay in the mouth.
+        CameraBoom->TargetOffset=MouthCameraEye+CameraBoom->GetComponentRotation().Vector()*CameraBoom->TargetArmLength-P;
+        return;
+    }
+    const FVector TrackedP=bMouthCameraHeld?ThroatCaptureStart:P;
     float CenterY=0;
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {CenterY=It->GetActorLocation().Y;break;}
     if(!MouthCameraBounds.IsValid())
@@ -31,13 +38,13 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         }
         return Value.BoundToBox(ArenaCenter-ArenaExtent,ArenaCenter+ArenaExtent);
     };
-    const bool Reset=!bMouthCameraInitialized || FVector::DistSquared(P,MouthCameraFocus)>FMath::Square(1400.f);
-    if(Reset) MouthCameraFocus=P;
+    const bool Reset=!bMouthCameraInitialized || FVector::DistSquared(TrackedP,MouthCameraFocus)>FMath::Square(1400.f);
+    if(Reset) MouthCameraFocus=TrackedP;
     else for(int32 Axis=0;Axis<3;++Axis) {
-        const double Delta=P[Axis]-MouthCameraFocus[Axis],Zone=FMath::Max(0.,CameraDeadZone[Axis]);
+        const double Delta=TrackedP[Axis]-MouthCameraFocus[Axis],Zone=FMath::Max(0.,CameraDeadZone[Axis]);
         MouthCameraFocus[Axis]+=Delta-FMath::Clamp(Delta,-Zone,Zone);
     }
-    const FVector Focus=MouthCameraFocus+FVector(80,0,75);
+    const FVector Focus=MouthCameraFocus+CameraFocusOffset;
     const FVector Offset(-FMath::Clamp(FollowDistance,400.f,1600.f),(CenterY-MouthCameraFocus.Y)*.70,0);
     FVector WantedEye=ClampEye(MouthCameraFocus+Offset+FVector(0,0,FMath::Clamp(FollowHeight,150.f,700.f)));
     // At the front rim preserve the view height; shrinking height with distance
@@ -68,11 +75,11 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     // Movement and the cached player view can update after this actor tick.
     // Fit the next movement step too, so low frame rates cannot carry the
     // avatar past the screen edge before the next camera update.
-    const FVector NextP=P+GetVelocity()*FMath::Clamp(Dt,0.f,.15f);
+    const FVector NextP=TrackedP+(bMouthCameraHeld?FVector::ZeroVector:GetVelocity())*FMath::Clamp(Dt,0.f,.15f);
     for(int32 Pass=0;Pass<4;++Pass) {
         float YawCorrection=0,PitchCorrection=0;
         for(int32 I=0;I<16;++I) {
-            const FVector Corner=(I&8?NextP:P)+FVector(I&1?Extent.X:-Extent.X,I&2?Extent.Y:-Extent.Y,I&4?Extent.Z:-Extent.Z);
+            const FVector Corner=(I&8?NextP:TrackedP)+FVector(I&1?Extent.X:-Extent.X,I&2?Extent.Y:-Extent.Y,I&4?Extent.Z:-Extent.Z);
             const FVector Local=Rotation.UnrotateVector(Corner-Eye);
             const float Yaw=FMath::RadiansToDegrees(FMath::Atan2(Local.Y,Local.X));
             const float Pitch=FMath::RadiansToDegrees(FMath::Atan2(Local.Z,Local.X));

@@ -20,7 +20,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Contact(AActor* Surface,FVector Point,FVector Normal);
     void Release();
-    bool CanReach(FVector Point,FVector Normal) const;
+    bool CanReach(FVector Point,FVector Normal,const AActor* Surface=nullptr) const;
     bool CanAcquireSurface(const AActor* Surface) const;
     bool CanBrushToward(FVector Point) const;
     bool WantsFacing(FVector& Direction) const;
@@ -43,7 +43,7 @@ public:
     UPROPERTY(Replicated) FVector_NetQuantizeNormal LocalNormal=FVector::UpVector;
     UPROPERTY(Replicated) double ContactAt=-100;
 private:
-    FTransform HandGoal(FVector Point,FVector Normal) const;
+    FTransform HandGoal(FVector Point,FVector Normal,bool* Reachable=nullptr,const AActor* Surface=nullptr) const;
     FTransform SurfaceTransform() const;
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
     TWeakObjectPtr<class AMCTongue> Tongue;

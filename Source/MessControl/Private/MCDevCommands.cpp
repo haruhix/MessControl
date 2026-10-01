@@ -51,7 +51,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         DayDirector->Start(Plan,StepIndex,true);
         return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::ColdCola))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::SwimCoffee))
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -65,6 +65,11 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::SwimCoffee:
+        if (!IsValid(DayDirector->Flood)) DayDirector->Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>();
+        if (DayDirector->ColdCola) DayDirector->ColdCola->Stop();
+        if (DayDirector->Flood) DayDirector->Flood->Start(DayDirector->Settings,600);
+        return FText::FromString(TEXT("Кофе наполняет рот и держится 10 минут. WASD — плавать; F3 → убрать кофе — закончить тест."));
     case EMCDevAction::ColdCola:
         if(DayDirector->ColdCola) { DayDirector->ColdCola->Stop(); DayDirector->ColdCola->Destroy(); }
         DayDirector->ColdCola=GetWorld()->SpawnActor<AMCColdColaEvent>(); DayDirector->ColdCola->Start(DayDirector->Settings);
@@ -99,7 +104,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         }
         return FText::FromString(Action==EMCDevAction::SpicyPepper?
             TEXT("Перец падает перед тобой: таймер 8–6 секунд по раунду. E — взять, Q — бросить в круг. Запуск увулы останавливает таймер."):
-            TEXT("В круге два куска, один испорчен. Войди в круг и нажми Space: весь этот заказ вернётся с жидкостью. Щётка очищает лужи."));
+            TEXT("В круге два куска, один испорчен. Войди и нажми Space: глотка сократится и выплюнет заказ со струёй и брызгами. Пятна останутся на языке до чистки щёткой."));
     }
     case EMCDevAction::LocomotionGround:
         if (Hero && StepIndex>=0 && StepIndex<=2)

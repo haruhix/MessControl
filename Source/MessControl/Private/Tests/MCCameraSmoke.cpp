@@ -92,7 +92,9 @@ void MCTickCameraValidation(UWorld* World)
         R.Invalid|=Blocked || Eye.ContainsNaN() || !H->CameraBoom->bDoCollisionTest;
         UE_LOG(LogTemp,Display,TEXT("MC_CAMERA_VIEW %d blocked=%d facing=%.3f eye=%s"),R.Stage,Blocked,Facing,*Eye.ToString());
         if(FParse::Param(FCommandLine::Get(),TEXT("MCCameraCapture"))){
-            const FString Folder=FPaths::ProjectDir()/TEXT("Artifacts/Camera");IFileManager::Get().MakeDirectory(*Folder,true);
+            FString Folder=FPaths::ProjectDir()/TEXT("Artifacts/Camera");
+            FParse::Value(FCommandLine::Get(),TEXT("MCCameraCaptureFolder="),Folder);
+            IFileManager::Get().MakeDirectory(*Folder,true);
             FScreenshotRequest::RequestScreenshot(Folder/FString::Printf(TEXT("View%02d.png"),R.Stage),true,false);
         }
         R.Shot=true;++R.Seen;

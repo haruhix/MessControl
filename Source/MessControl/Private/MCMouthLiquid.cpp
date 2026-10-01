@@ -228,6 +228,7 @@ void AMCMouthSurface::UpdateLiquid(float Dt)
     LiquidMID->SetScalarParameterValue(TEXT("Seed"),LiquidSeed);
     LiquidMID->SetScalarParameterValue(TEXT("WorldSize"),LiquidHalfSize*2);
     LiquidMID->SetScalarParameterValue(TEXT("Finish"),Finish);
+    LiquidMID->SetScalarParameterValue(TEXT("Arrival"),LiquidBornAt<0?1.f:FMath::SmoothStep(0.f,.35f,float(Now-LiquidBornAt)));
     // The wake has decayed below visibility after three seconds. Keep the value
     // stable then, so idle puddles do not upload a new material uniform every frame.
     LiquidMID->SetScalarParameterValue(TEXT("BrushAge"),FMath::Clamp(Now-BrushAt,0.f,3.f));

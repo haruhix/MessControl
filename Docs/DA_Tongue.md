@@ -147,7 +147,7 @@ World Position Offset (WPO) у продавливания нет. Если `Surf
 | --- | --- |
 | Idle / `Idle Height` | Амплитуда фонового покачивания, 0–8 см; 0 отключает его |
 | Idle / `Idle Period` | Период покачивания, 2–30 с |
-| Jolt / `Automatic Jolts` | Автоматические сильные рывки в обычном первом дне |
+| Jolt / `Automatic Jolts` | Автоматические сильные рывки; выключены в сохранённом DA и native defaults |
 | Jolt / `Jolt Rest Min` | Минимальная случайная пауза, 8–180 с |
 | Jolt / `Jolt Rest Max` | Максимальная пауза, не меньше Min и не больше 240 с |
 

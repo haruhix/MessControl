@@ -8,6 +8,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCGazeComponent.h"
+#include "MCHazardWave.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
@@ -168,29 +169,47 @@ float AMCTongue::MotionWeight(FVector P) const
     }
     return Weight;
 }
-float AMCTongue::Offset(FVector P,float Time,float& Red) const
+float AMCTongue::Offset(FVector P,float Time,float& Red,TConstArrayView<FMCTongueMotionState> Pulses) const
 {
     const float UnitY=(P.Y-RestBounds.Min.Y)/RestBounds.GetSize().Y;
-    const float Idle=SurfaceWeight(P)*Settings.IdleHeight*FMath::Sin(Time*2*PI/Settings.IdlePeriod+UnitY*1.2f);
+    const float SurfaceMask=SurfaceWeight(P);
+    const float Idle=SurfaceMask*Settings.IdleHeight*FMath::Sin(Time*2*PI/Settings.IdlePeriod+UnitY*1.2f);
     const auto& S=Motion.Settings; const float Age=Time-Motion.StartedAt;
     const float Amount=Motion.Serial>0?MotionWeight(P)*(S.IsWave()?S.Band(MotionDistance(P),Age):S.Envelope(Age)):0;
     Red=FMath::Max(0.f,Amount)*S.Redness;
-    return Idle+S.Height*Amount;
+    float Height=Idle+S.Height*Amount;
+    // Independent ulcers can pulse together and during a larger tongue event.
+    // They retain their own radius, server clock and damage; no second push is applied.
+    const float PulseWeight=FMath::Sqrt(SurfaceMask);
+    for(const auto& Pulse:Pulses)
+    {
+        const float Distance=GetActorTransform().TransformVector(P-Pulse.Origin).Size2D();
+        const float PulseAmount=PulseWeight*Pulse.Settings.Band(Distance,Time-Pulse.StartedAt);
+        Height+=Pulse.Settings.Height*PulseAmount;
+        Red=FMath::Max(Red,FMath::Max(0.f,PulseAmount)*Pulse.Settings.Redness);
+    }
+    return Height;
 }
 void AMCTongue::Deform(float Time)
 {
     TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_DeformAndCollision);
+    TArray<FMCTongueMotionState,TInlineAllocator<6>> Pulses;
+    for(TActorIterator<AMCHazardWave> It(GetWorld());It;++It)
+    {
+        FMCTongueMotionState Pulse;
+        if(It->SurfaceMotion(this,Time,Pulse)) Pulses.Add(Pulse);
+    }
     for (int32 I=0;I<Rest.Num();++I)
     {
         const FVector P=Rest[I]; float Red=0,Dummy=0;
-        const float PhysicalHeight=Offset(P,Time,Red),Height=PhysicalHeight-IndentDepth[I],Anchor=AnchorWeights[I];
+        const float PhysicalHeight=Offset(P,Time,Red,Pulses),Height=PhysicalHeight-IndentDepth[I],Anchor=AnchorWeights[I];
         // Events and weight share this buffer with Chaos. Never add a second
         // material-only displacement: it leaves feet/food above the visible dent.
         Positions[I]=P+FVector(0,0,Height*Anchor); Red*=Anchor;
         // Transform artist normals/tangents with the displacement gradient; keep UV seam smoothing.
-        const float Dx=((Offset(P+FVector(1,0,0),Time,Dummy)-Offset(P-FVector(1,0,0),Time,Dummy))*.5f-IndentGradient[I].X)*Anchor+Height*AnchorGradients[I].X;
-        const float Dy=((Offset(P+FVector(0,1,0),Time,Dummy)-Offset(P-FVector(0,1,0),Time,Dummy))*.5f-IndentGradient[I].Y)*Anchor+Height*AnchorGradients[I].Y;
-        const float Dz=((Offset(P+FVector(0,0,1),Time,Dummy)-Offset(P-FVector(0,0,1),Time,Dummy))*.5f-IndentGradient[I].Z)*Anchor+Height*AnchorGradients[I].Z;
+        const float Dx=((Offset(P+FVector(1,0,0),Time,Dummy,Pulses)-Offset(P-FVector(1,0,0),Time,Dummy,Pulses))*.5f-IndentGradient[I].X)*Anchor+Height*AnchorGradients[I].X;
+        const float Dy=((Offset(P+FVector(0,1,0),Time,Dummy,Pulses)-Offset(P-FVector(0,1,0),Time,Dummy,Pulses))*.5f-IndentGradient[I].Y)*Anchor+Height*AnchorGradients[I].Y;
+        const float Dz=((Offset(P+FVector(0,0,1),Time,Dummy,Pulses)-Offset(P-FVector(0,0,1),Time,Dummy,Pulses))*.5f-IndentGradient[I].Z)*Anchor+Height*AnchorGradients[I].Z;
         const FVector N=RestNormals[I],T=RestTangents[I].TangentX;
         const float Nz=N.Z/FMath::Max(.5f,1+Dz);
         Normals[I]=FVector(N.X-Dx*Nz,N.Y-Dy*Nz,Nz).GetSafeNormal();
@@ -208,6 +227,25 @@ bool AMCTongue::SurfacePoint(FVector P,FHitResult& Hit) const
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCTongueSurface),true);
     Params.bReturnFaceIndex=true;
     return Surface->LineTraceComponent(Hit,P+FVector(0,0,1200),P-FVector(0,0,1600),Params);
+}
+bool AMCTongue::RestSurfacePoint(FVector P,FVector& Point) const
+{
+    const FTransform T=GetActorTransform();
+    bool Found=false; double Height=-DBL_MAX;
+    for(int32 I=0;I+2<Indices.Num();I+=3)
+    {
+        const FVector A=T.TransformPosition(Rest[Indices[I]]),B=T.TransformPosition(Rest[Indices[I+1]]),C=T.TransformPosition(Rest[Indices[I+2]]);
+        if(P.X<FMath::Min3(A.X,B.X,C.X) || P.X>FMath::Max3(A.X,B.X,C.X)
+            || P.Y<FMath::Min3(A.Y,B.Y,C.Y) || P.Y>FMath::Max3(A.Y,B.Y,C.Y)) continue;
+        const double Det=(B.Y-C.Y)*(A.X-C.X)+(C.X-B.X)*(A.Y-C.Y);
+        if(FMath::Abs(Det)<1.e-6) continue;
+        const double U=((B.Y-C.Y)*(P.X-C.X)+(C.X-B.X)*(P.Y-C.Y))/Det;
+        const double V=((C.Y-A.Y)*(P.X-C.X)+(A.X-C.X)*(P.Y-C.Y))/Det;
+        if(U<-.0001 || V<-.0001 || U+V>1.0001) continue;
+        Height=FMath::Max(Height,U*A.Z+V*B.Z+(1-U-V)*C.Z); Found=true;
+    }
+    if(Found) Point=FVector(P.X,P.Y,Height);
+    return Found;
 }
 void AMCTongue::PushMotion(float Age)
 {

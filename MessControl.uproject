@@ -12,6 +12,11 @@
 	],
 	"Plugins": [
 		{
+			"Name": "MessControlProjectIndex",
+			"Enabled": true,
+			"TargetAllowList": ["Editor"]
+		},
+		{
 			"Name": "Niagara",
 			"Enabled": true
 		},

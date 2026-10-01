@@ -9,6 +9,7 @@
 #include "MCMouthSurface.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "EngineUtils.h"
 #include "UnrealClient.h"
 #include "Misc/CommandLine.h"
@@ -51,30 +52,35 @@ void UMCValidationSubsystem::TickDevPanel(float Dt)
             ++DevStage;
         }
         if (DevStage==2 && T>6) { PC->RequestDevAction(EMCDevAction::Infection); ++DevStage; }
-        if (DevStage==3 && T>11) { Start(EMCDayStep::CoffeeWaves); ++DevStage; }
-        if (DevStage==4 && T>13) { PC->RequestDevAction(EMCDevAction::CoffeeDirt); ++DevStage; }
-        if (DevStage==5 && T>18) { PC->RequestDevAction(EMCDevAction::StopCoffee); Start(EMCDayStep::StuckFood); ++DevStage; }
-        if (DevStage==6 && T>22) { PC->RequestDevAction(EMCDevAction::KillSelf); ++DevStage; }
-        if (DevStage==7 && T>29) { PC->RequestDevAction(EMCDevAction::RestartDay); PC->ToggleDevPanel(); ++DevStage; }
+        // Absorption now has a visible sinking phase after spoilage. Leave time
+        // for the real lesion and its replication before resetting the event.
+        if (DevStage==3 && T>17 && (DevSeen&2)) { Start(EMCDayStep::CoffeeWaves); ++DevStage; }
+        if (DevStage==4 && T>20) { PC->RequestDevAction(EMCDevAction::CoffeeDirt); PC->RequestDevAction(EMCDevAction::SwimCoffee); ++DevStage; }
+        if (DevStage==5 && T>28) { PC->RequestDevAction(EMCDevAction::StopCoffee); Start(EMCDayStep::StuckFood); ++DevStage; }
+        if (DevStage==6 && T>32) { PC->RequestDevAction(EMCDevAction::KillSelf); ++DevStage; }
+        if (DevStage==7 && T>39) { PC->RequestDevAction(EMCDevAction::RestartDay); PC->ToggleDevPanel(); ++DevStage; }
     }
     int32 Food=0,Ulcers=0,Stuck=0; bool Flood=false;
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->IsDisposed() && !It->bBrushTool) { ++Food; if (It->Phase==EMCFoodPhase::Stuck) ++Stuck; }
     for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (It->bUlcer) ++Ulcers;
     for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) Flood|=It->IsActive();
+    for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
+        if(It->GetPhase()==EMCCoffeePhase::Holding && It->WaterSettings.HoldSeconds==600 && !It->Jet->IsVisible() && !It->DrainRibbon->IsVisible()) DevSeen|=128;
     if (GS->bDevManualEvents && Food>0) DevSeen|=1;
     if (Ulcers>0) DevSeen|=2;
     if (GS->bDevManualEvents && Flood) DevSeen|=4;
     Hero=Cast<AMCToothCharacter>(PC->GetPawn());
     if (Hero && Hero->Status->State.CoffeeLeft>0) DevSeen|=8;
+    if (Hero && Hero->GetCharacterMovement()->IsSwimming() && Hero->AnimationSwim>.8f) DevSeen|=256;
     if (Stuck>0) DevSeen|=16;
     // Authored arena sockets may differ from the configured ideal count during blockout work.
-    if (T>22 && GS->ArenaTeeth.Num()>0 && GS->AvailableArenaTeeth()==GS->ArenaTeeth.Num()-1) DevSeen|=32;
-    if (T>29 && !GS->bDevManualEvents && GS->ArenaTeeth.Num()>0 && GS->AvailableArenaTeeth()==GS->ArenaTeeth.Num()) DevSeen|=64;
+    if (T>32 && GS->ArenaTeeth.Num()>0 && GS->AvailableArenaTeeth()==GS->ArenaTeeth.Num()-1) DevSeen|=32;
+    if (T>39 && !GS->bDevManualEvents && GS->ArenaTeeth.Num()>0 && GS->AvailableArenaTeeth()==GS->ArenaTeeth.Num()) DevSeen|=64;
     if (Age>=NextLog) { NextLog+=5; UE_LOG(LogTemp,Display,TEXT("MC_DEV_PANEL net=%d seen=%d stage=%d t=%.1f"),int32(GetWorld()->GetNetMode()),DevSeen,DevStage,T); }
     // Let clients verify the last replicated reset before closing the host connection.
-    if (T>(Host?38:33) || Age>85)
+    if (T>(Host?48:44) || Age>95)
     {
-        const bool Pass=DevSeen==127 && (Host || bDevClientGuard);
+        const bool Pass=DevSeen==511 && (Host || bDevClientGuard);
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s DEV_PANEL net=%d seen=%d clientGuard=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,bDevClientGuard);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     }

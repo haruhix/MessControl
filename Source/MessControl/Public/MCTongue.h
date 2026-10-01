@@ -41,6 +41,9 @@ public:
     bool TriggerJolt();
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue") void ResetPain();
     bool SurfacePoint(FVector WorldPoint,FHitResult& Hit) const;
+    // Stable support for permanent coatings: breathing, pressure and pain waves
+    // must not give server and clients different grime layouts.
+    bool RestSurfacePoint(FVector WorldPoint,FVector& Point) const;
     float ServerTime() const;
     // Used by validation to compare the rendered triangle with collision.
     const TArray<FVector>& CurrentVertices() const { return Positions; }
@@ -78,7 +81,7 @@ private:
     void PushMotion(float Age);
     void ScheduleJolt();
     double NextJoltAt=0;
-    float Offset(FVector Local,float Time,float& Red) const;
+    float Offset(FVector Local,float Time,float& Red,TConstArrayView<FMCTongueMotionState> Pulses) const;
     void Deform(float Time);
     TArray<FVector> Rest,RestNormals,Positions,Normals;
     TArray<float> AnchorWeights;

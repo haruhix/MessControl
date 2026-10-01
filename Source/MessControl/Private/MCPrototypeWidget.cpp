@@ -220,8 +220,8 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
             for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
             {
                 const auto Phase=It->GetPhase();
-                EventLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Filling?TEXT("COFFEE / FILLING"):Phase==EMCCoffeePhase::Draining?TEXT("COFFEE / DRAINING TO THROAT"):TEXT("COFFEE / DRAINED")));
-                InstructionLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Draining?TEXT("Current pulls towards the throat! Hold LMB at an arena tooth; WASD: paddle."):Phase==EMCCoffeePhase::Filling?TEXT("Dodge the jet and outward wave. Hold LMB near an arena tooth to cling."):TEXT("Water is gone. F3: replay the event or test cleanup.")));
+                EventLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Holding?TEXT("КОФЕ / ПЛАВАНИЕ"):Phase==EMCCoffeePhase::Filling?TEXT("COFFEE / FILLING"):Phase==EMCCoffeePhase::Draining?TEXT("COFFEE / DRAINING TO THROAT"):TEXT("COFFEE / DRAINED")));
+                InstructionLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Holding?TEXT("WASD — плавать. F3 → убрать кофе — закончить тест."):Phase==EMCCoffeePhase::Draining?TEXT("Current pulls towards the throat! Hold LMB at an arena tooth; WASD: paddle."):Phase==EMCCoffeePhase::Filling?TEXT("Dodge the jet and outward wave. Hold LMB near an arena tooth to cling."):TEXT("Water is gone. F3: replay the event or test cleanup.")));
                 break;
             }
     }

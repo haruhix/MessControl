@@ -4,7 +4,7 @@
 #include "MCCoffeeProfile.generated.h"
 
 UENUM(BlueprintType)
-enum class EMCCoffeePhase : uint8 { Inactive, Filling, Draining };
+enum class EMCCoffeePhase : uint8 { Inactive, Filling, Draining, Holding };
 
 USTRUCT(BlueprintType)
 struct FMCCoffeeWaterSettings
@@ -25,6 +25,7 @@ struct FMCCoffeeWaterSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Swimming") float SwimFloatDepth=-5.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour", meta=(ClampMin="1",ClampMax="15")) float FillSeconds=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour", meta=(ClampMin="0.5",ClampMax="10")) float DrainSeconds=2;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour", meta=(ClampMin="0",ClampMax="3600")) float HoldSeconds=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour", meta=(ClampMin="1",ClampMax="4")) int32 Cycles=1;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour") FVector Inlet=FVector(420,-100,1100);
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Pour") FVector DrainPoint=FVector(920,0,0);
@@ -39,7 +40,7 @@ struct FMCCoffeeWaterSettings
     // Authoring point is a fallback; a placed food disposal marks the actual throat.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Drain") bool bUseThroatActor=true;
     void Sanitize();
-    float CycleSeconds() const { return FillSeconds+DrainSeconds; }
+    float CycleSeconds() const { return FillSeconds+HoldSeconds+DrainSeconds; }
     float CycleTime(float Time) const;
     EMCCoffeePhase Phase(float Time) const;
     float FillAmount(float Time) const;

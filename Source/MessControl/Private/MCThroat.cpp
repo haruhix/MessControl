@@ -3,6 +3,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
+#include "MCVomitBurst.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -54,6 +55,7 @@ void AMCThroat::OnConstruction(const FTransform& Transform)
     ZoneRadius=FMath::Max(80.f,ZoneRadius); ZoneHeight=FMath::Max(40.f,ZoneHeight);
     PressSeconds=FMath::Max(.1f,PressSeconds); AnticipationSeconds=FMath::Max(.1f,AnticipationSeconds);
     SwallowSeconds=FMath::Max(.5f,SwallowSeconds); RecoverySeconds=FMath::Max(.2f,RecoverySeconds);
+    VomitSeconds=FMath::Max(2.f,VomitSeconds);
     Tissue->SetMaterial(0,TissueMaterial);
     Uvula->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate")));
     SculptedTissue->SetRelativeLocation(GateCenter);
@@ -214,6 +216,9 @@ float AMCThroat::OpenAmount() const
     if (ThroatPhase==EMCThroatPhase::Swallowing) return FMath::SmoothStep(0.f,.35f,Age);
     if (ThroatPhase==EMCThroatPhase::Recovering) return 1-FMath::SmoothStep(0.f,RecoverySeconds*.75f,Age);
     if (ThroatPhase==EMCThroatPhase::Spasm) return .32f+.28f*FMath::Square(FMath::Sin(Age*17));
+    // Recovery owns closing. Closing here would reopen the aperture at the
+    // transition to Recovering, whose initial opening is one.
+    if (ThroatPhase==EMCThroatPhase::Vomiting) return .94f;
     return 0;
 }
 void AMCThroat::CaptureMeal()
@@ -233,38 +238,27 @@ void AMCThroat::SpitOut(bool Reset)
     const FVector Forward=GetActorForwardVector();
     int32 I=0;
     for(const auto& Entry:SwallowedPlayers) if(auto* Hero=Entry.Hero.Get()) {
-        const FVector Exit=Reset?Entry.Start:GetActorTransform().TransformPosition(ZoneCenter+FVector(-ZoneRadius-110,(I++%3-1)*85,150));
+        const FVector Exit=Reset?Entry.Start:GetActorTransform().TransformPosition(VomitOrigin+FVector(-25,(I++%4-1.5f)*90,0));
         Hero->SetActorLocation(Exit,false,nullptr,ETeleportType::TeleportPhysics); Hero->SetThroatCapture(nullptr);
-        if(!Reset) Hero->LaunchCharacter(-Forward*570+FVector(0,0,420),true,true);
-        if(!Hero->IsLocallyControlled()) Hero->ClientThroatExit(Exit,Reset?FVector::ZeroVector:-Forward*570+FVector(0,0,420));
+        if(!Reset) Hero->LaunchCharacter(-Forward*1050+FVector(0,0,470),true,true);
+        if(!Hero->IsLocallyControlled()) Hero->ClientThroatExit(Exit,Reset?FVector::ZeroVector:-Forward*1050+FVector(0,0,470));
     }
     SwallowedPlayers.Reset();
     for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get(); IsValid(Food) && !Food->IsDisposed()) {
-        Food->SetActorLocation(Reset?Piece.Start:GetActorTransform().TransformPosition(ZoneCenter+FVector(-ZoneRadius-60,(I++%5-2)*45,130)),false,nullptr,ETeleportType::TeleportPhysics);
-        Food->CancelSwallow(); Food->ResumeFuse(this); if(!Reset) Food->Body->SetPhysicsLinearVelocity(-Forward*430+FVector(0,0,330));
+        Food->SetActorLocation(Reset?Piece.Start:GetActorTransform().TransformPosition(VomitOrigin+FVector(-45,(I++%5-2)*55,35)),false,nullptr,ETeleportType::TeleportPhysics);
+        Food->CancelSwallow(); Food->ResumeFuse(this); if(!Reset) Food->Body->SetPhysicsLinearVelocity(-Forward*780+FVector(0,0,400));
     }
     Meal.Reset();
 }
-void AMCThroat::SpawnVomitLiquid()
+void AMCThroat::BeginVomit()
 {
-    // Dirt belongs to this rejected gulp. Other food batches retain their state.
-    for(int32 I=0;I<3;++I) {
-        FVector P=GetActorTransform().TransformPosition(ZoneCenter+FVector(-ZoneRadius-180-I*135,(I%2?1:-1)*100,0));
-        FHitResult Floor; bool Found=false;
-        for(TActorIterator<AMCTongue> T(GetWorld());T;++T) if(T->SurfacePoint(P,Floor)) { Found=true; break; }
-        if(!Found) continue;
-        const FTransform Transform(FRotationMatrix::MakeFromZ(Floor.ImpactNormal).Rotator(),Floor.ImpactPoint+Floor.ImpactNormal*5);
-        auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Transform);
-        if(Patch) {
-            Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=60+I*14; Patch->Batch=10000+MealSequence;
-            Patch->LiquidMaterial=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Gameplay/Hazards/MI_VomitPuddle.MI_VomitPuddle")));
-            Patch->FinishSpawning(Transform); Patch->Status->ApplyCoffee(.65f);
-        }
-    }
+    if(auto* Burst=GetWorld()->SpawnActor<AMCVomitBurst>()) { Burst->Configure(this); ActiveVomit=Burst; }
+    SpitOut(); ++VomitCount; SetPhase(EMCThroatPhase::Vomiting,ServerNow());
 }
 void AMCThroat::ResetSwallow()
 {
     if (!HasAuthority()) return;
+    if(ActiveVomit.IsValid()) ActiveVomit->Destroy(); ActiveVomit.Reset();
     SpitOut(true);
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->ResumeFuse(this);
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->OrderJumpTarget==this) It->ClearOrderJump();
@@ -319,7 +313,8 @@ void AMCThroat::Tick(float Dt)
                 Food->SetActorLocationAndRotation(P,FQuat(FVector::RightVector,Alpha*PI)*Piece.Rotation,false,nullptr,ETeleportType::TeleportPhysics);
             }
             for(const auto& Entry:SwallowedPlayers) if(auto* Hero=Entry.Hero.Get()) {
-                FVector P=FMath::Lerp(Entry.Start,End,FMath::SmoothStep(0.f,.72f,T)); P.Z+=FMath::Sin(T*PI)*100;
+                const float PlayerAlpha=FMath::SmoothStep(0.f,.72f,T);
+                FVector P=FMath::Lerp(Entry.Start,End,PlayerAlpha); P.Z+=FMath::Sin(PlayerAlpha*PI)*100;
                 Hero->SetActorLocation(P,false,nullptr,ETeleportType::TeleportPhysics);
             }
             bool Wrong=!SwallowedPlayers.IsEmpty();
@@ -330,7 +325,8 @@ void AMCThroat::Tick(float Dt)
                 Meal.Reset(); SetPhase(EMCThroatPhase::Recovering,PhaseStartedAt+SwallowSeconds);
             }
         }
-        if(ThroatPhase==EMCThroatPhase::Spasm && Now-PhaseStartedAt>=SpasmSeconds) { SpawnVomitLiquid(); SpitOut(); ++VomitCount; SetPhase(EMCThroatPhase::Recovering,Now); }
+        if(ThroatPhase==EMCThroatPhase::Spasm && Now-PhaseStartedAt>=SpasmSeconds) BeginVomit();
+        if(ThroatPhase==EMCThroatPhase::Vomiting && Now-PhaseStartedAt>=FMath::Max(2.f,VomitSeconds)) SetPhase(EMCThroatPhase::Recovering,Now);
         if (ThroatPhase==EMCThroatPhase::Recovering && Now-PhaseStartedAt>=RecoverySeconds) SetPhase(EMCThroatPhase::Collecting,Now);
     }
     UpdatePresentation(Dt);
@@ -343,7 +339,10 @@ void AMCThroat::UpdatePresentation(float Dt)
         const float Breath=.015f+.012f*FMath::Sin(Time*1.35f);
         const float Aperture=FMath::Clamp(Open+Breath,0.f,1.f);
         AuthoredMouth->SetMorphTarget(TEXT("Open"),bReverseAuthoredOpen?1-Aperture:Aperture);
-        AuthoredMouth->SetMorphTarget(TEXT("vomit"),ThroatPhase==EMCThroatPhase::Spasm?FMath::SmoothStep(0.f,.25f,float(Time-PhaseStartedAt))*(.65f+.35f*FMath::Square(FMath::Sin(Time*12))):0.f);
+        const float Age=FMath::Max(0.f,float(Time-PhaseStartedAt));
+        const float Gag=ThroatPhase==EMCThroatPhase::Spasm?FMath::SmoothStep(0.f,.25f,Age)*(.65f+.35f*FMath::Square(FMath::Sin(Age*12))):0;
+        const float Expel=ThroatPhase==EMCThroatPhase::Vomiting?(1-FMath::SmoothStep(VomitSeconds-.4f,VomitSeconds,Age))*(.82f+.18f*FMath::Square(FMath::Sin(Age*14))):0;
+        AuthoredMouth->SetMorphTarget(TEXT("vomit"),FMath::Max(Gag,Expel));
         SculptedTissue->SetVisibility(false); Tissue->SetVisibility(false);
     }
     const float Target=Weight>0?1.f:0.f;
@@ -355,7 +354,8 @@ void AMCThroat::UpdatePresentation(float Dt)
     Uvula->SetRelativeLocation(Authored?UvulaTop:UvulaTop-FVector(0,0,Length*.5f));
     Uvula->SetRelativeScale3D(FVector(.7f,.85f,Length/100.f));
     UvulaLanding->SetBoxExtent(FVector(28,38,16),false);
-    const float Sway=FMath::Sin(Time*1.8f)*1.2f*(1-VisualWeight)+(ThroatPhase==EMCThroatPhase::Spasm?FMath::Sin(Time*28)*12:0);
+    const float Sway=FMath::Sin(Time*1.8f)*1.2f*(1-VisualWeight)+(ThroatPhase==EMCThroatPhase::Spasm?FMath::Sin(Time*28)*12:
+        ThroatPhase==EMCThroatPhase::Vomiting?FMath::Sin(float(Time-PhaseStartedAt)*24)*8*FMath::Exp(-float(Time-PhaseStartedAt)):0);
     Uvula->SetRelativeRotation(FRotator(0,0,Sway));
     // The character braces against the front of the bulb. A pad on its central
     // axis let the visible stalk pass through the body despite a valid landing.
@@ -363,7 +363,7 @@ void AMCThroat::UpdatePresentation(float Dt)
     // The back wall always contains pawns and brushes. Captured food follows a kinematic arc.
     ClosedBarrier->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     const FLinearColor Color=ThroatPhase==EMCThroatPhase::Collecting?FLinearColor(.05f,1.f,.31f):
-        ThroatPhase==EMCThroatPhase::Anticipation || ThroatPhase==EMCThroatPhase::Spasm?FLinearColor(1.f,.035f,.01f)*(1+.45f*FMath::Sin(Time*14)):FLinearColor(1.f,.52f,.045f);
+        ThroatPhase==EMCThroatPhase::Anticipation || ThroatPhase==EMCThroatPhase::Spasm || ThroatPhase==EMCThroatPhase::Vomiting?FLinearColor(1.f,.035f,.01f)*(1+.45f*FMath::Sin(Time*14)):FLinearColor(1.f,.52f,.045f);
     if (RingMID) RingMID->SetVectorParameterValue(TEXT("ZoneColor"),Color);
     Label->SetRelativeLocation(ZoneCenter+FVector(-30,0,72));
     Label->SetTextRenderColor(Color.ToFColorSRGB());
@@ -371,6 +371,7 @@ void AMCThroat::UpdatePresentation(float Dt)
         FString::Printf(TEXT("%d FOOD  /  DROP INSIDE\n%s"),FoodInZone,FoodInZone>0?TEXT("SPACE IN CIRCLE: ORDER"):TEXT("BRING FOOD HERE")):
         ThroatPhase==EMCThroatPhase::Anticipation?FString::Printf(TEXT("RUN OUTSIDE!  %.1f"),FMath::Max(0.f,AnticipationSeconds-(Time-float(PhaseStartedAt)))):
         ThroatPhase==EMCThroatPhase::Spasm?TEXT("WRONG INGREDIENT!  BLEURGH!"):
+        ThroatPhase==EMCThroatPhase::Vomiting?TEXT("BLEURGH!"):
         ThroatPhase==EMCThroatPhase::Swallowing?TEXT("GULP!"):TEXT("CLOSING...")));
     GeometryElapsed+=Dt;
     if(SculptedTissue->GetSkeletalMeshAsset())
@@ -378,7 +379,7 @@ void AMCThroat::UpdatePresentation(float Dt)
         SculptedTissue->SetMorphTarget(TEXT("SwallowOpen"),Open);
         SculptedTissue->SetMorphTarget(TEXT("Breath"),.5f+.5f*FMath::Sin(Time*1.35f));
         const float GulpAge=FMath::Clamp(float(ServerNow()-PhaseStartedAt)/SwallowSeconds,0.f,1.f);
-        SculptedTissue->SetMorphTarget(TEXT("Peristalsis"),ThroatPhase==EMCThroatPhase::Swallowing?FMath::Sin(GulpAge*PI):ThroatPhase==EMCThroatPhase::Spasm?.5f+.5f*FMath::Sin(Time*22):0.f);
+        SculptedTissue->SetMorphTarget(TEXT("Peristalsis"),ThroatPhase==EMCThroatPhase::Swallowing?FMath::Sin(GulpAge*PI):ThroatPhase==EMCThroatPhase::Spasm?.5f+.5f*FMath::Sin(Time*22):ThroatPhase==EMCThroatPhase::Vomiting?.65f+.35f*FMath::Sin(float(Time-PhaseStartedAt)*18):0.f);
     }
     else if (GetNetMode()!=NM_DedicatedServer && (Dt<=0 || GeometryElapsed>=1.f/30)) { GeometryElapsed=0; UpdateTissue(Open,Time); }
 }

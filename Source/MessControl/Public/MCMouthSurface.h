@@ -33,6 +33,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") FVector2D LiquidSizeRange=FVector2D(28,220);
     UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidSize,BlueprintReadOnly,Category="Liquid",meta=(ClampMin="20",ClampMax="260")) float LiquidHalfSize=92;
     UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidMaterial,BlueprintReadOnly,Category="Liquid") TSoftObjectPtr<UMaterialInterface> LiquidMaterial;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Liquid") double LiquidBornAt=-100;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Liquid") void SetLiquidAppearance(UMaterialInterface* Preset);
     UPROPERTY(VisibleAnywhere) TObjectPtr<UTextRenderComponent> Label;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMCToothStatusComponent> Status;
@@ -52,6 +53,7 @@ public:
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ulcer") float PulseRadius=260;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ulcer") float PulseDamage=12;
     bool IsClean() const;
+    AMCTongue* GetTongue() const { return Tongue; }
     void Disturb();
     void ResetLiquid();
     // Called only after the character's authoritative reach/tool/occlusion checks.

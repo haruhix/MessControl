@@ -10,6 +10,9 @@
 #include "GameFramework/GameStateBase.h"
 #include "Misc/App.h"
 #include "ProceduralMeshComponent.h"
+#include "MCTongue.h"
+#include "EngineUtils.h"
+#include "Components/BoxComponent.h"
 
 void AMCArenaTooth::BuildGrimeRelief()
 {
@@ -24,6 +27,15 @@ void AMCArenaTooth::BuildGrimeRelief()
     FVector Inward=(-GetActorLocation()).GetSafeNormal2D();
     if(Inward.IsNearlyZero()) Inward=-GetActorForwardVector();
     const float Side=GetActorLocation().Y<0?-1.f:1.f;
+    AMCTongue* Tongue=nullptr;
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
+    FCollisionQueryParams Room(SCENE_QUERY_STAT(MCGrimeRoom),false,this);
+    // Only permanent mouth geometry defines the coating. Players, food and
+    // temporary tongue deformation must never cut holes in a replicated stain.
+    if(Tongue) Room.AddIgnoredActor(Tongue);
+    FCollisionObjectQueryParams StaticObjects(ECC_WorldStatic);
+    TArray<AMCArenaTooth*> Neighbors;
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) if(*It!=this && It->IsAvailable()) Neighbors.Add(*It);
     auto SmoothUnion=[](float A,float B,float K)
     {
         const float H=FMath::Clamp(.5f+.5f*(B-A)/K,0.f,1.f);
@@ -37,7 +49,12 @@ void AMCArenaTooth::BuildGrimeRelief()
         const FVector Radial=Inward.RotateAngleAxis(FMath::RadiansToDegrees(Angle),FVector::UpVector);
         FVector Aim=Bounds.Origin;
         Aim.Z=Bounds.Origin.Z+Bounds.BoxExtent.Z*((Patch==0?.61f:.43f)*2-1);
-        const FVector WorldAim=Transform.TransformPosition(Aim);
+        FVector WorldAim=Transform.TransformPosition(Aim);
+        if(Tongue) {
+            FVector Floor;
+            if(Tongue->RestSurfacePoint(WorldAim+Inward*75,Floor))
+                WorldAim.Z=FMath::Min(Visual->Bounds.GetBox().Max.Z-12,FMath::Max(WorldAim.Z,Floor.Z+(Patch==0?65:45)));
+        }
         FHitResult CenterHit;
         if (!BrushSurface->LineTraceComponent(CenterHit,WorldAim+Radial*600,WorldAim-Radial*300,Query)) continue;
         const FVector N=CenterHit.ImpactNormal.GetSafeNormal();
@@ -45,8 +62,13 @@ void AMCArenaTooth::BuildGrimeRelief()
         const FVector X=FVector::CrossProduct(Y,N).GetSafeNormal();
         const float Width=(Patch==0?54.f:42.f)*Random.FRandRange(.85f,1.12f);
         const float Height=(Patch==0?78.f:30.f)*Random.FRandRange(.90f,1.1f);
-        constexpr int32 Columns=48;
-        const int32 Rows=Patch==0?96:40,Base=Vertices.Num();
+        float FloorZ=-MAX_flt;
+        if(Tongue) for(float Offset:{-Width,0.f,Width}) {
+            FVector Floor;
+            if(Tongue->RestSurfacePoint(CenterHit.ImpactPoint+X*Offset+Inward*25,Floor)) FloorZ=FMath::Max(FloorZ,float(Floor.Z));
+        }
+        constexpr int32 Columns=96,SampleStride=4;
+        const int32 Rows=Patch==0?192:80,Base=Vertices.Num();
         struct FLobe { FVector2D Center,Radius; };
         TArray<FLobe> Lobes;
         for (int32 L=0;L<11;++L)
@@ -62,7 +84,7 @@ void AMCArenaTooth::BuildGrimeRelief()
         for(int32 I=0;I<32;++I)
             Clumps.Add({FVector2D(Random.FRandRange(-Width*.42f,Width*.42f),Random.FRandRange(-Height*.78f,Height*.78f)),
                 float(Random.FRandRange(3.f,8.f)),float(Random.FRandRange(.8f,2.8f))});
-        TArray<FVector> WorldPoints; TArray<bool> Valid;
+        TArray<FVector> WorldPoints; TArray<bool> Valid; TArray<FGrimeSample> Candidates;
         for (int32 R=0;R<=Rows;++R) for (int32 C=0;C<=Columns;++C)
         {
             const FVector2D Q(double(C)/Columns*2-1,double(R)/Rows*2-1);
@@ -74,11 +96,31 @@ void AMCArenaTooth::BuildGrimeRelief()
                 D=SmoothUnion(D,E*FMath::Min(L.Radius.X,L.Radius.Y),.055f);
             }
             D+=.011f*FMath::Sin(Q.X*34+Q.Y*13)*FMath::Sin(Q.Y*28+State.ToothId);
-            const float Coverage=1-FMath::SmoothStep(-.020f,.018f,D);
+            float Coverage=1-FMath::SmoothStep(-.020f,.018f,D);
             const FVector Plane=CenterHit.ImpactPoint+X*(Q.X*Width)+Y*(Q.Y*Height);
             FHitResult Hit;
-            const bool bHit=D<.18f && BrushSurface->LineTraceComponent(Hit,Plane+N*150,Plane-N*210,Query)
+            bool bHit=D<.18f && BrushSurface->LineTraceComponent(Hit,Plane+N*150,Plane-N*210,Query)
                 && FVector::DotProduct(Hit.ImpactNormal,N)>.22f;
+            if(bHit) {
+                // Leave space for the whole brush head above the tongue/gum,
+                // and keep the coating on the face visible from the mouth.
+                Coverage*=FMath::SmoothStep(FloorZ+22,FloorZ+38,float(Hit.ImpactPoint.Z))
+                    *FMath::SmoothStep(.45f,.70f,float(FVector::DotProduct(Hit.ImpactNormal,Inward)));
+                const FVector Start=Hit.ImpactPoint+Hit.ImpactNormal*12,End=Start+Inward*65;
+                FHitResult Obstacle;
+                bool Blocked=GetWorld()->SweepSingleByObjectType(Obstacle,Start,End,FQuat::Identity,StaticObjects,FCollisionShape::MakeSphere(8),Room);
+                for(const auto* Neighbor:Neighbors) if(!Blocked) {
+                    const FVector Local=Neighbor->Body->GetComponentTransform().InverseTransformPosition(Start);
+                    const FVector LocalEnd=Neighbor->Body->GetComponentTransform().InverseTransformPosition(End);
+                    const FVector Extent=Neighbor->Body->GetScaledBoxExtent()+FVector(8);
+                    Blocked=FMath::LineBoxIntersection(FBox(-Extent,Extent),Local,LocalEnd,LocalEnd-Local);
+                }
+                // Keep transparent border vertices. Clipping mesh cells by the
+                // coverage threshold made a staircase before the shader could
+                // interpolate the actual outline across each triangle.
+                bHit=!Blocked;
+                if(!bHit) Coverage=0;
+            }
             const float Interior=FMath::Pow(FMath::Clamp(-D*8,0.f,1.f),.65f);
             const FVector2D PatchPoint(Q.X*Width,Q.Y*Height);
             const float Grain=FMath::Clamp(.5f+.5f*FMath::PerlinNoise2D(PatchPoint*.19f+FVector2D(State.ToothId*17,Patch*31)),0.f,1.f);
@@ -87,20 +129,19 @@ void AMCArenaTooth::BuildGrimeRelief()
                 const float R2=(PatchPoint-Clump.Center).SizeSquared()/FMath::Square(Clump.Radius);
                 ClumpDepth+=Clump.Height*FMath::Exp(-R2*2.f);
             }
-            const float Depth=.16f+Interior*(.25f+FMath::Min(ClumpDepth,3.8f));
+            const float Depth=.12f+Interior*(.18f+FMath::Min(ClumpDepth*.42f,1.6f));
             const FVector WorldPoint=bHit?Hit.ImpactPoint+Hit.ImpactNormal*Depth:Plane;
             WorldPoints.Add(WorldPoint); Valid.Add(bHit);
             Vertices.Add(Transform.InverseTransformPosition(WorldPoint));
             Normals.Add((Transform.InverseTransformVectorNoScale(bHit?Hit.ImpactNormal:N)*Transform.GetScale3D()).GetSafeNormal());
             UV.Add((Q+FVector2D(1,1))*.5);
-            Colors.Add(FLinearColor(Coverage,Grain,FMath::Clamp((Depth-.16f)/2.2f,0.f,1.f),1));
+            Colors.Add(FLinearColor(Coverage,Grain,FMath::Clamp((Depth-.12f)/1.4f,0.f,1.f),1));
             Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(X).GetSafeNormal(),false));
-            if(bHit && Coverage>.5f && R%2==0 && C%2==0) {
-                const FVector Local=Transform.InverseTransformPosition(Hit.ImpactPoint);
-                GrimeSamples.Add({Local,Transform.InverseTransformVectorNoScale(Hit.ImpactNormal).GetSafeNormal(),
-                    (Local-(Bounds.Origin-Bounds.BoxExtent))/(Bounds.BoxExtent*2),Coverage});
-            }
+            const FVector Local=Transform.InverseTransformPosition(bHit?Hit.ImpactPoint:Plane);
+            Candidates.Add({Local,Transform.InverseTransformVectorNoScale(bHit?Hit.ImpactNormal:N).GetSafeNormal(),
+                (Local-(Bounds.Origin-Bounds.BoxExtent))/(Bounds.BoxExtent*2),Coverage});
         }
+        TArray<bool> Drawn; Drawn.Init(false,Valid.Num());
         for (int32 R=0;R<=Rows;++R) for (int32 C=0;C<=Columns;++C)
         {
             const int32 I=R*(Columns+1)+C;
@@ -115,8 +156,18 @@ void AMCArenaTooth::BuildGrimeRelief()
             {
                 const int32 B=I+Columns+1;
                 if (Valid[I] && Valid[B] && Valid[I+1] && Valid[B+1])
+                {
                     Triangles.Append({Base+I,Base+B,Base+I+1,Base+I+1,Base+B,Base+B+1});
+                    Drawn[I]=Drawn[B]=Drawn[I+1]=Drawn[B+1]=true;
+                }
             }
+        }
+        // Only vertices belonging to a visible triangle contribute to progress.
+        // A rejected neighbor must not leave an invisible, counted sample.
+        // Rendering is denser; gameplay retains the same sample spacing.
+        for(int32 R=0;R<=Rows;R+=SampleStride) for(int32 C=0;C<=Columns;C+=SampleStride) {
+            const int32 I=R*(Columns+1)+C;
+            if(Drawn[I] && Candidates[I].Weight>.5f) GrimeSamples.Add(Candidates[I]);
         }
     }
     if(FApp::CanEverRender()) GrimeRelief->CreateMeshSection_LinearColor(0,Vertices,Triangles,Normals,UV,Colors,Tangents,false);
@@ -152,7 +203,7 @@ bool AMCArenaTooth::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FV
         const bool Locked=Worker->BrushContact->Target==this && Worker->BrushContact->Alpha()>.5f;
         const float Distance=Locked?FVector::DistSquared(P,Worker->BrushContact->ContactPoint())*.7f+FVector::DistSquared(P,Aim)*.3f:FVector::DistSquared(P,Aim);
         const float Score=Distance*(I==Preferred?.3f:1.f);
-        if(Score>=Best || !Worker->BrushContact->CanReach(P,N)) continue;
+        if(Score>=Best || !Worker->BrushContact->CanReach(P,N,this)) continue;
         FHitResult Block; if(GetWorld()->LineTraceSingleByChannel(Block,Origin+FVector(0,0,40),P-N*2,ECC_Visibility,Query)) continue;
         Best=Score; SelectedSample=I; Point=P; Normal=N;
     }
@@ -182,7 +233,7 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCToothBrush),true,Worker);
     auto ValidContact=[&](FVector Point,FVector Normal) {
         if(FVector::Dist2D(Point,Worker->GetActorLocation())>Worker->BrushContact->SurfaceReach+20
-            || !Worker->BrushContact->CanReach(Point,Normal)) return false;
+            || !Worker->BrushContact->CanReach(Point,Normal,this)) return false;
         FHitResult Block; FCollisionQueryParams Occlusion(SCENE_QUERY_STAT(MCBrushOcclusion),false,Worker); Occlusion.AddIgnoredActor(this);
         return !GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation()+FVector(0,0,40),Point-Normal*2,ECC_Visibility,Occlusion);
     };

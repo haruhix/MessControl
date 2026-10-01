@@ -156,7 +156,7 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
     // Simulated peers receive the movement mode; they have no local E input.
     if(CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy) return;
     auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
-    if (!Hero || !Hero->ToothPhysics || !Hero->ToothPhysics->CanAct()) return;
+    if (!Hero || !Hero->ToothPhysics || !Hero->ToothPhysics->CanAct() || Hero->SwallowedBy) return;
     ClimbCooldown=FMath::Max(0.f,ClimbCooldown-Dt);
     // E takes ownership from the older coffee anchor. A swimmer must be able
     // to pull onto the wall rather than become pinned at their water position.

@@ -35,7 +35,7 @@ void MCTickUlcerReworkValidation(UWorld* World)
         TWeakObjectPtr<AMCMouthSurface> Ulcer;
         TWeakObjectPtr<AMCDayDirector> Director;
         float Age=0,Saved=0; double At=0;
-        int32 Stage=-1; bool Failed=false,SinkShot=false,ProgressShot=false;
+        int32 Stage=-1; bool Failed=false,SinkShot=false,ProgressShot=false,WaveShot=false,WideShot=false;
     };
     static FRun R; if(R.World!=World) { R=FRun(); R.World=World; }
     R.Age+=World->GetDeltaSeconds();
@@ -49,6 +49,7 @@ void MCTickUlcerReworkValidation(UWorld* World)
     if(auto* Mode=World->GetAuthGameMode()) Mode->SetActorTickEnabled(false);
     GS->Phase=EMCShiftPhase::Working; GS->PhaseEndsAt=0; GS->bPhysicalBrushes=false; GS->bDevManualEvents=true;
     const double Now=GS->GetServerWorldTimeSeconds();
+    const bool CaptureWave=FParse::Param(FCommandLine::Get(),TEXT("MCUlcerWaveCapture"));
     auto Check=[&](bool OK,const TCHAR* Message) { R.Failed|=!OK; UE_LOG(LogTemp,Display,TEXT("MC_ULCER_CHECK %s %s"),OK?TEXT("PASS"):TEXT("FAIL"),Message); };
     auto Shot=[&](const TCHAR* Name) {
         if(FParse::Param(FCommandLine::Get(),TEXT("MCUlcerCapture"))) {
@@ -86,10 +87,17 @@ void MCTickUlcerReworkValidation(UWorld* World)
         if(R.Food.IsValid() && R.Food->bAbsorbed && R.Food->AbsorbedUlcer) {
             R.Ulcer=R.Food->AbsorbedUlcer; Check(R.SinkShot && R.Food->IsDisposed(),TEXT("food visibly absorbs and becomes an ulcer"));
             Check(R.Director->CountFood(77)==1 && R.Ulcer->Batch==77,TEXT("ulcer inherits the meal task"));
+            if(CaptureWave) H->SetActorLocation(R.Ulcer->GetActorLocation()+FVector(-500,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3),false,nullptr,ETeleportType::TeleportPhysics);
             Shot(TEXT("02_Ulcer.png")); R.Stage=1; R.At=Now;
         }
     }
     else if(R.Stage==1 && Now-R.At>1) {
+        if(CaptureWave) {
+            if(Now-R.At>=4.05 && !R.WaveShot) { Shot(TEXT("02a_LocalWave.png")); R.WaveShot=true; }
+            if(Now-R.At>=4.4 && !R.WideShot) { Shot(TEXT("02b_LocalWaveWide.png")); R.WideShot=true; }
+            if(Now-R.At<5.2) return;
+            H->SetActorLocation(R.Ulcer->GetActorLocation()+FVector(-155,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3),false,nullptr,ETeleportType::TeleportPhysics);
+        }
         Check(R.Ulcer.IsValid() && R.Ulcer->Healing==0,TEXT("idle ulcer never heals automatically"));
         H->Inventory->ServerSelect(EMCToolSlot::Spray); H->ServerSetPrimary(true); R.Stage=2; R.At=Now;
     }

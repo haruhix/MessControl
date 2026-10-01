@@ -5,6 +5,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothMovementComponent.h"
 #include "MCFoodActor.h"
+#include "MCTongue.h"
 #include "MCArenaTooth.h"
 #include "MCGameState.h"
 #include "Components/StaticMeshComponent.h"
@@ -62,13 +63,20 @@ void AMCCoffeeFlood::OnRep_Profile()
     if (auto* DropMat=Profile->DropMaterial.LoadSynchronous()) Drops->SetMaterial(0,DropMat);
     if (!Drops->GetInstanceCount()) for (int32 I=0;I<72;++I) Drops->AddInstance(FTransform(FQuat::Identity,FVector::ZeroVector,FVector::ZeroVector));
 }
-void AMCCoffeeFlood::Start(const UMCDayPlan* Plan)
+void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds)
 {
     if (!HasAuthority() || !Plan) return;
     Height=Plan->FloodHeight; Flow=Plan->FlowAcceleration; Paddle=Plan->PaddleAcceleration; Reach=Plan->AnchorReach; HalfSize=Plan->ArenaHalfSize;
     ArenaCenter=Plan->ArenaCenter.ContainsNaN()?FVector::ZeroVector:Plan->ArenaCenter;
     Profile=Plan->CoffeeProfile.LoadSynchronous();
     WaterSettings=Profile?Profile->Settings:FMCCoffeeWaterSettings(); WaterSettings.Sanitize();
+    if (SwimTestSeconds>0) {
+        WaterSettings.HoldSeconds=FMath::Clamp(SwimTestSeconds,1.f,3600.f); WaterSettings.Cycles=1;
+        // Cover even the raised back of the tongue with enough depth to swim.
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+            for (const FVector& Vertex:It->CurrentVertices())
+                Height=FMath::Max(Height,float(It->GetActorTransform().TransformPosition(Vertex).Z+150));
+    }
     FHitResult Floor; FVector FloorProbe=WaterSettings.Inlet; FloorProbe.Z=Height+200;
     InletFloorZ=GetWorld()->LineTraceSingleByChannel(Floor,FloorProbe,FloorProbe-FVector(0,0,1400),ECC_WorldStatic)?Floor.ImpactPoint.Z:WaterSettings.DryHeight;
     if (WaterSettings.bUseThroatActor)
@@ -136,8 +144,8 @@ void AMCCoffeeFlood::Tick(float Dt)
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         {
             auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
-            Hero->bInCoffee=Contains(P) && Hero->Status->IsAlive();
-            if (!Hero->Status->IsAlive() || FMath::Abs(P.X-ArenaCenter.X)>HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>HalfSize.Y) { Hero->ClingTooth=nullptr; continue; }
+            Hero->bInCoffee=!Hero->SwallowedBy && Contains(P) && Hero->Status->IsAlive();
+            if (Hero->SwallowedBy || !Hero->Status->IsAlive() || FMath::Abs(P.X-ArenaCenter.X)>HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>HalfSize.Y) { Hero->ClingTooth=nullptr; continue; }
             const auto* Move=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             // The old LMB anchor can still brace in water. E belongs to the
             // predicted climbing movement, including its swim-to-wall transfer.

@@ -1,0 +1,14 @@
+{
+  "name": "messcontrol-discord-codex",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/main.mjs run",
+    "doctor": "node src/main.mjs doctor",
+    "smoke": "node src/main.mjs smoke",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": { "discord.js": "14.27.0" }
+}

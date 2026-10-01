@@ -1,7 +1,9 @@
 #include "MCValidationSubsystem.h"
 #include "MCThroat.h"
+#include "MCVomitBurst.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
 #include "Components/BoxComponent.h"
@@ -15,6 +17,7 @@
 #include "GameFramework/PlayerState.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "EngineUtils.h"
 #include "Engine/StaticMesh.h"
 #include "UnrealClient.h"
@@ -35,7 +38,8 @@ void UMCValidationSubsystem::TickThroat(float Dt)
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
     if(!GS || !PC || !Throat || !Tongue) { if(Age>60) FPlatformMisc::RequestExitWithStatus(false,1); return; }
     const bool Host=GetWorld()->GetNetMode()!=NM_Client;
-    const bool Capture=Host && FParse::Param(FCommandLine::Get(),TEXT("MCThroatCapture"));
+    const bool Review=Host && FParse::Param(FCommandLine::Get(),TEXT("MCVomitReview"));
+    const bool Capture=Host && (Review || FParse::Param(FCommandLine::Get(),TEXT("MCThroatCapture")));
     TArray<AMCToothCharacter*> Heroes;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->GetPlayerState()) Heroes.Add(*It);
     Heroes.Sort([](const AMCToothCharacter& A,const AMCToothCharacter& B){return A.GetPlayerState()->GetPlayerId()<B.GetPlayerState()->GetPlayerId();});
@@ -44,6 +48,28 @@ void UMCValidationSubsystem::TickThroat(float Dt)
     struct FOrderCheck { TWeakObjectPtr<UWorld> World; bool Prepared=false,Flight=false,Pressed=false,Hopped=false,Invalid=false; float Drop=0,Clearance=MAX_flt; FVector PrepareStart=FVector::ZeroVector; bool Preparing=false; };
     static FOrderCheck Order;
     if(Order.World.Get()!=GetWorld()) { Order=FOrderCheck(); Order.World=GetWorld(); }
+    struct FCameraCheck {
+        TWeakObjectPtr<UWorld> World; bool Holding=false,Held=false,Returned=false,Invalid=false;
+        FVector Eye=FVector::ZeroVector,Start=FVector::ZeroVector; FRotator Rotation=FRotator::ZeroRotator;
+        float Drift=0,Travel=0,HoldTime=0;
+    };
+    static FCameraCheck View;
+    if(View.World.Get()!=GetWorld()) { View=FCameraCheck(); View.World=GetWorld(); }
+    for(auto* H:Heroes) if(H->IsLocallyControlled()) {
+        if(H->SwallowedBy==Throat && H->bMouthCameraHeld) {
+            if(!View.Holding) { View.Eye=H->MouthCameraEye; View.Rotation=H->CameraBoom->GetComponentRotation(); View.Start=H->ThroatCaptureStart; }
+            View.Holding=true; View.Held=true; View.HoldTime+=Dt;
+            View.Travel=FMath::Max(View.Travel,float(FVector::Dist(View.Start,H->GetActorLocation())));
+            if(View.HoldTime>.15f) {
+                View.Drift=FMath::Max(View.Drift,float(FVector::Dist(H->Camera->GetComponentLocation(),View.Eye)));
+                View.Invalid|=!H->CameraBoom->GetComponentRotation().Equals(View.Rotation,.1f) || View.Drift>1;
+            }
+            View.Invalid|=H->GetCharacterMovement()->MovementMode!=MOVE_None || !H->Status->IsAlive() || H->bInCoffee;
+        } else if(View.Holding && !H->SwallowedBy && !H->bMouthCameraHeld && Throat->VomitCount>0) {
+            View.Holding=false; View.Returned=true;
+            View.Invalid|=!H->Status->IsAlive() || H->GetCapsuleComponent()->GetCollisionEnabled()!=ECollisionEnabled::QueryAndPhysics;
+        }
+    }
     if(Host && Heroes.Num()) {
         const auto* H=Heroes[0];
         if(H->OrderJumpTarget && !H->bOrderJumpLaunched) {
@@ -124,6 +150,16 @@ void UMCValidationSubsystem::TickThroat(float Dt)
         if(DevStage==3 && Now-DevStartedAt>2) {
             Heroes[0]->ServerOrderJump(Throat); if(Heroes[0]->OrderJumpTarget) DevStage=4;
         }
+        if(DevStage==4 && Throat->ThroatPhase==EMCThroatPhase::Anticipation) {
+            const FVector Center=Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter);
+            for(int32 I=1;I<Heroes.Num();++I) {
+                FHitResult Hit; FVector P=Center+FVector(-80,(I-2)*110,0);
+                if(Tongue->SurfacePoint(P,Hit)) P=Hit.ImpactPoint+FVector(0,0,62);
+                Heroes[I]->SetActorLocation(P,false,nullptr,ETeleportType::TeleportPhysics);
+                Heroes[I]->GetCharacterMovement()->StopMovementImmediately(); Heroes[I]->ForceNetUpdate();
+            }
+            DevStage=5;
+        }
 
     }
     if(Meal && !Meal->IsDisposed() && Throat->ThroatPhase==EMCThroatPhase::Collecting && Throat->FoodInZone>0 && Throat->SwallowCount==0) DevSeen|=1;
@@ -141,23 +177,53 @@ void UMCValidationSubsystem::TickThroat(float Dt)
     bTongueInvalid |= !Throat->AuthoredMouth->GetSkeletalMeshAsset();
     if(Throat->ThroatPhase==EMCThroatPhase::Spasm && Now-Throat->PhaseStartedAt>.3)
         bTongueInvalid |= Throat->AuthoredMouth->GetMorphTarget(TEXT("vomit"))<.5f;
-    if(Throat->VomitCount>0) {
+    if(Throat->ThroatPhase==EMCThroatPhase::Vomiting) DevSeen|=2048;
+    for(TActorIterator<AMCVomitBurst> It(GetWorld());It;++It) if(It->Batch==10000+Throat->MealSequence) {
+        if(It->AirborneInstances>0) DevSeen|=4096;
+        if(It->SplashInstances>0) DevSeen|=8192;
+    }
+    if(Throat->VomitCount>0 && Throat->ThroatPhase==EMCThroatPhase::Collecting && (!Review || CoffeeFrame<6)) {
         int32 Puddles=0;
         for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==10000+Throat->MealSequence && !It->IsClean()) ++Puddles;
         bTongueInvalid |= Puddles!=3;
+        if(Puddles==3) DevSeen|=16384;
     }
     if(Capture && Ready) {
         for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->Label->SetVisibility(false);
-        const FString Folder=FPaths::ProjectSavedDir()/TEXT("ThroatFrames");
+        const FString Folder=Review?FPaths::ProjectDir()/TEXT("Artifacts/Vomit"):FPaths::ProjectSavedDir()/TEXT("ThroatFrames");
         if(!CoffeeCamera) {
             CoffeeCamera=GetWorld()->SpawnActor<ACameraActor>(); CoffeeCamera->GetCameraComponent()->SetFieldOfView(65);
             CoffeeCamera->GetCameraComponent()->SetAspectRatio(1.5f);
             IFileManager::Get().MakeDirectory(*Folder,true); PC->SetViewTarget(CoffeeCamera);
             const FVector Center=Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter);
-            const FVector Eye=Center+FVector(-700,-580,480),Aim=(Center+Throat->UvulaLanding->GetComponentLocation())*.5+FVector(0,0,100);
+            const FVector Eye=Center+FVector(-1050,-650,560),Aim=Center+FVector(-180,0,70);
             CoffeeCamera->SetActorLocationAndRotation(Eye,(Aim-Eye).Rotation());
         }
-        if(Now>=CoffeeNextFrame) {
+        if(Review) {
+            const float PhaseAge=Now-Throat->PhaseStartedAt;
+            FString Image;
+            if(CoffeeFrame==0 && Throat->ThroatPhase==EMCThroatPhase::Spasm && PhaseAge>.65) Image=TEXT("00_Gag.png");
+            if(CoffeeFrame==1 && Throat->ThroatPhase==EMCThroatPhase::Vomiting && PhaseAge>.4) Image=TEXT("01_Airborne.png");
+            if(CoffeeFrame==2 && Throat->ThroatPhase==EMCThroatPhase::Vomiting && PhaseAge>.85) Image=TEXT("02_Stream.png");
+            if(CoffeeFrame==3 && Throat->ThroatPhase==EMCThroatPhase::Vomiting && PhaseAge>1.12) Image=TEXT("03_Impact.png");
+            if(CoffeeFrame==4 && Throat->ThroatPhase==EMCThroatPhase::Vomiting && PhaseAge>1.9) Image=TEXT("04_Splashes.png");
+            if(CoffeeFrame==5 && Throat->VomitCount>0 && Throat->ThroatPhase==EMCThroatPhase::Collecting && PhaseAge>3) Image=TEXT("05_Residue.png");
+            if(CoffeeFrame>=6 && Heroes.Num()) {
+                AMCMouthSurface* Patch=nullptr;
+                for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==10000+Throat->MealSequence && (!Patch || It->GetActorLocation().X>Patch->GetActorLocation().X)) Patch=*It;
+                if(Patch) {
+                    auto* Hero=Heroes[0]; GS->bPhysicalBrushes=false;
+                    Hero->SetActorLocation(Patch->GetActorLocation()+FVector(-65,0,75),false,nullptr,ETeleportType::TeleportPhysics);
+                    Hero->SetActorRotation(FRotator::ZeroRotator); Hero->GetCharacterMovement()->StopMovementImmediately();
+                    Hero->bBrushing=true; Hero->AdvanceCare(Dt);
+                    const FVector Eye=Patch->GetActorLocation()+FVector(-330,-250,240),Aim=Patch->GetActorLocation()+FVector(0,0,20);
+                    CoffeeCamera->SetActorLocationAndRotation(Eye,(Aim-Eye).Rotation());
+                    if(CoffeeFrame==6 && Patch->RemainingLiquid()<.75f) Image=TEXT("06_BrushTrack.png");
+                    if(CoffeeFrame==7 && Patch->IsClean()) { Image=TEXT("07_Clean.png"); CoffeeNextFrame=Now+.6; }
+                }
+            }
+            if(!Image.IsEmpty()) { FScreenshotRequest::RequestScreenshot(Folder/Image,false,false); ++CoffeeFrame; }
+        } else if(Now>=CoffeeNextFrame) {
             CoffeeNextFrame=Now+(GetWorld()->GetNetMode()==NM_Standalone?1./30:.1);
             if(CoffeeLastFrame>=0) CoffeeTiming+=FString::Printf(TEXT("duration %.6f\n"),Now-CoffeeLastFrame);
             CoffeeTiming+=FString::Printf(TEXT("file 'Frame%05d.png'\n"),CoffeeFrame);
@@ -169,10 +235,12 @@ void UMCValidationSubsystem::TickThroat(float Dt)
         NextLog=Age+3;
         UE_LOG(LogTemp,Display,TEXT("MC_THROAT net=%d seen=%d phase=%d staged=%d weight=%.1f swallowed=%d pos=%s"),int32(GetWorld()->GetNetMode()),DevSeen,int32(Throat->ThroatPhase),Throat->FoodInZone,Throat->Weight,Throat->FoodSwallowed,Heroes.Num()?*Heroes[0]->GetActorLocation().ToString():TEXT("none"));
     }
-    if(DevSeen==2047 && CoffeeReadyAt<0) CoffeeReadyAt=Now;
-    if((CoffeeReadyAt>=0 && Now-CoffeeReadyAt>(Host?6:1)) || Age>75) {
+    if(DevSeen==32767 && CoffeeReadyAt<0) CoffeeReadyAt=Now;
+    if((CoffeeReadyAt>=0 && (Review?(CoffeeFrame>=8 && Now>CoffeeNextFrame):Now-CoffeeReadyAt>(Host?6:1))) || Age>75) {
         const bool OrderPass=!Host || (Order.Prepared && Order.Flight && Order.Pressed && Order.Hopped && Order.Drop>18 && !Order.Invalid);
-        const bool Pass=DevSeen==2047 && !bTongueInvalid && OrderPass;
+        const bool CameraPass=View.Held && View.Returned && View.Travel>300 && !View.Invalid;
+        const bool Pass=DevSeen==32767 && !bTongueInvalid && OrderPass && CameraPass;
+        UE_LOG(LogTemp,Display,TEXT("MC_THROAT_CAMERA pass=%d held=%d returned=%d travel=%.2f drift=%.3f invalid=%d"),CameraPass,View.Held,View.Returned,View.Travel,View.Drift,View.Invalid);
         UE_LOG(LogTemp,Display,TEXT("MC_UVULA_ANIMATION pass=%d prepare=%d flight=%d press=%d hop=%d drop=%.2f clearance=%.2f invalid=%d"),OrderPass,Order.Prepared,Order.Flight,Order.Pressed,Order.Hopped,Order.Drop,Order.Clearance,Order.Invalid);
         if(Capture) FFileHelper::SaveStringToFile(CoffeeTiming,*(FPaths::ProjectSavedDir()/TEXT("ThroatFrames/times.csv")));
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s THROAT net=%d seen=%d cycles=%d swallowed=%d spasms=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(GetWorld()->GetNetMode()),DevSeen,Throat->SwallowCount,Throat->FoodSwallowed,Throat->SpasmCount);

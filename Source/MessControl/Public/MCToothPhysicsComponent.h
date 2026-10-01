@@ -21,6 +21,7 @@ public:
     UFUNCTION(BlueprintPure,Category="Physics") EMCBodyState GetBodyState() const { return LocalState; }
     bool CanAct() const;
     void EnterDeath();
+    void SetThroatCaptured(bool Captured);
     void ApplyHit(FVector VelocityChange,FVector HitLocation);
     bool TryRecover();
     void SetTuning(FMCPhysicsSettings NewSettings);

@@ -51,7 +51,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     GetCharacterMovement()->GroundFriction = 2.2f;
     GetCharacterMovement()->BrakingFrictionFactor = 1.f;
     GetCharacterMovement()->BrakingDecelerationWalking = 600.f;
-    GetCharacterMovement()->JumpZVelocity = 500.f;
+    GetCharacterMovement()->JumpZVelocity = 500.f*FMath::Sqrt(1.28f);
     GetCharacterMovement()->GravityScale = 1.6f;
     GetCharacterMovement()->bOrientRotationToMovement = true;
     GetCharacterMovement()->RotationRate = FRotator(0, 300, 0);
@@ -85,8 +85,9 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     CameraBoom->bUsePawnControlRotation = false; CameraBoom->bEnableCameraLag = true;
     CameraBoom->CameraLagSpeed = 7; CameraBoom->CameraLagMaxDistance = 80;
     CameraBoom->bDoCollisionTest = true; CameraBoom->ProbeSize=24; CameraBoom->ProbeChannel=ECC_Camera;
+    CameraBoom->AddTickPrerequisiteActor(this);
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera")); Camera->SetupAttachment(CameraBoom);
-    Camera->FieldOfView = 55;
+    Camera->FieldOfView = FollowFOV;
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> ToothAsset(TEXT("/Game/Art/Rig/SK_ToothHero"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> BrushAsset(TEXT("/Game/Art/Meshes/SM_Brush"));
     static ConstructorHelpers::FObjectFinder<UMCAnimationProfile> AnimAsset(TEXT("/Game/Data/DA_ToothAnimation"));
@@ -269,15 +270,32 @@ void AMCToothCharacter::ClearOrderJump()
 void AMCToothCharacter::ClientUvulaHop_Implementation(FVector Velocity) { LaunchCharacter(Velocity,true,true); }
 void AMCToothCharacter::SetThroatCapture(AMCThroat* Throat)
 {
-    if(!HasAuthority()) return;
+    if(!HasAuthority() || SwallowedBy==Throat) return;
     CancelGameplayInput(); ClearOrderJump(); if(Throat) ThroatCaptureStart=GetActorLocation(); SwallowedBy=Throat; OnRep_ThroatCapture(); ForceNetUpdate();
 }
 void AMCToothCharacter::ClientThroatExit_Implementation(FVector Location,FVector Velocity)
 {
-    SwallowedBy=nullptr; OnRep_ThroatCapture(); SetActorLocation(Location,false,nullptr,ETeleportType::TeleportPhysics); LaunchCharacter(Velocity,true,true);
+    SetActorLocation(Location,false,nullptr,ETeleportType::TeleportPhysics);
+    SwallowedBy=nullptr; OnRep_ThroatCapture(); bMouthCameraHeld=false; LaunchCharacter(Velocity,true,true);
 }
 void AMCToothCharacter::OnRep_ThroatCapture()
 {
+    // Exit RPC and property replication can both report the release. Do not
+    // stop the ejection impulse a second time when the property catches up.
+    if(!SwallowedBy && !bThroatCaptured) return;
+    bThroatCaptured=SwallowedBy!=nullptr;
+    if(ThroatTickPrerequisite.IsValid()) RemoveTickPrerequisiteActor(ThroatTickPrerequisite.Get());
+    ThroatTickPrerequisite=SwallowedBy;
+    if(SwallowedBy) AddTickPrerequisiteActor(SwallowedBy);
+    ToothPhysics->SetThroatCaptured(bThroatCaptured);
+    if(IsLocallyControlled()) {
+        if(SwallowedBy) {
+            bMouthCameraHeld=true;
+        } else if(HasAuthority()) bMouthCameraHeld=false;
+        // Remote owners keep holding until the reliable exit RPC supplies the
+        // authoritative mouth position; a null pointer alone may arrive first.
+    }
+    if(SwallowedBy) { bInCoffee=false; ClingTooth=nullptr; }
     GetCharacterMovement()->StopMovementImmediately();
     GetCharacterMovement()->SetMovementMode(SwallowedBy?MOVE_None:MOVE_Falling);
     GetCapsuleComponent()->SetCollisionEnabled(SwallowedBy?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
@@ -441,14 +459,15 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const auto* BaseThroat=OrderBase?Cast<AMCThroat>(OrderBase->GetOwner()):nullptr;
     const float Press=BaseThroat && BaseThroat->UvulaLanding==OrderBase?1.f:0.f;
     AnimationOrderPress=FMath::Lerp(AnimationOrderPress,Press,1-FMath::Exp(-16.f*DeltaSeconds));
-    UpdateMouthCamera(DeltaSeconds);
     if(!HasAuthority() && SwallowedBy) {
         const auto* GS=GetWorld()->GetGameState(); const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
-        const float T=SwallowedBy->ThroatPhase==EMCThroatPhase::Spasm?1.f:FMath::Clamp(float(Now-SwallowedBy->PhaseStartedAt)/SwallowedBy->SwallowSeconds,0.f,1.f);
+        const float T=(SwallowedBy->ThroatPhase==EMCThroatPhase::Spasm || SwallowedBy->ThroatPhase==EMCThroatPhase::Vomiting)?1.f:FMath::Clamp(float(Now-SwallowedBy->PhaseStartedAt)/SwallowedBy->SwallowSeconds,0.f,1.f);
         const FVector End=SwallowedBy->GetActorTransform().TransformPosition(SwallowedBy->GateCenter+FVector(1050,0,20));
-        FVector P=FMath::Lerp(ThroatCaptureStart,End,FMath::SmoothStep(0.f,.72f,T)); P.Z+=FMath::Sin(T*PI)*100;
+        const float Alpha=FMath::SmoothStep(0.f,.72f,T);
+        FVector P=FMath::Lerp(ThroatCaptureStart,End,Alpha); P.Z+=FMath::Sin(Alpha*PI)*100;
         SetActorLocation(P,false,nullptr,ETeleportType::TeleportPhysics);
     }
+    UpdateMouthCamera(DeltaSeconds);
     if (IsLocallyControlled() && !bLoadedLocalTuning)
     {
         bLoadedLocalTuning = true;
@@ -462,7 +481,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     {
         if (GetWorld()->GetTimeSeconds()-LastPaddleAt>.3) PaddleInput=FVector2D::ZeroVector;
         FindWork(FMath::Min(DeltaSeconds,0.1f));
-        if (Status->IsAlive() && GetActorLocation().Z < -300) Status->Damage(Status->State.MaxHealth);
+        if (!SwallowedBy && Status->IsAlive() && GetActorLocation().Z < -300) Status->Damage(Status->State.MaxHealth);
     }
     if (IsLocallyControlled() && bInCoffee)
     { PaddleSendElapsed+=DeltaSeconds; if (PaddleSendElapsed>=.05f) { ServerPaddle(LocalPaddle); PaddleSendElapsed=0; } }

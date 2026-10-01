@@ -11,7 +11,7 @@ struct FMCTongueSettings
     GENERATED_BODY()
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Idle",meta=(ClampMin="0",ClampMax="8")) float IdleHeight=3;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Idle",meta=(ClampMin="2")) float IdlePeriod=5;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt") bool bAutomaticJolts=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt") bool bAutomaticJolts=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="8")) float JoltRestMin=22;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="8")) float JoltRestMax=32;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Jolt",meta=(ClampMin="0",ClampMax="220")) float JoltHeight=180;

@@ -24,13 +24,49 @@ double AMCHazardWave::Now() const
 void AMCHazardWave::BeginPlay()
 {
     Super::BeginPlay();
-    if(HasAuthority()) { StartedAt=Now(); ForceNetUpdate(); }
+    if(HasAuthority())
+    {
+        StartedAt=Now();
+        if(const auto* Ulcer=Cast<AMCMouthSurface>(Source); Ulcer && !bSpicy)
+        {
+            Tongue=Ulcer->GetTongue();
+            if(Tongue)
+            {
+                TissueMotion=Tongue->Profile && Tongue->Profile->PainMotion?Tongue->Profile->PainMotion->Settings:FMCTongueMotionSettings();
+                if(!Tongue->Profile || !Tongue->Profile->PainMotion)
+                { TissueMotion.Height=Tongue->Settings.WaveHeight; TissueMotion.Redness=1; }
+                TissueMotion.Sanitize();
+                TissueMotion.Shape=EMCTongueShape::RadialWave;
+                // Radius and front timing remain those of the existing local hazard.
+                TissueMotion.Radius=MaxRadius; TissueMotion.Speed=MaxRadius/FMath::Max(.1f,TravelSeconds);
+                TissueMotion.Width=FMath::Min(TissueMotion.Width,FMath::Max(1.f,MaxRadius*.25f));
+                TissueMotion.Anticipation=WarningSeconds;
+                TissueMotion.Push=0; TissueMotion.Lift=0;
+            }
+        }
+        ForceNetUpdate();
+    }
     if(GetNetMode()!=NM_DedicatedServer)
         if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_ThroatRing.MI_ThroatRing")))
         { Material=UMaterialInstanceDynamic::Create(Base,this); Ring->SetMaterial(0,Material); }
 }
 float AMCHazardWave::Radius() const
 { return FMath::Clamp(float(Now()-StartedAt-WarningSeconds)/FMath::Max(.1f,TravelSeconds),0.f,1.f)*MaxRadius; }
+bool AMCHazardWave::SurfaceMotion(const AMCTongue* SurfaceTongue,float Time,FMCTongueMotionState& Out) const
+{
+    const auto* Ulcer=Cast<AMCMouthSurface>(Source);
+    if(!Tongue || Tongue!=SurfaceTongue || IsActorBeingDestroyed() || !Ulcer || !Ulcer->bUlcer || Ulcer->IsHealed() || Ulcer->IsNumb()) return false;
+    const float Age=Time-StartedAt-WarningSeconds;
+    if(Age<0 || Age>=TravelSeconds+.15f) return false;
+    Out.Settings=TissueMotion;
+    // Ease the crest in and let its trailing edge settle before the actor expires.
+    const float Ease=FMath::SmoothStep(0.f,FMath::Min(.15f,TravelSeconds*.2f),Age)
+        *(1-FMath::SmoothStep(TravelSeconds,TravelSeconds+.15f,Age));
+    Out.Settings.Height*=Ease; Out.Settings.Redness*=Ease;
+    Out.Origin=SurfaceTongue->GetActorTransform().InverseTransformPosition(GetActorLocation());
+    Out.StartedAt=StartedAt;
+    return true;
+}
 bool AMCHazardWave::Crosses(float Before,float After,float R0,float R1,float Width)
 {
     const float A=Before-R0,B=After-R1;
@@ -39,7 +75,8 @@ bool AMCHazardWave::Crosses(float Before,float After,float R0,float R1,float Wid
 void AMCHazardWave::Tick(float Dt)
 {
     Super::Tick(Dt);
-    if(const auto* Ulcer=Cast<AMCMouthSurface>(Source); Ulcer && (Ulcer->IsNumb() || !Ulcer->bUlcer)) { if(HasAuthority()) Destroy(); return; }
+    if(const auto* Ulcer=Cast<AMCMouthSurface>(Source); Ulcer && (Ulcer->IsNumb() || Ulcer->IsHealed() || !Ulcer->bUlcer)) { if(HasAuthority()) Destroy(); return; }
+    Ring->SetVisibility(!Tongue);
     const float CurrentRadius=Radius();
     if(HasAuthority() && Now()-StartedAt>=WarningSeconds)
     {
@@ -75,21 +112,21 @@ void AMCHazardWave::Tick(float Dt)
         if(Now()-StartedAt>WarningSeconds+TravelSeconds+.15f) { Destroy(); return; }
     }
     GeometryClock+=Dt;
-    if(GetNetMode()!=NM_DedicatedServer && GeometryClock>=1.f/15) { GeometryClock=0; DrawRing(); }
+    if(!Tongue && GetNetMode()!=NM_DedicatedServer && GeometryClock>=1.f/15) { GeometryClock=0; DrawRing(); }
 }
 void AMCHazardWave::DrawRing()
 {
     const bool Warning=Now()-StartedAt<WarningSeconds;
     const float R=Warning?FMath::Max(25.f,MaxRadius*.15f):FMath::Max(10.f,Radius());
     TArray<FVector> V,N; TArray<FVector2D> UV; TArray<int32> Tri; TArray<FLinearColor> C; TArray<FProcMeshTangent> Tangents;
-    AMCTongue* Tongue=nullptr;
-    for(TActorIterator<AMCTongue> T(GetWorld());T;++T) { Tongue=*T; break; }
+    AMCTongue* FloorTongue=nullptr;
+    for(TActorIterator<AMCTongue> T(GetWorld());T;++T) { FloorTongue=*T; break; }
     constexpr int32 Segments=32;
     for(int32 I=0;I<=Segments;++I) for(int32 Edge=0;Edge<2;++Edge)
     {
         const float A=2*PI*I/Segments,RingRadius=R+(Edge?9:-9);
         FVector P=GetActorLocation()+FVector(FMath::Cos(A)*RingRadius,FMath::Sin(A)*RingRadius,8);
-        if(Tongue) { FHitResult Hit; if(Tongue->SurfacePoint(P,Hit)) P=Hit.ImpactPoint+Hit.ImpactNormal*8; }
+        if(FloorTongue) { FHitResult Hit; if(FloorTongue->SurfacePoint(P,Hit)) P=Hit.ImpactPoint+Hit.ImpactNormal*8; }
         V.Add(GetActorTransform().InverseTransformPosition(P)); N.Add(FVector::UpVector); UV.Add(FVector2D(float(I)/Segments,Edge)); C.Add(FLinearColor::White); Tangents.Add(FProcMeshTangent(1,0,0));
         if(I<Segments && Edge==0) { const int32 B=I*2; Tri.Append({B,B+2,B+1,B+1,B+2,B+3}); }
     }
@@ -102,4 +139,5 @@ void AMCHazardWave::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
     DOREPLIFETIME(AMCHazardWave,MaxRadius); DOREPLIFETIME(AMCHazardWave,Damage); DOREPLIFETIME(AMCHazardWave,WarningSeconds);
     DOREPLIFETIME(AMCHazardWave,TravelSeconds); DOREPLIFETIME(AMCHazardWave,ClearHeight); DOREPLIFETIME(AMCHazardWave,bSpicy);
     DOREPLIFETIME(AMCHazardWave,StartedAt); DOREPLIFETIME(AMCHazardWave,Source); DOREPLIFETIME(AMCHazardWave,HitCount);
+    DOREPLIFETIME(AMCHazardWave,Tongue); DOREPLIFETIME(AMCHazardWave,TissueMotion);
 }

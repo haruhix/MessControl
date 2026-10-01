@@ -99,12 +99,14 @@ public:
     FTransform StandingMeshTransform() const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<UCameraComponent> Camera;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="400",ClampMax="1600")) float FollowDistance=1100;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="150",ClampMax="700")) float FollowHeight=440;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="400",ClampMax="1600")) float FollowDistance=900;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="150",ClampMax="700")) float FollowHeight=500;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="45",ClampMax="95")) float FollowFOV=55;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ToolTip="Camera aim offset in centimetres from the tracked point; negative Z reveals the front teeth.")) FVector CameraFocusOffset=FVector(80,0,-140);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="1",ClampMax="20")) float FollowSpeed=7;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ToolTip="Movement in centimetres allowed around the tracked point before the camera follows.")) FVector CameraDeadZone=FVector(110,80,90);
     bool bMouthCameraInitialized=false;
+    bool bMouthCameraHeld=false;
     FVector MouthCameraFocus=FVector::ZeroVector, MouthCameraEye=FVector::ZeroVector;
     TWeakObjectPtr<AActor> MouthCameraBounds;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TObjectPtr<UMCAnimationProfile> AnimationProfile;
@@ -152,6 +154,8 @@ private:
     UFUNCTION() void OnRep_Working();
     UFUNCTION() void OnRep_ThroatCapture();
     float OrderJumpAirControl=.05f;
+    bool bThroatCaptured=false;
+    TWeakObjectPtr<class AMCThroat> ThroatTickPrerequisite;
     TArray<TWeakObjectPtr<AActor>> OrderJumpIgnoredActors;
     void FindWork(float DeltaSeconds);
     UFUNCTION(Server,Reliable) void ServerSwingBrush();

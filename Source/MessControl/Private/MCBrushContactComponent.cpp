@@ -53,8 +53,9 @@ bool UMCBrushContactComponent::IsTouchingSurface() const
     if(!FApp::CanEverRender() || !GetWorld()->GetGameViewport()) return true;
     return Blend>.98f && FVector::DistSquared(BristlePoint(),ContactPoint())<=FMath::Square(16.f);
 }
-FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal) const
+FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool* Reachable,const AActor* Surface) const
 {
+    if(Reachable) *Reachable=false;
     // The authored brush runs along +X, with bristles pointing down -Z.
     const FVector Up=FVector::VectorPlaneProject(FVector::UpVector,Normal).GetSafeNormal();
     const FVector Side=FVector::CrossProduct(Up,Normal).GetSafeNormal();
@@ -86,11 +87,11 @@ FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal) cons
     FTransform Best=FTransform::Identity; float BestScore=MAX_flt;
     const FVector RestHome=Hero->GetMesh()->GetComponentTransform().TransformPosition(Rest.GetLocation());
     FCollisionQueryParams Clearance(SCENE_QUERY_STAT(MCBrushHandleRoom),false,Hero);
-    if(Target) Clearance.AddIgnoredActor(Target);
+    if(Surface || Target) Clearance.AddIgnoredActor(Surface?Surface:Target.Get());
     for(float Roll:{0.f,25.f,-25.f,50.f,-50.f,90.f,-90.f,135.f,-135.f,180.f}) {
         const FQuat Rotation=FRotationMatrix::MakeFromXZ(Axis.RotateAngleAxis(Roll,Normal),Normal).ToQuat();
-        const FTransform BrushWorld(Rotation,Point+Normal*2-Rotation.RotateVector(FVector(72,0,-20)*Scale),Scale);
-        const FTransform Hand=InHand.Inverse()*BrushWorld;
+        FTransform BrushWorld(Rotation,Point+Normal*2-Rotation.RotateVector(FVector(72,0,-20)*Scale),Scale);
+        FTransform Hand=InHand.Inverse()*BrushWorld;
         if(Roll==0) Preferred=Hand;
         const FVector Offset=Hand.GetLocation()-RestHome;
         if(!Offset.Equals(ClampHandOffset(Offset),.01f)) continue;
@@ -107,9 +108,10 @@ FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal) cons
                 +2500*FMath::Square(Hand.GetRotation().AngularDistance(PresentedHand.GetRotation())):FMath::Square(Roll))
                 +(PathBlocked?100000.f:0.f);
             if(Score<BestScore) { BestScore=Score; Best=Hand; }
-            if(!Continue && Roll==0 && !PathBlocked) return Hand;
+            if(!Continue && Roll==0 && !PathBlocked) { if(Reachable) *Reachable=true; return Hand; }
         }
     }
+    if(Reachable) *Reachable=BestScore<MAX_flt;
     return BestScore<MAX_flt?Best:Preferred;
 }
 FVector UMCBrushContactComponent::ClampHandOffset(FVector Offset) const
@@ -117,14 +119,16 @@ FVector UMCBrushContactComponent::ClampHandOffset(FVector Offset) const
     const FVector Horizontal=FVector(Offset.X,Offset.Y,0).GetClampedToMaxSize(MaxHandTravel);
     return Horizontal+FVector(0,0,FMath::Clamp(Offset.Z,-MaxHandVerticalTravel,MaxHandVerticalTravel));
 }
-bool UMCBrushContactComponent::CanReach(FVector Point,FVector Normal) const
+bool UMCBrushContactComponent::CanReach(FVector Point,FVector Normal,const AActor* Surface) const
 {
     const auto* H=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
     if (!H || !H->GetMesh()->GetSkeletalMeshAsset() || !Hero || !CanBrushToward(Point)) return false;
     const auto& Ref=H->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
     auto Rest=[&](FName Role) { FTransform T=FTransform::Identity; for(int32 I=Ref.FindBoneIndex(H->RigBone(Role));I>=0;I=Ref.GetParentIndex(I)) T=T*Ref.GetRefBonePose()[I]; return H->GetMesh()->GetComponentTransform().TransformPosition(T.GetLocation()); };
-    const FVector Offset=HandGoal(Point,Normal).GetLocation()-Rest(TEXT("hand_r"));
-    return !Offset.ContainsNaN() && Offset.Equals(ClampHandOffset(Offset),.01f);
+    bool Reachable=false;
+    const FVector Offset=HandGoal(Point,Normal,&Reachable,Surface).GetLocation()-Rest(TEXT("hand_r"));
+    const bool ToothContact=Cast<AMCArenaTooth>(Surface?Surface:Target.Get())!=nullptr;
+    return (!ToothContact || Reachable) && !Offset.ContainsNaN() && Offset.Equals(ClampHandOffset(Offset),.01f);
 }
 bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
 {

@@ -37,7 +37,7 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
-    void Start(const UMCDayPlan* Plan);
+    void Start(const UMCDayPlan* Plan,float SwimTestSeconds=0);
     void Stop();
     bool Contains(FVector Position) const;
     float SurfaceHeightAt(FVector Position) const;

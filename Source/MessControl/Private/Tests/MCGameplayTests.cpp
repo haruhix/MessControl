@@ -13,6 +13,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCThroat.h"
+#include "MCVomitBurst.h"
 #include "MCHazardWave.h"
 #include "MCDayDirector.h"
 #include "MCDayPlan.h"
@@ -47,6 +48,8 @@
 #include "MCLocomotionCycle.h"
 #include "MCLocomotionSurface.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Engine/SkeletalMesh.h"
 #include "PhysicsEngine/PhysicsAsset.h"
 #include "PhysicsEngine/SkeletalBodySetup.h"
@@ -207,7 +210,9 @@ bool FMCThroatRiskTest::RunTest(const FString&)
     TestEqual(TEXT("A tooth triggers a spasm"),Throat->ThroatPhase,EMCThroatPhase::Spasm);
     TestFalse(TEXT("Failed order is not credited"),Food->IsDisposed());
     Throat->PhaseStartedAt-=Throat->SpasmSeconds+.01; Throat->Tick(.01f);
-    TestTrue(TEXT("Tooth is spat out alive beyond the circle"),!Hero->SwallowedBy && Hero->Status->IsAlive() && !Throat->ContainsPlayer(Hero));
+    TestTrue(TEXT("Tooth exits the throat alive with an outward ballistic impulse"),!Hero->SwallowedBy && Hero->Status->IsAlive() &&
+        FVector::DotProduct(Hero->GetCharacterMovement()->PendingLaunchVelocity,Throat->GetActorForwardVector())<-900 && Hero->GetCharacterMovement()->PendingLaunchVelocity.Z>400);
+    TestEqual(TEXT("Expulsion has its own visible phase"),Throat->ThroatPhase,EMCThroatPhase::Vomiting);
     TestTrue(TEXT("Food returns to play"),Food->Phase==EMCFoodPhase::Free && Throat->FoodSwallowed==0 && Throat->SpasmCount==1);
     Food->Body->SetSimulatePhysics(false); Food->SetActorLocation(Center+FVector(0,0,45)); Hero->SetActorLocation(Center+FVector(0,0,60));
     Throat->ThroatPhase=EMCThroatPhase::Anticipation; Throat->PhaseStartedAt=Mouth.World->GetTimeSeconds()-Throat->AnticipationSeconds-.01; Throat->Tick(.01f);
@@ -882,6 +887,12 @@ bool FMCDevEventsTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Invalid step preserves current sandbox"),Mouth.Mode->DayDirector.Get(),Director);
     Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StartStep,Index(EMCDayStep::CoffeeWaves));
     TestTrue(TEXT("Coffee selection uses real flood"),Mouth.Mode->DayDirector->Flood->IsActive());
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::SwimCoffee);
+    auto* SwimWater=Mouth.Mode->DayDirector->Flood.Get();
+    TestEqual(TEXT("F3 swimming holds a full flood for ten minutes"),SwimWater->WaterSettings.HoldSeconds,600.f);
+    SwimWater->StartedAt=Mouth.World->GetTimeSeconds()-300; SwimWater->Tick(.1f);
+    TestTrue(TEXT("The middle of the long test stays full without a jet or drain"),SwimWater->IsActive() && SwimWater->GetPhase()==EMCCoffeePhase::Holding
+        && !SwimWater->Jet->IsVisible() && !SwimWater->DrainRibbon->IsVisible());
     Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::CoffeeDirt);
     TestTrue(TEXT("Dirt action includes teeth and tissue"),Mouth.Mode->DayDirector->CountDirt()>8);
     Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StopCoffee);
@@ -977,6 +988,11 @@ bool FMCCoffeePourDrainTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Drain pulls towards throat"),FVector::DotProduct(Water.FlowAt(P,4.7f,320),(Water.DrainPoint-P).GetSafeNormal2D())>0);
     TestTrue(TEXT("No residual flow after drain"),Water.FlowAt(P,6.1f,320).IsNearlyZero());
     Water.Cycles=2; TestTrue(TEXT("Second cycle restarts fill"),Water.Phase(6.5f)==EMCCoffeePhase::Filling && Water.Phase(12)==EMCCoffeePhase::Inactive);
+    Water.Cycles=1; Water.HoldSeconds=600;
+    TestTrue(TEXT("Long test holds a full level after filling"),Water.Phase(4)==EMCCoffeePhase::Holding && Water.Phase(603.9f)==EMCCoffeePhase::Holding && Water.FillAmount(300)==1);
+    TestTrue(TEXT("Holding has no pour or drain force"),Water.JetAmount(300)==0 && Water.DrainAmount(300)==0 && Water.FlowAt(P,300,320).IsNearlyZero());
+    TestTrue(TEXT("Ten minute hold drains normally then ends"),Water.Phase(604)==EMCCoffeePhase::Draining && FMath::IsNearlyEqual(Water.FillAmount(605),.5f) && Water.Phase(606)==EMCCoffeePhase::Inactive);
+    Water.HoldSeconds=0;
     Water.FillSeconds=-1; Water.DrainSeconds=std::numeric_limits<float>::quiet_NaN(); Water.FrontWidth=0; Water.Sanitize();
     TestTrue(TEXT("Invalid timing and widths sanitize"),Water.FillSeconds>=1 && Water.DrainSeconds==2 && Water.FrontWidth>=40);
 
@@ -1034,8 +1050,10 @@ bool FMCTongueScheduleTest::RunTest(const FString& Parameters)
     };
     Advance(21);
     TestEqual(TEXT("Normal day has no jolt before minimum rest"),Tongue->Motion.Serial,0);
-    Advance(12);
-    TestEqual(TEXT("Normal day starts jolt by maximum rest"),Tongue->Motion.Serial,1);
+    Advance(100);
+    TestEqual(TEXT("Saved default keeps normal gameplay free of random jolts"),Tongue->Motion.Serial,0);
+    TestFalse(TEXT("Native default disables random jolts"),FMCTongueSettings().bAutomaticJolts);
+    TestTrue(TEXT("Explicit jolt still starts"),Tongue->TriggerJolt());
     TestFalse(TEXT("A running jolt cannot be triggered twice"),Tongue->TriggerJolt());
     Mouth.State->bDevManualEvents=true;
     Advance(40);
@@ -1046,7 +1064,7 @@ bool FMCTongueScheduleTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Completed day suppresses automatic jolts"),Tongue->Motion.Serial,1);
     Mouth.State->bDayOneComplete=false;
     Advance(1);
-    TestEqual(TEXT("Active normal day resumes automatic jolts"),Tongue->Motion.Serial,2);
+    TestEqual(TEXT("Returning to normal play does not trigger a random jolt"),Tongue->Motion.Serial,1);
     Tongue->ResetPain();
     TestEqual(TEXT("Restart removes current jolt"),Tongue->Motion.Serial,0);
     Advance(21);
@@ -1595,10 +1613,103 @@ bool FMCCareVolumeTest::RunTest(const FString&)
     H->BrushContact->MaxHandTravel=1.f;
     TestFalse(TEXT("Floating hand respects its independent short travel limit"),Tooth->BrushGrime(H,.1f));
     H->BrushContact->MaxHandTravel=HandTravel;
+    // A nominal wrist goal inside surrounding geometry is not a reachable
+    // contact. Reject it instead of presenting forever without wiping.
+    auto* Obstacle=Mouth.World->SpawnActor<AActor>();
+    auto* Wall=NewObject<UBoxComponent>(Obstacle); Obstacle->SetRootComponent(Wall);
+    Wall->SetBoxExtent(FVector(220)); Wall->SetCollisionProfileName(TEXT("BlockAll")); Wall->RegisterComponent();
+    Obstacle->SetActorLocation(FVector(-120,0,150));
+    const auto BlockedMask=Tooth->GrimeMask;
+    TestFalse(TEXT("Brush rejects every blocked hand orientation"),Tooth->BrushGrime(H,.1f));
+    TestTrue(TEXT("Blocked physical contact preserves the cleaning mask"),BlockedMask==Tooth->GrimeMask);
+    Obstacle->Destroy();
     // A volume stroke must stay local across atlas slice boundaries.
     TArray<uint8> Mask; FMCSurfaceWipe::Reset(Mask);
     TestTrue(TEXT("Stroke crosses a slice boundary"),FMCSurfaceWipe::Stroke(Mask,FVector(.2,.3,.19),FVector(.2,.3,.22),FVector(200),24,.1f));
     TestEqual(TEXT("Unrelated atlas tile stays dirty"),Mask[FMCSurfaceWipe::Index(14,14,15)],uint8(255));
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCExposedCoatingTest,"MessControl.Care.ExposedToothCoating",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCExposedCoatingTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working;
+    const FTransform FloorTransform(FQuat::Identity,FVector(0,0,140),FVector(8));
+    auto* Tongue=M.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FloorTransform);
+    Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));
+    Tongue->Settings.IdleHeight=0; Tongue->FinishSpawning(FloorTransform);
+    Tongue->SetActorTickEnabled(false);
+    FVector Rest;
+    TestTrue(TEXT("Rest support reads the saved tongue geometry"),Tongue->RestSurfacePoint(FVector(-100,0,0),Rest));
+    TestTrue(TEXT("Rest support follows the tongue transform"),FMath::IsNearlyEqual(Rest.Z,140.,.1));
+    const FTransform ToothTransform(FVector(0,0,150));
+    auto* Tooth=M.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),ToothTransform);
+    Tooth->SetAppearance(ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Cube.Cube")),FVector(2));
+    Tooth->FinishSpawning(ToothTransform); Tooth->SetCoffee(1);
+    auto* H=M.Worker(); H->SetActorLocation(FVector(-155,0,205)); H->SetActorRotation(FRotator::ZeroRotator); H->bBrushing=true;
+    H->GetCharacterMovement()->bRunPhysicsWithNoController=true;
+    H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    float Lowest=MAX_flt; int32 Contacts=0;
+    for(int32 I=0;I<240 && Tooth->Status->NeedsCare(true);++I) {
+        FVector Point,Normal;
+        if(Tooth->FindDirtyContact(H,Point,Normal)) { Lowest=FMath::Min(Lowest,float(Point.Z)); ++Contacts; }
+        H->AdvanceCare(.1f); M.Step(.1f);
+    }
+    TestTrue(TEXT("Exposed coating retains brushable dirt"),Contacts>0);
+    TestTrue(TEXT("Buried lower enamel cannot become a dirty target"),Lowest>=162);
+    AddInfo(FString::Printf(TEXT("exposed coating contacts=%d left=%.4f low=%.1f health=%.1f"),Contacts,Tooth->RemainingGrime(),Lowest,H->Status->State.Health));
+    TestFalse(TEXT("Exposed coating can be completely cleaned"),Tooth->Status->NeedsCare(true));
+    TestTrue(TEXT("No hidden samples keep the cleaning task open"),Tooth->RemainingGrime()<.025f);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatCameraTest,"MessControl.Throat.CameraWaitsForSpit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCThroatCameraTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->SetAsLocalPlayerController();
+    auto* Hero=Mouth.Worker(); PC->Possess(Hero); Hero->SetActorLocation(FVector(-200,0,100));
+    Hero->UpdateMouthCamera(.1f); Hero->CameraBoom->TickComponent(.1f,LEVELTICK_All,nullptr);
+    const FVector Eye=Hero->Camera->GetComponentLocation(),Focus=Hero->MouthCameraFocus;
+    const FRotator Rotation=Hero->Camera->GetComponentRotation();
+    auto* Throat=Mouth.World->SpawnActor<AMCThroat>();
+    Hero->SetThroatCapture(Throat);
+    Hero->SetActorLocation(FVector(1400,0,-450));
+    Hero->UpdateMouthCamera(.1f); Hero->CameraBoom->TickComponent(.1f,LEVELTICK_All,nullptr);
+    TestTrue(TEXT("Camera stays in the mouth while the player travels down the throat"),Hero->Camera->GetComponentLocation().Equals(Eye,.1f));
+    TestTrue(TEXT("Camera aim and focus also stay fixed"),Hero->Camera->GetComponentRotation().Equals(Rotation,.1f) && Hero->MouthCameraFocus==Focus);
+    auto* Water=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Water->bActive=true; Water->Seconds=1000; Water->WaterSettings.HoldSeconds=600; Water->StartedAt=Mouth.World->GetTimeSeconds()-100;
+    Hero->GetCharacterMovement()->TickComponent(.1f,LEVELTICK_All,nullptr); Hero->Tick(.1f); Water->Tick(.1f);
+    TestTrue(TEXT("Captured player stays alive with movement suspended even in coffee"),Hero->Status->IsAlive() && Hero->GetCharacterMovement()->MovementMode==MOVE_None && !Hero->bInCoffee);
+    const FVector Exit(-600,0,150),Impulse(-570,0,420);
+    Hero->ClientThroatExit(Exit,Impulse);
+    Hero->UpdateMouthCamera(.01f); Hero->CameraBoom->TickComponent(.01f,LEVELTICK_All,nullptr);
+    TestTrue(TEXT("Ejection releases capture and camera"),!Hero->SwallowedBy && !Hero->bMouthCameraHeld && Hero->CanWork());
+    TestTrue(TEXT("Camera resumes with a smooth first step"),FVector::Dist(Hero->MouthCameraEye,Eye)>0 && FVector::Dist(Hero->MouthCameraEye,Eye)<70);
+    // A repeated null replication must not cancel the reliable launch.
+    Hero->GetCharacterMovement()->Velocity=Impulse; Hero->SetThroatCapture(nullptr);
+    TestTrue(TEXT("A repeated release preserves the ejection velocity"),Hero->GetVelocity().Equals(Impulse,.1f));
+    Mouth.Step(.7f);
+    Hero->ToothPhysics->ApplyHit(FVector(0,0,600),Hero->GetActorLocation());
+    TestEqual(TEXT("Second capture starts with a knocked-down player"),Hero->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
+    Hero->SetThroatCapture(Throat);
+    TestTrue(TEXT("A knocked-down player also becomes kinematic in the gulp"),Hero->ToothPhysics->CanAct() && !Hero->GetMesh()->IsSimulatingPhysics(Hero->RigBone(TEXT("body"))));
+    Hero->ClientThroatExit(Exit,Impulse);
+    TestTrue(TEXT("Ejected player restores collision"),Hero->GetCapsuleComponent()->GetCollisionEnabled()==ECollisionEnabled::QueryAndPhysics);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCJumpHeightTest,"MessControl.Locomotion.RaisedJumpHeight",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCJumpHeightTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; auto* Hero=Mouth.Worker();
+    UClass* Blueprint=LoadClass<AMCToothCharacter>(nullptr,TEXT("/Game/Blueprints/BP_ToothCharacter.BP_ToothCharacter_C"));
+    if(!TestNotNull(TEXT("Authored player Blueprint exists"),Blueprint)) return false;
+    auto* Authored=Mouth.World->SpawnActor<AMCToothCharacter>(Blueprint,FVector(5000,0,100),FRotator::ZeroRotator);
+    for(auto* H:{Hero,Authored}) {
+        auto* Move=H->GetCharacterMovement();
+        const float OldHeight=500.f*500.f/(2*FMath::Abs(Move->GetGravityZ()));
+        TestTrue(TEXT("Native and Blueprint players jump 28 percent higher"),FMath::IsNearlyEqual(Move->GetMaxJumpHeight()/OldHeight,1.28f,.001f));
+        Move->SetMovementMode(MOVE_Walking); H->Jump();
+        TestTrue(TEXT("Actual jump accepts the new takeoff velocity"),Move->DoJump(false,1.f/60) && FMath::IsNearlyEqual(Move->Velocity.Z,565.685f,.01f));
+    }
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHeavyFoodDragTest,"MessControl.Grip.HeavyArtistFoodMoves",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
@@ -1936,6 +2047,12 @@ bool FMCAuthoredThroatMorphTest::RunTest(const FString&)
     TestTrue(TEXT("Swallow releases the closing target to reveal the aperture"),Throat->AuthoredMouth->GetMorphTarget(TEXT("Open"))<.03f);
     Throat->ThroatPhase=EMCThroatPhase::Spasm; Throat->PhaseStartedAt=M.World->GetTimeSeconds()-.4;
     Throat->Tick(.01f); TestTrue(TEXT("Spasm drives the imported vomit pose"),Throat->AuthoredMouth->GetMorphTarget(TEXT("vomit"))>.5f);
+    Throat->ThroatPhase=EMCThroatPhase::Vomiting; Throat->PhaseStartedAt=M.World->GetTimeSeconds()-.3;
+    Throat->Tick(.01f); TestTrue(TEXT("Expulsion holds the mouth open and contracts the vomit pose"),Throat->OpenAmount()>.9f && Throat->AuthoredMouth->GetMorphTarget(TEXT("vomit"))>.8f);
+    Throat->PhaseStartedAt=M.World->GetTimeSeconds()-Throat->VomitSeconds+.01;
+    const float BeforeRecovery=Throat->OpenAmount();
+    Throat->ThroatPhase=EMCThroatPhase::Recovering; Throat->PhaseStartedAt=M.World->GetTimeSeconds();
+    TestTrue(TEXT("Expulsion flows into closing without closing and reopening"),BeforeRecovery>.9f && FMath::Abs(BeforeRecovery-Throat->OpenAmount())<.1f);
     return true;
 }
 // A rejected gulp is atomic even when a frame passes the entire swallow interval.
@@ -1964,6 +2081,46 @@ bool FMCVomitMealTest::RunTest(const FString&)
         Good->Body->SetSimulatePhysics(false); Bad->Body->SetSimulatePhysics(false); Throat->ResetSwallow();
     }
     TestEqual(TEXT("Exactly one vomit per rejected gulp"),Throat->VomitCount,2);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCVomitFlightTest,"MessControl.Hazards.VomitFlightImpactPersistenceAndWipe",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCVomitFlightTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->bPhysicalBrushes=false;
+    auto* Tongue=M.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FTransform::Identity);
+    Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Game/Gameplay/Arena/SM_TongueSurface.SM_TongueSurface"));
+    Tongue->FinishSpawning(FTransform::Identity); Tongue->SetActorTickEnabled(false);
+    Tongue->Settings.IdleHeight=0; Tongue->PressureSettings.bEnabled=false; Tongue->Tick(.033f);
+    FHitResult Floor; const FVector Center=FBox(Tongue->CurrentVertices()).GetCenter();
+    if(!TestTrue(TEXT("Actual tongue provides a floor"),Tongue->SurfacePoint(Center,Floor))) return false;
+    auto* Throat=M.World->SpawnActor<AMCThroat>(FVector(Center.X+650,Center.Y,Floor.ImpactPoint.Z),FRotator::ZeroRotator);
+    Throat->SetActorTickEnabled(false);
+    auto* Burst=M.World->SpawnActor<AMCVomitBurst>(); Burst->Configure(Throat);
+    TestEqual(TEXT("Three portions plan real surface hits"),Burst->Portions.Num(),3);
+    auto Puddles=[&]() { TArray<AMCMouthSurface*> Result; for(TActorIterator<AMCMouthSurface> It(M.World);It;++It) if(It->Batch==Burst->Batch) Result.Add(*It); return Result; };
+    TestTrue(TEXT("No dirt appears before impact"),Puddles().IsEmpty());
+    M.Step(.3f); TestTrue(TEXT("Portions spend time airborne"),Burst->LandedPortions()==0 && Burst->AirborneInstances>0 && Puddles().IsEmpty());
+    M.Step(2.1f);
+    auto Patches=Puddles();
+    if(!TestEqual(TEXT("Swept flights create three actual tongue impacts"),Burst->LandedPortions(),3) || !TestEqual(TEXT("Each impact creates exactly one patch"),Patches.Num(),3)) return false;
+    for(auto* Patch:Patches) {
+        TestTrue(TEXT("Impact belongs to the tongue and starts a spread animation"),Patch->GetTongue()==Tongue && Patch->LiquidBornAt>0 && !Patch->IsClean());
+        FHitResult Hit; Tongue->SurfacePoint(Patch->GetActorLocation(),Hit);
+        TestTrue(TEXT("Dirty patch stays on the impact surface"),FVector::Dist(Hit.ImpactPoint,Patch->GetActorLocation())<7);
+    }
+    M.Step(4);
+    TestFalse(TEXT("Temporary projectile actor expires"),IsValid(Burst));
+    for(auto* Patch:Patches) TestTrue(TEXT("Dirt outlives the airborne effect"),IsValid(Patch) && !Patch->IsClean());
+    auto* Hero=M.Worker(); auto* Patch=Patches[0];
+    Hero->SetActorLocation(Patch->GetActorLocation()+FVector(-65,0,75)); Hero->SetActorRotation(FRotator::ZeroRotator); Hero->bBrushing=true;
+    for(int32 I=0;I<5;++I) Hero->AdvanceCare(.1f);
+    TestTrue(TEXT("Real brush contacts erase a local track in vomit"),Patch->RemainingLiquid()<.99f);
+    for(int32 I=0;I<200 && !Patch->IsClean();++I) Hero->AdvanceCare(.1f);
+    TestTrue(TEXT("Vomit can be completely cleaned through the existing brush mechanic"),Patch->IsClean() && Patch->RemainingLiquid()<.025f);
+    TestTrue(TEXT("Cleaning one impact preserves the other two"),!Patches[1]->IsClean() && !Patches[2]->IsClean());
+    auto* Cancelled=M.World->SpawnActor<AMCVomitBurst>(); Cancelled->Configure(Throat); Cancelled->Batch=54321; Cancelled->Destroy(); M.Step(2.5f);
+    int32 CancelledDirt=0; for(TActorIterator<AMCMouthSurface> It(M.World);It;++It) if(It->Batch==54321) ++CancelledDirt;
+    TestEqual(TEXT("Cancelling an airborne burst cannot create delayed dirt"),CancelledDirt,0);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpicyFuseTest,"MessControl.Hazards.SpicyFusePauseResumeAndRound",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
@@ -2021,6 +2178,92 @@ bool FMCWaveDodgeTest::RunTest(const FString&)
     TestEqual(TEXT("Landing behind a crossed wave is safe"),High->Status->State.Health,HighHP);
     TestEqual(TEXT("A wave damages a player only once"),Wave->HitCount,1);
     TestTrue(TEXT("Moving through an expanding wave is swept"),AMCHazardWave::Crosses(250,10,20,200,20));
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCUlcerSurfaceWaveTest,"MessControl.Hazards.UlcerWaveDeformsLocalSurface",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCUlcerSurfaceWaveTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->Phase=EMCShiftPhase::Working; M.State->bDevManualEvents=true;
+    auto* Tongue=M.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FTransform::Identity);
+    Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Game/Gameplay/Arena/SM_TongueSurface.SM_TongueSurface"));
+    Tongue->FinishSpawning(FTransform::Identity); Tongue->SetActorTickEnabled(false);
+    Tongue->Settings.IdleHeight=0; Tongue->PressureSettings.bEnabled=false; Tongue->Tick(.033f);
+    const auto Rest=Tongue->CurrentVertices();
+    FHitResult Floor;
+    if(!TestTrue(TEXT("Tongue fixture has a surface"),Tongue->SurfacePoint(FBox(Rest).GetCenter(),Floor))) return false;
+    auto SpawnUlcer=[&](FVector Point)
+    {
+        FHitResult Hit; if(!Tongue->SurfacePoint(Point,Hit)) return static_cast<AMCMouthSurface*>(nullptr);
+        const FTransform T(Hit.ImpactPoint+FVector(0,0,5));
+        auto* Ulcer=M.World->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),T);
+        Ulcer->bUlcer=true; Ulcer->bRandomizeLiquidSize=false; Ulcer->FinishSpawning(T); Ulcer->SetActorTickEnabled(false);
+        return Ulcer;
+    };
+    auto SpawnWave=[&](AMCMouthSurface* Ulcer)
+    {
+        const FTransform T(Ulcer->GetActorLocation());
+        auto* Wave=M.World->SpawnActorDeferred<AMCHazardWave>(AMCHazardWave::StaticClass(),T);
+        Wave->Source=Ulcer; Wave->MaxRadius=260; Wave->FinishSpawning(T); Wave->SetActorTickEnabled(false); return Wave;
+    };
+    auto* Ulcer=SpawnUlcer(Floor.ImpactPoint);
+    if(!TestNotNull(TEXT("Ulcer binds to the tongue"),Ulcer) || !TestEqual(TEXT("Ulcer uses the actual tongue"),Ulcer->GetTongue(),Tongue)) return false;
+    auto* Wave=SpawnWave(Ulcer);
+    auto Crest=[&](float Age)
+    {
+        Wave->StartedAt=Tongue->ServerTime()-Wave->WarningSeconds-Age;
+        Tongue->Tick(.033f);
+        float Sum=0,WeightedRadius=0,Outside=0,Peak=0; int32 PeakIndex=INDEX_NONE;
+        const auto* Section=Tongue->Surface->GetProcMeshSection(0);
+        bool Red=false,OutsideRed=false;
+        for(int32 I=0;I<Rest.Num();++I)
+        {
+            const float D=Tongue->CurrentVertices()[I].Z-Rest[I].Z;
+            const float Radius=FVector::Dist2D(Rest[I],Ulcer->GetActorLocation());
+            if(Radius>Wave->MaxRadius) { Outside=FMath::Max(Outside,FMath::Abs(D)); OutsideRed|=Section->ProcVertexBuffer[I].Color.R!=0; }
+            if(D>0) { Sum+=D; WeightedRadius+=Radius*D; }
+            if(D>Peak && Section->ProcVertexBuffer[I].Normal.Z>.3) { Peak=D; PeakIndex=I; }
+            Red|=Section->ProcVertexBuffer[I].Color.R!=0;
+        }
+        TestTrue(TEXT("The wave visibly lifts tissue"),Peak>1);
+        TestTrue(TEXT("The existing 260 cm radius is preserved"),Outside<.001f);
+        TestTrue(TEXT("Local crest uses the existing pain redness"),Red);
+        TestFalse(TEXT("Pain redness stays inside the 260 cm pulse radius"),OutsideRed);
+        if(PeakIndex!=INDEX_NONE)
+        {
+            const FVector P=Tongue->CurrentVertices()[PeakIndex]; FHitResult Hit;
+            TestTrue(TEXT("Collision follows the visible crest"),Tongue->SurfacePoint(P,Hit) && FMath::Abs(Hit.ImpactPoint.Z-P.Z)<1);
+        }
+        return WeightedRadius/FMath::Max(1.f,Sum);
+    };
+    const float Early=Crest(.25f),Late=Crest(.65f);
+    TestTrue(TEXT("The local front expands over time"),Late>Early+40);
+    // Existing large motions keep their own slot and cannot suppress local ulcer pulses.
+    auto* Profile=NewObject<UMCTongueMotionProfile>(); Profile->Settings.Height=0; Profile->Settings.Redness=0;
+    Profile->Settings.Push=0; Profile->Settings.Lift=0;
+    TestTrue(TEXT("A larger event can coexist"),Tongue->PlayMotion(Profile,Floor.ImpactPoint,FVector::ForwardVector));
+    Crest(.45f); TestEqual(TEXT("Local pulses leave the larger motion untouched"),Tongue->Motion.Serial,1);
+    Wave->Tick(.01f); TestFalse(TEXT("The ulcer's pink ring is replaced"),Wave->Ring->IsVisible());
+    const float SavedHeight=Tongue->Settings.WaveHeight; Tongue->Settings.WaveHeight=SavedHeight+20;
+    FMCTongueMotionState Pulse; Wave->SurfaceMotion(Tongue,Tongue->ServerTime(),Pulse);
+    TestEqual(TEXT("An active pulse keeps its snapshotted height"),Pulse.Settings.Height,SavedHeight);
+    TestEqual(TEXT("Local pulse retains the original pain color intensity"),Pulse.Settings.Redness,1.f);
+    auto* OtherUlcer=SpawnUlcer(Floor.ImpactPoint+FVector(350,0,0));
+    if(!TestNotNull(TEXT("Second ulcer has a surface"),OtherUlcer)) return false;
+    auto* OtherWave=SpawnWave(OtherUlcer); OtherWave->StartedAt=Wave->StartedAt;
+    Tongue->Tick(.033f);
+    float OtherCrest=0;
+    for(int32 I=0;I<Rest.Num();++I)
+        if(FVector::Dist2D(Rest[I],Ulcer->GetActorLocation())>Wave->MaxRadius)
+            OtherCrest=FMath::Max(OtherCrest,float(Tongue->CurrentVertices()[I].Z-Rest[I].Z));
+    TestTrue(TEXT("Another ulcer independently deforms its own region"),OtherCrest>1);
+    TestTrue(TEXT("Treatment can suppress the ulcer"),Ulcer->ApplyAnesthetic(3));
+    TestTrue(TEXT("The second ulcer can also be treated"),OtherUlcer->ApplyAnesthetic(3));
+    Tongue->Tick(.033f);
+    float Remaining=0; for(int32 I=0;I<Rest.Num();++I) Remaining=FMath::Max(Remaining,float(FVector::Distance(Rest[I],Tongue->CurrentVertices()[I])));
+    TestTrue(TEXT("Treatment stops the surface wave immediately"),Remaining<.001f);
+    bool RemainingRed=false; for(const auto& V:Tongue->Surface->GetProcMeshSection(0)->ProcVertexBuffer) RemainingRed|=V.Color.R!=0;
+    TestFalse(TEXT("Treatment also stops the local pain redness"),RemainingRed);
+    Wave->Tick(.01f); TestTrue(TEXT("Treatment also removes the damage wave"),Wave->IsActorBeingDestroyed());
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCClimbTest,"MessControl.Locomotion.ClimbHangReleaseAndPredictedJump",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

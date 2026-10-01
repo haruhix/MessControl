@@ -289,7 +289,7 @@ void UMCToothPhysicsComponent::BuildPresentationPose(TArray<FTransform>& Pose) c
 }
 void UMCToothPhysicsComponent::OnRep_Frame()
 {
-    if (!Tooth) return;
+    if (!Tooth || Tooth->SwallowedBy) return;
     if (LocalState!=Frame.State)
     {
         LocalState=Frame.State;
@@ -304,7 +304,7 @@ void UMCToothPhysicsComponent::OnRep_Frame()
 }
 void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction)
 {
-    Super::TickComponent(Dt,TickType,ThisTickFunction); if (!Tooth) return;
+    Super::TickComponent(Dt,TickType,ThisTickFunction); if (!Tooth || Tooth->SwallowedBy) return;
     if (LocalState==EMCBodyState::Ragdoll)
     {
         if (Tooth->HasAuthority())
@@ -338,6 +338,19 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
 bool UMCToothPhysicsComponent::CanAct() const
 {
     return LocalState==EMCBodyState::Standing && (!Tooth || Tooth->Status->IsAlive());
+}
+void UMCToothPhysicsComponent::SetThroatCaptured(bool Captured)
+{
+    if(!Tooth) return;
+    if(Tooth->HasAuthority()) {
+        Frame.CapsuleLocation=Tooth->GetActorLocation(); Frame.Bones.Reset(); SetState(EMCBodyState::Standing);
+    } else LocalState=EMCBodyState::Standing;
+    // A gulp owns the complete body, including a player knocked down beforehand.
+    EnterStanding();
+    if(Captured) {
+        SetMuscles(false); Tooth->GetMesh()->SetAllBodiesSimulatePhysics(false);
+        Tooth->GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
 }
 void UMCToothPhysicsComponent::EnterDeath()
 {

@@ -9,7 +9,7 @@ class UMaterialInstanceDynamic;
 class USkeletalMeshComponent;
 
 UENUM(BlueprintType)
-enum class EMCThroatPhase : uint8 { Collecting, Anticipation, Swallowing, Recovering, Spasm };
+enum class EMCThroatPhase : uint8 { Collecting, Anticipation, Swallowing, Recovering, Spasm, Vomiting };
 
 /** A closed, breathing throat. Landing on the uvula orders one server-owned swallow. */
 UCLASS(Blueprintable)
@@ -55,6 +55,8 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 VomitCount=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 MealSequence=0;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing") float SpasmSeconds=1.2f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="2")) float VomitSeconds=2.2f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") FVector VomitOrigin=FVector(-70,0,130);
     UFUNCTION(BlueprintPure,Category="Throat") bool ContainsFood(const AMCFoodActor* Food) const;
     UFUNCTION(BlueprintPure,Category="Throat") float OpenAmount() const;
     UFUNCTION(CallInEditor,Category="Throat") void RebuildAppearance();
@@ -72,7 +74,7 @@ private:
     void UpdatePresentation(float Dt);
     void BuildRing();
     void CaptureMeal();
-    void SpawnVomitLiquid();
+    void BeginVomit();
     bool OrderVelocity(const AMCToothCharacter* Hero,FVector& Velocity) const;
     void UpdateOrderJumps();
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> RingMID;
@@ -82,6 +84,7 @@ private:
     TArray<FMealPiece> Meal;
     struct FSwallowedPlayer { TWeakObjectPtr<AMCToothCharacter> Hero; FVector Start; };
     TArray<FSwallowedPlayer> SwallowedPlayers;
+    TWeakObjectPtr<class AMCVomitBurst> ActiveVomit;
     void SpitOut(bool Reset=false);
     float PressTime=0,VisualWeight=0,GeometryElapsed=0,RingElapsed=0;
     bool bPressConsumed=false;

@@ -1,0 +1,12 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "MessControl Project Index",
+  "Description": "Read-only asset, Blueprint and Niagara export for project intelligence.",
+  "Category": "Developer Tools",
+  "CanContainContent": false,
+  "EnabledByDefault": true,
+  "Modules": [{"Name": "MessControlProjectIndex", "Type": "Editor", "LoadingPhase": "Default"}],
+  "Plugins": [{"Name": "Niagara", "Enabled": true}]
+}

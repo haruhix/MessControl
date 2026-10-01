@@ -10,6 +10,7 @@ void FMCCoffeeWaterSettings::Sanitize()
     SwimStrokeMultiplier=Safe(SwimStrokeMultiplier,3.f,1.f,5.f);
     SwimFloatDepth=Safe(SwimFloatDepth,-5.f,-20.f,25.f);
     FillSeconds=Safe(FillSeconds,4,1,15); DrainSeconds=Safe(DrainSeconds,2,.5f,10); Cycles=FMath::Clamp(Cycles,1,4);
+    HoldSeconds=Safe(HoldSeconds,0,0,3600);
     if (Inlet.ContainsNaN()) Inlet=FVector(420,-100,1100);
     Inlet=Inlet.BoundToBox(FVector(-2500,-1500,300),FVector(2500,1500,1800));
     if (DrainPoint.ContainsNaN()) DrainPoint=FVector(920,0,0);
@@ -23,18 +24,20 @@ float FMCCoffeeWaterSettings::CycleTime(float Time) const { return FMath::Fmod(F
 EMCCoffeePhase FMCCoffeeWaterSettings::Phase(float Time) const
 {
     if (Time<0 || Time>=CycleSeconds()*Cycles) return EMCCoffeePhase::Inactive;
-    return CycleTime(Time)<FillSeconds?EMCCoffeePhase::Filling:EMCCoffeePhase::Draining;
+    const float T=CycleTime(Time);
+    return T<FillSeconds?EMCCoffeePhase::Filling:T<FillSeconds+HoldSeconds?EMCCoffeePhase::Holding:EMCCoffeePhase::Draining;
 }
 float FMCCoffeeWaterSettings::FillAmount(float Time) const
 {
     const auto State=Phase(Time); const float T=CycleTime(Time);
     if (State==EMCCoffeePhase::Inactive) return 0;
-    if (State==EMCCoffeePhase::Draining) return 1-FMath::SmoothStep(0.f,1.f,(T-FillSeconds)/DrainSeconds);
+    if (State==EMCCoffeePhase::Holding) return 1;
+    if (State==EMCCoffeePhase::Draining) return 1-FMath::SmoothStep(0.f,1.f,(T-FillSeconds-HoldSeconds)/DrainSeconds);
     return FMath::SmoothStep(0.f,1.f,T/FillSeconds);
 }
 float FMCCoffeeWaterSettings::DrainAmount(float Time) const
 {
-    return Phase(Time)==EMCCoffeePhase::Draining?FMath::SmoothStep(0.f,.25f,CycleTime(Time)-FillSeconds):0;
+    return Phase(Time)==EMCCoffeePhase::Draining?FMath::SmoothStep(0.f,.25f,CycleTime(Time)-FillSeconds-HoldSeconds):0;
 }
 float FMCCoffeeWaterSettings::JetAmount(float Time) const
 {

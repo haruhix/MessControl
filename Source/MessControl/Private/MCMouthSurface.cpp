@@ -202,6 +202,7 @@ void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCMouthSurface,WipeMask); DOREPLIFETIME(AMCMouthSurface,LiquidSeed);
     DOREPLIFETIME(AMCMouthSurface,LiquidHalfSize);
     DOREPLIFETIME(AMCMouthSurface,LiquidMaterial);
+    DOREPLIFETIME(AMCMouthSurface,LiquidBornAt);
     DOREPLIFETIME(AMCMouthSurface,BrushUV); DOREPLIFETIME(AMCMouthSurface,BrushDirection); DOREPLIFETIME(AMCMouthSurface,BrushAt);
     DOREPLIFETIME(AMCMouthSurface,bUlcer); DOREPLIFETIME(AMCMouthSurface,Healing); DOREPLIFETIME(AMCMouthSurface,HealSeconds);
     DOREPLIFETIME(AMCMouthSurface,NumbUntil);

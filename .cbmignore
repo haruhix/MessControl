@@ -1,0 +1,12 @@
+# Binary content is handled by the Unreal asset MCP. Generated files are never source evidence.
+/Content/
+/ArtSource/
+/Artifacts/
+/Binaries/
+/Intermediate/
+/Saved/
+/DerivedDataCache/
+/Build/
+**/Binaries/
+**/Intermediate/
+**/__pycache__/

@@ -1,0 +1,19 @@
+[2026.10.01-01.16.26:812][240]LogTemp: Display: MC_BRUSH_APPROACH case=0 capsuleFree=1 position=X=-785.511 Y=-570.598 Z=-70.728
+[2026.10.01-01.16.29:949][364]LogTemp: Display: MC_BRUSH_COVERAGE case=0 pass=1 left=0.0183 time=2.07 height=28.1 error=14.76 clearance=1.00 stretch=1.000 contacts=62
+[2026.10.01-01.16.30:181][365]LogTemp: Display: MC_BRUSH_APPROACH case=1 capsuleFree=1 position=X=-794.699 Y=526.014 Z=-70.335
+[2026.10.01-01.16.33:388][523]LogTemp: Display: MC_BRUSH_COVERAGE case=1 pass=1 left=0.0239 time=2.63 height=20.9 error=15.68 clearance=1.00 stretch=1.000 contacts=96
+[2026.10.01-01.16.33:645][524]LogTemp: Display: MC_BRUSH_APPROACH case=2 capsuleFree=1 position=X=-640.379 Y=-693.544 Z=-52.371
+[2026.10.01-01.16.36:283][635]LogTemp: Display: MC_BRUSH_COVERAGE case=2 pass=1 left=0.0225 time=1.85 height=30.3 error=12.36 clearance=4.06 stretch=1.000 contacts=48
+[2026.10.01-01.16.36:498][636]LogTemp: Display: MC_BRUSH_APPROACH case=3 capsuleFree=1 position=X=-635.337 Y=636.223 Z=-48.648
+[2026.10.01-01.16.39:308][738]LogTemp: Display: MC_BRUSH_COVERAGE case=3 pass=1 left=0.0247 time=1.70 height=45.6 error=13.59 clearance=6.16 stretch=1.000 contacts=39
+[2026.10.01-01.16.39:554][739]LogTemp: Display: MC_BRUSH_APPROACH case=4 capsuleFree=1 position=X=-424.814 Y=-757.403 Z=-35.435
+[2026.10.01-01.16.42:568][865]LogTemp: Display: MC_BRUSH_COVERAGE case=4 pass=1 left=0.0248 time=2.10 height=59.0 error=6.02 clearance=1.00 stretch=1.000 contacts=63
+[2026.10.01-01.16.42:794][866]LogTemp: Display: MC_BRUSH_APPROACH case=5 capsuleFree=1 position=X=-427.843 Y=707.777 Z=-34.616
+[2026.10.01-01.16.46:904][ 11]LogTemp: Display: MC_BRUSH_COVERAGE case=5 pass=1 left=0.0245 time=2.42 height=40.5 error=15.40 clearance=1.00 stretch=1.000 contacts=82
+[2026.10.01-01.16.47:116][ 12]LogTemp: Display: MC_BRUSH_APPROACH case=6 capsuleFree=1 position=X=-161.626 Y=-746.113 Z=-16.346
+[2026.10.01-01.16.50:352][158]LogTemp: Display: MC_BRUSH_COVERAGE case=6 pass=1 left=0.0248 time=2.43 height=71.2 error=5.70 clearance=3.37 stretch=1.000 contacts=83
+[2026.10.01-01.16.50:595][159]LogTemp: Display: MC_BRUSH_APPROACH case=7 capsuleFree=1 position=X=-166.428 Y=697.693 Z=-15.456
+[2026.10.01-01.16.54:426][305]LogTemp: Display: MC_BRUSH_COVERAGE case=7 pass=1 left=0.0245 time=2.43 height=66.7 error=15.25 clearance=1.00 stretch=1.000 contacts=83
+[2026.10.01-01.17.00:878][665]LogTemp: Display: MC_BRUSH_COVERAGE case=8 pass=1 left=0.0195 time=5.98 height=17.9 error=15.11 clearance=5.18 stretch=1.000 contacts=88
+[2026.10.01-01.17.10:045][234]LogTemp: Display: MC_BRUSH_COVERAGE case=9 pass=1 left=0.0242 time=9.47 height=37.7 error=15.71 clearance=-0.54 stretch=1.000 contacts=488
+[2026.10.01-01.17.10:045][234]LogTemp: Display: MC_BRUSH_COVERAGE_PASS cases=10/10
