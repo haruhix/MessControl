@@ -128,7 +128,8 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     if (!Food[0] || !Food[1] || !Food[2] || !Food[3]) { if (T>21) Finish(); return; }
     if (Host && DevStage==1 && T>1)
     {
-        const FVector Offset[]={FVector(-86,0,0),FVector(-86,0,0),FVector(-68,0,0),FVector(86,0,0)};
+        // Stand between the two small props so either hand assignment is reachable.
+        const FVector Offset[]={FVector(-86,0,0),FVector(-86,0,0),FVector(-62,-32,0),FVector(86,0,0)};
         for (int32 I=0;I<4;++I)
         {
             Place(Heroes[I],Food[I]->GetActorLocation()+Offset[I],0); GripStarts[I]=Food[I]->GetActorLocation();
@@ -150,8 +151,14 @@ void UMCValidationSubsystem::TickGrip(float Dt)
         ++DevStage;
     }
     if (T>2 && GripStarts[0].IsNearlyZero()) for (int32 I=0;I<4;++I) GripStarts[I]=Food[I]->GetActorLocation();
-    // Test teleports rotate authority; owning character rotation is normally driven by local movement.
-    if (!Host && T>1 && T<3) for (auto* Hero:Heroes) if (Hero->IsLocallyControlled()) Hero->SetActorRotation(FRotator::ZeroRotator);
+    // Reconcile the fixture teleport on the owning client too. Its pending saved
+    // moves otherwise restore the previous position before the server-side grip.
+    // These windows end before pickup and never reposition a held contact.
+    if (!Host && ((T>1 && T<2) || (T>15 && T<16)))
+        for(int32 I=0;I<4;++I) if(Heroes[I]->IsLocallyControlled() && (T<2 || I==1)) {
+            const FVector Offset=I==2?FVector(-62,-32,0):FVector(I==3?86:-86,0,0);
+            Place(Heroes[I],Food[I]->GetActorLocation()+Offset,0);
+        }
     // Allow the lift and its replicated pose to settle even during slow captures.
     // Stop by distance so the test remains inside the arena at every frame rate.
     if (T>5 && T<9)
