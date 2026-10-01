@@ -1,0 +1,80 @@
+{
+  "source": "C:\\Users\\user\\Downloads\\Telegram Desktop\\Character.blend",
+  "source_sha256": "5836831d24610d01d2aafbee8fe22e68e65254924127e61ec7123f2f281e3043",
+  "tools": [
+    {
+      "name": "SM_Brush",
+      "vertices": 152,
+      "faces": 170,
+      "material": "Material.006",
+      "bounds_cm": [
+        [
+          -17.640369415283203,
+          -8.31308364868164,
+          -14.31106948852539
+        ],
+        [
+          88.3966064453125,
+          8.313082695007324,
+          4.350102424621582
+        ]
+      ],
+      "textures": {
+        "BaseColor": "Brush_BaseColor.png",
+        "OcclusionRoughnessMetallic": "Brush_OcclusionRoughnessMetallic.png",
+        "Normal": "Brush_Normal.png"
+      }
+    },
+    {
+      "name": "SM_Pick",
+      "vertices": 96,
+      "faces": 78,
+      "material": "Material.007",
+      "bounds_cm": [
+        [
+          0.14314129948616028,
+          -5.683610916137695,
+          -32.775794982910156
+        ],
+        [
+          77.88591003417969,
+          7.670198440551758,
+          33.566917419433594
+        ]
+      ],
+      "textures": {
+        "BaseColor": "Pick_BaseColor.png",
+        "OcclusionRoughnessMetallic": "Pick_OcclusionRoughnessMetallic.png",
+        "Normal": "Pick_Normal.png"
+      }
+    },
+    {
+      "name": "SM_Spray",
+      "vertices": 244,
+      "faces": 214,
+      "material": "Material.009",
+      "bounds_cm": [
+        [
+          -11.51932144165039,
+          -11.637776374816895,
+          -8.142759323120117
+        ],
+        [
+          11.51932144165039,
+          11.637776374816895,
+          28.883852005004883
+        ]
+      ],
+      "textures": {
+        "BaseColor": "Spray_BaseColor.png",
+        "OcclusionRoughnessMetallic": "Spray_OcclusionRoughnessMetallic.png",
+        "Normal": "Spray_Normal.png"
+      }
+    }
+  ],
+  "brush_contact_cm": [
+    72,
+    0,
+    -20
+  ]
+}

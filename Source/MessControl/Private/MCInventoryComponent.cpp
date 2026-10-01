@@ -210,7 +210,8 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
     if(Selected!=EMCToolSlot::Brush || Custom) Hero->Brush->SetVisibility(false);
     if(SprayMist) {
         const bool Emit=Visible && Selected==EMCToolSlot::Spray && Hero->CanWork() && (HealingTarget || Hero->IsPrimaryHeld());
-        const FVector Nozzle=Hero->BrushPivot->GetComponentTransform().TransformPosition(FVector(34,0,31));
+        const FVector Nozzle=Tool->DoesSocketExist(TEXT("SprayNozzle"))?Tool->GetSocketLocation(TEXT("SprayNozzle"))
+            :Hero->BrushPivot->GetComponentTransform().TransformPosition(FVector(34,0,31));
         const FVector Aim=HealingTarget?HealingTarget->GetActorLocation()+FVector(0,0,10):Nozzle+Hero->GetActorForwardVector()*180;
         if(Emit) SprayMist->SetWorldLocationAndRotation(Nozzle,FRotationMatrix::MakeFromZ((Aim-Nozzle).GetSafeNormal()).Rotator());
         if(Emit!=bSprayEmitting) {if(Emit) SprayMist->Activate(true);else SprayMist->Deactivate();bSprayEmitting=Emit;}

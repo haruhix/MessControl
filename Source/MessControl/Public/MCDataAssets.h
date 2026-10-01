@@ -7,6 +7,7 @@ class USkeletalMesh;
 class UPhysicsAsset;
 class UMaterialInterface;
 class UAnimSequence;
+class UStaticMesh;
 
 // Maps gameplay roles to an artist's skeleton without renaming the source rig.
 UCLASS(BlueprintType)
@@ -20,6 +21,7 @@ public:
     // Imported model faces +Y; the character moves along +X. Feet sit below the capsule center.
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") FTransform MeshTransform=FTransform(FRotator(0,-90,0),FVector(0,0,-58));
     // Grip offset in reference mesh space, relative to the hand's reference position.
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") TObjectPtr<UStaticMesh> BrushMesh;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Appearance") FTransform BrushTransform=FTransform(FRotator(0,90,0),FVector(-8,3,-4));
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Rig") TMap<FName,FName> BoneMap;
     // Closing angles for the repaired, rigid eyelid shells; zero disables bone blinking.

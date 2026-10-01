@@ -122,6 +122,7 @@ void AMCToothCharacter::ApplyAppearance()
     if (Appearance->PhysicsAsset) GetMesh()->SetPhysicsAsset(Appearance->PhysicsAsset);
     GetMesh()->SetRelativeTransform(StandingMeshTransform());
     if (Appearance->Material) GetMesh()->SetMaterial(0,Appearance->Material);
+    if (Appearance->BrushMesh) { Brush->EmptyOverrideMaterials(); Brush->SetStaticMesh(Appearance->BrushMesh); }
     BrushPivot->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepRelativeTransform,RigBone(TEXT("hand_r")));
     const auto& Ref=GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
     FTransform Hand=FTransform::Identity;
