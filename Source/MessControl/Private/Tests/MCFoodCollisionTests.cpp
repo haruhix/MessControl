@@ -261,7 +261,9 @@ bool FMCFoodCollisionDropTest::RunTest(const FString&)
         const double InitialBottom=LowestVisibleVertex(Food);
         TestTrue(*(Name+TEXT(" starts visibly above the floor")),InitialBottom>300 && FMath::IsFinite(InitialBottom));
         Food->Body->SetEnableGravity(true); Food->Body->WakeAllRigidBodies();
-        Fixture.Step(8);
+        // ActorScale20 turns this artist egg into a several-metre body. Let
+        // its genuine rolling contact settle before asserting resting motion.
+        Fixture.Step(30);
         const FVector Position=Food->GetActorLocation(),Velocity=Food->Body->GetPhysicsLinearVelocity();
         const double Bottom=LowestVisibleVertex(Food);
         TestTrue(*(Name+TEXT(" falls under actual gravity")),Position.Z<InitialCentre-300);
@@ -294,7 +296,7 @@ bool FMCFoodCollisionDropTest::RunTest(const FString&)
             TestTrue(*(Name+TEXT(" is a simulated fragment with finite motion")),It->Body->IsSimulatingPhysics()
                 && !It->Body->GetPhysicsLinearVelocity().ContainsNaN());
         }
-    TestEqual(TEXT("Actual damage creates all configured fragments"),Pieces,Row.Fragments);
+    TestEqual(TEXT("Actual damage creates all sanitized configured fragments"),Pieces,Breakable->FoodData.Fragments);
     return true;
 }
 
@@ -327,6 +329,31 @@ bool FMCFoodCollisionReplicationTest::RunTest(const FString&)
             TestEqual(*(Name+TEXT(" rebuilds the same live sphere sweep query")),Sphere(Replica->Body,Probe.Start,Probe.End,Probe.Radius,false,A),Sphere(Source->Body,Probe.Start,Probe.End,Probe.Radius,false,B));
         }
     }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodCollisionCacheTest,"MessControl.Food.Collision.SharedCookedSetup",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFoodCollisionCacheTest::RunTest(const FString&)
+{
+    FMCFoodRow Row; if (!EggRow(*this,Row)) return false;
+    FFoodCollisionWorld Fixture;
+    auto* First=Fixture.Food(Row,false,FTransform(FVector(0,0,2000)));
+    auto* Second=Fixture.Food(Row,false,FTransform(FVector(3000,0,2000)));
+    if(!CookedConvex(*this,First,TEXT("first cached body")) || !CookedConvex(*this,Second,TEXT("second cached body"))) return false;
+    auto* Shared=First->Body->GetBodySetup();
+    TestTrue(TEXT("Identical mesh and item scale share cooked geometry"),Shared==Second->Body->GetBodySetup());
+    TestTrue(TEXT("Runtime geometry does not mutate the source mesh setup"),Shared!=First->ItemMesh->GetBodySetup());
+    TestFalse(TEXT("Food does not generate expensive overlap events"),First->Body->GetGenerateOverlapEvents());
+    TestTrue(TEXT("Food keeps hit notifications for impacts"),First->Body->GetBodyInstance()->bNotifyRigidBodyCollision);
+    auto* Scaled=CastChecked<UMCFoodBodyComponent>(Second->Body);
+    Scaled->SetCollisionMesh(Second->ItemMesh,Row.Scale*1.5);
+    TestTrue(TEXT("A different item scale gets separate cooked geometry"),Shared!=Scaled->GetBodySetup());
+    // Chaos may reorder its vertices at different scales; compare physical extents.
+    TestTrue(TEXT("Scaled geometry has the scaled physical extents"),Scaled->GetBodySetup()->AggGeom.ConvexElems[0].ElemBox.GetExtent().Equals(Shared->AggGeom.ConvexElems[0].ElemBox.GetExtent()*1.5,.001));
+    Scaled->SetCollisionMesh(Second->ItemMesh,Row.Scale);
+    TestTrue(TEXT("Returning to the original scale reuses live cooked geometry"),Shared==Scaled->GetBodySetup());
+    First->Body->SetSimulatePhysics(false);
+    TestTrue(TEXT("Sharing geometry leaves the second body's simulation independent"),Second->Body->IsSimulatingPhysics());
     return true;
 }
 

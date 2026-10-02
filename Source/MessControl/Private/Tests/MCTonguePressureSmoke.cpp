@@ -85,6 +85,9 @@ void UMCValidationSubsystem::TickTonguePressure(float Dt)
                 FHitResult Hit; Tongue->SurfacePoint(FVector(I==0?-200:200,-60,0),Hit);
                 auto* Food=GetWorld()->SpawnActor<AMCFoodActor>(Hit.ImpactPoint+FVector(0,0,260),FRotator::ZeroRotator);
                 Food->ItemName=I==0?TEXT("PressureLight"):TEXT("PressureHeavy");
+                // This fixture exercises two-player legacy grip, which ordinary
+                // food now replaces with stack collection.
+                Food->FoodData.Kind=EMCFoodKind::ForeignObject;
                 Food->FoodData.Label=FText::FromString(I==0?TEXT("4 KG"):TEXT("28 KG"));
                 Food->FoodData.HalfExtent=Food->Body->GetUnscaledBoxExtent();
                 Food->FoodData.Mass=Food->Settings.Mass=I==0?4:28; Food->SpoilAt=1e9;

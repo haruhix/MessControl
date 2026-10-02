@@ -39,6 +39,7 @@ struct FMCToothStatus
     UPROPERTY(BlueprintReadOnly) int32 CoffeeTotal=4;
     UPROPERTY(BlueprintReadOnly) int32 RepairLeft=0;
     UPROPERTY(BlueprintReadOnly) double ReactionAt=-100.;
+    UPROPERTY(BlueprintReadOnly) double DamageAt=-100.;
     UPROPERTY(BlueprintReadOnly) bool bCareReaction=false;
 };
 
@@ -63,6 +64,7 @@ public:
     void ApplyCoffee(float Amount=1.f);
     void Loosen();
     bool Damage(float Amount,FVector Direction=FVector::ForwardVector);
+    float PainAlpha() const;
     // Called only after the worker validates a complete continuous tool contact on the server.
     bool CareContact(bool bBrush);
     FString Summary() const;

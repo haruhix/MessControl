@@ -112,6 +112,17 @@ bool FMCSprayProtection::RunTest(const FString&) {
     // client when its movement/grip has already claimed the same right hand.
     for(int32 N=0;N<10;++N) CaptureHand();
     if(!TestTrue(TEXT("Production animation evaluates a real hand pose"),Anim->DiagnosticPose.IsValidIndex(Hand))) return false;
+    const auto& Ref=T.H->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+    const int32 EyeL=Ref.FindBoneIndex(T.H->RigBone(TEXT("eye_l"))),EyeR=Ref.FindBoneIndex(T.H->RigBone(TEXT("eye_r")));
+    if(!TestTrue(TEXT("The player rig has both eyes"),EyeL!=INDEX_NONE && EyeR!=INDEX_NONE)) return false;
+    auto WorldHand=[&]() {return T.H->GetMesh()->GetComponentTransform().TransformPosition(Anim->DiagnosticPose[Hand].GetLocation());};
+    auto CheckFacePose=[&](const TCHAR* Context) {
+        const FVector Face=T.H->GetMesh()->GetComponentTransform().TransformPosition((Anim->DiagnosticPose[EyeL].GetLocation()+Anim->DiagnosticPose[EyeR].GetLocation())*.5);
+        const FVector Delta=WorldHand()-Face;
+        TestTrue(*FString::Printf(TEXT("%s keeps the hand at face height"),Context),FMath::Abs(Delta.Z)<8);
+        TestTrue(*FString::Printf(TEXT("%s extends the hand in front of the face"),Context),FVector::DotProduct(Delta,T.H->GetActorForwardVector())>30);
+    };
+    CheckFacePose(TEXT("Targeted spray"));
     auto CheckHiddenSpray=[&](const TCHAR* Context) {
         I->HealingTarget=Patch;const FVector StaleTargetHand=CaptureHand();
         I->HealingTarget=nullptr;const FVector NoTargetHand=CaptureHand();
@@ -128,6 +139,11 @@ bool FMCSprayProtection::RunTest(const FString&) {
     CheckHiddenSpray(TEXT("Climbing with a spray selected"));
     T.H->GetCharacterMovement()->DisableMovement();T.H->AnimationClimb=0;
     auto* Held=T.W->SpawnActor<AMCFoodActor>(T.H->GetActorLocation()+FVector(80,0,0),FRotator::ZeroRotator);
+    // Use a known solid mesh: the prototype food now has mesh-shaped collision
+    // and its bounds alone no longer guarantee an obstacle across this ray.
+    FMCFoodRow Obstacle;Obstacle.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"))));
+    FRandomStream ObstacleRandom(41);Held->ConfigureItem(TEXT("SprayTestObstacle"),Obstacle,ObstacleRandom);
+    Held->Body->SetSimulatePhysics(false);
     T.H->HeldFood=Held;CheckHiddenSpray(TEXT("Holding food with a spray selected"));
     Held->Release(T.H);
     TestNull(TEXT("Releasing food clears the actual carried object"),T.H->HeldFood.Get());
@@ -137,6 +153,14 @@ bool FMCSprayProtection::RunTest(const FString&) {
     // move it out of the treatment ray before expecting treatment to resume.
     TestNull(TEXT("Released food in front of the ulcer still blocks treatment"),I->HealingTarget.Get());
     TestEqual(TEXT("A released visibility obstacle cannot add treatment time"),Patch->Healing,Saved);
+    Anim->bRecordMotion=true;
+    for(int32 N=0;N<10;++N) CaptureHand();
+    CheckFacePose(TEXT("Held spray without a target"));
+    const FVector HeldPalm=WorldHand();
+    T.H->ServerSetPrimary(false);
+    for(int32 N=0;N<10;++N) CaptureHand();
+    TestTrue(TEXT("Releasing untargeted spray lowers the hand"),HeldPalm.Z-WorldHand().Z>15);
+    Anim->bRecordMotion=false;T.H->ServerSetPrimary(true);
     Held->SetActorLocation(T.H->GetActorLocation()+T.H->GetActorRightVector()*300,false,nullptr,ETeleportType::TeleportPhysics);
     I->ServerSpray();
     TestEqual(TEXT("Leaving traversal and moving dropped food aside reacquires the same ulcer"),I->HealingTarget.Get(),Patch);

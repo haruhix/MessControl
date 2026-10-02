@@ -147,8 +147,7 @@ void UMCGazeComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
                 if (Entry->Emotion==EMCEmotion::Pain) Goal=FMath::Lerp(S.PupilRest,S.PupilPain,E->EmoteAlpha());
             }
         }
-        const auto& State=Tooth->Status->State;
-        const float Pain=!State.bCareReaction?FMath::Clamp(1.f-(ServerTime()-float(State.ReactionAt))/1.1f,0.f,1.f):0;
+        const float Pain=Tooth->Status->PainAlpha();
         if (Pain>.001f) Goal=FMath::Min(Goal,FMath::Lerp(S.PupilRest,S.PupilPain,Pain));
         if (Target.Interest==EMCGazeInterest::Danger || !Tooth->ToothPhysics->CanAct()
             || Tooth->GetCharacterMovement()->IsFalling()) Goal=FMath::Min(Goal,S.PupilDanger);

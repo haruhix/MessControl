@@ -1,0 +1,4 @@
+[2026.10.02-14.15.17:858][647]LogTemp: Display: MC_VALIDATION_PASS SPRAY_NETWORK net=2 hold1=15 release1=15 hold2=15 release2=15 proxies=14 expected_proxies=14 rendered_activation=0 rendered_hand_pose=0 invalid=0
+[2026.10.02-14.15.16:048][180]LogTemp: Display: MC_VALIDATION_PASS SPRAY_NETWORK net=3 hold1=15 release1=15 hold2=15 release2=15 proxies=11 expected_proxies=11 rendered_activation=1 rendered_hand_pose=1 invalid=0
+[2026.10.02-14.15.15:988][211]LogTemp: Display: MC_VALIDATION_PASS SPRAY_NETWORK net=3 hold1=15 release1=15 hold2=15 release2=15 proxies=13 expected_proxies=13 rendered_activation=0 rendered_hand_pose=0 invalid=0
+[2026.10.02-14.15.15:988][ 84]LogTemp: Display: MC_VALIDATION_PASS SPRAY_NETWORK net=3 hold1=15 release1=15 hold2=15 release2=15 proxies=7 expected_proxies=7 rendered_activation=0 rendered_hand_pose=0 invalid=0

@@ -1,6 +1,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCArenaTooth.h"
 #include "MCToothCharacter.h"
+#include "MCFoodCollectionComponent.h"
 #include "MCMouthSurface.h"
 #include "GameFramework/GameStateBase.h"
 #include "Net/UnrealNetwork.h"
@@ -74,8 +75,19 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction)
 {
     if (!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0 || Direction.ContainsNaN()) return false;
     LastDamageDirection=Direction.GetSafeNormal(); State.Health=FMath::Max(0.f,State.Health-Amount);
+    const auto* GS=GetWorld()->GetGameState();
+    State.DamageAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    if(auto* Hero=Cast<AMCToothCharacter>(GetOwner())) Hero->FoodCollection->Spill(LastDamageDirection*180+FVector(0,0,50));
     if (State.Health<=State.MaxHealth*Settings.LooseHealthFraction) State.RepairLeft=FMath::Max(State.RepairLeft,Settings.RepairContacts);
     Changed(false); return true;
+}
+float UMCToothStatusComponent::PainAlpha() const
+{
+    const auto* GS=GetWorld()->GetGameState();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const float Age=Now-State.DamageAt;
+    // Let the authored pain pose become fully visible before it relaxes.
+    return Age>=0 && Age<1.1f?1-FMath::SmoothStep(.35f,1.1f,Age):0.f;
 }
 bool UMCToothStatusComponent::CareContact(bool bBrush)
 {

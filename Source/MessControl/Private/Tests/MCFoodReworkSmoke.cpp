@@ -40,7 +40,7 @@ void MCTickFoodReworkValidation(UWorld* W)
         TWeakObjectPtr<AMCThroat> Throat;TWeakObjectPtr<AMCFirePatch> Fire;
         TArray<TWeakObjectPtr<AMCFoodActor>> Foods;
         double At=0;int32 Stage=0,MaxStack=0,FallenBeforeMotion=0;bool Started=false,Failed=false,Impact=false,Stretched=false,Squashed=false,MotionStarted=false;
-        FVector P,Start;float FreshStart=0,MinScaleZ=FLT_MAX,MaxScaleZ=0;double RestImpact=-100,NextDiagnostic=0;float YawnDrag=0,HandGap=FLT_MAX;
+        FVector P,Start;float FreshStart=0,MinScaleZ=FLT_MAX,MaxScaleZ=0;double RestImpact=-100,NextDiagnostic=0;float YawnDrag=0,HandGap=FLT_MAX,StackTilt=0;
         bool FoodImpactParticles=false,RedFlash=false,YawnEyesFocused=false;
     };static FRun R;if(R.W!=W) {R=FRun();R.W=W;}
     FString Case;if(!FParse::Value(FCommandLine::Get(),TEXT("MCFoodRework="),Case)) return;
@@ -133,12 +133,20 @@ void MCTickFoodReworkValidation(UWorld* W)
         if(T>1.5 && R.Stage==0) {H->ServerSetPrimary(true);H->ServerSetPrimary(false);++R.Stage;Check(H->FoodCollection->bCollecting,TEXT("one click toggles collection and release keeps it active"));}
         if(T>(Case==TEXT("FoodBalance")?3:5) && R.Stage==1) {Check(R.MaxStack>=3,TEXT("three or more real food pieces form a stack"));++R.Stage;}
         if(Case==TEXT("FoodCollect") && T>7 && R.Stage==2) {H->ServerSetPrimary(true);H->ServerSetPrimary(false);Check(!H->FoodCollection->bCollecting && H->FoodCollection->Pieces.IsEmpty(),TEXT("second click releases the stack"));++R.Stage;}
-        if(Case==TEXT("FoodBalance") && T>3.2 && T<4.4) {
+        if(Case==TEXT("FoodBalance") && T>3.2 && T<3.8) {
             if(!R.MotionStarted) {R.MotionStarted=true;R.FallenBeforeMotion=H->FoodCollection->FallenPieces;Check(H->FoodCollection->Pieces.Num()>=3,TEXT("movement begins while three physical pieces are still supported"));}
             H->AddMovementInput(FVector::RightVector,1);
         }
-        if(Case==TEXT("FoodBalance") && T>4.4 && T<5.6) H->AddMovementInput(-FVector::RightVector,1);
-        if(T>9) {if(Case==TEXT("FoodBalance")) Check(R.MotionStarted && H->FoodCollection->FallenPieces>R.FallenBeforeMotion,TEXT("inertia drops physical pieces after movement begins"));Finish();}
+        if(Case==TEXT("FoodBalance") && T>3.8 && T<4.4) H->AddMovementInput(-FVector::RightVector,1);
+        if(Case==TEXT("FoodBalance") && !H->FoodCollection->Pieces.IsEmpty())
+            R.StackTilt=FMath::Max(R.StackTilt,float(FMath::RadiansToDegrees(FMath::Acos(FMath::Clamp(H->FoodCollection->Pieces.Last()->GetActorUpVector().Z,-1.,1.)))));
+        if(Case==TEXT("FoodBalance") && T>5.2 && R.Stage==2) {
+            Check(R.MotionStarted && H->FoodCollection->Pieces.Num()>=3 && H->FoodCollection->FallenPieces==R.FallenBeforeMotion,TEXT("ordinary movement retains the complete hand stack"));
+            Check(R.StackTilt>.5f && R.StackTilt<=12.1f,TEXT("the rendered stack sways within a bounded angle"));
+            H->Status->Damage(1,FVector::RightVector);++R.Stage;
+            Check(H->FoodCollection->Pieces.IsEmpty() && !H->FoodCollection->bCollecting,TEXT("a received hit spills the complete load"));
+        }
+        if(T>9) {if(Case==TEXT("FoodBalance")) Check(R.Stage==3 && H->FoodCollection->FallenPieces>R.FallenBeforeMotion,TEXT("released pieces resume physical falling after impact"));Finish();}
     } else if(Case==TEXT("FoodThroat")) {
         if(T>1.5 && R.Stage==0) {R.Food=Spawn(TEXT("Egg"),R.P+FVector(-80,0,75),true);++R.Stage;}
         if(T>5 && R.Stage==1) {Check(R.Throat->FoodSwallowed>0 && !H->SwallowedBy,TEXT("ingredient swallowed automatically; player remains outside intake"));Spawn(TEXT("Carrot"),R.P+FVector(30,0,70),true);++R.Stage;}

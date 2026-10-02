@@ -99,7 +99,7 @@ void TickInventoryNetwork(UWorld* World)
 void MCTickInventoryValidation(UWorld* World)
 {
     if(FParse::Param(FCommandLine::Get(),TEXT("MCInventoryNetworkTest"))) { TickInventoryNetwork(World); return; }
-    struct FRun { TWeakObjectPtr<UWorld> World; float Age=0,StageAt=0; int32 Stage=-1; bool Shot=false,Failed=false; TWeakObjectPtr<AMCFoodActor> Food; TWeakObjectPtr<AMCMouthSurface> Ulcer; FVector HandStart; float HandTravel=0; };
+    struct FRun { TWeakObjectPtr<UWorld> World; float Age=0,StageAt=0; int32 Stage=-1; bool Shot=false,Failed=false,SprayPoseChecked=false; TWeakObjectPtr<AMCFoodActor> Food; TWeakObjectPtr<AMCMouthSurface> Ulcer; FVector HandStart; float HandTravel=0,HandLift=0,HandDrop=0; };
     static FRun R; if(R.World!=World) { R=FRun(); R.World=World; }
     R.Age+=World->GetDeltaSeconds();
     auto* PC=World->GetFirstPlayerController(); auto* H=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr; auto* GS=World->GetGameState<AMCGameState>();
@@ -114,6 +114,10 @@ void MCTickInventoryValidation(UWorld* World)
     if(R.Stage<0 || Age>2.6f) {
         if(R.Stage==1 || R.Stage==2) Check(R.Food.IsValid() && R.Food->Health<100,TEXT("tool damages matching food"));
         if(R.Stage==1) { Check(R.HandTravel>60,TEXT("pickaxe wrist travels through a broad arc")); UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_PICK_ARC %.1f cm"),R.HandTravel); }
+        if(R.Stage==2) {
+            Check(R.HandLift>65 && R.HandDrop<-25,TEXT("knife raises the wrist overhead and follows through below its resting height"));
+            UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_KNIFE_ARC lift=%.1f drop=%.1f cm"),R.HandLift,R.HandDrop);
+        }
         if(R.Stage==3) Check(R.Ulcer.IsValid() && R.Ulcer->IsNumb() && R.Ulcer->Healing>0,TEXT("held spray protects and treats ulcer"));
         ++R.Stage; R.StageAt=R.Age; R.Shot=false;
         if(R.Stage>=7) { UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_%s"),R.Failed?TEXT("FAIL"):TEXT("PASS")); FPlatformMisc::RequestExitWithStatus(false,R.Failed?1:0); return; }
@@ -137,7 +141,7 @@ void MCTickInventoryValidation(UWorld* World)
             auto* Food=World->SpawnActor<AMCFoodActor>(Position,FRotator::ZeroRotator); R.Food=Food;
             Food->Body->SetSimulatePhysics(false); Food->Health=100; Food->Phase=EMCFoodPhase::Free;
             Food->FoodData.Resistance=R.Stage==1?EMCFoodResistance::Hard:EMCFoodResistance::Soft;
-            R.HandStart=H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))); R.HandTravel=0;
+            R.HandStart=H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))); R.HandTravel=R.HandLift=R.HandDrop=0;
             H->SwingBrush();
         }
         if(R.Stage==3) {
@@ -153,7 +157,19 @@ void MCTickInventoryValidation(UWorld* World)
     }
     const float Since=R.Age-R.StageAt;
     if(R.Stage==1 && Since<1.05f) R.HandTravel=FMath::Max(R.HandTravel,float(FVector::Distance(R.HandStart,H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))))));
-    const float CaptureAt=R.Stage==1?.30f:R.Stage==2?.22f:1.1f;
+    if(R.Stage==2 && Since<H->Inventory->SwingDuration()) {
+        const float Height=H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))).Z-R.HandStart.Z;
+        R.HandLift=FMath::Max(R.HandLift,Height); R.HandDrop=FMath::Min(R.HandDrop,Height);
+    }
+    const float CaptureAt=R.Stage==1?.30f:R.Stage==2?.20f:1.1f;
+    if(R.Stage==3 && Since>.8f && !R.SprayPoseChecked) {
+        const FVector Face=(H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("eye_l")))+H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("eye_r"))))*.5;
+        const FVector Delta=H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r")))-Face;
+        const float Forward=FVector::DotProduct(Delta,H->GetActorForwardVector());
+        Check(FMath::Abs(Delta.Z)<12 && Forward>30,TEXT("rendered spray hand is extended forward at face height"));
+        UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_SPRAY_POSE height_delta=%.1f forward=%.1f cm"),Delta.Z,Forward);
+        R.SprayPoseChecked=true;
+    }
     if(!R.Shot && Since>=CaptureAt) {
         const FString Folder=FPaths::ProjectDir()/TEXT("Artifacts/Inventory"); IFileManager::Get().MakeDirectory(*Folder,true);
         FScreenshotRequest::RequestScreenshot(Folder/FString::Printf(TEXT("Stage%02d.png"),R.Stage),true,false);

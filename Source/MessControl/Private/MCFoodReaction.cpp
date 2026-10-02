@@ -1,6 +1,7 @@
 #include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
@@ -8,7 +9,15 @@
 void AMCFoodActor::SetStackCarrier(AMCToothCharacter* Hero)
 {
     if(!HasAuthority() || StackCarrier==Hero) return;
-    StackCarrier=Hero;if(Hero && Phase==EMCFoodPhase::Falling) Phase=EMCFoodPhase::Free;OnRep_Phase();ForceNetUpdate();
+    if(auto* Previous=StackCarrier.Get()) {
+        Body->IgnoreActorWhenMoving(Previous,false); Previous->GetCapsuleComponent()->IgnoreActorWhenMoving(this,false);
+    }
+    StackCarrier=Hero; CollisionIgnoredCarrier=Hero;
+    if(Hero) {
+        Body->IgnoreActorWhenMoving(Hero,true); Hero->GetCapsuleComponent()->IgnoreActorWhenMoving(this,true);
+        if(Phase==EMCFoodPhase::Falling) Phase=EMCFoodPhase::Free;
+    }
+    OnRep_Phase();ForceNetUpdate();
 }
 void AMCFoodActor::ReactToImpact(float Strength)
 {

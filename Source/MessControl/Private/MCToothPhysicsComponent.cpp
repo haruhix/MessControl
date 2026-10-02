@@ -4,6 +4,7 @@
 #include "MCGazeComponent.h"
 #include "MCGripComponent.h"
 #include "MCToothCharacter.h"
+#include "MCFoodCollectionComponent.h"
 #include "MCToothStatusComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -279,6 +280,7 @@ void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocati
     if (!Tooth || !Tooth->HasAuthority() || LocalState==EMCBodyState::Recovering || ServerTime()<RecoveryInvulnerableUntil) return;
     if (VelocityChange.ContainsNaN() || HitLocation.ContainsNaN()) return;
     VelocityChange=VelocityChange.GetClampedToMaxSize(1400.f);
+    if(!VelocityChange.IsNearlyZero()) Tooth->FoodCollection->Spill(VelocityChange*.45f);
     if (Tooth->Gaze) Tooth->Gaze->NoticePoint(HitLocation-VelocityChange.GetSafeNormal2D()*140+FVector(0,0,40),1);
     if (LocalState==EMCBodyState::Standing && VelocityChange.Size()<Settings.FallThreshold)
     {

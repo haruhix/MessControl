@@ -40,6 +40,8 @@ AMCFoodActor::AMCFoodActor()
     PrimaryActorTick.bCanEverTick=true;
     Body=CreateDefaultSubobject<UMCFoodBodyComponent>(TEXT("FoodBody")); SetRootComponent(Body);
     Body->SetBoxExtent(FVector(48,32,30)); Body->SetCollisionProfileName(TEXT("PhysicsActor"));
+    // Impacts use OnComponentHit. Per-shape overlap queries are unnecessary for food.
+    Body->SetGenerateOverlapEvents(false);
     Body->SetNotifyRigidBodyCollision(true); Body->BodyInstance.bUseCCD=true;
     Body->SetLinearDamping(.7f); Body->SetAngularDamping(2.f);
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FoodMesh")); Visual->SetupAttachment(Body);
@@ -120,11 +122,11 @@ void AMCFoodActor::UpdateCarryPresentation(float Dt)
 void AMCFoodActor::OnRep_Phase()
 {
     const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped;
-    const bool bSimulate=HasAuthority() && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
+    const bool bSimulate=HasAuthority() && !StackCarrier && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
     // Stop Chaos before disabling collision, including disposal while the item is still moving.
     if (!bSimulate) Body->SetSimulatePhysics(false);
     SetActorHiddenInGame(bGone); Body->SetCollisionEnabled((bGone || Phase==EMCFoodPhase::Swallowing)?ECollisionEnabled::NoCollision:Phase==EMCFoodPhase::Absorbing?ECollisionEnabled::QueryOnly:ECollisionEnabled::QueryAndPhysics);
-    Body->SetCollisionResponseToChannel(ECC_Pawn,StackCarrier || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
+    Body->SetCollisionResponseToChannel(ECC_Pawn,Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
     // Simulated proxies are kinematic; only the server applies springs and impact damage.
     if (bSimulate) Body->SetSimulatePhysics(true);
 }
@@ -189,6 +191,33 @@ bool AMCFoodActor::FindGripSurface(FVector From,FHitResult& Hit) const
     }
     return Found;
 }
+bool AMCFoodActor::FindToolContact(const AMCToothCharacter* Hero,float Reach,FHitResult& Hit) const
+{
+    if (!IsValid(Hero) || !GripSurface || !GripSurface->GetStaticMesh() || Reach<=0) return false;
+    const FVector From=Hero->GetActorLocation(),Forward=Hero->GetActorForwardVector().GetSafeNormal2D();
+    const FBox Bounds=Visual->Bounds.GetBox();
+    if (FVector::DistSquared(From,Bounds.GetClosestPointTo(From))>FMath::Square(Reach)) return false;
+    if (Forward.IsNearlyZero()) return false;
+    // The downward chop covers several heights. The sphere gives a small amount
+    // of aim tolerance while still requiring contact with actual mesh triangles.
+    const float Radius=FMath::Min(45.f,Reach*.25f);
+    bool Found=false; double Best=DBL_MAX;
+    for (float Height:{-45.f,15.f,75.f})
+    {
+        const FVector Start=From+Forward*Radius+FVector(0,0,Height);
+        const FVector End=From+Forward*(Reach-Radius)+FVector(0,0,Height);
+        FHitResult Candidate;
+        if (!GripSurface->SweepComponent(Candidate,Start,End,FQuat::Identity,FCollisionShape::MakeSphere(Radius),true)) continue;
+        const FVector Offset=Candidate.ImpactPoint-From;
+        const double Distance=Offset.SizeSquared();
+        if (FVector::DotProduct(Offset,Forward)<-2.f || Distance>FMath::Square(Reach) || Distance>=Best) continue;
+        FHitResult Obstacle;
+        FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFoodToolContact),false,Hero); Params.AddIgnoredActor(this);
+        if (GetWorld()->LineTraceSingleByChannel(Obstacle,From,Candidate.ImpactPoint,ECC_Visibility,Params)) continue;
+        Best=Distance; Hit=Candidate; Found=true;
+    }
+    return Found;
+}
 void AMCFoodActor::Release(AMCToothCharacter* Hero)
 {
     if (!HasAuthority()) return;
@@ -226,8 +255,12 @@ void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
     }
     Super::EndPlay(Reason);
 }
-void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent* OtherComponent,FVector,const FHitResult& Hit)
+void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
+    if(StackCarrier) {
+        if(HasAuthority()) StackCarrier->FoodCollection->HandleStackCollision(this,Other,OtherComponent,Impulse,Hit);
+        return;
+    }
     // Require a downward approach to a supporting surface. Stack contact and
     // horizontal solver impulses are not landing or received damage.
     if(HasAuthority() && !IsDisposed() && !bBrushTool && !StackCarrier && Holders.IsEmpty()
@@ -283,7 +316,7 @@ void AMCFoodActor::Tick(float Dt)
         CollisionIgnoredCarrier=IgnoredCarrier;
         if (IgnoredCarrier) { Body->IgnoreActorWhenMoving(IgnoredCarrier,true); IgnoredCarrier->GetCapsuleComponent()->IgnoreActorWhenMoving(this,true); }
     }
-    if (Phase!=EMCFoodPhase::Carried) PresentationCarrier.Reset();
+    if (Phase!=EMCFoodPhase::Carried && !StackCarrier) PresentationCarrier.Reset();
     if (!HasAuthority() && bReceivedMotion && !StackCarrier && !(Phase==EMCFoodPhase::Carried && IsValid(CarryPresentation.Holder) && CarryPresentation.Holder->Grip->Holds(this)))
     {
         const float Alpha=1-FMath::Exp(-25.f*Dt);
@@ -472,6 +505,7 @@ void AMCFoodActor::Throw(AMCToothCharacter* Hero)
 bool AMCFoodActor::HitFood(float Damage,FVector Direction)
 {
     if (!HasAuthority() || bBrushTool || IsDisposed() || Phase==EMCFoodPhase::Swallowing || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
+    if(StackCarrier) StackCarrier->FoodCollection->Spill(Direction.GetSafeNormal()*180+FVector(0,0,60));
     if(Phase==EMCFoodPhase::Stuck) {Phase=EMCFoodPhase::Free;StuckTooth=nullptr;OnRep_Phase();}
     ReactToImpact();
     AttendFood(); Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();

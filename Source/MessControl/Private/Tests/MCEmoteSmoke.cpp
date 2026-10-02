@@ -173,7 +173,7 @@ void UMCValidationSubsystem::TickEmotes(float Dt)
         Hello&=E->State.Id==TEXT("hello") && E->BodyAlpha()>.5f;
         Highfive&=E->State.Id==TEXT("highfive") && E->BodyAlpha()>.5f;
         Happy&=E->CurrentEmotion==EMCEmotion::Happy && E->State.Id==TEXT("happy");
-        Pain&=E->CurrentEmotion==EMCEmotion::Pain;
+        Pain&=E->CurrentEmotion==EMCEmotion::Pain && H->GetMesh()->GetMorphTarget(TEXT("Mouth_Pain"))>.95f;
         if (T>12 && T<14) E->SetSpeechInput(.3f+.5f*FMath::Abs(FMath::Sin(T*10)),MCViseme::Round);
         Speech&=E->SpeechAmount()>.1f;
         for (const FName Role:{FName(TEXT("body")),FName(TEXT("hand_l")),FName(TEXT("hand_r"))})

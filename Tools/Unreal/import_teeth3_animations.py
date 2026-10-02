@@ -1,5 +1,6 @@
 """Run through Epic native MCP: import Teeth2 (3) clips onto the existing skeleton."""
 import json
+import runpy
 from pathlib import Path
 import unreal as u
 
@@ -74,5 +75,6 @@ for id, label, clip, mood in [
     entry.set_editor_property("hold_final_pose", clip.startswith("emo_") or clip == "tired")
 emotes.set_editor_property('entries', entries)
 lib.save_loaded_asset(emotes)
+runpy.run_path(str(root/'Tools/Unreal/configure_face_emotes.py'), run_name='__main__')
 (root/'Artifacts/Teeth3_Import.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
 u.log('MC_TEETH3_IMPORT_PASS')

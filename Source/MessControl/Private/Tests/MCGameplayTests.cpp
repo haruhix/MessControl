@@ -1257,6 +1257,42 @@ bool FMCExpressionTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDamageFaceTest,"MessControl.Animation.DamagePainMorph",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCDamageFaceTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Hero=Mouth.Worker(); auto* Status=Hero->Status.Get(); auto* Face=Hero->Expression.Get(); auto* Mesh=Hero->GetMesh();
+    const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();
+    auto StepFace=[&](float Seconds)
+    {
+        for (int32 Frame=0;Frame<FMath::CeilToInt(Seconds*60);++Frame)
+        {
+            Mouth.Step(1.f/60);
+            TArray<FTransform> Pose=Ref.GetRefBonePose(); Face->BuildFacePose(Pose,Ref,1.f/60);
+        }
+    };
+    Mouth.Step(1);
+    if (!TestNotNull(TEXT("Artist pain morph is available"),Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Mouth_Pain")))) return false;
+    TestTrue(TEXT("Damage starts the facial reaction"),Status->Damage(10)); StepFace(.25f);
+    TestEqual(TEXT("Damage chooses the pain face"),Face->CurrentEmotion,EMCEmotion::Pain);
+    TestTrue(TEXT("The authored pain pose reaches full strength"),Mesh->GetMorphTarget(TEXT("Mouth_Pain"))>.98f);
+    const double DamageAt=Status->State.DamageAt;
+    TestTrue(TEXT("Treatment succeeds during the reaction"),Status->CareContact(false)); Status->ApplyCoffee(); StepFace(.1f);
+    TestEqual(TEXT("Care does not overwrite the damage timestamp"),Status->State.DamageAt,DamageAt);
+    TestTrue(TEXT("Care and coffee do not cancel the pain face"),Mesh->GetMorphTarget(TEXT("Mouth_Pain"))>.98f);
+    StepFace(.4f); const float Fading=Mesh->GetMorphTarget(TEXT("Mouth_Pain"));
+    TestTrue(TEXT("The pain expression relaxes smoothly"),Fading>.05f && Fading<.9f);
+    TestTrue(TEXT("Another hit restarts the pain expression"),Status->Damage(10)); StepFace(.2f);
+    TestTrue(TEXT("A repeated hit restores the authored pose"),Status->State.DamageAt>DamageAt && Mesh->GetMorphTarget(TEXT("Mouth_Pain"))>.97f);
+    const double RepeatedAt=Status->State.DamageAt;
+    TestFalse(TEXT("Zero damage is rejected"),Status->Damage(0));
+    TestEqual(TEXT("Rejected damage does not restart the expression"),Status->State.DamageAt,RepeatedAt);
+    StepFace(1.5f); TestTrue(TEXT("Pain morph returns to zero"),Mesh->GetMorphTarget(TEXT("Mouth_Pain"))<.01f);
+    Status->Loosen(); StepFace(.25f);
+    TestTrue(TEXT("A status change without damage does not play pain"),Mesh->GetMorphTarget(TEXT("Mouth_Pain"))<.01f);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCMouthMorphTest,"MessControl.Animation.ConnectedMouthMorphs",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCMouthMorphTest::RunTest(const FString&)
 {
@@ -1311,6 +1347,35 @@ bool FMCMouthMorphTest::RunTest(const FString&)
     TestTrue(TEXT("Silence and completed reactions return the mouth to its base shape"),Sum<.01f);
     Face->SetSpeechInput(1,MCViseme(255)); Mouth.Step(.1f);
     TestTrue(TEXT("Unknown viseme values are harmless"),UMCExpressionComponent::VisemeShape(MCViseme(255)).IsNone());
+    const auto* Scary=Face->Library->Entries.FindByPredicate([](const FMCEmoteEntry& E){return E.Id==TEXT("artist_shock");});
+    const auto* Love=Face->Library->Entries.FindByPredicate([](const FMCEmoteEntry& E){return E.Id==TEXT("love");});
+    if (!TestNotNull(TEXT("Scared expression remains in the T menu"),Scary)
+        || !TestNotNull(TEXT("Love expression is available in the T menu"),Love)) return false;
+    TestEqual(TEXT("Scared expression selects the artist's scary eyes"),Scary->EyeMorph,FName(TEXT("Eyes_Scary")));
+    TestEqual(TEXT("Love expression selects the artist's delight eyes"),Love->EyeMorph,FName(TEXT("Eyes_delight")));
+    TestEqual(TEXT("Love menu label"),Love->Label.ToString(),FString(TEXT("Влюблённость")));
+    Mouth.Step(.4f); Face->ServerPlayEmote(TEXT("artist_shock")); Mouth.Step(.4f); Face->ApplyMorphBlink(0);
+    TestTrue(TEXT("Scared expression drives scary eyes without the surprise mouth"),
+        Mesh->GetMorphTarget(TEXT("Eyes_Scary"))>.95f && Mesh->GetMorphTarget(TEXT("Mouth_Surprise"))<.01f);
+    TestEqual(TEXT("Scared expression does not move the body"),Face->BodyAlpha(),0.f);
+    Face->ApplyMorphBlink(1);
+    TestEqual(TEXT("Full blink replaces scared eyelids"),Mesh->GetMorphTarget(TEXT("Eyes_Scary")),0.f);
+    Face->ApplyMorphBlink(0);
+    TestTrue(TEXT("Scared eyelids return after the blink"),Mesh->GetMorphTarget(TEXT("Eyes_Scary"))>.95f);
+    Mouth.Step(3.5f);
+    TestTrue(TEXT("Scared eye morph resets after the expression ends"),Mesh->GetMorphTarget(TEXT("Eyes_Scary"))<.01f);
+    Hero->bHandling=true; Face->ServerPlayEmote(TEXT("love")); Mouth.Step(.4f); Face->ApplyMorphBlink(0);
+    TestTrue(TEXT("Love uses delight eyes while working without adding a smile pose"),
+        Mesh->GetMorphTarget(TEXT("Eyes_delight"))>.95f && Mesh->GetMorphTarget(TEXT("Mouth_Smile"))<.01f);
+    TestEqual(TEXT("Love expression does not move the body"),Face->BodyAlpha(),0.f);
+    Face->SetSpeechInput(1,MCViseme::Open); Mouth.Step(.15f); Face->ApplyMorphBlink(0);
+    TestTrue(TEXT("Speech remains available with the love eyes"),
+        Mesh->GetMorphTarget(TEXT("Eyes_delight"))>.95f && Mesh->GetMorphTarget(TEXT("Mouth_A"))>.9f);
+    Hero->Status->Damage(10); Mouth.Step(.3f); Face->ApplyMorphBlink(0);
+    TestTrue(TEXT("Pain replaces a selected eye expression"),
+        Mesh->GetMorphTarget(TEXT("Eyes_delight"))<.01f && Mesh->GetMorphTarget(TEXT("Mouth_Pain"))>.5f);
+    Mouth.Step(3.5f);
+    TestTrue(TEXT("Love eye morph resets after the expression ends"),Mesh->GetMorphTarget(TEXT("Eyes_delight"))<.01f);
     return true;
 }
 
@@ -2582,15 +2647,16 @@ bool FMCCollectionBalanceTest::RunTest(const FString&)
     H->ServerSetPrimary(true);H->ServerSetPrimary(false);TestTrue(TEXT("Click release keeps collection toggled"),C->bCollecting);
     if(!TestTrue(TEXT("Bottom body can be collected"),C->Collect(A))) return false;
     if(!TestTrue(TEXT("Second body can be stacked"),C->Collect(B))) return false;
-    TestTrue(TEXT("Each piece stays a simulated free body"),A->Phase==EMCFoodPhase::Free && B->Body->IsSimulatingPhysics());
+    TestTrue(TEXT("Both pieces are held without gravity separating the stack"),A->Phase==EMCFoodPhase::Free && !A->Body->IsSimulatingPhysics() && !B->Body->IsSimulatingPhysics());
     TestTrue(TEXT("Upper food is above bottom food"),B->GetActorLocation().Z>A->GetActorLocation().Z+20);
     TestFalse(TEXT("Stack never enters the old push/pull grip"),H->Grip->Holds(A) || H->Grip->Holds(B));
     M.Step(.7f);
     B->SetActorLocation(A->GetActorLocation()+FVector(170,0,80),false,nullptr,ETeleportType::TeleportPhysics);
     C->TickComponent(.01f,LEVELTICK_All,nullptr);
-    TestTrue(TEXT("Loss of balance releases upper body without deletion"),!B->StackCarrier && !B->IsDisposed() && C->FallenPieces>0);
+    TestTrue(TEXT("Position drift is corrected without losing an upper piece"),B->StackCarrier==H && !B->IsDisposed() && C->Pieces.Num()==2 && C->FallenPieces==0);
     H->ServerSetPrimary(true);H->ServerSetPrimary(false);
     TestTrue(TEXT("Second click releases remaining body"),!C->bCollecting && C->Pieces.IsEmpty() && !A->StackCarrier);
+    TestTrue(TEXT("Released pieces return to physics"),A->Body->IsSimulatingPhysics() && B->Body->IsSimulatingPhysics());
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCYawnAndBurnTest,"MessControl.Food.YawnInterruptsAndBurnCreatesUlcer",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

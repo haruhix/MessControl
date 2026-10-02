@@ -34,7 +34,7 @@ const FMCEmoteEntry* UMCExpressionComponent::ActiveEntry() const
 bool UMCExpressionComponent::CanPlay(const FMCEmoteEntry& Entry) const
 {
     if (!Tooth || !Tooth->ToothPhysics->CanAct() || !Tooth->Status->IsAlive()) return false;
-    if (!Tooth->Status->State.bCareReaction && Now()-Tooth->Status->State.ReactionAt<.65) return false;
+    if (Now()-Tooth->Status->State.DamageAt<.65) return false;
     return !Entry.Animation || Entry.bFaceOnly || (!Tooth->bHandling && !Tooth->bBrushing && !Tooth->HeldFood && !Tooth->ClingTooth
         && Tooth->GetVelocity().Size2D()<25 && Tooth->GetCharacterMovement()->IsMovingOnGround());
 }
@@ -83,13 +83,31 @@ TConstArrayView<FName> UMCExpressionComponent::MouthShapes()
         TEXT("Mouth_Smile"),TEXT("Mouth_Frown"),TEXT("Mouth_Angry"),TEXT("Mouth_Pain"),TEXT("Mouth_Surprise"),TEXT("Mouth_Effort")};
     return MakeArrayView(Names);
 }
-bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain)
+bool UMCExpressionComponent::UpdateEyeShapes(float Dt,float EmotionStrength,bool bPain)
+{
+    auto* Mesh=Tooth->GetMesh();
+    const auto* Asset=Mesh->GetSkeletalMeshAsset();
+    if (!Asset) return false;
+    const auto* Entry=ActiveEntry();
+    const FName Shape=Entry && !bPain && !Tooth->IsYawning() && EmoteAlpha()>.01f
+        && Asset->FindMorphTarget(Entry->EyeMorph)?Entry->EyeMorph:NAME_None;
+    if (!Shape.IsNone()) EyeWeights.FindOrAdd(Shape);
+    const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
+    for (auto& Pair:EyeWeights)
+    {
+        Pair.Value=FMath::Lerp(Pair.Value,Pair.Key==Shape?FMath::Clamp(EmotionStrength,0.f,1.f):0.f,Alpha);
+        if (Pair.Value<.0001f) Pair.Value=0;
+        Mesh->SetMorphTarget(Pair.Key,Pair.Value);
+    }
+    return !Shape.IsNone();
+}
+bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly)
 {
     auto* Mesh=Tooth->GetMesh();
     if (!Mesh->GetSkeletalMeshAsset() || !Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Mouth_A"))) return false;
     static const FName Moods[]={NAME_None,TEXT("Mouth_Smile"),TEXT("Mouth_Angry"),TEXT("Mouth_Frown"),
         TEXT("Mouth_Surprise"),TEXT("Mouth_Pain"),TEXT("Mouth_Effort")};
-    const FName Mood=Moods[uint8(CurrentEmotion)];
+    const FName Mood=bEyeOnly?NAME_None:Moods[uint8(CurrentEmotion)];
     const FName Speech=VisemeShape(VoiceViseme);
     const bool Fresh=Now()-VoiceAt<=.25 && !Speech.IsNone() && !bPain;
     // Unvoiced consonants and a closed M/B/P still need articulation at zero volume.
@@ -115,6 +133,8 @@ bool UMCExpressionComponent::ApplyMorphBlink(float Closure)
     if (!Mesh->GetSkeletalMeshAsset() || !Mesh->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"))) return false;
     Closure=FMath::Clamp(Closure,0.f,1.f);
     Mesh->SetMorphTarget(TEXT("Eyes_Blink"),Closure);
+    // Standalone eye poses yield to the authored blink instead of adding eyelid deltas.
+    for (const auto& Pair:EyeWeights) Mesh->SetMorphTarget(Pair.Key,Pair.Value*(1-Closure));
     // Cancel the expression's eyelid delta as the authored closed pose takes over.
     // This preserves the mouth and avoids adding a second closure to a squint.
     for (FName Name:MouthShapes())
@@ -155,7 +175,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
 {
     if (!Tooth) return;
     const auto& S=Tooth->Status->State;
-    const float Pain=!S.bCareReaction?FMath::Clamp(1.f-float(Now()-S.ReactionAt)/1.1f,0.f,1.f):0;
+    const float Pain=Tooth->Status->PainAlpha();
     float Strength=1; CurrentEmotion=EMCEmotion::Neutral;
     if(Tooth->IsYawning()) {
         const float Age=Now()-Tooth->YawnStartedAt,Remaining=Tooth->YawnEndsAt-Now();
@@ -205,7 +225,8 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         const int32 Parent=Ref.GetParentIndex(I);
         Pose[I].AddToTranslation(Parent>=0?RestCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
     };
-    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,Pain>.01f);
+    const bool EyeOnly=UpdateEyeShapes(Dt,Strength,Pain>.01f);
+    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,Pain>.01f,EyeOnly);
     // Artist brow poses coexist with the runtime morph mouth, blink and gaze.
     const bool AuthoredFace=Tooth->GetMesh()->GetSkeletalMeshAsset()
         && Tooth->GetMesh()->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"));

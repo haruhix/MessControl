@@ -61,14 +61,15 @@ bool UMCInventoryComponent::CanBreak(const AMCFoodActor* Food) const
 }
 float UMCInventoryComponent::Damage() const
 { return FMath::Max(1.f,Selected==EMCToolSlot::Pickaxe?(Settings?Settings->PickaxeDamage:40.f):(Settings?Settings->KnifeDamage:25.f)); }
-float UMCInventoryComponent::SwingDuration() const { return Selected==EMCToolSlot::Pickaxe?1.05f:Selected==EMCToolSlot::Knife?.50f:.85f; }
-float UMCInventoryComponent::SwingContactTime() const { return Selected==EMCToolSlot::Pickaxe?.38f:Selected==EMCToolSlot::Knife?.16f:.16f; }
+float UMCInventoryComponent::SwingDuration() const { return Selected==EMCToolSlot::Pickaxe?1.05f:Selected==EMCToolSlot::Knife?.70f:.85f; }
+float UMCInventoryComponent::SwingContactTime() const { return Selected==EMCToolSlot::Pickaxe?.38f:Selected==EMCToolSlot::Knife?.28f:.16f; }
 float UMCInventoryComponent::SwingAngle(EMCToolSlot Slot,float T)
 {
-    const float Wind=Slot==EMCToolSlot::Pickaxe?.30f:.11f;
-    const float Hit=Slot==EMCToolSlot::Pickaxe?.44f:.22f;
-    const float End=Slot==EMCToolSlot::Pickaxe?.95f:.44f;
-    const float Back=Slot==EMCToolSlot::Pickaxe?115.f:-55.f,Front=Slot==EMCToolSlot::Pickaxe?-105.f:65.f;
+    const bool Chop=Slot==EMCToolSlot::Knife;
+    const float Wind=Slot==EMCToolSlot::Pickaxe?.30f:Chop?.20f:.11f;
+    const float Hit=Slot==EMCToolSlot::Pickaxe?.44f:Chop?.34f:.22f;
+    const float End=Slot==EMCToolSlot::Pickaxe?.95f:Chop?.64f:.44f;
+    const float Back=(Slot==EMCToolSlot::Pickaxe || Chop)?115.f:-55.f,Front=Slot==EMCToolSlot::Pickaxe?-105.f:Chop?-100.f:65.f;
     if(T<0 || T>=End) return -12;
     if(T<Wind) return FMath::Lerp(-12.f,Back,FMath::SmoothStep(0.f,Wind,T));
     if(T<Hit) return FMath::Lerp(Back,Front,FMath::SmoothStep(Wind,Hit,T));
@@ -76,6 +77,14 @@ float UMCInventoryComponent::SwingAngle(EMCToolSlot Slot,float T)
 }
 FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 {
+    if(Slot==EMCToolSlot::Knife) {
+        if(T<0 || T>=.64f) return FVector::ZeroVector;
+        const FVector Wind(-40,10,105),Contact(70,-8,25),Follow(55,-10,-38);
+        if(T<.20f) return FMath::Lerp(FVector::ZeroVector,Wind,FMath::SmoothStep(0.f,.20f,T));
+        if(T<.28f) return FMath::Lerp(Wind,Contact,FMath::SmoothStep(.20f,.28f,T));
+        if(T<.34f) return FMath::Lerp(Contact,Follow,FMath::SmoothStep(.28f,.34f,T));
+        return FMath::Lerp(Follow,FVector::ZeroVector,FMath::SmoothStep(.34f,.64f,T));
+    }
     if(Slot!=EMCToolSlot::Pickaxe || T<0 || T>=.95f) return FVector::ZeroVector;
     const FVector Wind(-35,12,90),Strike(60,-10,30);
     if(T<.30f) return FMath::Lerp(FVector::ZeroVector,Wind,FMath::SmoothStep(0.f,.30f,T));

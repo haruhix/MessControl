@@ -1,0 +1,44 @@
+{
+  "material": "/Game/Art/Materials/M_TeethGameplay",
+  "updated_instances": [
+    "/Game/Gameplay/CharacterCurrent/Materials/MI_Character",
+    "/Game/Gameplay/CharacterCurrent/Materials/MI_Bag",
+    "/Game/Art/Materials/MI_TeethPlayer"
+  ],
+  "backup": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Saved\\CharacterDirtBackups\\20261002_142522_673022",
+  "compile_errors": [],
+  "scalar_defaults": {
+    "GrimePatchSize": 16.0,
+    "GrimeEdgeSoftness": 0.01,
+    "GrimeOpacity": 0.94
+  },
+  "color_defaults_linear": {
+    "GrimeLightColor": [
+      0.36,
+      0.16,
+      0.044,
+      1
+    ],
+    "GrimeDarkColor": [
+      0.18,
+      0.064,
+      0.014,
+      1
+    ],
+    "GrimeRimColor": [
+      0.5,
+      0.26,
+      0.07,
+      1
+    ]
+  },
+  "preserved": [
+    "artist textures",
+    "Coffee",
+    "Damage",
+    "HitFlash",
+    "BodyStretch",
+    "Normal"
+  ],
+  "cleaning": "Coffee raises the noise threshold as it decreases, shrinking patches to zero."
+}

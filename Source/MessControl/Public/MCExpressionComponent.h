@@ -21,6 +21,7 @@ struct FMCEmoteEntry
     UPROPERTY(EditAnywhere,BlueprintReadWrite) FText Label;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) TObjectPtr<UAnimSequence> Animation;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) EMCEmotion Emotion=EMCEmotion::Neutral;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite) FName EyeMorph;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bFaceOnly=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bHoldFinalPose=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="0.5",ClampMax="10")) float Duration=3;
@@ -79,5 +80,7 @@ private:
     float Voice=0,EyeSquint=0,Jaw=0,Smile=0,Brows=0,BrowTilt=0,Round=0,LipClosure=0;
     MCViseme VoiceViseme=MCViseme::Rest;
     TMap<FName,float> MouthWeights;
-    bool UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain);
+    TMap<FName,float> EyeWeights;
+    bool UpdateEyeShapes(float Dt,float EmotionStrength,bool bPain);
+    bool UpdateMouthShapes(float Dt,float EmotionStrength,bool bPain,bool bEyeOnly);
 };

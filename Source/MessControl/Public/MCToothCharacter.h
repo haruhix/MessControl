@@ -216,6 +216,7 @@ private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
     float NextSwingTime=0.f;
     float SwingStartedAt=-10.f;
+    float SwingContactEndsAt=0.f;
     float LastEnvironmentHit=-10.f;
     FTimerHandle SwingTimer;
     float Gait = 0.f;

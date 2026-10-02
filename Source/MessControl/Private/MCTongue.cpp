@@ -323,11 +323,21 @@ void AMCTongue::Tick(float Dt)
     }
     if (HasAuthority())
     {
-        // Sleeping rigid bodies otherwise retain contacts against the previous triangle positions.
+        // Accumulate displacement while a body sleeps, so slow breathing still
+        // wakes it when needed without reactivating every contact on every tick.
+        for(auto It=FoodSupports.CreateIterator();It;++It)
+            if(!It.Key().IsValid() || It.Key()->IsDisposed() || !It.Key()->Body->IsSimulatingPhysics()) It.RemoveCurrent();
         for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->IsDisposed() && It->Body->IsSimulatingPhysics())
         {
             FHitResult Hit; const FVector P=It->Body->Bounds.Origin;
-            if (SurfacePoint(P,Hit) && FMath::Abs(float(It->Body->Bounds.GetBox().Min.Z-Hit.ImpactPoint.Z))<20) It->Body->WakeAllRigidBodies();
+            if (!SurfacePoint(P,Hit) || FMath::Abs(float(It->Body->Bounds.GetBox().Min.Z-Hit.ImpactPoint.Z))>=20)
+            { FoodSupports.Remove(*It); continue; }
+            auto* Previous=FoodSupports.Find(*It);
+            const bool Moved=Previous && (FVector::DistSquared(Previous->Point,Hit.ImpactPoint)>=FMath::Square(.25f)
+                || FVector::DotProduct(Previous->Normal,Hit.ImpactNormal)<.99996f);
+            if(Moved && !It->Body->IsAnyRigidBodyAwake()) It->Body->WakeAllRigidBodies();
+            if(!Previous || Moved || It->Body->IsAnyRigidBodyAwake())
+                FoodSupports.Add(*It,FFoodSupport{Hit.ImpactPoint,Hit.ImpactNormal});
         }
     }
 }

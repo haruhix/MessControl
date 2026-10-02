@@ -69,6 +69,8 @@ public:
     bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
     bool TryGrab(AMCToothCharacter* Hero);
     bool FindGripSurface(FVector From,FHitResult& Hit) const;
+    // Query the visible food surface independently of its simplified physics hulls.
+    bool FindToolContact(const AMCToothCharacter* Hero,float Reach,FHitResult& Hit) const;
     bool BeginCarry(AMCToothCharacter* Hero);
     void UpdateCarryPresentation(float Dt);
     void Release(AMCToothCharacter* Hero);

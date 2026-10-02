@@ -1,0 +1,89 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "E82629B845E3D68398B928849BC3D81D",
+			"instanceName": "VB-21296",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.02-14.12.50",
+	"succeeded": 4,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.19064098596572876,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "HiddenPickaxePreservesHandContacts",
+			"fullTestPath": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"E82629B845E3D68398B928849BC3D81D"
+			],
+			"duration": 0.10609520226716995,
+			"dateTime": "2026.10.02-14.12.49",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "HoldSprayAndPreserveProgress",
+			"fullTestPath": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"E82629B845E3D68398B928849BC3D81D"
+			],
+			"duration": 0.039092998951673508,
+			"dateTime": "2026.10.02-14.12.50",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "NiagaraAsset",
+			"fullTestPath": "MessControl.Inventory.NiagaraAsset",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"E82629B845E3D68398B928849BC3D81D"
+			],
+			"duration": 0.008281998336315155,
+			"dateTime": "2026.10.02-14.12.50",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SelectionAndMaterial",
+			"fullTestPath": "MessControl.Inventory.SelectionAndMaterial",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"E82629B845E3D68398B928849BC3D81D"
+			],
+			"duration": 0.037170801311731339,
+			"dateTime": "2026.10.02-14.12.50",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

@@ -558,7 +558,8 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     AnimationToolOffset=GetActorRotation().RotateVector(UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime));
     const float AttackAngle=UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
     const float Swing = AttackTime<Inventory->SwingDuration()?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
-    BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,Inventory->Selected==EMCToolSlot::Pickaxe?25.f:18.f-12.f*A.FollowThrough);
+    const bool ChoppingTool=Inventory->Selected==EMCToolSlot::Pickaxe || Inventory->Selected==EMCToolSlot::Knife;
+    BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,ChoppingTool?25.f:18.f-12.f*A.FollowThrough);
     AnimationGait=Gait; AnimationBrushAngle=BrushAngle*A.Exaggeration;
     const float PoseEase=1-FMath::Exp(-16.f*DeltaSeconds);
     AnimationBob=FMath::Lerp(AnimationBob,Bob*(1-.85f*GripBlend),PoseEase);
@@ -576,6 +577,7 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
     NextSwingTime=Now+Inventory->SwingDuration(); ++ValidatedSwingCount;
     bPrimaryHeld=false; bBrushing=false; bHandling=false; DropFood(); ForceNetUpdate(); MulticastSwing();
     ResetContact();
+    SwingContactEndsAt=Now+Inventory->SwingContactTime()+.12f;
     GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,Inventory->SwingContactTime(),false);
 }
 void AMCToothCharacter::MulticastSwing_Implementation()
@@ -598,15 +600,23 @@ void AMCToothCharacter::ResolveSwing()
     AMCFoodActor* FoodTarget=nullptr; float FoodDistance=FMath::Square(180.f);
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
     {
-        const FVector Offset=It->Visual->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();
-        if (Inventory->CanBreak(*It) && CanContact(*It) && Offset.SizeSquared()<FoodDistance && FVector::DotProduct(GetActorForwardVector(),Offset.GetSafeNormal2D())>.25f)
-        { FoodTarget=*It; FoodDistance=Offset.SizeSquared(); }
+        if (!Inventory->CanBreak(*It) || It->Phase==EMCFoodPhase::Swallowing) continue;
+        FHitResult Contact;
+        if (!It->FindToolContact(this,180.f,Contact)) continue;
+        const float Distance=FVector::DistSquared(GetActorLocation(),Contact.ImpactPoint);
+        if (Distance>=FoodDistance) continue;
+        FoodTarget=*It; FoodDistance=Distance;
     }
     if (FoodTarget)
     {
         if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector())) { ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation());  }
         return;
     }
+    // Retry during the knife's follow-through. Moving/falling food can enter the
+    // blade after the first contact sample; a successful hit ends this window.
+    const float ContactTimeLeft=SwingContactEndsAt-GetWorld()->GetTimeSeconds();
+    if (Inventory->Selected==EMCToolSlot::Knife && ContactTimeLeft>KINDA_SMALL_NUMBER)
+        GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,FMath::Min(1.f/30.f,ContactTimeLeft),false);
     if(!Inventory->IsCleaningTool()) return;
     AMCToothCharacter* Target=nullptr; float Best=FMath::Square(180.f);
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
@@ -643,6 +653,7 @@ void AMCToothCharacter::ResolveSwing()
 }
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {
+    if(HasAuthority()) FoodCollection->HandleCarrierCollision(OtherActor,Hit);
     if (Cast<AMCFoodActor>(OtherActor)) return;
     if (!HasAuthority() || !ToothPhysics->CanAct() || !OtherComponent || OtherActor==this || GetWorld()->GetTimeSeconds()-LastEnvironmentHit<0.6f) return;
     FVector Impact=FVector::ZeroVector;

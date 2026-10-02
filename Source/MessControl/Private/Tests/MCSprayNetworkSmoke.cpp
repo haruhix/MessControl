@@ -10,6 +10,7 @@
 #include "MCHazardWave.h"
 #include "MCTongue.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -53,8 +54,8 @@ void MCTickSprayNetworkValidation(UWorld* World)
         }
         const bool Pass=!R.Invalid && Stable && R.Seen[0]==15 && R.Seen[1]==15 && R.Seen[2]==15 && R.Seen[3]==15
             && (R.Proxies&R.ExpectedProxies)==R.ExpectedProxies;
-        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s SPRAY_NETWORK net=%d hold1=%d release1=%d hold2=%d release2=%d proxies=%d expected_proxies=%d rendered_activation=%d invalid=%d"),
-            Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),int32(R.Seen[0]),int32(R.Seen[1]),int32(R.Seen[2]),int32(R.Seen[3]),int32(R.Proxies),int32(R.ExpectedProxies),Rendered,R.Invalid);
+        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s SPRAY_NETWORK net=%d hold1=%d release1=%d hold2=%d release2=%d proxies=%d expected_proxies=%d rendered_activation=%d rendered_hand_pose=%d invalid=%d"),
+            Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),int32(R.Seen[0]),int32(R.Seen[1]),int32(R.Seen[2]),int32(R.Seen[3]),int32(R.Proxies),int32(R.ExpectedProxies),Rendered,Rendered,R.Invalid);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     };
     // Clients may leave after their final measurement. The host waits longer
@@ -114,7 +115,12 @@ void MCTickSprayNetworkValidation(UWorld* World)
             && H->IsPrimaryHeld()==Holding && H->Inventory->bSprayEmitting==Holding;
         // Check actual component activation only in a process with a render
         // device. Active components in NullRHI would not prove visible mist.
-        if(Rendered) OK&=H->Inventory->SprayMist && (Holding?H->Inventory->SprayMist->IsActive():!H->Inventory->SprayMist->IsActive());
+        if(Rendered) {
+            OK&=H->Inventory->SprayMist && (Holding?H->Inventory->SprayMist->IsActive():!H->Inventory->SprayMist->IsActive());
+            const FVector Face=(H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("eye_l")))+H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("eye_r"))))*.5;
+            const FVector Delta=H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r")))-Face;
+            OK&=Holding?(FMath::Abs(Delta.Z)<12 && FVector::DotProduct(Delta,H->GetActorForwardVector())>30):Delta.Z<-12;
+        }
         if(OK) {R.Stable[Phase][I]+=Dt;R.Seen[Phase]|=uint8(1u<<I);if(Holding && !H->IsLocallyControlled()) R.Proxies|=uint8(1u<<I);}
         else R.Bad[Phase][I]+=Dt;
     }

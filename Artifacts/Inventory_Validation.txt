@@ -1,5 +1,7 @@
-[2026.09.29-16.10.45:395][492]LogTemp: Display: MC_INVENTORY_CHECK PASS tool damages matching food
-[2026.09.29-16.10.45:395][492]LogTemp: Display: MC_INVENTORY_CHECK PASS pickaxe wrist travels through a broad arc
-[2026.09.29-16.10.47:681][649]LogTemp: Display: MC_INVENTORY_CHECK PASS tool damages matching food
-[2026.09.29-16.10.49:896][806]LogTemp: Display: MC_INVENTORY_CHECK PASS spray protects and heals with cooldown
-[2026.09.29-16.10.56:589][277]LogTemp: Display: MC_INVENTORY_PASS
+[2026.10.02-15.52.53:003][492]LogTemp: Display: MC_INVENTORY_CHECK PASS tool damages matching food
+[2026.10.02-15.52.53:003][492]LogTemp: Display: MC_INVENTORY_CHECK PASS pickaxe wrist travels through a broad arc
+[2026.10.02-15.52.54:206][649]LogTemp: Display: MC_INVENTORY_CHECK PASS tool damages matching food
+[2026.10.02-15.52.54:206][649]LogTemp: Display: MC_INVENTORY_CHECK PASS knife raises the wrist overhead and follows through below its resting height
+[2026.10.02-15.52.54:542][698]LogTemp: Display: MC_INVENTORY_CHECK PASS rendered spray hand is extended forward at face height
+[2026.10.02-15.52.55:388][806]LogTemp: Display: MC_INVENTORY_CHECK PASS held spray protects and treats ulcer
+[2026.10.02-15.52.58:837][277]LogTemp: Display: MC_INVENTORY_PASS

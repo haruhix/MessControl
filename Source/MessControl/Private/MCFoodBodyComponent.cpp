@@ -1,7 +1,32 @@
 #include "MCFoodBodyComponent.h"
 #include "Engine/StaticMesh.h"
 #include "PhysicsEngine/BodySetup.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Chaos/Convex.h"
+
+namespace
+{
+    struct FFoodCollisionKey
+    {
+        TWeakObjectPtr<UBodySetup> Source;
+        FGuid Revision;
+        FVector Scale, Origin;
+        TWeakObjectPtr<UPhysicalMaterial> Material;
+        bool operator==(const FFoodCollisionKey& Other) const
+        {
+            return Source==Other.Source && Revision==Other.Revision && Scale==Other.Scale
+                && Origin==Other.Origin && Material==Other.Material;
+        }
+        friend uint32 GetTypeHash(const FFoodCollisionKey& Key)
+        {
+            return HashCombine(HashCombine(GetTypeHash(Key.Source),GetTypeHash(Key.Revision)),
+                HashCombine(HashCombine(GetTypeHash(Key.Scale),GetTypeHash(Key.Origin)),GetTypeHash(Key.Material)));
+        }
+    };
+    // Components retain the immutable setup through ShapeBodySetup. The cache must
+    // not keep meshes or collision data alive after the last item is collected.
+    TMap<FFoodCollisionKey,TWeakObjectPtr<UBodySetup>> FoodCollisionCache;
+}
 
 UMCFoodBodyComponent::UMCFoodBodyComponent()
 {
@@ -29,11 +54,20 @@ void UMCFoodBodyComponent::UpdateBodySetup()
 {
     if(!CollisionMesh) {Super::UpdateBodySetup();return;}
     if(ShapeBodySetup) return;
-    ShapeBodySetup=NewObject<UBodySetup>(this,NAME_None,RF_Transient);
+    auto* Source=CollisionMesh->GetBodySetup();
+    const FVector Origin=CollisionMesh->GetBounds().Origin;
+    if(!Source) return;
+    const FFoodCollisionKey Key{Source,Source->BodySetupGuid,CollisionScale,Origin,Source->PhysMaterial.Get()};
+    for(auto It=FoodCollisionCache.CreateIterator();It;++It)
+        if(!It.Key().Source.IsValid() || !It.Value().IsValid()) It.RemoveCurrent();
+    if(const auto* Cached=FoodCollisionCache.Find(Key); Cached && Cached->IsValid())
+    {
+        ShapeBodySetup=Cached->Get();
+        return;
+    }
+    ShapeBodySetup=NewObject<UBodySetup>(GetTransientPackage(),NAME_None,RF_Transient);
     ShapeBodySetup->CollisionTraceFlag=CTF_UseSimpleAsComplex;
     ShapeBodySetup->bNeverNeedsCookedCollisionData=true;
-    const auto* Source=CollisionMesh->GetBodySetup();
-    const FVector Origin=CollisionMesh->GetBounds().Origin;
     auto AddHull=[&](const FKConvexElem& SourceHull) {
         TArray<Chaos::FConvex::FVec3Type> Vertices;
         Vertices.Reserve(SourceHull.VertexData.Num());
@@ -55,7 +89,10 @@ void UMCFoodBodyComponent::UpdateBodySetup()
     }
     ShapeBodySetup->bCreatedPhysicsMeshes=true;
     if(ShapeBodySetup->AggGeom.ConvexElems.IsEmpty())
+    {
         UE_LOG(LogTemp,Error,TEXT("Food mesh %s needs authored convex collision; refusing a bounding-box substitute"),*GetPathNameSafe(CollisionMesh));
+    }
+    else FoodCollisionCache.Add(Key,ShapeBodySetup.Get());
 }
 
 bool UMCFoodBodyComponent::HasMeshCollision() const

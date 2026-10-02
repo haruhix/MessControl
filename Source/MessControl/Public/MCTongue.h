@@ -56,6 +56,12 @@ public:
     const TArray<int32>& TriangleIndices() const { return Indices; }
     int32 PlayerPushes=0,FoodPushes=0;
 private:
+    struct FFoodSupport
+    {
+        FVector Point=FVector::ZeroVector;
+        FVector Normal=FVector::UpVector;
+    };
+    TMap<TWeakObjectPtr<class AMCFoodActor>,FFoodSupport> FoodSupports;
     void GatherPressure(float Dt);
     void UpdatePressureField(float Dt);
     bool PressureSupport(AActor* Actor,FVector Center,float Bottom,FHitResult& Hit) const;

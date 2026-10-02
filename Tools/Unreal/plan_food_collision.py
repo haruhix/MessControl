@@ -23,6 +23,7 @@ import numpy as np
 from food_collision_components import analyze
 from food_collision_star import decompose
 from food_collision_geometry import numpy_hull
+from food_collision_authoring_guard import file_sha256, json_sha256
 
 
 def pkg(path):
@@ -212,10 +213,14 @@ def main():
         raise RuntimeError('A complete, error-free native audit is required; unfinished exports are not planning evidence.')
     if any(m.get('error') or not m.get('render_geometry_sha256') or not m.get('native_render_sections') for m in source['meshes']):
         raise RuntimeError('Native render vertices, triangles and SHA256 are required for every planned mesh.')
-    result = {'source_report': str(args.input.resolve()), 'coordinate_space': 'native asset-local; no actor or DataTable scale applied',
+    result = {'source_report': str(args.input.resolve()), 'source_report_sha256': file_sha256(args.input),
+              'scope': source['scope'], 'scope_sha256': json_sha256(source['scope']),
+              'saved_table_rows_sha256': json_sha256(source['saved_table_rows']),
+              'coordinate_space': 'native asset-local; no actor or DataTable scale applied',
               'meshes': [], 'source_render_changes': False, 'complete': False}
     for mesh in source['meshes']:
         entry = plan_mesh(mesh)
+        entry['table_uses'] = mesh['table_uses']
         result['meshes'].append(entry)
         print(entry['path'], entry['method'], 'source', len(entry['convex_elems']), 'voxel_parts', len(entry['voxel_components']), flush=True)
     result['complete'] = True

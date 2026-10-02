@@ -1,0 +1,44 @@
+{
+  "material": "/Game/Art/Materials/M_TeethGameplay",
+  "instances": [
+    "/Game/Gameplay/CharacterCurrent/Materials/MI_Character",
+    "/Game/Gameplay/CharacterCurrent/Materials/MI_Bag",
+    "/Game/Art/Materials/MI_TeethPlayer"
+  ],
+  "backup": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Saved\\PlayerDamageBackups\\20261002_150514_553418",
+  "compile_errors": [],
+  "scalar_defaults": {
+    "DamageCellSize": 22.0,
+    "DamageHairlineWidth": 1.0,
+    "DamageMajorWidth": 1.05,
+    "DamageRelief": 1.0,
+    "DamageChipDepth": 2.8
+  },
+  "color_defaults_linear": {
+    "DamageHairlineColor": [
+      0.27,
+      0.24,
+      0.2,
+      1
+    ],
+    "DamageDeepColor": [
+      0.075,
+      0.065,
+      0.052,
+      1
+    ]
+  },
+  "preserved": [
+    "artist textures",
+    "Coffee grime",
+    "HitFlash",
+    "BodyStretch",
+    "health-driven Damage"
+  ],
+  "protected": [
+    "eye ellipsoids",
+    "mouth ellipsoid",
+    "dark face and blue costume colors"
+  ],
+  "effect": "Warped 3D cell fractures, art-directed major faults, recessed normals and small crown notches."
+}

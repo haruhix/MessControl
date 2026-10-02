@@ -552,7 +552,8 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     // The wrist pose keeps the pickaxe outside collision surfaces even between
     // swings. Physical arm blending would overwrite that corrected pose.
     const bool Pickaxe=ToolPresented && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe;
-    const bool Spraying=Tooth->Inventory && Tooth->Inventory->Selected==EMCToolSlot::Spray && (Tooth->Inventory->HealingTarget || Tooth->Inventory->FireTarget);
+    const bool Spraying=ToolPresented && Tooth->Inventory->Selected==EMCToolSlot::Spray && Tooth->CanWork()
+        && (Tooth->Inventory->HealingTarget || Tooth->Inventory->FireTarget || Tooth->IsPrimaryHeld());
     const float TaskAge=Now()-Tooth->TaskSuccessAt;
     const bool TaskCheer=TaskAge>=0 && TaskAge<1.15f && !Tooth->bBrushing && !Tooth->bHandling
         && !Tooth->IsYawning() && (!Tooth->FoodCollection || !Tooth->FoodCollection->bCollecting);
