@@ -41,6 +41,8 @@ void MCTickBrushFacingValidation(UWorld* World)
     GS->Phase=EMCShiftPhase::Intermission;GS->PhaseEndsAt=GS->GetServerWorldTimeSeconds()+300;GS->bPhysicalBrushes=false;
     AMCTongue* Tongue=nullptr;for(TActorIterator<AMCTongue> It(World);It;++It){Tongue=*It;break;}
     if(!Tongue)return;
+    float StartAngle=45.f;
+    FParse::Value(FCommandLine::Get(),TEXT("MCBrushFacingAngle="),StartAngle);
     if(R.Stage<0 || R.Age-R.At>7) {
         if(R.Stage>=0) {
             const bool Pass=!R.Invalid && R.Contacts>10 && R.TurnError<12 && R.MinFacing>=.85f
@@ -78,10 +80,9 @@ void MCTickBrushFacingValidation(UWorld* World)
                         P.Z=Floor.ImpactPoint.Z+H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+2;
                         H->SetActorLocationAndRotation(P,(-Inward).Rotation(),false,nullptr,ETeleportType::TeleportPhysics);
                         if(!T->FindDirtyContact(H,Contact,Normal))continue;
-                        // This fixture starts with a 45 degree turn. New crowns
-                        // are narrower: a reachable straight-on point can be
-                        // outside the wrist's reach after that initial turn.
-                        H->SetActorRotation((Contact-P).Rotation()+FRotator(0,45,0));
+                        // Verify acquisition at the requested initial angle,
+                        // including sideways stains that require a body turn.
+                        H->SetActorRotation((Contact-P).Rotation()+FRotator(0,StartAngle,0));
                         if(T->FindDirtyContact(H,Contact,Normal)){StartRotation=H->GetActorRotation();Found=true;break;}
                     }
                     if(Found)break;
@@ -100,7 +101,7 @@ void MCTickBrushFacingValidation(UWorld* World)
         }
         if(!Found){UE_LOG(LogTemp,Error,TEXT("MC_BRUSH_FACING_FAIL no fixture stage=%d"),R.Stage);FPlatformMisc::RequestExitWithStatus(false,1);return;}
         R.Facing=(Contact-H->GetActorLocation()).GetSafeNormal2D();R.Start=H->GetActorLocation();
-        H->SetActorRotation(R.Stage<2?StartRotation:R.Facing.Rotation()+FRotator(0,45,0));H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+        H->SetActorRotation(R.Stage<2?StartRotation:R.Facing.Rotation()+FRotator(0,StartAngle,0));H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
         if(FParse::Param(FCommandLine::Get(),TEXT("MCBrushCapture"))) {
             if(!R.Camera.IsValid()){R.Camera=World->SpawnActor<ACameraActor>();R.Camera->GetCameraComponent()->SetFieldOfView(54);PC->SetViewTarget(R.Camera.Get());}
             const FVector Aim=(R.Start+Contact)*.5+FVector(0,0,20),Eye=Aim-R.Facing*320+FVector::CrossProduct(R.Facing,FVector::UpVector)*250+FVector(0,0,190);

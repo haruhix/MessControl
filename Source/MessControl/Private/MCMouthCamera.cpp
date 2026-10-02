@@ -18,6 +18,7 @@ void AMCToothCharacter::InitializeCameraOrbit()
     CameraOrbitYaw=float(View.Yaw); CameraOrbitPitch=FMath::Clamp(float(View.Pitch),-75.f,-8.f);
     CameraOrbitDistance=FMath::Clamp(float(FVector::Dist(Eye,GetActorLocation()+OrbitPivotOffset)),250.f,1600.f);
     CameraOrbitViewDistance=CameraOrbitDistance;
+    CameraOrbitViewRotation=FRotator(CameraOrbitPitch,CameraOrbitYaw,0);
     // Start at the current view, then ease the pivot onto the avatar.
     MouthCameraFocus=Eye+FRotator(CameraOrbitPitch,CameraOrbitYaw,0).Vector()*CameraOrbitDistance-OrbitPivotOffset;
     bManualCameraOrbit=true; bMouthCameraInitialized=true;
@@ -43,7 +44,7 @@ void AMCToothCharacter::ZoomCamera(float ScrollDelta)
 
 FVector AMCToothCharacter::CameraMoveDirection(bool Right) const
 {
-    const FRotator Yaw(0,bManualCameraOrbit?CameraBoom->GetComponentRotation().Yaw:0,0);
+    const FRotator Yaw(0,bManualCameraOrbit?Camera->GetComponentRotation().Yaw:0,0);
     return Yaw.RotateVector(Right?FVector::RightVector:FVector::ForwardVector);
 }
 
@@ -69,7 +70,11 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         const float Blend=1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt));
         MouthCameraFocus=Reset?P:FMath::Lerp(MouthCameraFocus,P,Blend);
         const FRotator Wanted(CameraOrbitPitch,CameraOrbitYaw,0);
-        const FRotator View=Reset?Wanted:FMath::RInterpTo(CameraBoom->GetComponentRotation(),Wanted,Dt,FollowSpeed);
+        const FRotator View=Reset?Wanted:FMath::RInterpTo(CameraOrbitViewRotation,Wanted,Dt,FollowSpeed);
+        CameraOrbitViewRotation=View;
+        // The arm aims its sweep from the actual pawn to the filtered eye.
+        // Its rotation contains raw floor motion and must not steer the view.
+        Camera->SetWorldRotation(View);
         CameraBoom->bEnableCameraLag=false;
         CameraBoom->bDoCollisionTest=true; CameraBoom->ProbeChannel=ECC_Camera;
         CameraOrbitViewDistance=Reset?CameraOrbitDistance:FMath::Lerp(CameraOrbitViewDistance,CameraOrbitDistance,Blend);
@@ -164,6 +169,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     CameraBoom->TargetOffset=Eye+Rotation.Vector()*Distance-P;
     CameraBoom->SetWorldRotation(Rotation);
     CameraBoom->TargetArmLength=Distance;
+    Camera->SetWorldRotation(Rotation);
     bMouthCameraInitialized=true;
     UpdateCameraWallReveal(Dt,MouthCameraEye,P+OrbitPivotOffset);
 }

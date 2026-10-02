@@ -1922,6 +1922,40 @@ bool FMCOrbitCameraTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCameraStabilityTest,"MessControl.Camera.MovementAndCollisionStability",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCameraStabilityTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false);
+    auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->SetAsLocalPlayerController();
+    auto* H=Mouth.Worker(); PC->Possess(H); H->SetActorLocation(FVector(0,0,2000));
+    H->bManualCameraOrbit=true; H->CameraOrbitYaw=0; H->CameraOrbitPitch=-30; H->CameraOrbitDistance=900;
+    auto View=[&](float Dt) { H->UpdateMouthCamera(Dt); H->CameraBoom->TickComponent(Dt,LEVELTICK_All,nullptr); };
+    View(1.f);
+    const FRotator Wanted=H->Camera->GetComponentRotation();
+    float MaxDrift=0; FVector P=H->GetActorLocation();
+    for(int32 I=0;I<180;++I) {
+        const float Dt=I%3==0?1.f/30:I%3==1?1.f/120:1.f/240;
+        P.Y+=200*Dt; P.Z=2000+(I%2?2:-2); H->SetActorLocation(P); View(Dt);
+        const FRotator Actual=H->Camera->GetComponentRotation();
+        MaxDrift=FMath::Max(MaxDrift,FMath::Max(FMath::Abs(FMath::FindDeltaAngleDegrees(Actual.Yaw,Wanted.Yaw)),FMath::Abs(FMath::FindDeltaAngleDegrees(Actual.Pitch,Wanted.Pitch))));
+    }
+    TestTrue(*FString::Printf(TEXT("Floor corrections do not steer a stationary mouse view (%.4f degrees)"),MaxDrift),MaxDrift<.01f);
+    H->SetActorLocation(FVector(0,0,2000)); H->bMouthCameraInitialized=false; View(1.f);
+    const FVector Pivot=H->GetActorLocation()+FVector(0,0,30),Ray=-FRotator(-30,0,0).Vector();
+    auto* Wall=Mouth.World->SpawnActor<AActor>(); auto* Mesh=NewObject<UStaticMeshComponent>(Wall); Wall->SetRootComponent(Mesh);
+    Mesh->SetStaticMesh(ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Cube.Cube"))); Mesh->SetCollisionProfileName(TEXT("BlockAll")); Mesh->RegisterComponent();
+    Wall->SetActorLocationAndRotation(Pivot+Ray*450,Ray.Rotation()); Wall->SetActorScale3D(FVector(1,6,6));
+    View(1.f/120);
+    const float Blocked=FVector::Distance(Pivot,H->Camera->GetComponentLocation());
+    TestTrue(TEXT("A closer wall retracts the camera immediately"),Blocked<450);
+    Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision); View(1.f/120);
+    const float Released=FVector::Distance(Pivot,H->Camera->GetComponentLocation());
+    TestTrue(TEXT("Wall exit eases out instead of popping to the full arm"),Released>Blocked && Released<Blocked+60);
+    for(int32 I=0;I<240;++I) View(1.f/120);
+    TestTrue(TEXT("The camera eventually restores the selected distance"),FMath::IsNearlyEqual(float(FVector::Distance(Pivot,H->Camera->GetComponentLocation())),900.f,1.f));
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRadialCameraTest,"MessControl.Camera.RadialWallReveal",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCRadialCameraTest::RunTest(const FString&)
 {

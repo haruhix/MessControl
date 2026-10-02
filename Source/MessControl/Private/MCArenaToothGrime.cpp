@@ -203,7 +203,7 @@ bool AMCArenaTooth::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FV
         const bool Locked=Worker->BrushContact->Target==this && Worker->BrushContact->Alpha()>.5f;
         const float Distance=Locked?FVector::DistSquared(P,Worker->BrushContact->ContactPoint())*.7f+FVector::DistSquared(P,Aim)*.3f:FVector::DistSquared(P,Aim);
         const float Score=Distance*(I==Preferred?.3f:1.f);
-        if(Score>=Best || !Worker->BrushContact->CanReach(P,N,this)) continue;
+        if(Score>=Best || !Worker->BrushContact->CanReachAfterFacing(P,N,this)) continue;
         FHitResult Block; if(GetWorld()->LineTraceSingleByChannel(Block,Origin+FVector(0,0,40),P-N*2,ECC_Visibility,Query)) continue;
         Best=Score; SelectedSample=I; Point=P; Normal=N;
     }
@@ -221,6 +221,11 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     FVector Aim,N; if(!FindDirtyContact(Worker,Aim,N,History.Sample)) return false;
     const FVector SelectedPoint=Aim,SelectedNormal=N;
     History.Sample=SelectedSample;
+    Worker->BrushContact->Contact(this,SelectedPoint,SelectedNormal);
+    if(!Worker->BrushContact->IsFacingContact() || !Worker->BrushContact->CanReach(SelectedPoint,SelectedNormal,this)) {
+        History.At=-100; // Restart the stroke after turning; the old aim has no current contact.
+        return true; // Keep the target while the body turns; no mask changes yet.
+    }
     const FTransform Surface=Visual->GetComponentTransform();
     if(Now-History.At<.2) {
         Aim=FMath::VInterpConstantTo(Surface.TransformPosition(History.Aim),Aim,FMath::Min(Seconds,.1f),220.f);

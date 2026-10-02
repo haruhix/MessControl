@@ -112,6 +112,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<USceneComponent> BrushPivot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<UStaticMeshComponent> Brush;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Visuals") TObjectPtr<UMCPlayerAppearance> Appearance;
+    UPROPERTY(ReplicatedUsing=OnRep_BagColor, BlueprintReadOnly, Category="Visuals") FLinearColor BagColor=FLinearColor::White;
     FName RigBone(FName BoneRole) const;
     FTransform StandingMeshTransform() const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
@@ -181,6 +182,7 @@ private:
     void ToggleSelfCare();
     UFUNCTION(Server, Reliable) void ServerToggleSelfCare();
     UFUNCTION() void OnRep_Working();
+    UFUNCTION() void OnRep_BagColor();
     UFUNCTION() void OnRep_Yawn();
     UFUNCTION() void OnRep_ThroatCapture();
     float OrderJumpAirControl=.05f;
@@ -213,6 +215,7 @@ private:
     UPROPERTY() TArray<TObjectPtr<UInputAction>> ToolActions;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StatusMaterial;
     UPROPERTY() TArray<TObjectPtr<UMaterialInstanceDynamic>> FaceMaterials;
+    UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> BagMaterial;
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
     float NextSwingTime=0.f;
     float SwingStartedAt=-10.f;
@@ -235,6 +238,7 @@ private:
     FVector PreviousLocomotionVelocity=FVector::ZeroVector;
     double LastPaddleAt=0;
     float CameraOrbitViewDistance=1000.f;
+    FRotator CameraOrbitViewRotation=FRotator::ZeroRotator;
     struct FCameraWallState { ECollisionResponse CameraResponse=ECR_Block; float Amount=0; };
     TMap<TWeakObjectPtr<UMeshComponent>,FCameraWallState> CameraRevealWalls;
     double NextCameraWallScan=0;

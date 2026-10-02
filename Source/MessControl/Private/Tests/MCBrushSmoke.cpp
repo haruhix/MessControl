@@ -43,7 +43,7 @@ void MCTickBrushValidation(UWorld* World)
         int32 Seen=0,Frame=0,Contacts=0,PeakFoam=0,ReleasedFoam=-1; uint32 PausedHash=0; FString Timing;
         FVector LastFreeHand=FVector::ZeroVector,LastWorkHand=FVector::ZeroVector; float FreeHandStep=0,WorkHandStep=0; bool HadFreeHand=false;
         TWeakObjectPtr<UMCMotionRecorder> Recorder;
-        bool Moving=false,Jumped=false,Air=false; int32 ReturnSamples=0; FVector MotionStart=FVector::ZeroVector; float MotionSpeed=0,ReturnTravel=0,ReachExcess=0;
+        bool Moving=false,Jumped=false,Air=false; int32 ReturnSamples=0; FVector MotionStart=FVector::ZeroVector; float MotionAt=-1,MotionSpeed=0,ReturnTravel=0,ReachExcess=0;
     };
     static FRun R; if(R.World.Get()!=World) {R=FRun();R.World=World;}
     R.Age+=World->GetDeltaSeconds();
@@ -96,18 +96,23 @@ void MCTickBrushValidation(UWorld* World)
     if(!Tooth) return;
     const float T=Now-GS->DayStartedAt;
     if(Host && R.Hero.IsValid()) {
-        auto* H=R.Hero.Get(); const bool Work=MovementCase?(T>1.5f && T<3.3f):((T>1.5f && T<4.f) || (T>5.5f && T<10.f));
+        auto* H=R.Hero.Get();
+        // Start the retreat during verified contact; stain completion time varies with frame rate.
+        if(MovementCase && R.MotionAt<0 && H->BrushContact->IsPresenting() &&
+            (Measure?R.Contacts>20:((R.Seen&2)!=0 && T>2.2f))) R.MotionAt=T;
+        const bool Work=MovementCase?(T>1.5f && (R.MotionAt<0 || T<R.MotionAt+.1f)):((T>1.5f && T<4.f) || (T>5.5f && T<10.f));
         H->ServerSetPrimary(Work);
         if(R.Recorder.IsValid()) R.Recorder->Stage=T<1.5f?TEXT("idle"):T<4?TEXT("brush"):T<5.5f?TEXT("release"):T<10?TEXT("brush_again"):TEXT("released");
-        if(MovementCase && T>3.2f) {
+        if(MovementCase && R.MotionAt>=0) {
+            const float MotionT=T-R.MotionAt;
             auto* Move=CastChecked<UMCToothMovementComponent>(H->GetCharacterMovement());
             if(!R.Moving) { R.Moving=true; R.MotionStart=H->GetActorLocation(); Move->SetMovementMode(MOVE_Walking); }
-            Move->SetSprinting(T>3.3f && T<6.5f);
-            if(T<6.5f) H->AddMovementInput((-Tooth->GetActorLocation()).GetSafeNormal2D());
-            if(!R.Jumped && T>3.4f) { H->Jump(); R.Jumped=true; }
-            if(T>3.7f) H->StopJumping();
+            Move->SetSprinting(MotionT>.1f && MotionT<3.3f);
+            if(MotionT<3.3f) H->AddMovementInput((-Tooth->GetActorLocation()).GetSafeNormal2D());
+            if(!R.Jumped && MotionT>.2f) { H->Jump(); R.Jumped=true; }
+            if(MotionT>.5f) H->StopJumping();
             R.Air|=Move->IsFalling(); R.MotionSpeed=FMath::Max(R.MotionSpeed,float(H->GetVelocity().Size2D()));
-            if(R.Recorder.IsValid()) R.Recorder->Stage=T<3.3f?TEXT("brush_walk"):T<4.5f?TEXT("release_jump"):T<6.5f?TEXT("release_sprint"):TEXT("motion_stop");
+            if(R.Recorder.IsValid()) R.Recorder->Stage=MotionT<.1f?TEXT("brush_walk"):MotionT<1.3f?TEXT("release_jump"):MotionT<3.3f?TEXT("release_sprint"):TEXT("motion_stop");
             if(H->BrushContact->IsPresenting()) {
                 ++R.ReturnSamples;
                 const auto* Mesh=H->GetMesh(); const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton(); FTransform Rest=FTransform::Identity;
@@ -119,7 +124,7 @@ void MCTickBrushValidation(UWorld* World)
         }
         const FVector Hand=H->GetActorTransform().InverseTransformPosition(H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_l"))));
         const FVector WorkHand=H->GetActorTransform().InverseTransformPosition(H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))));
-        if(R.HadFreeHand && T>1 && T<(MovementCase?3.2f:12.f)) {
+        if(R.HadFreeHand && T>1 && (MovementCase?R.MotionAt<0:T<12.f)) {
             R.FreeHandStep=FMath::Max(R.FreeHandStep,float(FVector::Distance(Hand,R.LastFreeHand))/(World->GetDeltaSeconds()*60));
             R.WorkHandStep=FMath::Max(R.WorkHandStep,float(FVector::Distance(WorkHand,R.LastWorkHand))/(World->GetDeltaSeconds()*60));
             if(FVector::Distance(WorkHand,R.LastWorkHand)/(World->GetDeltaSeconds()*60)>10)

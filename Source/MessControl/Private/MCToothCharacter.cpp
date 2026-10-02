@@ -4,6 +4,7 @@
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
 #include "MCBrushContactComponent.h"
+#include "MCOrbitSpringArmComponent.h"
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
@@ -81,7 +82,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     BrushPivot->SetupAttachment(GetMesh(),TEXT("hand_r"));
     Brush = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MiniBrush"));
     Brush->SetupAttachment(BrushPivot); Brush->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("ArenaCamera"));
+    CameraBoom = CreateDefaultSubobject<UMCOrbitSpringArmComponent>(TEXT("ArenaCamera"));
     CameraBoom->SetupAttachment(RootComponent);
     CameraBoom->SetUsingAbsoluteRotation(true); CameraBoom->SetRelativeRotation(FRotator(-16,0,0));
     CameraBoom->TargetArmLength = 1350; CameraBoom->TargetOffset = FVector(120,0,130);
@@ -90,6 +91,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     CameraBoom->bDoCollisionTest = true; CameraBoom->ProbeSize=24; CameraBoom->ProbeChannel=ECC_Camera;
     CameraBoom->AddTickPrerequisiteActor(this);
     Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera")); Camera->SetupAttachment(CameraBoom);
+    Camera->SetUsingAbsoluteRotation(true);
     Camera->FieldOfView = FollowFOV;
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> ToothAsset(TEXT("/Game/Art/Rig/SK_ToothHero"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> BrushAsset(TEXT("/Game/Art/Meshes/SM_Brush"));
@@ -136,6 +138,8 @@ void AMCToothCharacter::ApplyAppearance()
 void AMCToothCharacter::BeginPlay()
 {
     Super::BeginPlay();
+    // Choose once on the server; owning clients, proxies and late joiners share it.
+    if (HasAuthority()) BagColor=FLinearColor::MakeFromHSV8(FMath::RandRange(0,255),190,255);
     if (AnimationProfile) AnimationSettings = AnimationProfile->Settings;
 #if !UE_BUILD_SHIPPING
     if (FParse::Param(FCommandLine::Get(),TEXT("MCRagdollCapture")))
@@ -151,6 +155,7 @@ void AMCToothCharacter::BeginPlay()
         for (int32 I=Ref.FindBoneIndex(TEXT("hand_r"));I>=0;I=Ref.GetParentIndex(I)) Hand=Hand*Ref.GetRefBonePose()[I];
         BrushPivot->SetRelativeRotation(Hand.GetRotation().Inverse());
     }
+    UMaterialInterface* BagBase=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/CharacterCurrent/Materials/MI_Bag.MI_Bag"));
     UMaterialInterface* Base=Appearance && Appearance->Material?Appearance->Material.Get():LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth"));
     if (Base)
     {
@@ -161,10 +166,22 @@ void AMCToothCharacter::BeginPlay()
             if (Appearance?I==0:Name.Contains(TEXT("Enamel")) || Name.Contains(TEXT("Tooth"))) GetMesh()->SetMaterial(I,StatusMaterial);
             else if (Appearance && I>0)
             {
-                if (auto* FaceMaterial=GetMesh()->CreateDynamicMaterialInstance(I)) FaceMaterials.Add(FaceMaterial);
+                if (auto* FaceMaterial=GetMesh()->CreateDynamicMaterialInstance(I))
+                {
+                    FaceMaterials.Add(FaceMaterial);
+                    if (BagBase && FaceMaterial->IsChildOf(BagBase)) BagMaterial=FaceMaterial;
+                }
             }
         }
     }
+    OnRep_BagColor();
+}
+void AMCToothCharacter::OnRep_BagColor()
+{
+    if (!BagMaterial) return; // Initial replication can arrive before BeginPlay.
+    // Remove the baked blue hue before tinting, retaining the texture's shading.
+    BagMaterial->SetScalarParameterValue(TEXT("Saturate"),1.f);
+    BagMaterial->SetVectorParameterValue(TEXT("Albedo Color"),BagColor);
 }
 void AMCToothCharacter::BuildInput()
 {
@@ -686,6 +703,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCToothCharacter,bBrushing); DOREPLIFETIME(AMCToothCharacter,bHandling);
     DOREPLIFETIME(AMCToothCharacter,bPrimaryHeld);
+    DOREPLIFETIME(AMCToothCharacter,BagColor);
     DOREPLIFETIME(AMCToothCharacter,bSelfCare); DOREPLIFETIME(AMCToothCharacter,CareTarget); DOREPLIFETIME(AMCToothCharacter,ContactProgress);
     DOREPLIFETIME(AMCToothCharacter,HeldFood); DOREPLIFETIME(AMCToothCharacter,RespawnAt); DOREPLIFETIME(AMCToothCharacter,RespawnSourceId);
     DOREPLIFETIME(AMCToothCharacter,EquippedBrush); DOREPLIFETIME(AMCToothCharacter,bInCoffee); DOREPLIFETIME(AMCToothCharacter,ClingTooth);

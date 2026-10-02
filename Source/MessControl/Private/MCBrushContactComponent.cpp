@@ -53,9 +53,11 @@ bool UMCBrushContactComponent::IsTouchingSurface() const
     if(!FApp::CanEverRender() || !GetWorld()->GetGameViewport()) return true;
     return Blend>.98f && FVector::DistSquared(BristlePoint(),ContactPoint())<=FMath::Square(16.f);
 }
-FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool* Reachable,const AActor* Surface) const
+FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool* Reachable,const AActor* Surface,const FTransform* FacingWorld) const
 {
     if(Reachable) *Reachable=false;
+    const FTransform World=FacingWorld?*FacingWorld:Hero->GetMesh()->GetComponentTransform();
+    const FVector Facing=World.TransformVectorNoScale(Hero->GetMesh()->GetComponentTransform().InverseTransformVectorNoScale(Hero->GetActorForwardVector()));
     // The authored brush runs along +X, with bristles pointing down -Z.
     const FVector Up=FVector::VectorPlaneProject(FVector::UpVector,Normal).GetSafeNormal();
     const FVector Side=FVector::CrossProduct(Up,Normal).GetSafeNormal();
@@ -64,7 +66,7 @@ FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool*
     const auto& Ref=Hero->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
     FTransform Rest=FTransform::Identity;
     for(int32 I=Ref.FindBoneIndex(Hero->RigBone(TEXT("hand_r")));I>=0;I=Ref.GetParentIndex(I)) Rest=Rest*Ref.GetRefBonePose()[I];
-    FVector HandleHome=Hero->GetMesh()->GetComponentTransform().TransformPosition(Rest.GetLocation());
+    FVector HandleHome=World.TransformPosition(Rest.GetLocation());
     // The resting wrist is low; aiming toward it puts a low stain's handle
     // inside the raised gum. Keep the working handle near the upper chest.
     HandleHome.Z=FMath::Max(HandleHome.Z,Hero->GetActorLocation().Z+60);
@@ -72,12 +74,12 @@ FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool*
     // On the tongue, keep the handle behind the bristles. World up has no
     // tangent on a horizontal surface, so use the character's facing instead.
     FVector FloorAxis=FVector::VectorPlaneProject((Point-Hero->GetActorLocation()).GetSafeNormal2D(),Normal).GetSafeNormal();
-    if(FloorAxis.IsNearlyZero()) FloorAxis=FVector::VectorPlaneProject(Hero->GetActorForwardVector(),Normal).GetSafeNormal();
+    if(FloorAxis.IsNearlyZero()) FloorAxis=FVector::VectorPlaneProject(Facing,Normal).GetSafeNormal();
     const float FloorBlend=FMath::SmoothStep(.55f,.9f,float(Normal.Z));
     FVector Axis=FMath::Lerp(LengthAxis,FloorAxis,FloorBlend).GetSafeNormal();
     const FTransform InHand=Hero->Brush->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
     const FVector Scale=InHand.GetScale3D()*Hero->GetMesh()->GetComponentScale();
-    const bool Continue=bHandPresented && Blend>.5f && IsValid(Target) && FVector::DistSquared(Point,ContactPoint())<FMath::Square(60.f)
+    const bool Continue=!FacingWorld && bHandPresented && Blend>.5f && IsValid(Target) && FVector::DistSquared(Point,ContactPoint())<FMath::Square(60.f)
         && FVector::DistSquared(PresentationBase.GetLocation(),Hero->GetMesh()->GetComponentLocation())<FMath::Square(200.f);
     if(Continue) {
         const FVector PreviousAxis=(InHand*PresentedHand).GetRotation().GetAxisX();
@@ -85,7 +87,7 @@ FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool*
     }
     FTransform Preferred=FTransform::Identity;
     FTransform Best=FTransform::Identity; float BestScore=MAX_flt;
-    const FVector RestHome=Hero->GetMesh()->GetComponentTransform().TransformPosition(Rest.GetLocation());
+    const FVector RestHome=World.TransformPosition(Rest.GetLocation());
     FCollisionQueryParams Clearance(SCENE_QUERY_STAT(MCBrushHandleRoom),false,Hero);
     if(Surface || Target) Clearance.AddIgnoredActor(Surface?Surface:Target.Get());
     for(float Roll:{0.f,25.f,-25.f,50.f,-50.f,90.f,-90.f,135.f,-135.f,180.f}) {
@@ -130,6 +132,25 @@ bool UMCBrushContactComponent::CanReach(FVector Point,FVector Normal,const AActo
     const bool ToothContact=Cast<AMCArenaTooth>(Surface?Surface:Target.Get())!=nullptr;
     return (!ToothContact || Reachable) && !Offset.ContainsNaN() && Offset.Equals(ClampHandOffset(Offset),.01f);
 }
+bool UMCBrushContactComponent::CanReachAfterFacing(FVector Point,FVector Normal,const AActor* Surface) const
+{
+    if(CanReach(Point,Normal,Surface)) return true;
+    if(!Hero || !Hero->GetMesh()->GetSkeletalMeshAsset() || !CanBrushToward(Point)) return false;
+    // Preview the wrist after the existing movement turn, without moving the pawn
+    // or changing collision. Otherwise an unreachable sideways wrist can never
+    // publish the contact that tells movement to face the stain.
+    FTransform World=Hero->GetMesh()->GetComponentTransform();
+    const FQuat Turn=FRotator(0,(Point-Hero->GetActorLocation()).Rotation().Yaw,0).Quaternion()*Hero->GetActorQuat().Inverse();
+    World.SetLocation(Hero->GetActorLocation()+Turn.RotateVector(World.GetLocation()-Hero->GetActorLocation()));
+    World.SetRotation((Turn*World.GetRotation()).GetNormalized());
+    const auto& Ref=Hero->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+    FTransform Rest=FTransform::Identity;
+    for(int32 I=Ref.FindBoneIndex(Hero->RigBone(TEXT("hand_r")));I>=0;I=Ref.GetParentIndex(I)) Rest=Rest*Ref.GetRefBonePose()[I];
+    bool Reachable=false;
+    const FVector Offset=HandGoal(Point,Normal,&Reachable,Surface,&World).GetLocation()-World.TransformPosition(Rest.GetLocation());
+    return (Cast<AMCArenaTooth>(Surface?Surface:Target.Get())==nullptr || Reachable)
+        && !Offset.ContainsNaN() && Offset.Equals(ClampHandOffset(Offset),.01f);
+}
 bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
 {
     const auto* H=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
@@ -148,7 +169,7 @@ bool UMCBrushContactComponent::CanBrushToward(FVector Point) const
     const auto* H=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
     if(!H) return false;
     const FVector Direction=(Point-H->GetActorLocation()).GetSafeNormal2D();
-    if(Direction.IsNearlyZero() || FVector::DotProduct(Direction,H->GetActorForwardVector())<.25f) return false;
+    if(Direction.IsNearlyZero() || FVector::DotProduct(Direction,H->GetActorForwardVector())<-.05f) return false;
     const auto* Move=Cast<UMCToothMovementComponent>(H->GetCharacterMovement());
     // Walking away releases the stain immediately; the brush must not drag
     // behind the body or turn the player against their movement input.

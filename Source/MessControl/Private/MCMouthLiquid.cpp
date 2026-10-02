@@ -81,7 +81,7 @@ bool AMCMouthSurface::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,
         if(Score>=Best || FVector::Dist2D(P,Origin)>Contact->SurfaceReach) continue;
         FVector N=GetActorUpVector(); FHitResult Floor;
         if(Tongue && Tongue->SurfacePoint(P,Floor)) { P=Floor.ImpactPoint+Floor.ImpactNormal*2; N=Floor.ImpactNormal; }
-        if(!Contact->CanReach(P,N)) continue;
+        if(!Contact->CanReachAfterFacing(P,N)) continue;
         FHitResult Block;
         if(GetWorld()->LineTraceSingleByChannel(Block,Origin+FVector(0,0,35),P+N*4,ECC_Visibility,Query)) continue;
         Best=Score; Point=P; Normal=N;
@@ -97,7 +97,12 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
     FVector Point,Normal; if(!FindDirtyContact(Worker,Point,Normal)) return false;
     const auto* GS=GetWorld()->GetGameState();
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
-    const auto* Contact=Worker->BrushContact.Get();
+    auto* Contact=Worker->BrushContact.Get();
+    if(FVector::DotProduct(Worker->GetActorForwardVector(),(Point-Worker->GetActorLocation()).GetSafeNormal2D())<.85f
+        || !Contact->CanReach(Point,Normal)) {
+        Contact->Contact(this,Point,Normal);
+        return true;
+    }
     if(Contact->Target==this && Now-Contact->ContactAt<.2)
         Point=FMath::VInterpConstantTo(Contact->ContactPoint(),Point,Seconds,180.f);
     const FVector Facing=GetActorTransform().InverseTransformVectorNoScale(Worker->GetActorForwardVector());
