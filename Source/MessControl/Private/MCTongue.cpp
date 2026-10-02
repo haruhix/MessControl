@@ -178,6 +178,8 @@ float AMCTongue::Offset(FVector P,float Time,float& Red,TConstArrayView<FMCTongu
     const float Amount=Motion.Serial>0?MotionWeight(P)*(S.IsWave()?S.Band(MotionDistance(P),Age):S.Envelope(Age)):0;
     Red=FMath::Max(0.f,Amount)*S.Redness;
     float Height=Idle+S.Height*Amount;
+    if(YawnStartedAt>=0 && Time<YawnStartedAt+YawnDuration && Time>=YawnStartedAt)
+        Height+=SurfaceMask*45*FMath::Sin(PI*(Time-YawnStartedAt)/FMath::Max(1.f,YawnDuration));
     // Independent ulcers can pulse together and during a larger tongue event.
     // They retain their own radius, server clock and damage; no second push is applied.
     const float PulseWeight=FMath::Sqrt(SurfaceMask);
@@ -302,6 +304,7 @@ void AMCTongue::Tick(float Dt)
     const bool Playing=State && State->Phase==EMCShiftPhase::Working && !State->bDayOneComplete;
     if (HasAuthority() && Playing)
     {
+        if(bAutomaticYawns && !State->bDevManualEvents && Time>=NextYawnAt) StartYawn();
         const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
         if (Settings.bAutomaticJolts && Mode && Mode->bUseDayOnePlan && !State->bDevManualEvents && Time>=NextJoltAt) TriggerJolt();
     }
@@ -334,4 +337,5 @@ void AMCTongue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
     DOREPLIFETIME(AMCTongue,PressureSettings); DOREPLIFETIME(AMCTongue,PressureFrame);
     DOREPLIFETIME(AMCTongue,ActivePressurePreset);
     DOREPLIFETIME(AMCTongue,ActivePressureMaterial);
+    DOREPLIFETIME(AMCTongue,YawnStartedAt);DOREPLIFETIME(AMCTongue,YawnDuration);
 }

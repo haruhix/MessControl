@@ -1,0 +1,12 @@
+{
+  "case": "FoodYawnV10",
+  "accepted": true,
+  "gameplayValidation": "passed",
+  "checks": [
+    "Mouth opens and closes; inlet spiral stays absent at early frames 37 and 48 and appears inside the aperture at frame 58.",
+    "Single mouth-owned suction field; no character impact rays or hero emitters.",
+    "Close view shows eye gaze, strained expression and hand brace; recovery restores the tool and work input."
+  ],
+  "evidenceFrames": [37, 48, 58, 69, 93, 105],
+  "rawFrames": "D:/CodexCaptureCache/MessControl_FoodRework_20261002/FoodYawnV10"
+}

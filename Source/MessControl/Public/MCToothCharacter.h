@@ -45,6 +45,17 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<class UMCBrushContactComponent> BrushContact;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Gaze") TObjectPtr<UMCGazeComponent> Gaze;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Grip") TObjectPtr<UMCGripComponent> Grip;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Food") TObjectPtr<class UMCFoodCollectionComponent> FoodCollection;
+    UPROPERTY(ReplicatedUsing=OnRep_Yawn,BlueprintReadOnly,Category="Yawn") double YawnEndsAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Yawn") TObjectPtr<class AMCTongue> YawnTongue;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Yawn") FVector YawnAnchor=FVector::ZeroVector;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Yawn") double YawnStartedAt=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Yawn") FVector YawnPullDirection=FVector::ForwardVector;
+    float YawnPoseAlpha() const;
+    FVector YawnHandPoint(int32 Side) const;
+    bool IsYawning() const;
+    void BeginYawn(class AMCTongue* Tongue,float Seconds);
+    void UpdateYawn(float Dt);
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Emotes") TObjectPtr<UMCExpressionComponent> Expression;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") bool bSelfCare=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Care") TObjectPtr<AActor> CareTarget;
@@ -61,7 +72,7 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Tools") TObjectPtr<class UMCInventoryComponent> Inventory;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Feedback") double TaskSuccessAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Feedback") double TaskFailureAt=-100;
-    void NotifyTaskFeedback(bool Success);
+    void NotifyTaskFeedback(bool Success,FVector Point=FVector::ZeroVector);
     bool CanSwitchTool() const;
     UFUNCTION(BlueprintCallable, Category="Tools") void ThrowItem();
     UFUNCTION(Server,Reliable) void ServerThrowItem();
@@ -152,6 +163,7 @@ private:
     void ToggleSelfCare();
     UFUNCTION(Server, Reliable) void ServerToggleSelfCare();
     UFUNCTION() void OnRep_Working();
+    UFUNCTION() void OnRep_Yawn();
     UFUNCTION() void OnRep_ThroatCapture();
     float OrderJumpAirControl=.05f;
     bool bThroatCaptured=false;

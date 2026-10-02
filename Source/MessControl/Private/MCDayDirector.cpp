@@ -3,6 +3,7 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCFirePatch.h"
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
@@ -48,6 +49,7 @@ int32 AMCDayDirector::CountFood(int32 Batch) const
 {
     int32 Count=0; for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->bBrushTool && !It->IsDisposed() && It->Batch==Batch) ++Count;
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->bUlcer && !It->IsHealed() && It->Batch==Batch) ++Count;
+    for(TActorIterator<AMCFirePatch> It(GetWorld());It;++It) if(It->IsBurning() && It->Batch==Batch) ++Count;
     return Count;
 }
 void AMCDayDirector::DropBrushes()

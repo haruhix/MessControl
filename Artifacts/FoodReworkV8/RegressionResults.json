@@ -1,0 +1,40 @@
+{
+  "revision": "V8",
+  "network": {
+    "peers": [
+      {
+        "sha256": "7FBF15679D5B10BBE9363002B3CF417C1FFA372458D7A1AD04D233B44353FEB0",
+        "pass": "[2026.10.02-07.25.41:407][470]LogTemp: Display: MC_VALIDATION_PASS FOOD_NETWORK net=2 stack=3 yawn=1 stars=1",
+        "log": "Saved\\Logs\\FoodNetwork0.log",
+        "peer": 0
+      },
+      {
+        "sha256": "ACDAF6DF32C65EFE805E81F5E332AD37DE488879807C3906AAA4A62CD35C45D3",
+        "pass": "[2026.10.02-07.25.39:533][864]LogTemp: Display: MC_VALIDATION_PASS FOOD_NETWORK net=3 stack=3 yawn=1 stars=1",
+        "log": "Saved\\Logs\\FoodNetwork1.log",
+        "peer": 1
+      },
+      {
+        "sha256": "B5EDDA28B72630BA81AC84070ABF8FB493A49185DCB41F809FBE1969759AE3B4",
+        "pass": "[2026.10.02-07.25.39:538][821]LogTemp: Display: MC_VALIDATION_PASS FOOD_NETWORK net=3 stack=3 yawn=1 stars=1",
+        "log": "Saved\\Logs\\FoodNetwork2.log",
+        "peer": 2
+      },
+      {
+        "sha256": "1E10E0CB8FCD608C4A7EB2F88C7F86FCC64313E50FE59FFECBC3AA269B5203F1",
+        "pass": "[2026.10.02-07.25.39:542][779]LogTemp: Display: MC_VALIDATION_PASS FOOD_NETWORK net=3 stack=3 yawn=1 stars=1",
+        "log": "Saved\\Logs\\FoodNetwork3.log",
+        "peer": 3
+      }
+    ],
+    "packetLossPercent": 2,
+    "packetLagMs": 80
+  },
+  "unit": {
+    "failed": 0,
+    "notRun": 0,
+    "reportSha256": "DE15A38AEA85D1D1A26871C1FBDC59554699A5117ADAC1CD2232AE61668E55A4",
+    "succeeded": 71,
+    "succeededWithWarnings": 7
+  }
+}

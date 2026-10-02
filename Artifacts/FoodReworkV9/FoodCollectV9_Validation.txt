@@ -1,0 +1,5 @@
+[2026.10.02-07.58.21:768][384]LogTemp: Display: MC_FOOD_REWORK_START FoodCollect
+[2026.10.02-07.58.28:055][470]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodCollect PASS one click toggles collection and release keeps it active
+[2026.10.02-07.58.42:158][666]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodCollect PASS three or more real food pieces form a stack
+[2026.10.02-07.58.50:035][780]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodCollect PASS second click releases the stack
+[2026.10.02-07.58.58:161][892]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodCollect

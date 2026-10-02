@@ -5,6 +5,8 @@
 #include "MCThroat.h"
 #include "MCDayDirector.h"
 #include "MCMouthSurface.h"
+#include "MCFirePatch.h"
+#include "MCReactionVFX.h"
 #include "MCCoffeeFlood.h"
 #include "MCGameState.h"
 #include "MCInventoryComponent.h"
@@ -88,9 +90,9 @@ void AMCGameMode::RestartShift()
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State) return;
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
-    for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { It->ResetPain(); It->ResetPressure(); }
+    for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { It->ResetPain(); It->ResetPressure(); It->ResetYawn(); }
     TArray<AActor*> OldDayActors;
-    for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || Cast<AMCColdColaEvent>(*It) || Cast<AMCIceBlock>(*It) || Cast<AMCHazardWave>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
+    for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCFirePatch>(*It) || Cast<AMCReactionVFX>(*It) || Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || Cast<AMCColdColaEvent>(*It) || Cast<AMCIceBlock>(*It) || Cast<AMCHazardWave>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
     for (auto* Actor:OldDayActors) Actor->Destroy();
     State->DayPlan=nullptr; State->StepIndex=INDEX_NONE; State->bPhysicalBrushes=false; State->bDayOneComplete=false; State->FailedEvents=0;
     State->bDevManualEvents=false;
@@ -252,7 +254,7 @@ void AMCGameMode::UpdateObjectives()
         bool bDone=false;
         if (O.Kind==EMCTaskKind::Food) {
             const auto* Food=Cast<AMCFoodActor>(O.Target);
-            bDone=!IsValid(Food) || (Food->IsDisposed() && (!Food->bAbsorbed || !IsValid(Food->AbsorbedUlcer) || Food->AbsorbedUlcer->IsHealed()));
+            bDone=!IsValid(Food) || (Food->IsDisposed() && Food->IsHazardResolved() && (!Food->bAbsorbed || !IsValid(Food->AbsorbedUlcer) || Food->AbsorbedUlcer->IsHealed()));
         }
         else if (IsValid(O.Target))
         {

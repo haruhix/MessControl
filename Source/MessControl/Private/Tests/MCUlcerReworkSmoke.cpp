@@ -1,5 +1,6 @@
 #if !UE_BUILD_SHIPPING
 #include "MCFoodActor.h"
+#include "MCFirePatch.h"
 #include "MCMouthSurface.h"
 #include "MCDayDirector.h"
 #include "MCGameState.h"
@@ -80,16 +81,17 @@ void MCTickUlcerReworkValidation(UWorld* World)
         }
         Check(R.Director->CountFood(77)==1,TEXT("meal begins with one cleanup task")); Shot(TEXT("00_Food.png")); R.Stage=0; R.At=Now;
     }
-    else if(R.Stage==0) {
-        if(R.Food.IsValid() && R.Food->Phase==EMCFoodPhase::Absorbing && R.Food->AbsorptionProgress()>.4 && !R.SinkShot) {
-            Check(R.Director->CountFood(77)==1,TEXT("sinking food remains unfinished work")); Shot(TEXT("01_Absorbing.png")); R.SinkShot=true;
+    else if(R.Stage==0 && Now-R.At>3) {
+        Check(R.Food.IsValid() && R.Food->bSpoiled && !R.Food->bAbsorbed,TEXT("food spoils without becoming an ulcer"));
+        if(R.Food.IsValid()) {
+            auto* Fire=AMCFirePatch::Ignite(H,R.Food->GetActorLocation()-FVector(0,0,R.Food->Body->Bounds.BoxExtent.Z),60,2,77);
+            R.Ulcer=Fire?Fire->Lesion.Get():nullptr;R.Food->Dispose();
         }
-        if(R.Food.IsValid() && R.Food->bAbsorbed && R.Food->AbsorbedUlcer) {
-            R.Ulcer=R.Food->AbsorbedUlcer; Check(R.SinkShot && R.Food->IsDisposed(),TEXT("food visibly absorbs and becomes an ulcer"));
-            Check(R.Director->CountFood(77)==1 && R.Ulcer->Batch==77,TEXT("ulcer inherits the meal task"));
-            if(CaptureWave) H->SetActorLocation(R.Ulcer->GetActorLocation()+FVector(-500,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3),false,nullptr,ETeleportType::TeleportPhysics);
-            Shot(TEXT("02_Ulcer.png")); R.Stage=1; R.At=Now;
-        }
+        Check(R.Ulcer.IsValid() && R.Ulcer->bUlcer,TEXT("fire damages the tongue and creates a treatment lesion"));
+        if(!R.Ulcer.IsValid()) {FPlatformMisc::RequestExitWithStatus(false,1);return;}
+        Check(R.Director->CountFood(77)==1 && R.Ulcer->Batch==77,TEXT("damage lesion remains a treatment task"));
+        if(CaptureWave) H->SetActorLocation(R.Ulcer->GetActorLocation()+FVector(-500,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3),false,nullptr,ETeleportType::TeleportPhysics);
+        Shot(TEXT("02_Ulcer.png"));R.Stage=1;R.At=Now;
     }
     else if(R.Stage==1 && Now-R.At>1) {
         if(CaptureWave) {

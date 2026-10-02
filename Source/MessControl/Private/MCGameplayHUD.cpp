@@ -5,6 +5,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCFoodActor.h"
+#include "MCFoodCollectionComponent.h"
 #include "MCMouthSurface.h"
 #include "MCArenaTooth.h"
 #include "MCThroat.h"
@@ -179,6 +180,9 @@ void UMCGameplayHUD::RefreshState()
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0);
         Text(TEXT("CooldownValue"),FString::Printf(TEXT("%.1f"),Cool)); Bar(TEXT("CooldownProgress"),1-Cool/Inv->CooldownSeconds());
         FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):Hero->HasBrush()?TEXT("ЛКМ · ЧИСТИТЬ"):TEXT("E · ПОДОБРАТЬ ЩЁТКУ");
+        if(Hero->FoodCollection->bCollecting) Hint=FString::Printf(TEXT("СТОПКА %d/6 · ЛКМ ОПУСТИТЬ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num());
+        else if(Inv->IsCleaningTool() && Hero->FoodCollection->HasCandidate()) Hint=TEXT("КЛИК ЛКМ · СОБИРАТЬ СТОПКУ");
+        if(Hero->IsYawning()) Hint=TEXT("ЗЕВАНИЕ · ДЕРЖИСЬ ЗА ЯЗЫК");
         if(Hero->HeldFood) Hint=TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
         if(Hero->bInCoffee) Hint=TEXT("WASD · ПЛЫТЬ     ЛКМ · ЗАЦЕПИТЬСЯ");
         if(const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement()); Move && Move->IsClimbing()) Hint=TEXT("WASD · ЛАЗАТЬ     E · ДЕРЖАТЬСЯ     SPACE · ОТПРЫГНУТЬ");

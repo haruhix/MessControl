@@ -6,6 +6,7 @@
 #include "MCCoffeeFlood.h"
 #include "MCLocomotionSurface.h"
 #include "MCFoodActor.h"
+#include "MCFirePatch.h"
 #include "MCMouthSurface.h"
 #include "MCHazardWave.h"
 #include "MCThroat.h"
@@ -196,10 +197,12 @@ void MCTickShiftResetValidation(UWorld* World)
         else if(Now-R.ResetAt>11) {Check(false,TEXT("automatic real director started after first reset"));Finish();}
     }
     else if(R.Stage==3) {
-        R.Absorbing|=R.Food.IsValid() && R.Food->Phase==EMCFoodPhase::Absorbing;
-        if(R.Food.IsValid() && R.Food->bAbsorbed && R.Food->AbsorbedUlcer) {
-            R.Ulcer=R.Food->AbsorbedUlcer;
-            Check(R.Absorbing && R.Ulcer->bUlcer && R.Ulcer->Healing==0,TEXT("unattended authored food really becomes an untreated ulcer"));
+        if(R.Food.IsValid() && R.Food->bSpoiled && !R.Ulcer.IsValid()) {
+            auto* Fire=AMCFirePatch::Ignite(Hero,R.Food->GetActorLocation()-FVector(0,0,R.Food->Body->Bounds.BoxExtent.Z),60,2,17001);
+            R.Ulcer=Fire?Fire->Lesion.Get():nullptr;
+        }
+        if(R.Ulcer.IsValid()) {
+            Check(R.Food.IsValid() && !R.Food->bAbsorbed && R.Ulcer->bUlcer && R.Ulcer->Healing==0,TEXT("food never absorbs; fire creates the untreated ulcer"));
             for(TActorIterator<AMCThroat> It(World);It;++It) {R.Throat=*It;break;}
             auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
             const auto* PepperRow=Table?Table->FindRow<FMCFoodRow>(TEXT("SpicyPepper"),TEXT("Shift reset")):nullptr;
@@ -207,17 +210,17 @@ void MCTickShiftResetValidation(UWorld* World)
             const FTransform T(R.Throat->GetActorTransform().TransformPosition(R.Throat->ZoneCenter+FVector(0,0,60)));FRandomStream Random(42);
             auto* Pepper=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
             Pepper->ConfigureItem(TEXT("SpicyPepper"),*PepperRow,Random);Pepper->FinishSpawning(T);Pepper->Phase=EMCFoodPhase::Free;Pepper->Body->SetSimulatePhysics(false);R.Pepper=Pepper;
-            R.Throat->ThroatPhase=EMCThroatPhase::Anticipation;R.Throat->PhaseStartedAt=Now;R.Throat->ForceNetUpdate();
+            R.Throat->ThroatPhase=EMCThroatPhase::Collecting;R.Throat->PhaseStartedAt=Now;R.Throat->Tick(.01f);R.Throat->SetActorTickEnabled(false);R.Throat->ForceNetUpdate();
             const FTransform W(Hero->GetActorLocation()+FVector(100,0,-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+5));
             auto* Wave=World->SpawnActorDeferred<AMCHazardWave>(AMCHazardWave::StaticClass(),W);Wave->WarningSeconds=2.5f;Wave->TravelSeconds=.8f;Wave->MaxRadius=350;Wave->FinishSpawning(W);R.Wave=Wave;
             Hero->Inventory->ServerSelect(EMCToolSlot::Spray);Hero->ServerSetPrimary(true);R.Stage=4;R.StageAt=Now;
             UE_LOG(LogTemp,Display,TEXT("MC_SHIFT_RESET_STAGE 4 held spray, paused pepper and pending wave"));
         }
-        else if(Elapsed>10) {Check(false,TEXT("unattended food completed real absorption"));Finish();}
+        else if(Elapsed>10) {Check(false,TEXT("damage created a treatment ulcer"));Finish();}
     }
     else if(R.Stage==4 && Elapsed>1.2) {
         Check(Hero->IsPrimaryHeld() && Hero->Inventory->HealingTarget==R.Ulcer.Get() && R.Ulcer.IsValid() && R.Ulcer->Healing>.1f && R.Ulcer->Healing<.5f,TEXT("reset interrupts real LMB treatment with saved partial progress"));
-        Check(R.Pepper.IsValid() && R.Pepper->bFusePaused && R.Pepper->FuseRemaining()>0 && R.Throat->ThroatPhase==EMCThroatPhase::Anticipation,TEXT("real throat anticipation has paused a live pepper fuse"));
+        Check(R.Pepper.IsValid() && R.Pepper->bFusePaused && R.Pepper->FuseRemaining()>0 && R.Throat->ThroatPhase==EMCThroatPhase::Swallowing,TEXT("automatic throat intake has paused a live pepper fuse"));
         Check(R.Wave.IsValid() && Now>R.Wave->StartedAt+.5 && R.Wave->Radius()==0,TEXT("warning wave has really ticked and its hit is still pending"));
         BeginReset();R.Stage=5;
     }

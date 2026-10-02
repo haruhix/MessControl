@@ -1,0 +1,6 @@
+[2026.10.02-07.59.33:154][383]LogTemp: Display: MC_FOOD_REWORK_START FoodBalance
+[2026.10.02-07.59.39:434][469]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodBalance PASS one click toggles collection and release keeps it active
+[2026.10.02-07.59.45:573][557]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodBalance PASS three or more real food pieces form a stack
+[2026.10.02-07.59.46:336][567]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodBalance PASS movement begins while three physical pieces are still supported
+[2026.10.02-08.00.09:389][893]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodBalance PASS inertia drops physical pieces after movement begins
+[2026.10.02-08.00.09:389][893]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodBalance

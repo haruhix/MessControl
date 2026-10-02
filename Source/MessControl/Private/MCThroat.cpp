@@ -4,6 +4,8 @@
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
 #include "MCVomitBurst.h"
+#include "MCReactionVFX.h"
+#include "MCFoodCollectionComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -18,6 +20,27 @@
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
+
+namespace {
+// Measured from the saved /Game/FromBlender4/SK_Exit native export. These are
+// the actual inner boundary, not the bounds of the whole back wall and uvula.
+// Provenance and FBX coordinate conversion: Saved/ApertureProbe/ApertureExact.json.
+const FVector ExitApertureCenter(0,369.93134,-397.40539);
+const FVector ExitApertureNormal(0,.9851301,.1718100);
+const FVector ExitApertureUp(0,-.1718100,.9851301);
+const FVector ExitApertureBoundary[]={
+    {0,435.66058,-770.38892},{163.29349,426.63367,-750.67853},
+    {351.69412,409.12405,-673.91443},{462.85519,407.53976,-585.38525},
+    {509.47537,389.65298,-446.42477},{482.81137,357.56491,-297.00253},
+    {450.59818,341.57620,-232.62732},{355.08005,324.53574,-124.88197},
+    {225.14194,312.29459,-55.54401},{109.68974,301.22644,-32.23042},
+    {0,291.62140,-28.93486},{-109.68969,301.22644,-32.23042},
+    {-225.14188,312.29465,-55.54401},{-355.07999,324.53580,-124.88197},
+    {-450.59811,341.57626,-232.62732},{-482.81131,357.56497,-297.00253},
+    {-509.47531,389.65305,-446.42477},{-462.85513,407.53983,-585.38525},
+    {-351.69406,409.12411,-673.91443},{-163.29343,426.63367,-750.67853}
+};
+}
 
 AMCThroat::AMCThroat()
 {
@@ -36,7 +59,7 @@ AMCThroat::AMCThroat()
     Uvula=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Uvula")); Uvula->SetupAttachment(Volume);
     Uvula->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     UvulaLanding=CreateDefaultSubobject<UBoxComponent>(TEXT("UvulaLanding")); UvulaLanding->SetupAttachment(Volume);
-    UvulaLanding->SetBoxExtent(FVector(28,38,16)); UvulaLanding->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+    UvulaLanding->SetBoxExtent(FVector(28,38,16)); UvulaLanding->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     UvulaLanding->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore); UvulaLanding->SetCanEverAffectNavigation(false);
     ClosedBarrier=CreateDefaultSubobject<UBoxComponent>(TEXT("ClosedThroat")); ClosedBarrier->SetupAttachment(Volume);
     ClosedBarrier->SetCollisionProfileName(TEXT("BlockAllDynamic")); ClosedBarrier->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
@@ -79,6 +102,32 @@ void AMCThroat::BeginPlay()
     SculptedTissue->SetMaterial(0,TissueMaterial); Tissue->SetVisibility(!SculptedTissue->GetSkeletalMeshAsset());
     if (RingMaterial) { RingMID=UMaterialInstanceDynamic::Create(RingMaterial,this); ZoneRing->SetMaterial(0,RingMID); }
     BuildRing(); UpdatePresentation(0);
+    if(GetNetMode()!=NM_DedicatedServer && AuthoredMouth->GetSkeletalMeshAsset()) {
+        // The authored exit is an open mesh. Give its opening a shaded throat
+        // interior so inhalation reveals depth rather than the sky outside.
+        auto* Depth=NewObject<UProceduralMeshComponent>(this,TEXT("ThroatDepth"));
+        Depth->SetupAttachment(AuthoredMouth);Depth->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Depth->SetCastShadow(false);AddInstanceComponent(Depth);Depth->RegisterComponent();
+        TArray<FVector> V,N;TArray<FVector2D> UV;TArray<int32> Tri;TArray<FLinearColor> Colors;TArray<FProcMeshTangent> Tangents;
+        constexpr int32 Segments=UE_ARRAY_COUNT(ExitApertureBoundary),Rings=7;
+        for(int32 Ring=0;Ring<Rings;++Ring) {
+            const float T=float(Ring)/(Rings-1),Scale=FMath::Lerp(1.025f,0.f,T);
+            for(int32 I=0;I<=Segments;++I) {
+                V.Add(ExitApertureCenter+(ExitApertureBoundary[I%Segments]-ExitApertureCenter)*Scale+ExitApertureNormal*(12+T*400));
+                N.Add(-ExitApertureNormal);UV.Add(FVector2D(float(I)/Segments,T));
+                Colors.Add(FLinearColor::LerpUsingHSV(FLinearColor(.025f,.003f,.006f,1),FLinearColor(.001f,.0001f,.0002f,1),T));
+                Tangents.Add(FProcMeshTangent(1,0,0));
+                if(Ring>0 && I>0) {const int32 B=(Ring-1)*(Segments+1)+I-1,C=B+Segments+1;Tri.Append({B,C,B+1,B+1,C,C+1});}
+            }
+        }
+        Depth->CreateMeshSection_LinearColor(0,V,Tri,N,UV,Colors,Tangents,false);
+        if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/VFX/M_ReactionSoft.M_ReactionSoft"))) {
+            auto* Interior=UMaterialInstanceDynamic::Create(Base,this);
+            Interior->SetVectorParameterValue(TEXT("Color"),FLinearColor::White);
+            Interior->SetScalarParameterValue(TEXT("Opacity"),1);
+            Depth->SetMaterial(0,Interior);
+        }
+    }
 }
 void AMCThroat::RebuildAppearance() { OnConstruction(GetActorTransform()); }
 void AMCThroat::EndPlay(const EEndPlayReason::Type Reason) { ResetSwallow(); Super::EndPlay(Reason); }
@@ -90,7 +139,7 @@ double AMCThroat::ServerNow() const
 bool AMCThroat::ContainsFood(const AMCFoodActor* Food) const
 {
     if (!IsValid(Food) || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Stuck
-        || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Swallowing || Food->Phase==EMCFoodPhase::Absorbing || !Food->Holders.IsEmpty()) return false;
+        || Food->StackCarrier || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Swallowing || Food->Phase==EMCFoodPhase::Absorbing || !Food->Holders.IsEmpty()) return false;
     const FVector P=GetActorTransform().InverseTransformPosition(Food->GetActorLocation())-ZoneCenter;
     return P.SizeSquared2D()<=FMath::Square(ZoneRadius) && P.Z>=-30 && P.Z<=ZoneHeight;
 }
@@ -101,22 +150,8 @@ bool AMCThroat::ContainsPlayer(const AMCToothCharacter* Hero) const
     // Jumping vertically is not an escape: the full column below the button is dangerous.
     return P.SizeSquared2D()<=FMath::Square(ZoneRadius) && P.Z>=-80 && P.Z<=FMath::Max(ZoneHeight,UvulaTop.Z-ZoneCenter.Z+160);
 }
-bool AMCThroat::CanOrderJump(const AMCToothCharacter* Hero) const
-{
-    if(!IsValid(Hero) || !Hero->CanWork() || Hero->OrderJumpTarget || !Hero->GetCharacterMovement()->IsMovingOnGround()
-        || ThroatPhase!=EMCThroatPhase::Collecting || !ContainsPlayer(Hero)) return false;
-    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) { FVector Velocity; return OrderVelocity(Hero,Velocity); }
-    return false;
-}
-bool AMCThroat::LaunchToUvula(AMCToothCharacter* Hero)
-{
-    if(!HasAuthority() || !CanOrderJump(Hero)) return false;
-    FVector Velocity; if(!OrderVelocity(Hero,Velocity)) return false;
-    Hero->CancelGameplayInput(); Hero->DropFood();
-    Hero->OrderJumpTarget=this; Hero->OrderJumpStartedAt=ServerNow(); Hero->bOrderJumpLaunched=false;
-    Hero->GetCharacterMovement()->StopMovementImmediately();
-    PreparingPlayers.AddUnique(Hero); Hero->ForceNetUpdate(); return true;
-}
+bool AMCThroat::CanOrderJump(const AMCToothCharacter* Hero) const {return false;}
+bool AMCThroat::LaunchToUvula(AMCToothCharacter* Hero) {return false;}
 float AMCThroat::UvulaBodyClearance(FVector Center,float Radius,float HalfHeight) const
 {
     // Circumscribed bands of the profile authored in refine_uvula_anatomy.py.
@@ -199,13 +234,7 @@ void AMCThroat::UpdateOrderJumps()
         PreparingPlayers.RemoveAtSwap(I);
     }
 }
-void AMCThroat::NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed)
-{
-    if (!HasAuthority() || !IsValid(Hero) || !Hero->CanWork() || Hit.GetComponent()!=UvulaLanding
-        || Hit.ImpactNormal.Z<.55f || DownSpeed<30) return;
-    LandedPlayers.AddUnique(Hero);
-    Hero->GetCharacterMovement()->StopMovementImmediately();
-}
+void AMCThroat::NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed) {}
 void AMCThroat::SetPhase(EMCThroatPhase Phase,double At)
 {
     ThroatPhase=Phase; PhaseStartedAt=At; ForceNetUpdate();
@@ -219,7 +248,28 @@ float AMCThroat::OpenAmount() const
     // Recovery owns closing. Closing here would reopen the aperture at the
     // transition to Recovering, whose initial opening is one.
     if (ThroatPhase==EMCThroatPhase::Vomiting) return .94f;
+    if(GetWorld()) for(TActorIterator<AMCTongue> It(GetWorld());It;++It) if(It->IsYawnActive())
+        return .90f*FMath::Sin(PI*float(ServerNow()-It->YawnStartedAt)/FMath::Max(1.f,It->YawnDuration));
     return 0;
+}
+FVector AMCThroat::VacuumInlet() const
+{
+    if(AuthoredMouth && AuthoredMouth->GetSkeletalMeshAsset()) {
+        const FTransform Art=AuthoredMouth->GetComponentTransform();
+        const FVector Center=Art.TransformPosition(ExitApertureCenter);
+        const FVector Up=Art.TransformVectorNoScale(ExitApertureUp);
+        const float Top=Art.TransformPosition(FVector(0,291.62140,-39.19496)).Z;
+        float FloorZ=Center.Z;
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
+            FHitResult Hit;
+            if(It->SurfacePoint(GetActorTransform().TransformPosition(ZoneCenter),Hit)) {FloorZ=Hit.ImpactPoint.Z;break;}
+        }
+        // The lower half of the artist opening lies below the tongue. End the
+        // vacuum inside its visible upper half, on the measured aperture plane.
+        const float VisibleZ=(FMath::Max(FloorZ,Center.Z)+Top)*.5f;
+        return Center+Up*((VisibleZ-Center.Z)/FMath::Max(.1f,Up.Z));
+    }
+    return GetActorTransform().TransformPosition(GateCenter+FVector(0,0,230));
 }
 void AMCThroat::CaptureMeal()
 {
@@ -228,10 +278,13 @@ void AMCThroat::CaptureMeal()
         if (ContainsFood(*It) && It->BeginSwallow()) Meal.Add({*It,It->GetActorLocation(),It->GetActorQuat()});
     FoodInZone=Meal.Num(); ++SwallowCount; ++MealSequence;
     for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get()) Food->PauseFuse(this);
+    // Uvula is decorative. The automatic intake captures ingredients only.
     SwallowedPlayers.Reset();
-    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(ContainsPlayer(*It) && !It->SwallowedBy) {
-        SwallowedPlayers.Add({*It,It->GetActorLocation()}); It->SetThroatCapture(this);
-    }
+    FVector Intake=GetActorTransform().TransformPosition(ZoneCenter);
+    if(!Meal.IsEmpty()) {Intake=FVector::ZeroVector;for(const auto& Piece:Meal) Intake+=Piece.Start;Intake/=Meal.Num();}
+    const FVector Inlet=VacuumInlet();
+    const FVector Flow=Inlet-(Intake+FVector(0,0,45));
+    AMCReactionVFX::Spawn(GetWorld(),Inlet,EMCReactionEffect::Suction,SwallowSeconds,ZoneRadius*.6f,Flow.GetSafeNormal(),Flow.Size()+100);
 }
 void AMCThroat::SpitOut(bool Reset)
 {
@@ -273,30 +326,10 @@ void AMCThroat::Tick(float Dt)
     if (HasAuthority())
     {
         const double Now=ServerNow();
-        UpdateOrderJumps();
-        LandedPlayers.RemoveAll([this](const auto& Entry){auto* H=Entry.Get(); return !IsValid(H) || !H->CanWork() || H->GetMovementBaseObject()!=UvulaLanding;});
-        Weight=FMath::Min(2.f,float(LandedPlayers.Num()));
-        if (Weight<=0) { PressTime=0; bPressConsumed=false; }
-        FoodInZone=0; for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (ContainsFood(*It)) ++FoodInZone;
-        if (ThroatPhase==EMCThroatPhase::Collecting && Weight>0 && !bPressConsumed)
-        {
-            PressTime+=Dt*Weight;
-            if (PressTime>=FMath::Max(.48f,PressSeconds))
-            {
-                bPressConsumed=true;
-                if (FoodInZone>0) {
-                    SetPhase(EMCThroatPhase::Anticipation,Now);
-                    for(const auto& Entry:LandedPlayers) if(auto* Hero=Entry.Get()) {
-                        const FVector Hop=-GetActorForwardVector()*330+FVector(0,0,280);
-                        Hero->LaunchCharacter(Hop,true,true);
-                        if(!Hero->IsLocallyControlled()) Hero->ClientUvulaHop(Hop);
-                    }
-                }
-            }
-        }
-        if (ThroatPhase==EMCThroatPhase::Anticipation && Now-PhaseStartedAt>=AnticipationSeconds)
-        {
-            const double At=PhaseStartedAt+AnticipationSeconds; CaptureMeal(); SetPhase(EMCThroatPhase::Swallowing,At);
+        Weight=0;
+        FoodInZone=0; for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) ++FoodInZone;
+        if(ThroatPhase==EMCThroatPhase::Collecting && FoodInZone>0) {
+            CaptureMeal(); SetPhase(EMCThroatPhase::Swallowing,Now);
         }
         for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
             if(ThroatPhase==EMCThroatPhase::Anticipation && ContainsFood(*It)) It->PauseFuse(this);
@@ -322,6 +355,10 @@ void AMCThroat::Tick(float Dt)
             if (Wrong && T>=.78f) { ++SpasmCount; SetPhase(EMCThroatPhase::Spasm,Now); }
             else if (T>=1) {
                 for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get(); IsValid(Food) && !Food->IsDisposed()) { Food->Dispose(); ++FoodSwallowed; }
+                AMCToothCharacter* Worker=nullptr;float Distance=FLT_MAX;
+                const FVector Point=GetActorTransform().TransformPosition(ZoneCenter);
+                for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) {const float D=FVector::DistSquared(It->GetActorLocation(),Point);if(D<Distance) {Worker=*It;Distance=D;}}
+                if(Worker) Worker->NotifyTaskFeedback(true,Point);
                 Meal.Reset(); SetPhase(EMCThroatPhase::Recovering,PhaseStartedAt+SwallowSeconds);
             }
         }
@@ -335,6 +372,9 @@ void AMCThroat::Tick(float Dt)
 void AMCThroat::UpdatePresentation(float Dt)
 {
     const float Time=ServerNow(),Open=OpenAmount();
+    bool Yawning=false;
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) Yawning|=It->IsYawnActive();
+    ZoneRing->SetVisibility(!Yawning);
     if(AuthoredMouth->GetSkeletalMeshAsset()) {
         const float Breath=.015f+.012f*FMath::Sin(Time*1.35f);
         const float Aperture=FMath::Clamp(Open+Breath,0.f,1.f);
@@ -353,7 +393,7 @@ void AMCThroat::UpdatePresentation(float Dt)
     const bool Authored=Uvula->GetStaticMesh() && Uvula->GetStaticMesh()->GetName()==TEXT("SM_Uvula");
     Uvula->SetRelativeLocation(Authored?UvulaTop:UvulaTop-FVector(0,0,Length*.5f));
     Uvula->SetRelativeScale3D(FVector(.7f,.85f,Length/100.f));
-    UvulaLanding->SetBoxExtent(FVector(28,38,16),false);
+    UvulaLanding->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     const float Sway=FMath::Sin(Time*1.8f)*1.2f*(1-VisualWeight)+(ThroatPhase==EMCThroatPhase::Spasm?FMath::Sin(Time*28)*12:
         ThroatPhase==EMCThroatPhase::Vomiting?FMath::Sin(float(Time-PhaseStartedAt)*24)*8*FMath::Exp(-float(Time-PhaseStartedAt)):0);
     Uvula->SetRelativeRotation(FRotator(0,0,Sway));
@@ -368,7 +408,7 @@ void AMCThroat::UpdatePresentation(float Dt)
     Label->SetRelativeLocation(ZoneCenter+FVector(-30,0,72));
     Label->SetTextRenderColor(Color.ToFColorSRGB());
     Label->SetText(FText::FromString(ThroatPhase==EMCThroatPhase::Collecting?
-        FString::Printf(TEXT("%d FOOD  /  DROP INSIDE\n%s"),FoodInZone,FoodInZone>0?TEXT("SPACE IN CIRCLE: ORDER"):TEXT("BRING FOOD HERE")):
+        FString::Printf(TEXT("%d FOOD  /  DROP INSIDE\n%s"),FoodInZone,FoodInZone>0?TEXT("AUTOMATIC INTAKE"):TEXT("BRING FOOD HERE")):
         ThroatPhase==EMCThroatPhase::Anticipation?FString::Printf(TEXT("RUN OUTSIDE!  %.1f"),FMath::Max(0.f,AnticipationSeconds-(Time-float(PhaseStartedAt)))):
         ThroatPhase==EMCThroatPhase::Spasm?TEXT("WRONG INGREDIENT!  BLEURGH!"):
         ThroatPhase==EMCThroatPhase::Vomiting?TEXT("BLEURGH!"):

@@ -53,6 +53,8 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double SprayReadyAt=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double LastSprayAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<AMCMouthSurface> HealingTarget;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<class AMCFirePatch> FireTarget;
+    FVector SprayAim() const;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSelect(EMCToolSlot Slot);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSpray();
     // Called by the authoritative upgrade/shop system. Clients cannot grant upgrades.
@@ -84,4 +86,5 @@ private:
     bool bPresentedFallback=false;
     void RefreshMesh();
     AMCMouthSurface* FindSprayTarget() const;
+    class AMCFirePatch* FindFireTarget() const;
 };

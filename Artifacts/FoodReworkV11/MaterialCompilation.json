@@ -1,0 +1,17 @@
+{
+  "materials": [
+    {
+      "material": "/Game/Gameplay/VFX/M_ReactionSmoke.M_ReactionSmoke",
+      "blend": "<BlendMode.BLEND_TRANSLUCENT: 2>",
+      "shading": "<MaterialShadingModel.MSM_UNLIT: 0>",
+      "shader_compile_errors": [],
+      "saved": true,
+      "texture": "/Game/Gameplay/VFX/T_FireSmoke.T_FireSmoke",
+      "atlas": "8x8/64 frames, blended",
+      "density": "threshold tiny alpha; native alpha ^ .65 * 1.45; rounded UV edge feather; maximum particle alpha .68",
+      "depth_fade": 16
+    }
+  ],
+  "texture": "/Game/Gameplay/VFX/T_FireSmoke.T_FireSmoke",
+  "smoke_only": true
+}

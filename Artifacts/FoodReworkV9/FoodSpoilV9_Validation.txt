@@ -1,0 +1,4 @@
+[2026.10.02-08.00.44:576][382]LogTemp: Display: MC_FOOD_REWORK_START FoodSpoil
+[2026.10.02-08.01.00:839][602]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodSpoil PASS food is still fresh before 180 seconds
+[2026.10.02-08.01.18:889][847]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodSpoil PASS at 180 seconds food spoils without absorption or ulcers
+[2026.10.02-08.01.18:889][847]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodSpoil

@@ -1,0 +1,4 @@
+[2026.10.02-07.23.06:664][384]LogTemp: Display: MC_FOOD_REWORK_START FoodThroat
+[2026.10.02-07.23.27:076][658]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodThroat PASS ingredient swallowed automatically; player remains outside intake
+[2026.10.02-07.23.43:084][874]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodThroat PASS repeat intake works and decorative uvula has no trigger
+[2026.10.02-07.23.43:084][874]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodThroat

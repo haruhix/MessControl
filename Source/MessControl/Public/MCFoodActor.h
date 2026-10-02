@@ -65,6 +65,8 @@ public:
     virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Initialize(bool bJam,FVector ExtractionDirection);
+    // Ordinary food is reserved for the new collection system. Tools and hazards retain the old grip.
+    bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
     bool TryGrab(AMCToothCharacter* Hero);
     bool FindGripSurface(FVector From,FHitResult& Hit) const;
     bool BeginCarry(AMCToothCharacter* Hero);
@@ -78,6 +80,12 @@ public:
     bool HitFood(float Damage,FVector Direction);
     bool IsHardFood() const;
     void AttendFood();
+    void SetStackCarrier(AMCToothCharacter* Hero);
+    UPROPERTY(ReplicatedUsing=OnRep_Phase,BlueprintReadOnly,Category="Collection") TObjectPtr<AMCToothCharacter> StackCarrier;
+    void ReactToImpact(float Strength=1);
+    void UpdateReaction(float Dt);
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Reaction") double ImpactAt=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Reaction") float ImpactStrength=0;
     void UpdateAbsorption(float Dt);
     float AbsorptionProgress() const;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") double AbsorbStartedAt=0;
@@ -116,6 +124,9 @@ public:
     void PauseFuse(class AMCThroat* Throat);
     void ResumeFuse(class AMCThroat* Throat);
     void Detonate();
+    bool IsHazardResolved() const;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Hazard") TObjectPtr<class AMCMouthSurface> BurnLesion;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Hazard") TArray<TObjectPtr<class AMCFirePatch>> FireTrail;
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCToothCharacter> EquippedBy;
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AActor> StuckTooth;
     int32 ConfirmedImpacts=0;
@@ -146,6 +157,7 @@ private:
     double HazardNow() const;
     TWeakObjectPtr<class AMCThroat> FuseOwner;
     UPROPERTY() TArray<TObjectPtr<class UMaterialInstanceDynamic>> HazardMaterials;
+    UPROPERTY() TObjectPtr<class UMaterialInstanceDynamic> ReactionMaterial;
 };
 
 /** Replaceable level marker: ordinary food is disposed towards the throat. */

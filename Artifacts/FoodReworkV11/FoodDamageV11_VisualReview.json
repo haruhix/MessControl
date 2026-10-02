@@ -1,0 +1,13 @@
+{
+  "case": "FoodDamageV11",
+  "accepted": true,
+  "gameplayValidation": "passed",
+  "checks": [
+    "Flame maintains cream-orange internal detail and moving turbulent contours; no floating miniature triangles, dark solid bases or sharp white light spots.",
+    "Smoke billows have organic soft contours with no visible quad borders or diagonal planes; player and progress remain readable.",
+    "Seven fire segments extinguish before the ulcer heals; full completion reaches 8/8 and emits check badge and stars."
+  ],
+  "evidenceFrames": [37, 47, 57, 67, 132, 192, 267, 312],
+  "rawFrames": "D:/CodexCaptureCache/MessControl_FoodRework_20261002/FoodDamageV11",
+  "reference": "C:/Users/user/AppData/Local/Temp/codex-clipboard-742a6396-a9a9-4d4c-8a42-73c9e007b165.png"
+}

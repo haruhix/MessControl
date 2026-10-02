@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Механики еды — видеопроверка</title>
+<style>
+body{margin:0;background:#171922;color:#f1f1f5;font:16px/1.5 system-ui,sans-serif}
+main{max-width:1060px;margin:auto;padding:28px 20px 60px}
+h1{font-size:28px;margin:0 0 8px}p{color:#c5c9d4;margin:8px 0 16px}
+nav{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 32px}
+a{color:#8fdcc8}nav a{padding:7px 12px;background:#292e3d;border-radius:8px;text-decoration:none}
+section{scroll-margin-top:20px;margin:32px 0;padding-bottom:24px;border-bottom:1px solid #363a47}
+h2{font-size:21px;margin:0 0 8px}video{display:block;width:100%;background:#0b0c10;border-radius:10px;aspect-ratio:16/9}
+.download{font-size:14px;margin-top:10px}.note{font-size:14px}
+</style>
+<main>
+<h1>Механики еды — видеопроверка</h1>
+<p>Восемь отдельных роликов из игры. Новый огонь и зевание находятся в пунктах 7 и 5.</p>
+<nav>
+<a href="#fire">7 · Огонь</a><a href="#yawn">5 · Зевание</a><a href="#impact">1 · Импакт</a>
+<a href="#collect">2 · Подбор</a><a href="#throat">3 · Глотка</a><a href="#balance">4 · Стопка</a>
+<a href="#spoil">6 · Порча</a><a href="#success">8 · Завершение задачи</a>
+</nav>
+<section id="impact"><h2>1. Падение и реакция на удар</h2>
+<p>Растяжение при падении; при приземлении и уроне — короткое покраснение и лёгкая пружинящая реакция.</p>
+<video controls preload="metadata" poster="FoodReworkV3/FoodReactionV3.png" src="FoodReworkV3/FoodReactionV3.mp4"></video>
+<div class="download"><a href="FoodReworkV3/FoodReactionV3.mp4">Открыть видео</a></div></section>
+<section id="collect"><h2>2. Подбор одним кликом</h2>
+<p>ЛКМ запускает сбор мелкой еды у рук. Повторный клик отпускает стопку, Q бросает её.</p>
+<video controls preload="metadata" poster="FoodReworkV9/FoodCollectV9.png" src="FoodReworkV9/FoodCollectV9.mp4"></video>
+<div class="download"><a href="FoodReworkV9/FoodCollectV9.mp4">Открыть видео</a></div></section>
+<section id="throat"><h2>3. Автоматическое глотание</h2>
+<p>Еда в зоне глотки затягивается в открывшийся рот. Увула остаётся декоративной.</p>
+<video controls preload="metadata" poster="FoodReworkV8/FoodThroatV8.png" src="FoodReworkV8/FoodThroatV8.mp4"></video>
+<div class="download"><a href="FoodReworkV8/FoodThroatV8.mp4">Открыть видео</a></div></section>
+<section id="balance"><h2>4. Физическая вертикальная стопка</h2>
+<p>Верхние предметы держатся за счёт контакта и баланса; при движении и нарушении равновесия они падают.</p>
+<video controls preload="metadata" poster="FoodReworkV9/FoodBalanceV9.png" src="FoodReworkV9/FoodBalanceV9.mp4"></video>
+<div class="download"><a href="FoodReworkV9/FoodBalanceV9.mp4">Открыть видео</a></div></section>
+<section id="yawn"><h2>5. Зевание и сопротивление персонажа</h2>
+<p>Рот раскрывается и втягивает воздух. Персонаж прекращает работу, цепляется руками за язык, сопротивляется потоку и реагирует лицом.</p>
+<video controls preload="metadata" poster="FoodReworkV10/FoodYawnV10.png" src="FoodReworkV10/FoodYawnV10.mp4"></video>
+<div class="download"><a href="FoodReworkV10/FoodYawnV10.mp4">Открыть видео</a></div></section>
+<section id="spoil"><h2>6. Порча через 180 секунд</h2>
+<p>До трёх минут еда свежая, затем портится. В ролике таймер ускорен в 24 раза.</p>
+<video controls preload="metadata" poster="FoodReworkV9/FoodSpoilV9.png" src="FoodReworkV9/FoodSpoilV9.mp4"></video>
+<div class="download"><a href="FoodReworkV9/FoodSpoilV9.mp4">Открыть видео</a></div></section>
+<section id="fire"><h2>7. Чили, дорожка огня и язва</h2>
+<p>Падение чили зажигает дорожку и создаёт язву. Спрей тушит огонь по участкам, затем лечит язву.</p>
+<video controls preload="metadata" poster="FoodReworkV11/FoodDamageV11.png" src="FoodReworkV11/FoodDamageV11.mp4"></video>
+<div class="download"><a href="FoodReworkV11/FoodDamageV11.mp4">Открыть видео</a></div></section>
+<section id="success"><h2>8. Полное завершение любой задачи</h2>
+<p>Галочка, золотые звёзды, конфетти и радостный подскок появляются при полном выполнении задачи.</p>
+<video controls preload="metadata" poster="FoodReworkV4/FoodStarsV4.png" src="FoodReworkV4/FoodStarsV4.mp4"></video>
+<div class="download"><a href="FoodReworkV4/FoodStarsV4.mp4">Открыть видео</a></div></section>
+<p class="note">Каждый ролик показывает соответствующий сценарий в Unreal. Ранние отклонённые варианты сохранены отдельно для сравнения.</p>
+</main>
+</html>

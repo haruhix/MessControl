@@ -93,7 +93,7 @@ void UMCValidationSubsystem::TickGrip(float Dt)
                 const FVector Point(I<2?-250:250,I%2==0?-160:160,0); FHitResult Hit; Tongue->SurfacePoint(Point,Hit);
                 const FTransform T(Hit.ImpactPoint+FVector(0,0,I==2?26:51));
                 auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
-                FMCFoodRow Row; Row.Label=FText::FromString(TEXT("GRIP")); Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
+                FMCFoodRow Row; Row.Kind=EMCFoodKind::ForeignObject; Row.Label=FText::FromString(TEXT("GRIP")); Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
                 Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
                 Row.FragmentMeshes=Row.WholeMeshes;
                 FRandomStream Random(1); Food->ConfigureItem(FName(*FString::Printf(TEXT("Grip%d"),I)),Row,Random,I==2); Food->Batch=I;

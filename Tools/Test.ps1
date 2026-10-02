@@ -1,4 +1,4 @@
-param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','TongueNetwork','TongueJoltNetwork','TonguePressureNetwork','GripNetwork','LocomotionNetwork','EmoteNetwork','Mouth','Pupils','SwimVisual','SwimNetwork','ClimbNetwork','SprayNetwork','GazeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee,[switch]$CaptureTongue,[switch]$CaptureGaze,[switch]$CapturePressure,[switch]$CaptureGrip,[switch]$CaptureEmotes,[switch]$CaptureLocomotion,[switch]$CaptureSpray)
+param([string]$EngineRoot=$env:UE_ROOT,[ValidateSet('Unit','Network','CoreNetwork','DayOneNetwork','DevPanelNetwork','CoffeeNetwork','TongueNetwork','TongueJoltNetwork','TonguePressureNetwork','GripNetwork','FoodNetwork','LocomotionNetwork','EmoteNetwork','Mouth','Pupils','SwimVisual','SwimNetwork','ClimbNetwork','SprayNetwork','GazeNetwork','ArenaNetwork','Visual','Ragdoll','RagdollVisual','Limbs')][string]$Mode='Unit',[ValidateRange(0,250)][int]$PacketLagMs=0,[ValidateRange(0,10)][int]$PacketLoss=0,[ValidateSet(30,60,120)][int]$FrameRate=60,[switch]$CaptureCore,[switch]$CaptureDayOne,[switch]$CaptureDevPanel,[switch]$CaptureCoffee,[switch]$CaptureTongue,[switch]$CaptureGaze,[switch]$CapturePressure,[switch]$CaptureGrip,[switch]$CaptureEmotes,[switch]$CaptureLocomotion,[switch]$CaptureSpray)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 if (-not $EngineRoot) {
@@ -35,6 +35,7 @@ if ($Mode -eq 'Unit') {
             $taskLog=Join-Path $taskLogs "$Mode$taskIndex.log"
             if (Test-Path -LiteralPath $taskLog) { Remove-Item -LiteralPath $taskLog }
             $taskArguments=@("`"$taskProject`"",$taskMap,'-game','-MCLegacyDays','-MCSmoke','-MCExpectedPlayers=4','-nullrhi','-unattended','-nosound','-nosplash','-nop4','-ExecCmds="t.MaxFPS 60"',"`"-abslog=$taskLog`"")
+            if($Mode -eq 'FoodNetwork') { $taskArguments+='-MCFoodNetwork' }
             if($Mode -eq 'Ragdoll') { $taskArguments+='-MCRagdoll' }
             if($Mode -eq 'ArenaNetwork') { $taskArguments+='-MCArenaNet' }
             if($Mode -eq 'CoreNetwork') { $taskArguments+='-MCCore' }

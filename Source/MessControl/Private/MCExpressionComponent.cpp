@@ -121,7 +121,14 @@ bool UMCExpressionComponent::ApplyMorphBlink(float Closure)
     {
         const FName Correction(*(TEXT("BlinkCancel_")+Name.ToString()));
         if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Correction))
-            Mesh->SetMorphTarget(Correction,MouthWeights.FindRef(Name)*Closure);
+        {
+            // The artist's effort mouth also closes the eyelids. An external
+            // inhale needs an alert grip: remove that lid delta during the
+            // brace, while Eyes_Blink above still owns genuine blinks.
+            const float Brace=Name==TEXT("Mouth_Effort") && Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort
+                ?Tooth->YawnPoseAlpha():0.f;
+            Mesh->SetMorphTarget(Correction,MouthWeights.FindRef(Name)*FMath::Max(Closure,Brace));
+        }
     }
     return true;
 }
@@ -150,7 +157,13 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     const auto& S=Tooth->Status->State;
     const float Pain=!S.bCareReaction?FMath::Clamp(1.f-float(Now()-S.ReactionAt)/1.1f,0.f,1.f):0;
     float Strength=1; CurrentEmotion=EMCEmotion::Neutral;
-    if (const auto* Entry=ActiveEntry(); Entry && EmoteAlpha()>.01f) { CurrentEmotion=Entry->Emotion; Strength=EmoteAlpha(); }
+    if(Tooth->IsYawning()) {
+        const float Age=Now()-Tooth->YawnStartedAt,Remaining=Tooth->YawnEndsAt-Now();
+        if(Age<.4f) {CurrentEmotion=EMCEmotion::Surprise;Strength=.55f+.25f*FMath::SmoothStep(0.f,.2f,Age);}
+        else if(Remaining<.5f) {CurrentEmotion=EMCEmotion::Happy;Strength=.45f*(1-FMath::SmoothStep(0.f,.5f,Remaining));}
+        else {CurrentEmotion=EMCEmotion::Effort;Strength=.65f+.35f*Tooth->YawnPoseAlpha();}
+    }
+    else if (const auto* Entry=ActiveEntry(); Entry && EmoteAlpha()>.01f) { CurrentEmotion=Entry->Emotion; Strength=EmoteAlpha(); }
     else if (Now()-Tooth->TaskFailureAt<2.5) { CurrentEmotion=EMCEmotion::Sad; }
     else if (Now()-Tooth->TaskSuccessAt<2.0) { CurrentEmotion=EMCEmotion::Happy; }
     else if (Tooth->HeldFood && !Tooth->Grip->InputDirection().IsNearlyZero()) { CurrentEmotion=EMCEmotion::Effort; Strength=FMath::Clamp(Tooth->HeldFood->Settings.Mass/28.f,.25f,1.f); }
@@ -169,6 +182,10 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     case EMCEmotion::Effort: Tilt=.55f; Squ=.4f; Sml=-.2f; break;
     default: break;
     }
+    // The inhale is external: the player is concentrating on the grip, not
+    // yawning sleepily. Keep an alert, clenched expression during the brace.
+    const bool YawnStrain=Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort && Pain<.01f;
+    if(YawnStrain) {J=0;Sml=-.12f;B=.12f;Tilt=.9f;Squ=.18f;}
     J*=Strength; Sml*=Strength; B*=Strength; Tilt*=Strength; Squ*=Strength; Rnd*=Strength;
     if (Pain<.1f && Voice>0)
     {
@@ -218,7 +235,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     {
         const float Sign=Side==TEXT("l")?1.f:-1.f;
         if (!MorphMouth) Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
-        if (!AuthoredFace)
+        if (!AuthoredFace || YawnStrain)
         {
             Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)));
             Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)));

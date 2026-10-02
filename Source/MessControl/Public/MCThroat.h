@@ -11,7 +11,7 @@ class USkeletalMeshComponent;
 UENUM(BlueprintType)
 enum class EMCThroatPhase : uint8 { Collecting, Anticipation, Swallowing, Recovering, Spasm, Vomiting };
 
-/** A closed, breathing throat. Landing on the uvula orders one server-owned swallow. */
+/** A breathing throat with automatic food intake and a decorative uvula. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCThroat : public AMCFoodDisposal
 {
@@ -59,6 +59,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") FVector VomitOrigin=FVector(-70,0,130);
     UFUNCTION(BlueprintPure,Category="Throat") bool ContainsFood(const AMCFoodActor* Food) const;
     UFUNCTION(BlueprintPure,Category="Throat") float OpenAmount() const;
+    /** A point inside the visible artist aperture, above the tongue surface. */
+    FVector VacuumInlet() const;
     UFUNCTION(CallInEditor,Category="Throat") void RebuildAppearance();
     void NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed);
     bool ContainsPlayer(const AMCToothCharacter* Hero) const;

@@ -13,6 +13,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCArenaTooth.h"
 #include "MCTongue.h"
+#include "MCFirePatch.h"
 #include "MCMouthSurface.h"
 #include "MCLocomotionSurface.h"
 #include "Components/CapsuleComponent.h"
@@ -111,8 +112,8 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             if(Action==EMCDevAction::VomitMeal && I==1) { Food->bSpoiled=true; Food->SpoilAt=0; }
         }
         return FText::FromString(Action==EMCDevAction::SpicyPepper?
-            TEXT("Перец падает перед тобой: таймер 8–6 секунд по раунду. E — взять, Q — бросить в круг. Запуск увулы останавливает таймер."):
-            TEXT("В круге два куска, один испорчен. Войди и нажми Space: глотка сократится и выплюнет заказ со струёй и брызгами. Пятна останутся на языке до чистки щёткой."));
+            TEXT("Перец падает перед тобой: таймер 8–6 секунд по раунду. E — взять, Q — бросить в круг. Автоматическое проглатывание останавливает таймер."):
+            TEXT("В круге два куска, один испорчен. Глотка автоматически сократится и выплюнет заказ со струёй и брызгами. Пятна останутся на языке до чистки щёткой."));
     }
     case EMCDevAction::LocomotionGround:
         if (Hero && StepIndex>=0 && StepIndex<=2)
@@ -150,7 +151,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             for (TActorIterator<AMCFoodActor> Food(GetWorld());Food;++Food) if (Food->ActorHasTag(TEXT("DevGripFood"))) Food->Destroy();
             const FTransform T(Hit.ImpactPoint+FVector(0,0,60));
             auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
-            FMCFoodRow Row; Row.Label=FText::FromString(TEXT("GRIP PRACTICE")); Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
+            FMCFoodRow Row; Row.Kind=EMCFoodKind::ForeignObject; Row.Label=FText::FromString(TEXT("GRIP PRACTICE")); Row.Mass=4; Row.HalfExtent=FVector(50); Row.SpoilSeconds=300;
             Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
             FRandomStream GripRandom(1); Food->ConfigureItem(TEXT("GripPractice"),Row,GripRandom); Food->Tags.Add(TEXT("DevGripFood")); Food->FinishSpawning(T);
             for (const float Side:{146.f,214.f})
@@ -202,6 +203,12 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             return FText::FromString(Started?TEXT("Движение началось перед игроком. Направление — куда смотрел зуб. F3 — играть."):TEXT("Дождись конца текущего движения и паузы."));
         }
         return FText::FromString(TEXT("Нужны игрок и подвижный язык."));
+    case EMCDevAction::Yawn:
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It) It->StartYawn();
+        break;
+    case EMCDevAction::Fire:
+        if(Hero) AMCFirePatch::Ignite(Hero,Hero->GetActorLocation()+Hero->GetActorForwardVector()*160-FVector(0,0,55));
+        break;
     case EMCDevAction::TongueJolt:
         for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
             return FText::FromString(It->TriggerJolt()?TEXT("Язык подожмётся и резко поднимется. F3 — закрыть панель и увидеть бросок."):TEXT("Дождись окончания текущей реакции языка."));
@@ -243,7 +250,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             }
         }
         else Food=DayDirector->SpawnMenuFood(Hit.ImpactPoint+FVector(0,0,650),2);
-        return FText::FromString(Food?(Action==EMCDevAction::Infection?TEXT("Оставь еду на языке на 3 секунды: она впитается и станет язвой. Слот 4 + удерживать ЛКМ — лечить."):TEXT("Еда падает перед тобой. Бей, хватай и тащи в глотку.")):TEXT("Не удалось создать еду."));
+        return FText::FromString(Food?(Action==EMCDevAction::Infection?TEXT("Порча за 3 секунды для проверки. Язвы появляются от огня и взрыва чили."):TEXT("Еда падает перед тобой. Бей, хватай и тащи в глотку.")):TEXT("Не удалось создать еду."));
     }
     case EMCDevAction::DropBrushes: DayDirector->DropBrushes(); break;
     case EMCDevAction::CoffeeDirt: DayDirector->DirtyMouth(true); DayDirector->DropBrushes(); break;

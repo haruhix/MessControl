@@ -1,0 +1,7 @@
+[2026.10.02-08.14.06:585][473]LogTemp: Display: MC_FOOD_REWORK_START FoodYawn
+[2026.10.02-08.14.16:883][622]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodYawn PASS yawn cancels work and automatically grips tongue
+[2026.10.02-08.14.16:883][622]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodYawn PASS one cartoon vacuum originates at the mouth with no player ray emitters
+[2026.10.02-08.14.34:854][888]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodYawn PASS yawn releases automatically and work becomes available
+[2026.10.02-08.14.38:856][949]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodYawn PASS visible suction drag and grounded skeletal hand contact
+[2026.10.02-08.14.38:857][949]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodYawn PASS yawn gaze stays away from the downward pitch limit
+[2026.10.02-08.14.38:857][949]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodYawn

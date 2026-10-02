@@ -56,6 +56,7 @@ bool AMCTaskActor::ApplyWork(AMCToothCharacter* Worker, bool bBrush, float Delta
     if (Progress >= 1.f)
     {
         bResolved = true; MulticastComplete(); SetLifeSpan(0.65f);
+        Worker->NotifyTaskFeedback(true,GetActorLocation());
         if (AMCGameMode* Mode = GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->ResolveTask(this);
     }
     return true;

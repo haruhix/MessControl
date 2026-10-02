@@ -17,6 +17,7 @@ class MESSCONTROL_API AMCMouthSurface : public AActor
 {
     GENERATED_BODY()
 public:
+    static AMCMouthSurface* SpawnDamageUlcer(UWorld* World,FVector Point,int32 Batch=0);
     AMCMouthSurface();
     virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
@@ -43,6 +44,7 @@ public:
     UFUNCTION(BlueprintPure,Category="Ulcer") bool IsNumb() const;
     bool ApplyAnesthetic(float Seconds);
     bool Treat(class AMCToothCharacter* Worker,float Seconds);
+    bool IsBurning() const;
     bool IsHealed() const { return bUlcer && Healing>=1.f; }
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") float HealSeconds=7;
     UPROPERTY(Replicated) float DamagePerSecond=.35f;

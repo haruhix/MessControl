@@ -1,0 +1,6 @@
+[2026.10.02-08.24.39:415][381]LogTemp: Display: MC_FOOD_REWORK_START FoodDamage
+[2026.10.02-08.24.47:701][489]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodDamage PASS landing immediately ignites a persistent fire road and one lesion
+[2026.10.02-08.24.47:701][489]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodDamage PASS ignition cannot complete the food objective
+[2026.10.02-08.25.33:548][143]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodDamage PASS all fire is extinguished but lesion still needs treatment
+[2026.10.02-08.26.01:557][616]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodDamage PASS held spray extinguishes the road and fully heals its ulcer
+[2026.10.02-08.26.11:584][803]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodDamage

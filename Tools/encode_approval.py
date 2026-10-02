@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess,csv,sys,json,re,hashlib
 from datetime import datetime,timezone
 root=Path(__file__).resolve().parents[1]; name=sys.argv[1]
+scenario=sys.argv[2] if len(sys.argv)>2 else name
 folder=root/'Saved/ApprovalFrames'/name; out=root/'Artifacts/Approval'; out.mkdir(parents=True,exist_ok=True)
 rows=[]
 for filename,time in csv.reader((folder/'times.csv').read_text(encoding='utf-8-sig').splitlines()):
@@ -24,12 +25,20 @@ for i,(file,t) in enumerate(rows):
 concat += [f"file '{rows[-1][0]}'"]
 (folder/'frames.ffconcat').write_text('\n'.join(concat),encoding='utf-8')
 labels={
+'FoodReaction':'Landing and damage: brief red flash + slight bounce | fall squash / stretch | no impact particles',
+'FoodCollect':'One LMB click: collect small food into a vertical stack | second click: drop | Q: throw',
+'FoodBalance':'Physical stack: bottom body supported by hands, upper pieces balance through contact | movement and inertia',
+'FoodThroat':'Еда автоматически затягивается в глотку | увула декоративная',
+'FoodYawn':'Зевание рта: поток тянет к глотке | упор руками, сопротивление и эмоции | затем восстановление',
+'FoodSpoil':'Freshness clock demonstrated at 24x: spoil after 180 seconds | no absorption or ulcer from food',
+'FoodDamage':'Chili landing: fire road + ulcer | hold SPRAY to extinguish each segment, then heal the lesion',
+'FoodStars':'Every fully completed task: check badge, gold stars, confetti and a happy hop',
 'Climb':'E: attach to an actual arena tooth | W/S: climb | A/D: sideways | SPACE: wall jump',
 'Coffee':'Coffee pour: controllable swimming, paddle input, drain | no front-wave stun',
 'Cola':'Cold cola: top-down drink, growing frost, slippery ground, falling ice | pickaxe breaks every shape',
 'ShiftReset':'Two live shift restarts: frozen swimming, then treatment and paused hazards | fresh day director, timer and tasks',
 'Camera':'Gameplay following camera: front teeth boundary, side movement, throat approach',
-'Ulcer':'Unattended food absorbs into tongue | hold spray 7s | release saves circular treatment progress',
+'Ulcer':'Food spoil creates no ulcer | fire damages tongue | hold spray 7s | release saves progress',
 'SprayNetwork':'Remote owning client: hold and release spray twice without a healing target | four real network peers',
 'Tools':'Four inventory slots: brush, pickaxe, knife, spray | procedural hand and body poses',
 'Brush':'Real tooth and tongue cleaning contact | character faces target | Niagara contact foam',
@@ -38,7 +47,7 @@ labels={
 'Throat':'Living throat, breathing morphs, uvula and atomic swallowing batch',
 'Materials':'Painter tissue maps, saliva sheen and subsurface shading | gum, palate, throat and uvula',
 'Pickaxe':'Wide pickaxe swings on the tongue and next to an actual tooth | hand and tool surface constraint'}
-(folder/'caption.txt').write_text(labels.get(name,name),encoding='utf-8')
+(folder/'caption.txt').write_text(labels.get(scenario,name),encoding='utf-8')
 caption=str(folder/'caption.txt').replace('\\','/').replace(':','\\:')
 font='C\\:/Windows/Fonts/arial.ttf'
 vf=f"fps=30,drawbox=x=0:y=ih-52:w=iw:h=52:color=black@0.62:t=fill,drawtext=fontfile='{font}':textfile='{caption}':fontcolor=white:fontsize=17:x=20:y=h-36"
@@ -47,7 +56,7 @@ duration=rows[-1][1]-rows[0][1]
 subprocess.run(['C:/ffmpeg/ffmpeg.exe','-hide_banner','-loglevel','error','-y','-ss',str(min(duration/2,8)),'-i',str(out/(name+'.mp4')),'-frames:v','1','-update','1',str(out/(name+'.png'))],check=True)
 with (out/(name+'.mp4')).open('rb') as video_file:
     video_sha256=hashlib.file_digest(video_file,'sha256').hexdigest()
-recording=dict(case=name,source='Unreal FScreenshotRequest offscreen game render; encoded from game timestamps',frames=len(rows),seconds=round(duration,3),sample_fps=round((len(rows)-1)/duration,2) if duration>0 else 0,caption=labels.get(name,name),encodedUtc=datetime.now(timezone.utc).isoformat(),videoSha256=video_sha256)
+recording=dict(case=name,source='Unreal FScreenshotRequest offscreen game render; encoded from game timestamps',frames=len(rows),seconds=round(duration,3),sample_fps=round((len(rows)-1)/duration,2) if duration>0 else 0,caption=labels.get(scenario,name),encodedUtc=datetime.now(timezone.utc).isoformat(),videoSha256=video_sha256)
 capture_manifest=folder/'Capture_Manifest.json'
 if capture_manifest.exists():
     fingerprint=json.loads(capture_manifest.read_text(encoding='utf-8-sig'))

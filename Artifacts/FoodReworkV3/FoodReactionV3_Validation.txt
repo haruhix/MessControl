@@ -1,0 +1,5 @@
+[2026.10.02-05.14.38:646][378]LogTemp: Display: MC_FOOD_REWORK_START FoodReaction
+[2026.10.02-05.14.54:935][584]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodReaction PASS resting food never generates incidental impact flashes
+[2026.10.02-05.15.10:913][774]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodReaction PASS fall stretch, light bounce and red hit flash observed
+[2026.10.02-05.15.10:913][774]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodReaction PASS landing and damage use a small deformation without impact particles
+[2026.10.02-05.15.10:913][774]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodReaction

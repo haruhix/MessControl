@@ -39,6 +39,12 @@ public:
     UFUNCTION(CallInEditor,Category="Tongue") void RebuildSurface();
     bool TriggerPain(FVector WorldPoint);
     bool TriggerJolt();
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue|Yawn") bool StartYawn(float Seconds=4);
+    UFUNCTION(BlueprintPure,Category="Tongue|Yawn") bool IsYawnActive() const;
+    void ResetYawn();
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Yawn") double YawnStartedAt=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Yawn") float YawnDuration=4;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue|Yawn") bool bAutomaticYawns=true;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue") void ResetPain();
     bool SurfacePoint(FVector WorldPoint,FHitResult& Hit) const;
     // Stable support for permanent coatings: breathing, pressure and pain waves
@@ -81,6 +87,7 @@ private:
     void PushMotion(float Age);
     void ScheduleJolt();
     double NextJoltAt=0;
+    double NextYawnAt=65;
     float Offset(FVector Local,float Time,float& Red,TConstArrayView<FMCTongueMotionState> Pulses) const;
     void Deform(float Time);
     TArray<FVector> Rest,RestNormals,Positions,Normals;

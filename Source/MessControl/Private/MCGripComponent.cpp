@@ -7,6 +7,7 @@
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCFoodActor.h"
+#include "MCFoodCollectionComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
@@ -80,7 +81,7 @@ void UMCGripComponent::BeginLift(AMCFoodActor* Food)
 }
 bool UMCGripComponent::CanCarry(const AMCFoodActor* Food) const
 {
-    if (!Food || Food->bBrushTool || Food->Phase==EMCFoodPhase::Stuck || Food->IsDisposed() || Food->Holders.Num()>1) return false;
+    if (!Food || !Food->UsesLegacyGrip() || Food->bBrushTool || Food->Phase==EMCFoodPhase::Stuck || Food->IsDisposed() || Food->Holders.Num()>1) return false;
     const FVector Extent=Food->Body->GetScaledBoxExtent();
     const float VisualRadius=Food->Visual->Bounds.SphereRadius;
     return Extent.GetMax()<=Settings.CarryMaxHalfExtent
@@ -205,11 +206,11 @@ bool UMCGripComponent::HasFreeHand() const { return !HandOccupied(true) || !Hand
 bool UMCGripComponent::Holds(const AMCFoodActor* Food) const { return FrameFor(Food)!=nullptr; }
 bool UMCGripComponent::IsReady(const AMCFoodActor* Food) const
 {
-    const auto* F=FrameFor(Food?Food:Frame.Food.Get()); return F && F->bContact;
+    const auto* F=FrameFor(Food?Food:Frame.Food.Get()); return F && F->Food->UsesLegacyGrip() && F->bContact;
 }
 bool UMCGripComponent::CanAcquire(const AMCFoodActor* Food) const
 {
-    return Food && !Holds(Food) && HasFreeHand() && (!Frame.Food || (CanCarry(Food) && CanCarry(Frame.Food)));
+    return Food && Food->UsesLegacyGrip() && !Holds(Food) && HasFreeHand() && (!Frame.Food || (CanCarry(Food) && CanCarry(Frame.Food)));
 }
 float UMCGripComponent::LoadMass() const
 {
@@ -305,7 +306,7 @@ FVector UMCGripComponent::InputDirection() const
 FVector UMCGripComponent::DriveForce(const AMCFoodActor* Food) const
 {
     const auto* Selected=FrameFor(Food?Food:Frame.Food.Get());
-    if (!Selected || !Selected->bContact) return FVector::ZeroVector;
+    if (!Selected || !Selected->Food->UsesLegacyGrip() || !Selected->bContact) return FVector::ZeroVector;
     const FMCGripFrame& ContactFrame=*Selected;
     // Proxies receive mass as gameplay data; only authority owns the food body.
     const float Mass=ContactFrame.Food->HasAuthority()?ContactFrame.Food->Body->GetMass():ContactFrame.Food->Settings.Mass;
@@ -350,7 +351,7 @@ float UMCGripComponent::FloorFrictionForce(const AMCFoodActor* Food) const
 FVector UMCGripComponent::DriveTorque(const AMCFoodActor* Food) const
 {
     const auto* Selected=FrameFor(Food?Food:Frame.Food.Get());
-    if (!Selected || !Selected->bContact) return FVector::ZeroVector;
+    if (!Selected || !Selected->Food->UsesLegacyGrip() || !Selected->bContact) return FVector::ZeroVector;
     const FMCGripFrame& ContactFrame=*Selected;
     if (ContactFrame.Food->Phase!=EMCFoodPhase::Free && ContactFrame.Food->Phase!=EMCFoodPhase::Carried) return FVector::ZeroVector;
     const float Error=FMath::FindDeltaAngleDegrees(ContactFrame.Food->GetActorRotation().Yaw,Tooth->GetActorRotation().Yaw+ContactFrame.RelativeYaw);
@@ -391,7 +392,7 @@ FVector UMCGripComponent::ReactionAcceleration() const
 {
     if (!Tooth || !Tooth->ToothPhysics->CanAct()) return FVector::ZeroVector;
     FVector Force=FVector::ZeroVector;
-    for (const auto* F:{&Frame,&Secondary}) if (F->Food)
+    for (const auto* F:{&Frame,&Secondary}) if (F->Food && F->Food->UsesLegacyGrip())
     {
         const FVector Goal=F->Food->Phase==EMCFoodPhase::Carried?CarryLocation(F->Food):Tooth->GetActorLocation()+FVector(F->RestOffset);
         FVector Error=F->Food->GetActorLocation()-Goal; Error.Z=0;
@@ -412,7 +413,7 @@ FVector UMCGripComponent::ConstrainGripVelocity(FVector Velocity,float Dt) const
     // A taut arm limits separation velocity, never teleports either body. The
     // capsule still sweeps against walls and the food keeps its Chaos solver.
     if (!Tooth || Dt<=0) return Velocity;
-    for (const auto* F:{&Frame,&Secondary}) if (F->Food && F->Food->Phase!=EMCFoodPhase::Carried)
+    for (const auto* F:{&Frame,&Secondary}) if (F->Food && F->Food->UsesLegacyGrip() && F->Food->Phase!=EMCFoodPhase::Carried)
         for (int32 I=0;I<2;++I) if (UsesHand(F->Pose,I==0))
         {
             const FVector Nworld=F->Food->Visual->GetComponentTransform().TransformVectorNoScale(I==0?FVector(F->LeftNormal):FVector(F->RightNormal));
@@ -450,7 +451,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         if (!IsValid(Food)) continue;
         if (Tooth->HasAuthority())
         {
-            if (Food->IsDisposed() || !Tooth->ToothPhysics->CanAct() || !Tooth->bHandling) { Food->Release(Tooth); break; }
+            if (!Food->UsesLegacyGrip() || Food->IsDisposed() || !Tooth->ToothPhysics->CanAct() || !Tooth->bHandling) { Food->Release(Tooth); break; }
             // Small items keep their assigned hand. Heavy items can regrip only
             // when the other hand is free, preserving an already held surface point.
             if (!CanCarry(Food) && !Secondary.Food && Now()>NextModeAt)
@@ -551,8 +552,11 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     // The wrist pose keeps the pickaxe outside collision surfaces even between
     // swings. Physical arm blending would overwrite that corrected pose.
     const bool Pickaxe=ToolPresented && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe;
-    const bool Spraying=Tooth->Inventory && Tooth->Inventory->Selected==EMCToolSlot::Spray && Tooth->Inventory->HealingTarget;
-    const bool PreciseLeft=Emote || Swimming || ToolSwing;
+    const bool Spraying=Tooth->Inventory && Tooth->Inventory->Selected==EMCToolSlot::Spray && (Tooth->Inventory->HealingTarget || Tooth->Inventory->FireTarget);
+    const float TaskAge=Now()-Tooth->TaskSuccessAt;
+    const bool TaskCheer=TaskAge>=0 && TaskAge<1.15f && !Tooth->bBrushing && !Tooth->bHandling
+        && !Tooth->IsYawning() && (!Tooth->FoodCollection || !Tooth->FoodCollection->bCollecting);
+    const bool PreciseLeft=Emote || Swimming || ToolSwing || TaskCheer || Tooth->IsYawning() || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
     const bool PreciseRight=PreciseLeft || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());
     Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || PreciseLeft,HandAlpha[1]>.001f || PreciseRight,
         Settings.bActiveObjectGrip && !GrabbedPlayer && HandAlpha[0]>.001f && !PreciseLeft,

@@ -3,6 +3,9 @@
 #include "MCGameState.h"
 #include "MCHazardWave.h"
 #include "MCMouthSurface.h"
+#include "MCFirePatch.h"
+#include "MCTongue.h"
+#include "EngineUtils.h"
 #include "MCToothStatusComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
@@ -42,33 +45,49 @@ void AMCFoodActor::Detonate()
     const FVector P=GetActorLocation();
     const bool Found=GetWorld()->LineTraceSingleByObjectType(Floor,P+FVector(0,0,80),P-FVector(0,0,1000),FCollisionObjectQueryParams(ECC_WorldStatic),Q);
     const FVector Impact=Found?Floor.ImpactPoint+Floor.ImpactNormal*5:P;
-    const FTransform T(FRotator::ZeroRotator,Impact);
-    auto* Wave=GetWorld()->SpawnActorDeferred<AMCHazardWave>(AMCHazardWave::StaticClass(),T);
-    if(Wave) { Wave->MaxRadius=DetonationRadius(); Wave->Damage=FoodData.PulseDamage; Wave->bSpicy=true; Wave->WarningSeconds=.15f; Wave->FinishSpawning(T); }
-    auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),T);
-    if(Patch) { Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=FMath::Clamp(DetonationRadius()*.35f,40.f,180.f); Patch->Batch=Batch; Patch->FinishSpawning(T); Patch->Status->ApplyCoffee(.55f); }
+    // Legacy entry point now ignites a road on landing without an explosion.
+    BurnLesion=AMCMouthSurface::SpawnDamageUlcer(GetWorld(),Impact,Batch);
+    const FVector Motion=PrePhysicsVelocity.GetSafeNormal2D();
+    const FVector Axis=Motion.IsNearlyZero()?GetActorForwardVector().GetSafeNormal2D():Motion;
+    const FVector Side=FVector::CrossProduct(FVector::UpVector,Axis);
+    for(int32 I=-3;I<=3;++I) {
+        const FVector Candidate=Impact+Axis*(I*72)+Side*(FMath::Sin(I*1.4f)*22);
+        FVector FloorPoint=Candidate;bool OnSurface=false;
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
+            FHitResult H;if(It->SurfacePoint(Candidate,H) && FMath::Abs(H.ImpactPoint.Z-Candidate.Z)<180) {FloorPoint=H.ImpactPoint+H.ImpactNormal*5;OnSurface=true;break;}
+        }
+        if(!OnSurface) {
+            FHitResult H;if(GetWorld()->LineTraceSingleByObjectType(H,Candidate+FVector(0,0,80),Candidate-FVector(0,0,250),FCollisionObjectQueryParams(ECC_WorldStatic),Q)) FloorPoint=H.ImpactPoint+H.ImpactNormal*5;
+            else continue;
+        }
+        if(auto* Fire=AMCFirePatch::Ignite(this,FloorPoint,56,0,Batch,false)) {Fire->Lesion=BurnLesion;Fire->SetOwner(this);FireTrail.Add(Fire);Fire->ForceNetUpdate();}
+    }
     Dispose();
+}
+bool AMCFoodActor::IsHazardResolved() const
+{
+    for(const auto& Fire:FireTrail) if(IsValid(Fire) && Fire->IsBurning()) return false;
+    return !IsValid(BurnLesion) || BurnLesion->IsHealed() || BurnLesion->IsActorBeingDestroyed();
 }
 void AMCFoodActor::UpdateHazard(float Dt)
 {
     if(FoodData.Kind!=EMCFoodKind::Spicy || IsDisposed()) return;
     if(HasAuthority())
     {
-        if(bLandingPending || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Stuck || Phase==EMCFoodPhase::Carried) ArmSpicy();
+        if(bLandingPending && !bFusePaused && Phase!=EMCFoodPhase::Swallowing) {bLandingPending=false;Detonate();return;}
         if(bFusePaused && (!FuseOwner.IsValid() || (FuseOwner->ThroatPhase==EMCThroatPhase::Collecting && Phase!=EMCFoodPhase::Swallowing))) ResumeFuse(FuseOwner.Get());
-        if(FuseEndsAt>0 && !bFusePaused && FuseRemaining()<=0) { Detonate(); return; }
     }
     if(GetNetMode()==NM_DedicatedServer) return;
     if(HazardMaterials.IsEmpty())
         if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Hazards/M_SpicyPepper.M_SpicyPepper")))
             for(int32 I=0;I<Visual->GetNumMaterials();++I) { auto* MID=UMaterialInstanceDynamic::Create(Base,this); Visual->SetMaterial(I,MID); HazardMaterials.Add(MID); }
-    const float Urgency=1-FMath::Clamp(FuseRemaining()/FMath::Max(1.f,FoodData.FuseSeconds),0.f,1.f);
+    const float Urgency=.35f;
     // The sine phase's derivative rises smoothly from one to five flashes per second.
     const float Age=FoodData.FuseSeconds-FuseRemaining();
-    const float Flash=bFusePaused?.15f:.5f+.5f*FMath::Sin(2*PI*(Age+2*Age*Age/FMath::Max(1.f,FoodData.FuseSeconds)));
+    const float Flash=.1f;
     // Only the cosmetic mesh expands. Physics mass and the authoritative body
     // retain their food-table dimensions, including while carried or swallowed.
-    const float Beat=bFusePaused?0.f:FMath::Pow(Flash,3.f);
+    const float Beat=0;
     const float Expansion=1+Beat*FMath::Lerp(.14f,.38f,Urgency);
     const FVector BaseScale=bFragment?FoodData.FragmentScale:FoodData.Scale;
     Visual->SetRelativeScale3D(BaseScale*Expansion);

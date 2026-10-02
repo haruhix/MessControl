@@ -8,6 +8,7 @@
 #include "MCUlcerProgressWidget.h"
 #include "Components/WidgetComponent.h"
 #include "MCHazardWave.h"
+#include "MCFirePatch.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/DecalComponent.h"
@@ -100,16 +101,21 @@ void AMCMouthSurface::Disturb()
         if (Tongue) Tongue->TriggerPain(GetActorLocation());
     }
 }
+bool AMCMouthSurface::IsBurning() const
+{
+    for(TActorIterator<AMCFirePatch> It(GetWorld());It;++It) if(It->IsBurning() && It->Lesion==this) return true;
+    return false;
+}
 bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds)
 {
-    if(!HasAuthority() || !bUlcer || IsHealed() || !IsValid(Worker) || !Worker->CanWork() || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
+    if(!HasAuthority() || !bUlcer || IsHealed() || IsBurning() || !IsValid(Worker) || !Worker->CanWork() || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
     if(LastTreatmentFrame==GFrameCounter) return true; // Shared lesion cannot heal faster from duplicate calls or teammates.
     LastTreatmentFrame=GFrameCounter;
     const auto* GS=GetWorld()->GetGameState(); const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     NumbUntil=Now+.15; bDisturbed=false; PulseClock=0;
     HealSeconds=FMath::Clamp(HealSeconds,6.f,8.f);
     Healing=FMath::Min(1.f,Healing+FMath::Min(Seconds,.2f)/HealSeconds);
-    if(Healing>=.99999f) { Healing=1; NumbUntil=Now+1; SetLifeSpan(.4f); Worker->NotifyTaskFeedback(true); }
+    if(Healing>=.99999f) { Healing=1; NumbUntil=Now+1; SetLifeSpan(.4f); Worker->NotifyTaskFeedback(true,GetActorLocation()); }
     ForceNetUpdate(); return true;
 }
 void AMCMouthSurface::Tick(float Dt)

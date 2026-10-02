@@ -6,6 +6,7 @@
 #include "MCGameState.h"
 #include "MCGameMode.h"
 #include "MCFoodActor.h"
+#include "MCFirePatch.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
 #include "EngineUtils.h"
@@ -27,7 +28,7 @@
 namespace {
 void TickInventoryNetwork(UWorld* World)
 {
-    struct FRun { TWeakObjectPtr<UWorld> World; float Age=0; int32 Stage=-1,Checked=-1,Seen=0; bool Setup=false,Sprayed=false,Failed=false,Sink=false,Absorbed=false; };
+    struct FRun { TWeakObjectPtr<UWorld> World; float Age=0; int32 Stage=-1,Checked=-1,Seen=0; bool Setup=false,Sprayed=false,Failed=false,Sink=false,Absorbed=false,Burned=false; };
     static FRun R; if(R.World!=World) { R=FRun(); R.World=World; }
     R.Age+=World->GetDeltaSeconds();
     auto* GS=World->GetGameState<AMCGameState>(); auto* PC=World->GetFirstPlayerController();
@@ -64,19 +65,16 @@ void TickInventoryNetwork(UWorld* World)
         return;
     }
     for(TActorIterator<AMCFoodActor> It(World);It;++It) if(It->Batch==876) {
-        if(It->Phase==EMCFoodPhase::Absorbing && It->AbsorptionProgress()>.5f) {
-            for(TActorIterator<AMCTongue> Floor(World);Floor;++Floor) {
-                FHitResult Hit; if(Floor->SurfacePoint(It->GetActorLocation(),Hit)) R.Sink|=It->GetActorLocation().Z<Hit.ImpactPoint.Z+It->Body->Bounds.BoxExtent.Z*.2;
-            }
-        }
-        R.Absorbed|=It->bAbsorbed && It->IsDisposed() && It->AbsorbedUlcer && It->AbsorbedUlcer->bUlcer && It->AbsorbedUlcer->Batch==876;
+        R.Sink|=It->bSpoiled && !It->bAbsorbed && !It->IsDisposed();
+        if(Host && It->bSpoiled && !R.Burned) {AMCFirePatch::Ignite(H,It->GetActorLocation()-FVector(0,0,It->Body->Bounds.BoxExtent.Z),60,2,876);R.Burned=true;}
     }
+    for(TActorIterator<AMCMouthSurface> It(World);It;++It) R.Absorbed|=It->bUlcer && It->Batch==876;
     if(Host && Now-GS->StepStartedAt>3.2) { ++GS->StepIndex; GS->StepStartedAt=Now; GS->ForceNetUpdate(); }
     if(GS->StepIndex>=4) {
         // Give the final state time to reach the client before closing the listen server.
         if(!Host || Now-GS->StepStartedAt>2) {
             const bool Pass=!R.Failed && R.Seen==15 && R.Sink && R.Absorbed;
-            UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_NET_%s net=%d stages=%d sink=%d absorbed=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),R.Seen,R.Sink,R.Absorbed);
+            UE_LOG(LogTemp,Display,TEXT("MC_INVENTORY_NET_%s net=%d stages=%d spoiled_without_absorption=%d damage_ulcer=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),R.Seen,R.Sink,R.Absorbed);
             FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
         }
         return;

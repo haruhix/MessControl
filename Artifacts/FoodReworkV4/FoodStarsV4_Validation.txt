@@ -1,0 +1,5 @@
+[2026.10.02-05.31.25:513][473]LogTemp: Display: MC_FOOD_REWORK_START FoodStars
+[2026.10.02-05.31.37:605][688]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodStars PASS real task completion emits happy feedback
+[2026.10.02-05.31.37:605][688]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodStars PASS completion star particles are present
+[2026.10.02-05.32.03:644][136]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodStars PASS second fully completed task also emits the shared celebration
+[2026.10.02-05.32.03:644][136]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodStars

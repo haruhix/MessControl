@@ -3,7 +3,7 @@ void FMCFoodRow::Sanitize()
 {
     auto Safe=[](float V,float D,float Lo,float Hi){return FMath::IsFinite(V)?FMath::Clamp(V,Lo,Hi):D;};
     SelectionWeight=Safe(SelectionWeight,1,0,100); Health=Safe(Health,75,1,1000);
-    Mass=Safe(Mass,9,1,50); SpoilSeconds=Safe(SpoilSeconds,35,3,600); Fragments=FMath::Clamp(Fragments,2,5);
+    Mass=Safe(Mass,9,1,50); SpoilSeconds=Safe(SpoilSeconds,180,3,600); Fragments=FMath::Clamp(Fragments,2,5);
     FuseSeconds=Safe(FuseSeconds,8,6,8); FirstPulseRadius=Safe(FirstPulseRadius,180,50,600);
     RadiusPerRound=Safe(RadiusPerRound,90,0,200); PulseDamage=Safe(PulseDamage,18,0,100);
     AbsorbSeconds=Safe(AbsorbSeconds,2,.5f,10);
@@ -24,11 +24,11 @@ UMCDayPlan::UMCDayPlan()
     Add(EMCDayStep::BrushLesson,0,TEXT("01 / LEARN TO BRUSH"),TEXT("LMB: pick up a falling brush. Hold LMB: clean teeth AND floor stains. No event timer."));
     Add(EMCDayStep::DiscardBrushes,0,TEXT("PUT BRUSHES OVERBOARD"),TEXT("Carry brushes to the front tray (away from throat). Q: throw. Brushes never go down the throat."));
     Add(EMCDayStep::BreakfastRain,2,TEXT("02 / BREAKFAST IS FALLING"),TEXT("Dodge the food! Broccoli, egg, bacon and carrot are chosen from the menu."));
-    Add(EMCDayStep::BreakfastCleanup,20,TEXT("BREAKFAST / CLEAN UP"),TEXT("RMB: break food. Hold LMB: drag to THROAT. Q: throw held food. Protect red ulcers."));
+    Add(EMCDayStep::BreakfastCleanup,20,TEXT("BREAKFAST / CLEAN UP"),TEXT("RMB: break food. Click LMB: collect a physical stack. Click again: drop. Q: throw. Bring food to automatic THROAT."));
     Add(EMCDayStep::CoffeeWaves,6,TEXT("COFFEE / POUR AND DRAIN"),TEXT("Dodge the jet. WASD: paddle. Hold LMB near an arena tooth: cling through the drain."));
     Add(EMCDayStep::CoffeeCleanup,20,TEXT("COFFEE / BRUSH EVERYTHING"),TEXT("Fresh brushes fall in. LMB: pick up. LMB: teeth and floor. C: clean yourself."));
     Add(EMCDayStep::ColdCola,45,TEXT("ХОЛОДНАЯ КОЛА"),TEXT("Скользко! Слот 2 + ЛКМ: разбей лёд. E у зуба: зацепиться, W/S: лазать, Space: отпрыгнуть."));
-    Add(EMCDayStep::StuckFood,35,TEXT("03 / BETWEEN THE TEETH"),TEXT("Hold LMB + move towards centre to pull food free. Then drag it to THROAT."));
+    Add(EMCDayStep::StuckFood,35,TEXT("03 / BETWEEN THE TEETH"),TEXT("RMB: break stuck food free. Click LMB: collect the pieces. Bring the stack to THROAT and drop it."));
 }
 void UMCDayPlan::Sanitize()
 {

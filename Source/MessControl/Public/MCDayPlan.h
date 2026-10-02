@@ -33,7 +33,7 @@ struct FMCFoodRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hazard",meta=(ClampMin="0",ClampMax="200")) float RadiusPerRound=90;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hazard",meta=(ClampMin="0",ClampMax="100")) float PulseDamage=18;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) float Mass=9;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Ulcer",meta=(ToolTip="Seconds of unattended contact with the tongue before absorption begins. Holding or interacting with food restarts this timer.")) float SpoilSeconds=35;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="Ulcer",meta=(ToolTip="Freshness in seconds from spawn. Spoiled food never creates ulcers.")) float SpoilSeconds=180;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ulcer", meta=(ClampMin="0.5",ClampMax="10")) float AbsorbSeconds=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Fragments=3;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FVector HalfExtent=FVector(45,35,35);
