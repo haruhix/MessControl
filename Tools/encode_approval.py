@@ -25,6 +25,7 @@ for i,(file,t) in enumerate(rows):
 concat += [f"file '{rows[-1][0]}'"]
 (folder/'frames.ffconcat').write_text('\n'.join(concat),encoding='utf-8')
 labels={
+'FoodCollision':'Еда ×20: падение и контакт | шар проходит в пустом углу и упирается в поверхность | реальные convex контуры',
 'FoodReaction':'Landing and damage: brief red flash + slight bounce | fall squash / stretch | no impact particles',
 'FoodCollect':'One LMB click: collect small food into a vertical stack | second click: drop | Q: throw',
 'FoodBalance':'Physical stack: bottom body supported by hands, upper pieces balance through contact | movement and inertia',

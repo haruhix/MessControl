@@ -833,7 +833,7 @@ bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
     FMCFoodRow ScaledRow=*Row; ScaledRow.Scale*=FVector(.5,.75,1.25); ScaledRow.FragmentScale=FVector(.27,.41,.63);
     auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(FVector(0,0,160),FRotator::ZeroRotator); Food->ConfigureItem(TEXT("Broccoli"),ScaledRow,Random);
     TestTrue(TEXT("Menu scale reaches the rendered food"),Food->Visual->GetRelativeScale3D().Equals(ScaledRow.Scale));
-    TestTrue(TEXT("Scaled collision fits the visible food"),Food->Body->GetUnscaledBoxExtent().Equals((Food->ItemMesh->GetBounds().BoxExtent*ScaledRow.Scale).ComponentMax(FVector(3)),.01));
+    TestTrue(TEXT("Collision bounding dimensions fit the scaled visible food"),Food->Body->GetUnscaledBoxExtent().Equals(Food->ItemMesh->GetBounds().BoxExtent*ScaledRow.Scale,.01));
     TestTrue(TEXT("Grip queries inherit the visible scale"),Food->GripSurface->GetComponentScale().Equals(Food->Visual->GetComponentScale()));
     Food->Batch=22; Food->SpoilAt=35;
     const float Heavy=Food->DragSpeed(); Food->Settings.Mass=3; TestTrue(TEXT("Lighter food can be dragged faster"),Food->DragSpeed()>Heavy); Food->Settings.Mass=Row->Mass;
@@ -845,7 +845,7 @@ bool FMCBreakfastMenuTest::RunTest(const FString& Parameters)
         TestEqual(TEXT("New pieces share the attended parent's deadline"),It->SpoilAt,Food->SpoilAt);
         TestNotNull(TEXT("Fragment mesh loaded"),It->ItemMesh.Get());
         TestTrue(TEXT("Fragment scale is independent of whole food scale"),It->Visual->GetRelativeScale3D().Equals(ScaledRow.FragmentScale));
-        if (It->ItemMesh) TestTrue(TEXT("Fragment collision fits its independent scale"),It->Body->GetUnscaledBoxExtent().Equals((It->ItemMesh->GetBounds().BoxExtent*ScaledRow.FragmentScale).ComponentMax(FVector(3)),.01));
+        if (It->ItemMesh) TestTrue(TEXT("Fragment collision bounding dimensions fit its independent scale"),It->Body->GetUnscaledBoxExtent().Equals(It->ItemMesh->GetBounds().BoxExtent*ScaledRow.FragmentScale,.01));
         It->HitFood(10000,FVector::ForwardVector); TestFalse(TEXT("Hitting fragments does not delete cleanup work"),It->IsDisposed());
     }
     TestEqual(TEXT("Configured number of pieces"),Count,Row->Fragments); TestTrue(TEXT("Fragment mass conserves whole mass"),FMath::IsNearlyEqual(Mass,Row->Mass));
@@ -1620,7 +1620,7 @@ bool FMCFoodArtBoundsTest::RunTest(const FString&)
         Food->Body->SetEnableGravity(false); Mouth.Step(.1f);
         TestTrue(*(Name+TEXT(" visible and physical centres agree")),Food->Visual->Bounds.Origin.Equals(Food->Body->Bounds.Origin,.1));
         const FVector GameplayScale=Food->FoodData.Kind==EMCFoodKind::Spicy?(Food->bFragment?Food->FoodData.FragmentScale:Food->FoodData.Scale):Food->Visual->GetRelativeScale3D();
-        TestTrue(*(Name+TEXT(" collider fits its configured variant independently of cosmetic pepper pulses")),Food->Body->GetUnscaledBoxExtent().Equals((Mesh->GetBounds().BoxExtent*GameplayScale).ComponentMax(FVector(3)),.1));
+        TestTrue(*(Name+TEXT(" collision bounding dimensions fit its configured variant independently of cosmetic pepper pulses")),Food->Body->GetUnscaledBoxExtent().Equals(Mesh->GetBounds().BoxExtent*GameplayScale,.1));
         FHitResult Hit;
         const FVector Origin=Food->Visual->Bounds.Origin+FVector(-Food->Visual->Bounds.BoxExtent.X-100,0,0);
         const bool Found=Food->FindGripSurface(Origin,Hit);

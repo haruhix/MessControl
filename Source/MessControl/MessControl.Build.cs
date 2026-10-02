@@ -7,6 +7,8 @@ public class MessControl : ModuleRules
         PublicDependencyModuleNames.AddRange(new[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "Slate", "SlateCore", "PhysicsControl", "PhysicsCore", "NetCore", "ProceduralMeshComponent" });
         PublicDependencyModuleNames.Add("Niagara");
         PrivateDependencyModuleNames.Add("AnimationCore");
+        PrivateDependencyModuleNames.Add("Chaos");
+        PrivateDependencyModuleNames.Add("ChaosCore");
         PrivateDependencyModuleNames.Add("RHI");
         PrivateDependencyModuleNames.Add("ApplicationCore");
         PublicDependencyModuleNames.AddRange(new[] { "OnlineBase", "OnlineSubsystem", "OnlineSubsystemUtils" });

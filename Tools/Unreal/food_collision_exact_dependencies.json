@@ -1,0 +1,13 @@
+{
+  "python": "3.12.14",
+  "implementation": "CPython",
+  "platform": "win_amd64",
+  "packages": {
+    "numpy": "2.3.5",
+    "scipy": "1.18.1",
+    "tetgen": "0.8.4"
+  },
+  "tetgen_wheel": "tetgen-0.8.4-cp312-abi3-win_amd64.whl",
+  "tetgen_wheel_sha256": "de38fc1e9e684546862f0795f3e91c19450c6d11961542a6035bab249c65b51f",
+  "tetgen_native_sha256": "ed5339d8f6f37785f9845ee41c8cb23eaedc8fb34e9fb9616a8080c59e308480"
+}

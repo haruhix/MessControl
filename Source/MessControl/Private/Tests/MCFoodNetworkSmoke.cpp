@@ -1,5 +1,6 @@
 #if !UE_BUILD_SHIPPING
 #include "MCFoodActor.h"
+#include "MCFoodBodyComponent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -18,11 +19,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EngineUtils.h"
 #include "Engine/DataTable.h"
+#include "Engine/StaticMesh.h"
+#include "PhysicsEngine/BodySetup.h"
 
 void MCTickFoodNetworkValidation(UWorld* W)
 {
     struct FRun {
         TWeakObjectPtr<UWorld> W;double At=0;int32 Stage=0,MaxStack=0;bool Setup=false,Failed=false,YawnSeen=false,StarsSeen=false,FireSeen=false,FireSuppressed=false;
+        bool CollisionScaleSent=false,CollisionVariantSent=false;
         TMap<TWeakObjectPtr<AMCToothCharacter>,int32> ServerMax;
     };static FRun R;if(R.W!=W) {R=FRun();R.W=W;}
     auto* GS=W->GetGameState<AMCGameState>();auto* PC=W->GetFirstPlayerController();auto* H=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
@@ -54,12 +58,27 @@ void MCTickFoodNetworkValidation(UWorld* W)
                 FRandomStream Random(41+J);F->ConfigureItem(TEXT("Egg"),*Row,Random,true);F->Batch=91001;F->FinishSpawning(T);F->SpoilAt=Now+180;F->ForceNetUpdate();
             }
         }
+        // Isolated from collection and hazard fixtures: exercise a scale change
+        // after initial replication, followed by a whole-to-fragment mesh rebuild.
+        const FTransform CollisionPose(FRotator(13,29,-8),FVector(18000,0,4000));
+        auto* CollisionFood=W->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),CollisionPose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        FRandomStream CollisionRandom(7);CollisionFood->ConfigureItem(TEXT("Egg"),*Row,CollisionRandom,false);
+        CollisionFood->Batch=91003;CollisionFood->FinishSpawning(CollisionPose);CollisionFood->Body->SetEnableGravity(false);
+        CollisionFood->SetActorTickEnabled(false);CollisionFood->ForceNetUpdate();
         R.Setup=true;R.At=Now;UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_START peers=4"));
     }
     if(W->GetNetMode()==NM_Client && !R.Setup) {
         for(TActorIterator<AMCFoodActor> It(W);It;++It) if(It->Batch==91001 && It->GetOwner()==H) {R.At=It->SpoilAt-180;R.Setup=true;break;}
     }
     if(!R.Setup) return;const double T=Now-R.At;
+    if(W->GetNetMode()!=NM_Client) for(TActorIterator<AMCFoodActor> It(W);It;++It) if(It->Batch==91003) {
+        if(T>2 && !R.CollisionScaleSent) {It->SetActorScale3D(FVector(20));It->ForceNetUpdate();R.CollisionScaleSent=true;}
+        if(T>4 && !R.CollisionVariantSent) {
+            FRandomStream CollisionRandom(7);const FMCFoodRow ReplicatedRow=It->FoodData;
+            It->ConfigureItem(TEXT("Egg"),ReplicatedRow,CollisionRandom,true);It->Body->SetEnableGravity(false);
+            It->ForceNetUpdate();R.CollisionVariantSent=true;
+        }
+    }
     if(H->IsLocallyControlled() && T>.8 && R.Stage==0) {H->ServerSetPrimary(true);H->ServerSetPrimary(false);++R.Stage;}
     R.MaxStack=FMath::Max(R.MaxStack,H->FoodCollection->Pieces.Num());
     R.YawnSeen|=H->IsYawning() && H->YawnTongue==Tongue && !H->FoodCollection->bCollecting && !H->bBrushing && !H->bHandling;
@@ -99,6 +118,23 @@ void MCTickFoodNetworkValidation(UWorld* W)
         Check(R.MaxStack>=3,TEXT("owning input produced a replicated three-piece physical stack"));
         Check(R.YawnSeen && H->CanWork() && !H->IsYawning(),TEXT("replicated yawn interrupted collection, gripped tongue and released movement"));
         Check(R.StarsSeen,TEXT("completion VFX replicated to this peer"));
+        AMCFoodActor* CollisionFood=nullptr;
+        for(TActorIterator<AMCFoodActor> It(W);It;++It) if(It->Batch==91003) {CollisionFood=*It;break;}
+        const auto* CollisionBody=CollisionFood?Cast<UMCFoodBodyComponent>(CollisionFood->Body):nullptr;
+        const auto* CollisionSetup=CollisionBody?const_cast<UMCFoodBodyComponent*>(CollisionBody)->GetBodySetup():nullptr;
+        const auto* SourceSetup=CollisionFood && CollisionFood->ItemMesh?CollisionFood->ItemMesh->GetBodySetup():nullptr;
+        Check(CollisionFood && CollisionFood->bFragment && CollisionFood->GetActorScale3D().Equals(FVector(20),.01),TEXT("late actor scale x20 and subsequent fragment replacement replicate to this peer"));
+        Check(CollisionBody && CollisionBody->HasMeshCollision() && CollisionSetup && SourceSetup
+            && CollisionSetup->AggGeom.BoxElems.IsEmpty()
+            && CollisionSetup->AggGeom.ConvexElems.Num()==SourceSetup->AggGeom.ConvexElems.Num()+SourceSetup->AggGeom.BoxElems.Num(),
+            TEXT("peer reconstructs the authored fragment convex hulls without box physics"));
+        bool CentreHit=false;
+        if(CollisionFood) {
+            const FVector E=CollisionFood->Body->GetUnscaledBoxExtent();const FTransform Pose=CollisionFood->GetActorTransform();
+            FHitResult Hit;FCollisionQueryParams Query(SCENE_QUERY_STAT(FoodNetworkCollision),false);
+            CentreHit=CollisionFood->Body->LineTraceComponent(Hit,Pose.TransformPosition(FVector(-E.X*1.5,0,0)),Pose.TransformPosition(FVector(E.X*1.5,0,0)),Query);
+        }
+        Check(CentreHit,TEXT("replicated x20 convex body answers a real simple collision query"));
         if(W->GetNetMode()!=NM_Client) {int32 Count=0;for(const auto& Entry:R.ServerMax) Count+=Entry.Value>=3;Check(Count==4,TEXT("server observed physical stacks from all four players"));}
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s FOOD_NETWORK net=%d stack=%d yawn=%d stars=%d"),R.Failed?TEXT("FAIL"):TEXT("PASS"),int32(W->GetNetMode()),R.MaxStack,R.YawnSeen,R.StarsSeen);
         FPlatformMisc::RequestExitWithStatus(false,R.Failed?1:0);

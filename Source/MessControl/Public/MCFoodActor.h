@@ -131,6 +131,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AActor> StuckTooth;
     int32 ConfirmedImpacts=0;
 private:
+    UPROPERTY(ReplicatedUsing=OnRep_ActorScale) FVector ReplicatedActorScale=FVector::OneVector;
+    UFUNCTION() void OnRep_ActorScale();
     UPROPERTY(Replicated) FMCCarryPresentation CarryPresentation;
     TWeakObjectPtr<AMCToothCharacter> PresentationCarrier;
     FTransform SmoothedCarryRelative=FTransform::Identity;

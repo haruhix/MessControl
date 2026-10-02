@@ -1,0 +1,5 @@
+# Tested with CPython 3.12.14 on win_amd64; installed only under Saved.
+# --no-deps avoids optional PyVista/VTK and keeps this list authoritative.
+numpy==2.3.5
+scipy==1.18.1
+tetgen==0.8.4

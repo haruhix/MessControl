@@ -1,5 +1,6 @@
 ﻿#include "MCFoodActor.h"
 #include "MCToothCharacter.h"
+#include "MCFoodBodyComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
@@ -37,7 +38,7 @@ AMCFoodActor::AMCFoodActor()
 {
     bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true); SetNetUpdateFrequency(30);
     PrimaryActorTick.bCanEverTick=true;
-    Body=CreateDefaultSubobject<UBoxComponent>(TEXT("FoodBody")); SetRootComponent(Body);
+    Body=CreateDefaultSubobject<UMCFoodBodyComponent>(TEXT("FoodBody")); SetRootComponent(Body);
     Body->SetBoxExtent(FVector(48,32,30)); Body->SetCollisionProfileName(TEXT("PhysicsActor"));
     Body->SetNotifyRigidBodyCollision(true); Body->BodyInstance.bUseCCD=true;
     Body->SetLinearDamping(.7f); Body->SetAngularDamping(2.f);
@@ -60,8 +61,8 @@ void AMCFoodActor::BeginPlay()
     if (HasAuthority()) { if (const auto* P=Profile.LoadSynchronous()) Settings=P->Settings; Settings.Sanitize(); }
     if (!ItemName.IsNone()) Settings.Mass=FoodData.Mass;
     if (bBrushTool) Settings.Mass=1;
-    Body->SetMassOverrideInKg(NAME_None,Settings.Mass,true);
-    Body->OnComponentHit.AddDynamic(this,&AMCFoodActor::OnHit); OnRep_Phase(); OnRep_Item();
+    OnRep_Item(); Body->SetMassOverrideInKg(NAME_None,Settings.Mass,true);
+    Body->OnComponentHit.AddDynamic(this,&AMCFoodActor::OnHit); OnRep_Phase();
     if (HasAuthority() && !ItemName.IsNone() && SpoilAt<=0 && FoodData.Kind==EMCFoodKind::Food) SpoilAt=GetWorld()->GetTimeSeconds()+FoodData.SpoilSeconds;
 }
 void AMCFoodActor::Initialize(bool bJam,FVector ExtractionDirection)
@@ -86,6 +87,7 @@ void AMCFoodActor::OnRep_ReplicatedMovement()
 }
 void AMCFoodActor::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
 {
+    ReplicatedActorScale=GetActorScale3D();
     Super::PreReplication(ChangedPropertyTracker);
     CarryPresentation.Holder=StackCarrier?StackCarrier.Get():Phase==EMCFoodPhase::Carried && Holders.Num()==1?Holders[0].Get():nullptr;
     if (IsValid(CarryPresentation.Holder))
@@ -93,6 +95,10 @@ void AMCFoodActor::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
         const FTransform Relative=GetActorTransform().GetRelativeTransform(CarryPresentation.Holder->GetActorTransform());
         CarryPresentation.Location=Relative.GetLocation(); CarryPresentation.Rotation=Relative.Rotator();
     }
+}
+void AMCFoodActor::OnRep_ActorScale()
+{
+    SetActorScale3D(ReplicatedActorScale);
 }
 void AMCFoodActor::UpdateCarryPresentation(float Dt)
 {
@@ -361,6 +367,7 @@ void AMCFoodActor::Tick(float Dt)
 void AMCFoodActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCFoodActor,Settings); DOREPLIFETIME(AMCFoodActor,Phase);
+    DOREPLIFETIME(AMCFoodActor,ReplicatedActorScale);
     DOREPLIFETIME(AMCFoodActor,CarryPresentation);
     DOREPLIFETIME(AMCFoodActor,StackCarrier);DOREPLIFETIME(AMCFoodActor,ImpactAt);DOREPLIFETIME(AMCFoodActor,ImpactStrength);
     DOREPLIFETIME(AMCFoodActor,PullProgress); DOREPLIFETIME(AMCFoodActor,PullDirection); DOREPLIFETIME(AMCFoodActor,Holders);
@@ -406,8 +413,9 @@ void AMCFoodDisposal::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 void AMCFoodActor::OnRep_Item()
 {
     const FVector ItemScale=bFragment?FoodData.FragmentScale:FoodData.Scale;
+    auto* MeshBody=CastChecked<UMCFoodBodyComponent>(Body);
     if (ItemMesh) { Visual->SetStaticMesh(ItemMesh); Visual->SetRelativeLocation(FVector::ZeroVector); Visual->SetRelativeScale3D(ItemScale); }
-    if (bBrushTool) { Body->SetCollisionObjectType(ECC_GameTraceChannel1); Body->SetBoxExtent(FVector(12,12,40)); Visual->SetRelativeLocation(FVector(0,0,-35)); Visual->SetRelativeScale3D(FVector(.8)); }
+    if (bBrushTool) { MeshBody->SetCollisionMesh(nullptr,FVector::OneVector); Body->SetCollisionObjectType(ECC_GameTraceChannel1); Body->SetBoxExtent(FVector(12,12,40)); Visual->SetRelativeLocation(FVector(0,0,-35)); Visual->SetRelativeScale3D(FVector(.8)); }
     else if (ItemMesh)
     {
         // Imported variants have different pivots and sizes. Keep the physical centre,
@@ -415,14 +423,15 @@ void AMCFoodActor::OnRep_Item()
         const FBoxSphereBounds Bounds=ItemMesh->GetBounds();
         const FVector Scale=Visual->GetRelativeScale3D();
         Visual->SetRelativeLocation(-Bounds.Origin*Scale);
-        Body->SetBoxExtent((Bounds.BoxExtent*Scale).ComponentMax(FVector(3)));
+        MeshBody->SetCollisionMesh(ItemMesh,Scale);
     }
     else if (!ItemName.IsNone())
     {
         Visual->SetRelativeScale3D(ItemScale*1.5);
         Visual->SetRelativeLocation(FVector(0,0,-25)*ItemScale);
-        Body->SetBoxExtent((FoodData.HalfExtent*ItemScale).ComponentMax(FVector(3)));
+        if(UStaticMesh* Mesh=Visual->GetStaticMesh()) {Visual->SetRelativeLocation(-Mesh->GetBounds().Origin*Visual->GetRelativeScale3D());MeshBody->SetCollisionMesh(Mesh,Visual->GetRelativeScale3D());}
     }
+    else if(UStaticMesh* Mesh=Visual->GetStaticMesh()) {Visual->SetRelativeLocation(-Mesh->GetBounds().Origin*Visual->GetRelativeScale3D());MeshBody->SetCollisionMesh(Mesh,Visual->GetRelativeScale3D());}
     Label->SetRelativeLocation(FVector(0,0,Body->GetUnscaledBoxExtent().Z+28));
     GripSurface->SetStaticMesh(Visual->GetStaticMesh());
 }
@@ -472,7 +481,9 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction)
     for (int32 I=0;I<FoodData.Fragments;++I)
     {
         const float Angle=I*2*PI/FoodData.Fragments; const FVector Offset(FMath::Cos(Angle)*42,FMath::Sin(Angle)*42,20);
-        const FTransform T(P+Offset);
+        // A resized whole item produces equally resized fragments. Their mesh pivots
+        // and independent menu scales are still handled by ConfigureItem.
+        const FTransform T(GetActorQuat(),P+GetActorTransform().TransformVector(Offset),GetActorScale3D());
         auto* Part=GetWorld()->SpawnActorDeferred<AMCFoodActor>(StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if (!Part) continue;
         Part->ConfigureItem(ItemName,FoodData,Random,true); Part->Batch=Batch; Part->SpoilAt=SpoilAt; Part->bSpoiled=bSpoiled;
