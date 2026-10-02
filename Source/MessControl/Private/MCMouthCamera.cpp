@@ -8,14 +8,82 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
 
+namespace { const FVector OrbitPivotOffset(0,0,30); }
+
+void AMCToothCharacter::InitializeCameraOrbit()
+{
+    if (bManualCameraOrbit) return;
+    const FVector Eye=Camera->GetComponentLocation();
+    const FRotator View=Camera->GetComponentRotation();
+    CameraOrbitYaw=float(View.Yaw); CameraOrbitPitch=FMath::Clamp(float(View.Pitch),-75.f,-8.f);
+    CameraOrbitDistance=FMath::Clamp(float(FVector::Dist(Eye,GetActorLocation()+OrbitPivotOffset)),250.f,1600.f);
+    CameraOrbitViewDistance=CameraOrbitDistance;
+    // Start at the current view, then ease the pivot onto the avatar.
+    MouthCameraFocus=Eye+FRotator(CameraOrbitPitch,CameraOrbitYaw,0).Vector()*CameraOrbitDistance-OrbitPivotOffset;
+    bManualCameraOrbit=true; bMouthCameraInitialized=true;
+}
+
+void AMCToothCharacter::ApplyCameraOrbitInput(FVector2D Delta)
+{
+    const auto* PC=Cast<APlayerController>(GetController());
+    if (!IsLocallyControlled() || bMouthCameraHeld || Delta.ContainsNaN() || Delta.IsNearlyZero() || (PC && PC->IsLookInputIgnored())) return;
+    InitializeCameraOrbit();
+    const float Sensitivity=FMath::Clamp(CameraOrbitSensitivity,.02f,1.f);
+    CameraOrbitYaw=FRotator::NormalizeAxis(CameraOrbitYaw+Delta.X*Sensitivity);
+    CameraOrbitPitch=FMath::Clamp(CameraOrbitPitch+Delta.Y*Sensitivity,-75.f,-8.f);
+}
+
+void AMCToothCharacter::ZoomCamera(float ScrollDelta)
+{
+    const auto* PC=Cast<APlayerController>(GetController());
+    if (!IsLocallyControlled() || bMouthCameraHeld || !FMath::IsFinite(ScrollDelta) || FMath::IsNearlyZero(ScrollDelta) || (PC && PC->IsLookInputIgnored())) return;
+    InitializeCameraOrbit();
+    CameraOrbitDistance=FMath::Clamp(CameraOrbitDistance-ScrollDelta*FMath::Clamp(CameraZoomStep,10.f,300.f),250.f,1600.f);
+}
+
+FVector AMCToothCharacter::CameraMoveDirection(bool Right) const
+{
+    const FRotator Yaw(0,bManualCameraOrbit?CameraBoom->GetComponentRotation().Yaw:0,0);
+    return Yaw.RotateVector(Right?FVector::RightVector:FVector::ForwardVector);
+}
+
 void AMCToothCharacter::UpdateMouthCamera(float Dt)
 {
-    if(!IsLocallyControlled()) return;
+    if(!IsLocallyControlled()) { ClearCameraWallReveal(); return; }
     const FVector P=GetActorLocation();
     if(bMouthCameraHeld && bMouthCameraInitialized) {
+        if (bManualCameraOrbit) {
+            const FVector PreviousRoot=CameraBoom->GetUnfixedCameraPosition()+CameraBoom->GetComponentRotation().Vector()*CameraBoom->TargetArmLength-CameraBoom->TargetOffset;
+            MouthCameraEye=Camera->GetComponentLocation()-(P-PreviousRoot);
+            CameraBoom->TargetArmLength=1;
+        }
         // The arm is attached to the pawn. Compensate its root translation so
         // both the camera and its short collision sweep stay in the mouth.
         CameraBoom->TargetOffset=MouthCameraEye+CameraBoom->GetComponentRotation().Vector()*CameraBoom->TargetArmLength-P;
+        UpdateCameraWallReveal(Dt,MouthCameraEye,ThroatCaptureStart+OrbitPivotOffset);
+        return;
+    }
+    if (bManualCameraOrbit)
+    {
+        const bool Reset=!bMouthCameraInitialized || FVector::DistSquared(P,MouthCameraFocus)>FMath::Square(1400.f);
+        const float Blend=1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt));
+        MouthCameraFocus=Reset?P:FMath::Lerp(MouthCameraFocus,P,Blend);
+        const FRotator Wanted(CameraOrbitPitch,CameraOrbitYaw,0);
+        const FRotator View=Reset?Wanted:FMath::RInterpTo(CameraBoom->GetComponentRotation(),Wanted,Dt,FollowSpeed);
+        CameraBoom->bEnableCameraLag=false;
+        CameraBoom->bDoCollisionTest=true; CameraBoom->ProbeChannel=ECC_Camera;
+        CameraOrbitViewDistance=Reset?CameraOrbitDistance:FMath::Lerp(CameraOrbitViewDistance,CameraOrbitDistance,Blend);
+        MouthCameraEye=MouthCameraFocus+OrbitPivotOffset-View.Vector()*CameraOrbitViewDistance;
+        // Trace from the actual pawn, so follow lag cannot put the sweep origin inside a wall at a corner.
+        const FVector Arm=P+OrbitPivotOffset-MouthCameraEye;
+        CameraBoom->TargetOffset=OrbitPivotOffset;
+        CameraBoom->SetWorldRotation(Arm.Rotation());
+        CameraBoom->TargetArmLength=Arm.Size();
+        Camera->FieldOfView=FMath::Clamp(FollowFOV,45.f,95.f);
+        Camera->AspectRatio=16.f/9.f; Camera->bOverrideAspectRatioAxisConstraint=true;
+        Camera->SetAspectRatioAxisConstraint(AspectRatio_MaintainYFOV);
+        bMouthCameraInitialized=true;
+        UpdateCameraWallReveal(Dt,MouthCameraEye,P+OrbitPivotOffset);
         return;
     }
     const FVector TrackedP=bMouthCameraHeld?ThroatCaptureStart:P;
@@ -97,4 +165,5 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     CameraBoom->SetWorldRotation(Rotation);
     CameraBoom->TargetArmLength=Distance;
     bMouthCameraInitialized=true;
+    UpdateCameraWallReveal(Dt,MouthCameraEye,P+OrbitPivotOffset);
 }

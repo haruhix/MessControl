@@ -3,6 +3,8 @@
 #include "MCGameplayHUD.h"
 #include "MCThroat.h"
 #include "MCPlayerController.h"
+#include "MCSteamSessionSubsystem.h"
+#include "Engine/GameInstance.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
 #include "MCToothPhysicsComponent.h"
@@ -25,6 +27,7 @@
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/ScrollBox.h"
+#include "Components/ComboBoxString.h"
 #include "Styling/CoreStyle.h"
 
 namespace
@@ -84,7 +87,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
     ControlsPanel=FooterBorder; SetPlayerOverlayVisible(bPlayerOverlayVisible);
-    AddText(Footer,TEXT("WASD  MOVE    SHIFT  RUN    SPACE  HOP    HOLD LMB  INTERACT    Q  THROW    RMB  BONK"),15,Cream);
+    AddText(Footer,TEXT("WASD MOVE   SHIFT RUN   SPACE HOP   LMB INTERACT   Q THROW   MOUSE LOOK   WHEEL ZOOM   RMB BONK"),15,Cream);
 #if !UE_BUILD_SHIPPING
     AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
 #else
@@ -128,7 +131,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     Button(PhysicsBox,TEXT("LOOSEN ALL LIVING TEETH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::LooseClicked);
     Button(PhysicsBox,TEXT("DROP STUCK FOOD AHEAD"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DropFoodClicked);
     Button(PhysicsBox,TEXT("DIE / TEST RESPAWN COST"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::RespawnClicked);
-    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then RMB to bonk."),12,Cream);
+    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then RMB to bonk. Move the mouse to orbit; use the wheel to zoom."),12,Cream);
     Button(PhysicsBox,TEXT("SPAWN PRACTICE TOOTH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DummyClicked);
     Button(PhysicsBox,TEXT("TEST FALL"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::FallClicked);
     Button(PhysicsBox,TEXT("GET UP WHEN CLEAR"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::GetUpClicked);
@@ -141,7 +144,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     }
     Button(PhysicsBox,TEXT("SAVE LOCAL PRESETS"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::SaveClicked);
     AddText(PhysicsBox,TEXT("ARENA TEETH / HOST"),21,Mint);
-    AddText(PhysicsBox,TEXT("Session preview. Permanent defaults: DA_ArenaTooth. Close F1 and RMB a numbered tooth to damage it."),12,Cream);
+    AddText(PhysicsBox,TEXT("Session preview. Permanent defaults: DA_ArenaTooth. Close F1 and tap RMB on a numbered tooth to damage it."),12,Cream);
     Button(PhysicsBox,TEXT("PREVIEW COFFEE ON ARENA"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ArenaCoffeeClicked);
     Button(PhysicsBox,TEXT("CLEAR COFFEE PREVIEW"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ArenaCleanClicked);
     const float ArenaMin[]={0,0,0.2f}, ArenaMax[]={0.4f,25,3};
@@ -153,14 +156,33 @@ void UMCPrototypeWidget::NativeOnInitialized()
         PhysicsBox->AddChildToVerticalBox(Slider)->SetPadding(FMargin(0,4,0,10)); ArenaSliders.Add(Slider);
     }
     TuningPanel->SetVisibility(ESlateVisibility::Collapsed);
-    UBorder* ConnectionBorder; auto* Connection = Panel(FVector2D(0,0),FVector2D(460,338),FAnchors(0.5f,0.5f),FVector2D(0.5f,0.5f),ConnectionBorder); ConnectionPanel = ConnectionBorder;
+    const auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>();
+    const bool bSteam=Steam && Steam->CanUseSteam();
+    UBorder* ConnectionBorder; auto* Connection = Panel(FVector2D(0,0),bSteam?FVector2D(540,520):FVector2D(460,370),FAnchors(0.5f,0.5f),FVector2D(0.5f,0.5f),ConnectionBorder); ConnectionPanel = ConnectionBorder;
     AddText(Connection,TEXT("BRING YOUR MOLARS"),25,Mint);
-    AddText(Connection,TEXT("Listen server / up to four players"),14,Cream);
-    Button(Connection,TEXT("HOST A NEW MOUTH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::HostClicked);
-    AddText(Connection,TEXT("Join host IP address (port 7777)"),14,Cream);
-    AddressBox = WidgetTree->ConstructWidget<UEditableTextBox>(); AddressBox->SetText(FText::FromString(TEXT("127.0.0.1"))); Connection->AddChildToVerticalBox(AddressBox)->SetPadding(FMargin(0,8));
-    Button(Connection,TEXT("JOIN FRIEND"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::JoinClicked);
-    AddText(Connection,TEXT("LAN or reachable host IP. Internet play needs UDP 7777 forwarding or a VPN. F2 / Esc closes this panel."),12,Cream);
+    AddText(Connection,bSteam?FString::Printf(TEXT("Steam · %s"),*Steam->GetPlayerName()):TEXT("Локальное подключение по IP"),14,Cream);
+    auto* HostButton=Button(Connection,bSteam?TEXT("СОЗДАТЬ КОМНАТУ"):TEXT("HOST A NEW MOUTH"));
+    HostButton->OnClicked.AddDynamic(this,&UMCPrototypeWidget::HostClicked); ConnectionButtons.Add(HostButton);
+    if (bSteam)
+    {
+        auto* FindButton=Button(Connection,TEXT("НАЙТИ КОМНАТЫ"));
+        FindButton->OnClicked.AddDynamic(this,&UMCPrototypeWidget::FindRoomsClicked); ConnectionButtons.Add(FindButton);
+        RoomPicker=WidgetTree->ConstructWidget<UComboBoxString>();
+        Connection->AddChildToVerticalBox(RoomPicker)->SetPadding(FMargin(0,8));
+        auto* JoinButton=Button(Connection,TEXT("ПОДКЛЮЧИТЬСЯ"));
+        JoinButton->OnClicked.AddDynamic(this,&UMCPrototypeWidget::JoinClicked); ConnectionButtons.Add(JoinButton);
+        auto* InviteButton=Button(Connection,TEXT("ПРИГЛАСИТЬ ДРУГА В STEAM"));
+        InviteButton->OnClicked.AddDynamic(this,&UMCPrototypeWidget::InviteClicked); ConnectionButtons.Add(InviteButton);
+        ConnectionStatus=AddText(Connection,Steam->GetStatus(),14,Mint);
+        AddText(Connection,TEXT("До четырёх игроков. F2 / Esc — закрыть. Shift+Tab — друзья Steam."),12,Cream);
+    }
+    else
+    {
+        AddText(Connection,TEXT("Join host IP address (port 7777)"),14,Cream);
+        AddressBox = WidgetTree->ConstructWidget<UEditableTextBox>(); AddressBox->SetText(FText::FromString(TEXT("127.0.0.1"))); Connection->AddChildToVerticalBox(AddressBox)->SetPadding(FMargin(0,8));
+        Button(Connection,TEXT("JOIN FRIEND"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::JoinClicked);
+        AddText(Connection,TEXT("Для игры через Steam запусти Steam и отдельный билд игры. Локально: адрес хоста, UDP 7777. F2 / Esc — закрыть."),12,Cream);
+    }
     ConnectionPanel->SetVisibility(ESlateVisibility::Collapsed);
 }
 void UMCPrototypeWidget::SetPlayerOverlayVisible(bool Visible)
@@ -173,13 +195,27 @@ void UMCPrototypeWidget::SetPlayerOverlayVisible(bool Visible)
 void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
 {
     Super::NativeTick(Geometry,DeltaSeconds);
+    if (ConnectionStatus && ConnectionPanel->IsVisible())
+    {
+        if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>())
+        {
+            ConnectionStatus->SetText(FText::FromString(Steam->GetStatus()));
+            for (UButton* Button:ConnectionButtons) Button->SetIsEnabled(!Steam->IsBusy());
+            if (RoomPicker && LastSearchRevision!=Steam->GetSearchRevision())
+            {
+                LastSearchRevision=Steam->GetSearchRevision(); RoomPicker->ClearOptions();
+                for (const FString& Label:Steam->GetRoomLabels()) RoomPicker->AddOption(Label);
+                if (RoomPicker->GetOptionCount()>0) RoomPicker->SetSelectedIndex(0);
+            }
+        }
+    }
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>(); if (!State || !DayLabel) return;
     const bool bWorking = State->Phase == EMCShiftPhase::Working;
     if (const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn()))
     {
         PlayerStatusLabel->SetText(FText::FromString(Hero->Status->Summary()));
         FString Hint=Hero->bSelfCare?TEXT("SELF CARE: hold LMB to clean / heal. C returns to others."):TEXT("Hold LMB near a target: pick up, clean or heal. C: self care.");
-        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hit food. Q: throw held item.");
+        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hit. Mouse: camera. Wheel: zoom. Q: throw.");
         if (Hero->bInCoffee) Hint=Hero->ClingTooth?TEXT("CLINGING | keep LMB held. Release LMB to let go."):TEXT("COFFEE | WASD: paddle. Hold LMB near arena teeth to cling.");
         float Progress=Hero->ContactProgress;
         if (!Hero->Status->IsAlive()) Hint=State->AvailableArenaTeeth()>0?FString::Printf(TEXT("DOWN | RESPAWN %.1fs | consumes one numbered arena tooth"),FMath::Max(0.,Hero->RespawnAt-State->GetServerWorldTimeSeconds())):TEXT("DOWN | NO RESERVE TEETH LEFT");
@@ -344,4 +380,14 @@ void UMCPrototypeWidget::ArenaAnimationChanged(float Value)
 void UMCPrototypeWidget::SaveClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->SaveTuning(); Tooth->Gaze->SavePreview(); if (Tooth->HasAuthority()) Tooth->ToothPhysics->SaveTuning(); SaveLabel->SetText(FText::FromString(TEXT("Saved local .ini presets in Saved/."))); } }
 void UMCPrototypeWidget::ResetClicked() { if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn())) { Tooth->ResetTuning(); Tooth->Gaze->ResetPreview(); if (Tooth->HasAuthority()) { Tooth->ToothPhysics->ResetTuning(); for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->ToothPhysics->SetTuning(Tooth->ToothPhysics->Settings); } RefreshSliders(); } }
 void UMCPrototypeWidget::HostClicked() { if (auto* PC = Cast<AMCPlayerController>(GetOwningPlayer())) PC->HostGame(); }
-void UMCPrototypeWidget::JoinClicked() { if (auto* PC = Cast<AMCPlayerController>(GetOwningPlayer())) PC->JoinGame(AddressBox->GetText().ToString()); }
+void UMCPrototypeWidget::JoinClicked()
+{
+    if (RoomPicker)
+    {
+        if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->JoinRoom(RoomPicker->GetSelectedIndex());
+    }
+    else if (AddressBox)
+        if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->JoinGame(AddressBox->GetText().ToString());
+}
+void UMCPrototypeWidget::FindRoomsClicked() { if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->FindRooms(); }
+void UMCPrototypeWidget::InviteClicked() { if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->InviteFriends(); }

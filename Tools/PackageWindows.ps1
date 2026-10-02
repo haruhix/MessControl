@@ -1,6 +1,7 @@
 param(
     [string]$EngineRoot=$env:UE_ROOT,
-    [string]$OutputDirectory
+    [string]$OutputDirectory,
+    [switch]$SteamTest
 )
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
@@ -22,9 +23,23 @@ if($LASTEXITCODE -ne 0){throw "Editor build failed: $taskEditorLog"}
 if($LASTEXITCODE -ne 0){throw "Windows packaging failed ($LASTEXITCODE): $taskLog"}
 $taskExe=Join-Path $OutputDirectory 'Windows/MessControl.exe'
 if(-not(Test-Path -LiteralPath $taskExe)){throw "Packaged launcher missing: $taskExe"}
+if($SteamTest) {
+    $taskWindows=Split-Path -Parent $taskExe
+    $taskGameBin=Join-Path $taskWindows 'MessControl/Binaries/Win64'
+    '480' | Set-Content -LiteralPath (Join-Path $taskWindows 'steam_appid.txt') -Encoding ascii
+    '480' | Set-Content -LiteralPath (Join-Path $taskGameBin 'steam_appid.txt') -Encoding ascii
+    @'
+@echo off
+cd /d "%~dp0"
+> "%~dp0steam_appid.txt" echo 480
+> "%~dp0MessControl\Binaries\Win64\steam_appid.txt" echo 480
+"%~dp0MessControl.exe" %*
+'@ | Set-Content -LiteralPath (Join-Path $taskWindows 'Start_Steam.cmd') -Encoding ascii
+    Copy-Item -LiteralPath (Join-Path $taskRoot 'Docs/SteamTesting.md') -Destination (Join-Path $taskWindows 'SteamTesting.md')
+}
 $taskCommit=& git -C $taskRoot rev-parse HEAD
 $taskChanges=@(& git -C $taskRoot status --porcelain)
-@{platform='Windows x64';configuration='Development';engine='5.8';baseCommit=$taskCommit;uncommittedChanges=$taskChanges;created=(Get-Date -Format o);executable=$taskExe} |
+@{platform='Windows x64';configuration='Development';engine='5.8';steamTest=[bool]$SteamTest;baseCommit=$taskCommit;uncommittedChanges=$taskChanges;created=(Get-Date -Format o);executable=$taskExe} |
     ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $OutputDirectory 'BuildInfo.json') -Encoding utf8
 Write-Output "Windows build: $taskExe"
 Write-Output "Package log: $taskLog"

@@ -12,6 +12,14 @@
 	],
 	"Plugins": [
 		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true
+		},
+		{
+			"Name": "SteamSockets",
+			"Enabled": true
+		},
+		{
 			"Name": "MessControlProjectIndex",
 			"Enabled": true,
 			"TargetAllowList": ["Editor"]

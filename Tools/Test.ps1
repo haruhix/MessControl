@@ -34,7 +34,7 @@ if ($Mode -eq 'Unit') {
             $taskMap=if($taskIndex -eq 0){'/Game/Maps/L_Mouth?listen?Seed=41'}else{'127.0.0.1:7777'}
             $taskLog=Join-Path $taskLogs "$Mode$taskIndex.log"
             if (Test-Path -LiteralPath $taskLog) { Remove-Item -LiteralPath $taskLog }
-            $taskArguments=@("`"$taskProject`"",$taskMap,'-game','-MCLegacyDays','-MCSmoke','-MCExpectedPlayers=4','-nullrhi','-unattended','-nosound','-nosplash','-nop4','-ExecCmds="t.MaxFPS 60"',"`"-abslog=$taskLog`"")
+            $taskArguments=@("`"$taskProject`"",$taskMap,'-game','-nosteam','-MCLegacyDays','-MCSmoke','-MCExpectedPlayers=4','-nullrhi','-unattended','-nosound','-nosplash','-nop4','-ExecCmds="t.MaxFPS 60"',"`"-abslog=$taskLog`"")
             if($Mode -eq 'Ragdoll') { $taskArguments+='-MCRagdoll' }
             if($Mode -eq 'ArenaNetwork') { $taskArguments+='-MCArenaNet' }
             if($Mode -eq 'CoreNetwork') { $taskArguments+='-MCCore' }

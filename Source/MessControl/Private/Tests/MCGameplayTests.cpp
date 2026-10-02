@@ -1795,6 +1795,122 @@ bool FMCPhysicalObjectGripTest::RunTest(const FString&)
     TestTrue(TEXT("Release disables palm servos and restores locomotion root"),!Motors->GetControlEnabled(Motors->GetControlNamesInSet(TEXT("GripPalms"))[Left?0:1]) && Mesh->IsSimulatingPhysics(H->RigBone(TEXT("body"))));
     return true;
 }
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCOrbitCameraTest,"MessControl.Camera.OrbitAndWallCollision",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCOrbitCameraTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->SetAsLocalPlayerController();
+    auto* Hero=Mouth.Worker(); PC->Possess(Hero); Hero->SetActorLocation(FVector(0,0,2000));
+    auto TickView=[&] { Hero->UpdateMouthCamera(1.f); Hero->CameraBoom->TickComponent(1.f,LEVELTICK_All,nullptr); };
+    TickView();
+    Hero->ApplyCameraOrbitInput(FVector2D::ZeroVector);
+    TestFalse(TEXT("Zero mouse input preserves the initial view"),Hero->bManualCameraOrbit);
+    const FRotator Body=Hero->GetActorRotation();
+    Hero->ApplyCameraOrbitInput(FVector2D(1,0)); TickView();
+    TestTrue(TEXT("Mouse movement enters orbit mode without a held button"),Hero->bManualCameraOrbit);
+    Hero->ApplyCameraOrbitInput(FVector2D(500,5000)); TickView();
+    TestEqual(TEXT("Inverted vertical orbit clamps its upward input"),Hero->CameraOrbitPitch,-8.f);
+    Hero->ApplyCameraOrbitInput(FVector2D(0,-5000)); TickView();
+    TestEqual(TEXT("Inverted vertical orbit clamps its downward input"),Hero->CameraOrbitPitch,-75.f);
+    const float Yaw=Hero->CameraOrbitYaw;
+    Hero->ApplyCameraOrbitInput(FVector2D::ZeroVector); TickView();
+    TestEqual(TEXT("View stays at the selected yaw when the mouse stops"),Hero->CameraOrbitYaw,Yaw);
+    TestEqual(TEXT("Free mouse look cannot trigger a tool attack"),Hero->ValidatedSwingCount,0);
+    TestTrue(TEXT("Orbit does not rotate the character"),Hero->GetActorRotation().Equals(Body,.01f));
+    TestTrue(TEXT("WASD follows view yaw"),Hero->CameraMoveDirection(false).Equals(FRotator(0,Yaw,0).Vector(),.001));
+
+    Hero->CameraOrbitDistance=900;
+    Hero->ZoomCamera(1); TestEqual(TEXT("Wheel forward brings the camera closer"),Hero->CameraOrbitDistance,800.f);
+    Hero->ZoomCamera(-1); TestEqual(TEXT("Wheel backward moves the camera away"),Hero->CameraOrbitDistance,900.f);
+    Hero->ZoomCamera(-1000); TestEqual(TEXT("Zoom has a far limit"),Hero->CameraOrbitDistance,1600.f);
+    Hero->ZoomCamera(1000); TestEqual(TEXT("Zoom has a near limit"),Hero->CameraOrbitDistance,250.f);
+    TestEqual(TEXT("Zoom preserves view yaw"),Hero->CameraOrbitYaw,Yaw);
+
+    Hero->CameraOrbitYaw=0; Hero->CameraOrbitPitch=-30; Hero->CameraOrbitDistance=900; TickView();
+    const FVector Pivot=Hero->CameraBoom->GetComponentLocation()+Hero->CameraBoom->TargetOffset;
+    const FVector Direction=-Hero->CameraBoom->GetComponentRotation().Vector();
+    auto* Wall=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Wall);
+    Wall->SetRootComponent(Box); Box->SetBoxExtent(FVector(30,500,500));
+    Box->SetCollisionEnabled(ECollisionEnabled::QueryOnly); Box->SetCollisionResponseToAllChannels(ECR_Ignore);
+    Box->SetCollisionResponseToChannel(ECC_Camera,ECR_Block); Box->RegisterComponent();
+    Wall->SetActorLocationAndRotation(Pivot+Direction*450,Direction.Rotation()); TickView();
+    TestTrue(TEXT("Full arm sweep retracts before a wall"),Hero->CameraBoom->IsCollisionFixApplied() && FVector::Dist(Pivot,Hero->Camera->GetComponentLocation())<430);
+    Hero->ZoomCamera(-1); TickView();
+    TestTrue(TEXT("Zooming out cannot move the camera through a wall"),Hero->CameraBoom->IsCollisionFixApplied() && FVector::Dist(Pivot,Hero->Camera->GetComponentLocation())<430);
+    Box->SetCollisionEnabled(ECollisionEnabled::NoCollision); TickView();
+    TestTrue(TEXT("Camera recovers the zoomed distance after the wall is removed"),FMath::IsNearlyEqual(float(FVector::Dist(Pivot,Hero->Camera->GetComponentLocation())),1000.f,1.f));
+
+    // The concave imported mouth shell has no simple hull; it must still block the camera's simple sweep.
+    auto* Shell=ReadyCareTestMesh(TEXT("/Game/FromBlender3/SM_Plane_001.SM_Plane_001"));
+    if (TestNotNull(TEXT("Authored mouth wall is available"),Shell)) {
+        auto* ShellActor=Mouth.World->SpawnActor<AActor>(); auto* ShellPart=NewObject<UStaticMeshComponent>(ShellActor);
+        ShellActor->SetRootComponent(ShellPart); ShellPart->SetStaticMesh(Shell);
+        ShellPart->SetCollisionEnabled(ECollisionEnabled::QueryOnly); ShellPart->SetCollisionResponseToAllChannels(ECR_Ignore);
+        ShellPart->SetCollisionResponseToChannel(ECC_Camera,ECR_Block); ShellPart->RegisterComponent();
+        ShellActor->SetActorLocation(FVector(10000,0,0));
+        const auto Bounds=ShellPart->Bounds; bool HitShell=false;
+        for (int32 Axis=0; Axis<3 && !HitShell; ++Axis) for (int32 I=-1; I<=1 && !HitShell; ++I) for (int32 J=-1; J<=1 && !HitShell; ++J) {
+            FVector Center=Bounds.Origin,Span=FVector::ZeroVector;
+            Center[(Axis+1)%3]+=Bounds.BoxExtent[(Axis+1)%3]*I*.5;
+            Center[(Axis+2)%3]+=Bounds.BoxExtent[(Axis+2)%3]*J*.5;
+            Span[Axis]=Bounds.BoxExtent[Axis]+100;
+            FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCOrbitShell),false,Hero);
+            HitShell=Mouth.World->SweepSingleByChannel(Hit,Center-Span,Center+Span,FQuat::Identity,ECC_Camera,FCollisionShape::MakeSphere(24),Query);
+        }
+        TestTrue(TEXT("Imported mouth wall blocks a simple camera sphere sweep"),HitShell);
+        ShellPart->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    }
+
+    const FVector HeldEye=Hero->Camera->GetComponentLocation();
+    Hero->bMouthCameraHeld=true; Hero->SetActorLocation(Hero->GetActorLocation()+FVector(1300,0,-400)); TickView();
+    TestTrue(TEXT("Captured orbit camera remains in the mouth when the pawn moves"),Hero->Camera->GetComponentLocation().Equals(HeldEye,.1f));
+    Hero->SetActorLocation(Hero->GetActorLocation()+FVector(100,0,-100)); TickView();
+    TestTrue(TEXT("Orbit camera remains fixed throughout throat travel"),Hero->Camera->GetComponentLocation().Equals(HeldEye,.1f));
+    Hero->bMouthCameraHeld=false;
+
+    PC->SetIgnoreLookInput(true);
+    const float MenuDistance=Hero->CameraOrbitDistance;
+    Hero->ApplyCameraOrbitInput(FVector2D(500,500)); Hero->ZoomCamera(-5);
+    TestEqual(TEXT("Menus prevent mouse rotation"),Hero->CameraOrbitYaw,0.f);
+    TestEqual(TEXT("Menus prevent mouse wheel zoom"),Hero->CameraOrbitDistance,MenuDistance);
+    PC->ResetIgnoreLookInput();
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRadialCameraTest,"MessControl.Camera.RadialWallReveal",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCRadialCameraTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false);
+    auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->SetAsLocalPlayerController();
+    auto* Hero=Mouth.Worker(); PC->Possess(Hero); Hero->SetActorLocation(FVector(0,0,2000));
+    Hero->bManualCameraOrbit=true; Hero->CameraOrbitYaw=0; Hero->CameraOrbitPitch=-30; Hero->CameraOrbitDistance=900;
+    Hero->bCameraWallReveal=false;
+    auto TickView=[&] { Hero->UpdateMouthCamera(1.f); Hero->CameraBoom->TickComponent(1.f,LEVELTICK_All,nullptr); };
+    TickView();
+    const FVector Pivot=Hero->GetActorLocation()+FVector(0,0,30),Direction=-Hero->CameraBoom->GetForwardVector();
+    auto* Wall=Mouth.World->SpawnActor<AActor>(); auto* Mesh=NewObject<UStaticMeshComponent>(Wall);
+    Wall->SetRootComponent(Mesh); Mesh->SetStaticMesh(ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Cube.Cube")));
+    auto* Material=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/Arena/MI_Roof_0.MI_Roof_0"));
+    if (!TestNotNull(TEXT("Rainy wall material is available"),Material)) return false;
+    Mesh->SetMaterial(0,Material); Mesh->SetCollisionProfileName(TEXT("BlockAll")); Mesh->RegisterComponent();
+    Wall->SetActorLocationAndRotation(Pivot+Direction*450,Direction.Rotation()); Wall->SetActorScale3D(FVector(1,6,6));
+    TickView();
+    TestTrue(TEXT("Disabling reveal retains ordinary camera retraction"),Hero->CameraBoom->IsCollisionFixApplied());
+    Hero->bCameraWallReveal=true; TickView();
+    TestEqual(TEXT("Reveal bypasses only camera collision"),Mesh->GetCollisionResponseToChannel(ECC_Camera),ECR_Ignore);
+    TestEqual(TEXT("Wall keeps its pawn collision"),Mesh->GetCollisionResponseToChannel(ECC_Pawn),ECR_Block);
+    TestTrue(TEXT("Reveal retains selected camera distance"),FMath::IsNearlyEqual(float(FVector::Dist(Pivot,Hero->Camera->GetComponentLocation())),900.f,1.f));
+    const auto& Data=Mesh->GetCustomPrimitiveData().Data;
+    TestTrue(TEXT("An occluding wall receives active radial coverage"),Data.Num()>=28 && Data[24]>.99f && FMath::IsNearlyEqual(Data[25],Hero->CameraWallRevealRadius));
+    Wall->SetActorLocation(Pivot-Direction*450); TickView();
+    TestTrue(TEXT("Walls behind the avatar regain full opacity"),Mesh->GetCustomPrimitiveData().Data[24]==0);
+    Wall->SetActorLocation(Pivot+Direction*450); TickView();
+    Hero->ClearCameraWallReveal();
+    TestEqual(TEXT("Cleanup restores authored camera collision"),Mesh->GetCollisionResponseToChannel(ECC_Camera),ECR_Block);
+    TestTrue(TEXT("Cleanup clears the visual fade"),Mesh->GetCustomPrimitiveData().Data[24]==0);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatCameraTest,"MessControl.Throat.CameraWaitsForSpit",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCThroatCameraTest::RunTest(const FString&)
 {
