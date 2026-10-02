@@ -8,6 +8,9 @@ public class MessControl : ModuleRules
         PublicDependencyModuleNames.Add("Niagara");
         PrivateDependencyModuleNames.Add("AnimationCore");
         PrivateDependencyModuleNames.Add("RHI");
+        PrivateDependencyModuleNames.Add("ApplicationCore");
+        PublicDependencyModuleNames.AddRange(new[] { "OnlineBase", "OnlineSubsystem", "OnlineSubsystemUtils" });
+        DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
         if (Target.bBuildEditor)
         {
             PrivateDependencyModuleNames.Add("AssetRegistry");

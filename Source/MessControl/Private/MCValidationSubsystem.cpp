@@ -36,12 +36,18 @@ void MCTickActiveRagdollValidation(UWorld* World);
 void MCTickClimbNetworkValidation(UWorld* World);
 void MCTickSprayNetworkValidation(UWorld* World);
 void MCTickShiftResetValidation(UWorld* World);
+void MCTickSteamValidation(UWorld* World);
+void MCTickOrbitCameraValidation(UWorld* World);
+void MCTickCameraRevealValidation(UWorld* World);
 #endif
 
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
     if (FParse::Param(FCommandLine::Get(),TEXT("MCSwimTest"))) { TickSwim(DeltaSeconds); return; }
 #if !UE_BUILD_SHIPPING
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCCameraRevealTest"))) { MCTickCameraRevealValidation(GetWorld()); return; }
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCOrbitCameraTest"))) { MCTickOrbitCameraValidation(GetWorld()); return; }
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCSteamHostTest")) || FParse::Param(FCommandLine::Get(),TEXT("MCSteamFindTest"))) { MCTickSteamValidation(GetWorld()); return; }
     MCTickApprovalRecorder(GetWorld());
     if(FParse::Param(FCommandLine::Get(),TEXT("MCFoodNetwork"))) {MCTickFoodNetworkValidation(GetWorld());return;}
     FString FoodReworkCase;

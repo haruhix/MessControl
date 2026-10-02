@@ -9,6 +9,8 @@ class USlider;
 class UBorder;
 class UEditableTextBox;
 class UScrollBox;
+class UComboBoxString;
+class UButton;
 
 UCLASS(Blueprintable)
 class MESSCONTROL_API UMCPrototypeWidget : public UUserWidget
@@ -36,6 +38,8 @@ private:
     UFUNCTION() void ResetClicked();
     UFUNCTION() void HostClicked();
     UFUNCTION() void JoinClicked();
+    UFUNCTION() void FindRoomsClicked();
+    UFUNCTION() void InviteClicked();
     UFUNCTION() void PhysicsChanged(float Value);
     UFUNCTION() void FallClicked();
     UFUNCTION() void GetUpClicked();
@@ -64,6 +68,10 @@ private:
     UPROPERTY() TObjectPtr<UBorder> CarePanel;
     UPROPERTY() TObjectPtr<UBorder> ControlsPanel;
     UPROPERTY() TObjectPtr<UEditableTextBox> AddressBox;
+    UPROPERTY() TObjectPtr<UComboBoxString> RoomPicker;
+    UPROPERTY() TObjectPtr<UTextBlock> ConnectionStatus;
+    UPROPERTY() TArray<TObjectPtr<UButton>> ConnectionButtons;
+    int32 LastSearchRevision=-1;
     UPROPERTY() TArray<TObjectPtr<USlider>> Sliders;
     UPROPERTY() TArray<TObjectPtr<UTextBlock>> SliderLabels;
     UPROPERTY() TArray<TObjectPtr<USlider>> GazeSliders;

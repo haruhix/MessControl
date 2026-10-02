@@ -7,12 +7,15 @@
 
 ```powershell
 .\Tools\PackageWindows.ps1 -EngineRoot 'E:\UE\UE_5.8'
+# Steam / Spacewar для теста с другом:
+.\Tools\PackageWindows.ps1 -SteamTest
 ```
 
 Скрипт собирает модули редактора и игры, готовит контент и создаёт отдельную
 папку `Saved/Builds/Win64_<дата>/Windows`. Путь к `MessControl.exe` выводится
 после успешной упаковки. Для передачи игры копируй всю папку `Windows`.
 `BuildInfo.json` рядом с ней содержит исходный коммит и незакоммиченные изменения.
+`-SteamTest` добавляет App ID 480 и `Start_Steam.cmd`; [инструкция для двух ПК](SteamTesting.md).
 
 ## Проверить
 

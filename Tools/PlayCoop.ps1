@@ -8,7 +8,7 @@ if (-not $EngineRoot) {
 $taskEditor=Join-Path $EngineRoot 'Engine\Binaries\Win64\UnrealEditor.exe'
 $taskProject=Join-Path $taskProjectRoot 'MessControl.uproject'
 # These are intentionally visible interactive game windows requested by this launcher.
-Start-Process -FilePath $taskEditor -ArgumentList @("`"$taskProject`"",'/Game/Maps/L_Mouth?listen','-game','-windowed','-ResX=960','-ResY=600','-WinX=0','-WinY=30','-log','-nosplash')
+Start-Process -FilePath $taskEditor -ArgumentList @("`"$taskProject`"",'/Game/Maps/L_Mouth?listen','-game','-nosteam','-windowed','-ResX=960','-ResY=600','-WinX=0','-WinY=30','-log','-nosplash')
 for ($taskIndex=1;$taskIndex -lt $Players;$taskIndex++) {
-    Start-Process -FilePath $taskEditor -ArgumentList @("`"$taskProject`"",'127.0.0.1:7777','-game','-windowed','-ResX=960','-ResY=600',"-WinX=$($taskIndex*160)","-WinY=$($taskIndex*100+30)",'-log','-nosplash')
+    Start-Process -FilePath $taskEditor -ArgumentList @("`"$taskProject`"",'127.0.0.1:7777','-game','-nosteam','-windowed','-ResX=960','-ResY=600',"-WinX=$($taskIndex*160)","-WinY=$($taskIndex*100+30)",'-log','-nosplash')
 }

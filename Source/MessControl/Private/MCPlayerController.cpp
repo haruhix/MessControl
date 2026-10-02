@@ -7,12 +7,15 @@
 #include "MCToothCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "Engine/GameInstance.h"
+#include "MCSteamSessionSubsystem.h"
 
 void AMCPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     if (IsLocalController())
     {
+        if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->RefreshAvailability();
         PrototypeWidget = CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
         PrototypeWidget->AddToViewport(); UpdateInputMode();
     }
@@ -81,6 +84,7 @@ void AMCPlayerController::UpdateInputMode()
     bShowMouseCursor = bPanel;
     if (auto* Tooth = Cast<AMCToothCharacter>(GetPawn())) Tooth->bPreviewAnimation = PrototypeWidget && PrototypeWidget->IsTuningOpen();
     ResetIgnoreMoveInput(); SetIgnoreMoveInput(bPanel);
+    ResetIgnoreLookInput(); SetIgnoreLookInput(bPanel);
     if (bDev || bEmote)
     {
         if (auto* Tooth=Cast<AMCToothCharacter>(GetPawn())) Tooth->CancelGameplayInput();
@@ -89,7 +93,12 @@ void AMCPlayerController::UpdateInputMode()
     else if (bPanel) { FInputModeGameAndUI Mode; Mode.SetWidgetToFocus(PrototypeWidget->TakeWidget()); Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode); }
     else SetInputMode(FInputModeGameOnly());
 }
-void AMCPlayerController::HostGame() { UGameplayStatics::OpenLevel(this,TEXT("L_Mouth"),true,TEXT("listen")); }
+void AMCPlayerController::HostGame()
+{
+    if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>(); Steam && Steam->CanUseSteam())
+        Steam->HostRoom();
+    else UGameplayStatics::OpenLevel(this,TEXT("L_Mouth"),true,TEXT("listen"));
+}
 void AMCPlayerController::JoinGame(const FString& Address)
 {
     FString Clean = Address.TrimStartAndEnd();

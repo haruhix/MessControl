@@ -17,6 +17,7 @@ class UMCExpressionComponent;
 class AMCFoodActor;
 class AMCArenaTooth;
 class UMaterialInstanceDynamic;
+class UMeshComponent;
 class UEnhancedInputLocalPlayerSubsystem;
 struct FInputActionValue;
 
@@ -99,6 +100,11 @@ public:
     UFUNCTION(Server,Reliable) void ServerSetPrimary(bool bActive);
     bool CanContact(AActor* Target) const;
     void UpdateMouthCamera(float Dt);
+    UFUNCTION(BlueprintCallable,Category="Camera") void ApplyCameraOrbitInput(FVector2D Delta);
+    UFUNCTION(BlueprintCallable,Category="Camera") void ZoomCamera(float ScrollDelta);
+    FVector CameraMoveDirection(bool Right) const;
+    void UpdateCameraWallReveal(float Dt,const FVector& Eye,const FVector& Focus);
+    void ClearCameraWallReveal();
     UMCToothStatusComponent* FindCareTarget(bool bBrush) const;
     void AdvanceCare(float Dt);
     void ResetContact();
@@ -116,6 +122,13 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ToolTip="Camera aim offset in centimetres from the tracked point; negative Z reveals the front teeth.")) FVector CameraFocusOffset=FVector(80,0,-140);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="1",ClampMax="20")) float FollowSpeed=7;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ToolTip="Movement in centimetres allowed around the tracked point before the camera follows.")) FVector CameraDeadZone=FVector(110,80,90);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="0.02",ClampMax="1")) float CameraOrbitSensitivity=.18f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="10",ClampMax="300")) float CameraZoomStep=100.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Walls") bool bCameraWallReveal=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Walls",meta=(ClampMin="60",ClampMax="500")) float CameraWallRevealRadius=500.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Walls",meta=(ClampMin="0.02",ClampMax="0.8")) float CameraWallRevealFeather=.25f;
+    bool bManualCameraOrbit=false;
+    float CameraOrbitYaw=0,CameraOrbitPitch=-30,CameraOrbitDistance=1000;
     bool bMouthCameraInitialized=false;
     bool bMouthCameraHeld=false;
     FVector MouthCameraFocus=FVector::ZeroVector, MouthCameraEye=FVector::ZeroVector;
@@ -151,6 +164,11 @@ private:
     void ApplyAppearance();
     void MoveForward(const FInputActionValue& Value);
     void MoveRight(const FInputActionValue& Value);
+    void OrbitMouseX(const FInputActionValue& Value);
+    void OrbitMouseY(const FInputActionValue& Value);
+    void CameraMouseWheel(const FInputActionValue& Value);
+    void InitializeCameraOrbit();
+    FVector2D WorldPaddleInput() const;
     void StartJump(); void StopJump();
     void StartSprint(); void StopSprint();
     void UpdateLocomotion(float Dt);
@@ -187,6 +205,9 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> ConnectionAction;
     UPROPERTY() TObjectPtr<UInputAction> RestartAction;
     UPROPERTY() TObjectPtr<UInputAction> SwingAction;
+    UPROPERTY() TObjectPtr<UInputAction> OrbitXAction;
+    UPROPERTY() TObjectPtr<UInputAction> OrbitYAction;
+    UPROPERTY() TObjectPtr<UInputAction> ZoomAction;
     UPROPERTY() TObjectPtr<UInputAction> SelfCareAction;
     UPROPERTY() TObjectPtr<UInputAction> ThrowAction;
     UPROPERTY() TArray<TObjectPtr<UInputAction>> ToolActions;
@@ -212,4 +233,8 @@ private:
     float PreviousAnimationYaw=0,PreviousAnimationSpeed=0;
     FVector PreviousLocomotionVelocity=FVector::ZeroVector;
     double LastPaddleAt=0;
+    float CameraOrbitViewDistance=1000.f;
+    struct FCameraWallState { ECollisionResponse CameraResponse=ECR_Block; float Amount=0; };
+    TMap<TWeakObjectPtr<UMeshComponent>,FCameraWallState> CameraRevealWalls;
+    double NextCameraWallScan=0;
 };
