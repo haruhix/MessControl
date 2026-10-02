@@ -94,7 +94,10 @@ void AMCFoodActor::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
     CarryPresentation.Holder=StackCarrier?StackCarrier.Get():Phase==EMCFoodPhase::Carried && Holders.Num()==1?Holders[0].Get():nullptr;
     if (IsValid(CarryPresentation.Holder))
     {
-        const FTransform Relative=GetActorTransform().GetRelativeTransform(CarryPresentation.Holder->GetActorTransform());
+        // Send the landing pose while the hop is in flight. A delayed packet must
+        // never pull a finished client animation back along its old trajectory.
+        const FTransform Pose=StackCarrier && IsStackPickupActive()?StackCarrier->FoodCollection->StackPose(StackPickup.SlotHeight):GetActorTransform();
+        const FTransform Relative=Pose.GetRelativeTransform(CarryPresentation.Holder->GetActorTransform());
         CarryPresentation.Location=Relative.GetLocation(); CarryPresentation.Rotation=Relative.Rotator();
     }
 }
@@ -107,6 +110,14 @@ void AMCFoodActor::UpdateCarryPresentation(float Dt)
     auto* Carrier=CarryPresentation.Holder.Get();
     if (HasAuthority() || !IsValid(Carrier) || !(StackCarrier==Carrier || Phase==EMCFoodPhase::Carried && Carrier->Grip->Holds(this))) return;
     const FTransform RenderedCarrier=Carrier->StandingMeshTransform().Inverse()*Carrier->GetMesh()->GetComponentTransform();
+    if(StackCarrier && IsStackPickupActive())
+    {
+        const FTransform Goal(RenderedCarrier.GetRotation(),RenderedCarrier.TransformPosition(FVector(73,12,20+StackPickup.SlotHeight)));
+        const FTransform Pose=StackPickupPose(Goal);
+        SetActorLocationAndRotation(Pose.GetLocation(),Pose.GetRotation(),false,nullptr,ETeleportType::TeleportPhysics);
+        PresentationCarrier=Carrier;SmoothedCarryRelative=Pose.GetRelativeTransform(RenderedCarrier);
+        return;
+    }
     if (PresentationCarrier.Get()!=Carrier)
     {
         PresentationCarrier=Carrier;
@@ -127,6 +138,9 @@ void AMCFoodActor::OnRep_Phase()
     if (!bSimulate) Body->SetSimulatePhysics(false);
     SetActorHiddenInGame(bGone); Body->SetCollisionEnabled((bGone || Phase==EMCFoodPhase::Swallowing)?ECollisionEnabled::NoCollision:Phase==EMCFoodPhase::Absorbing?ECollisionEnabled::QueryOnly:ECollisionEnabled::QueryAndPhysics);
     Body->SetCollisionResponseToChannel(ECC_Pawn,Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
+    // A carried kinematic body must not shove neighbouring food out of a pile.
+    // Server contact probes still detect real incoming bodies above the impulse threshold.
+    Body->SetCollisionResponseToChannel(ECC_PhysicsBody,StackCarrier?ECR_Overlap:ECR_Block);
     // Simulated proxies are kinematic; only the server applies springs and impact damage.
     if (bSimulate) Body->SetSimulatePhysics(true);
 }
@@ -402,7 +416,7 @@ void AMCFoodActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCFoodActor,Settings); DOREPLIFETIME(AMCFoodActor,Phase);
     DOREPLIFETIME(AMCFoodActor,ReplicatedActorScale);
     DOREPLIFETIME(AMCFoodActor,CarryPresentation);
-    DOREPLIFETIME(AMCFoodActor,StackCarrier);DOREPLIFETIME(AMCFoodActor,ImpactAt);DOREPLIFETIME(AMCFoodActor,ImpactStrength);
+    DOREPLIFETIME(AMCFoodActor,StackCarrier);DOREPLIFETIME(AMCFoodActor,StackPickup);DOREPLIFETIME(AMCFoodActor,ImpactAt);DOREPLIFETIME(AMCFoodActor,ImpactStrength);
     DOREPLIFETIME(AMCFoodActor,PullProgress); DOREPLIFETIME(AMCFoodActor,PullDirection); DOREPLIFETIME(AMCFoodActor,Holders);
     DOREPLIFETIME(AMCFoodActor,ItemMesh); DOREPLIFETIME(AMCFoodActor,FoodData); DOREPLIFETIME(AMCFoodActor,ItemName); DOREPLIFETIME(AMCFoodActor,Health);
     DOREPLIFETIME(AMCFoodActor,bFragment); DOREPLIFETIME(AMCFoodActor,bBrushTool); DOREPLIFETIME(AMCFoodActor,bSpoiled); DOREPLIFETIME(AMCFoodActor,SpoilAt);

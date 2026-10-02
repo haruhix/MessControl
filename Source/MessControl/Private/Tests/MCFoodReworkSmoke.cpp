@@ -42,6 +42,7 @@ void MCTickFoodReworkValidation(UWorld* W)
         double At=0;int32 Stage=0,MaxStack=0,FallenBeforeMotion=0;bool Started=false,Failed=false,Impact=false,Stretched=false,Squashed=false,MotionStarted=false;
         FVector P,Start;float FreshStart=0,MinScaleZ=FLT_MAX,MaxScaleZ=0;double RestImpact=-100,NextDiagnostic=0;float YawnDrag=0,HandGap=FLT_MAX,StackTilt=0;
         bool FoodImpactParticles=false,RedFlash=false,YawnEyesFocused=false;
+        bool PickupHop=false,PickupSquash=false,PickupStretch=false;
     };static FRun R;if(R.W!=W) {R=FRun();R.W=W;}
     FString Case;if(!FParse::Value(FCommandLine::Get(),TEXT("MCFoodRework="),Case)) return;
     auto* PC=W->GetFirstPlayerController();auto* H=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
@@ -78,8 +79,19 @@ void MCTickFoodReworkValidation(UWorld* W)
         H->SetActorRotation(FRotator::ZeroRotator);H->GetCharacterMovement()->StopMovementImmediately();R.Start=H->GetActorLocation();
         Camera(R.P+FVector(0,0,95),FVector(-460,-620,330));
         if(Case==TEXT("FoodReaction")) {R.Food=Spawn(TEXT("Egg"),R.P+FVector(70,0,450));if(R.Food.IsValid()) R.Food->Health=500;Camera(R.P+FVector(40,0,180),FVector(-460,-620,330));}
-        if(Case==TEXT("FoodCollect") || Case==TEXT("FoodBalance")) {
-            for(int32 I=0;I<4;++I) {auto* F=Spawn(TEXT("Egg"),R.P+FVector(20+(I/2)*25,(I%2?1:-1)*45,55),true);if(F) F->Phase=EMCFoodPhase::Free;}
+        if(Case==TEXT("FoodCollect") || Case==TEXT("FoodBalance") || Case==TEXT("FoodPickup")) {
+            const int32 Count=Case==TEXT("FoodPickup")?6:4;
+            for(int32 I=0;I<Count;++I) {
+                auto* F=Spawn(TEXT("Egg"),R.P+FVector(20+(I/2)*25,(I%2?1:-1)*45,55),true);
+                if(F) {
+                    F->Phase=EMCFoodPhase::Free;
+                    if(Case==TEXT("FoodPickup")) {
+                        const FVector E=F->Body->GetScaledBoxExtent();
+                        F->SetActorLocation(R.P+FVector(20+(I%2)*E.X*2,((I/2)%2?1:-1)*E.Y,E.Z+2+(I/4)*(E.Z*2+1)),false,nullptr,ETeleportType::TeleportPhysics);
+                    }
+                }
+            }
+            if(Case==TEXT("FoodPickup")) Camera(R.P+FVector(0,0,95),FVector(-280,-370,220));
         }
         if(Case==TEXT("FoodThroat")) {
             for(TActorIterator<AMCThroat> It(W);It;++It) {R.Throat=*It;It->SetActorTickEnabled(true);break;}
@@ -129,10 +141,33 @@ void MCTickFoodReworkValidation(UWorld* W)
             Check(R.Stretched && R.Squashed && R.Impact && R.RedFlash,TEXT("fall stretch, light bounce and red hit flash observed"));
             Check(!R.FoodImpactParticles && R.MinScaleZ>=Base.Z*.85,TEXT("landing and damage use a small deformation without impact particles"));Finish();
         }
-    } else if(Case==TEXT("FoodCollect") || Case==TEXT("FoodBalance")) {
+    } else if(Case==TEXT("FoodCollect") || Case==TEXT("FoodBalance") || Case==TEXT("FoodPickup")) {
+        if(Case==TEXT("FoodPickup")) for(const auto& Piece:H->FoodCollection->Pieces) if(IsValid(Piece) && Piece->IsStackPickupActive()) {
+            const float ScaleZ=Piece->Visual->GetRelativeScale3D().Z/Piece->FoodData.FragmentScale.Z;
+            R.PickupSquash|=ScaleZ<.96;R.PickupStretch|=ScaleZ>1.1;
+            R.PickupHop|=FVector::Dist(Piece->GetActorLocation(),H->FoodCollection->StackPose(Piece->StackPickup.SlotHeight).GetLocation())>10;
+        }
         if(T>1.5 && R.Stage==0) {H->ServerSetPrimary(true);H->ServerSetPrimary(false);++R.Stage;Check(H->FoodCollection->bCollecting,TEXT("one click toggles collection and release keeps it active"));}
-        if(T>(Case==TEXT("FoodBalance")?3:5) && R.Stage==1) {Check(R.MaxStack>=3,TEXT("three or more real food pieces form a stack"));++R.Stage;}
+        if(T>(Case==TEXT("FoodBalance")?3:Case==TEXT("FoodPickup")?3.5:5) && R.Stage==1) {
+            if(Case==TEXT("FoodPickup")) {
+                bool Settled=H->FoodCollection->Pieces.Num()==6;
+                for(const auto& Piece:H->FoodCollection->Pieces) Settled&=IsValid(Piece) && !Piece->IsStackPickupActive();
+                Check(Settled && H->FoodCollection->FallenPieces==0,TEXT("all six real fragments hop out of a dense heap within two seconds without spilling"));
+            } else Check(R.MaxStack>=3,TEXT("three or more real food pieces form a stack"));
+            ++R.Stage;
+        }
         if(Case==TEXT("FoodCollect") && T>7 && R.Stage==2) {H->ServerSetPrimary(true);H->ServerSetPrimary(false);Check(!H->FoodCollection->bCollecting && H->FoodCollection->Pieces.IsEmpty(),TEXT("second click releases the stack"));++R.Stage;}
+        if(Case==TEXT("FoodPickup") && T>5.2 && R.Stage==2) {
+            Check(R.PickupHop && R.PickupSquash && R.PickupStretch,TEXT("real food visibly anticipates, hops along an arc and stretches"));
+            Check(H->FoodCollection->Pieces.Num()>=3 && H->FoodCollection->FallenPieces==0,TEXT("all animated pieces settle into the held stack"));
+            ++R.Stage;
+        }
+        if(Case==TEXT("FoodPickup") && T>5.5 && T<6.2) H->AddMovementInput(FVector::RightVector,.5f);
+        if(Case==TEXT("FoodPickup") && T>6.5 && R.Stage==3) {
+            Check(H->FoodCollection->Pieces.Num()>=3,TEXT("the settled stack stays held while walking"));
+            H->Status->Damage(1,FVector::RightVector);
+            Check(H->FoodCollection->Pieces.IsEmpty(),TEXT("a real hit still spills the animated stack"));++R.Stage;
+        }
         if(Case==TEXT("FoodBalance") && T>3.2 && T<3.8) {
             if(!R.MotionStarted) {R.MotionStarted=true;R.FallenBeforeMotion=H->FoodCollection->FallenPieces;Check(H->FoodCollection->Pieces.Num()>=3,TEXT("movement begins while three physical pieces are still supported"));}
             H->AddMovementInput(FVector::RightVector,1);

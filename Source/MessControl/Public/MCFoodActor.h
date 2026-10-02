@@ -51,6 +51,20 @@ struct FMCCarryPresentation
     UPROPERTY() FRotator Rotation=FRotator::ZeroRotator;
 };
 
+/** One replicated pickup cue; every peer evaluates the same timed hop locally. */
+USTRUCT()
+struct FMCStackPickup
+{
+    GENERATED_BODY()
+    static constexpr float PlayRate=2.f;
+    UPROPERTY() FVector_NetQuantize10 StartLocation=FVector::ZeroVector;
+    UPROPERTY() FRotator StartRotation=FRotator::ZeroRotator;
+    UPROPERTY() double StartedAt=-100;
+    UPROPERTY() float FlightSeconds=.32f;
+    UPROPERTY() float SlotHeight=0;
+    UPROPERTY() float ArcHeight=50;
+};
+
 /** Server-simulated rigid food. Clients receive motion and interaction state. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCFoodActor : public AActor
@@ -83,6 +97,11 @@ public:
     bool IsHardFood() const;
     void AttendFood();
     void SetStackCarrier(AMCToothCharacter* Hero);
+    void BeginStackPickup(AMCToothCharacter* Hero,float SlotHeight);
+    bool IsStackPickupActive() const;
+    float StackPickupDuration() const { return (.075f+StackPickup.FlightSeconds+.18f)/FMCStackPickup::PlayRate; }
+    FTransform StackPickupPose(const FTransform& Goal) const;
+    UPROPERTY(Replicated) FMCStackPickup StackPickup;
     UPROPERTY(ReplicatedUsing=OnRep_Phase,BlueprintReadOnly,Category="Collection") TObjectPtr<AMCToothCharacter> StackCarrier;
     void ReactToImpact(float Strength=1);
     void UpdateReaction(float Dt);

@@ -588,7 +588,7 @@ void AMCToothCharacter::MulticastSwing_Implementation()
 void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location) { if (SoundPalette) SoundPalette->Play(this,TEXT("Hit"),Location); }
 void AMCToothCharacter::ResolveSwing()
 {
-    if (!HasAuthority() || !CanWork()) return;
+    if (!HasAuthority() || !CanWork() || Inventory->Selected==EMCToolSlot::Spray) return;
     if(Inventory->Selected==EMCToolSlot::Pickaxe) {
         AMCIceBlock* BestIce=nullptr; float Distance=FMath::Square(180.f);
         for(TActorIterator<AMCIceBlock> It(GetWorld());It;++It) {
@@ -612,16 +612,10 @@ void AMCToothCharacter::ResolveSwing()
         if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector())) { ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation());  }
         return;
     }
-    // Retry during the knife's follow-through. Moving/falling food can enter the
-    // blade after the first contact sample; a successful hit ends this window.
-    const float ContactTimeLeft=SwingContactEndsAt-GetWorld()->GetTimeSeconds();
-    if (Inventory->Selected==EMCToolSlot::Knife && ContactTimeLeft>KINDA_SMALL_NUMBER)
-        GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,FMath::Min(1.f/30.f,ContactTimeLeft),false);
-    if(!Inventory->IsCleaningTool()) return;
     AMCToothCharacter* Target=nullptr; float Best=FMath::Square(180.f);
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
-        if (*It==this || It->ToothPhysics->GetBodyState()==EMCBodyState::Recovering) continue;
+        if (*It==this || !It->Status->IsAlive() || It->ToothPhysics->GetBodyState()==EMCBodyState::Recovering) continue;
         const FVector Point=It->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?It->ToothPhysics->PhysicalLocation():It->GetActorLocation();
         const FVector Offset=Point-GetActorLocation();
         if (Offset.SizeSquared2D()>Best || FMath::Abs(Offset.Z)>120 || FVector::DotProduct(GetActorForwardVector(),Offset.GetSafeNormal2D())<0.25f) continue;
@@ -630,7 +624,7 @@ void AMCToothCharacter::ResolveSwing()
         Target=*It; Best=Offset.SizeSquared2D();
     }
     AMCArenaTooth* ArenaTarget=nullptr;
-    for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
+    if(Inventory->IsCleaningTool()) for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
     {
         const FVector Offset=It->GetActorLocation()-GetActorLocation();
         if (!It->IsAvailable() || Offset.SizeSquared2D()>=Best || FMath::Abs(Offset.Z)>120 || FVector::DotProduct(GetActorForwardVector(),Offset.GetSafeNormal2D())<0.25f) continue;
@@ -644,16 +638,23 @@ void AMCToothCharacter::ResolveSwing()
         { ++ConfirmedHitCount; MulticastHitSound(ArenaTarget->GetActorLocation()); }
         return;
     }
-    if (!Target) return;
+    if (!Target) {
+        // Retry only a missed knife swing. A hit on food or a player consumes
+        // the contact window, so follow-through cannot deal damage twice.
+        const float Left=SwingContactEndsAt-GetWorld()->GetTimeSeconds();
+        if(Inventory->Selected==EMCToolSlot::Knife && Left>KINDA_SMALL_NUMBER)
+            GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,FMath::Min(1.f/30.f,Left),false);
+        return;
+    }
     ++ConfirmedHitCount;
     FVector Direction=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(); if (Direction.IsNearlyZero()) Direction=GetActorForwardVector();
     Target->ToothPhysics->ApplyHit(Direction*ToothPhysics->Settings.Knockback+FVector(0,0,ToothPhysics->Settings.Lift),Target->GetActorLocation()+FVector(0,0,15));
-    Target->Status->Damage(25,Direction);
+    Target->Status->Damage(Inventory->IsCleaningTool()?25.f:Inventory->Damage(),Direction);
     MulticastHitSound(Target->GetActorLocation());
 }
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {
-    if(HasAuthority()) FoodCollection->HandleCarrierCollision(OtherActor,Hit);
+    if(HasAuthority()) FoodCollection->HandleCarrierCollision(OtherActor,OtherComponent,NormalImpulse,Hit);
     if (Cast<AMCFoodActor>(OtherActor)) return;
     if (!HasAuthority() || !ToothPhysics->CanAct() || !OtherComponent || OtherActor==this || GetWorld()->GetTimeSeconds()-LastEnvironmentHit<0.6f) return;
     FVector Impact=FVector::ZeroVector;

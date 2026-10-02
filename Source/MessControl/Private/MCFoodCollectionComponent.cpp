@@ -2,9 +2,11 @@
 #include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
+#include "MCToothPhysicsComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "EngineUtils.h"
+#include "Engine/OverlapResult.h"
 #include "Net/UnrealNetwork.h"
 
 UMCFoodCollectionComponent::UMCFoodCollectionComponent()
@@ -23,6 +25,16 @@ bool UMCFoodCollectionComponent::IsSettlingRelease(const AMCFoodActor* Food) con
     const double* At=DroppedAt.Find(Food);
     return At && GetWorld()->GetTimeSeconds()-*At<.75;
 }
+float UMCFoodCollectionComponent::ContactThreshold() const
+{ return FMath::IsFinite(SpillContactImpulse)?FMath::Max(1.f,SpillContactImpulse):600.f; }
+bool UMCFoodCollectionComponent::IsLoosePileFood(const AActor* Actor) const
+{
+    const auto* F=Cast<AMCFoodActor>(Actor);
+    return IsValid(F) && !F->UsesLegacyGrip() && !F->StackCarrier && F->Holders.IsEmpty()
+        && (F->Phase==EMCFoodPhase::Free || F->Phase==EMCFoodPhase::Falling)
+        && F->Body->GetScaledBoxExtent().GetMax()<=55
+        && F->Body->GetPhysicsLinearVelocity().Size()*F->Settings.Mass<ContactThreshold();
+}
 bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
 {
     const auto* H=Cast<AMCToothCharacter>(GetOwner());
@@ -34,7 +46,14 @@ bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
     if(FVector::DistSquared(F->GetActorLocation(),H->GetActorLocation())>FMath::Square(CollectionReach)) return false;
     FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCCollectFood),false,H); Q.AddIgnoredActor(F);
     for(const auto& Piece:Pieces) Q.AddIgnoredActor(Piece);
-    return !GetWorld()->LineTraceSingleByChannel(Hit,H->GetActorLocation(),F->GetActorLocation(),ECC_Visibility,Q);
+    // Nearby loose ingredients can hide one another in a heap. They do not
+    // obstruct pickup visibility; solid scenery and active hazards still do.
+    for(int32 I=0;I<64;++I) {
+        if(!GetWorld()->LineTraceSingleByChannel(Hit,H->GetActorLocation(),F->GetActorLocation(),ECC_Visibility,Q)) return true;
+        if(!IsLoosePileFood(Hit.GetActor())) return false;
+        Q.AddIgnoredActor(Hit.GetActor());
+    }
+    return false;
 }
 bool UMCFoodCollectionComponent::HasCandidate() const
 {
@@ -49,6 +68,8 @@ void UMCFoodCollectionComponent::Toggle()
 }
 FQuat UMCFoodCollectionComponent::StackRotation() const
 { return GetOwner()->GetActorQuat()*FRotator(SwayAngle.X,0,SwayAngle.Y).Quaternion(); }
+FTransform UMCFoodCollectionComponent::StackPose(float SlotHeight) const
+{ const FQuat Rotation=StackRotation();return FTransform(Rotation,HandPoint()+Rotation.RotateVector(FVector(0,0,SlotHeight))); }
 bool UMCFoodCollectionComponent::Collect(AMCFoodActor* Food)
 {
     if(!GetOwner()->HasAuthority() || !bCollecting || Pieces.Num()>=FMath::Clamp(MaxPieces,1,8) || !CanCollect(Food)) return false;
@@ -59,12 +80,13 @@ bool UMCFoodCollectionComponent::Collect(AMCFoodActor* Food)
     // Reject occupied placement volumes instead of teleporting a piece through a wall.
     FCollisionQueryParams Q(SCENE_QUERY_STAT(MCStackPlacement),false,GetOwner()); Q.AddIgnoredActor(Food);
     for(const auto& Piece:Pieces) Q.AddIgnoredActor(Piece);
-    if(GetWorld()->OverlapBlockingTestByChannel(Goal,Rotation,ECC_PhysicsBody,FCollisionShape::MakeBox(Food->Body->GetScaledBoxExtent()*.9),Q)) return false;
-    Food->SetStackCarrier(Cast<AMCToothCharacter>(GetOwner()));
+    TArray<FOverlapResult> Occupants;
+    GetWorld()->OverlapMultiByChannel(Occupants,Goal,Rotation,ECC_PhysicsBody,FCollisionShape::MakeBox(Food->Body->GetScaledBoxExtent()*.9),Q);
+    for(const auto& Occupant:Occupants) if(Occupant.bBlockingHit && !IsLoosePileFood(Occupant.GetActor())) return false;
+    Food->BeginStackPickup(Cast<AMCToothCharacter>(GetOwner()),Height);
     for(const auto& Piece:Pieces) if(IsValid(Piece)) {
         Food->Body->IgnoreActorWhenMoving(Piece,true); Piece->Body->IgnoreActorWhenMoving(Food,true);
     }
-    Food->SetActorLocationAndRotation(Goal,Rotation,false,nullptr,ETeleportType::TeleportPhysics);
     Pieces.Add(Food); PieceMotion.FindOrAdd(Food).Linear=GetOwner()->GetVelocity();
     Food->AttendFood(); GetOwner()->ForceNetUpdate(); return true;
 }
@@ -96,25 +118,65 @@ void UMCFoodCollectionComponent::Stop(bool Throw)
 void UMCFoodCollectionComponent::Spill(FVector Impulse)
 {
     if(!GetOwner()->HasAuthority() || Pieces.IsEmpty() || Impulse.ContainsNaN()) return;
+    UE_LOG(LogTemp,Log,TEXT("MC_STACK_SPILL carrier=%s pieces=%d impulse=%s"),*GetNameSafe(GetOwner()),Pieces.Num(),*Impulse.ToString());
     FallenPieces+=Pieces.Num(); ReleaseFrom(0,false,Impulse.GetClampedToMaxSize(600));
     bCollecting=false; bHasHand=false; GetOwner()->ForceNetUpdate();
 }
-void UMCFoodCollectionComponent::HandleCarrierCollision(AActor* Other,const FHitResult& Hit)
+float UMCFoodCollectionComponent::ContactStrength(float HeldMass,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,FVector Normal) const
+{
+    if(!IsValid(Other) || Impulse.ContainsNaN() || Normal.ContainsNaN()) return 0;
+    Normal=Normal.GetSafeNormal();if(Normal.IsNearlyZero()) return 0;
+    const bool Simulating=OtherComponent && OtherComponent->IsSimulatingPhysics();
+    const FVector OtherVelocity=Simulating?OtherComponent->GetPhysicsLinearVelocityAtPoint(OtherComponent->GetComponentLocation()):Other->GetVelocity();
+    // Exclude our scripted hop/sway velocity. Only an external incoming body or
+    // the player's motion into a solid obstacle produces an impact.
+    const float ClosingSpeed=FMath::Max(0.f,float(FMath::Max(-FVector::DotProduct(GetOwner()->GetVelocity()-OtherVelocity,Normal),
+        -FVector::DotProduct(PreviousCarrierVelocity-OtherVelocity,Normal))));
+    const float Mass=Simulating?FMath::Max(.01f,OtherComponent->GetMass()):FMath::Max(.01f,HeldMass);
+    return FMath::Max(float(FMath::Abs(FVector::DotProduct(Impulse,Normal))),Mass*ClosingSpeed);
+}
+void UMCFoodCollectionComponent::HandleCarrierCollision(AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
     if(!GetOwner()->HasAuthority() || Pieces.IsEmpty() || !IsValid(Other) || Other==GetOwner() || Hit.ImpactNormal.Z>.55f) return;
     if(const auto* Food=Cast<AMCFoodActor>(Other); Food && (Contains(Food) || IsSettlingRelease(Food))) return;
-    const float Speed=FMath::Max(-FVector::DotProduct(GetOwner()->GetVelocity()-Other->GetVelocity(),Hit.ImpactNormal),
-        -FVector::DotProduct(PreviousCarrierVelocity-Other->GetVelocity(),Hit.ImpactNormal));
-    if(Speed>=75) Spill(Hit.ImpactNormal*120+FVector(0,0,45));
+    const auto* H=Cast<AMCToothCharacter>(GetOwner());
+    const float Strength=ContactStrength(H->ToothPhysics->Settings.Mass,Other,OtherComponent,Impulse,Hit.ImpactNormal);
+    if(Strength>=ContactThreshold()) {
+        UE_LOG(LogTemp,Log,TEXT("MC_STACK_CARRIER_CONTACT carrier=%s other=%s impulse=%.1f threshold=%.1f"),*GetNameSafe(H),*GetNameSafe(Other),Strength,ContactThreshold());
+        Spill(Hit.ImpactNormal*120+FVector(0,0,45));
+    }
 }
 void UMCFoodCollectionComponent::HandleStackCollision(AMCFoodActor* Food,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
     if(!GetOwner()->HasAuthority() || !Contains(Food) || !IsValid(Other) || Other==GetOwner()) return;
     if(const auto* Piece=Cast<AMCFoodActor>(Other); Piece && (Contains(Piece) || IsSettlingRelease(Piece))) return;
-    const FVector OtherVelocity=OtherComponent && OtherComponent->IsSimulatingPhysics()?OtherComponent->GetPhysicsLinearVelocity():Other->GetVelocity();
-    const float Speed=FMath::Max(-FVector::DotProduct(GetOwner()->GetVelocity()-OtherVelocity,Hit.ImpactNormal),
-        float(Impulse.Size()/FMath::Max(1.f,Food->Settings.Mass)));
-    if(Speed>=75) Spill(Hit.ImpactNormal*160+FVector(0,0,55));
+    const float Strength=ContactStrength(Food->Settings.Mass,Other,OtherComponent,Impulse,Hit.ImpactNormal);
+    if(Strength>=ContactThreshold()) {
+        UE_LOG(LogTemp,Log,TEXT("MC_STACK_CONTACT carrier=%s food=%s other=%s impulse=%.1f threshold=%.1f hop=%d normal=%s"),*GetNameSafe(GetOwner()),*GetNameSafe(Food),*GetNameSafe(Other),Strength,ContactThreshold(),Food->IsStackPickupActive(),*Hit.ImpactNormal.ToString());
+        Spill(Hit.ImpactNormal*160+FVector(0,0,55));
+    }
+}
+void UMCFoodCollectionComponent::CheckIncomingContacts(AMCFoodActor* Food)
+{
+    // Cheap broad phase, then exact authored shapes only for strong candidates.
+    // PhysicsBody overlap response prevents pickup animation from pushing a heap.
+    FCollisionQueryParams Q(SCENE_QUERY_STAT(MCStackIncomingContact),false,GetOwner());
+    for(const auto& Piece:Pieces) Q.AddIgnoredActor(Piece);
+    FCollisionObjectQueryParams Objects(ECC_PhysicsBody);Objects.AddObjectTypesToQuery(ECC_WorldDynamic);
+    TArray<FOverlapResult> Contacts;
+    GetWorld()->OverlapMultiByObjectType(Contacts,Food->GetActorLocation(),Food->GetActorQuat(),Objects,
+        FCollisionShape::MakeBox(Food->Body->GetScaledBoxExtent()),Q);
+    for(const auto& Contact:Contacts) {
+        auto* Other=Contact.GetActor();auto* Body=Contact.GetComponent();
+        if(!IsValid(Other) || !Body || !Body->IsSimulatingPhysics()) continue;
+        if(const auto* F=Cast<AMCFoodActor>(Other); F && IsSettlingRelease(F)) continue;
+        const FVector Normal=(Food->GetActorLocation()-Body->GetComponentLocation()).GetSafeNormal();
+        if(ContactStrength(Food->Settings.Mass,Other,Body,FVector::ZeroVector,Normal)<ContactThreshold()) continue;
+        if(!Body->ComponentOverlapComponent(Food->Body,Food->GetActorLocation(),Food->GetActorQuat(),Q)) continue;
+        FHitResult Hit;Hit.ImpactNormal=Normal;
+        HandleStackCollision(Food,Other,Body,FVector::ZeroVector,Hit);
+        if(!bCollecting) return;
+    }
 }
 void UMCFoodCollectionComponent::EndPlay(const EEndPlayReason::Type Reason) {Stop();Super::EndPlay(Reason);}
 void UMCFoodCollectionComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick)
@@ -145,22 +207,48 @@ void UMCFoodCollectionComponent::TickComponent(float Dt,ELevelTick Type,FActorCo
         if(!IsValid(F) || F->IsDisposed() || F->StackCarrier!=H) {ReleaseFrom(I);break;}
         const float Extent=F->Body->GetScaledBoxExtent().Z;
         Height+=Extent;
-        const FVector Goal=Hand+Rotation.RotateVector(FVector(0,0,Height)); Height+=Extent+3;
+        const FTransform RestPose(Rotation,Hand+Rotation.RotateVector(FVector(0,0,Height))); Height+=Extent+3;
+        const FTransform Pose=F->StackPickupPose(RestPose);
+        const FVector Goal=Pose.GetLocation();const FQuat PieceRotation=Pose.GetRotation();
         const FVector Previous=F->GetActorLocation(); const FQuat PreviousRotation=F->GetActorQuat();
         FHitResult Hit;
-        F->SetActorLocationAndRotation(Goal,Rotation,true,&Hit,ETeleportType::TeleportPhysics);
+        F->SetActorLocationAndRotation(Goal,PieceRotation,true,&Hit,ETeleportType::TeleportPhysics);
         // A collision callback can release the stack during this swept move.
         if(!bCollecting || F->StackCarrier!=H) return;
-        if(Hit.bBlockingHit) {Spill(Hit.ImpactNormal*120+FVector(0,0,45));return;}
+        if(Hit.bBlockingHit && Hit.bStartPenetrating && Hit.ImpactNormal.Z>.55f && FVector::DotProduct(Goal-Previous,Hit.ImpactNormal)>0) {
+            // A rotated piece can start slightly inside its supporting floor.
+            // Permit a clean upward exit, after checking the actual target hulls.
+            FComponentQueryParams Q(SCENE_QUERY_STAT(MCStackFloorExit),H);Q.AddIgnoredActor(F);
+            for(const auto& Piece:Pieces) Q.AddIgnoredActor(Piece);
+            FCollisionObjectQueryParams Objects(ECC_WorldStatic);Objects.AddObjectTypesToQuery(ECC_WorldDynamic);
+            TArray<FOverlapResult> Obstacles;
+            GetWorld()->ComponentOverlapMulti(Obstacles,F->Body,Goal,PieceRotation,Q,Objects);
+            if(Obstacles.IsEmpty()) {
+                F->SetActorLocationAndRotation(Goal,PieceRotation,false,nullptr,ETeleportType::TeleportPhysics);
+                Hit.bBlockingHit=false;
+            }
+        }
+        if(Hit.bBlockingHit) {
+            HandleStackCollision(F,Hit.GetActor(),Hit.GetComponent(),FVector::ZeroVector,Hit);
+            if(!bCollecting) return;
+            // A weak touch is a movement constraint, not an impact. A blocked
+            // pickup is released at the contact point without spilling the load.
+            if(F->IsStackPickupActive()) ReleaseFrom(I);
+            return;
+        }
+        CheckIncomingContacts(F);if(!bCollecting || F->StackCarrier!=H) return;
         auto& Motion=PieceMotion.FindOrAdd(F);
+        if(!Motion.bLanded && !F->IsStackPickupActive()) {
+            Motion.bLanded=true;SwayVelocity+=FVector2D(7,I%2?-9:9);
+        }
         Motion.Linear=((Goal-Previous)/FMath::Max(Dt,.001f)).GetClampedToMaxSize(1000);
-        FQuat Delta=Rotation*PreviousRotation.Inverse(); Delta.EnforceShortestArcWith(FQuat::Identity);
+        FQuat Delta=PieceRotation*PreviousRotation.Inverse(); Delta.EnforceShortestArcWith(FQuat::Identity);
         FVector Axis; double Angle; Delta.ToAxisAndAngle(Axis,Angle);
         Motion.Angular=(Axis*Angle/FMath::Max(Dt,.001f)).GetClampedToMaxSize(6);
     }
     if(Now>=NextCollectAt && Pieces.Num()<FMath::Clamp(MaxPieces,1,8)) {
         for(auto It=DroppedAt.CreateIterator();It;++It) if(!It.Key().IsValid() || Now-It.Value()>2) It.RemoveCurrent();
-        NextCollectAt=Now+.55;
+        NextCollectAt=Now+.55/FMCStackPickup::PlayRate;
         AMCFoodActor* Best=nullptr; double Distance=DBL_MAX;
         for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(CanCollect(*It)) {
             const double D=FVector::DistSquared(It->GetActorLocation(),H->GetActorLocation()); if(D<Distance) {Best=*It;Distance=D;}

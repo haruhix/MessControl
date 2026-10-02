@@ -26,6 +26,7 @@ void MCTickCareValidation(UWorld* World);
 void MCTickBrushValidation(UWorld* World);
 void MCTickCameraValidation(UWorld* World);
 void MCTickInventoryValidation(UWorld* World);
+void MCTickWeaponPlayerNetworkValidation(UWorld* World);
 void MCTickGameplayV3Validation(UWorld* World);
 void MCTickUlcerReworkValidation(UWorld* World);
 void MCTickApprovalRecorder(UWorld* World);
@@ -62,6 +63,7 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
     if(FParse::Param(FCommandLine::Get(),TEXT("MCSprayNetworkTest"))) { MCTickSprayNetworkValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCUlcerReworkTest"))) { MCTickUlcerReworkValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCGameplayV3Test"))) { MCTickGameplayV3Validation(GetWorld()); return; }
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCWeaponPvP"))) { MCTickWeaponPlayerNetworkValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCInventoryTest"))) { MCTickInventoryValidation(GetWorld()); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCThroatTest"))) { TickThroat(DeltaSeconds); return; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCBrushTest"))) { MCTickBrushValidation(GetWorld()); return; }

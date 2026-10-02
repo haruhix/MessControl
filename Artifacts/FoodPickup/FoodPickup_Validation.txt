@@ -1,0 +1,7 @@
+[2026.10.02-18.09.54:380][806]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodPickup PASS one click toggles collection and release keeps it active
+[2026.10.02-18.10.04:423][132]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodPickup PASS three or more real food pieces form a stack
+[2026.10.02-18.10.05:068][139]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodPickup PASS real food visibly anticipates, hops along an arc and stretches
+[2026.10.02-18.10.05:068][139]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodPickup PASS all animated pieces settle into the held stack
+[2026.10.02-18.10.08:703][243]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodPickup PASS the settled stack stays held while walking
+[2026.10.02-18.10.08:703][243]LogTemp: Display: MC_FOOD_REWORK_CHECK FoodPickup PASS a real hit still spills the animated stack
+[2026.10.02-18.10.15:938][464]LogTemp: Display: MC_VALIDATION_PASS FOOD_REWORK_FoodPickup

@@ -2648,9 +2648,10 @@ bool FMCCollectionBalanceTest::RunTest(const FString&)
     if(!TestTrue(TEXT("Bottom body can be collected"),C->Collect(A))) return false;
     if(!TestTrue(TEXT("Second body can be stacked"),C->Collect(B))) return false;
     TestTrue(TEXT("Both pieces are held without gravity separating the stack"),A->Phase==EMCFoodPhase::Free && !A->Body->IsSimulatingPhysics() && !B->Body->IsSimulatingPhysics());
-    TestTrue(TEXT("Upper food is above bottom food"),B->GetActorLocation().Z>A->GetActorLocation().Z+20);
+    TestTrue(TEXT("Newly reserved pieces start a hop instead of teleporting"),A->IsStackPickupActive() && B->IsStackPickupActive());
     TestFalse(TEXT("Stack never enters the old push/pull grip"),H->Grip->Holds(A) || H->Grip->Holds(B));
     M.Step(.7f);
+    TestTrue(TEXT("After the hop upper food is above bottom food"),B->GetActorLocation().Z>A->GetActorLocation().Z+20);
     B->SetActorLocation(A->GetActorLocation()+FVector(170,0,80),false,nullptr,ETeleportType::TeleportPhysics);
     C->TickComponent(.01f,LEVELTICK_All,nullptr);
     TestTrue(TEXT("Position drift is corrected without losing an upper piece"),B->StackCarrier==H && !B->IsDisposed() && C->Pieces.Num()==2 && C->FallenPieces==0);

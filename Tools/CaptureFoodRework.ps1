@@ -1,4 +1,4 @@
-param([ValidateSet('FoodReaction','FoodCollect','FoodBalance','FoodThroat','FoodYawn','FoodSpoil','FoodDamage','FoodStars','FoodCollision')][string[]]$Case=@('FoodReaction','FoodCollect','FoodBalance','FoodThroat','FoodYawn','FoodSpoil','FoodDamage','FoodStars'),[switch]$NullRHI,[ValidatePattern("^[A-Za-z0-9_-]*$")][string]$Revision="")
+param([ValidateSet('FoodReaction','FoodCollect','FoodBalance','FoodPickup','FoodThroat','FoodYawn','FoodSpoil','FoodDamage','FoodStars','FoodCollision')][string[]]$Case=@('FoodReaction','FoodCollect','FoodBalance','FoodThroat','FoodYawn','FoodSpoil','FoodDamage','FoodStars'),[switch]$NullRHI,[ValidatePattern("^[A-Za-z0-9_-]*$")][string]$Revision="")
 $ErrorActionPreference='Stop'
 # Win64 is already built; avoid a startup SDK query through the engine-wide build lock.
 $env:UE_SKIP_UBT_SDK_SETUP='1'

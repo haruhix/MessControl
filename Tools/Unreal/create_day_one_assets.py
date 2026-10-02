@@ -69,6 +69,7 @@ if not lib.does_asset_exist(path):
         def paths(part): return [f'/Game/Art/Meshes/Breakfast/SM_{name}_{part}_{v}.SM_{name}_{part}_{v}' for v in 'ABC']
         rows.append(dict(Name=name,Label=name.upper(),WholeMeshes=paths('Whole'),FragmentMeshes=paths('Part'),
             Scale=dict(X=1,Y=1,Z=1),FragmentScale=dict(X=.5,Y=.5,Z=.5),AbsorbSeconds=2,SelectionWeight=weight,Health=hp,Mass=mass,SpoilSeconds=rot,Fragments=3,
+            Resistance='Soft' if name=='Carrot' else 'Automatic',
             HalfExtent=dict(X=extent[0],Y=extent[1],Z=extent[2])))
     if not u.DataTableFunctionLibrary.fill_data_table_from_json_string(table,json.dumps(rows)): raise RuntimeError('Menu import failed')
     lib.save_loaded_asset(table,only_if_is_dirty=False)

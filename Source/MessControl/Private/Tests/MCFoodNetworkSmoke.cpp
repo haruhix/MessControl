@@ -26,7 +26,7 @@ void MCTickFoodNetworkValidation(UWorld* W)
 {
     struct FRun {
         TWeakObjectPtr<UWorld> W;double At=0;int32 Stage=0,MaxStack=0;bool Setup=false,Failed=false,YawnSeen=false,StarsSeen=false,FireSeen=false,FireSuppressed=false;
-        bool CollisionScaleSent=false,CollisionVariantSent=false,StableStackSeen=false;
+        bool CollisionScaleSent=false,CollisionVariantSent=false,StableStackSeen=false,PickupHopSeen=false,PickupStretchSeen=false;
         TMap<TWeakObjectPtr<AMCToothCharacter>,int32> ServerMax;
     };static FRun R;if(R.W!=W) {R=FRun();R.W=W;}
     auto* GS=W->GetGameState<AMCGameState>();auto* PC=W->GetFirstPlayerController();auto* H=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
@@ -81,6 +81,10 @@ void MCTickFoodNetworkValidation(UWorld* W)
     }
     if(H->IsLocallyControlled() && T>.8 && R.Stage==0) {H->ServerSetPrimary(true);H->ServerSetPrimary(false);++R.Stage;}
     R.MaxStack=FMath::Max(R.MaxStack,H->FoodCollection->Pieces.Num());
+    for(const auto& Piece:H->FoodCollection->Pieces) if(IsValid(Piece) && Piece->StackCarrier==H && Piece->IsStackPickupActive()) {
+        R.PickupHopSeen|=FVector::Dist(Piece->GetActorLocation(),H->FoodCollection->StackPose(Piece->StackPickup.SlotHeight).GetLocation())>8;
+        R.PickupStretchSeen|=Piece->Visual->GetRelativeScale3D().Z>Piece->FoodData.FragmentScale.Z*1.07;
+    }
     if(T>4 && T<5.8 && H->FoodCollection->Pieces.Num()>=3) {
         bool Held=true;for(const auto& Piece:H->FoodCollection->Pieces)
             Held&=IsValid(Piece) && Piece->StackCarrier==H && !Piece->Body->IsSimulatingPhysics();
@@ -122,6 +126,7 @@ void MCTickFoodNetworkValidation(UWorld* W)
         Check(R.FireSeen && R.FireSuppressed,TEXT("owning client spray extinguishes replicated persistent fire"));
         Check(R.MaxStack>=3,TEXT("owning input produced a replicated three-piece physical stack"));
         Check(R.StableStackSeen,TEXT("all collected pieces stay held without falling on this peer"));
+        Check(R.PickupHopSeen && R.PickupStretchSeen,TEXT("this peer observed the timed pickup hop and visual stretch"));
         Check(R.YawnSeen && H->CanWork() && !H->IsYawning(),TEXT("replicated yawn interrupted collection, gripped tongue and released movement"));
         Check(R.StarsSeen,TEXT("completion VFX replicated to this peer"));
         AMCFoodActor* CollisionFood=nullptr;

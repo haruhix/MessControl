@@ -60,6 +60,12 @@ public:
         const float Alpha=Yawn?Tooth->YawnPoseAlpha():1.f;
         const auto* GS=Tooth->GetWorld()->GetGameState();const double Now=GS?GS->GetServerWorldTimeSeconds():Tooth->GetWorld()->GetTimeSeconds();
         const float Age=Now-Tooth->YawnStartedAt;
+        float CatchDip=0;
+        if(!Yawn) for(const auto& Piece:Tooth->FoodCollection->Pieces) if(IsValid(Piece)) {
+            const float LandAge=(Now-Piece->StackPickup.StartedAt)*FMCStackPickup::PlayRate-.075f-Piece->StackPickup.FlightSeconds;
+            if(LandAge>=0 && LandAge<.22f)
+                CatchDip+=FMath::Sin(LandAge*26)*FMath::Exp(-18*LandAge)*5*(1-FMath::SmoothStep(.12f,.22f,LandAge));
+        }
         TArray<FTransform> CS;CS.SetNum(Pose.Num());
         auto Rebuild=[&](){for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];};
         TArray<FTransform> ReferenceCS;ReferenceCS.SetNum(Pose.Num());
@@ -127,7 +133,7 @@ public:
             const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
             const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
             if(Hand<0 || Lower<0) continue;
-            const FVector Point=Yawn?Tooth->YawnHandPoint(Side):Tooth->FoodCollection->HandPoint()+Tooth->GetActorRightVector()*(Side==0?-20:20);
+            const FVector Point=Yawn?Tooth->YawnHandPoint(Side):Tooth->FoodCollection->HandPoint()+Tooth->GetActorRightVector()*(Side==0?-20:20)-FVector(0,0,FMath::Clamp(CatchDip,-3.f,3.f));
             // This rig uses floating mittens. Position their branch directly so
             // the skin's compact arm lengths do not prevent a real ground grip.
             FTransform Goal=CS[Hand];Goal.SetLocation(World.InverseTransformPosition(Point));
