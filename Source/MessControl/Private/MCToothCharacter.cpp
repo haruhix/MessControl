@@ -5,6 +5,7 @@
 #include "MCThroat.h"
 #include "MCBrushContactComponent.h"
 #include "MCOrbitSpringArmComponent.h"
+#include "MCPlayerCameraComponent.h"
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
@@ -90,7 +91,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     CameraBoom->CameraLagSpeed = 7; CameraBoom->CameraLagMaxDistance = 80;
     CameraBoom->bDoCollisionTest = true; CameraBoom->ProbeSize=24; CameraBoom->ProbeChannel=ECC_Camera;
     CameraBoom->AddTickPrerequisiteActor(this);
-    Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera")); Camera->SetupAttachment(CameraBoom);
+    Camera = CreateDefaultSubobject<UMCPlayerCameraComponent>(TEXT("Camera")); Camera->SetupAttachment(CameraBoom);
     Camera->SetUsingAbsoluteRotation(true);
     Camera->FieldOfView = FollowFOV;
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> ToothAsset(TEXT("/Game/Art/Rig/SK_ToothHero"));
