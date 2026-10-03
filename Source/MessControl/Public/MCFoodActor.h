@@ -99,6 +99,8 @@ public:
     bool IsHardFood() const;
     void AttendFood();
     void SetStackCarrier(AMCToothCharacter* Hero);
+    /** A dropped stack settles without attacking players; deliberate throws remain dangerous. */
+    void ProtectPlayersOnStackRelease(bool bThrown);
     void BeginStackPickup(AMCToothCharacter* Hero,float SlotHeight);
     float PrepareHorizontalStackPose(const FMCFoodStackSettings* StackSettings,int32 Slot);
     FQuat StackRestRotation(const FQuat& BaseRotation) const;
@@ -175,6 +177,7 @@ private:
     TWeakObjectPtr<AMCToothCharacter> CollisionIgnoredCarrier;
     // Sampled in the actor's PrePhysics tick, before contact impulses change velocity.
     FVector PrePhysicsVelocity=FVector::ZeroVector;
+    double StackReleaseSafeUntil=-100;
     TMap<TWeakObjectPtr<AActor>,double> LastHit;
     UPROPERTY(Replicated) TObjectPtr<class AMCTongue> AbsorptionTongue;
     UPROPERTY(Replicated) FVector AbsorptionAnchor=FVector::ZeroVector;

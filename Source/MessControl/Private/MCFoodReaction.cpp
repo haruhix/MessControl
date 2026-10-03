@@ -8,6 +8,10 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
 
+void AMCFoodActor::ProtectPlayersOnStackRelease(bool bThrown)
+{
+    if(HasAuthority()) StackReleaseSafeUntil=bThrown?-100:GetWorld()->GetTimeSeconds()+.75;
+}
 void AMCFoodActor::SetStackCarrier(AMCToothCharacter* Hero)
 {
     if(!HasAuthority() || StackCarrier==Hero) return;

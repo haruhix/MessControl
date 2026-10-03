@@ -302,7 +302,7 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
     UMCToothStatusComponent* Target=Other->FindComponentByClass<UMCToothStatusComponent>();
     if (!Target || !Target->IsAlive() || Phase==EMCFoodPhase::Stuck || bBrushTool) return;
     if (const auto* Arena=Cast<AMCArenaTooth>(Other); Arena && !Arena->IsAvailable()) return;
-    if (const auto* Hero=Cast<AMCToothCharacter>(Other); Hero && (Holders.Contains(Hero) || StackCarrier==Hero || Hero->FoodCollection->IsSettlingRelease(this))) return;
+    if (const auto* Hero=Cast<AMCToothCharacter>(Other); Hero && (GetWorld()->GetTimeSeconds()<StackReleaseSafeUntil || Holders.Contains(Hero) || StackCarrier==Hero || Hero->FoodCollection->IsSettlingRelease(this))) return;
     const double Now=GetWorld()->GetTimeSeconds();
     if (const double* Prev=LastHit.Find(Other); Prev && Now-*Prev<Settings.HitCooldown) return;
     // A player running into stationary food must not turn their own speed (or the

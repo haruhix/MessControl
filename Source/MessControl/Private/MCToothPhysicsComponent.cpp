@@ -5,6 +5,7 @@
 #include "MCGripComponent.h"
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCFoodActor.h"
 #include "MCToothStatusComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -321,20 +322,47 @@ bool UMCToothPhysicsComponent::TryRecover()
 {
     if (!Tooth || !Tooth->Status->IsAlive() || !Tooth->HasAuthority() || LocalState!=EMCBodyState::Ragdoll) return false;
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCGetUp),false,Tooth);
-    FHitResult Floor; const FVector Center=PhysicalLocation();
+    const FVector Center=PhysicalLocation();
     auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
     auto* Water=Movement?Movement->DeepWaterAt(Center,true):nullptr;
-    if (!Water && (!GetWorld()->LineTraceSingleByChannel(Floor,Center+FVector(0,0,60),Center-FVector(0,0,350),ECC_WorldStatic,Params) || Floor.ImpactNormal.Z<0.65f)) return false;
     const float Half=Tooth->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-    FVector Destination=Water?FVector(Center.X,Center.Y,Water->SurfaceHeightAt(Center)-Water->WaterSettings.SwimFloatDepth):Floor.ImpactPoint+FVector(0,0,Half+3.f);
+    const float Radius=Tooth->GetCapsuleComponent()->GetScaledCapsuleRadius();
+    FVector Destination=Center;
     bool bClear=false;
-    // Try nearby grounded space, never restore the capsule through a wall or another player.
-    for (const FVector Offset:{FVector::ZeroVector,FVector(80,0,0),FVector(-80,0,0),FVector(0,80,0),FVector(0,-80,0)})
+    // Search independently at each point: a steep or obstructed centre must not
+    // suppress all retries, and each standing pose needs its own floor height.
+    TArray<FVector,TInlineAllocator<25>> Offsets;Offsets.Add(FVector::ZeroVector);
+    for(int32 Ring=1;Ring<=3;++Ring) for(int32 I=0;I<8;++I) {
+        const float Angle=I*PI/4,Distance=Ring*(Radius*2+12);
+        Offsets.Add(FVector(FMath::Cos(Angle)*Distance,FMath::Sin(Angle)*Distance,0));
+    }
+    for(const FVector Offset:Offsets)
     {
-        const FVector Candidate=Destination+Offset;
-        FHitResult Support;
-        if (!Water && (!GetWorld()->LineTraceSingleByChannel(Support,Candidate,Candidate-FVector(0,0,Half+12),ECC_WorldStatic,Params) || Support.ImpactNormal.Z<0.65f)) continue;
-        if (!GetWorld()->OverlapBlockingTestByProfile(Candidate,FQuat::Identity,TEXT("Pawn"),FCollisionShape::MakeCapsule(34,Half),Params))
+        const FVector Probe=Center+Offset;FVector Candidate;
+        FVector PathEnd=Probe;
+        if(Water) {
+            if(!Movement || Movement->DeepWaterAt(Probe,true)!=Water) continue;
+            Candidate=FVector(Probe.X,Probe.Y,Water->SurfaceHeightAt(Probe)-Water->WaterSettings.SwimFloatDepth);
+        } else {
+            FHitResult Support;FCollisionQueryParams FloorParams=Params;bool bSupported=false;
+            for(int32 Retry=0;Retry<32;++Retry) {
+                if(!GetWorld()->LineTraceSingleByChannel(Support,Probe+FVector(0,0,60),Probe-FVector(0,0,350),ECC_WorldStatic,FloorParams)) break;
+                // Players and loose food can mask the real floor under a ragdoll.
+                // They still obstruct the capsule below; never stand on their heads.
+                if(Cast<AMCFoodActor>(Support.GetActor()) || Cast<AMCToothCharacter>(Support.GetActor())) {
+                    FloorParams.AddIgnoredActor(Support.GetActor());continue;
+                }
+                bSupported=Movement?Movement->IsWalkable(Support):Support.ImpactNormal.Z>=.65f;
+                break;
+            }
+            if(!bSupported) continue;
+            Candidate=Support.ImpactPoint+FVector(0,0,Half+3);
+            PathEnd=Support.ImpactPoint+FVector(0,0,Radius+3);
+        }
+        if(GetWorld()->OverlapBlockingTestByProfile(Candidate,FQuat::Identity,Tooth->GetCapsuleComponent()->GetCollisionProfileName(),FCollisionShape::MakeCapsule(Radius,Half),Params)) continue;
+        FHitResult Obstacle;
+        if(!Offset.IsNearlyZero() && GetWorld()->SweepSingleByChannel(Obstacle,Center,PathEnd,FQuat::Identity,ECC_Pawn,FCollisionShape::MakeSphere(8),Params)) continue;
+        // The capsule fits and the fallen body can reach it without crossing a wall.
         { Destination=Candidate; bClear=true; break; }
     }
     if (!bClear) return false;
@@ -495,7 +523,9 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
             SendAccumulator+=Dt;
             if (SendAccumulator>=0.05f) { SendAccumulator=0; CaptureFrame(); Tooth->ForceNetUpdate(); }
             const float Age=ServerTime()-FMath::Max(Frame.StateStartedAt,LastHitTime);
-            if (Age>=Settings.RagdollSeconds && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160 || Age>Settings.RagdollSeconds+3)) TryRecover();
+            const float TotalAge=ServerTime()-Frame.StateStartedAt;
+            // Repeated contacts may move the body but must not restart the stun forever.
+            if ((Age>=Settings.RagdollSeconds && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160)) || TotalAge>=Settings.RagdollSeconds+3) TryRecover();
             // Falling out of the mouth is a real death, using the same reserve as impact deaths.
             if (Center.Z<-250)
             {

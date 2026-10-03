@@ -54,5 +54,6 @@ private:
     bool IsLoosePileFood(const AActor* Actor) const;
     float ContactStrength(float HeldMass,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,FVector Normal) const;
     void CheckIncomingContacts(AMCFoodActor* Food);
+    void SpillOnPlayerContact(AMCToothCharacter* Other,FVector Normal,FVector ContactPoint);
     void ReleaseFrom(int32 Index,bool Throw=false,FVector Impulse=FVector::ZeroVector);
 };
