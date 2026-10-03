@@ -35,6 +35,9 @@ AMCGameMode::AMCGameMode()
 {
     PrimaryActorTick.bCanEverTick = true;
     DefaultPawnClass = AMCToothCharacter::StaticClass();
+    // Camera/component defaults are authored in the current player Blueprint.
+    static ConstructorHelpers::FClassFinder<AMCToothCharacter> PlayerBlueprint(TEXT("/Game/Blueprints/BP_PlayerCharacter"));
+    if(PlayerBlueprint.Succeeded()) DefaultPawnClass=PlayerBlueprint.Class;
     PlayerControllerClass = AMCPlayerController::StaticClass();
     GameStateClass = AMCGameState::StaticClass();
     TaskClass = AMCTaskActor::StaticClass();
