@@ -69,3 +69,37 @@ Its unique work clips are checked by `MessControl.Physics.ArtistRigIntegration`,
 and its face emote IDs by `MessControl.Animation.EmotesReactionsAndSpeech`.
 Both consolidated tests passed. Existing gameplay and network checks cover the
 new behavior; no additional Automation registrations were introduced for it.
+
+## Validation — 04 October 2026
+
+The final Win64 Development package uses source commit `16db2d7`, including the
+latest arena, ambient Niagara and piano changes from `origin/main`. Editor and
+Game builds succeeded. The package is in `Saved/Builds/Gameplay_20261004`.
+
+| Check | Result |
+| --- | --- |
+| Rendered brush coverage, Editor, 120 simulation steps/sec | 10/10 surfaces passed. |
+| Rendered brush coverage, packaged game, 30 and 120 simulation steps/sec | 10/10 surfaces passed in each run, including both tongue patches. |
+| Cleaning reach, facing, release and authoritative liquid contact | Both focused Automation tests passed without warnings. |
+| Upstream piano landing integration | Existing `Piano.LandingReturnAndNotes` test passed. |
+| Consolidated animation and artist rig tests | Both passed without warnings. |
+| Dash/stamina network scenario | Listen server and three clients passed at 75 ms lag and 2% packet loss. |
+| Rendered scoreboard, colors, alarms, death/spectating/respawn | Packaged listen server and client passed at 75 ms lag and 2% packet loss. |
+| Packaged cola/ice | Passed; a rendered ice cube was inspected. |
+| Packaged dirt placement and vomit | Passed; three vomit trajectories produced distinct landings. |
+| Saved asset export | 1162/1162 current, no export errors or partial results. |
+
+The final brush runs retain the existing reach, approach, occlusion and
+collision checks. The smallest brush-head clearance in the packaged 30-step
+run was 0.91 cm; the largest measured bristle contact error in the 120-step run
+was 15.95 cm, within the existing 16 cm presentation tolerance. Maximum arm
+stretch stayed at 1.000. Simulation rates here are test settings, not a claim
+that the whole scene renders at 120 FPS.
+
+Logs and screenshots are under `Saved/Logs/GameplayUsability*.log` and
+`Saved/GameplayUsability`; the package metadata records its source commit.
+Cook finished with zero errors and 27 warnings, including engine
+`WindForce/Physics Field` class resolution from `NS_AmbientInteractive` and
+the localization history of the existing throat label. These warnings did not
+prevent packaging; this validation does not establish the ambient effect's
+complete visual behavior.
