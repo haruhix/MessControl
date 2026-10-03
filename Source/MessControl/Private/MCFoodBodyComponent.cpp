@@ -1,4 +1,5 @@
 #include "MCFoodBodyComponent.h"
+#include "MCFoodCollisionData.h"
 #include "Engine/StaticMesh.h"
 #include "PhysicsEngine/BodySetup.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
@@ -73,14 +74,15 @@ UMCFoodBodyComponent::UMCFoodBodyComponent()
     bUseArchetypeBodySetup=false;
 }
 
-void UMCFoodBodyComponent::SetCollisionMesh(UStaticMesh* Mesh,FVector ItemScale)
+void UMCFoodBodyComponent::SetCollisionMesh(UStaticMesh* Mesh,FVector ItemScale,UMCFoodCollisionData* Data)
 {
-    if(CollisionMesh==Mesh && CollisionScale.Equals(ItemScale) && ShapeBodySetup) return;
+    if(Data && (!Data->MatchesSource(Mesh) || !Data->HasValidCollision())) Data=nullptr;
+    if(CollisionMesh==Mesh && CollisionData==Data && CollisionScale.Equals(ItemScale) && ShapeBodySetup) return;
     const bool Simulating=IsSimulatingPhysics();
     const FVector Velocity=GetPhysicsLinearVelocity(),Spin=GetPhysicsAngularVelocityInRadians();
     DestroyPhysicsState();
     ShapeBodySetup=nullptr;
-    CollisionMesh=Mesh; CollisionScale=ItemScale;
+    CollisionMesh=Mesh; CollisionData=Data; CollisionScale=ItemScale;
     if(Mesh) InitBoxExtent(Mesh->GetBounds().BoxExtent*ItemScale.GetAbs());
     UpdateBodySetup(); UpdateBounds(); MarkRenderStateDirty();
     if(IsRegistered()) {
@@ -94,7 +96,7 @@ void UMCFoodBodyComponent::UpdateBodySetup()
 {
     if(!CollisionMesh) {Super::UpdateBodySetup();return;}
     if(ShapeBodySetup) return;
-    auto* Source=CollisionMesh->GetBodySetup();
+    auto* Source=CollisionData?CollisionData->BodySetup.Get():CollisionMesh->GetBodySetup();
     const FVector Origin=CollisionMesh->GetBounds().Origin;
     if(!Source) return;
     const FFoodCollisionKey Key{Source,Source->BodySetupGuid,CollisionScale,Origin,Source->PhysMaterial.Get()};

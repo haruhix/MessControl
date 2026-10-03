@@ -488,7 +488,7 @@ void AMCFoodActor::OnRep_Item()
         const FBoxSphereBounds Bounds=ItemMesh->GetBounds();
         const FVector Scale=Visual->GetRelativeScale3D();
         Visual->SetRelativeLocation(-Bounds.Origin*Scale);
-        MeshBody->SetCollisionMesh(ItemMesh,Scale);
+        MeshBody->SetCollisionMesh(ItemMesh,Scale,FoodData.FindCollisionData(ItemMesh));
     }
     else if (!ItemName.IsNone())
     {
@@ -507,9 +507,17 @@ void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream&
     if (bFragment) { FoodData.Mass/=FoodData.Fragments; FoodData.Health=25; }
     Health=FoodData.Health; Settings.Mass=FoodData.Mass;
     const auto& Choices=bFragment?FoodData.FragmentMeshes:FoodData.WholeMeshes;
-    TArray<UStaticMesh*> Available;
-    for (const auto& Choice:Choices) if (!Choice.IsNull()) if (auto* Mesh=Choice.LoadSynchronous()) Available.Add(Mesh);
-    ItemMesh=Available.IsEmpty()?nullptr:Available[Random.RandRange(0,Available.Num()-1)];
+    TArray<int32> Available;
+    for(int32 I=0;I<Choices.Num();++I) if(!Choices[I].IsNull()) Available.Add(I);
+    ItemMesh=nullptr;
+    // Select before loading: spawning one variant must not synchronously load all
+    // other menu variants. Missing assets can still fall back to another choice.
+    while(!Available.IsEmpty() && !ItemMesh)
+    {
+        const int32 Pick=Random.RandRange(0,Available.Num()-1);
+        ItemMesh=Choices[Available[Pick]].LoadSynchronous();
+        Available.RemoveAt(Pick);
+    }
     if (!ItemMesh)
     {
         UE_LOG(LogTemp,Warning,TEXT("Food row %s has no usable %s mesh; using the prototype mesh"),*Name.ToString(),Fragment?TEXT("fragment"):TEXT("whole"));

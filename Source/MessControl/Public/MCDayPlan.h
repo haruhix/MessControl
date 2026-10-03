@@ -3,6 +3,7 @@
 #include "Engine/DataAsset.h"
 #include "Engine/DataTable.h"
 #include "MCFoodStackSettings.h"
+#include "MCFoodCollisionData.h"
 #include "MCDayPlan.generated.h"
 class UMCCoffeeProfile;
 class UMCColdColaProfile;
@@ -17,12 +18,15 @@ UENUM(BlueprintType)
 enum class EMCFoodKind : uint8 { Food, ForeignObject, Spicy };
 
 USTRUCT(BlueprintType)
-struct FMCFoodRow : public FTableRowBase
+struct MESSCONTROL_API FMCFoodRow : public FTableRowBase
 {
     GENERATED_BODY()
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FText Label;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<TSoftObjectPtr<UStaticMesh>> WholeMeshes;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) TArray<TSoftObjectPtr<UStaticMesh>> FragmentMeshes;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Collision") FMCFoodCollisionSettings Collision;
+    /** Filled by the editor from WholeMeshes/FragmentMeshes and Collision. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Collision") TArray<TObjectPtr<UMCFoodCollisionData>> CollisionData;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.01",UIMin="0.1",UIMax="3",ToolTip="Per-axis scale of whole food mesh and collision. Fragments have their own independent FragmentScale.")) FVector Scale=FVector::OneVector;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance", meta=(ClampMin="0.01",ToolTip="Independent per-axis scale of fragment mesh and collision. Does not multiply the whole food Scale. Mass is configured separately.")) FVector FragmentScale=FVector(.5);
     UPROPERTY(EditAnywhere, BlueprintReadWrite) float SelectionWeight=1;
@@ -40,6 +44,7 @@ struct FMCFoodRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FVector HalfExtent=FVector(45,35,35);
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stack") FMCFoodStackSettings Stack;
     void Sanitize();
+    UMCFoodCollisionData* FindCollisionData(const UStaticMesh* Mesh) const;
 #if WITH_EDITOR
     virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override;
 #endif

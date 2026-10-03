@@ -17,10 +17,51 @@ void FMCFoodRow::Sanitize()
     if (HalfExtent.ContainsNaN()) HalfExtent=FVector(45,35,35);
     HalfExtent=HalfExtent.GetAbs().BoundToBox(FVector(10),FVector(100));
     Stack.Sanitize();
+    Collision.Sanitize();
+}
+UMCFoodCollisionData* FMCFoodRow::FindCollisionData(const UStaticMesh* Mesh) const
+{
+    if(Collision.bAutoOptimize)
+        for(UMCFoodCollisionData* Data:CollisionData)
+            if(Data && Data->MatchesSource(Mesh) && Data->HasValidCollision()) return Data;
+    return nullptr;
 }
 #if WITH_EDITOR
 EDataValidationResult FMCFoodRow::IsDataValid(FDataValidationContext& Context) const
-{ return Stack.Validate(Context)?EDataValidationResult::Valid:EDataValidationResult::Invalid; }
+{
+    bool Valid=Stack.Validate(Context);
+    FMCFoodCollisionSettings Limits=Collision; Limits.Sanitize();
+    if(Limits.WholeHullLimit!=Collision.WholeHullLimit || Limits.FragmentHullLimit!=Collision.FragmentHullLimit
+        || Limits.HullVertexLimit!=Collision.HullVertexLimit || Limits.VoxelResolution!=Collision.VoxelResolution)
+    {
+        Context.AddError(FText::FromString(TEXT("Food collision limits are outside their supported ranges.")));
+        Valid=false;
+    }
+    if(Collision.bAutoOptimize)
+    {
+        auto ValidateMeshes=[&](const TArray<TSoftObjectPtr<UStaticMesh>>& Meshes,int32 HullLimit)
+        {
+            for(const auto& Mesh:Meshes)
+            {
+                if(Mesh.IsNull()) continue;
+                bool Found=false;
+                for(const UMCFoodCollisionData* Data:CollisionData)
+                    if(Data && Data->SourceMesh.ToSoftObjectPath()==Mesh.ToSoftObjectPath()
+                        && Data->HasValidCollision() && !Data->SourceGeometryKey.IsEmpty()
+                        && Data->HullLimit<=HullLimit && Data->HullVertexLimit<=Collision.HullVertexLimit)
+                    { Found=true; break; }
+                if(!Found)
+                {
+                    Context.AddError(FText::FromString(FString::Printf(TEXT("Food collision profile for %s is missing or exceeds its menu budget. Save the menu to bake it."),*Mesh.ToString())));
+                    Valid=false;
+                }
+            }
+        };
+        ValidateMeshes(WholeMeshes,Collision.WholeHullLimit);
+        ValidateMeshes(FragmentMeshes,Collision.FragmentHullLimit);
+    }
+    return Valid?EDataValidationResult::Valid:EDataValidationResult::Invalid;
+}
 #endif
 UMCDayPlan::UMCDayPlan()
 {

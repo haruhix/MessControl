@@ -19,6 +19,8 @@ $taskEditorLog=Join-Path $OutputDirectory 'EditorBuild.log'
 # Cook loads the editor module, so rebuild it before compiling the game target.
 & "$PSScriptRoot/Build.ps1" -EngineRoot $EngineRoot *> $taskEditorLog
 if($LASTEXITCODE -ne 0){throw "Editor build failed: $taskEditorLog"}
+# Generate food profiles before the cooker discovers package dependencies.
+& "$PSScriptRoot/OptimizeFoodCollision.ps1" -EngineRoot $EngineRoot *> (Join-Path $OutputDirectory 'FoodCollisionBake.log')
 & $taskUat BuildCookRun "-project=$taskRoot/MessControl.uproject" -noP4 -platform=Win64 -clientconfig=Development -build -cook '-map=/Game/Maps/L_Mouth' -stage -pak -iostore -compressed -prereqs -nodebuginfo -unattended -utf8output -skipbuildeditor "-stagingdirectory=$OutputDirectory" *> $taskLog
 if($LASTEXITCODE -ne 0){throw "Windows packaging failed ($LASTEXITCODE): $taskLog"}
 $taskExe=Join-Path $OutputDirectory 'Windows/MessControl.exe'

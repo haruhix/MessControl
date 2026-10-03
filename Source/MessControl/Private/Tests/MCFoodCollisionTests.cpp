@@ -2,6 +2,7 @@
 #include "Misc/AutomationTest.h"
 #include "MCFoodActor.h"
 #include "MCFoodBodyComponent.h"
+#include "MCFoodCollisionData.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
@@ -224,14 +225,51 @@ bool FMCFoodCollisionMenuTest::RunTest(const FString&)
             auto* Mesh=CollisionMesh(Choice);
             const FString Name=Entry.Key.ToString()+TEXT(" ")+Choice.GetAssetName()+(Fragment?TEXT(" fragment"):TEXT(" whole"));
             if (!TestNotNull(*Name,Mesh)) continue;
-            FMCFoodRow Row=Menu; Row.WholeMeshes={Mesh}; Row.FragmentMeshes={Mesh};
+            FMCFoodRow Row=Menu; Row.Sanitize();
+            if(Fragment) Row.FragmentMeshes={Mesh}; else Row.WholeMeshes={Mesh};
+            const FVector ItemScale=Fragment?Row.FragmentScale:Row.Scale;
+            const int32 HullLimit=Fragment?Row.Collision.FragmentHullLimit:Row.Collision.WholeHullLimit;
+            auto* Data=Row.FindCollisionData(Mesh);
+            if (Row.Collision.bAutoOptimize)
+            {
+                if (!TestNotNull(*(Name+TEXT(" has saved collision data for the current menu mesh")),Data)) continue;
+                TestTrue(*(Name+TEXT(" has a saved source geometry key")),!Data->SourceGeometryKey.IsEmpty());
+                TestTrue(*(Name+TEXT(" saved data respects the row hull and vertex budgets")),
+                    Data->HullLimit<=HullLimit && Data->HullVertexLimit<=Row.Collision.HullVertexLimit);
+            }
+            else TestNull(*(Name+TEXT(" explicitly opts out of generated collision")),Data);
+            auto* SourceSetup=Mesh->GetBodySetup();
+            if (!TestNotNull(*(Name+TEXT(" retains the source mesh setup for detailed grips")),SourceSetup)) continue;
+            const FGuid SourceGuid=SourceSetup->BodySetupGuid;
+            const int32 SourceShapes=SourceSetup->AggGeom.GetElementCount();
+            const auto* SourceRender=Mesh->GetRenderData();
             auto* Food=Fixture.Food(Row,Fragment,FTransform(FVector(0,0,1000)));
             if (CookedConvex(*this,Food,Name))
             {
                 ++Checked;
-                TestTrue(*(Name+TEXT(" owns its body setup without mutating the source mesh")),Food->Body->GetBodySetup()!=Mesh->GetBodySetup());
-                for (const auto& Hull:Food->Body->GetBodySetup()->AggGeom.ConvexElems)
+                auto* Runtime=Food->Body->GetBodySetup();
+                TestTrue(*(Name+TEXT(" owns its body setup without mutating the source mesh")),Runtime!=SourceSetup
+                    && SourceSetup->BodySetupGuid==SourceGuid && SourceSetup->AggGeom.GetElementCount()==SourceShapes);
+                TestTrue(*(Name+TEXT(" keeps the artist render mesh and independent item scale")),
+                    Food->ItemMesh==Mesh && Food->Visual->GetStaticMesh()==Mesh && Mesh->GetRenderData()==SourceRender
+                    && Food->Visual->GetRelativeScale3D().Equals(ItemScale)
+                    && Food->Visual->GetRelativeLocation().Equals(-Mesh->GetBounds().Origin*ItemScale,.01));
+                auto* GripSetup=Food->GripSurface->GetBodySetup();
+                if (TestNotNull(*(Name+TEXT(" has detailed grip geometry")),GripSetup))
+                    TestTrue(*(Name+TEXT(" grips keep the source triangles without duplicating convex shapes")),
+                        Food->GripSurface->GetStaticMesh()==Mesh && GripSetup->GetCollisionTraceFlag()==CTF_UseComplexAsSimple
+                        && GripSetup->AggGeom.GetElementCount()==0 && !SourceSetup->TriMeshGeometries.IsEmpty()
+                        && GripSetup->TriMeshGeometries==SourceSetup->TriMeshGeometries);
+                if (Data)
+                {
+                    TestEqual(*(Name+TEXT(" runtime uses every saved budgeted hull")),Runtime->AggGeom.ConvexElems.Num(),Data->BodySetup->AggGeom.ConvexElems.Num());
+                    TestTrue(*(Name+TEXT(" runtime respects the menu hull budget")),Runtime->AggGeom.ConvexElems.Num()<=HullLimit);
+                }
+                for (const auto& Hull:Runtime->AggGeom.ConvexElems)
+                {
                     TestTrue(*(Name+TEXT(" has a nondegenerate convex hull")),Hull.VertexData.Num()>=4);
+                    if (Data) TestTrue(*(Name+TEXT(" runtime respects the menu vertex budget")),Hull.VertexData.Num()<=Row.Collision.HullVertexLimit);
+                }
             }
             Food->Destroy();
         }
@@ -357,6 +395,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodCollisionCacheTest,"MessControl.Food.Col
 bool FMCFoodCollisionCacheTest::RunTest(const FString&)
 {
     FMCFoodRow Row; if (!EggRow(*this,Row)) return false;
+    Row.Sanitize();
+    auto* Data=Row.FindCollisionData(Row.WholeMeshes[0].Get());
+    if (Row.Collision.bAutoOptimize && !TestNotNull(TEXT("Cached menu food uses its saved collision data"),Data)) return false;
     FFoodCollisionWorld Fixture;
     auto* First=Fixture.Food(Row,false,FTransform(FVector(0,0,2000)));
     auto* Second=Fixture.Food(Row,false,FTransform(FVector(3000,0,2000)));
@@ -364,12 +405,17 @@ bool FMCFoodCollisionCacheTest::RunTest(const FString&)
     auto* Shared=First->Body->GetBodySetup();
     TestTrue(TEXT("Identical mesh and item scale share cooked geometry"),Shared==Second->Body->GetBodySetup());
     TestTrue(TEXT("Runtime geometry does not mutate the source mesh setup"),Shared!=First->ItemMesh->GetBodySetup());
+    if (Data)
+    {
+        TestTrue(TEXT("Runtime shares a scaled copy of saved collision data"),Shared!=Data->BodySetup);
+        TestEqual(TEXT("Cached bodies use the saved collision hull count"),Shared->AggGeom.ConvexElems.Num(),Data->BodySetup->AggGeom.ConvexElems.Num());
+    }
     auto* GripSetup=First->GripSurface->GetBodySetup();
     auto* SourceSetup=First->ItemMesh->GetBodySetup();
     TestTrue(TEXT("Detailed grips share their query setup"),GripSetup==Second->GripSurface->GetBodySetup());
     TestTrue(TEXT("Grip queries leave the source setup unchanged"),GripSetup!=SourceSetup);
     TestTrue(TEXT("Grip queries use triangle geometry only"),GripSetup->GetCollisionTraceFlag()==CTF_UseComplexAsSimple && GripSetup->AggGeom.GetElementCount()==0);
-    TestTrue(TEXT("Grip queries share the source cooked triangles"),!GripSetup->TriMeshGeometries.IsEmpty() && GripSetup->TriMeshGeometries[0]==SourceSetup->TriMeshGeometries[0]);
+    TestTrue(TEXT("Grip queries share all source cooked triangles"),!GripSetup->TriMeshGeometries.IsEmpty() && GripSetup->TriMeshGeometries==SourceSetup->TriMeshGeometries);
     int32 GripShapes=0;
     FPhysicsCommand::ExecuteRead(First->GripSurface->GetBodyInstance()->GetPhysicsActor(),[&](const FPhysicsActorHandle& Actor)
     {
@@ -384,12 +430,28 @@ bool FMCFoodCollisionCacheTest::RunTest(const FString&)
     TestFalse(TEXT("Food does not generate expensive overlap events"),First->Body->GetGenerateOverlapEvents());
     TestTrue(TEXT("Food keeps hit notifications for impacts"),First->Body->GetBodyInstance()->bNotifyRigidBodyCollision);
     auto* Scaled=CastChecked<UMCFoodBodyComponent>(Second->Body);
-    Scaled->SetCollisionMesh(Second->ItemMesh,Row.Scale*1.5);
+    Scaled->SetPhysicsLinearVelocity(FVector(31,-17,9));
+    Scaled->SetPhysicsAngularVelocityInRadians(FVector(.3,-.2,.4));
+    const FVector Velocity=Scaled->GetPhysicsLinearVelocity(),Spin=Scaled->GetPhysicsAngularVelocityInRadians();
+    const FPhysicsActorHandle Actor=Scaled->GetBodyInstance()->GetPhysicsActor();
+    const FTransform Pose=Scaled->GetComponentTransform();
+    for (int32 Repeat=0;Repeat<3;++Repeat) Scaled->SetCollisionMesh(Second->ItemMesh,Row.Scale,Data);
+    TestTrue(TEXT("Repeated collision setup keeps the live physics actor and shared cook"),
+        FPhysicsInterface::IsValid(Actor) && Actor==Scaled->GetBodyInstance()->GetPhysicsActor() && Shared==Scaled->GetBodySetup());
+    TestTrue(TEXT("Repeated collision setup preserves motion and pose"),Scaled->IsSimulatingPhysics()
+        && Scaled->GetPhysicsLinearVelocity().Equals(Velocity,.001) && Scaled->GetPhysicsAngularVelocityInRadians().Equals(Spin,.001)
+        && Scaled->GetComponentTransform().Equals(Pose,.001));
+    const FVector ScaleFactor(1.5,.8,1.25);
+    Scaled->SetCollisionMesh(Second->ItemMesh,Row.Scale*ScaleFactor,Data);
     TestTrue(TEXT("A different item scale gets separate cooked geometry"),Shared!=Scaled->GetBodySetup());
     // Chaos may reorder its vertices at different scales; compare physical extents.
-    TestTrue(TEXT("Scaled geometry has the scaled physical extents"),Scaled->GetBodySetup()->AggGeom.ConvexElems[0].ElemBox.GetExtent().Equals(Shared->AggGeom.ConvexElems[0].ElemBox.GetExtent()*1.5,.001));
-    Scaled->SetCollisionMesh(Second->ItemMesh,Row.Scale);
+    TestTrue(TEXT("Nonuniform item scale transforms the physical extents once"),Scaled->GetBodySetup()->AggGeom.ConvexElems[0].ElemBox.GetExtent().Equals(Shared->AggGeom.ConvexElems[0].ElemBox.GetExtent()*ScaleFactor,.01));
+    Scaled->SetCollisionMesh(Second->ItemMesh,Row.Scale,Data);
     TestTrue(TEXT("Returning to the original scale reuses live cooked geometry"),Shared==Scaled->GetBodySetup());
+    TestTrue(TEXT("Changing body collision leaves artist visuals and detailed grips intact"),
+        Second->Visual->GetStaticMesh()==Second->ItemMesh && Second->Visual->GetRelativeScale3D().Equals(Row.Scale)
+        && Second->GripSurface->GetStaticMesh()==Second->ItemMesh && Second->GripSurface->GetBodySetup()==GripSetup
+        && GripSetup->TriMeshGeometries==SourceSetup->TriMeshGeometries);
     First->Body->SetSimulatePhysics(false);
     TestTrue(TEXT("Sharing geometry leaves the second body's simulation independent"),Second->Body->IsSimulatingPhysics());
     return true;
@@ -428,109 +490,121 @@ bool FMCFoodCollisionBudgetTest::RunTest(const FString&)
     int32 SourceHullVertices=0;
     for (const auto& Hull:SourceSetup->AggGeom.ConvexElems) SourceHullVertices+=Hull.VertexData.Num();
 
-    FFoodCollisionWorld Fixture;
-    auto* Floor=Fixture.World->SpawnActor<AActor>();
-    auto* Plane=NewObject<UBoxComponent>(Floor); Floor->SetRootComponent(Plane);
-    Plane->SetBoxExtent(FVector(15000,15000,20)); Plane->SetCollisionProfileName(TEXT("BlockAll"));
-    Plane->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-20));
-    FString CSV=TEXT("phase,frame,world_tick_ms\n");
+    FString CSV=TEXT("collision_mode,phase,frame,world_tick_ms\n");
     FString Report=FString::Printf(TEXT("mesh=%s\nitem_scale=%s\nactor_scale=1,1,1\nsource_render_vertices=%u\nsource_render_triangles=%u\nsource_hulls=%d\nsource_hull_vertices=%d\nsource_load_compile_ms=%.3f\nsource_physics_meshes_were_cached=%d\nsource_create_physics_meshes_ms=%.3f\n"),
         *Mesh->GetPathName(),*Row.Scale.ToCompactString(),RenderVertices,RenderTriangles,
         SourceSetup->AggGeom.ConvexElems.Num(),SourceHullVertices,SourceLoadMs,SourceWasCooked,SourceCookMs);
     UE_LOG(LogTemp,Display,TEXT("MC_FOOD_COLLISION_BUDGET source_hulls=%d source_vertices=%d render_vertices=%u render_triangles=%u source_load_ms=%.3f source_create_physics_ms=%.3f cached=%d"),
         SourceSetup->AggGeom.ConvexElems.Num(),SourceHullVertices,RenderVertices,RenderTriangles,SourceLoadMs,SourceCookMs,SourceWasCooked);
-    auto Tick=[&](const TCHAR* Phase,int32 Frame,TArray<double>& Samples)
+    FMCFoodRow OptimizedRow=Row; OptimizedRow.Collision.bAutoOptimize=true;
+    auto* Data=OptimizedRow.FindCollisionData(Mesh);
+    if (!TestNotNull(TEXT("Paired performance fixture has saved generated collision"),Data)) return false;
+    for (bool Optimized:{false,true})
     {
-        ++GFrameCounter;
-        const double Started=FPlatformTime::Seconds();
-        // UWorld tick completes TG_EndPhysics. This times real Chaos/contact work,
-        // not mocked OnHit callbacks or rendering/present/asset loading.
-        Fixture.World->Tick(LEVELTICK_All,1.f/60);
-        const double Ms=(FPlatformTime::Seconds()-Started)*1000;
-        Samples.Add(Ms); CSV+=FString::Printf(TEXT("%s,%d,%.6f\n"),Phase,Frame,Ms);
-    };
-    auto Summarize=[&](const TCHAR* Phase,TArray<double> Samples)
-    {
-        Samples.Sort(); double Sum=0; for (double Ms:Samples) Sum+=Ms;
-        const FString Line=FString::Printf(TEXT("phase=%s frames=%d mean_ms=%.3f p50_ms=%.3f p95_ms=%.3f max_ms=%.3f"),
-            Phase,Samples.Num(),Sum/Samples.Num(),Samples[Samples.Num()/2],
-            Samples[FMath::Min(Samples.Num()-1,FMath::FloorToInt(Samples.Num()*.95))],Samples.Last());
-        AddInfo(Line); Report+=Line+TEXT("\n");
-    };
-    Fixture.Step(.25f);
-    TArray<double> Baseline;
-    for (int32 I=0;I<60;++I) Tick(TEXT("floor_only"),I,Baseline);
-    Summarize(TEXT("floor_only"),Baseline);
-    const FPlatformMemoryStats MemoryBefore=FPlatformMemory::GetStats();
-    TArray<AMCFoodActor*> Foods; TArray<FVector> StartPositions;
-    int32 TotalCookedHulls=0,TotalLiveShapes=0,TotalCookedVertices=0;
-    for (int32 I=0;I<4;++I)
-    {
-        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_COLLISION_BUDGET body=%d begin_cook_and_register"),I);
-        const double BodyStarted=FPlatformTime::Seconds();
-        const float X=I%2?1800.f:-1800.f,Y=I/2?1800.f:-1800.f;
-        auto* Food=Fixture.Food(Row,false,FTransform(FRotator(11+I*5,I*29,7-I*3),FVector(X,Y,2000),FVector::OneVector));
-        const double BodyMs=(FPlatformTime::Seconds()-BodyStarted)*1000;
-        const FString Name=FString::Printf(TEXT("current Bacon Green body %d"),I);
-        if (!CookedConvex(*this,Food,Name)) return false;
-        TestTrue(*(Name+TEXT(" retains ActorScale=1")),Food->GetActorScale3D().Equals(FVector::OneVector));
-        auto* Setup=Food->Body->GetBodySetup();
-        int32 CookedVertices=0; for (const auto& Hull:Setup->AggGeom.ConvexElems) CookedVertices+=Hull.VertexData.Num();
-        int32 LiveShapes=0;
-        auto* Instance=Food->Body->GetBodyInstance();
-        if (!TestNotNull(*(Name+TEXT(" has a live body instance")),Instance)) return false;
-        FPhysicsCommand::ExecuteRead(Instance->GetPhysicsActor(),[&](const FPhysicsActorHandle&)
+        const TCHAR* Mode=Optimized?TEXT("generated_profile"):TEXT("source_collision");
+        FMCFoodRow CaseRow=Row; CaseRow.Collision.bAutoOptimize=Optimized;
+        auto* InputSetup=Optimized?Data->BodySetup.Get():SourceSetup;
+        Report+=FString::Printf(TEXT("\ncollision_mode=%s input_hulls=%d\n"),Mode,InputSetup->AggGeom.ConvexElems.Num());
+        FFoodCollisionWorld Fixture;
+        auto* Floor=Fixture.World->SpawnActor<AActor>();
+        auto* Plane=NewObject<UBoxComponent>(Floor); Floor->SetRootComponent(Plane);
+        Plane->SetBoxExtent(FVector(15000,15000,20)); Plane->SetCollisionProfileName(TEXT("BlockAll"));
+        Plane->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-20));
+        auto Tick=[&](const TCHAR* Phase,int32 Frame,TArray<double>& Samples)
         {
-            TArray<FPhysicsShapeHandle> Shapes;
-            Instance->GetAllShapes_AssumesLocked(Shapes); LiveShapes=Shapes.Num();
-        });
-        TestEqual(*(Name+TEXT(" cooks every saved source hull")),Setup->AggGeom.ConvexElems.Num(),SourceSetup->AggGeom.ConvexElems.Num());
-        TestEqual(*(Name+TEXT(" registers every cooked hull as a live Chaos shape")),LiveShapes,Setup->AggGeom.ConvexElems.Num());
-        TotalCookedHulls+=Setup->AggGeom.ConvexElems.Num(); TotalLiveShapes+=LiveShapes; TotalCookedVertices+=CookedVertices;
-        const FString Line=FString::Printf(TEXT("body=%d runtime_body_cook_and_register_ms=%.3f cooked_hulls=%d live_chaos_shapes=%d cooked_vertices=%d"),
-            I,BodyMs,Setup->AggGeom.ConvexElems.Num(),LiveShapes,CookedVertices);
-        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_COLLISION_BUDGET %s"),*Line);
-        AddInfo(Line); Report+=Line+TEXT("\n");
-        Food->SetActorLocation(FVector(X,Y,Food->Body->Bounds.BoxExtent.Z+500),false,nullptr,ETeleportType::TeleportPhysics);
-        TestTrue(*(Name+TEXT(" begins above the supporting floor")),LowestVisibleVertex(Food)>300);
-        Foods.Add(Food); StartPositions.Add(Food->GetActorLocation());
+            ++GFrameCounter;
+            const double Started=FPlatformTime::Seconds();
+            // UWorld tick completes TG_EndPhysics. This times real Chaos/contact work,
+            // not mocked OnHit callbacks or rendering/present/asset loading.
+            Fixture.World->Tick(LEVELTICK_All,1.f/60);
+            const double Ms=(FPlatformTime::Seconds()-Started)*1000;
+            Samples.Add(Ms); CSV+=FString::Printf(TEXT("%s,%s,%d,%.6f\n"),Mode,Phase,Frame,Ms);
+        };
+        auto Summarize=[&](const TCHAR* Phase,TArray<double> Samples)
+        {
+            Samples.Sort(); double Sum=0; for (double Ms:Samples) Sum+=Ms;
+            const FString Line=FString::Printf(TEXT("collision_mode=%s phase=%s frames=%d mean_ms=%.3f p50_ms=%.3f p95_ms=%.3f max_ms=%.3f"),
+                Mode,Phase,Samples.Num(),Sum/Samples.Num(),Samples[Samples.Num()/2],
+                Samples[FMath::Min(Samples.Num()-1,FMath::FloorToInt(Samples.Num()*.95))],Samples.Last());
+            AddInfo(Line); Report+=Line+TEXT("\n");
+        };
+        Fixture.Step(.25f);
+        TArray<double> Baseline;
+        for (int32 I=0;I<60;++I) Tick(TEXT("floor_only"),I,Baseline);
+        Summarize(TEXT("floor_only"),Baseline);
+        const FPlatformMemoryStats MemoryBefore=FPlatformMemory::GetStats();
+        TArray<AMCFoodActor*> Foods; TArray<FVector> StartPositions;
+        int32 TotalCookedHulls=0,TotalLiveShapes=0,TotalCookedVertices=0;
+        for (int32 I=0;I<4;++I)
+        {
+            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_COLLISION_BUDGET collision_mode=%s body=%d begin_cook_and_register"),Mode,I);
+            const double BodyStarted=FPlatformTime::Seconds();
+            const float X=I%2?1800.f:-1800.f,Y=I/2?1800.f:-1800.f;
+            auto* Food=Fixture.Food(CaseRow,false,FTransform(FRotator(11+I*5,I*29,7-I*3),FVector(X,Y,2000),FVector::OneVector));
+            const double BodyMs=(FPlatformTime::Seconds()-BodyStarted)*1000;
+            const FString Name=FString::Printf(TEXT("%s current Bacon Green body %d"),Mode,I);
+            if (!CookedConvex(*this,Food,Name)) return false;
+            TestTrue(*(Name+TEXT(" retains ActorScale=1")),Food->GetActorScale3D().Equals(FVector::OneVector));
+            auto* Setup=Food->Body->GetBodySetup();
+            int32 CookedVertices=0; for (const auto& Hull:Setup->AggGeom.ConvexElems) CookedVertices+=Hull.VertexData.Num();
+            int32 LiveShapes=0;
+            auto* Instance=Food->Body->GetBodyInstance();
+            if (!TestNotNull(*(Name+TEXT(" has a live body instance")),Instance)) return false;
+            FPhysicsCommand::ExecuteRead(Instance->GetPhysicsActor(),[&](const FPhysicsActorHandle&)
+            {
+                TArray<FPhysicsShapeHandle> Shapes;
+                Instance->GetAllShapes_AssumesLocked(Shapes); LiveShapes=Shapes.Num();
+            });
+            TestEqual(*(Name+TEXT(" cooks every hull from the selected saved collision input")),Setup->AggGeom.ConvexElems.Num(),InputSetup->AggGeom.ConvexElems.Num());
+            if (Optimized) TestTrue(*(Name+TEXT(" respects the current menu hull budget")),Setup->AggGeom.ConvexElems.Num()<=CaseRow.Collision.WholeHullLimit);
+            TestEqual(*(Name+TEXT(" registers every cooked hull as a live Chaos shape")),LiveShapes,Setup->AggGeom.ConvexElems.Num());
+            TotalCookedHulls+=Setup->AggGeom.ConvexElems.Num(); TotalLiveShapes+=LiveShapes; TotalCookedVertices+=CookedVertices;
+            const FString Line=FString::Printf(TEXT("collision_mode=%s body=%d runtime_body_cook_and_register_ms=%.3f cooked_hulls=%d live_chaos_shapes=%d cooked_vertices=%d"),
+                Mode,I,BodyMs,Setup->AggGeom.ConvexElems.Num(),LiveShapes,CookedVertices);
+            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_COLLISION_BUDGET %s"),*Line);
+            AddInfo(Line); Report+=Line+TEXT("\n");
+            Food->SetActorLocation(FVector(X,Y,Food->Body->Bounds.BoxExtent.Z+500),false,nullptr,ETeleportType::TeleportPhysics);
+            TestTrue(*(Name+TEXT(" begins above the supporting floor")),LowestVisibleVertex(Food)>300);
+            Foods.Add(Food); StartPositions.Add(Food->GetActorLocation());
+        }
+        // All four heavy compounds fall and contact the same real floor concurrently.
+        // They start separated so initial overlap/depenetration cannot fake the budget.
+        for (auto* Food:Foods) { Food->Body->SetEnableGravity(true); Food->Body->WakeAllRigidBodies(); }
+        TArray<double> Active;
+        for (int32 I=0;I<180;++I)
+        {
+            Tick(TEXT("four_compounds_drop_contact"),I,Active);
+            for (auto* Food:Foods)
+                if (!TestTrue(TEXT("Heavy compound simulation stays finite during every measured tick"),
+                    !Food->GetActorTransform().ContainsNaN() && !Food->Body->GetPhysicsLinearVelocity().ContainsNaN()
+                    && !Food->Body->GetPhysicsAngularVelocityInRadians().ContainsNaN())) return false;
+        }
+        Summarize(TEXT("four_compounds_drop_contact"),Active);
+        TArray<double> Settling;
+        for (int32 I=0;I<300;++I) Tick(TEXT("four_compounds_settling"),I,Settling);
+        Summarize(TEXT("four_compounds_settling"),Settling);
+        TArray<FVector> RestPositions;
+        for (int32 I=0;I<Foods.Num();++I)
+        {
+            auto* Food=Foods[I]; const FString Name=FString::Printf(TEXT("%s heavy Green compound %d"),Mode,I);
+            const FVector Position=Food->GetActorLocation(),Velocity=Food->Body->GetPhysicsLinearVelocity();
+            const double Bottom=LowestVisibleVertex(Food);
+            TestTrue(*(Name+TEXT(" falls under actual gravity")),Position.Z<StartPositions[I].Z-250);
+            TestTrue(*(Name+TEXT(" settles with a finite transform and velocity")),!Food->GetActorTransform().ContainsNaN() && !Velocity.ContainsNaN() && Velocity.Size()<5);
+            TestTrue(*(Name+TEXT(" visible mesh stays above its supporting floor")),FMath::IsFinite(Bottom) && Bottom>=-2);
+            TestTrue(*(Name+TEXT(" visible geometry rests near contact without a bounding-box hover")),Bottom<=FMath::Max(3.,Food->Visual->Bounds.BoxExtent.GetMax()*.025));
+            RestPositions.Add(Position);
+            Report+=FString::Printf(TEXT("body=%d final_bottom_cm=%.6f final_velocity_cm_s=%.6f\n"),I,Bottom,Velocity.Size());
+        }
+        Fixture.Step(.5f);
+        for (int32 I=0;I<Foods.Num();++I)
+            TestTrue(*FString::Printf(TEXT("Heavy Green compound %d remains at rest after contact"),I),FVector::Dist(RestPositions[I],Foods[I]->GetActorLocation())<2);
+        const FPlatformMemoryStats MemoryAfter=FPlatformMemory::GetStats();
+        Report+=FString::Printf(TEXT("bodies=4\ntotal_cooked_hulls=%d\ntotal_live_chaos_shapes=%d\ntotal_cooked_vertices=%d\nprocess_physical_mib_before=%.3f\nprocess_physical_mib_after=%.3f\nprocess_virtual_mib_before=%.3f\nprocess_virtual_mib_after=%.3f\nmeasurement_scope=CPU world tick including completed Chaos simulation; excludes rendering and body creation\nbudget_threshold=none; platform timings are diagnostic evidence\n"),
+            TotalCookedHulls,TotalLiveShapes,TotalCookedVertices,MemoryBefore.UsedPhysical/double(1024*1024),MemoryAfter.UsedPhysical/double(1024*1024),
+            MemoryBefore.UsedVirtual/double(1024*1024),MemoryAfter.UsedVirtual/double(1024*1024));
     }
-    // All four heavy compounds fall and contact the same real floor concurrently.
-    // They start separated so initial overlap/depenetration cannot fake the budget.
-    for (auto* Food:Foods) { Food->Body->SetEnableGravity(true); Food->Body->WakeAllRigidBodies(); }
-    TArray<double> Active;
-    for (int32 I=0;I<180;++I)
-    {
-        Tick(TEXT("four_compounds_drop_contact"),I,Active);
-        for (auto* Food:Foods)
-            if (!TestTrue(TEXT("Heavy compound simulation stays finite during every measured tick"),
-                !Food->GetActorTransform().ContainsNaN() && !Food->Body->GetPhysicsLinearVelocity().ContainsNaN()
-                && !Food->Body->GetPhysicsAngularVelocityInRadians().ContainsNaN())) return false;
-    }
-    Summarize(TEXT("four_compounds_drop_contact"),Active);
-    TArray<double> Settling;
-    for (int32 I=0;I<300;++I) Tick(TEXT("four_compounds_settling"),I,Settling);
-    Summarize(TEXT("four_compounds_settling"),Settling);
-    TArray<FVector> RestPositions;
-    for (int32 I=0;I<Foods.Num();++I)
-    {
-        auto* Food=Foods[I]; const FString Name=FString::Printf(TEXT("heavy Green compound %d"),I);
-        const FVector Position=Food->GetActorLocation(),Velocity=Food->Body->GetPhysicsLinearVelocity();
-        const double Bottom=LowestVisibleVertex(Food);
-        TestTrue(*(Name+TEXT(" falls under actual gravity")),Position.Z<StartPositions[I].Z-250);
-        TestTrue(*(Name+TEXT(" settles with a finite transform and velocity")),!Food->GetActorTransform().ContainsNaN() && !Velocity.ContainsNaN() && Velocity.Size()<5);
-        TestTrue(*(Name+TEXT(" visible mesh stays above its supporting floor")),FMath::IsFinite(Bottom) && Bottom>=-2);
-        TestTrue(*(Name+TEXT(" visible geometry rests near contact without a bounding-box hover")),Bottom<=FMath::Max(3.,Food->Visual->Bounds.BoxExtent.GetMax()*.025));
-        RestPositions.Add(Position);
-        Report+=FString::Printf(TEXT("body=%d final_bottom_cm=%.6f final_velocity_cm_s=%.6f\n"),I,Bottom,Velocity.Size());
-    }
-    Fixture.Step(.5f);
-    for (int32 I=0;I<Foods.Num();++I)
-        TestTrue(*FString::Printf(TEXT("Heavy Green compound %d remains at rest after contact"),I),FVector::Dist(RestPositions[I],Foods[I]->GetActorLocation())<2);
-    const FPlatformMemoryStats MemoryAfter=FPlatformMemory::GetStats();
-    Report+=FString::Printf(TEXT("bodies=4\ntotal_cooked_hulls=%d\ntotal_live_chaos_shapes=%d\ntotal_cooked_vertices=%d\nprocess_physical_mib_before=%.3f\nprocess_physical_mib_after=%.3f\nprocess_virtual_mib_before=%.3f\nprocess_virtual_mib_after=%.3f\nmeasurement_scope=CPU world tick including completed Chaos simulation; excludes rendering and body creation\nbudget_threshold=none; platform timings are diagnostic evidence\n"),
-        TotalCookedHulls,TotalLiveShapes,TotalCookedVertices,MemoryBefore.UsedPhysical/double(1024*1024),MemoryAfter.UsedPhysical/double(1024*1024),
-        MemoryBefore.UsedVirtual/double(1024*1024),MemoryAfter.UsedVirtual/double(1024*1024));
+    Report+=TEXT("comparison_scope=same four bodies, transforms, row values, floor and fixed timestep in separate sequential physics worlds; source collision runs first, generated collision second; asset and cook timings may benefit from editor caches; CPU tick timings are paired diagnostics without an absolute FPS threshold\n");
     AddInfo(Report);
     const FString Folder=FPaths::ProjectSavedDir()/TEXT("TestReports/FoodCollisionPerformance");
     IFileManager::Get().MakeDirectory(*Folder,true);

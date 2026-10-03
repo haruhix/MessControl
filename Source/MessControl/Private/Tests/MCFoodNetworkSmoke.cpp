@@ -173,12 +173,14 @@ void MCTickFoodNetworkValidation(UWorld* W)
         for(TActorIterator<AMCFoodActor> It(W);It;++It) if(It->Batch==91003) {CollisionFood=*It;break;}
         const auto* CollisionBody=CollisionFood?Cast<UMCFoodBodyComponent>(CollisionFood->Body):nullptr;
         const auto* CollisionSetup=CollisionBody?const_cast<UMCFoodBodyComponent*>(CollisionBody)->GetBodySetup():nullptr;
-        const auto* SourceSetup=CollisionFood && CollisionFood->ItemMesh?CollisionFood->ItemMesh->GetBodySetup():nullptr;
+        const auto* CollisionData=CollisionFood?CollisionFood->FoodData.FindCollisionData(CollisionFood->ItemMesh):nullptr;
+        const auto* SourceSetup=CollisionData?CollisionData->BodySetup.Get()
+            :(CollisionFood && CollisionFood->ItemMesh?CollisionFood->ItemMesh->GetBodySetup():nullptr);
         Check(CollisionFood && CollisionFood->bFragment && CollisionFood->GetActorScale3D().Equals(FVector(20),.01),TEXT("late actor scale x20 and subsequent fragment replacement replicate to this peer"));
         Check(CollisionBody && CollisionBody->HasMeshCollision() && CollisionSetup && SourceSetup
             && CollisionSetup->AggGeom.BoxElems.IsEmpty()
             && CollisionSetup->AggGeom.ConvexElems.Num()==SourceSetup->AggGeom.ConvexElems.Num()+SourceSetup->AggGeom.BoxElems.Num(),
-            TEXT("peer reconstructs the authored fragment convex hulls without box physics"));
+            TEXT("peer reconstructs the selected saved fragment convex hulls without box physics"));
         bool CentreHit=false;
         if(CollisionFood) {
             const FVector E=CollisionFood->Body->GetUnscaledBoxExtent();const FTransform Pose=CollisionFood->GetActorTransform();

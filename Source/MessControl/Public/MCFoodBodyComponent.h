@@ -5,6 +5,7 @@
 #include "MCFoodBodyComponent.generated.h"
 
 class UStaticMesh;
+class UMCFoodCollisionData;
 
 /** Detailed hand/tool queries without a second copy of the food's compound hulls. */
 UCLASS()
@@ -25,11 +26,12 @@ class MESSCONTROL_API UMCFoodBodyComponent : public UBoxComponent
     GENERATED_BODY()
 public:
     UMCFoodBodyComponent();
-    void SetCollisionMesh(UStaticMesh* Mesh, FVector ItemScale);
+    void SetCollisionMesh(UStaticMesh* Mesh, FVector ItemScale, UMCFoodCollisionData* Data=nullptr);
     virtual void UpdateBodySetup() override;
     virtual FPrimitiveSceneProxy* CreateSceneProxy() override { return nullptr; }
     bool HasMeshCollision() const;
 private:
     UPROPERTY(Transient) TObjectPtr<UStaticMesh> CollisionMesh;
+    UPROPERTY(Transient) TObjectPtr<UMCFoodCollisionData> CollisionData;
     FVector CollisionScale=FVector::OneVector;
 };
