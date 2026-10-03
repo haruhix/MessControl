@@ -1,6 +1,7 @@
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCToothCharacter.h"
 #include "MCGameState.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -12,6 +13,9 @@
 #include "GameFramework/PlayerController.h"
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
+#include "Sound/SoundAttenuation.h"
 
 void FMCArenaToothSettings::Sanitize()
 {
@@ -20,6 +24,7 @@ void FMCArenaToothSettings::Sanitize()
     BrushHitDamage=Safe(BrushHitDamage,25,0,10000); HitSquash=Safe(HitSquash,0.18f,0,0.4f);
     WobbleDegrees=Safe(WobbleDegrees,12,0,25); ReactionSeconds=Safe(ReactionSeconds,0.8f,0.2f,3);
     FallAnticipation=Safe(FallAnticipation,0.25f,0,1); FallLift=Safe(FallLift,310,0,1000); FallSpeed=Safe(FallSpeed,220,0,1000);
+    PianoPressDepth=Safe(PianoPressDepth,10,0,25); PianoPressSeconds=Safe(PianoPressSeconds,0.36f,0.15f,1);
 }
 AMCArenaTooth::AMCArenaTooth()
 {
@@ -45,6 +50,17 @@ AMCArenaTooth::AMCArenaTooth()
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("ToothIdentity")); Label->SetupAttachment(Body);
     Label->SetRelativeLocation(FVector(0,0,112)); Label->SetWorldSize(19); Label->SetHorizontalAlignment(EHTA_Center);
     Label->SetTextRenderColor(FColor(135,255,218)); Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    static ConstructorHelpers::FObjectFinder<USoundBase> Piano(TEXT("/Game/Audio/S_ToothPianoC4"));
+    if (Piano.Succeeded()) PianoSound=Piano.Object;
+    static ConstructorHelpers::FObjectFinder<USoundBase> PianoC5(TEXT("/Game/Audio/S_ToothPianoC5"));
+    static ConstructorHelpers::FObjectFinder<USoundBase> PianoC6(TEXT("/Game/Audio/S_ToothPianoC6"));
+    static ConstructorHelpers::FObjectFinder<USoundBase> PianoC7(TEXT("/Game/Audio/S_ToothPianoC7"));
+    PianoUpperOctaves={PianoC5.Object,PianoC6.Object,PianoC7.Object};
+    PianoAttenuation=CreateDefaultSubobject<USoundAttenuation>(TEXT("PianoAttenuation"));
+    PianoAttenuation->Attenuation.bAttenuate=true;
+    PianoAttenuation->Attenuation.bSpatialize=true;
+    PianoAttenuation->Attenuation.AttenuationShapeExtents=FVector(250,0,0);
+    PianoAttenuation->Attenuation.FalloffDistance=2800;
 }
 void AMCArenaTooth::Initialize(int32 Id,const FMCArenaToothSettings& Defaults)
 {
@@ -58,6 +74,61 @@ void AMCArenaTooth::BeginPlay()
     Body->OnComponentHit.AddDynamic(this,&AMCArenaTooth::OnBodyHit);
     Body->SetMassOverrideInKg(NAME_None,14,true);
     ApplyAppearance();
+    // A new/late-joining client should not replay an old note from its initial snapshot.
+    PlayedPianoSerial=PianoState.Serial;
+}
+int32 AMCArenaTooth::PianoMidiNote() const
+{
+    static constexpr int32 MajorScale[]={0,2,4,5,7,9,11};
+    const int32 Key=FMath::Clamp(State.ToothId-1,0,27);
+    return 60+12*(Key/7)+MajorScale[Key%7];
+}
+float AMCArenaTooth::PianoPitchScale() const
+{
+    // One base sample per octave keeps every note inside the mixer pitch limits.
+    return FMath::Pow(2.f,((PianoMidiNote()-60)%12)/12.f);
+}
+USoundBase* AMCArenaTooth::PianoNoteSound() const
+{
+    const int32 Octave=(PianoMidiNote()-60)/12;
+    return Octave==0?PianoSound.Get():PianoUpperOctaves.IsValidIndex(Octave-1)?PianoUpperOctaves[Octave-1].Get():nullptr;
+}
+float AMCArenaTooth::PianoOffset() const
+{
+    if (!Settings.bPianoEnabled || !IsAvailable() || PianoState.Serial==0) return 0;
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const float T=(Now-PianoState.PressedAt)/FMath::Max(0.15f,Settings.PianoPressSeconds);
+    if (T<0 || T>=1) return 0;
+    // Quick key-down, a brief bottom stop, then a soft spring return.
+    const float Press=T<0.15f?FMath::SmoothStep(0.f,0.15f,T):T<0.3f?1.f:1-FMath::SmoothStep(0.3f,1.f,T);
+    return Settings.PianoPressDepth*PianoState.Strength*Press;
+}
+bool AMCArenaTooth::NotifyPianoLanding(AMCToothCharacter* Worker,const FHitResult& Hit,float DownSpeed)
+{
+    if (!HasAuthority() || !Worker || !Worker->HasAuthority() || !Settings.bPianoEnabled || !IsAvailable()
+        || !Hit.IsValidBlockingHit() || Hit.GetActor()!=this || Hit.GetComponent()!=Body
+        || Hit.ImpactNormal.Z<0.5f || !FMath::IsFinite(DownSpeed) || DownSpeed<40) return false;
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    // Ignore contact jitter; normal consecutive jumps and neighbouring keys remain independent.
+    if (Now-PianoState.PressedAt<0.12) return false;
+    PianoState.PressedAt=Now;
+    PianoState.Strength=FMath::GetMappedRangeValueClamped(FVector2D(40,700),FVector2D(0.75,1),DownSpeed);
+    ++PianoState.Serial;
+    OnRep_Piano(); ForceNetUpdate();
+    return true;
+}
+void AMCArenaTooth::OnRep_Piano()
+{
+    if (!HasActorBegunPlay() || PianoState.Serial==PlayedPianoSerial) return;
+    PlayedPianoSerial=PianoState.Serial;
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    auto* Sound=PianoNoteSound();
+    if (!IsAvailable() || !Settings.bPianoEnabled || !Sound || GetNetMode()==NM_DedicatedServer
+        || Now-PianoState.PressedAt>1) return;
+    UGameplayStatics::PlaySoundAtLocation(this,Sound,Visual->Bounds.Origin,0.65f*PianoState.Strength,PianoPitchScale(),0,PianoAttenuation);
 }
 void AMCArenaTooth::SetAppearance(UStaticMesh* Mesh,FVector Scale,UMaterialInterface* GameplayMaterial)
 {
@@ -136,7 +207,8 @@ void AMCArenaTooth::Tick(float DeltaSeconds)
     if (!bFallStarted)
     {
         Visual->SetRelativeScale3D(MeshBaseScale*FVector(1+Squash*0.5,1+Squash*0.5,1-Squash));
-        Visual->SetRelativeLocation(MeshBaseLocation+FVector(0,0,-Squash*50));
+        const FVector KeyDown=GetActorQuat().UnrotateVector(FVector(0,0,-PianoOffset()));
+        Visual->SetRelativeLocation(MeshBaseLocation+FVector(0,0,-Squash*50)+KeyDown);
         const FVector Local=GetActorRotation().UnrotateVector(State.HitDirection);
         const float Kick=Settings.WobbleDegrees*2*Envelope*FMath::Sin(T*PI*5);
         Visual->SetRelativeRotation(FRotator(Kick*Local.X+Wobble*0.25,0,-Kick*Local.Y+Wobble));
@@ -182,6 +254,7 @@ void AMCArenaTooth::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCArenaTooth,State); DOREPLIFETIME(AMCArenaTooth,Settings);
     DOREPLIFETIME(AMCArenaTooth,Appearance);
+    DOREPLIFETIME(AMCArenaTooth,PianoState);
     DOREPLIFETIME(AMCArenaTooth,GrimeMask); DOREPLIFETIME(AMCArenaTooth,GrimeAmount);
     DOREPLIFETIME(AMCArenaTooth,BrushLocal); DOREPLIFETIME(AMCArenaTooth,BrushAt);
 }
