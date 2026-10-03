@@ -4,6 +4,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
 #include "MCFoodActor.h"
+#include "MCThroat.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "Engine/SkeletalMesh.h"
@@ -61,6 +62,14 @@ float UMCExpressionComponent::BodyAlpha() const
 void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction)
 {
     Super::TickComponent(Dt,Type,TickFunction);
+    float Suction=0; FVector Pull;
+    if (Tooth && Tooth->Status->IsAlive() && !Tooth->SwallowedBy)
+        AMCThroat::FindAmbientSuctionAt(GetWorld(),Tooth->GetActorLocation(),Suction,Pull);
+    if (Suction>.01f && FoodSuctionReaction<.01f) FoodSuctionReactionAt=Now();
+    const float Rate=Suction>FoodSuctionReaction?14.f:7.f;
+    FoodSuctionReaction=FMath::Lerp(FoodSuctionReaction,Suction,1-FMath::Exp(-Rate*FMath::Max(0.f,Dt)));
+    if (FoodSuctionReaction<.0001f) FoodSuctionReaction=0;
+    FoodSuctionFlinch=1-FMath::SmoothStep(.15f,.5f,float(Now()-FoodSuctionReactionAt));
     if (Now()-VoiceAt>.25) { Voice=0; VoiceViseme=MCViseme::Rest; }
     if (Tooth && Tooth->HasAuthority() && State.StoppedAt<0)
         if (const auto* Entry=ActiveEntry(); Entry && !CanPlay(*Entry)) { State.StoppedAt=Now(); Tooth->ForceNetUpdate(); }
@@ -92,10 +101,15 @@ bool UMCExpressionComponent::UpdateEyeShapes(float Dt,float EmotionStrength,bool
     const FName Shape=Entry && !bPain && !Tooth->IsYawning() && EmoteAlpha()>.01f
         && Asset->FindMorphTarget(Entry->EyeMorph)?Entry->EyeMorph:NAME_None;
     if (!Shape.IsNone()) EyeWeights.FindOrAdd(Shape);
+    const FName SuctionShape=TEXT("Eyes_Scary");
+    const float Suction=!bPain?FoodSuctionReaction*(.32f+.32f*FoodSuctionFlinch):0.f;
+    if (Asset->FindMorphTarget(SuctionShape)) EyeWeights.FindOrAdd(SuctionShape);
     const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
     for (auto& Pair:EyeWeights)
     {
-        Pair.Value=FMath::Lerp(Pair.Value,Pair.Key==Shape?FMath::Clamp(EmotionStrength,0.f,1.f):0.f,Alpha);
+        const float Target=(Pair.Key==Shape?FMath::Clamp(EmotionStrength,0.f,1.f)*(1-Suction):0.f)
+            +(Pair.Key==SuctionShape?Suction:0.f);
+        Pair.Value=FMath::Lerp(Pair.Value,Target,Alpha);
         if (Pair.Value<.0001f) Pair.Value=0;
         Mesh->SetMorphTarget(Pair.Key,Pair.Value);
     }
@@ -113,13 +127,15 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
     // Unvoiced consonants and a closed M/B/P still need articulation at zero volume.
     const bool Consonant=VoiceViseme==MCViseme::Closed || VoiceViseme==MCViseme::LipBite || uint8(VoiceViseme)>=uint8(MCViseme::L);
     const float SpeechWeight=Fresh?(Consonant?1.f:Voice):0.f;
-    const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-SpeechWeight);
+    const float Suction=!bPain?FoodSuctionReaction*.82f:0.f;
+    const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-SpeechWeight)*(1-Suction);
     const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
     // These are complete poses, so convex blending preserves the shared mouth contour.
     // A common smoothing factor preserves sum(weights) <= 1 during every transition.
     for (FName Name:MouthShapes())
     {
-        const float Target=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f);
+        const float Reaction=Name==TEXT("Mouth_Surprise")?FoodSuctionFlinch:Name==TEXT("Mouth_Effort")?1-FoodSuctionFlinch:0.f;
+        const float Target=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)+Reaction*Suction*(1-SpeechWeight);
         float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,Target,Alpha);
         if (Weight<.0001f) Weight=0;
         if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name)) Mesh->SetMorphTarget(Name,Weight);
@@ -145,8 +161,8 @@ bool UMCExpressionComponent::ApplyMorphBlink(float Closure)
             // The artist's effort mouth also closes the eyelids. An external
             // inhale needs an alert grip: remove that lid delta during the
             // brace, while Eyes_Blink above still owns genuine blinks.
-            const float Brace=Name==TEXT("Mouth_Effort") && Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort
-                ?Tooth->YawnPoseAlpha():0.f;
+            const float Brace=Name==TEXT("Mouth_Effort")?FMath::Max(FoodSuctionReaction,
+                Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort?Tooth->YawnPoseAlpha():0.f):0.f;
             Mesh->SetMorphTarget(Correction,MouthWeights.FindRef(Name)*FMath::Max(Closure,Brace));
         }
     }
@@ -207,6 +223,18 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     const bool YawnStrain=Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort && Pain<.01f;
     if(YawnStrain) {J=0;Sml=-.12f;B=.12f;Tilt=.9f;Squ=.18f;}
     J*=Strength; Sml*=Strength; B*=Strength; Tilt*=Strength; Squ*=Strength; Rnd*=Strength;
+    // An initial wide-eyed intake becomes a small clenched brace near the throat.
+    // This overlay fades back into the still-running emote, task reaction or speech.
+    const float Suction=FoodSuctionReaction*(1-Pain);
+    if (Suction>.001f)
+    {
+        J=FMath::Lerp(J,.48f*FoodSuctionFlinch,Suction);
+        Sml=FMath::Lerp(Sml,-.22f,Suction);
+        B=FMath::Lerp(B,.28f+.65f*FoodSuctionFlinch,Suction);
+        Tilt=FMath::Lerp(Tilt,.8f*(1-FoodSuctionFlinch),Suction);
+        Squ=FMath::Lerp(Squ,.15f*(1-FoodSuctionFlinch),Suction);
+        Rnd=FMath::Lerp(Rnd,.4f*FoodSuctionFlinch,Suction);
+    }
     if (Pain<.1f && Voice>0)
     {
         const float Open=VoiceViseme==MCViseme::Closed || VoiceViseme==MCViseme::Rest?0:VoiceViseme==MCViseme::LipBite?.12f:Voice;
@@ -256,12 +284,16 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     {
         const float Sign=Side==TEXT("l")?1.f:-1.f;
         if (!MorphMouth) Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
-        if (!AuthoredFace || YawnStrain)
+        if (!AuthoredFace || YawnStrain || Suction>.001f)
         {
-            Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)));
-            Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)));
-            Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f*(1-ArtistAlpha)));
+            const float BrowAlpha=AuthoredFace && !YawnStrain?Suction:1.f;
+            Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)*BrowAlpha));
+            Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)*BrowAlpha));
+            Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f*(1-ArtistAlpha)*BrowAlpha));
         }
+        // The cheek controls are optional on alternative rigs. Tiny inward pulls
+        // sell the pressure without a permanent morph or exaggerated deformation.
+        Offset(FName(*(TEXT("c_cheek_inflate_")+Side)),FVector(-Sign*1.2f,.55f,-.2f)*Suction);
     }
 }
 void UMCExpressionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

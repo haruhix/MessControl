@@ -1,6 +1,7 @@
 #include "MCToothCharacter.h"
 #include "MCGameState.h"
 #include "MCTongue.h"
+#include "MCThroat.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -52,6 +53,14 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
 {
     if(!IsLocallyControlled()) { ClearCameraWallReveal(); return; }
     const FVector P=GetActorLocation();
+    float Suction=0;
+    for(TActorIterator<AMCThroat> It(GetWorld());It;++It)
+        Suction=FMath::Max(Suction,It->GetAmbientSuctionStrengthAt(P));
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    // A gentle lens pulse makes the whole room's intake readable while keeping
+    // the player's chosen aim and the collision sweep steady.
+    Camera->FieldOfView=FMath::Clamp(FollowFOV,45.f,95.f)+Suction*(2.4f+.35f*FMath::Sin(float(Now*10)));
     if(bMouthCameraHeld && bMouthCameraInitialized) {
         if (bManualCameraOrbit) {
             const FVector PreviousRoot=CameraBoom->GetUnfixedCameraPosition()+CameraBoom->GetComponentRotation().Vector()*CameraBoom->TargetArmLength-CameraBoom->TargetOffset;
@@ -84,7 +93,6 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         CameraBoom->TargetOffset=OrbitPivotOffset;
         CameraBoom->SetWorldRotation(Arm.Rotation());
         CameraBoom->TargetArmLength=Arm.Size();
-        Camera->FieldOfView=FMath::Clamp(FollowFOV,45.f,95.f);
         Camera->AspectRatio=16.f/9.f; Camera->bOverrideAspectRatioAxisConstraint=true;
         Camera->SetAspectRatioAxisConstraint(AspectRatio_MaintainYFOV);
         bMouthCameraInitialized=true;
@@ -127,7 +135,6 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     const float Blend=1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt));
     MouthCameraEye=ClampEye(Reset?WantedEye:FMath::Lerp(MouthCameraEye,WantedEye,Blend));
     const FVector Eye=MouthCameraEye;
-    Camera->FieldOfView=FMath::Clamp(FollowFOV,45.f,95.f);
     Camera->AspectRatio=16.f/9.f;
     Camera->bOverrideAspectRatioAxisConstraint=true;
     Camera->SetAspectRatioAxisConstraint(AspectRatio_MaintainYFOV);

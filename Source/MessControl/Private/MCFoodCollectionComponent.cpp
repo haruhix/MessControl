@@ -1,5 +1,6 @@
 #include "MCFoodCollectionComponent.h"
 #include "MCFoodActor.h"
+#include "MCFoodStackSettings.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothPhysicsComponent.h"
@@ -13,6 +14,12 @@ UMCFoodCollectionComponent::UMCFoodCollectionComponent()
 {
     SetIsReplicatedByDefault(true); PrimaryComponentTick.bCanEverTick=true;
     PrimaryComponentTick.TickGroup=TG_PrePhysics;
+}
+const FMCFoodStackSettings* UMCFoodCollectionComponent::LayoutSettings() const
+{
+    for(const auto& Food:Pieces) if(IsValid(Food)) return &Food->FoodData.Stack;
+    static const FMCFoodStackSettings Defaults;
+    return &Defaults;
 }
 FVector UMCFoodCollectionComponent::HandPoint() const
 {
@@ -70,13 +77,29 @@ FQuat UMCFoodCollectionComponent::StackRotation() const
 { return GetOwner()->GetActorQuat()*FRotator(SwayAngle.X,0,SwayAngle.Y).Quaternion(); }
 FTransform UMCFoodCollectionComponent::StackPose(float SlotHeight) const
 { const FQuat Rotation=StackRotation();return FTransform(Rotation,HandPoint()+Rotation.RotateVector(FVector(0,0,SlotHeight))); }
+FTransform UMCFoodCollectionComponent::StackPose(const AMCFoodActor* Food) const
+{
+    if(!Food) return StackPose(0.f);
+    const FQuat Rotation=StackRotation();
+    return FTransform(Food->StackRestRotation(Rotation),HandPoint()+Rotation.RotateVector(FVector(Food->StackPickup.SlotOffset)+FVector(0,0,Food->StackPickup.SlotHeight)));
+}
+void UMCFoodCollectionComponent::RebuildStackLayout()
+{
+    float Height=0;
+    for(int32 I=0;I<Pieces.Num();++I) if(auto* Food=Pieces[I].Get();IsValid(Food)) {
+        const float Extent=Food->PrepareHorizontalStackPose(&Food->FoodData.Stack,I);
+        Height+=Extent;Food->StackPickup.SlotHeight=Height;Height+=Extent+Food->FoodData.Stack.SafeLayerGap();
+    }
+}
 bool UMCFoodCollectionComponent::Collect(AMCFoodActor* Food)
 {
     if(!GetOwner()->HasAuthority() || !bCollecting || Pieces.Num()>=FMath::Clamp(MaxPieces,1,8) || !CanCollect(Food)) return false;
-    float Height=Food->Body->GetScaledBoxExtent().Z;
-    for(const auto& Piece:Pieces) if(IsValid(Piece)) Height+=Piece->Body->GetScaledBoxExtent().Z*2+3;
-    const FQuat Rotation=StackRotation();
-    const FVector Goal=HandPoint()+Rotation.RotateVector(FVector(0,0,Height));
+    RebuildStackLayout();
+    float Height=Food->PrepareHorizontalStackPose(&Food->FoodData.Stack,Pieces.Num());
+    for(const auto& Piece:Pieces) if(IsValid(Piece)) Height+=Piece->StackHalfHeight()*2+Piece->FoodData.Stack.SafeLayerGap();
+    Food->StackPickup.SlotHeight=Height;
+    const FTransform Pose=StackPose(Food);
+    const FQuat Rotation=Pose.GetRotation();const FVector Goal=Pose.GetLocation();
     // Reject occupied placement volumes instead of teleporting a piece through a wall.
     FCollisionQueryParams Q(SCENE_QUERY_STAT(MCStackPlacement),false,GetOwner()); Q.AddIgnoredActor(Food);
     for(const auto& Piece:Pieces) Q.AddIgnoredActor(Piece);
@@ -89,6 +112,20 @@ bool UMCFoodCollectionComponent::Collect(AMCFoodActor* Food)
     }
     Pieces.Add(Food); PieceMotion.FindOrAdd(Food).Linear=GetOwner()->GetVelocity();
     Food->AttendFood(); GetOwner()->ForceNetUpdate(); return true;
+}
+bool UMCFoodCollectionComponent::DetachForDelivery(AMCFoodActor* Food)
+{
+    if(!GetOwner()->HasAuthority() || !IsValid(Food) || Food->Phase!=EMCFoodPhase::Swallowing || !Pieces.Contains(Food)) return false;
+    for(const auto& Piece:Pieces) if(IsValid(Piece) && Piece!=Food) {
+        Food->Body->IgnoreActorWhenMoving(Piece,false);Piece->Body->IgnoreActorWhenMoving(Food,false);
+    }
+    Pieces.Remove(Food);PieceMotion.Remove(Food);DroppedAt.Remove(Food);
+    Food->SetStackCarrier(nullptr); // Swallowing is already set: no transient return to Chaos.
+    RebuildStackLayout();
+    if(Pieces.IsEmpty()) {
+        bCollecting=false;bHasHand=false;SwayAngle=SwayVelocity=FVector2D::ZeroVector;NextCollectAt=0;
+    }
+    GetOwner()->ForceNetUpdate();return true;
 }
 void UMCFoodCollectionComponent::ReleaseFrom(int32 Index,bool Throw,FVector Impulse)
 {
@@ -162,6 +199,10 @@ void UMCFoodCollectionComponent::CheckIncomingContacts(AMCFoodActor* Food)
     // PhysicsBody overlap response prevents pickup animation from pushing a heap.
     FCollisionQueryParams Q(SCENE_QUERY_STAT(MCStackIncomingContact),false,GetOwner());
     for(const auto& Piece:Pieces) Q.AddIgnoredActor(Piece);
+    // Only query actor bounds here. Hundreds of authored hulls are evaluated
+    // by the exact probe only after an incoming body passes the impulse gate.
+    Q.bSkipNarrowPhase=true;
+    FCollisionQueryParams ExactQ=Q;ExactQ.bSkipNarrowPhase=false;
     FCollisionObjectQueryParams Objects(ECC_PhysicsBody);Objects.AddObjectTypesToQuery(ECC_WorldDynamic);
     TArray<FOverlapResult> Contacts;
     GetWorld()->OverlapMultiByObjectType(Contacts,Food->GetActorLocation(),Food->GetActorQuat(),Objects,
@@ -172,7 +213,7 @@ void UMCFoodCollectionComponent::CheckIncomingContacts(AMCFoodActor* Food)
         if(const auto* F=Cast<AMCFoodActor>(Other); F && IsSettlingRelease(F)) continue;
         const FVector Normal=(Food->GetActorLocation()-Body->GetComponentLocation()).GetSafeNormal();
         if(ContactStrength(Food->Settings.Mass,Other,Body,FVector::ZeroVector,Normal)<ContactThreshold()) continue;
-        if(!Body->ComponentOverlapComponent(Food->Body,Food->GetActorLocation(),Food->GetActorQuat(),Q)) continue;
+        if(!Body->ComponentOverlapComponent(Food->Body,Food->GetActorLocation(),Food->GetActorQuat(),ExactQ)) continue;
         FHitResult Hit;Hit.ImpactNormal=Normal;
         HandleStackCollision(Food,Other,Body,FVector::ZeroVector,Hit);
         if(!bCollecting) return;
@@ -198,16 +239,14 @@ void UMCFoodCollectionComponent::TickComponent(float Dt,ELevelTick Type,FActorCo
     for(float Left=FMath::Min(Dt,.1f);Left>SMALL_NUMBER;) {
         const float Step=FMath::Min(Left,1.f/120.f); Left-=Step;
         SwayVelocity+=((Target-SwayAngle)*70-SwayVelocity*12)*Step;
-        SwayAngle=(SwayAngle+SwayVelocity*Step).GetClampedToMaxSize(12);
+        SwayAngle=(SwayAngle+SwayVelocity*Step).GetClampedToMaxSize(LayoutSettings()->SafeMaxSwayDegrees());
     }
-    const FQuat Rotation=StackRotation(); float Height=0;
+    RebuildStackLayout();
     const auto HeldPieces=Pieces;
     for(int32 I=0;I<HeldPieces.Num();++I) {
         auto* F=HeldPieces[I].Get();
         if(!IsValid(F) || F->IsDisposed() || F->StackCarrier!=H) {ReleaseFrom(I);break;}
-        const float Extent=F->Body->GetScaledBoxExtent().Z;
-        Height+=Extent;
-        const FTransform RestPose(Rotation,Hand+Rotation.RotateVector(FVector(0,0,Height))); Height+=Extent+3;
+        const FTransform RestPose=StackPose(F);
         const FTransform Pose=F->StackPickupPose(RestPose);
         const FVector Goal=Pose.GetLocation();const FQuat PieceRotation=Pose.GetRotation();
         const FVector Previous=F->GetActorLocation(); const FQuat PreviousRotation=F->GetActorQuat();

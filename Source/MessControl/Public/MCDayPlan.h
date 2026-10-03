@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
 #include "Engine/DataTable.h"
+#include "MCFoodStackSettings.h"
 #include "MCDayPlan.generated.h"
 class UMCCoffeeProfile;
 class UMCColdColaProfile;
@@ -37,7 +38,11 @@ struct FMCFoodRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Ulcer", meta=(ClampMin="0.5",ClampMax="10")) float AbsorbSeconds=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) int32 Fragments=3;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) FVector HalfExtent=FVector(45,35,35);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stack") FMCFoodStackSettings Stack;
     void Sanitize();
+#if WITH_EDITOR
+    virtual EDataValidationResult IsDataValid(FDataValidationContext& Context) const override;
+#endif
 };
 
 USTRUCT(BlueprintType)

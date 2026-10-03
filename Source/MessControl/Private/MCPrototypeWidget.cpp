@@ -87,7 +87,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
     ControlsPanel=FooterBorder; SetPlayerOverlayVisible(bPlayerOverlayVisible);
-    AddText(Footer,TEXT("WASD MOVE   SHIFT RUN   SPACE HOP   LMB INTERACT   Q THROW   MOUSE LOOK   WHEEL ZOOM   RMB BONK"),15,Cream);
+    AddText(Footer,TEXT("WASD MOVE   SHIFT TAP: DASH / HOLD: RUN   SPACE HOP   LMB INTERACT   Q THROW   MOUSE LOOK   WHEEL ZOOM   RMB BONK"),15,Cream);
 #if !UE_BUILD_SHIPPING
     AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
 #else

@@ -3,6 +3,7 @@
 #include "Components/ActorComponent.h"
 #include "MCFoodCollectionComponent.generated.h"
 class AMCFoodActor;
+struct FMCFoodStackSettings;
 class AMCToothCharacter;
 
 /** A held stack sways as one load and returns to Chaos when released or hit. */
@@ -23,10 +24,13 @@ public:
     void HandleCarrierCollision(AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     void HandleStackCollision(AMCFoodActor* Food,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     bool Collect(AMCFoodActor* Food);
+    /** Atomically hands off a Swallowing piece, preserving the rest of the load. */
+    bool DetachForDelivery(AMCFoodActor* Food);
     bool Contains(const AMCFoodActor* Food) const;
     bool IsSettlingRelease(const AMCFoodActor* Food) const;
     FVector HandPoint() const;
     FTransform StackPose(float SlotHeight) const;
+    FTransform StackPose(const AMCFoodActor* Food) const;
     UPROPERTY(Replicated,BlueprintReadOnly) bool bCollecting=false;
     UPROPERTY(Replicated,BlueprintReadOnly) TArray<TObjectPtr<AMCFoodActor>> Pieces;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) int32 MaxPieces=6;
@@ -43,6 +47,8 @@ private:
     FVector2D SwayAngle=FVector2D::ZeroVector,SwayVelocity=FVector2D::ZeroVector;
     bool bHasHand=false;
     double NextCollectAt=0;
+    const FMCFoodStackSettings* LayoutSettings() const;
+    void RebuildStackLayout();
     FQuat StackRotation() const;
     float ContactThreshold() const;
     bool IsLoosePileFood(const AActor* Actor) const;

@@ -11,6 +11,23 @@ class USkeletalMeshComponent;
 UENUM(BlueprintType)
 enum class EMCThroatPhase : uint8 { Collecting, Anticipation, Swallowing, Recovering, Spasm, Vomiting };
 
+/** One persistent server-timed field, including the footprint needed by late joiners. */
+USTRUCT(BlueprintType)
+struct MESSCONTROL_API FMCThroatSuctionState
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) FVector Origin=FVector::ZeroVector;
+    UPROPERTY(BlueprintReadOnly) double StartedAt=0;
+    UPROPERTY(BlueprintReadOnly) float Duration=0;
+    UPROPERTY(BlueprintReadOnly) float InfluenceRadius=6000;
+    UPROPERTY(BlueprintReadOnly) float MaxPullSpeed=85;
+
+    bool IsActive(double ServerTime) const;
+    float Envelope(double ServerTime) const;
+    float StrengthAt(FVector Location,double ServerTime) const;
+    FVector VelocityAt(FVector Location,double ServerTime) const;
+};
+
 /** A breathing throat with automatic food intake and a decorative uvula. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCThroat : public AMCFoodDisposal
@@ -43,12 +60,19 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone",meta=(ClampMin="40")) float ZoneHeight=240;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.1")) float PressSeconds=.48f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="1")) float AnticipationSeconds=3.f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.5")) float SwallowSeconds=1.65f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.5")) float SwallowSeconds=2.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.2")) float RecoverySeconds=1.1f;
+    /** Minimum atmosphere footprint; the saved tongue bounds can enlarge it. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Suction",meta=(ClampMin="1000",Units="cm")) float SuctionRadius=6000;
+    /** Additive horizontal drift remains weaker than walking, even at the inlet. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Suction",meta=(ClampMin="0",ClampMax="150",Units="cm/s")) float SuctionPullSpeed=85;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat|Suction") FMCThroatSuctionState SuctionState;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") EMCThroatPhase ThroatPhase=EMCThroatPhase::Collecting;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") double PhaseStartedAt=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") float Weight=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 FoodInZone=0;
+    /** Reserved ingredients waiting for the current or next gathering window. */
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 QueuedFoodCount=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 SwallowCount=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 FoodSwallowed=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat") int32 SpasmCount=0;
@@ -58,9 +82,18 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="2")) float VomitSeconds=2.2f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") FVector VomitOrigin=FVector(-70,0,130);
     UFUNCTION(BlueprintPure,Category="Throat") bool ContainsFood(const AMCFoodActor* Food) const;
+    bool CanAcceptDelivery(const AMCFoodActor* Food) const;
+    /** Authority reserves a loose ingredient or atomically transfers it from its carrier. */
+    bool AcceptDelivery(AMCFoodActor* Food);
     UFUNCTION(BlueprintPure,Category="Throat") float OpenAmount() const;
     /** A point inside the visible artist aperture, above the tongue surface. */
     FVector VacuumInlet() const;
+    UFUNCTION(BlueprintPure,Category="Throat|Suction") bool IsAmbientSuctionActive() const;
+    UFUNCTION(BlueprintPure,Category="Throat|Suction") FVector GetSuctionOrigin() const { return SuctionState.Origin; }
+    UFUNCTION(BlueprintPure,Category="Throat|Suction") float GetAmbientSuctionStrengthAt(FVector Location) const;
+    UFUNCTION(BlueprintPure,Category="Throat|Suction") FVector GetAmbientSuctionVelocityAt(FVector Location) const;
+    /** Shared query for predicted movement and local camera/face presentation. */
+    static bool FindAmbientSuctionAt(UWorld* World,FVector Location,float& Strength,FVector& Velocity);
     UFUNCTION(CallInEditor,Category="Throat") void RebuildAppearance();
     void NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed);
     bool ContainsPlayer(const AMCToothCharacter* Hero) const;
@@ -75,7 +108,9 @@ private:
     void UpdateTissue(float Open,float Time,bool Rebuild=false);
     void UpdatePresentation(float Dt);
     void BuildRing();
-    void CaptureMeal();
+    void CollectCarriedDeliveries();
+    void CollectLooseDeliveries();
+    bool CaptureMeal();
     void BeginVomit();
     bool OrderVelocity(const AMCToothCharacter* Hero,FVector& Velocity) const;
     void UpdateOrderJumps();
@@ -84,10 +119,17 @@ private:
     TArray<TWeakObjectPtr<AMCToothCharacter>> PreparingPlayers;
     struct FMealPiece { TWeakObjectPtr<AMCFoodActor> Food; FVector Start; FQuat Rotation; };
     TArray<FMealPiece> Meal;
+    TArray<FMealPiece> PendingMeal;
+    FVector SwallowInlet=FVector::ZeroVector,SwallowAxis=FVector::ForwardVector;
+    float PendingPileHeight=0;
+    double NextIntakeAt=0;
+    TWeakObjectPtr<class AMCThroatVortex> ActiveVortex;
     struct FSwallowedPlayer { TWeakObjectPtr<AMCToothCharacter> Hero; FVector Start; };
     TArray<FSwallowedPlayer> SwallowedPlayers;
     TWeakObjectPtr<class AMCVomitBurst> ActiveVomit;
     void SpitOut(bool Reset=false);
     float PressTime=0,VisualWeight=0,GeometryElapsed=0,RingElapsed=0;
+    float LabelElapsed=0;
+    FString LastLabel;
     bool bPressConsumed=false;
 };

@@ -184,8 +184,8 @@ void MCTickFoodReworkValidation(UWorld* W)
         if(T>9) {if(Case==TEXT("FoodBalance")) Check(R.Stage==3 && H->FoodCollection->FallenPieces>R.FallenBeforeMotion,TEXT("released pieces resume physical falling after impact"));Finish();}
     } else if(Case==TEXT("FoodThroat")) {
         if(T>1.5 && R.Stage==0) {R.Food=Spawn(TEXT("Egg"),R.P+FVector(-80,0,75),true);++R.Stage;}
-        if(T>5 && R.Stage==1) {Check(R.Throat->FoodSwallowed>0 && !H->SwallowedBy,TEXT("ingredient swallowed automatically; player remains outside intake"));Spawn(TEXT("Carrot"),R.P+FVector(30,0,70),true);++R.Stage;}
-        if(T>9) {Check(R.Throat->FoodSwallowed>=2 && R.Throat->UvulaLanding->GetCollisionEnabled()==ECollisionEnabled::NoCollision,TEXT("repeat intake works and decorative uvula has no trigger"));Finish();}
+        if(T>7.5 && R.Stage==1) {Check(R.Throat->FoodSwallowed>0 && !H->SwallowedBy,TEXT("ingredient swallowed automatically after the gathering window; player remains outside intake"));Spawn(TEXT("Carrot"),R.P+FVector(30,0,70),true);++R.Stage;}
+        if(T>14) {Check(R.Throat->FoodSwallowed>=2 && R.Throat->UvulaLanding->GetCollisionEnabled()==ECollisionEnabled::NoCollision,TEXT("repeat intake works and decorative uvula has no trigger"));Finish();}
     } else if(Case==TEXT("FoodYawn")) {
         // A continuous gameplay take: establish the mouth and airflow, then
         // show both planted hands and the face before returning to the mouth.
