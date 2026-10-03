@@ -5,10 +5,12 @@
 #include "EngineUtils.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCToothStatusComponent.h"
 #include "MCToothMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "Engine/SkeletalMesh.h"
@@ -16,6 +18,24 @@
 #include "GameFramework/GameStateBase.h"
 #include "Net/UnrealNetwork.h"
 #include "Misc/App.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+
+namespace {
+    bool CanContinueCrownTurn(const UMCBrushContactComponent& Brush,const AMCToothCharacter* Hero,const AActor* Surface,FVector Point)
+    {
+        if(!Hero || (!Hero->bBrushing && !Hero->IsPrimaryHeld()) || !Hero->HasBrush() || !Cast<AMCArenaTooth>(Surface)
+            || Brush.Target.Get()!=Surface || !Brush.CanAcquireSurface(Surface)) return false;
+        const auto* State=Hero->GetWorld()->GetGameState();
+        const double Now=State?State->GetServerWorldTimeSeconds():Hero->GetWorld()->GetTimeSeconds();
+        if(Now-Brush.ContactAt>=.3) return false;
+        const FVector Direction=(Point-Hero->GetActorLocation()).GetSafeNormal2D();
+        const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+        // A crown can span both sides of the current facing after an automatic
+        // turn. Continue across it while held, but release when walking away.
+        return !Direction.IsNearlyZero() && (!Move || FVector::DotProduct(Move->Intent(),Direction)>=-.15f);
+    }
+}
 
 UMCBrushContactComponent::UMCBrushContactComponent()
 {
@@ -25,6 +45,7 @@ UMCBrushContactComponent::UMCBrushContactComponent()
 void UMCBrushContactComponent::BeginPlay()
 {
     Super::BeginPlay(); Hero=Cast<AMCToothCharacter>(GetOwner());
+    if(Hero) PrimaryComponentTick.AddPrerequisite(Hero,Hero->PrimaryActorTick);
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
     if (!Hero || GetNetMode()==NM_DedicatedServer) return;
     if(auto* System=FoamSystem.LoadSynchronous()) {
@@ -32,11 +53,12 @@ void UMCBrushContactComponent::BeginPlay()
         Foam->SetupAttachment(Hero->GetRootComponent()); Foam->SetAutoActivate(false);
         Foam->SetAsset(System); Foam->SetCastShadow(false); Foam->RegisterComponent(); Hero->AddInstanceComponent(Foam);
     }
-    PrimaryComponentTick.AddPrerequisite(Hero,Hero->PrimaryActorTick);
 }
 FTransform UMCBrushContactComponent::SurfaceTransform() const
 {
     if(const auto* Tooth=Cast<AMCArenaTooth>(Target)) return Tooth->Visual->GetComponentTransform();
+    if(const auto* Player=Cast<AMCToothCharacter>(Target))
+        return Player->GetMesh()->GetSocketTransform(Player->RigBone(TEXT("body")));
     return IsValid(Target)?Target->GetActorTransform():FTransform::Identity;
 }
 FVector UMCBrushContactComponent::ContactPoint() const
@@ -48,10 +70,19 @@ FVector UMCBrushContactComponent::BristlePoint() const
 bool UMCBrushContactComponent::IsTouchingSurface() const
 {
     if(!IsValid(Target) || !IsFacingContact()) return false;
-    // Headless simulation has no evaluated visible wrist. The server still
-    // validates the same surface, reach and mask; rendered play waits for contact.
+    // Only presentation needs an evaluated visible wrist.
     if(!FApp::CanEverRender() || !GetWorld()->GetGameViewport()) return true;
     return Blend>.98f && FVector::DistSquared(BristlePoint(),ContactPoint())<=FMath::Square(16.f);
+}
+bool UMCBrushContactComponent::IsWorkReady() const
+{
+    if(!Hero || !IsValid(Target) || !Hero->bBrushing || !Hero->HasBrush() || !Hero->CanWork()
+        || Hero->HeldFood || Hero->bInCoffee || !IsFacingContact() || !CanAcquireSurface(Target)
+        || !CanReach(ContactPoint(),ContactNormal())) return false;
+    const auto* State=GetWorld()->GetGameState();
+    const double Now=State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    // Mirrors the hand's 3/second approach without depending on animation evaluation.
+    return Now-ContactAt<.3 && ApproachStartedAt>=0 && Now-ApproachStartedAt>=1.0/3.0;
 }
 FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool* Reachable,const AActor* Surface,const FTransform* FacingWorld) const
 {
@@ -128,14 +159,16 @@ bool UMCBrushContactComponent::CanReach(FVector Point,FVector Normal,const AActo
     const auto& Ref=H->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
     auto Rest=[&](FName Role) { FTransform T=FTransform::Identity; for(int32 I=Ref.FindBoneIndex(H->RigBone(Role));I>=0;I=Ref.GetParentIndex(I)) T=T*Ref.GetRefBonePose()[I]; return H->GetMesh()->GetComponentTransform().TransformPosition(T.GetLocation()); };
     bool Reachable=false;
-    const FVector Offset=HandGoal(Point,Normal,&Reachable,Surface).GetLocation()-Rest(TEXT("hand_r"));
-    const bool ToothContact=Cast<AMCArenaTooth>(Surface?Surface:Target.Get())!=nullptr;
+    const FTransform World=H->GetMesh()->GetComponentTransform();
+    const FVector Offset=HandGoal(Point,Normal,&Reachable,Surface,&World).GetLocation()-Rest(TEXT("hand_r"));
+    const bool ToothContact=Cast<AMCArenaTooth>(Surface?Surface:Target.Get()) || Cast<AMCToothCharacter>(Surface?Surface:Target.Get());
     return (!ToothContact || Reachable) && !Offset.ContainsNaN() && Offset.Equals(ClampHandOffset(Offset),.01f);
 }
 bool UMCBrushContactComponent::CanReachAfterFacing(FVector Point,FVector Normal,const AActor* Surface) const
 {
     if(CanReach(Point,Normal,Surface)) return true;
-    if(!Hero || !Hero->GetMesh()->GetSkeletalMeshAsset() || !CanBrushToward(Point)) return false;
+    if(!Hero || !Hero->GetMesh()->GetSkeletalMeshAsset()) return false;
+    if(!CanBrushToward(Point) && !CanContinueCrownTurn(*this,Hero,Surface?Surface:Target.Get(),Point)) return false;
     // Preview the wrist after the existing movement turn, without moving the pawn
     // or changing collision. Otherwise an unreachable sideways wrist can never
     // publish the contact that tells movement to face the stain.
@@ -148,7 +181,7 @@ bool UMCBrushContactComponent::CanReachAfterFacing(FVector Point,FVector Normal,
     for(int32 I=Ref.FindBoneIndex(Hero->RigBone(TEXT("hand_r")));I>=0;I=Ref.GetParentIndex(I)) Rest=Rest*Ref.GetRefBonePose()[I];
     bool Reachable=false;
     const FVector Offset=HandGoal(Point,Normal,&Reachable,Surface,&World).GetLocation()-World.TransformPosition(Rest.GetLocation());
-    return (Cast<AMCArenaTooth>(Surface?Surface:Target.Get())==nullptr || Reachable)
+    return ((!Cast<AMCArenaTooth>(Surface?Surface:Target.Get()) && !Cast<AMCToothCharacter>(Surface?Surface:Target.Get())) || Reachable)
         && !Offset.ContainsNaN() && Offset.Equals(ClampHandOffset(Offset),.01f);
 }
 bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
@@ -158,6 +191,7 @@ bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
     const UPrimitiveComponent* Bounds=nullptr;
     if(const auto* Tooth=Cast<AMCArenaTooth>(Surface)) { if(!Tooth->IsAvailable()) return false; Bounds=Tooth->Body; }
     else if(const auto* Patch=Cast<AMCMouthSurface>(Surface)) { if(Patch->bUlcer || Patch->IsClean()) return false; Bounds=Patch->Area; }
+    else if(const auto* Player=Cast<AMCToothCharacter>(Surface)) { if(!Player->Status->NeedsCare(true)) return false; Bounds=Player->GetCapsuleComponent(); }
     if(!Bounds) return false;
     const FVector D=Bounds->Bounds.GetBox().GetClosestPointTo(H->GetActorLocation())-H->GetActorLocation();
     // Facing is checked against the actual stain, not the nearest point of a
@@ -178,10 +212,11 @@ bool UMCBrushContactComponent::CanBrushToward(FVector Point) const
 bool UMCBrushContactComponent::WantsFacing(FVector& Direction) const
 {
     if(!Hero || !IsValid(Target) || !Hero->bBrushing || !Hero->HasBrush() || !Hero->CanWork()
-        || Hero->HeldFood || Hero->bInCoffee || !CanBrushToward(ContactPoint())) return false;
+        || Hero->HeldFood || Hero->bInCoffee) return false;
     const auto* GS=GetWorld()->GetGameState();
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     if(Now-ContactAt>=.3) return false;
+    if(!CanBrushToward(ContactPoint()) && !CanContinueCrownTurn(*this,Hero,Target,ContactPoint())) return false;
     Direction=(ContactPoint()-Hero->GetActorLocation()).GetSafeNormal2D();
     return !Direction.IsNearlyZero();
 }
@@ -193,11 +228,25 @@ bool UMCBrushContactComponent::IsFacingContact() const
 void UMCBrushContactComponent::Contact(AActor* Surface,FVector Point,FVector Normal)
 {
     if (!GetOwner()->HasAuthority() || !IsValid(Surface)) return;
+    const double Now=GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const bool Fresh=Target!=Surface || Now-ContactAt>=.3 || FVector::DistSquared(Point,ContactPoint())>FMath::Square(60.f);
     Target=Surface; const auto T=SurfaceTransform();
     LocalPoint=T.InverseTransformPosition(Point); LocalNormal=T.InverseTransformVectorNoScale(Normal).GetSafeNormal();
-    ContactAt=GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    ContactAt=Now;
+    if(ApproachStartedAt<0 || Fresh || !IsFacingContact() || !CanReach(Point,Normal,Surface)) ApproachStartedAt=Now;
 }
-void UMCBrushContactComponent::Release() { if(GetOwner()->HasAuthority()) ContactAt=-100; }
+void UMCBrushContactComponent::Release()
+{
+    if(!GetOwner()->HasAuthority()) return;
+    const auto* State=GetWorld()->GetGameState();
+    const double Now=State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    // Target lookup can briefly drop the derived work mode between two stains.
+    // Keep only the last actual contact's short grace while input remains held.
+    const bool ContinueCrown=Hero && Hero->IsPrimaryHeld() && Hero->HasBrush() && !Hero->HeldFood && !Hero->bInCoffee
+        && Cast<AMCArenaTooth>(Target) && CanAcquireSurface(Target) && Now-ContactAt<.3;
+    if(!ContinueCrown) ContactAt=-100;
+    ApproachStartedAt=-100;
+}
 void UMCBrushContactComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
     Super::TickComponent(Dt,Type,Tick);
@@ -205,6 +254,7 @@ void UMCBrushContactComponent::TickComponent(float Dt,ELevelTick Type,FActorComp
     const double Now=GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     const bool Active=IsValid(Target) && Now-ContactAt<.3 && Hero->bBrushing && Hero->CanWork() && !Hero->HeldFood
         && IsFacingContact() && CanAcquireSurface(Target) && CanReach(ContactPoint(),ContactNormal());
+    if(GetOwner()->HasAuthority() && !Active) ApproachStartedAt=Now;
     Blend=FMath::FInterpConstantTo(Blend,Active?1.f:0.f,Dt,3.f);
     // A fresh contact also tells movement which way to turn. Keep it while
     // aligning the body; clearing it here prevented the next movement tick
@@ -329,5 +379,5 @@ void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferen
 void UMCBrushContactComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCBrushContactComponent,Target); DOREPLIFETIME(UMCBrushContactComponent,LocalPoint);
-    DOREPLIFETIME(UMCBrushContactComponent,LocalNormal); DOREPLIFETIME(UMCBrushContactComponent,ContactAt);
+    DOREPLIFETIME(UMCBrushContactComponent,LocalNormal); DOREPLIFETIME(UMCBrushContactComponent,ContactAt); DOREPLIFETIME(UMCBrushContactComponent,ApproachStartedAt);
 }

@@ -66,6 +66,7 @@ bool FMCDashTapHold::RunTest(const FString&)
         const FVector Start=T.Hero->GetActorLocation();
         T.Hero->SetSprintInputHeld(true);T.Step(Dt,Dt);
         TestTrue(TEXT("Shift starts the predicted dash on the first movement frame while still held"),T.Hero->IsDashing());
+        TestTrue(TEXT("A press dash charges stamina once on its first frame"),FMath::IsNearlyEqual(T.Hero->GetStamina(),T.Hero->GetMaxStamina()-T.Move->DashStaminaCost,.01f));
         TestTrue(TEXT("Shift press immediately moves the capsule"),T.Hero->GetActorLocation().X-Start.X>5);
         T.Hero->SetSprintInputHeld(false);T.Step(Dt,Dt);
         TestTrue(TEXT("Dash has a measurable normalized animation phase"),T.Hero->GetDashProgress()>0 && T.Hero->GetDashProgress()<1);
@@ -80,8 +81,10 @@ bool FMCDashTapHold::RunTest(const FString&)
         T.Step(1.2f,Dt);T.Hero->SetSprintInputHeld(true);T.Step(.08f,Dt);
         T.Hero->CancelGameplayInput();T.Step(.05f,Dt);
         TestFalse(TEXT("Input cancellation stops the press dash without restarting it"),T.Hero->IsDashing());
+        const float BeforeSprint=T.Hero->GetStamina();
         T.Hero->SetSprintInputHeld(true);T.Step(1.f,Dt,true);
         TestTrue(TEXT("Holding Shift transitions into sustained sprinting"),T.Move->bSprintActive && T.Hero->GetVelocity().Size2D()>500);
+        TestTrue(TEXT("Moving while holding Shift drains stamina"),T.Hero->GetStamina()<BeforeSprint-8.f);
         T.Hero->SetSprintInputHeld(false);T.Step(Dt,Dt);
         TestFalse(TEXT("Releasing a long hold never triggers a dash"),T.Hero->IsDashing());
         TestFalse(TEXT("Releasing Shift clears sprint intent"),T.Move->WantsToSprint());
@@ -102,6 +105,16 @@ bool FMCDashTapHold::RunTest(const FString&)
     TestFalse(TEXT("Cancel before the next movement frame clears the queued dash"),T.Hero->IsDashing());
     T.Hero->SetSprintInputHeld(true);T.Hero->SetSprintInputHeld(false);T.Step(1.f/60);
     TestTrue(TEXT("Press and release within one frame still executes one dash"),T.Hero->IsDashing());
+    T.Hero->CancelGameplayInput();
+    FMCStaminaPredictionState Empty;Empty.Value=0;Empty.RecoveryDelay=T.Move->StaminaRecoveryDelay;Empty.Exhausted=true;
+    T.Move->RestoreStaminaPrediction(Empty);
+    TestFalse(TEXT("Exhausted stamina rejects a new dash"),T.Move->CanDash());
+    T.Hero->SetSprintInputHeld(true);T.Step(.3f,1.f/60,true);
+    TestTrue(TEXT("Holding Shift while exhausted uses ordinary walking"),!T.Move->bSprintActive && T.Hero->GetVelocity().Size2D()<=T.Move->WalkSpeed+1);
+    T.Step(1.6f,1.f/60,true);
+    TestTrue(TEXT("Stamina recovers through the delay and resumes held sprint without another press"),T.Hero->GetStamina()>0 && T.Move->bSprintActive);
+    T.Hero->SetSprintInputHeld(false);T.Step(6.f);
+    TestTrue(TEXT("Released sprint recovers to the configured maximum"),FMath::IsNearlyEqual(T.Hero->GetStamina(),T.Hero->GetMaxStamina(),.01f));
     return true;
 }
 

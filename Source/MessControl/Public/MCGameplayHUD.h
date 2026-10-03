@@ -2,15 +2,21 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "MCGameplayHUD.generated.h"
+class UMCStaminaWidget;
 
 UCLASS()
 class MESSCONTROL_API UMCGameplayHUD : public UUserWidget
 {
     GENERATED_BODY()
+public:
+    /** Use a Blueprint subclass of MCStaminaWidget to replace the native gauge. */
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="HUD") TSubclassOf<UMCStaminaWidget> StaminaWidgetClass;
 protected:
+    virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
 private:
+    UPROPERTY(Transient) TObjectPtr<UMCStaminaWidget> StaminaWidget;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UWidget>> Widgets;
     float RefreshElapsed=1;
     UWidget* Find(FName Name) const;
@@ -29,6 +35,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Expression") bool bDead=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Expression") bool bSad=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Expression") bool bHappy=false;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Icon") bool bHost=false;
 protected:
     virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
         FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;

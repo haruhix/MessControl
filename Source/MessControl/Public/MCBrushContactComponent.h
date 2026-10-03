@@ -37,12 +37,15 @@ public:
     FVector ContactNormal() const;
     FVector BristlePoint() const;
     bool IsTouchingSurface() const;
+    // Gameplay contact uses server time and geometry, independent of rendered bones.
+    bool IsWorkReady() const;
     float Alpha() const { return Blend; }
     bool IsPresenting() const { return Blend>.001f || bHandPresented; }
     UPROPERTY(Replicated) TObjectPtr<AActor> Target;
     UPROPERTY(Replicated) FVector_NetQuantize10 LocalPoint=FVector::ZeroVector;
     UPROPERTY(Replicated) FVector_NetQuantizeNormal LocalNormal=FVector::UpVector;
     UPROPERTY(Replicated) double ContactAt=-100;
+    UPROPERTY(Replicated) double ApproachStartedAt=-100;
 private:
     FTransform HandGoal(FVector Point,FVector Normal,bool* Reachable=nullptr,const AActor* Surface=nullptr,const FTransform* FacingWorld=nullptr) const;
     FTransform SurfaceTransform() const;

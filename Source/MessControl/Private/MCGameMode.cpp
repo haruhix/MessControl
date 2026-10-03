@@ -18,6 +18,7 @@
 #include "MCArenaTooth.h"
 #include "MCArenaToothSocket.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "MCArenaDemo.h"
@@ -40,6 +41,7 @@ AMCGameMode::AMCGameMode()
     if(PlayerBlueprint.Succeeded()) DefaultPawnClass=PlayerBlueprint.Class;
     PlayerControllerClass = AMCPlayerController::StaticClass();
     GameStateClass = AMCGameState::StaticClass();
+    PlayerStateClass = AMCPlayerState::StaticClass();
     TaskClass = AMCTaskActor::StaticClass();
     RunRulesProfile = TSoftObjectPtr<UMCRunRules>(FSoftObjectPath(TEXT("/Game/Data/DA_RunRules.DA_RunRules")));
     ArenaToothProfile = TSoftObjectPtr<UMCArenaToothProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_ArenaTooth.DA_ArenaTooth")));
@@ -88,6 +90,27 @@ void AMCGameMode::ClearTasks()
     for (AMCTaskActor* Task : ActiveTasks) if (IsValid(Task)) Task->Destroy();
     ActiveTasks.Empty();
 }
+void AMCGameMode::PostLogin(APlayerController* NewPlayer)
+{
+    Super::PostLogin(NewPlayer);
+    if (auto* State=NewPlayer?NewPlayer->GetPlayerState<AMCPlayerState>():nullptr)
+    {
+        State->bSessionHost=NewPlayer->IsLocalController() && GetNetMode()!=NM_DedicatedServer;
+        static const FLinearColor Palette[]={FLinearColor(.24f,.65f,1),FLinearColor(1,.35f,.25f),FLinearColor(.4f,.9f,.3f),FLinearColor(.8f,.4f,1)};
+        const int32 Index=FMath::Max(0,GetNumPlayers()-1)%UE_ARRAY_COUNT(Palette);
+        State->PlayerColor=Palette[Index]; State->ForceNetUpdate();
+        if (auto* Hero=Cast<AMCToothCharacter>(NewPlayer->GetPawn())) Hero->ApplyPlayerColor(State->PlayerColor);
+    }
+}
+void AMCGameMode::AwardTask(AMCToothCharacter* Worker, EMCScoreTask Kind)
+{
+    AwardTaskToPlayerState(IsValid(Worker)?Worker->GetPlayerState<AMCPlayerState>():nullptr,Kind);
+}
+void AMCGameMode::AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Kind)
+{
+    if (!HasAuthority() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()) return;
+    Worker->AddPoints(ScoreRewards.ForTask(Kind));
+}
 void AMCGameMode::RestartShift()
 {
     AMCGameState* State = GetGameState<AMCGameState>();
@@ -107,6 +130,7 @@ void AMCGameMode::RestartShift()
     for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
     {
         auto* PC=It->Get(); if (!PC) continue;
+        if (auto* Player=PC->GetPlayerState<AMCPlayerState>()) Player->ResetMatchScore();
         if (APawn* Pawn=PC->GetPawn()) { PC->UnPossess(); Pawn->Destroy(); }
         RestartPlayer(PC);
     }
@@ -223,11 +247,12 @@ void AMCGameMode::StartDay()
     State->TasksTotal = Objectives.Num(); State->TasksLeft = State->TasksTotal;
     State->ForceNetUpdate();
 }
-void AMCGameMode::ResolveTask(AMCTaskActor* Task)
+void AMCGameMode::ResolveTask(AMCTaskActor* Task, AMCToothCharacter* Worker)
 {
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State || State->Phase != EMCShiftPhase::Working || !ActiveTasks.Contains(Task)) return;
     ActiveTasks.Remove(Task); State->TasksLeft = ActiveTasks.Num();
+    AwardTask(Worker,Task->Kind==EMCTaskKind::Coffee?EMCScoreTask::Coffee:Task->Kind==EMCTaskKind::Food?EMCScoreTask::Food:EMCScoreTask::Repair);
     State->MouthHealth = FMath::Min(State->RunSettings.MaxMouthHealth, State->MouthHealth + 1.f);
     State->ForceNetUpdate();
     if (ActiveTasks.IsEmpty()) FinishDay(false);
@@ -282,7 +307,7 @@ void AMCGameMode::PlayerDied(AMCToothCharacter* Hero)
     auto* GS=GetGameState<AMCGameState>();
     if (!IsValid(Hero) || !Hero->GetController() || !GS || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost) return;
     if (PendingRespawns.Contains(Hero)) return;
-    Hero->RespawnAt=GS->GetServerWorldTimeSeconds()+Hero->Status->Settings.RespawnSeconds;
+    Hero->RespawnAt=GS->GetServerWorldTimeSeconds()+FMath::Max(.1f,RespawnDelay);
     PendingRespawns.Add(Hero); Hero->ForceNetUpdate();
 }
 void AMCGameMode::ProcessRespawns()
@@ -297,9 +322,22 @@ void AMCGameMode::ProcessRespawns()
         for (AMCArenaTooth* Tooth:GS->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable() && (!Reserve || Tooth->State.ToothId<Reserve->State.ToothId)) Reserve=Tooth;
         if (!Reserve) { ++I; continue; }
         const FMCToothStatus Inherited=Reserve->Status->State;
-        FVector Location=Reserve->GetActorLocation(); Location.Y=FMath::Sign(Location.Y)*510; Location.Z=120;
         FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-        auto* NewHero=GetWorld()->SpawnActor<AMCToothCharacter>(Old->GetClass(),Location,FRotator::ZeroRotator,Params);
+        AMCTongue* Tongue=nullptr; for(TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
+        FVector Center=Tongue?Tongue->GetActorLocation():FVector::ZeroVector;
+        const FVector Inward=(Center-Reserve->GetActorLocation()).GetSafeNormal2D();
+        const FVector Extent=Reserve->Visual->Bounds.BoxExtent;
+        const float Clearance=FMath::Abs(Inward.X)*Extent.X+FMath::Abs(Inward.Y)*Extent.Y+Old->GetCapsuleComponent()->GetScaledCapsuleRadius()+40;
+        AMCToothCharacter* NewHero=nullptr;
+        for(int32 Attempt=0;Attempt<8 && !NewHero;++Attempt)
+        {
+            FVector Location=Reserve->GetActorLocation()+Inward*(Clearance+Attempt*60);
+            if(Tongue) {
+                FHitResult Floor; if(!Tongue->SurfacePoint(Location,Floor) || Floor.ImpactNormal.Z<.4f) continue;
+                Location=Floor.ImpactPoint+FVector(0,0,Old->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+4);
+            } else { Location.Y=FMath::Sign(Location.Y)*510; Location.Z=120; }
+            NewHero=GetWorld()->SpawnActor<AMCToothCharacter>(Old->GetClass(),Location,Inward.Rotation(),Params);
+        }
         if (!NewHero) { ++I; continue; }
         if (!Reserve->ConsumeForRespawn()) { NewHero->Destroy(); ++I; continue; }
         if (Old->Status->Settings.bInheritReserveStatus) NewHero->Status->Restore(Inherited);

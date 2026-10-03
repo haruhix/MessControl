@@ -323,6 +323,10 @@ bool FMCArtistRigTest::RunTest(const FString& Parameters)
     FTestMouth Mouth; auto* Hero=Mouth.Worker();
     const auto* Profile=Hero->Appearance.Get();
     if (!TestNotNull(TEXT("Player appearance profile"),Profile) || !TestNotNull(TEXT("Artist skeletal mesh"),Profile->SkeletalMesh.Get())) return false;
+    auto* AnimationProfile=LoadObject<UMCAnimationProfile>(nullptr,TEXT("/Game/Data/DA_ToothAnimation.DA_ToothAnimation"));
+    if (!TestNotNull(TEXT("Animation profile"),AnimationProfile)) return false;
+    for (auto* Clip:{AnimationProfile->GrabLeft.Get(),AnimationProfile->GrabRight.Get(),AnimationProfile->Push.Get(),AnimationProfile->Tired.Get()})
+        if (TestNotNull(TEXT("Artist work clip assigned"),Clip)) TestTrue(TEXT("Clip contains a playable pose transition"),Clip->GetPlayLength()>.3f && Clip->GetSkeleton()!=nullptr);
     TestEqual(TEXT("Actual player uses artist mesh"),Hero->GetMesh()->GetSkeletalMeshAsset(),Profile->SkeletalMesh.Get());
     TestEqual(TEXT("Body mapped to pelvis"),Hero->RigBone(TEXT("body")),FName("root_x"));
     TestTrue(TEXT("Imported +Y faces character +X"),Profile->MeshTransform.TransformVectorNoScale(FVector::RightVector).Equals(FVector::ForwardVector,.001));
@@ -466,6 +470,16 @@ bool FMCHitTest::RunTest(const FString& Parameters)
         TestFalse(TEXT("Fallen tooth cannot work"),Tasks[0]->ApplyWork(B,Tasks[0]->Kind==EMCTaskKind::Coffee,0.1f));
     }
     TestFalse(TEXT("Cannot get up without floor support"),B->ToothPhysics->TryRecover());
+    A->GetCharacterMovement()->DisableMovement();
+    A->SetActorLocation(FVector(5000,0,150)); Mouth.Step(1.f);
+    if(!TestTrue(TEXT("Held attack fixture remains actionable with movement frozen"),A->CanWork())) return false;
+    A->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
+    const int32 BeforeHold=A->ValidatedSwingCount;
+    A->ServerSetPrimary(true); Mouth.Step(A->Inventory->SwingDuration()*2+.1f);
+    TestTrue(TEXT("Held primary repeats weapon attacks at the server cooldown"),A->IsPrimaryHeld() && A->ValidatedSwingCount>=BeforeHold+2);
+    A->ServerSetPrimary(false); const int32 Released=A->ValidatedSwingCount;
+    Mouth.Step(A->Inventory->SwingDuration()+.1f);
+    TestEqual(TEXT("Releasing primary stops subsequent weapon attacks"),A->ValidatedSwingCount,Released);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArenaToothTest,"MessControl.Gameplay.ArenaToothLifecycle",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
@@ -563,9 +577,22 @@ bool FMCRespawnTest::RunTest(const FString& Parameters)
 {
     FTestMouth Mouth; auto* A=Mouth.Worker(); auto* B=Mouth.Worker();
     auto* PC1=Mouth.World->SpawnActor<APlayerController>(); auto* PC2=Mouth.World->SpawnActor<APlayerController>(); PC1->Possess(A); PC2->Possess(B);
+    auto* Player=PC1->GetPlayerState<AMCPlayerState>();
+    if(!TestNotNull(TEXT("Replicated per-player score store"),Player)) return false;
+    Mouth.Mode->ScoreRewards.Coffee=13; Mouth.Mode->ScoreRewards.Repair=21;
+    A->Status->ApplyCoffee();
+    while(A->Status->NeedsCare(true)) A->Status->CareContact(true,A);
+    TestEqual(TEXT("Completed cleaning awards its configured points"),Player->Points,13);
+    A->Status->CareContact(true,A);
+    TestEqual(TEXT("An already complete task cannot award twice"),Player->Points,13);
+    Mouth.Mode->AwardTask(A,EMCScoreTask::Repair);
+    TestEqual(TEXT("Different task kinds have different rewards"),Player->Points,34);
     Mouth.State->ArenaTeeth[0]->ReceiveArenaHit(100,FVector::ForwardVector);
     auto* Source=Mouth.State->ArenaTeeth[1].Get(); Source->SetCoffee(1); Source->ReceiveArenaHit(25,FVector::ForwardVector);
-    A->Status->Damage(100); B->Status->Damage(100); A->RespawnAt=-1; B->RespawnAt=-1;
+    A->Status->Damage(100); B->Status->Damage(100);
+    TestTrue(TEXT("Death schedules the requested five-second wait"),FMath::IsNearlyEqual(A->RespawnAt-Mouth.State->GetServerWorldTimeSeconds(),5.,.01));
+    Mouth.Mode->ProcessRespawns(); TestTrue(TEXT("Pawn stays dead until the delay expires"),PC1->GetPawn()==A);
+    A->RespawnAt=-1; B->RespawnAt=-1;
     Mouth.Mode->ProcessRespawns();
     auto* NewA=Cast<AMCToothCharacter>(PC1->GetPawn()); auto* NewB=Cast<AMCToothCharacter>(PC2->GetPawn());
     TestTrue(TEXT("Both controllers receive new heroes"),NewA!=A && NewB!=B && NewA && NewB);
@@ -576,6 +603,7 @@ bool FMCRespawnTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Spent tooth leaves a visible and physical gap"),Source->State.bConsumed && Source->IsHidden() && Source->Body->GetCollisionEnabled()==ECollisionEnabled::NoCollision);
     TestEqual(TEXT("Inherited damage"),NewA->Status->State.Health,75.f);
     TestEqual(TEXT("Inherited coffee"),NewA->Status->State.CoffeeLeft,4);
+    TestTrue(TEXT("Score identity survives replacement pawn"),NewA->GetPlayerState()==Player && Player->Points==34);
     TestFalse(TEXT("Spent tooth cannot be consumed again"),Source->ConsumeForRespawn());
     Mouth.Mode->ProcessRespawns(); TestEqual(TEXT("Queue does not charge twice"),Mouth.State->AvailableArenaTeeth(),5);
     for (AMCArenaTooth* Tooth:Mouth.State->ArenaTeeth) if (Tooth->IsAvailable()) Tooth->ConsumeForRespawn();
@@ -1212,6 +1240,9 @@ bool FMCExpressionTest::RunTest(const FString&)
     Mouth.Step(1);
     auto* Face=Hero->Expression.Get();
     if (!TestNotNull(TEXT("Editable emote library is available"),Face->Library.Get())) return false;
+    auto* Lib=LoadObject<UMCEmoteLibrary>(nullptr,TEXT("/Game/Data/DA_Emotes.DA_Emotes"));
+    for (const FName Id:{FName("dance1"),FName("dance2"),FName("hello2"),FName("highfive2")})
+        TestTrue(*FString::Printf(TEXT("Emote %s is playable"),*Id.ToString()),Lib && Lib->Entries.ContainsByPredicate([&](const FMCEmoteEntry& E){return E.Id==Id && E.Animation && E.Animation->GetPlayLength()>1;}));
     TestTrue(TEXT("Menu has two authored clips and facial choices"),Face->Library->Entries.Num()>=6);
     Face->ServerPlayEmote(TEXT("unknown")); TestTrue(TEXT("Unknown requests do not change state"),Face->State.Id.IsNone());
     Face->ServerPlayEmote(TEXT("hello")); Mouth.Step(.5f);
@@ -1695,7 +1726,11 @@ bool FMCCareVolumeTest::RunTest(const FString&)
     Tooth->SetAppearance(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")),FVector(2));
     Tooth->FinishSpawning(T); Tooth->SetCoffee(1);
     auto* H=Mouth.Worker(); H->SetActorLocation(FVector(-140,30,125)); H->SetActorRotation(FRotator::ZeroRotator); H->bBrushing=true;
-    for (int32 I=0;I<4;++I) H->AdvanceCare(.1f);
+    const auto InitialMask=Tooth->GrimeMask; H->AdvanceCare(.1f);
+    TestTrue(TEXT("A fresh brush contact waits for the deterministic approach"),Tooth->GrimeMask==InitialMask);
+    for (int32 I=0;I<8;++I) {
+        ++GFrameCounter; Mouth.World->Tick(LEVELTICK_TimeOnly,.1f); H->AdvanceCare(.1f);
+    }
     int32 Front=0,Back=0;
     for (int32 Y=0;Y<16;++Y) for (int32 Z=0;Z<16;++Z)
     { Front+=255-Tooth->GrimeMask[FMCSurfaceWipe::Index(0,Y,Z)]; Back+=255-Tooth->GrimeMask[FMCSurfaceWipe::Index(15,Y,Z)]; }
@@ -1704,11 +1739,15 @@ bool FMCCareVolumeTest::RunTest(const FString&)
     TestTrue(TEXT("Partial stroke leaves other visible dirt"),Tooth->Status->State.CoffeeLeft>0);
     const auto Before=Tooth->GrimeMask;
     H->SetActorRotation(FRotator(0,180,0));
-    TestFalse(TEXT("Retained stain cannot be cleaned behind the player's back"),Tooth->BrushGrime(H,.1f));
+    TestTrue(TEXT("Retained stain can request a turn before cleaning resumes"),Tooth->BrushGrime(H,.1f));
+    TestFalse(TEXT("Publishing a turn cannot authorize cleaning behind the player's back"),H->BrushContact->IsWorkReady());
     TestFalse(TEXT("Headless contact also requires facing the stain"),H->BrushContact->IsTouchingSurface());
     TestTrue(TEXT("Turning away preserves the mask"),Before==Tooth->GrimeMask);
     H->SetActorRotation(FRotator::ZeroRotator);
     H->bBrushing=false; TestFalse(TEXT("Wrong tool cannot erase the mask"),Tooth->BrushGrime(H,.1f));
+    H->BrushContact->Release(); H->bBrushing=true; H->SetActorRotation(FRotator(0,180,0));
+    TestFalse(TEXT("Released contact cannot acquire a new stain behind the player's back"),Tooth->BrushGrime(H,.1f));
+    H->SetActorRotation(FRotator::ZeroRotator);
     H->bBrushing=true; H->SetActorLocation(FVector(-800,0,150));
     TestFalse(TEXT("Remote brush cannot erase the mask"),Tooth->BrushGrime(H,.1f));
     TestTrue(TEXT("Rejected strokes keep the persistent mask"),Before==Tooth->GrimeMask);
@@ -1740,6 +1779,12 @@ bool FMCCareVolumeTest::RunTest(const FString&)
     TArray<uint8> Mask; FMCSurfaceWipe::Reset(Mask);
     TestTrue(TEXT("Stroke crosses a slice boundary"),FMCSurfaceWipe::Stroke(Mask,FVector(.2,.3,.19),FVector(.2,.3,.22),FVector(200),24,.1f));
     TestEqual(TEXT("Unrelated atlas tile stays dirty"),Mask[FMCSurfaceWipe::Index(14,14,15)],uint8(255));
+    TArray<uint8> Slow,Fast; TArray<float> SlowPrecise,FastPrecise;
+    FMCSurfaceWipe::Reset(Slow); FMCSurfaceWipe::Reset(Fast);
+    for(int32 I=0;I<30;++I) FMCSurfaceWipe::Stroke(Slow,FVector(.2,.3,.2),FVector(.2,.3,.2),FVector(200),36,1.f/30,&SlowPrecise);
+    for(int32 I=0;I<120;++I) FMCSurfaceWipe::Stroke(Fast,FVector(.2,.3,.2),FVector(.2,.3,.2),FVector(200),36,1.f/120,&FastPrecise);
+    int32 MaxDifference=0; for(int32 I=0;I<Slow.Num();++I) MaxDifference=FMath::Max(MaxDifference,FMath::Abs(int32(Slow[I])-int32(Fast[I])));
+    TestTrue(TEXT("Fractional cleaning work is independent of 30/120 FPS"),MaxDifference<=1);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCExposedCoatingTest,"MessControl.Care.ExposedToothCoating",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
@@ -2240,19 +2285,6 @@ bool FMCMovementTransitionsTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCArtistClipTest,"MessControl.Animation.Teeth3Layers",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCArtistClipTest::RunTest(const FString&)
-{
-    auto* Profile=LoadObject<UMCAnimationProfile>(nullptr,TEXT("/Game/Data/DA_ToothAnimation.DA_ToothAnimation"));
-    if (!TestNotNull(TEXT("Animation profile"),Profile)) return false;
-    for (auto* Clip:{Profile->GrabLeft.Get(),Profile->GrabRight.Get(),Profile->Push.Get(),Profile->Tired.Get()})
-        if (TestNotNull(TEXT("Artist work clip assigned"),Clip)) TestTrue(TEXT("Clip contains a playable pose transition"),Clip->GetPlayLength()>.3f && Clip->GetSkeleton()!=nullptr);
-    auto* Lib=LoadObject<UMCEmoteLibrary>(nullptr,TEXT("/Game/Data/DA_Emotes.DA_Emotes"));
-    for (const FName Id:{FName("dance1"),FName("dance2"),FName("hello2"),FName("highfive2")})
-        TestTrue(*FString::Printf(TEXT("Emote %s is playable"),*Id.ToString()),Lib && Lib->Entries.ContainsByPredicate([&](const FMCEmoteEntry& E){return E.Id==Id && E.Animation && E.Animation->GetPlayLength()>1;}));
-    return true;
-}
-
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCLocomotionGroundTest,"MessControl.Locomotion.SprintSurfacesAndMomentum",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCLocomotionGroundTest::RunTest(const FString&)
 {
@@ -2648,6 +2680,15 @@ bool FMCCollectionBalanceTest::RunTest(const FString&)
     auto* A=M.GripCube(EMCFoodKind::Food,true);auto* B=M.GripCube(EMCFoodKind::Food,true);
     A->Body->SetEnableGravity(true);B->Body->SetEnableGravity(true);
     A->SetActorLocation(H->GetActorLocation()+FVector(105,-45,-35));B->SetActorLocation(H->GetActorLocation()+FVector(105,45,-35));
+    // Exercise the native E request without adding a separate test-only input API.
+    auto ToggleCollection=[&]() { H->ProcessEvent(H->FindFunctionChecked(TEXT("ServerToggleFoodCollection")),nullptr); };
+    for(EMCToolSlot Slot:{EMCToolSlot::Brush,EMCToolSlot::Pickaxe}) {
+        H->Inventory->ServerSelect(Slot); ToggleCollection();
+        TestTrue(TEXT("E collection starts beside small food with brush or weapon selected"),C->bCollecting);
+        TestEqual(TEXT("E collection preserves the selected tool slot"),H->Inventory->Selected,Slot);
+        ToggleCollection(); TestFalse(TEXT("E can stop collection while keeping that slot"),C->bCollecting);
+    }
+    H->Inventory->ServerSelect(EMCToolSlot::Brush);
     H->ServerSetPrimary(true);H->ServerSetPrimary(false);TestTrue(TEXT("Click release keeps collection toggled"),C->bCollecting);
     if(!TestTrue(TEXT("Bottom body can be collected"),C->Collect(A))) return false;
     if(!TestTrue(TEXT("Second body can be stacked"),C->Collect(B))) return false;

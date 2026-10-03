@@ -2,6 +2,7 @@
 #include "MCThroat.h"
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
+#include "MCGameState.h"
 #include "MCToothStatusComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
@@ -41,17 +42,45 @@ void AMCVomitBurst::Configure(AMCThroat* Throat)
 {
     if(!HasAuthority() || !IsValid(Throat)) return;
     SetOwner(Throat); StartedAt=ServerNow(); Batch=10000+Throat->MealSequence; Portions.Reset(); CheckedAge=0;
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    FRandomStream Random(HashCombine(GetTypeHash(State?State->RunSeed:1),GetTypeHash(Batch)));
+    TArray<FVector> Excluded;
+    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It)
+        if(It->bUlcer || !It->IsClean()) Excluded.Add(It->GetActorLocation());
     for(int32 I=0;I<3;++I) {
-        FHitResult Floor; bool Found=false;
-        const FVector Target=Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter+FVector(-Throat->ZoneRadius-270-I*205,(I%2?1:-1)*(95+I*28),0));
-        for(TActorIterator<AMCTongue> T(GetWorld());T;++T) if(T->SurfacePoint(Target,Floor)) { Found=true; break; }
-        if(!Found) continue;
+        const float HalfSize=78+I*13;
         FMCVomitPortion P;
         P.Start=Throat->GetActorTransform().TransformPosition(Throat->VomitOrigin+FVector(0,(I-1)*18,I*6));
         P.Delay=I*.22f; P.Duration=1.05f+I*.18f; P.Radius=19+I*3;
-        P.Impact=Floor.ImpactPoint; P.Normal=Floor.ImpactNormal; P.ImpactAge=P.Duration;
-        P.Velocity=(P.Impact+P.Normal*P.Radius-P.Start)/P.Duration+FVector(0,0,490*P.Duration);
-        Portions.Add(P);
+        bool Found=false;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCVomitSpawnPath),true,this); Query.AddIgnoredActor(Throat);
+        for(int32 Attempt=0;Attempt<16 && !Found;++Attempt)
+        {
+            FHitResult Floor; AMCTongue* Tongue=nullptr;
+            for(TActorIterator<AMCTongue> T(GetWorld());T;++T)
+                if(T->RandomInteriorPoint(Random,HalfSize*1.415f+40,HalfSize*2+100,Excluded,Floor)) {Tongue=*T;break;}
+            if(!Tongue) break;
+            P.Impact=Floor.ImpactPoint; P.Normal=Floor.ImpactNormal; P.ImpactAge=P.Duration;
+            P.Velocity=(P.Impact+P.Normal*P.Radius-P.Start)/P.Duration+FVector(0,0,490*P.Duration);
+            // A random target beyond a ridge or the roof can still hit the same
+            // nearby obstacle first. Validate the actual first ballistic impact.
+            constexpr int32 Steps=64;
+            const float FlightEnd=P.Duration+.25f;
+            for(int32 Step=0;Step<Steps;++Step)
+            {
+                FHitResult Impact;
+                if(!GetWorld()->SweepSingleByObjectType(Impact,FlightPoint(P,FlightEnd*Step/Steps),FlightPoint(P,FlightEnd*(Step+1)/Steps),
+                    FQuat::Identity,FCollisionObjectQueryParams(ECC_WorldStatic),FCollisionShape::MakeSphere(P.Radius),Query)) continue;
+                FHitResult Interior;
+                Found=Impact.GetActor()==Tongue && Tongue->InteriorSurfacePoint(Impact.ImpactPoint,HalfSize*1.415f+40,Interior);
+                for(const FVector& Position:Excluded)
+                    if(FVector::DistSquared2D(Impact.ImpactPoint,Position)<FMath::Square(HalfSize*2+100)) Found=false;
+                if(Found) {P.Impact=Impact.ImpactPoint;P.Normal=Impact.ImpactNormal;}
+                break;
+            }
+        }
+        if(!Found) {UE_LOG(LogTemp,Warning,TEXT("MC_VOMIT_SPAWN no clear interior flight for portion %d"),I);continue;}
+        Portions.Add(P); Excluded.Add(P.Impact);
     }
     ForceNetUpdate(); SetLifeSpan(5);
 }

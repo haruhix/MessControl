@@ -91,6 +91,7 @@ public:
     void UpdateCarryPresentation(float Dt);
     void Release(AMCToothCharacter* Hero);
     void Dispose();
+    void AwardDelivery();
     bool BeginSwallow();
     void CancelSwallow();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
@@ -187,6 +188,8 @@ private:
     void UpdateHazard(float Dt);
     double HazardNow() const;
     TWeakObjectPtr<class AMCThroat> FuseOwner;
+    UPROPERTY() TObjectPtr<class AMCPlayerState> LastHandledBy;
+    bool bDeliveryScored=false;
     UPROPERTY() TArray<TObjectPtr<class UMaterialInstanceDynamic>> HazardMaterials;
     UPROPERTY() TObjectPtr<class UMaterialInstanceDynamic> ReactionMaterial;
     FString LastLabelCaption;

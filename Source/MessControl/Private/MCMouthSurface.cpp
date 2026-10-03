@@ -1,6 +1,8 @@
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
 #include "MCGameState.h"
+#include "MCGameMode.h"
+#include "MCPlayerState.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
@@ -115,7 +117,10 @@ bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds)
     NumbUntil=Now+.15; bDisturbed=false; PulseClock=0;
     HealSeconds=FMath::Clamp(HealSeconds,6.f,8.f);
     Healing=FMath::Min(1.f,Healing+FMath::Min(Seconds,.2f)/HealSeconds);
-    if(Healing>=.99999f) { Healing=1; NumbUntil=Now+1; SetLifeSpan(.4f); Worker->NotifyTaskFeedback(true,GetActorLocation()); }
+    if(Healing>=.99999f) {
+        Healing=1; NumbUntil=Now+1; SetLifeSpan(.4f); Worker->NotifyTaskFeedback(true,GetActorLocation());
+        if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,EMCScoreTask::Ulcer);
+    }
     ForceNetUpdate(); return true;
 }
 void AMCMouthSurface::Tick(float Dt)

@@ -78,6 +78,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cleaning") int32 SurfacePatches=10;
     // Retained only for old assets. Repetitions now live in Coffee Profile -> Settings -> Cycles.
     UPROPERTY() int32 WaveCount=4;
+    // Flood surface offset above the current tongue's highest bound, in cm.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float FloodHeight=155;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float FlowAcceleration=320;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Coffee") float PaddleAcceleration=400;

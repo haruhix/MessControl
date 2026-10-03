@@ -48,8 +48,11 @@ bool FMCCoffeeContactTest::RunTest(const FString&)
     Patch->LiquidHalfSize=92; Patch->Status->ApplyCoffee();
     auto* A=World->SpawnActor<AMCToothCharacter>(FVector(235,0,80),FRotator::ZeroRotator);
     auto* B=World->SpawnActor<AMCToothCharacter>(FVector(365,0,80),FRotator(0,180,0));
-    for (auto* Worker:{A,B}) { Worker->GetCharacterMovement()->DisableMovement(); Worker->bBrushing=true; }
-    for (int32 I=0;I<4;++I) A->AdvanceCare(.1f);
+    for (auto* Worker:{A,B}) { Worker->SetActorTickEnabled(false); Worker->GetCharacterMovement()->DisableMovement(); Worker->bBrushing=true; }
+    A->AdvanceCare(.1f);
+    TestEqual(TEXT("Approaching brush cannot erase liquid immediately"),FMCCoffeeWipe::Remaining(Patch->WipeMask),1.f);
+    // Brush acquisition uses server time, including on a server without rendering.
+    for (int32 I=0;I<8;++I) { ++GFrameCounter; World->Tick(LEVELTICK_TimeOnly,.1f); A->AdvanceCare(.1f); }
     TestTrue(TEXT("Held brush makes a persistent local trail"),FMCCoffeeWipe::Remaining(Patch->WipeMask)<.99f);
     TestTrue(TEXT("A local trail leaves the rest of the stain dirty"),Patch->Status->State.CoffeeLeft>0);
     const auto Mask=Patch->WipeMask;
@@ -57,7 +60,7 @@ bool FMCCoffeeContactTest::RunTest(const FString&)
     TestTrue(TEXT("Out of reach preserves trail"),Mask==Patch->WipeMask);
     A->SetActorLocation(FVector(235,0,80)); Patch->Status->ApplyCoffee(); A->ResetContact(); B->ResetContact();
     TestEqual(TEXT("Reapplying same amount resets old trail"),FMCCoffeeWipe::Remaining(Patch->WipeMask),1.f);
-    for (int32 I=0;I<160 && !Patch->IsClean();++I) { A->AdvanceCare(.1f); B->AdvanceCare(.1f); }
+    for (int32 I=0;I<240 && !Patch->IsClean();++I) { ++GFrameCounter; World->Tick(LEVELTICK_TimeOnly,.1f); A->AdvanceCare(.1f); B->AdvanceCare(.1f); }
     TestTrue(TEXT("Two stationary workers seek and clean the remaining visible dirt"),Patch->IsClean());
     TestTrue(TEXT("Completion follows actual visible coverage"),Patch->RemainingLiquid()<.025f);
     Patch->Status->ApplyCoffee(); GS->bPhysicalBrushes=true;

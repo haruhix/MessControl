@@ -2,6 +2,7 @@
 #include "MCArenaTooth.h"
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCGameMode.h"
 #include "MCMouthSurface.h"
 #include "GameFramework/GameStateBase.h"
 #include "Net/UnrealNetwork.h"
@@ -89,12 +90,15 @@ float UMCToothStatusComponent::PainAlpha() const
     // Let the authored pain pose become fully visible before it relaxes.
     return Age>=0 && Age<1.1f?1-FMath::SmoothStep(.35f,1.1f,Age):0.f;
 }
-bool UMCToothStatusComponent::CareContact(bool bBrush)
+bool UMCToothStatusComponent::CareContact(bool bBrush, AMCToothCharacter* Worker)
 {
     if (!GetOwner()->HasAuthority() || !NeedsCare(bBrush)) return false;
     if (bBrush) --State.CoffeeLeft;
     else { State.Health=FMath::Min(State.MaxHealth,State.Health+Settings.HealPerContact); State.RepairLeft=FMath::Max(0,State.RepairLeft-1); }
-    Changed(true); return true;
+    Changed(true);
+    if (!NeedsCare(bBrush) && IsValid(Worker))
+        if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,bBrush?EMCScoreTask::Coffee:EMCScoreTask::Repair);
+    return true;
 }
 FString UMCToothStatusComponent::Summary() const
 {

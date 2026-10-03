@@ -113,6 +113,8 @@ private:
     TMap<TWeakObjectPtr<AActor>,FBrushHistory> BrushHistory;
     struct FGrimeSample { FVector Point,Normal,UV; float Weight; };
     TArray<FGrimeSample> GrimeSamples;
+    bool bGrimeReliefBuilt=false;
+    TArray<float> PreciseGrimeMask;
     int32 SelectedSample=INDEX_NONE;
     float GrimeFinish=1,GrimeUploadElapsed=0;
     bool bGrimeDirty=true;

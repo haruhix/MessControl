@@ -11,6 +11,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "EngineUtils.h"
@@ -70,6 +71,37 @@ void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds)
     ArenaCenter=Plan->ArenaCenter.ContainsNaN()?FVector::ZeroVector:Plan->ArenaCenter;
     Profile=Plan->CoffeeProfile.LoadSynchronous();
     WaterSettings=Profile?Profile->Settings:FMCCoffeeWaterSettings(); WaterSettings.Sanitize();
+    AMCTongue* Tongue=nullptr;
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) if(!It->CurrentVertices().IsEmpty()) {Tongue=*It;break;}
+    if(Tongue)
+    {
+        const FBox Bounds=Tongue->Surface->Bounds.GetBox();
+        const FVector AuthoredHalf=HalfSize.ComponentMax(FVector(1));
+        const FVector AuthoredCenter=ArenaCenter;
+        ArenaCenter=Bounds.GetCenter(); HalfSize=Bounds.GetExtent().ComponentMax(FVector(1));
+        auto Remap=[&](FVector Point)
+        {
+            Point.X=ArenaCenter.X+(Point.X-AuthoredCenter.X)*HalfSize.X/AuthoredHalf.X;
+            Point.Y=ArenaCenter.Y+(Point.Y-AuthoredCenter.Y)*HalfSize.Y/AuthoredHalf.Y;
+            return Point;
+        };
+        WaterSettings.Inlet=Remap(WaterSettings.Inlet); WaterSettings.DrainPoint=Remap(WaterSettings.DrainPoint);
+        const float Scale=FMath::Sqrt(float(HalfSize.X/AuthoredHalf.X*HalfSize.Y/AuthoredHalf.Y));
+        WaterSettings.RippleLength*=Scale; WaterSettings.JetRadius*=Scale;
+        WaterSettings.FrontWidth*=Scale; WaterSettings.DrainRadius*=Scale;
+        WaterSettings.FrontSpeed*=FMath::Max(float(HalfSize.X/AuthoredHalf.X),float(HalfSize.Y/AuthoredHalf.Y));
+        // Keep the flood depth in gameplay centimetres while moving the dry
+        // sheet beneath the complete replacement floor, including its slope.
+        Height=Bounds.Max.Z+Plan->FloodHeight; WaterSettings.DryHeight=Bounds.Min.Z+WaterSettings.DryHeight;
+        WaterSettings.Inlet.Z=FMath::Max(WaterSettings.Inlet.Z,double(Height+600));
+        FHitResult Interior;
+        if(!Tongue->InteriorSurfacePoint(WaterSettings.Inlet,WaterSettings.JetRadius+40,Interior))
+        {
+            FRandomStream Random(GetTypeHash(GetWorld()->GetTimeSeconds()));
+            if(Tongue->RandomInteriorPoint(Random,WaterSettings.JetRadius+40,0,TConstArrayView<FVector>(),Interior))
+            {WaterSettings.Inlet.X=Interior.ImpactPoint.X;WaterSettings.Inlet.Y=Interior.ImpactPoint.Y;}
+        }
+    }
     if (SwimTestSeconds>0) {
         WaterSettings.HoldSeconds=FMath::Clamp(SwimTestSeconds,1.f,3600.f); WaterSettings.Cycles=1;
         // Cover even the raised back of the tongue with enough depth to swim.
@@ -78,13 +110,17 @@ void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds)
                 Height=FMath::Max(Height,float(It->GetActorTransform().TransformPosition(Vertex).Z+150));
     }
     FHitResult Floor; FVector FloorProbe=WaterSettings.Inlet; FloorProbe.Z=Height+200;
-    InletFloorZ=GetWorld()->LineTraceSingleByChannel(Floor,FloorProbe,FloorProbe-FVector(0,0,1400),ECC_WorldStatic)?Floor.ImpactPoint.Z:WaterSettings.DryHeight;
+    const bool FoundFloor=Tongue?Tongue->SurfacePoint(FloorProbe,Floor):GetWorld()->LineTraceSingleByObjectType(Floor,FloorProbe,
+        FloorProbe-FVector(0,0,1400),FCollisionObjectQueryParams(ECC_WorldStatic));
+    InletFloorZ=FoundFloor?Floor.ImpactPoint.Z:WaterSettings.DryHeight;
     if (WaterSettings.bUseThroatActor)
         for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (!It->bBrushBin)
         { WaterSettings.DrainPoint.X=It->GetActorLocation().X; WaterSettings.DrainPoint.Y=It->GetActorLocation().Y; break; }
     OnRep_Profile(); Waves=WaterSettings.Cycles;
     Seconds=WaterSettings.CycleSeconds()*Waves; StartedAt=GetWorld()->GetTimeSeconds(); Wave=0;
     HitThisWave.Empty(); FoodHitThisWave.Empty(); bActive=true; UpdateSurface(); ForceNetUpdate();
+    UE_LOG(LogTemp,Display,TEXT("MC_LIQUID_ARENA center=%s half_size=%s floor=%.1f dry=%.1f water=%.1f inlet=%s"),
+        *ArenaCenter.ToString(),*HalfSize.ToString(),InletFloorZ,WaterSettings.DryHeight,Height,*WaterSettings.Inlet.ToString());
 }
 float AMCCoffeeFlood::WaterTime() const
 {
@@ -214,7 +250,10 @@ void AMCCoffeeFlood::UpdateSurface()
     if (!bActive) { Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false); return; }
     const float T=WaterTime();
     UpdatePour(T);
-    Surface->SetWorldLocation(FVector(ArenaCenter.X,ArenaCenter.Y,BaseHeight(T))); Surface->SetWorldScale3D(FVector(HalfSize.X/50,HalfSize.Y/50,1));
+    const FBoxSphereBounds MeshBounds=Surface->GetStaticMesh()?Surface->GetStaticMesh()->GetBounds():FBoxSphereBounds(FVector::ZeroVector,FVector(50),86.6);
+    const FVector PlaneScale(HalfSize.X/FMath::Max(1.,MeshBounds.BoxExtent.X),HalfSize.Y/FMath::Max(1.,MeshBounds.BoxExtent.Y),1);
+    Surface->SetWorldScale3D(PlaneScale);
+    Surface->SetWorldLocation(FVector(ArenaCenter.X,ArenaCenter.Y,BaseHeight(T))-MeshBounds.Origin*PlaneScale);
     if (!Material) return;
     Material->SetScalarParameterValue(TEXT("WaterTime"),T);
     Material->SetScalarParameterValue(TEXT("RippleHeight"),WaterSettings.RippleHeight);

@@ -504,7 +504,7 @@ void AMCThroat::Tick(float Dt)
             for(const auto& Piece:Meal) if(const auto* Food=Piece.Food.Get()) Wrong|=Food->IsWrongIngredient();
             if (Wrong && T>=.78f) { ++SpasmCount; SetPhase(EMCThroatPhase::Spasm,Now); }
             else if (T>=1) {
-                for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get(); IsValid(Food) && !Food->IsDisposed()) { Food->Dispose(); ++FoodSwallowed; }
+                for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get(); IsValid(Food) && !Food->IsDisposed()) { Food->AwardDelivery(); Food->Dispose(); ++FoodSwallowed; }
                 AMCToothCharacter* Worker=nullptr;float Distance=FLT_MAX;
                 const FVector Point=GetActorTransform().TransformPosition(ZoneCenter);
                 for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) {const float D=FVector::DistSquared(It->GetActorLocation(),Point);if(D<Distance) {Worker=*It;Distance=D;}}

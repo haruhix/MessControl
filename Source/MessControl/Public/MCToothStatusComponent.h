@@ -3,6 +3,7 @@
 #include "Components/ActorComponent.h"
 #include "Engine/DataAsset.h"
 #include "MCToothStatusComponent.generated.h"
+class AMCToothCharacter;
 
 USTRUCT(BlueprintType)
 struct FMCToothCareSettings
@@ -66,7 +67,7 @@ public:
     bool Damage(float Amount,FVector Direction=FVector::ForwardVector);
     float PainAlpha() const;
     // Called only after the worker validates a complete continuous tool contact on the server.
-    bool CareContact(bool bBrush);
+    bool CareContact(bool bBrush, AMCToothCharacter* Worker=nullptr);
     FString Summary() const;
     FVector LastDamageDirection=FVector::ForwardVector;
 private:

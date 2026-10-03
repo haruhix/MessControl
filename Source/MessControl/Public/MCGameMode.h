@@ -3,6 +3,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "MCDataAssets.h"
 #include "MCDevCommands.h"
+#include "MCPlayerState.h"
 #include "MCGameMode.generated.h"
 class UMCDayEvent;
 class UMCRunRules;
@@ -30,7 +31,12 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
-    void ResolveTask(AMCTaskActor* Task);
+    virtual void PostLogin(APlayerController* NewPlayer) override;
+    void ResolveTask(AMCTaskActor* Task, AMCToothCharacter* Worker=nullptr);
+    void AwardTask(AMCToothCharacter* Worker, EMCScoreTask Kind);
+    void AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Kind);
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Score") FMCScoreRewards ScoreRewards;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Respawn", meta=(ClampMin="0.1")) float RespawnDelay=5.f;
     void PlayerDied(AMCToothCharacter* Hero);
     void UpdateObjectives();
     void ProcessRespawns();

@@ -1,10 +1,26 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/CharacterMovementReplication.h"
 #include "MCLocomotionSurface.h"
 #include "Engine/NetSerialization.h"
 #include "MCToothMovementComponent.generated.h"
 class AMCCoffeeFlood;
+
+struct FMCStaminaPredictionState
+{
+    float Value=100.f;
+    float RecoveryDelay=0;
+    bool Exhausted=false;
+};
+
+/** The stamina snapshot belongs to the acknowledged movement timestamp. */
+struct FMCStaminaMoveResponse final : public FCharacterMoveResponseDataContainer
+{
+    FMCStaminaPredictionState Stamina;
+    virtual void ServerFillResponseData(const UCharacterMovementComponent& Movement,const FClientAdjustment& Adjustment) override;
+    virtual bool Serialize(UCharacterMovementComponent& Movement,FArchive& Ar,UPackageMap* Map) override;
+};
 
 /** Force can change between moves; matching uses source identity, correction copies the force. */
 USTRUCT()
@@ -29,6 +45,7 @@ class MESSCONTROL_API UMCToothMovementComponent : public UCharacterMovementCompo
     GENERATED_BODY()
 public:
     UMCToothMovementComponent();
+    virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     virtual float GetMaxSpeed() const override;
     virtual float GetMaxAcceleration() const override;
@@ -37,6 +54,9 @@ public:
     virtual void PerformMovement(float Dt) override;
     virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
     virtual bool ClientUpdatePositionAfterServerUpdate() override;
+    virtual void ClientHandleMoveResponse(const FCharacterMoveResponseDataContainer& Response) override;
+    virtual void ServerMoveHandleClientError(float TimeStamp,float Dt,const FVector& Accel,const FVector& ClientLocation,
+        FMovementBaseInterfaceData* Base,FName Bone,uint8 Mode) override;
     virtual FRotator ComputeOrientToMovementRotation(const FRotator& CurrentRotation,float DeltaTime,FRotator& DeltaRotation) const override;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion",meta=(ClampMin="100",ClampMax="600")) float WalkSpeed=340;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion",meta=(ClampMin="200",ClampMax="900")) float SprintSpeed=560;
@@ -47,6 +67,21 @@ public:
     UFUNCTION(BlueprintCallable,Category="Locomotion") void SetSprinting(bool Enabled) { bWantsToSprint=Enabled; }
     bool WantsToSprint() const { return bWantsToSprint; }
     bool CanSprint() const;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="1")) float MaxStamina=100.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float SprintStaminaPerSecond=12.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float StaminaPerSecond=22.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float StaminaRecoveryDelay=.65f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float DashStaminaCost=22.f;
+    float GetMaxStamina() const { return FMath::IsFinite(MaxStamina)?FMath::Max(1.f,MaxStamina):100.f; }
+    float GetStamina() const { return FMath::Clamp(StaminaState.Value,0.f,GetMaxStamina()); }
+    const FMCStaminaPredictionState& GetStaminaPrediction() const { return StaminaState; }
+    const FMCStaminaPredictionState& GetStaminaResponseSnapshot() const { return ServerStaminaSnapshot; }
+    void RestoreStaminaPrediction(const FMCStaminaPredictionState& State);
+    void AdvanceStaminaPrediction(float Dt,bool SprintRequested,bool DashCharged);
+    bool IsReplayingAuthoritativeStamina() const { return bReplayingAuthoritativeStamina; }
+    bool LastMoveRequestedSprint() const { return bStaminaSprintRequested; }
+    bool LastMoveChargedDash() const { return bStaminaDashCharged; }
+    void RestoreReplayDashCharge(bool Charge) { bReplayDashCharge=Charge; }
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="500",ClampMax="1600")) float DashSpeed=1000;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.2",ClampMax="0.65")) float DashDuration=.42f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.5",ClampMax="3")) float DashCooldown=1.1f;
@@ -83,6 +118,11 @@ public:
     bool WantsClimb() const { return bWantsToClimb; }
     void JumpFromWall();
 private:
+    FMCStaminaPredictionState StaminaState,ServerStaminaSnapshot,PendingStaminaCorrection;
+    FMCStaminaMoveResponse StaminaMoveResponse;
+    bool bPendingStaminaCorrection=false,bReplayingAuthoritativeStamina=false;
+    bool bStaminaSprintRequested=false,bStaminaDashCharged=false,bReplayDashCharge=false;
+    bool CanSprintAction() const;
     bool bWantsToSprint=false;
     bool bWantsToClimb=false;
     bool bWantsDash=false;

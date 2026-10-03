@@ -44,7 +44,7 @@ void AMCMouthSurface::OnRep_LiquidSize()
 void AMCMouthSurface::ResetLiquid()
 {
     if (!HasAuthority()) return;
-    FMCCoffeeWipe::Reset(WipeMask); PreviousBrush.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
+    FMCCoffeeWipe::Reset(WipeMask); WipeFractional.Reset(); PreviousBrush.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
     OnRep_Wipe(); ForceNetUpdate();
 }
 void AMCMouthSurface::OnRep_Wipe() { bWipeDirty=true; }
@@ -75,7 +75,7 @@ bool AMCMouthSurface::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,
     for(int32 Y=1;Y<FMCCoffeeWipe::Size;Y+=2) for(int32 X=1;X<FMCCoffeeWipe::Size;X+=2) {
         const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
         if(!FMCCoffeeWipe::WetAt(Full,UV,LiquidSeed)
-            || (WipeMask.Num()==FMCCoffeeWipe::Count && WipeMask[Y*FMCCoffeeWipe::Size+X]<=71)) continue;
+            || (WipeMask.Num()==FMCCoffeeWipe::Count && WipeMask[Y*FMCCoffeeWipe::Size+X]<=63)) continue;
         FVector P=GetActorTransform().TransformPosition(FVector((UV.X-.5)*2*LiquidHalfSize,(UV.Y-.5)*2*LiquidHalfSize,0));
         const float Score=FVector::DistSquared2D(P,Aim);
         if(Score>=Best || FVector::Dist2D(P,Origin)>Contact->SurfaceReach) continue;
@@ -120,14 +120,14 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
     // Never connect a teleport or a changed target with a long erased stripe.
     const FVector2D From=Previous && FVector2D::Distance(*Previous,UV)<.3?*Previous:UV;
     Worker->BrushContact->Contact(this,Point,Normal);
-    if(!Worker->BrushContact->IsTouchingSurface()) return true;
-    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,36/(2*LiquidHalfSize),Seconds)) OnRep_Wipe();
+    if(!Worker->BrushContact->IsWorkReady()) return true;
+    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,36/(2*LiquidHalfSize),Seconds,&WipeFractional)) OnRep_Wipe();
     BrushDirection=(UV-From).IsNearlyZero()?Side:(UV-From).GetSafeNormal();
     BrushUV=UV; PreviousBrush.Add(Worker,UV);
     BrushAt=Now;
     const float Left=RemainingLiquid();
     const int32 RemainingLayers=Left<.025f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
-    while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true); ++Worker->SuccessfulBrushContacts; }
+    while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true,Worker); ++Worker->SuccessfulBrushContacts; }
     return true;
 }
 

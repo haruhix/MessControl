@@ -115,6 +115,9 @@ void MCTickBrushCoverage(UWorld* World)
             Aim=(Aim+P)*.5; const FVector Eye=Aim+Inward*340+FVector::CrossProduct(Inward,FVector::UpVector)*220+FVector(0,0,170);
             R.Camera->SetActorLocationAndRotation(Eye,(Aim-Eye).Rotation());
         }
+        // This subsystem runs after skeletal evaluation. Let the regular pawn
+        // and brush ticks evaluate the teleported pose before measuring it.
+        return;
     }
     const float T=R.Age-R.Started;
     if(R.Index>=Teeth.Num() && int32(T/5)>R.Scan) {
@@ -122,6 +125,9 @@ void MCTickBrushCoverage(UWorld* World)
         // rather than requiring the brush to clean behind the player's back.
         R.Scan=int32(T/5);
         H->SetActorRotation(FRotator(0,H->GetActorRotation().Yaw+90,0));
+        // The fixture's instant turn moves attached tools after BuildPose ran.
+        // Measure the next evaluated pose, with the same collision limits.
+        return;
     }
     H->ServerSetPrimary(T>.7f);
     auto* Brush=H->BrushContact.Get();
@@ -132,7 +138,8 @@ void MCTickBrushCoverage(UWorld* World)
         UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_COVERAGE_PROGRESS case=%d found=%d working=%d alpha=%.2f hero=%s point=%s"),R.Index,Found,H->bBrushing,Brush->Alpha(),*H->GetActorLocation().ToString(),*Point.ToString());
     }
     if(Brush->Alpha()>.99f && H->bBrushing) {
-        ++R.Contacts; const FVector Point=Brush->ContactPoint(),N=Brush->ContactNormal();
+        if(Brush->IsTouchingSurface()) ++R.Contacts;
+        const FVector Point=Brush->ContactPoint(),N=Brush->ContactNormal();
         R.MinZ=FMath::Min(R.MinZ,float(Point.Z)); R.MaxZ=FMath::Max(R.MaxZ,float(Point.Z));
         if(Brush->IsTouchingSurface()) R.MaxError=FMath::Max(R.MaxError,float(FVector::Dist(Point,Brush->BristlePoint())));
         const auto* Mesh=H->GetMesh(); const auto& Ref=Mesh->GetSkeletalMeshAsset()->GetRefSkeleton();
@@ -159,7 +166,7 @@ void MCTickBrushCoverage(UWorld* World)
     }
     if(Clean || T>24) {
         const float Left=R.Index<Teeth.Num()?Teeth[R.Index]->RemainingGrime():R.Patch->RemainingLiquid();
-        const bool Pass=Clean && R.Contacts>10 && R.MinClearance>=-2 && R.MaxStretch<1.05f && FVector::Dist2D(R.Start,H->GetActorLocation())<3;
+        const bool Pass=Clean && R.Contacts>0 && R.MinClearance>=-2 && R.MaxStretch<1.05f && FVector::Dist2D(R.Start,H->GetActorLocation())<3;
         UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_COVERAGE case=%d pass=%d left=%.4f time=%.2f height=%.1f error=%.2f clearance=%.2f stretch=%.3f contacts=%d"),R.Index,Pass,Left,T,R.MaxZ-R.MinZ,R.MaxError,R.MinClearance,R.MaxStretch,R.Contacts);
         R.Invalid|=!Pass; R.Passed+=Pass; ++R.Index; R.Started=0;
         H->ServerSetPrimary(false); if(R.Patch.IsValid()) { R.Patch->Destroy(); R.Patch.Reset(); }

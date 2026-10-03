@@ -38,6 +38,7 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
     virtual void PawnClientRestart() override;
+    virtual void PossessedBy(AController* NewController) override;
     virtual void Landed(const FHitResult& Hit) override;
     virtual void FellOutOfWorld(const UDamageType& DamageType) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
@@ -121,6 +122,13 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Visuals") TObjectPtr<UStaticMeshComponent> Brush;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Visuals") TObjectPtr<UMCPlayerAppearance> Appearance;
     UPROPERTY(ReplicatedUsing=OnRep_BagColor, BlueprintReadOnly, Category="Visuals") FLinearColor BagColor=FLinearColor::White;
+    UFUNCTION(BlueprintPure, Category="Visuals") FLinearColor GetPlayerColor() const { return BagColor; }
+    void ApplyPlayerColor(FLinearColor Color);
+    UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") float GetStamina() const;
+    UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") float GetMaxStamina() const;
+    UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") float GetStaminaNormalized() const;
+    UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") bool IsStaminaExhausted() const;
+    bool FindPlayerBrushContact(const AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
     FName RigBone(FName BoneRole) const;
     FTransform StandingMeshTransform() const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
@@ -186,6 +194,7 @@ private:
     void UpdateLocomotion(float Dt);
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void StartPrimary(); void StopPrimary();
+    UFUNCTION(Server,Reliable) void ServerToggleFoodCollection();
     void SelectBrush(); void SelectPickaxe(); void SelectKnife(); void SelectSpray();
     void ResolvePrimaryAction();
     void TogglePanel(); void ToggleConnection(); void RestartRun();

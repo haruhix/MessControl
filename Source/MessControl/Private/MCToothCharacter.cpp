@@ -13,6 +13,7 @@
 #include "MCGameMode.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "MCPlayerController.h"
+#include "MCPlayerState.h"
 #include "MCTaskActor.h"
 #include "MCGameState.h"
 #include "MCToothPhysicsComponent.h"
@@ -143,7 +144,8 @@ void AMCToothCharacter::BeginPlay()
 {
     Super::BeginPlay();
     // Choose once on the server; owning clients, proxies and late joiners share it.
-    if (HasAuthority()) BagColor=FLinearColor::MakeFromHSV8(FMath::RandRange(0,255),190,255);
+    if (HasAuthority())
+        if (const auto* Identity=GetPlayerState<AMCPlayerState>()) ApplyPlayerColor(Identity->PlayerColor);
     if (AnimationProfile) AnimationSettings = AnimationProfile->Settings;
 #if !UE_BUILD_SHIPPING
     if (FParse::Param(FCommandLine::Get(),TEXT("MCRagdollCapture")))
@@ -187,6 +189,22 @@ void AMCToothCharacter::OnRep_BagColor()
     BagMaterial->SetScalarParameterValue(TEXT("Saturate"),1.f);
     BagMaterial->SetVectorParameterValue(TEXT("Albedo Color"),BagColor);
 }
+void AMCToothCharacter::PossessedBy(AController* NewController)
+{
+    Super::PossessedBy(NewController);
+    if (const auto* Identity=GetPlayerState<AMCPlayerState>()) ApplyPlayerColor(Identity->PlayerColor);
+}
+void AMCToothCharacter::ApplyPlayerColor(FLinearColor Color)
+{
+    if (!HasAuthority() || !FMath::IsFinite(Color.R) || !FMath::IsFinite(Color.G) || !FMath::IsFinite(Color.B)) return;
+    BagColor=FLinearColor(FMath::Clamp(Color.R,0.f,1.f),FMath::Clamp(Color.G,0.f,1.f),FMath::Clamp(Color.B,0.f,1.f),1.f);
+    if (auto* Identity=GetPlayerState<AMCPlayerState>()) { Identity->PlayerColor=BagColor; Identity->ForceNetUpdate(); }
+    OnRep_BagColor(); ForceNetUpdate();
+}
+float AMCToothCharacter::GetStamina() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetStamina(); }
+float AMCToothCharacter::GetMaxStamina() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetMaxStamina(); }
+float AMCToothCharacter::GetStaminaNormalized() const { return GetStamina()/GetMaxStamina(); }
+bool AMCToothCharacter::IsStaminaExhausted() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetStaminaPrediction().Exhausted; }
 void AMCToothCharacter::BuildInput()
 {
     if (InputMap) return;
@@ -370,9 +388,27 @@ FVector AMCToothCharacter::GetDashDirection() const { return FVector(CastChecked
 float AMCToothCharacter::GetDashDuration() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetDashDuration(); }
 void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
-void AMCToothCharacter::StartHandle() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(true); ServerSetWorking(false,true); }
+void AMCToothCharacter::StartHandle()
+{
+    if (CanWork() && !bInCoffee && !bSelfCare && !CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()
+        && (FoodCollection->bCollecting || FoodCollection->HasCandidate()))
+    { ServerToggleFoodCollection(); return; }
+    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(true); ServerSetWorking(false,true);
+}
 void AMCToothCharacter::StopHandle() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false); ServerSetWorking(false,false); }
-void AMCToothCharacter::StartPrimary() { ServerSetPrimary(true); }
+void AMCToothCharacter::StartPrimary()
+{
+    if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
+    ServerSetPrimary(true);
+}
+void AMCToothCharacter::ServerToggleFoodCollection_Implementation()
+{
+    if (!CanWork() || bInCoffee || bSelfCare || CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()
+        || (!FoodCollection->bCollecting && !FoodCollection->HasCandidate())) return;
+    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false);
+    bPrimaryHeld=false; bBrushing=false; bHandling=false; DropFood(); ResetContact();
+    FoodCollection->Toggle(); ForceNetUpdate();
+}
 void AMCToothCharacter::SelectBrush() { Inventory->ServerSelect(EMCToolSlot::Brush); }
 void AMCToothCharacter::SelectPickaxe() { Inventory->ServerSelect(EMCToolSlot::Pickaxe); }
 void AMCToothCharacter::SelectKnife() { Inventory->ServerSelect(EMCToolSlot::Knife); }
@@ -435,7 +471,7 @@ void AMCToothCharacter::ResolvePrimaryAction()
     auto* Clean=HasBrush()?FindCareTarget(true):nullptr;
     // Keep scrubbing the acquired tooth while LMB is held, even beside loose food.
     if(bBrushing && Clean && Clean->GetOwner()==CareTarget
-        && (Cast<AMCArenaTooth>(CareTarget) || Cast<AMCMouthSurface>(CareTarget))) { bHandling=false; return; }
+        && (Cast<AMCArenaTooth>(CareTarget) || Cast<AMCMouthSurface>(CareTarget) || Cast<AMCToothCharacter>(CareTarget))) { bHandling=false; return; }
     auto* Repair=FindCareTarget(false);
     bool BrushMode=Clean && (!Repair || Distance(Clean->GetOwner())<=Distance(Repair->GetOwner()));
     float BestDistance=BrushMode?Distance(Clean->GetOwner()):Repair?Distance(Repair->GetOwner()):MAX_flt;
@@ -617,14 +653,18 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     if (ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
     { SoundAccumulator = 0; SoundPalette->Play(this,bBrushing ? TEXT("Brush") : bHandling ? TEXT("Pull") : TEXT("Step"),GetActorLocation()); }
 }
-void AMCToothCharacter::SwingBrush() { if (!bPreviewAnimation && ToothPhysics->CanAct()) ServerSwingBrush(); }
+void AMCToothCharacter::SwingBrush()
+{
+    if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->PreviousSpectator(); return; }
+    if (!bPreviewAnimation && ToothPhysics->CanAct()) ServerSwingBrush();
+}
 void AMCToothCharacter::ServerSwingBrush_Implementation()
 {
     const float Now=GetWorld()->GetTimeSeconds();
     if (!CanWork() || Now<NextSwingTime) return;
     if(Inventory->Selected==EMCToolSlot::Spray) { Inventory->ServerSpray(); return; }
     NextSwingTime=Now+Inventory->SwingDuration(); ++ValidatedSwingCount;
-    bPrimaryHeld=false; bBrushing=false; bHandling=false; DropFood(); ForceNetUpdate(); MulticastSwing();
+    bBrushing=false; bHandling=false; DropFood(); ForceNetUpdate(); MulticastSwing();
     ResetContact();
     SwingContactEndsAt=Now+Inventory->SwingContactTime()+.12f;
     GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,Inventory->SwingContactTime(),false);
@@ -805,6 +845,9 @@ UMCToothStatusComponent* AMCToothCharacter::FindCareTarget(bool bBrush) const
         } else if(auto* Patch=Cast<AMCMouthSurface>(*It); bBrush && Patch) {
             FVector N; if(!Patch->FindDirtyContact(const_cast<AMCToothCharacter*>(this),Contact,N)) continue;
             if(CareTarget==Patch) return Candidate;
+        } else if(auto* Player=Cast<AMCToothCharacter>(*It); bBrush && Player) {
+            FVector N; if(!Player->FindPlayerBrushContact(this,Contact,N)) continue;
+            if(CareTarget==Player) return Candidate;
         } else if(!CanContact(*It)) continue;
         const float D=FVector::DistSquared(GetActorLocation(),Contact);
         if (D<Distance) { Best=Candidate; Distance=D; }
@@ -830,16 +873,44 @@ void AMCToothCharacter::AdvanceCare(float Dt)
         else { ContactProgress=1-Arena->RemainingGrime(); if(!Target->NeedsCare(true)) NotifyTaskFeedback(true,Arena->GetActorLocation()); }
         return;
     }
+    if (bBrushing) if (const auto* Player=Cast<AMCToothCharacter>(Target->GetOwner()); Player && Player!=this)
+    {
+        FVector Point,Normal;
+        if (!Player->FindPlayerBrushContact(this,Point,Normal)) { ResetContact(); return; }
+        BrushContact->Contact(Target->GetOwner(),Point,Normal);
+        if (!BrushContact->IsWorkReady()) { ContactElapsed=0; ContactProgress=0; return; }
+    }
     ContactElapsed+=FMath::Min(Dt,.1f);
     const float Seconds=Target->Settings.ContactSeconds;
     ContactProgress=FMath::Clamp(ContactElapsed/Seconds,0.f,1.f);
     if (ContactElapsed+KINDA_SMALL_NUMBER>=Seconds)
     {
-        if (Target->CareContact(bBrushing) && bBrushing) ++SuccessfulBrushContacts;
+        if (Target->CareContact(bBrushing,this) && bBrushing) ++SuccessfulBrushContacts;
         ContactElapsed=0; ContactProgress=0;
         if (!Target->NeedsCare(bBrushing)) { NotifyTaskFeedback(true,Target->GetOwner()->GetActorLocation()); ResetContact(); }
         ForceNetUpdate();
     }
+}
+bool AMCToothCharacter::FindPlayerBrushContact(const AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const
+{
+    if (!IsValid(Worker) || Worker==this || !Status->NeedsCare(true) || !Worker->BrushContact->CanAcquireSurface(this)) return false;
+    const FVector From=Worker->GetActorLocation()+FVector(0,0,55);
+    const auto* GS=GetWorld()->GetGameState();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const FVector Facing=(From-GetActorLocation()).GetSafeNormal2D();
+    const FVector Sample=GetActorLocation()+Facing*150+FVector(0,0,55+FMath::Sin(Now*12)*2.5)+GetActorRightVector()*FMath::Sin(Now*24)*3;
+    FName Bone; float Distance=0;
+    if (!GetMesh()->K2_GetClosestPointOnPhysicsAsset(Sample,Point,Normal,Bone,Distance))
+    {
+        FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCPlayerBrushSurface),false,Worker);
+        if (!GetCapsuleComponent()->LineTraceComponent(Hit,Sample,GetActorLocation()+FVector(0,0,55),Query)) return false;
+        Point=Hit.ImpactPoint; Normal=Hit.ImpactNormal;
+    }
+    Normal=Normal.GetSafeNormal();
+    if (Point.ContainsNaN() || Normal.IsNearlyZero() || FVector::DotProduct(Normal,(From-Point).GetSafeNormal())<.05
+        || !Worker->BrushContact->CanReachAfterFacing(Point,Normal,this)) return false;
+    FHitResult Block; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCPlayerBrushOcclusion),false,Worker); Query.AddIgnoredActor(this);
+    return !GetWorld()->LineTraceSingleByChannel(Block,From,Point-Normal*2,ECC_Visibility,Query);
 }
 void AMCToothCharacter::StatusChanged()
 {

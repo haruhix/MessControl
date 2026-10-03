@@ -16,7 +16,7 @@
 
 void AMCArenaTooth::BuildGrimeRelief()
 {
-    if (!Visual->GetStaticMesh() || !BrushSurface->IsPhysicsStateCreated()) return;
+    if (bGrimeReliefBuilt || !Visual->GetStaticMesh() || !BrushSurface->IsPhysicsStateCreated()) return;
     GrimeSamples.Reset();
     const FTransform Transform=Visual->GetComponentTransform();
     const FBoxSphereBounds Bounds=Visual->GetStaticMesh()->GetBounds();
@@ -34,8 +34,12 @@ void AMCArenaTooth::BuildGrimeRelief()
     // temporary tongue deformation must never cut holes in a replicated stain.
     if(Tongue) Room.AddIgnoredActor(Tongue);
     FCollisionObjectQueryParams StaticObjects(ECC_WorldStatic);
+    FCollisionQueryParams FloorRoom=Room;
     TArray<AMCArenaTooth*> Neighbors;
-    for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) if(*It!=this && It->IsAvailable()) Neighbors.Add(*It);
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) {
+        FloorRoom.AddIgnoredActor(*It);
+        if(*It!=this && It->IsAvailable()) Neighbors.Add(*It);
+    }
     auto SmoothUnion=[](float A,float B,float K)
     {
         const float H=FMath::Clamp(.5f+.5f*(B-A)/K,0.f,1.f);
@@ -52,20 +56,58 @@ void AMCArenaTooth::BuildGrimeRelief()
         FVector WorldAim=Transform.TransformPosition(Aim);
         if(Tongue) {
             FVector Floor;
-            if(Tongue->RestSurfacePoint(WorldAim+Inward*75,Floor))
+            if(Tongue->RestSurfacePoint(WorldAim+Inward*75,Floor)) {
                 WorldAim.Z=FMath::Min(Visual->Bounds.GetBox().Max.Z-12,FMath::Max(WorldAim.Z,Floor.Z+(Patch==0?65:45)));
+            }
         }
         FHitResult CenterHit;
         if (!BrushSurface->LineTraceComponent(CenterHit,WorldAim+Radial*600,WorldAim-Radial*300,Query)) continue;
-        const FVector N=CenterHit.ImpactNormal.GetSafeNormal();
-        const FVector Y=FVector::VectorPlaneProject(FVector::UpVector,N).GetSafeNormal();
-        const FVector X=FVector::CrossProduct(Y,N).GetSafeNormal();
+        FVector N=CenterHit.ImpactNormal.GetSafeNormal();
+        FVector Y=FVector::VectorPlaneProject(FVector::UpVector,N).GetSafeNormal();
+        FVector X=FVector::CrossProduct(Y,N).GetSafeNormal();
         const float Width=(Patch==0?54.f:42.f)*Random.FRandRange(.85f,1.12f);
         const float Height=(Patch==0?78.f:30.f)*Random.FRandRange(.90f,1.1f);
-        float FloorZ=-MAX_flt;
-        if(Tongue) for(float Offset:{-Width,0.f,Width}) {
+        // A horizontal room sweep can run underneath the permanent gum ridge.
+        // Cache floor heights across the coating and the approach footprint;
+        // never scan the tongue triangles again for individual coating vertices.
+        auto CacheFloor=[&]() {
+            float RestZ=-MAX_flt;
             FVector Floor;
-            if(Tongue->RestSurfacePoint(CenterHit.ImpactPoint+X*Offset+Inward*25,Floor)) FloorZ=FMath::Max(FloorZ,float(Floor.Z));
+            if(Tongue && Tongue->RestSurfacePoint(WorldAim+Inward*75,Floor)) RestZ=Floor.Z;
+            TArray<FVector,TInlineAllocator<9>> FloorSamples;
+            for(float Offset:{-Width,0.f,Width}) for(float Approach:{25.f,60.f,95.f}) {
+                const FVector Probe=CenterHit.ImpactPoint+X*Offset+Inward*Approach;
+                FloorSamples.Add(Probe);
+                if(Tongue && Tongue->RestSurfacePoint(Probe,Floor)) RestZ=FMath::Max(RestZ,float(Floor.Z));
+            }
+            float Highest=RestZ;
+            const bool HasRestFloor=RestZ> -MAX_flt;
+            const float PatchUpper=CenterHit.ImpactPoint.Z+Height+22;
+            const float ProbeTop=HasRestFloor?FMath::Min(PatchUpper,RestZ+100):PatchUpper;
+            const float ProbeBottom=(HasRestFloor?RestZ:float(Visual->Bounds.GetBox().Min.Z))-100;
+            TArray<FHitResult> FloorHits;
+            for(const FVector& Probe:FloorSamples) {
+                GetWorld()->LineTraceMultiByObjectType(FloorHits,FVector(Probe.X,Probe.Y,ProbeTop),FVector(Probe.X,Probe.Y,ProbeBottom),StaticObjects,FloorRoom);
+                for(const auto& Hit:FloorHits) if(Hit.ImpactNormal.Z>.5f) Highest=FMath::Max(Highest,float(Hit.ImpactPoint.Z));
+            }
+            return Highest;
+        };
+        float FloorZ=CacheFloor();
+        // An approach sample can reveal a higher floor than the initial aim.
+        // Move the whole patch above it, then cache its new footprint once.
+        if(FloorZ> -MAX_flt) {
+            const float RaisedZ=FMath::Min(Visual->Bounds.GetBox().Max.Z-12,FMath::Max(WorldAim.Z,double(FloorZ+(Patch==0?65:45))));
+            if(RaisedZ>WorldAim.Z+UE_SMALL_NUMBER) {
+                const FVector RaisedAim(WorldAim.X,WorldAim.Y,RaisedZ);
+                FHitResult RaisedHit;
+                if(BrushSurface->LineTraceComponent(RaisedHit,RaisedAim+Radial*600,RaisedAim-Radial*300,Query)) {
+                    WorldAim=RaisedAim; CenterHit=RaisedHit;
+                    N=CenterHit.ImpactNormal.GetSafeNormal();
+                    Y=FVector::VectorPlaneProject(FVector::UpVector,N).GetSafeNormal();
+                    X=FVector::CrossProduct(Y,N).GetSafeNormal();
+                    FloorZ=CacheFloor();
+                }
+            }
         }
         constexpr int32 Columns=96,SampleStride=4;
         const int32 Rows=Patch==0?192:80,Base=Vertices.Num();
@@ -171,12 +213,13 @@ void AMCArenaTooth::BuildGrimeRelief()
         }
     }
     if(FApp::CanEverRender()) GrimeRelief->CreateMeshSection_LinearColor(0,Vertices,Triangles,Normals,UV,Colors,Tangents,false);
+    bGrimeReliefBuilt=true;
 }
 
 void AMCArenaTooth::ResetGrime()
 {
     if (!HasAuthority()) return;
-    FMCSurfaceWipe::Reset(GrimeMask); BrushHistory.Reset(); BrushAt=-100;
+    FMCSurfaceWipe::Reset(GrimeMask); PreciseGrimeMask.Reset(); BrushHistory.Reset(); BrushAt=-100;
     GrimeAmount=Status->CoffeeAmount(); GrimeFinish=GrimeAmount>0?0:1;
     OnRep_Grime(); ForceNetUpdate();
 }
@@ -191,13 +234,14 @@ float AMCArenaTooth::RemainingGrime() const
 bool AMCArenaTooth::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred)
 {
     if(!IsAvailable() || !Status->NeedsCare(true) || !IsValid(Worker) || !Worker->BrushContact->CanAcquireSurface(this)) return false;
-    if(GrimeSamples.IsEmpty()) BuildGrimeRelief();
+    if(!bGrimeReliefBuilt) BuildGrimeRelief();
     const FTransform T=Visual->GetComponentTransform();
     const FVector Origin=Worker->GetActorLocation(),Aim=Origin+Worker->GetActorForwardVector()*65+FVector(0,0,65);
     float Best=MAX_flt; SelectedSample=INDEX_NONE;
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCDirtyTarget),false,Worker); Query.AddIgnoredActor(this);
     for(int32 I=0;I<GrimeSamples.Num();++I) {
-        const auto& S=GrimeSamples[I]; if(FMCSurfaceWipe::Sample(GrimeMask,S.UV)<=.28f) continue;
+        // Select down to the same visible threshold used by RemainingGrime.
+        const auto& S=GrimeSamples[I]; if(FMCSurfaceWipe::Sample(GrimeMask,S.UV)<=.25f) continue;
         const FVector P=T.TransformPosition(S.Point),N=T.TransformVectorNoScale(S.Normal).GetSafeNormal(),D=P-Origin;
         if(D.Size2D()>Worker->BrushContact->SurfaceReach || FVector::DotProduct(N,(Origin-P).GetSafeNormal())<.05f) continue;
         const bool Locked=Worker->BrushContact->Target==this && Worker->BrushContact->Alpha()>.5f;
@@ -258,12 +302,12 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     const bool Continuous=Now-History.At<.2 && ((UV-History.UV)*Dimensions).Size()<65;
     if (GrimeMask.Num()!=FMCSurfaceWipe::Count) FMCSurfaceWipe::Reset(GrimeMask);
     Worker->BrushContact->Contact(this,Hit.ImpactPoint,Hit.ImpactNormal);
-    if(!Worker->BrushContact->IsTouchingSurface()) { History.At=Now; return true; }
-    if (FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,36,Seconds)) OnRep_Grime();
+    if(!Worker->BrushContact->IsWorkReady()) { History.At=Now; return true; }
+    if (FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,36,Seconds,&PreciseGrimeMask)) OnRep_Grime();
     History.UV=UV; History.At=Now; BrushAt=Now;
     const float Left=RemainingGrime();
     const int32 RemainingLayers=Left<.025f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));
-    while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true); ++Worker->SuccessfulBrushContacts; }
+    while(Status->State.CoffeeLeft>RemainingLayers) { Status->CareContact(true,Worker); ++Worker->SuccessfulBrushContacts; }
     return true;
 }
 
@@ -275,7 +319,7 @@ void AMCArenaTooth::UpdateGrime(float Dt)
         { ReliefMaterial=UMaterialInstanceDynamic::Create(Base,this); GrimeRelief->SetMaterial(0,ReliefMaterial); }
     // Spread one-time surface projection over frames when a coffee wave hits all teeth.
     static uint64 LastBuildFrame=MAX_uint64;
-    if (GrimeAmount>0 && Status->NeedsCare(true) && GrimeRelief->GetNumSections()==0 && LastBuildFrame!=GFrameCounter)
+    if (GrimeAmount>0 && Status->NeedsCare(true) && !bGrimeReliefBuilt && LastBuildFrame!=GFrameCounter)
     { BuildGrimeRelief(); LastBuildFrame=GFrameCounter; }
     if (!GrimeTexture)
     {

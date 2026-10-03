@@ -1,5 +1,6 @@
 #include "MCFoodActor.h"
 #include "MCToothCharacter.h"
+#include "MCPlayerState.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCFoodStackSettings.h"
 #include "Components/BoxComponent.h"
@@ -21,6 +22,7 @@ void AMCFoodActor::SetStackCarrier(AMCToothCharacter* Hero)
     StackCarrier=Hero; CollisionIgnoredCarrier=Hero;
     if(!Hero) StackPickup.StartedAt=-100;
     if(Hero) {
+        LastHandledBy=Hero->GetPlayerState<AMCPlayerState>();
         Body->IgnoreActorWhenMoving(Hero,true); Hero->GetCapsuleComponent()->IgnoreActorWhenMoving(this,true);
         if(Phase==EMCFoodPhase::Falling) Phase=EMCFoodPhase::Free;
     }

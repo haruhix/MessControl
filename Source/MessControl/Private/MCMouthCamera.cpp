@@ -3,6 +3,7 @@
 #include "MCTongue.h"
 #include "MCThroat.h"
 #include "Camera/CameraComponent.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EngineUtils.h"
@@ -51,7 +52,14 @@ FVector AMCToothCharacter::CameraMoveDirection(bool Right) const
 
 void AMCToothCharacter::UpdateMouthCamera(float Dt)
 {
-    if(!IsLocallyControlled()) { ClearCameraWallReveal(); return; }
+    APlayerController* Viewer=nullptr;
+    for(auto It=GetWorld()->GetPlayerControllerIterator();It;++It)
+        if(auto* PC=It->Get();PC && PC->IsLocalController()) {
+            const AActor* Destination=PC->PlayerCameraManager && PC->PlayerCameraManager->PendingViewTarget.Target
+                ?PC->PlayerCameraManager->PendingViewTarget.Target.Get():PC->GetViewTarget();
+            if(Destination==this) {Viewer=PC;break;}
+        }
+    if(!Viewer) { ClearCameraWallReveal(); return; }
     const FVector P=GetActorLocation();
     float Suction=0;
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It)
@@ -140,12 +148,12 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     Camera->SetAspectRatioAxisConstraint(AspectRatio_MaintainYFOV);
     CameraBoom->bEnableCameraLag=false;
     FRotator Rotation=(Focus-Eye).Rotation();
-    if(!Reset) Rotation=FMath::RInterpTo(CameraBoom->GetComponentRotation(),Rotation,Dt,FollowSpeed);
+    if(!Reset) Rotation=FMath::RInterpTo(Camera->GetComponentRotation(),Rotation,Dt,FollowSpeed);
 
     // At the arena boundary translation stops. Pan/tilt still keeps the whole
     // avatar in the viewport, including jumps and narrower aspect ratios.
     int32 Width=0,Height=0;
-    if(auto* PC=Cast<APlayerController>(GetController())) PC->GetViewportSize(Width,Height);
+    Viewer->GetViewportSize(Width,Height);
     const float Aspect=Height>0?float(Width)/Height:Camera->AspectRatio;
     const float TanY=FMath::Tan(FMath::DegreesToRadians(Camera->FieldOfView*.5f))/Camera->AspectRatio;
     const float LimitX=FMath::RadiansToDegrees(FMath::Atan(TanY*Aspect*.86f));
@@ -169,13 +177,13 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         }
         Rotation.Yaw+=YawCorrection; Rotation.Pitch+=PitchCorrection;
     }
-    // A short sweep stays above the tongue. Keep both endpoints inside the
-    // camera volume, including the endpoint used when collision retracts it.
-    float Distance=180;
-    while(Distance>1 && !ClampEye(Eye+Rotation.Vector()*Distance).Equals(Eye+Rotation.Vector()*Distance,.1)) Distance*=.5f;
-    CameraBoom->TargetOffset=Eye+Rotation.Vector()*Distance-P;
-    CameraBoom->SetWorldRotation(Rotation);
-    CameraBoom->TargetArmLength=Distance;
+    // Validate the whole path from the avatar. A short sweep at the filtered
+    // eye can start behind food or inside an arena tooth after follow lag.
+    const FVector Arm=P+OrbitPivotOffset-Eye;
+    CameraBoom->bDoCollisionTest=true; CameraBoom->ProbeChannel=ECC_Camera;
+    CameraBoom->TargetOffset=OrbitPivotOffset;
+    CameraBoom->SetWorldRotation(Arm.Rotation());
+    CameraBoom->TargetArmLength=Arm.Size();
     Camera->SetWorldRotation(Rotation);
     bMouthCameraInitialized=true;
     UpdateCameraWallReveal(Dt,MouthCameraEye,P+OrbitPivotOffset);

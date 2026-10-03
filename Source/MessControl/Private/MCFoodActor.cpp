@@ -1,5 +1,7 @@
 ﻿#include "MCFoodActor.h"
 #include "MCToothCharacter.h"
+#include "MCGameMode.h"
+#include "MCPlayerState.h"
 #include "MCFoodBodyComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
@@ -166,6 +168,7 @@ bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
     }
     if (!Hero->Grip || !Hero->Grip->BeginGrip(this)) return false;
     Holders.Add(Hero); Hero->HeldFood=Hero->Grip->Frame.Food;
+    LastHandledBy=Hero->GetPlayerState<AMCPlayerState>();
     AttendFood();
     Hero->ForceNetUpdate(); ForceNetUpdate(); return true;
 }
@@ -274,6 +277,12 @@ void AMCFoodActor::Dispose()
     for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]);
     if (IsValid(EquippedBy)) { EquippedBy->EquippedBrush=nullptr; EquippedBy->ForceNetUpdate(); } EquippedBy=nullptr;
     Phase=EMCFoodPhase::Disposed; OnRep_Phase(); ForceNetUpdate(); SetLifeSpan(IsHazardResolved()?3:0);
+}
+void AMCFoodActor::AwardDelivery()
+{
+    if (!HasAuthority() || bDeliveryScored || bBrushTool || IsWrongIngredient()) return;
+    bDeliveryScored=true;
+    if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
 }
 void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
 {

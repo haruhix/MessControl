@@ -71,19 +71,22 @@ void AMCDayDirector::DirtyMouth(bool bCoffee)
     TArray<AMCMouthSurface*> Existing; for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (!It->bUlcer) Existing.Add(*It);
     for (auto* Patch:Existing) Patch->Destroy();
     TArray<AMCTongue*> Tongues; for (TActorIterator<AMCTongue> It(GetWorld());It;++It) Tongues.Add(*It);
+    TArray<FVector> Placed;
+    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->bUlcer) Placed.Add(It->GetActorLocation());
     for (int32 I=0;I<Settings->SurfacePatches;++I)
     {
-        const FVector P(-700+(I%5)*330+Random.FRandRange(-60,60),-340+(I/5)*260+Random.FRandRange(-55,55),350);
-        FHitResult Floor; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCDirtFloor));
-        // A pawn or food can occupy the spawn point. Find the tongue directly so
-        // the stain never projects onto their collision and loses its floor binding.
-        bool FoundFloor=false;
-        for (const auto* Tongue:Tongues) if (Tongue->SurfacePoint(P,Floor)) { FoundFloor=true; break; }
-        if (!FoundFloor) FoundFloor=GetWorld()->LineTraceSingleByObjectType(Floor,P,P-FVector(0,0,600),FCollisionObjectQueryParams(ECC_WorldStatic),Params);
-        const FVector Location=FoundFloor?Floor.ImpactPoint+FVector(0,0,5):FVector(P.X,P.Y,5);
-        const FRotator Rotation=Floor.bBlockingHit?FRotationMatrix::MakeFromZ(Floor.ImpactNormal).Rotator():FRotator::ZeroRotator;
-        auto* Patch=GetWorld()->SpawnActor<AMCMouthSurface>(Location,Rotation);
-        if (Patch) { Patch->Status->ApplyCoffee(bCoffee?1.f:.5f); Patch->Batch=GS->StepIndex; }
+        const float HalfSize=Random.FRandRange(55.f,175.f);
+        FHitResult Floor; bool FoundFloor=false;
+        for(auto* Tongue:Tongues)
+            if(Tongue->RandomInteriorPoint(Random,HalfSize*1.415f+40,HalfSize*1.6f+90,Placed,Floor)) {FoundFloor=true;break;}
+        if(!FoundFloor) {UE_LOG(LogTemp,Warning,TEXT("MC_DIRT_SPAWN no interior tongue footprint for patch %d"),I);continue;}
+        const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
+        auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+        if(Patch) {
+            Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=HalfSize; Patch->Batch=GS->StepIndex;
+            Patch->FinishSpawning(Pose); Patch->Status->ApplyCoffee(bCoffee?1.f:.5f); Patch->ForceNetUpdate();
+            Placed.Add(Floor.ImpactPoint);
+        }
     }
 }
 AMCFoodActor* AMCDayDirector::SpawnMenuFood(FVector Position,int32 Batch)

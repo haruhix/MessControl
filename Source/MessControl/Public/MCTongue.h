@@ -47,6 +47,9 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue|Yawn") bool bAutomaticYawns=true;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue") void ResetPain();
     bool SurfacePoint(FVector WorldPoint,FHitResult& Hit) const;
+    // Shared spawn footprint for stains, vomit and ice on the authored arena.
+    bool InteriorSurfacePoint(FVector WorldPoint,float Margin,FHitResult& Hit) const;
+    bool RandomInteriorPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit);
     // Stable support for permanent coatings: breathing, pressure and pain waves
     // must not give server and clients different grime layouts.
     bool RestSurfacePoint(FVector WorldPoint,FVector& Point) const;
@@ -62,6 +65,7 @@ private:
         FVector Normal=FVector::UpVector;
     };
     TMap<TWeakObjectPtr<class AMCFoodActor>,FFoodSupport> FoodSupports;
+    TArray<FVector> RecentSpawnPoints;
     void GatherPressure(float Dt);
     void UpdatePressureField(float Dt);
     bool PressureSupport(AActor* Actor,FVector Center,float Bottom,FHitResult& Hit) const;

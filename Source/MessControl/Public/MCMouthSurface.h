@@ -82,6 +82,7 @@ private:
     TArray<FVector2D> LiquidUV;
     TArray<FProcMeshTangent> LiquidTangents;
     TMap<TWeakObjectPtr<AActor>,FVector2D> PreviousBrush;
+    TArray<float> WipeFractional;
     TWeakObjectPtr<AMCTongue> BoundTongue;
     float Finish=0,TextureElapsed=0,GeometryElapsed=0,BrushClock=0;
     bool bWipeDirty=true;

@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine/DataAsset.h"
+#include "Components/StaticMeshComponent.h"
 #include "MCColdCola.generated.h"
 class AMCCoffeeFlood;
 class AMCLocomotionSurface;
@@ -9,6 +10,16 @@ class UStaticMeshComponent;
 class AMCToothCharacter;
 class UMCCoffeeProfile;
 class UNiagaraComponent;
+class UStaticMesh;
+class UMaterialInterface;
+
+UCLASS()
+class UMCIceSurfaceComponent : public UStaticMeshComponent
+{
+    GENERATED_BODY()
+protected:
+    virtual bool UsePSOPrecacheRenderProxyDelay() const override { return false; }
+};
 
 UCLASS(BlueprintType)
 class MESSCONTROL_API UMCColdColaProfile : public UPrimaryDataAsset
@@ -42,6 +53,11 @@ public:
     bool HitWithPickaxe(AMCToothCharacter* Hero,float Damage);
     UFUNCTION() void RefreshAppearance();
     UFUNCTION(NetMulticast,Reliable) void Shatter(FVector Position,float Diameter);
+private:
+    // Hard default references retain Engine shapes in cooked games.
+    UPROPERTY() TArray<TObjectPtr<UStaticMesh>> ShapeMeshes;
+    UPROPERTY() TObjectPtr<UMaterialInterface> IceMaterial;
+    UPROPERTY(Transient) TObjectPtr<class UMaterialInstanceDynamic> IceMID;
 };
 
 /** Shared timeline event: top-down cola, growing frost, slippery ground, falling ice. */
@@ -67,8 +83,10 @@ public:
     UPROPERTY() TObjectPtr<AMCLocomotionSurface> SlipperyFloor;
 private:
     int32 Spawned=0;
+    double NextIceAttempt=0;
     FVector Center=FVector::ZeroVector,Extent=FVector(1050,740,220);
     TArray<TWeakObjectPtr<AMCIceBlock>> Blocks;
+    TArray<FVector> SpawnPositions;
     void SetFrost(float Amount);
     double Now() const;
 };

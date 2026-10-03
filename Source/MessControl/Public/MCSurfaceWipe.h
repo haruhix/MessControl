@@ -18,18 +18,26 @@ struct FMCSurfaceWipe
                 (I?P.X-X:1-P.X+X)*(J?P.Y-Y:1-P.Y+Y)*(K?P.Z-Z:1-P.Z+Z);
         return V;
     }
-    static bool Stroke(TArray<uint8>& Mask,FVector From,FVector To,FVector Dimensions,float Radius,float Seconds)
+    static bool Stroke(TArray<uint8>& Mask,FVector From,FVector To,FVector Dimensions,float Radius,float Seconds,TArray<float>* PreciseMask=nullptr)
     {
         if (Mask.Num()!=Count || From.ContainsNaN() || To.ContainsNaN() || Dimensions.ContainsNaN() ||
             Dimensions.GetMin()<=0 || !FMath::IsFinite(Radius) || Radius<=0 || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
         bool Changed=false;
+        if (PreciseMask && PreciseMask->Num()!=Count) {
+            PreciseMask->SetNumUninitialized(Count);
+            for(int32 I=0;I<Count;++I) (*PreciseMask)[I]=Mask[I];
+        }
         for (int32 Z=0;Z<Size;++Z) for (int32 Y=0;Y<Size;++Y) for (int32 X=0;X<Size;++X)
         {
             const FVector P=FVector(X,Y,Z)/double(Size-1)*Dimensions;
             const float Distance=FMath::PointDistToSegment(P,From*Dimensions,To*Dimensions);
             const float Weight=1-FMath::SmoothStep(Radius*.45f,Radius,Distance);
             const int32 I=Index(X,Y,Z);
-            const uint8 Next=FMath::Max(0,int32(Mask[I])-FMath::RoundToInt(Weight*FMath::Min(Seconds,.1f)*950));
+            const float Amount=Weight*FMath::Min(Seconds,.1f)*950;
+            // Preserve fractional work on the server; quantize only the replicated mask.
+            const float Value=FMath::Max(0.f,(PreciseMask?(*PreciseMask)[I]:float(Mask[I]))-Amount);
+            if(PreciseMask) (*PreciseMask)[I]=Value;
+            const uint8 Next=FMath::Clamp(FMath::RoundToInt(Value),0,255);
             Changed|=Next!=Mask[I]; Mask[I]=Next;
         }
         return Changed;

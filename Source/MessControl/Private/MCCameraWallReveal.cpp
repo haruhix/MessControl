@@ -32,7 +32,9 @@ void AMCToothCharacter::ClearCameraWallReveal()
 
 void AMCToothCharacter::UpdateCameraWallReveal(float Dt,const FVector& Eye,const FVector& Focus)
 {
-    if (!bCameraWallReveal || !IsLocallyControlled()) { ClearCameraWallReveal(); return; }
+    // UpdateMouthCamera calls this only for the local controller's view target,
+    // including a remote pawn being followed after the viewer dies.
+    if (!bCameraWallReveal) { ClearCameraWallReveal(); return; }
     const double Now=GetWorld()->GetTimeSeconds();
     if (Now>=NextCameraWallScan) {
         NextCameraWallScan=Now+.5;

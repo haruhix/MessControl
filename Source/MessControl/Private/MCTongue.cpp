@@ -294,7 +294,46 @@ bool AMCTongue::SurfacePoint(FVector P,FHitResult& Hit) const
 {
     FCollisionQueryParams Params(SCENE_QUERY_STAT(MCTongueSurface),true);
     Params.bReturnFaceIndex=true;
-    return Surface->LineTraceComponent(Hit,P+FVector(0,0,1200),P-FVector(0,0,1600),Params);
+    const FBox Bounds=Surface->Bounds.GetBox();
+    const FVector Start(P.X,P.Y,FMath::Max(P.Z+1200,Bounds.Max.Z+100));
+    const FVector End(P.X,P.Y,FMath::Min(P.Z-1600,Bounds.Min.Z-100));
+    return Surface->LineTraceComponent(Hit,Start,End,Params);
+}
+bool AMCTongue::InteriorSurfacePoint(FVector P,float Margin,FHitResult& Hit) const
+{
+    if(P.ContainsNaN() || !FMath::IsFinite(Margin) || Margin<0 || !SurfacePoint(P,Hit)
+        || Hit.ImpactNormal.Z<.65f) return false;
+    // Validate the entire footprint against tissue, including concave sides of
+    // a replacement tongue. A rectangular bounds inset alone misses those edges.
+    for(int32 I=0;I<8;++I)
+    {
+        const float Angle=I*PI/4;
+        FHitResult Rim;
+        if(!SurfacePoint(Hit.ImpactPoint+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Margin,Rim)
+            || Rim.ImpactNormal.Z<.65f || FMath::Abs(Rim.ImpactPoint.Z-Hit.ImpactPoint.Z)>Margin*.8f+20) return false;
+    }
+    return true;
+}
+bool AMCTongue::RandomInteriorPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit)
+{
+    if(!HasAuthority() || Positions.IsEmpty() || !FMath::IsFinite(Margin) || Margin<0
+        || !FMath::IsFinite(Separation) || Separation<0) return false;
+    const FBox Bounds=Surface->Bounds.GetBox();
+    if(!Bounds.IsValid || Bounds.GetSize().X<=Margin*2 || Bounds.GetSize().Y<=Margin*2) return false;
+    for(int32 Attempt=0;Attempt<128;++Attempt)
+    {
+        const FVector Candidate(Random.FRandRange(Bounds.Min.X+Margin,Bounds.Max.X-Margin),
+            Random.FRandRange(Bounds.Min.Y+Margin,Bounds.Max.Y-Margin),Bounds.GetCenter().Z);
+        bool Near=false;
+        for(const FVector& P:Excluded) Near|=FVector::DistSquared2D(Candidate,P)<FMath::Square(Separation);
+        // Remember recent event locations after their patches have been removed.
+        for(const FVector& P:RecentSpawnPoints) Near|=FVector::DistSquared2D(Candidate,P)<FMath::Square(FMath::Min(Separation,160.f));
+        if(Near || !InteriorSurfacePoint(Candidate,Margin,Hit)) continue;
+        RecentSpawnPoints.Add(Hit.ImpactPoint);
+        if(RecentSpawnPoints.Num()>32) RecentSpawnPoints.RemoveAt(0,RecentSpawnPoints.Num()-32);
+        return true;
+    }
+    return false;
 }
 bool AMCTongue::RestSurfacePoint(FVector P,FVector& Point) const
 {

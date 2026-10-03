@@ -1,4 +1,7 @@
 #include "MCGameplayHUD.h"
+#include "MCStaminaWidget.h"
+#include "MCPlayerState.h"
+#include "MCPlayerController.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
@@ -16,6 +19,8 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Components/Image.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Styling/CoreStyle.h"
 #include "GameFramework/GameStateBase.h"
@@ -72,13 +77,14 @@ struct FHUDPainter
             Line({{X,Y+3*Size},{X,Y+17*Size}},Ink,3*Size);
         }
     }
-    void Face(float X,float Y,float Size,bool Dead,bool Sad,bool Happy,float Time) const {
+    void Face(float X,float Y,float Size,bool Dead,bool Sad,bool Happy,float Time,FLinearColor PlayerTint) const {
         const float Bob=Dead?0:Happy?FMath::Sin(Time*9)*2:FMath::Sin(Time*2)*.65f;
         Y+=Bob;
         // A two-crown silhouette with separate roots, kept readable at portrait size.
-        Box(X-22*Size,Y-22*Size,44*Size,41*Size,Dead?FLinearColor(.39f,.41f,.43f):White,13*Size);
-        Box(X-19*Size,Y+3*Size,15*Size,32*Size,Dead?FLinearColor(.39f,.41f,.43f):White,7*Size);
-        Box(X+4*Size,Y+3*Size,15*Size,32*Size,Dead?FLinearColor(.39f,.41f,.43f):White,7*Size);
+        const FLinearColor BodyTint=Dead?PlayerTint.Desaturate(.8f)*.6f:PlayerTint;
+        Box(X-22*Size,Y-22*Size,44*Size,41*Size,BodyTint,13*Size);
+        Box(X-19*Size,Y+3*Size,15*Size,32*Size,BodyTint,7*Size);
+        Box(X+4*Size,Y+3*Size,15*Size,32*Size,BodyTint,7*Size);
         const FLinearColor Eye(.028f,.030f,.043f);
         for(float DX:{-9.f,9.f}) {
             if(Dead) { Line({{X+(DX-4)*Size,Y-6*Size},{X+(DX+4)*Size,Y+2*Size}},Eye,3*Size); Line({{X+(DX+4)*Size,Y-6*Size},{X+(DX-4)*Size,Y+2*Size}},Eye,3*Size); }
@@ -93,13 +99,34 @@ int32 UMCHUDIcon::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,c
 {
     const float S=FMath::Min(Geometry.GetLocalSize().X/80,Geometry.GetLocalSize().Y/80);
     MCGameplayHUDPrivate::FHUDPainter P{Geometry,Elements,Layer,S};
-    if(bTooth) P.Face(40,34,.95f,bDead,bSad,bHappy,GetWorld()?GetWorld()->GetTimeSeconds():0);
+    if(bTooth) {
+        P.Face(40,34,.95f,bDead,bSad,bHappy,GetWorld()?GetWorld()->GetTimeSeconds():0,Tint);
+        if(bHost) P.Line({{26,9},{23,1},{32,6},{40,0},{48,6},{57,1},{54,9},{26,9}},MCGameplayHUDPrivate::Amber,3);
+    }
     else P.Tool(40,40,ToolSlot,Tint,1.15f);
     return Layer+3;
+}
+void UMCGameplayHUD::NativeOnInitialized()
+{
+    Super::NativeOnInitialized();
+    if(GetOwningPlayer() && !StaminaWidget)
+    {
+        auto* Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
+        if(!Root)
+        {
+            UWidget* Existing=WidgetTree->RootWidget;
+            Root=WidgetTree->ConstructWidget<UCanvasPanel>();WidgetTree->RootWidget=Root;
+            if(Existing) {auto* Full=Root->AddChildToCanvas(Existing);Full->SetAnchors(FAnchors(0,0,1,1));Full->SetOffsets(FMargin(0));}
+        }
+        StaminaWidget=CreateWidget<UMCStaminaWidget>(GetOwningPlayer(),StaminaWidgetClass?StaminaWidgetClass.Get():UMCStaminaWidget::StaticClass());
+        auto* StaminaSlot=Root->AddChildToCanvas(StaminaWidget);StaminaSlot->SetAnchors(FAnchors(.5f,1));StaminaSlot->SetAlignment(FVector2D(.5f,1));
+        StaminaSlot->SetPosition(FVector2D(0,-138));StaminaSlot->SetSize(FVector2D(250,58));
+    }
 }
 void UMCGameplayHUD::NativeConstruct()
 {
     Super::NativeConstruct();
+    Widgets.Reset();
     TArray<UWidget*> All; WidgetTree->GetAllWidgets(All);
     for(auto* Widget:All) Widgets.Add(Widget->GetFName(),Widget);
     RefreshState();
@@ -116,6 +143,7 @@ void UMCGameplayHUD::RefreshState()
     namespace HUD = MCGameplayHUDPrivate;
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr; if(!GS) return;
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+    if(StaminaWidget) StaminaWidget->Refresh();
     auto Text=[&](FName Name,const FString& Value) { if(auto* T=Cast<UTextBlock>(Find(Name));T && !T->GetText().ToString().Equals(Value)) T->SetText(FText::FromString(Value)); };
     auto Bar=[&](FName Name,float Value) { if(auto* B=Cast<UProgressBar>(Find(Name))) B->SetPercent(FMath::Clamp(Value,0.f,1.f)); };
     auto Show=[&](FName Name,bool Visible) { if(auto* W=Find(Name)) W->SetVisibility(Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed); };
@@ -147,13 +175,15 @@ void UMCGameplayHUD::RefreshState()
     if(auto* T=Cast<UTextBlock>(Find(TEXT("TimerValue")))) T->SetColorAndOpacity(FSlateColor(Timed && Seconds<10?HUD::Amber:HUD::White));
     TArray<APlayerState*> Players; for(const auto& Player:GS->PlayerArray) if(IsValid(Player)) Players.Add(Player.Get());
     Players.Sort([](const APlayerState& A,const APlayerState& B){return A.GetPlayerId()<B.GetPlayerId();});
-    const FLinearColor Colors[]={HUD::Blue,FLinearColor(1,.27f,.31f),HUD::Amber,HUD::Mint};
     if(auto* Strip=Find(TEXT("PlayersPanel"))) Strip->SetRenderTranslation(FVector2D(76*(4-FMath::Min(4,Players.Num())),0));
     for(int32 I=0;I<4;++I) {
         const FString N=FString::Printf(TEXT("Player%d"),I+1); Show(FName(N),Players.IsValidIndex(I)); if(!Players.IsValidIndex(I)) continue;
         const auto* Tooth=Cast<AMCToothCharacter>(Players[I]->GetPawn()); const bool Dead=Tooth && !Tooth->Status->IsAlive();
-        Color(FName(N+TEXT("Frame")),Dead?FLinearColor(.17f,.18f,.20f,.96f):Colors[I]);
+        const auto* State=Cast<AMCPlayerState>(Players[I]);
+        const FLinearColor PlayerTint=State?State->PlayerColor:Tooth?Tooth->GetPlayerColor():HUD::White;
+        Color(FName(N+TEXT("Frame")),Dead?PlayerTint.Desaturate(.8f)*.6f:PlayerTint);
         if(auto* Icon=Cast<UMCHUDIcon>(Find(FName(N+TEXT("Face"))))) {
+            Icon->Tint=PlayerTint;Icon->bHost=State && State->bSessionHost;
             Icon->bDead=Dead; Icon->bSad=Tooth && (Now-Tooth->TaskFailureAt<2.5 || Tooth->Status->State.Health<Tooth->Status->State.MaxHealth*.35f);
             Icon->bHappy=Tooth && Now-Tooth->TaskSuccessAt<2 && !Icon->bSad; Icon->InvalidateLayoutAndVolatility();
         }
@@ -186,7 +216,6 @@ void UMCGameplayHUD::RefreshState()
         if(Hero->HeldFood) Hint=TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
         if(Hero->bInCoffee) Hint=TEXT("WASD · ПЛЫТЬ     ЛКМ · ЗАЦЕПИТЬСЯ");
         if(const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement()); Move && Move->IsClimbing()) Hint=TEXT("WASD · ЛАЗАТЬ     E · ДЕРЖАТЬСЯ     SPACE · ОТПРЫГНУТЬ");
-        if(!Hero->Status->IsAlive()) Hint=GS->AvailableArenaTeeth()>0?FString::Printf(TEXT("ВОЗРОЖДЕНИЕ ЧЕРЕЗ %.0f С"),FMath::Max(0.,Hero->RespawnAt-Now)):TEXT("НЕТ ЗАПАСНЫХ ЗУБОВ");
         for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
             if(It->CanOrderJump(Hero)) Hint=TEXT("SPACE · ПРЫГНУТЬ НА ЯЗЫЧОК");
             if(It->ContainsPlayer(Hero)) {
@@ -196,6 +225,16 @@ void UMCGameplayHUD::RefreshState()
                 else if(It->ThroatPhase==EMCThroatPhase::Collecting) Hint=TEXT("ВНЕСИ СТОПКУ В ЗОНУ · ЕДА ОТПРАВИТСЯ САМА");
             }
         }
+        if(const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());PC && PC->IsSpectating())
+        {
+            const auto* Target=PC->GetSpectatorTarget();
+            const auto* Player=Target?Target->GetPlayerState():nullptr;
+            const FString Name=Player?Player->GetPlayerName():TEXT("ожидание игрока");
+            const float Respawn=PC->GetRespawnSecondsRemaining();
+            Hint=FString::Printf(TEXT("НАБЛЮДАЕШЬ: %s · ЛКМ / → СЛЕДУЮЩИЙ · ПКМ / ← ПРЕДЫДУЩИЙ%s"),*Name,
+                Respawn>0?*FString::Printf(TEXT(" · ВОЗРОЖДЕНИЕ %.0f С"),FMath::CeilToFloat(Respawn)):TEXT(""));
+        }
+        else if(!Hero->Status->IsAlive()) Hint=GS->AvailableArenaTeeth()>0?FString::Printf(TEXT("ВОЗРОЖДЕНИЕ ЧЕРЕЗ %.0f С"),FMath::Max(0.,Hero->RespawnAt-Now)):TEXT("НЕТ ЗАПАСНЫХ ЗУБОВ");
         Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Hero->ContactProgress>0); Bar(TEXT("ContactProgress"),Hero->ContactProgress);
     }
     Show(TEXT("ResultsPanel"),Finished); Text(TEXT("ResultTitle"),Title);

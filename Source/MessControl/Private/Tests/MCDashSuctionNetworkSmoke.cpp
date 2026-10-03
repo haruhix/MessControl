@@ -39,6 +39,7 @@ void MCTickDashSuctionValidation(UWorld* World)
         bool CaptureTapPressed=false,CaptureTapReleased=false;
         bool Placed=false,Delivered=false,Invalid=false,CapturedDash=false,CapturedSuction=false;
         uint8 Dash=0,Sprint=0,Face=0,Drift=0,Quiet=0,Lean=0,PoseRecovery=0;
+        uint8 StaminaEligible=0,StaminaDrained=0,StaminaRecovered=0;
         FVector Starts[4];
         bool Baseline[4]={};
         float MaxBodyAngle[4]={};
@@ -84,9 +85,11 @@ void MCTickDashSuctionValidation(UWorld* World)
                 (R.Lean&(1u<<I))!=0,(R.PoseRecovery&(1u<<I))!=0);
         }
         const bool Pass=!R.Invalid && R.Dash==15 && R.Sprint==15 && R.Face==15 && R.Drift==15 && R.Quiet==15
+            && R.StaminaEligible!=0 && (Host?R.StaminaEligible==15:(R.StaminaEligible&(R.StaminaEligible-1))==0)
+            && R.StaminaDrained==R.StaminaEligible && R.StaminaRecovered==R.StaminaEligible
             && (!Rendered || (R.Lean==15 && R.PoseRecovery==15 && BoundedLean));
-        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s DASH_SUCTION net=%d dash=%d sprint=%d face=%d drift=%d quiet=%d lean=%d pose_recovery=%d rendered=%d maxSpeed=%.2f invalid=%d"),
-            Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),R.Dash,R.Sprint,R.Face,R.Drift,R.Quiet,R.Lean,R.PoseRecovery,Rendered,R.MaxSpeed,R.Invalid);
+        UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s DASH_SUCTION net=%d dash=%d sprint=%d face=%d drift=%d quiet=%d lean=%d pose_recovery=%d rendered=%d maxSpeed=%.2f stamina_eligible=%d stamina_drained=%d stamina_recovered=%d invalid=%d"),
+            Pass?TEXT("PASS"):TEXT("FAIL"),int32(World->GetNetMode()),R.Dash,R.Sprint,R.Face,R.Drift,R.Quiet,R.Lean,R.PoseRecovery,Rendered,R.MaxSpeed,R.StaminaEligible,R.StaminaDrained,R.StaminaRecovered,R.Invalid);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     };
     if(T>(Host?16.5:15) || R.Age>90) {Finish();return;}
@@ -200,6 +203,21 @@ void MCTickDashSuctionValidation(UWorld* World)
     for(int32 I=0;I<4;++I) {
         auto* H=Heroes[I];auto* Move=CastChecked<UMCToothMovementComponent>(H->GetCharacterMovement());const uint8 Bit=uint8(1u<<I);
         R.Invalid|=H->GetActorLocation().ContainsNaN() || Move->Velocity.ContainsNaN();
+        // Simulated proxies do not own a stamina ledger. Check all four server
+        // ledgers and the actual owner's prediction independently on each peer.
+        if(H->HasAuthority() || H==Own) {
+            R.StaminaEligible|=Bit;
+            const bool DrainPhase=T>=3.7 && T<4.2,RecoveryPhase=T>=13.5 && T<14.5;
+            if(DrainPhase || RecoveryPhase) {
+                const float Stamina=Move->GetStaminaPrediction().Value,Maximum=Move->GetMaxStamina();
+                R.Invalid|=!FMath::IsFinite(Stamina) || Stamina<0 || Stamina>Maximum+.01f
+                    || (DrainPhase?Stamina>=85.f:Stamina<99.f);
+                uint8& Samples=DrainPhase?R.StaminaDrained:R.StaminaRecovered;
+                if(!(Samples&Bit)) UE_LOG(LogTemp,Display,TEXT("MC_DASH_STAMINA phase=%s t=%.3f net=%d slot=%d authority=%d owner=%d value=%.3f maximum=%.3f exhausted=%d"),
+                    DrainPhase?TEXT("drained"):TEXT("recovered"),T,int32(World->GetNetMode()),I,H->HasAuthority(),H==Own,Stamina,Maximum,Move->GetStaminaPrediction().Exhausted);
+                Samples|=Bit;
+            }
+        }
         if(Rendered && T>.8 && T<3) {
             auto* Mesh=H->GetMesh();auto* Anim=Cast<UMCToothAnimInstance>(Mesh->GetAnimInstance());
             const auto* Asset=Mesh->GetSkeletalMeshAsset();

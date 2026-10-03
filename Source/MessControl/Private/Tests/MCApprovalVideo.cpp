@@ -63,7 +63,7 @@ void MCTickApprovalValidation(UWorld* World)
         TWeakObjectPtr<UWorld> World; TWeakObjectPtr<ACameraActor> Camera;
         TWeakObjectPtr<AMCArenaTooth> Tooth; TWeakObjectPtr<AMCCoffeeFlood> Coffee; TWeakObjectPtr<AMCColdColaEvent> Cola;
         TArray<TWeakObjectPtr<AMCIceBlock>> Blocks;
-        double At=0,StageAt=0; float Age=0,StartZ=0,StartY=0,SwimSeconds=0,Slide=0; FVector StartP;
+        double At=0,StageAt=0; float Age=0,StartZ=0,StartY=0,SwimSeconds=0,Slide=0,SlideDriven=0; FVector StartP,SlideLaneEnd;
         int32 Stage=-1,BlockIndex=0,PlacedBlock=-1,PoseSamples=0,EnamelSamples=0; float LowestPickClearance=MAX_flt,LowestEnamelClearance=MAX_flt;
         bool Failed=false,Climbed=false,Hung=false,Sideways=false,Mantled=false,Jumped=false,Slippery=false,ToolVisible=true;
         bool ClimbStartedWalking=false,ClimbPressSent=false,SwamBeforeClimb=false,ClimbedFromSwim=false,JumpLeftWall=false;
@@ -237,7 +237,9 @@ void MCTickApprovalValidation(UWorld* World)
             H->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
             R.WallContactMask=0;R.LimbMotionMask=0;R.LimbBaseline=false;
             for(float& Distance:R.ClosestClimbContacts) Distance=MAX_flt;
-            auto* Plan=DuplicateObject<UMCDayPlan>(GS->DayPlan,World);Plan->FloodHeight=float(Sole.Z+120);
+            auto* Plan=DuplicateObject<UMCDayPlan>(GS->DayPlan,World);
+            // Start adds the tongue's highest bound; keep this fixture's water 120 cm above its approach.
+            Plan->FloodHeight=float(Sole.Z+120-Tongue->Surface->Bounds.GetBox().Max.Z);
             R.Coffee=World->SpawnActor<AMCCoffeeFlood>();R.Coffee->Start(Plan);
             R.Coffee->WaterSettings.DryHeight=float(Sole.Z-40);R.Coffee->WaterSettings.FillSeconds=15;R.Coffee->WaterSettings.DrainSeconds=10;
             R.Coffee->WaterSettings.RippleHeight=3;R.Coffee->WaterSettings.FrontHeight=0;R.Coffee->Flow=0;R.Coffee->WaterSettings.DrainAcceleration=0;
@@ -279,12 +281,42 @@ void MCTickApprovalValidation(UWorld* World)
         if(T>9 && R.Stage==0) {
             Check(R.Cola->FrostAmount()>.9f,TEXT("whole arena frost reaches full strength"));
             for(TActorIterator<AMCIceBlock> It(World);It;++It) R.Blocks.Add(*It);
-            Check(R.Blocks.Num()>=3,TEXT("ice falls in multiple arbitrary shapes")); R.Stage=1; R.StageAt=Now;
-            Place(Floor(FVector(-800,-100,0))+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3));
+            Check(R.Blocks.Num()>=3,TEXT("ice falls in multiple arbitrary shapes"));
+            const float Radius=H->GetCapsuleComponent()->GetScaledCapsuleRadius(),Half=H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+            FRandomStream Random(41); bool LaneFound=false;
+            FCollisionQueryParams Query(SCENE_QUERY_STAT(MCApprovalColaLane),true,H); Query.AddIgnoredActor(Tongue);
+            // Random ice can occupy the old fixed route. Sweep a real capsule lane
+            // above the projected tongue, retaining every ice and wall obstacle.
+            for(int32 Attempt=0;Attempt<64 && !LaneFound;++Attempt) {
+                FHitResult StartFloor;
+                if(!Tongue->RandomInteriorPoint(Random,Radius+60,0,TConstArrayView<FVector>(),StartFloor)) continue;
+                FVector Previous=FVector::ZeroVector; bool Clear=true;
+                for(int32 Sample=0;Sample<=9;++Sample) {
+                    FHitResult Ground;
+                    if(!Tongue->InteriorSurfacePoint(StartFloor.ImpactPoint+FVector(Sample*50,0,0),Radius+40,Ground)
+                        || Ground.ImpactNormal.Z<.85f) {Clear=false;break;}
+                    const FVector P=Ground.ImpactPoint+FVector(0,0,Half+3);
+                    FHitResult Obstacle;
+                    const FCollisionShape Capsule=FCollisionShape::MakeCapsule(Radius+5,Half);
+                    if(Sample==0?World->OverlapBlockingTestByChannel(P,FQuat::Identity,ECC_Visibility,Capsule,Query)
+                        :World->SweepSingleByChannel(Obstacle,Previous,P,FQuat::Identity,ECC_Visibility,Capsule,Query)) {Clear=false;break;}
+                    if(Sample==0) R.StartP=P;
+                    Previous=P;
+                }
+                if(Clear) {LaneFound=true;R.SlideLaneEnd=Previous;}
+            }
+            Check(LaneFound,TEXT("unobstructed interior tongue lane exists for the frost slide"));
+            if(!LaneFound) {Finish();return;}
+            Place(R.StartP); View((R.StartP+R.SlideLaneEnd)*.5,FVector(-800,-650,520));
+            R.Slippery=false; R.Slide=R.SlideDriven=0; R.Stage=1; R.StageAt=Now;
         } else if(R.Stage==1) {
-            if(S<1.2) H->AddMovementInput(FVector(1,0,0));
+            if(S<1.2) {H->AddMovementInput(FVector(1,0,0));R.SlideDriven=FMath::Max(R.SlideDriven,float(Move->Velocity.Size2D()));}
             else if(S<2.4) {R.Slide=FMath::Max(R.Slide,float(Move->Velocity.Size2D()));}
-            if(S>3) {Check(R.Slippery && R.Slide>30,TEXT("frost gives sliding inertia after input release")); R.Stage=2; R.StageAt=Now;}
+            if(S>3) {
+                UE_LOG(LogTemp,Display,TEXT("MC_COLA_SLIDE slippery=%d driven_speed=%.1f released_speed=%.1f ground=%d mode=%d position=%s lane_start=%s lane_end=%s"),
+                    R.Slippery,R.SlideDriven,R.Slide,int32(Move->GroundSurface),int32(Move->MovementMode),*H->GetActorLocation().ToString(),*R.StartP.ToString(),*R.SlideLaneEnd.ToString());
+                Check(R.Slippery && R.Slide>30,TEXT("frost gives sliding inertia after input release")); R.Stage=2; R.StageAt=Now;
+            }
         } else if(R.Stage==2 && R.BlockIndex<R.Blocks.Num()) {
             auto* Ice=R.Blocks[R.BlockIndex].Get();
             if(!Ice || Ice->bBroken) {++R.BlockIndex; R.StageAt=Now;}

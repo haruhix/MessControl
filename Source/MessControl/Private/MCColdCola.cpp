@@ -5,6 +5,9 @@
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCGameMode.h"
+#include "MCPlayerState.h"
+#include "Engine/StaticMesh.h"
 #include "MCTongue.h"
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -18,22 +21,28 @@
 #include "NiagaraSystem.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
+#include "UObject/ConstructorHelpers.h"
 
 AMCIceBlock::AMCIceBlock()
 {
     bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true);
-    Body=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("IceBody")); SetRootComponent(Body);
+    Body=CreateDefaultSubobject<UMCIceSurfaceComponent>(TEXT("IceBody")); SetRootComponent(Body);
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Cube(TEXT("/Engine/BasicShapes/Cube.Cube"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> Cylinder(TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> Material(TEXT("/Game/Gameplay/Cold/M_StylizedIce.M_StylizedIce"));
+    ShapeMeshes={Cube.Object,Sphere.Object,Cylinder.Object}; IceMaterial=Material.Object;
+    Body->SetStaticMesh(Cube.Object); Body->SetMaterial(0,IceMaterial);
     Body->SetCollisionProfileName(TEXT("PhysicsActor")); Body->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
     Body->SetLinearDamping(2.f); Body->SetAngularDamping(4.f); Body->BodyInstance.bUseCCD=true;
 }
 void AMCIceBlock::BeginPlay() { Super::BeginPlay(); RefreshAppearance(); }
 void AMCIceBlock::RefreshAppearance()
 {
-    static const TCHAR* Paths[]={TEXT("/Engine/BasicShapes/Cube.Cube"),TEXT("/Engine/BasicShapes/Sphere.Sphere"),TEXT("/Engine/BasicShapes/Cylinder.Cylinder")};
-    if(auto* Mesh=LoadObject<UStaticMesh>(nullptr,Paths[FMath::Clamp(Shape,0,2)])) Body->SetStaticMesh(Mesh);
+    if(ShapeMeshes.IsValidIndex(FMath::Clamp(Shape,0,2))) Body->SetStaticMesh(ShapeMeshes[FMath::Clamp(Shape,0,2)]);
     Body->SetWorldScale3D(Size.ComponentMax(FVector(5))/100);
-    Body->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Cold/M_StylizedIce.M_StylizedIce")));
-    if(auto* Mat=Body->CreateDynamicMaterialInstance(0)) Mat->SetScalarParameterValue(TEXT("DamageAmount"),1-FMath::Clamp(Health/FMath::Max(1.f,MaxHealth),0.f,1.f));
+    if(!IceMID) IceMID=Body->CreateDynamicMaterialInstance(0,IceMaterial);
+    if(IceMID) IceMID->SetScalarParameterValue(TEXT("DamageAmount"),1-FMath::Clamp(Health/FMath::Max(1.f,MaxHealth),0.f,1.f));
     Body->SetVisibility(!bBroken); if(bBroken) Body->SetSimulatePhysics(false);
     Body->SetCollisionEnabled(bBroken?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
     Body->SetSimulatePhysics(HasAuthority() && !bBroken);
@@ -46,7 +55,10 @@ bool AMCIceBlock::HitWithPickaxe(AMCToothCharacter* Hero,float Damage)
     const FVector Offset=Point-Hero->GetActorLocation();
     if(Offset.SizeSquared()>FMath::Square(180.f) || FVector::DotProduct(Offset.GetSafeNormal2D(),Hero->GetActorForwardVector())<.25f || !Hero->CanContact(this)) return false;
     Health=FMath::Max(0.f,Health-Damage); bBroken=Health<=0; ForceNetUpdate();
-    if(bBroken) { Shatter(Body->Bounds.Origin,Size.GetMax()); SetLifeSpan(3); }
+    if(bBroken) {
+        Shatter(Body->Bounds.Origin,Size.GetMax()); SetLifeSpan(3);
+        if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Hero,EMCScoreTask::Ice);
+    }
     RefreshAppearance(); return true;
 }
 void AMCIceBlock::Shatter_Implementation(FVector Position,float Diameter)
@@ -65,7 +77,9 @@ void AMCColdColaEvent::Start(const UMCDayPlan* Plan)
 {
     if(!HasAuthority() || !Plan) return;
     Stop(); Profile=Plan->ColdColaProfile.LoadSynchronous(); if(!Profile) Profile=NewObject<UMCColdColaProfile>(this);
-    Center=Plan->ArenaCenter; Extent=Plan->ArenaHalfSize; Spawned=0; StartedAt=Now(); ThawStartedAt=0; bActive=true;
+    Center=Plan->ArenaCenter; Extent=Plan->ArenaHalfSize; Spawned=0; NextIceAttempt=0; SpawnPositions.Reset(); StartedAt=Now(); ThawStartedAt=0; bActive=true;
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) if(!It->CurrentVertices().IsEmpty())
+    {const FBox Bounds=It->Surface->Bounds.GetBox();Center=Bounds.GetCenter();Extent=Bounds.GetExtent();break;}
     auto* DrinkPlan=DuplicateObject<UMCDayPlan>(Plan,this); DrinkPlan->CoffeeProfile=Profile->Drink;
     if(DrinkPlan->CoffeeProfile.IsNull()) DrinkPlan->CoffeeProfile=TSoftObjectPtr<UMCCoffeeProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_ColdColaLiquid.DA_ColdColaLiquid")));
     Drink=GetWorld()->SpawnActor<AMCCoffeeFlood>(); Drink->Start(DrinkPlan);
@@ -89,10 +103,21 @@ void AMCColdColaEvent::Tick(float Dt)
 {
     Super::Tick(Dt); SetFrost(FrostAmount()); if(!HasAuthority() || !bActive || !Profile) return;
     const double Age=Now()-StartedAt;
-    if(Spawned<Profile->IceCount && Age>1.5+Spawned*.6) {
-        const int32 I=Spawned++; FVector P=Center+FVector(-500+(I%3)*380,-290+(I/3)*470,650);
-        const FTransform T(FRotator(8+I*11,I*31,12),P); auto* B=GetWorld()->SpawnActorDeferred<AMCIceBlock>(AMCIceBlock::StaticClass(),T);
-        if(B) { B->Shape=I%3; B->Size=FVector(Profile->IceSize)*(I%3==2?FVector(.8,.8,1.5):I==3?FVector(1.8,.65,.7):FVector::OneVector); B->Health=B->MaxHealth=Profile->IceHealth; B->FinishSpawning(T); Blocks.Add(B); }
+    if(Spawned<Profile->IceCount && Age>1.5+Spawned*.6 && Now()>=NextIceAttempt) {
+        NextIceAttempt=Now()+.5;
+        const int32 I=Spawned;
+        const FVector Size=FVector(Profile->IceSize)*(I%3==2?FVector(.8,.8,1.5):I==3?FVector(1.8,.65,.7):FVector::OneVector);
+        FRandomStream Random(HashCombine(GetTypeHash(StartedAt),GetTypeHash(I)));
+        FHitResult Floor; bool Found=false;
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It)
+            if(It->RandomInteriorPoint(Random,Size.GetMax()+60,Size.GetMax()*2+60,SpawnPositions,Floor)) {Found=true;break;}
+        if(Found) {
+            FVector P=Floor.ImpactPoint+FVector(0,0,650);
+            if(Drink) P.Z=FMath::Max(P.Z,double(Drink->SurfaceHeightAt(P)+450));
+            const FTransform T(FRotator(8+I*11,I*31,12),P);
+            auto* B=GetWorld()->SpawnActorDeferred<AMCIceBlock>(AMCIceBlock::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+            if(B) { B->Shape=I%3; B->Size=Size; B->Health=B->MaxHealth=Profile->IceHealth; B->FinishSpawning(T); Blocks.Add(B); SpawnPositions.Add(Floor.ImpactPoint); ++Spawned; }
+        }
     }
     if(ThawStartedAt<=0 && ((Spawned>=Profile->IceCount && IceLeft()==0 && (!Drink || !Drink->IsActive())) || Age>=Profile->ColdSeconds)) {
         ThawStartedAt=Now(); if(SlipperyFloor) { SlipperyFloor->Destroy(); SlipperyFloor=nullptr; } ForceNetUpdate();

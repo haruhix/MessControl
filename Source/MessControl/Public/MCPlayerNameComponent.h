@@ -2,9 +2,12 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/WidgetComponent.h"
+#include "MCPresentationTypes.h"
 #include "MCPlayerNameComponent.generated.h"
 
 class UTextBlock;
+class UBorder;
+class UMCHUDIcon;
 
 UCLASS()
 class MESSCONTROL_API UMCPlayerNameWidget : public UUserWidget
@@ -13,10 +16,15 @@ class MESSCONTROL_API UMCPlayerNameWidget : public UUserWidget
 public:
     void SetPlayerName(const FString& Name);
     FString GetPlayerName() const;
+    void SetPresentation(FLinearColor Color,bool bHost,EMCPlayerAlarm Alarm);
 protected:
     virtual void NativeOnInitialized() override;
 private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> NameText;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> AlarmText;
+    UPROPERTY(Transient) TObjectPtr<UBorder> AlarmPanel;
+    UPROPERTY(Transient) TObjectPtr<UMCHUDIcon> PlayerIcon;
+    EMCPlayerAlarm PresentedAlarm=EMCPlayerAlarm::None;
 };
 
 /** Displays the replicated PlayerState name above the animated head. */

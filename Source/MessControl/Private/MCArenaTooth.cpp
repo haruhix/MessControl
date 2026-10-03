@@ -72,6 +72,7 @@ void AMCArenaTooth::ApplyAppearance()
     BrushSurface->SetStaticMesh(Appearance.Mesh);
     GrimeRelief->ClearAllMeshSections();
     GrimeSamples.Reset();
+    bGrimeReliefBuilt=false;
     const FBoxSphereBounds Bounds=Appearance.Mesh->GetBounds();
     MeshBaseScale=Appearance.MeshScale;
     MeshBaseLocation=-Bounds.Origin*MeshBaseScale;
