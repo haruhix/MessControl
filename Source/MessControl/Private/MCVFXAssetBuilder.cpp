@@ -9,13 +9,95 @@
 #include "Stateless/Modules/NiagaraStatelessModule_ScaleMeshSize.h"
 #include "Stateless/Modules/NiagaraStatelessModule_ScaleSpriteSize.h"
 #include "Stateless/Modules/NiagaraStatelessModule_MeshIndex.h"
+#include "Stateless/Modules/NiagaraStatelessModule_CurlNoiseForce.h"
+#include "Stateless/Modules/NiagaraStatelessModule_Drag.h"
 #include "NiagaraMeshRendererProperties.h"
+#include "NiagaraSpriteRendererProperties.h"
 #include "Materials/Material.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "UObject/SavePackage.h"
 #include "Misc/PackageName.h"
 #include "Engine/StaticMesh.h"
 #endif
+
+UNiagaraSystem* UMCVFXAssetBuilder::CreateAmbientParticles()
+{
+#if WITH_EDITOR
+    const FString Path=TEXT("/Game/Gameplay/VFX/Ambient/NS_AmbientParticles");
+    if(FPackageName::DoesPackageExist(Path))
+        return LoadObject<UNiagaraSystem>(nullptr,*(Path+TEXT(".NS_AmbientParticles")));
+    auto* Template=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Niagara/DefaultAssets/Templates/Systems/FountainLightweight.FountainLightweight"));
+    auto* Material=LoadObject<UMaterial>(nullptr,TEXT("/Game/Gameplay/VFX/Ambient/M_AmbientParticle.M_AmbientParticle"));
+    if(!Template || !Material) return nullptr;
+    auto* Package=CreatePackage(*Path);
+    auto* System=DuplicateObject<UNiagaraSystem>(Template,Package,TEXT("NS_AmbientParticles"));
+    System->SetFlags(RF_Public|RF_Standalone);System->ClearFlags(RF_Transient);
+    if(System->GetNumEmitters()!=1) return nullptr;
+    auto& Handle=System->GetEmitterHandle(0);
+    auto* Emitter=Handle.GetStatelessEmitter();if(!Emitter) return nullptr;
+    auto* Init=Cast<UNiagaraStatelessModule_InitializeParticle>(Emitter->GetModule(UNiagaraStatelessModule_InitializeParticle::StaticClass()));
+    auto* Shape=Cast<UNiagaraStatelessModule_ShapeLocation>(Emitter->GetModule(UNiagaraStatelessModule_ShapeLocation::StaticClass()));
+    auto* Velocity=Cast<UNiagaraStatelessModule_AddVelocity>(Emitter->GetModule(UNiagaraStatelessModule_AddVelocity::StaticClass()));
+    auto* Curl=Cast<UNiagaraStatelessModule_CurlNoiseForce>(Emitter->GetModule(UNiagaraStatelessModule_CurlNoiseForce::StaticClass()));
+    auto* Drag=Cast<UNiagaraStatelessModule_Drag>(Emitter->GetModule(UNiagaraStatelessModule_Drag::StaticClass()));
+    auto* SpriteScale=Cast<UNiagaraStatelessModule_ScaleSpriteSize>(Emitter->GetModule(UNiagaraStatelessModule_ScaleSpriteSize::StaticClass()));
+    if(!Init || !Shape || !Velocity || !Curl || !Drag || !SpriteScale) return nullptr;
+    Handle.SetName(TEXT("FloatingMotes"),*System);
+
+    const FNiagaraVariable Rate(FNiagaraTypeDefinition::GetFloatDef(),TEXT("User.SpawnRate"));
+    const FNiagaraVariable Size(FNiagaraTypeDefinition::GetVec2Def(),TEXT("User.ParticleSize"));
+    const FNiagaraVariable Color(FNiagaraTypeDefinition::GetColorDef(),TEXT("User.ParticleColor"));
+    const FNiagaraVariable Volume(FNiagaraTypeDefinition::GetVec3Def(),TEXT("User.VolumeSize"));
+    const FNiagaraVariable Drift(FNiagaraTypeDefinition::GetVec3Def(),TEXT("User.DriftVelocity"));
+    auto& Parameters=System->GetExposedParameters();
+    Parameters.SetParameterValue(40.f,Rate,true);
+    Parameters.SetParameterValue(FVector2f(3.f),Size,true);
+    Parameters.SetParameterValue(FLinearColor(.82f,.9f,1.f,.45f),Color,true);
+    Parameters.SetParameterValue(FVector3f(3400,2500,1000),Volume,true);
+    Parameters.SetParameterValue(FVector3f(4,-2,5),Drift,true);
+    for(int32 I=0;I<Emitter->GetNumSpawnInfos();++I) {
+        auto* Spawn=Emitter->GetSpawnInfoByIndex(I);
+        Spawn->Type=ENiagaraStatelessSpawnInfoType::Rate;
+        Spawn->bEnabled=true;Spawn->bLoopCountLimitEnabled=false;Spawn->bSpawnProbabilityEnabled=false;
+        Spawn->Rate=FNiagaraDistributionRangeFloat(40.f);
+        Spawn->Rate.Mode=ENiagaraDistributionMode::Binding;Spawn->Rate.ParameterBinding=Rate;
+    }
+    Init->LifetimeDistribution=FNiagaraDistributionRangeFloat(20,30);
+    Init->SpriteSizeDistribution.InitConstant(FVector2f(3.f));
+    Init->SpriteSizeDistribution.Mode=ENiagaraDistributionMode::Binding;
+    Init->SpriteSizeDistribution.ParameterBinding=Size;
+    Init->ColorDistribution=FNiagaraDistributionColor(FLinearColor::White);
+    Init->ColorDistribution.Mode=ENiagaraDistributionMode::Binding;Init->ColorDistribution.ParameterBinding=Color;
+    Shape->SetIsModuleEnabled(true);Shape->ShapePrimitive=ENSM_ShapePrimitive::Box;
+    Shape->bBoxSurfaceOnly=false;Shape->BoxSize.InitConstant(FVector3f(3400,2500,1000));
+    Shape->BoxSize.Mode=ENiagaraDistributionMode::Binding;Shape->BoxSize.ParameterBinding=Volume;
+    Velocity->SetIsModuleEnabled(true);Velocity->VelocityType=ENSM_VelocityType::Linear;
+    Velocity->LinearVelocityDistribution.InitConstant(FVector3f(4,-2,5));
+    Velocity->LinearVelocityDistribution.Mode=ENiagaraDistributionMode::Binding;
+    Velocity->LinearVelocityDistribution.ParameterBinding=Drift;
+    Curl->SetIsModuleEnabled(true);Curl->NoiseStrength=4;Curl->NoiseFrequency=.008f;
+    Drag->SetIsModuleEnabled(true);Drag->DragDistribution=FNiagaraDistributionRangeFloat(.15f);
+    SpriteScale->SetIsModuleEnabled(true);SpriteScale->ScaleDistribution.InitConstant(FVector2f(1.f));
+    if(auto* Gravity=Cast<UNiagaraStatelessModule_GravityForce>(Emitter->GetModule(UNiagaraStatelessModule_GravityForce::StaticClass()))) Gravity->SetIsModuleEnabled(false);
+    if(auto* MeshScale=Cast<UNiagaraStatelessModule_ScaleMeshSize>(Emitter->GetModule(UNiagaraStatelessModule_ScaleMeshSize::StaticClass()))) MeshScale->SetIsModuleEnabled(false);
+    const auto Renderers=Emitter->GetRenderers();
+    for(auto* Renderer:Renderers) Emitter->RemoveRenderer(Renderer,FGuid());
+    auto* Renderer=NewObject<UNiagaraSpriteRendererProperties>(Emitter,TEXT("SoftMotes"),RF_Transactional);
+    Renderer->Material=Material;Emitter->AddRenderer(Renderer,FGuid());
+    // Allow artists to enlarge the volume without template-sized culling bounds.
+    const FBox Bounds(FVector(-5000,-5000,-2500),FVector(5000,5000,2500));
+    System->bFixedBounds=true;System->SetFixedBounds(Bounds);
+    System->SetWarmupTickDelta(1.f/15.f);System->SetWarmupTime(25.f);
+    Emitter->PostEditChange();System->PostEditChange();
+    System->RequestCompile(true);System->WaitForCompilationComplete(false,false);
+    FAssetRegistryModule::AssetCreated(System);System->MarkPackageDirty();
+    FSavePackageArgs Save;Save.TopLevelFlags=RF_Public|RF_Standalone;Save.SaveFlags=SAVE_NoError;
+    if(!UPackage::SavePackage(Package,System,*FPackageName::LongPackageNameToFilename(Path,FPackageName::GetAssetPackageExtension()),Save)) return nullptr;
+    return System;
+#else
+    return nullptr;
+#endif
+}
 
 UNiagaraSystem* UMCVFXAssetBuilder::CreateBrushFoam()
 {
@@ -148,7 +230,7 @@ int32 UMCVFXAssetBuilder::RepairMeshRendererSlots(UNiagaraSystem* System)
     for(int32 I=0;I<System->GetNumEmitters();++I) {
         auto* Emitter=System->GetEmitterHandle(I).GetStatelessEmitter();if(!Emitter) continue;
         // Keep intentional mesh selection and every saved artist parameter.
-        if(const auto* Index=Emitter->GetModule<UNiagaraStatelessModule_MeshIndex>();Index && Index->IsModuleEnabled()) {
+        if(const auto* Index=Cast<UNiagaraStatelessModule_MeshIndex>(Emitter->GetModule(UNiagaraStatelessModule_MeshIndex::StaticClass()));Index && Index->IsModuleEnabled()) {
             if(Index->MeshIndex.IsBinding() || Index->MeshIndex.IsExpression()) continue;
             const auto Range=Index->MeshIndex.CalculateRange();
             if(Range.Min!=0 || Range.Max!=0) continue;
