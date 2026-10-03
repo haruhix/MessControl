@@ -242,7 +242,7 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(JumpAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopJump);
     Input->BindAction(SprintAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartSprint);
     Input->BindAction(SprintAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopSprint);
-    Input->BindAction(SprintAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopSprint);
+    Input->BindAction(SprintAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::CancelSprintInput);
     Input->BindAction(BrushAction, ETriggerEvent::Started, this, &AMCToothCharacter::StartPrimary);
     Input->BindAction(BrushAction, ETriggerEvent::Completed, this, &AMCToothCharacter::StopPrimary);
     Input->BindAction(BrushAction, ETriggerEvent::Canceled, this, &AMCToothCharacter::StopPrimary);
@@ -339,8 +339,29 @@ void AMCToothCharacter::OnRep_ThroatCapture()
     if(!SwallowedBy) GetCharacterMovement()->AirControl=OrderJumpAirControl;
 }
 void AMCToothCharacter::StopJump() { StopJumping(); }
-void AMCToothCharacter::StartSprint() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(true); }
-void AMCToothCharacter::StopSprint() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(false); }
+void AMCToothCharacter::SetSprintInputHeld(bool Held) { if(Held) StartSprint(); else StopSprint(); }
+void AMCToothCharacter::StartSprint()
+{
+    if(bSprintInputHeld || !CanWork()) return;
+    bSprintInputHeld=true;SprintInputStartedAt=GetWorld()->GetTimeSeconds();
+    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(false);
+}
+void AMCToothCharacter::StopSprint()
+{
+    auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
+    const bool Tap=bSprintInputHeld && GetWorld()->GetTimeSeconds()-SprintInputStartedAt<SprintHoldSeconds;
+    bSprintInputHeld=false;Move->SetSprinting(false);
+    if(Tap && CanWork()) Move->RequestDash();
+}
+void AMCToothCharacter::CancelSprintInput()
+{
+    bSprintInputHeld=false;
+    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(false);
+}
+bool AMCToothCharacter::IsDashing() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsDashing(); }
+float AMCToothCharacter::GetDashProgress() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetDashProgress(); }
+FVector AMCToothCharacter::GetDashDirection() const { return FVector(CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->DashDirection); }
+float AMCToothCharacter::GetDashDuration() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetDashDuration(); }
 void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
 void AMCToothCharacter::StartHandle() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(true); ServerSetWorking(false,true); }
@@ -441,7 +462,7 @@ void AMCToothCharacter::ResolvePrimaryAction()
 void AMCToothCharacter::CancelGameplayInput()
 {
     FoodCollection->Stop();
-    StopSprint();
+    CancelSprintInput();CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
     StopPrimary(); StopBrush(); StopHandle(); StopJump(); LocalPaddle=FVector2D::ZeroVector; ServerPaddle(LocalPaddle);
     GetCharacterMovement()->StopMovementImmediately();
 }
@@ -492,6 +513,10 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if(IsLocallyControlled() && bSprintInputHeld) {
+        if(!CanWork()) CancelSprintInput();
+        else CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(GetWorld()->GetTimeSeconds()-SprintInputStartedAt>=SprintHoldSeconds);
+    }
     UpdateYawn(DeltaSeconds);
     const auto* OrderState=GetWorld()->GetGameState();
     const double OrderNow=OrderState?OrderState->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();

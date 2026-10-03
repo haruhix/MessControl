@@ -1,6 +1,7 @@
 #include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCFoodStackSettings.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -26,11 +27,24 @@ void AMCFoodActor::BeginStackPickup(AMCToothCharacter* Hero,float SlotHeight)
     if(!HasAuthority() || !Hero) return;
     StackPickup.StartLocation=GetActorLocation();StackPickup.StartRotation=GetActorRotation();
     StackPickup.StartedAt=HazardNow();StackPickup.SlotHeight=SlotHeight;
-    const float Distance=FVector::Dist(GetActorLocation(),Hero->FoodCollection->StackPose(SlotHeight).GetLocation());
+    const float Distance=FVector::Dist(GetActorLocation(),Hero->FoodCollection->StackPose(this).GetLocation());
     StackPickup.FlightSeconds=FMath::Clamp(.26f+Distance*.00045f,.28f,.36f);
     StackPickup.ArcHeight=FMath::Clamp(24.f+Distance*.24f,40.f,90.f);
     SetStackCarrier(Hero);
 }
+float AMCFoodActor::PrepareHorizontalStackPose(const FMCFoodStackSettings* StackSettings,int32 Slot)
+{
+    if(!StackSettings) StackSettings=&FoodData.Stack;
+    const FVector Extent=Body->GetScaledBoxExtent();
+    const FQuat Rotation=StackSettings->RestRotation(Visual->GetStaticMesh(),Extent,Slot);
+    StackPickup.SlotRotation=Rotation.Rotator();
+    StackPickup.SlotOffset=StackSettings->SlotOffset(Extent,Rotation,Slot);
+    return StackHalfHeight();
+}
+FQuat AMCFoodActor::StackRestRotation(const FQuat& BaseRotation) const
+{ return BaseRotation*StackPickup.SlotRotation.Quaternion(); }
+float AMCFoodActor::StackHalfHeight() const
+{ return float(FMCFoodStackSettings::RotatedExtent(Body->GetScaledBoxExtent(),StackPickup.SlotRotation.Quaternion()).Z); }
 bool AMCFoodActor::IsStackPickupActive() const
 { return StackCarrier && StackPickup.StartedAt>=0 && HazardNow()-StackPickup.StartedAt<StackPickupDuration(); }
 FTransform AMCFoodActor::StackPickupPose(const FTransform& Goal) const
@@ -61,7 +75,7 @@ void AMCFoodActor::ReactToImpact(float Strength)
 }
 void AMCFoodActor::UpdateReaction(float Dt)
 {
-    if(bBrushTool || IsDisposed() || !ItemMesh) return;
+    if(bBrushTool || IsDisposed() || !ItemMesh || GetNetMode()==NM_DedicatedServer) return;
     const float Age=FMath::Max(0.,HazardNow()-ImpactAt);
     // Hold the contact pose briefly so a slow frame cannot skip the entire squash.
     const float BounceAge=FMath::Max(0.f,Age-.12f);
@@ -88,11 +102,11 @@ void AMCFoodActor::UpdateReaction(float Dt)
     // Hazard animation runs first, so its fuse pulse also receives the shared deformation.
     const FVector BaseScale=FoodData.Kind==EMCFoodKind::Spicy?Visual->GetRelativeScale3D():bFragment?FoodData.FragmentScale:FoodData.Scale;
     const FVector Scale=BaseScale*FVector(XY,XY,Z);
-    Visual->SetRelativeScale3D(Scale);
+    if(!Visual->GetRelativeScale3D().Equals(Scale,.0001)) Visual->SetRelativeScale3D(Scale);
     // Preserve volume and the bottom contact during anticipation/landing. Only
     // the presentation deforms; the mesh collision and authored item size stay intact.
-    Visual->SetRelativeLocation(-ItemMesh->GetBounds().Origin*Scale+FVector(0,0,(Scale.Z-BaseScale.Z)*ItemMesh->GetBounds().BoxExtent.Z*ContactWeight));
-    if(GetNetMode()==NM_DedicatedServer) return;
+    const FVector Location=-ItemMesh->GetBounds().Origin*Scale+FVector(0,0,(Scale.Z-BaseScale.Z)*ItemMesh->GetBounds().BoxExtent.Z*ContactWeight);
+    if(!Visual->GetRelativeLocation().Equals(Location,.0001)) Visual->SetRelativeLocation(Location);
     const float Red=Age<.6f?ImpactStrength*(1-FMath::SmoothStep(.08f,.6f,Age)):bSpoiled?.38f:0;
     if(Red>0 && !ReactionMaterial) {
         if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/VFX/M_FoodHit.M_FoodHit"))) ReactionMaterial=UMaterialInstanceDynamic::Create(Base,this);

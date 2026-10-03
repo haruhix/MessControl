@@ -44,7 +44,11 @@ void MCTickApprovalRecorder(UWorld* World)
         if(FParse::Value(FCommandLine::Get(),TEXT("MCCaptureTimeScale="),CaptureTimeScale))
             World->GetWorldSettings()->SetTimeDilation(FMath::Clamp(CaptureTimeScale,.25f,1.f));
     }
-    const double T=World->GetTimeSeconds()-At; if(T<(FString(FCommandLine::Get()).Contains(TEXT("MCFoodRework="))?4.3:3) || T<Next) return; Next=FMath::Max(Next+1./15.,T-1./15.);
+    float CaptureFPS=15,StartSeconds=FString(FCommandLine::Get()).Contains(TEXT("MCFoodRework="))?4.3f:3.f;
+    FParse::Value(FCommandLine::Get(),TEXT("MCVideoFPS="),CaptureFPS);
+    FParse::Value(FCommandLine::Get(),TEXT("MCVideoStartSeconds="),StartSeconds);
+    const double Interval=1./FMath::Clamp(CaptureFPS,5.f,60.f);
+    const double T=World->GetTimeSeconds()-At; if(T<StartSeconds || T<Next) return; Next=FMath::Max(Next+Interval,T-Interval);
     const FString Dir=FPaths::ProjectSavedDir()/TEXT("ApprovalFrames")/Name;
     IFileManager::Get().MakeDirectory(*Dir,true);
     const FString File=FString::Printf(TEXT("%06d.png"),Frame++);

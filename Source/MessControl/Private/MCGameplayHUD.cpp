@@ -180,7 +180,7 @@ void UMCGameplayHUD::RefreshState()
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0);
         Text(TEXT("CooldownValue"),FString::Printf(TEXT("%.1f"),Cool)); Bar(TEXT("CooldownProgress"),1-Cool/Inv->CooldownSeconds());
         FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):Hero->HasBrush()?TEXT("ЛКМ · ЧИСТИТЬ"):TEXT("E · ПОДОБРАТЬ ЩЁТКУ");
-        if(Hero->FoodCollection->bCollecting) Hint=FString::Printf(TEXT("СТОПКА %d/6 · ЛКМ ОПУСТИТЬ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num());
+        if(Hero->FoodCollection->bCollecting) Hint=FString::Printf(TEXT("СТОПКА %d/6 · НЕСИ В ЗОНУ ГЛОТКИ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num());
         else if(Inv->IsCleaningTool() && Hero->FoodCollection->HasCandidate()) Hint=TEXT("КЛИК ЛКМ · СОБИРАТЬ СТОПКУ");
         if(Hero->IsYawning()) Hint=TEXT("ЗЕВАНИЕ · ДЕРЖИСЬ ЗА ЯЗЫК");
         if(Hero->HeldFood) Hint=TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
@@ -189,7 +189,12 @@ void UMCGameplayHUD::RefreshState()
         if(!Hero->Status->IsAlive()) Hint=GS->AvailableArenaTeeth()>0?FString::Printf(TEXT("ВОЗРОЖДЕНИЕ ЧЕРЕЗ %.0f С"),FMath::Max(0.,Hero->RespawnAt-Now)):TEXT("НЕТ ЗАПАСНЫХ ЗУБОВ");
         for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
             if(It->CanOrderJump(Hero)) Hint=TEXT("SPACE · ПРЫГНУТЬ НА ЯЗЫЧОК");
-            if(It->ThroatPhase==EMCThroatPhase::Anticipation && It->ContainsPlayer(Hero)) Hint=TEXT("УБЕГАЙ ИЗ КРАСНОГО КРУГА!");
+            if(It->ContainsPlayer(Hero)) {
+                if(It->ThroatPhase==EMCThroatPhase::Anticipation)
+                    Hint=FString::Printf(TEXT("ДОСТАВЛЯЙ ЕЩЁ · ЗАСАСЫВАНИЕ ЧЕРЕЗ %.1f С"),FMath::Max(0.,It->PhaseStartedAt+It->AnticipationSeconds-Now));
+                else if(It->ThroatPhase==EMCThroatPhase::Swallowing) Hint=TEXT("ГЛОТКА ЗАСАСЫВАЕТ · СЛЕДУЮЩАЯ ПАРТИЯ ПРИНИМАЕТСЯ");
+                else if(It->ThroatPhase==EMCThroatPhase::Collecting) Hint=TEXT("ВНЕСИ СТОПКУ В ЗОНУ · ЕДА ОТПРАВИТСЯ САМА");
+            }
         }
         Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Hero->ContactProgress>0); Bar(TEXT("ContactProgress"),Hero->ContactProgress);
     }

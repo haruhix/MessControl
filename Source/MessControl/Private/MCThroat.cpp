@@ -4,7 +4,7 @@
 #include "MCTongue.h"
 #include "MCMouthSurface.h"
 #include "MCVomitBurst.h"
-#include "MCReactionVFX.h"
+#include "MCThroatVortex.h"
 #include "MCFoodCollectionComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -42,8 +42,39 @@ const FVector ExitApertureBoundary[]={
 };
 }
 
+bool FMCThroatSuctionState::IsActive(double ServerTime) const
+{
+    return Duration>0 && ServerTime>=StartedAt && ServerTime<StartedAt+Duration;
+}
+float FMCThroatSuctionState::Envelope(double ServerTime) const
+{
+    if(!IsActive(ServerTime)) return 0;
+    const float Age=float(ServerTime-StartedAt);
+    const float Attack=FMath::Min(.12f,Duration*.2f);
+    const float Release=FMath::Min(.35f,Duration*.25f);
+    return FMath::SmoothStep(0.f,Attack,Age)*(1-FMath::SmoothStep(Duration-Release,Duration,Age));
+}
+float FMCThroatSuctionState::StrengthAt(FVector Location,double ServerTime) const
+{
+    const float Pulse=Envelope(ServerTime);
+    if(Pulse<=0 || InfluenceRadius<=0) return 0;
+    const float Distance=FVector::Distance(Location,Origin)/InfluenceRadius;
+    if(Distance>=1) return 0;
+    // A mild background draft reaches the whole room; the last 12% feathers
+    // into zero instead of a hard boundary beyond the play space.
+    return Pulse*(.18f+.82f*FMath::Pow(1-Distance,1.7f))*(1-FMath::SmoothStep(.88f,1.f,Distance));
+}
+FVector FMCThroatSuctionState::VelocityAt(FVector Location,double ServerTime) const
+{
+    const FVector Toward=Origin-Location;
+    // Never lift players off the tongue, and stop gently at the inlet.
+    const float Arrival=FMath::SmoothStep(35.f,135.f,float(Toward.Size2D()));
+    return Toward.GetSafeNormal2D()*FMath::Clamp(MaxPullSpeed,0.f,150.f)*StrengthAt(Location,ServerTime)*Arrival;
+}
+
 AMCThroat::AMCThroat()
 {
+    bAlwaysRelevant=true;
     SetNetUpdateFrequency(20);
     Tissue=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("LivingTissue")); Tissue->SetupAttachment(Volume);
     Tissue->SetCollisionEnabled(ECollisionEnabled::NoCollision); Tissue->SetCastShadow(true);
@@ -79,6 +110,7 @@ void AMCThroat::OnConstruction(const FTransform& Transform)
     PressSeconds=FMath::Max(.1f,PressSeconds); AnticipationSeconds=FMath::Max(.1f,AnticipationSeconds);
     SwallowSeconds=FMath::Max(.5f,SwallowSeconds); RecoverySeconds=FMath::Max(.2f,RecoverySeconds);
     VomitSeconds=FMath::Max(2.f,VomitSeconds);
+    SuctionRadius=FMath::Max(1000.f,SuctionRadius);SuctionPullSpeed=FMath::Clamp(SuctionPullSpeed,0.f,150.f);
     Tissue->SetMaterial(0,TissueMaterial);
     Uvula->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate")));
     SculptedTissue->SetRelativeLocation(GateCenter);
@@ -138,16 +170,63 @@ double AMCThroat::ServerNow() const
 }
 bool AMCThroat::ContainsFood(const AMCFoodActor* Food) const
 {
-    if (!IsValid(Food) || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Stuck
+    if (!IsValid(Food) || Food->bBrushTool || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Stuck
         || Food->StackCarrier || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Swallowing || Food->Phase==EMCFoodPhase::Absorbing || !Food->Holders.IsEmpty()) return false;
     const FVector P=GetActorTransform().InverseTransformPosition(Food->GetActorLocation())-ZoneCenter;
     return P.SizeSquared2D()<=FMath::Square(ZoneRadius) && P.Z>=-30 && P.Z<=ZoneHeight;
+}
+bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
+{
+    if(!HasAuthority() || !IsValid(Food) || Food->GetWorld()!=GetWorld() || Food->bBrushTool || Food->IsDisposed()
+        || !Food->Holders.IsEmpty() || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling)) return false;
+    if(const auto* Carrier=Food->StackCarrier.Get()) return !Food->UsesLegacyGrip() && Carrier->CanWork() && ContainsPlayer(Carrier);
+    return ContainsFood(Food);
+}
+bool AMCThroat::AcceptDelivery(AMCFoodActor* Food)
+{
+    if(!CanAcceptDelivery(Food) || !Food->BeginSwallow()) return false;
+    const int32 Slot=PendingMeal.Num()%6,Column=PendingMeal.Num()/6;
+    if(Slot==0) PendingPileHeight=0;
+    const float HalfHeight=Food->PrepareHorizontalStackPose(&Food->FoodData.Stack,Slot);
+    const FQuat Rotation=Food->StackRestRotation(FRotator(0,GetActorRotation().Yaw,0).Quaternion());
+    const FVector Offset=FVector(Food->StackPickup.SlotOffset);
+    // Keep delivered stacks on the tongue in small separate piles. Ingredients
+    // are now kinematic: no heap contacts or pickup sweeps run during the wait.
+    FVector Base=GetActorTransform().TransformPosition(ZoneCenter+FVector(-55+(Column/3)*80,(Column%3-1)*80,0));
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
+        FHitResult Hit;if(It->SurfacePoint(Base,Hit)) {Base=Hit.ImpactPoint+FVector(0,0,3);break;}
+    }
+    PendingPileHeight+=HalfHeight;
+    const FVector Position=Base+FVector(0,0,PendingPileHeight)+FRotator(0,GetActorRotation().Yaw,0).RotateVector(Offset);
+    PendingPileHeight+=HalfHeight+Food->FoodData.Stack.SafeLayerGap();
+    Food->SetActorLocationAndRotation(Position,Rotation,false,nullptr,ETeleportType::TeleportPhysics);
+    Food->PauseFuse(this);Food->ForceNetUpdate();
+    PendingMeal.Add({Food,Position,Rotation});
+    QueuedFoodCount=PendingMeal.Num();FoodInZone=QueuedFoodCount+Meal.Num();
+    // The deadline belongs to the first delivery. A teammate joining this
+    // batch never extends it; deliveries during a gulp wait for the next cycle.
+    if(ThroatPhase==EMCThroatPhase::Collecting) SetPhase(EMCThroatPhase::Anticipation,ServerNow());
+    ForceNetUpdate();return true;
+}
+void AMCThroat::CollectCarriedDeliveries()
+{
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->CanWork() && ContainsPlayer(*It)) {
+        const auto Pieces=It->FoodCollection->Pieces;
+        for(const auto& Piece:Pieces) if(IsValid(Piece)) AcceptDelivery(Piece);
+    }
+}
+void AMCThroat::CollectLooseDeliveries()
+{
+    // Expelled ingredients must first leave the mouth; the vomit animation
+    // must not reserve its own outgoing food into the next batch.
+    if(ThroatPhase==EMCThroatPhase::Spasm || ThroatPhase==EMCThroatPhase::Vomiting) return;
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) AcceptDelivery(*It);
 }
 bool AMCThroat::ContainsPlayer(const AMCToothCharacter* Hero) const
 {
     if(!IsValid(Hero) || !Hero->Status->IsAlive()) return false;
     const FVector P=GetActorTransform().InverseTransformPosition(Hero->GetActorLocation())-ZoneCenter;
-    // Jumping vertically is not an escape: the full column below the button is dangerous.
+    // A jumping carrier still counts as entering the delivery column.
     return P.SizeSquared2D()<=FMath::Square(ZoneRadius) && P.Z>=-80 && P.Z<=FMath::Max(ZoneHeight,UvulaTop.Z-ZoneCenter.Z+160);
 }
 bool AMCThroat::CanOrderJump(const AMCToothCharacter* Hero) const {return false;}
@@ -237,6 +316,8 @@ void AMCThroat::UpdateOrderJumps()
 void AMCThroat::NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed) {}
 void AMCThroat::SetPhase(EMCThroatPhase Phase,double At)
 {
+    if(Phase!=EMCThroatPhase::Swallowing && ActiveVortex.IsValid()) {ActiveVortex->Destroy();ActiveVortex.Reset();}
+    if(Phase!=EMCThroatPhase::Swallowing) SuctionState.Duration=0;
     ThroatPhase=Phase; PhaseStartedAt=At; ForceNetUpdate();
 }
 float AMCThroat::OpenAmount() const
@@ -271,20 +352,68 @@ FVector AMCThroat::VacuumInlet() const
     }
     return GetActorTransform().TransformPosition(GateCenter+FVector(0,0,230));
 }
-void AMCThroat::CaptureMeal()
+bool AMCThroat::IsAmbientSuctionActive() const { return SuctionState.IsActive(ServerNow()); }
+float AMCThroat::GetAmbientSuctionStrengthAt(FVector Location) const { return SuctionState.StrengthAt(Location,ServerNow()); }
+FVector AMCThroat::GetAmbientSuctionVelocityAt(FVector Location) const { return SuctionState.VelocityAt(Location,ServerNow()); }
+bool AMCThroat::FindAmbientSuctionAt(UWorld* World,FVector Location,float& Strength,FVector& Velocity)
 {
-    Meal.Reset();
-    for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
-        if (ContainsFood(*It) && It->BeginSwallow()) Meal.Add({*It,It->GetActorLocation(),It->GetActorQuat()});
+    Strength=0;Velocity=FVector::ZeroVector;
+    if(!World) return false;
+    float SpeedLimit=0;
+    for(TActorIterator<AMCThroat> It(World);It;++It)
+    {
+        if(!It->IsAmbientSuctionActive()) continue;
+        Strength=FMath::Max(Strength,It->GetAmbientSuctionStrengthAt(Location));
+        Velocity+=It->GetAmbientSuctionVelocityAt(Location);
+        SpeedLimit=FMath::Max(SpeedLimit,FMath::Clamp(It->SuctionState.MaxPullSpeed,0.f,150.f));
+    }
+    Velocity=Velocity.GetClampedToMaxSize(SpeedLimit);
+    return Strength>0;
+}
+bool AMCThroat::CaptureMeal()
+{
+    Meal=MoveTemp(PendingMeal);PendingMeal.Reset();PendingPileHeight=0;QueuedFoodCount=0;
+    Meal.RemoveAll([](const FMealPiece& Piece){const auto* Food=Piece.Food.Get();return !IsValid(Food) || Food->IsDisposed() || Food->Phase!=EMCFoodPhase::Swallowing;});
+    if(Meal.IsEmpty()) {FoodInZone=0;SetPhase(EMCThroatPhase::Collecting,ServerNow());return false;}
+    for(auto& Piece:Meal) if(auto* Food=Piece.Food.Get()) {Piece.Start=Food->GetActorLocation();Piece.Rotation=Food->GetActorQuat();}
     FoodInZone=Meal.Num(); ++SwallowCount; ++MealSequence;
     for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get()) Food->PauseFuse(this);
     // Uvula is decorative. The automatic intake captures ingredients only.
     SwallowedPlayers.Reset();
     FVector Intake=GetActorTransform().TransformPosition(ZoneCenter);
     if(!Meal.IsEmpty()) {Intake=FVector::ZeroVector;for(const auto& Piece:Meal) Intake+=Piece.Start;Intake/=Meal.Num();}
-    const FVector Inlet=VacuumInlet();
-    const FVector Flow=Inlet-(Intake+FVector(0,0,45));
-    AMCReactionVFX::Spawn(GetWorld(),Inlet,EMCReactionEffect::Suction,SwallowSeconds,ZoneRadius*.6f,Flow.GetSafeNormal(),Flow.Size()+100);
+    SwallowInlet=VacuumInlet();
+    const FVector Flow=SwallowInlet-(Intake+FVector(0,0,45));
+    SwallowAxis=Flow.GetSafeNormal();if(SwallowAxis.IsNearlyZero()) SwallowAxis=GetActorForwardVector();
+    // The air field spans the mouth, independently of where this meal was delivered.
+    const FVector AirAxis=GetActorForwardVector().GetSafeNormal2D();
+    const FVector AirSide=FVector::CrossProduct(FVector::UpVector,AirAxis);
+    float AirLength=FMath::Max(float(Flow.Size()+100),ZoneRadius+100);
+    float AirHalfWidth=ZoneRadius;
+    float FieldRadius=FMath::Max(1000.f,SuctionRadius);
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It)
+    {
+        if(!It->Surface || !It->Surface->IsRegistered()) continue;
+        const FBox Bounds=It->Surface->Bounds.GetBox();
+        if(!Bounds.IsValid) continue;
+        for(int32 Corner=0;Corner<8;++Corner)
+        {
+            const FVector Point(Corner&1?Bounds.Max.X:Bounds.Min.X,
+                Corner&2?Bounds.Max.Y:Bounds.Min.Y,Corner&4?Bounds.Max.Z:Bounds.Min.Z);
+            const FVector Offset=Point-SwallowInlet;
+            FieldRadius=FMath::Max(FieldRadius,float(Offset.Size())*1.15f+200.f);
+            AirLength=FMath::Max(AirLength,float(-FVector::DotProduct(Offset,AirAxis))+40.f);
+            AirHalfWidth=FMath::Max(AirHalfWidth,float(FMath::Abs(FVector::DotProduct(Offset,AirSide))));
+        }
+    }
+    TArray<AMCFoodActor*> Sources;Sources.Reserve(Meal.Num());
+    for(const auto& Piece:Meal) if(auto* Food=Piece.Food.Get()) Sources.Add(Food);
+    SuctionState.Origin=SwallowInlet;SuctionState.StartedAt=PhaseStartedAt;
+    SuctionState.Duration=FMath::Max(.5f,SwallowSeconds);SuctionState.InfluenceRadius=FieldRadius;
+    SuctionState.MaxPullSpeed=FMath::Clamp(SuctionPullSpeed,0.f,150.f);
+    ActiveVortex=AMCThroatVortex::Spawn(GetWorld(),SwallowInlet,AirAxis,ZoneRadius*.9f,AirLength,SwallowSeconds,Sources,AirHalfWidth,260.f);
+    ForceNetUpdate();
+    return true;
 }
 void AMCThroat::SpitOut(bool Reset)
 {
@@ -313,6 +442,8 @@ void AMCThroat::ResetSwallow()
     if (!HasAuthority()) return;
     if(ActiveVomit.IsValid()) ActiveVomit->Destroy(); ActiveVomit.Reset();
     SpitOut(true);
+    for(const auto& Piece:PendingMeal) if(auto* Food=Piece.Food.Get();IsValid(Food) && !Food->IsDisposed()) {Food->CancelSwallow();Food->ResumeFuse(this);}
+    PendingMeal.Reset();PendingPileHeight=0;QueuedFoodCount=FoodInZone=0;NextIntakeAt=0;
     for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->ResumeFuse(this);
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->OrderJumpTarget==this) It->ClearOrderJump();
     PreparingPlayers.Reset();
@@ -327,23 +458,42 @@ void AMCThroat::Tick(float Dt)
     {
         const double Now=ServerNow();
         Weight=0;
-        FoodInZone=0; for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) ++FoodInZone;
-        if(ThroatPhase==EMCThroatPhase::Collecting && FoodInZone>0) {
-            CaptureMeal(); SetPhase(EMCThroatPhase::Swallowing,Now);
-        }
-        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
-            if(ThroatPhase==EMCThroatPhase::Anticipation && ContainsFood(*It)) It->PauseFuse(this);
-            else if(It->Phase!=EMCFoodPhase::Swallowing) It->ResumeFuse(this);
+        PendingMeal.RemoveAll([this](const FMealPiece& Piece) {
+            auto* Food=Piece.Food.Get();
+            const bool Remove=!IsValid(Food) || Food->IsDisposed() || Food->Phase!=EMCFoodPhase::Swallowing;
+            if(Remove && IsValid(Food)) Food->ResumeFuse(this);
+            return Remove;
+        });
+        QueuedFoodCount=PendingMeal.Num();FoodInZone=QueuedFoodCount+Meal.Num();
+        // Carriers are few and need a full gathering window, including its last
+        // frame. Expensive loose-food scans retain their independent 10 Hz rate.
+        const bool CarriersChecked=ThroatPhase==EMCThroatPhase::Anticipation && Now-PhaseStartedAt<AnticipationSeconds;
+        if(CarriersChecked) CollectCarriedDeliveries();
+        // Freeze the batch before checking new arrivals on the deadline tick.
+        // A slow frame therefore cannot add a delivery after the shared window.
+        if(ThroatPhase==EMCThroatPhase::Anticipation) {
+            if(PendingMeal.IsEmpty()) SetPhase(EMCThroatPhase::Collecting,Now);
+            else if(Now-PhaseStartedAt>=AnticipationSeconds) {
+                SetPhase(EMCThroatPhase::Swallowing,Now);CaptureMeal();
+            }
         }
         if (ThroatPhase==EMCThroatPhase::Swallowing)
         {
             const float T=FMath::Clamp(float(Now-PhaseStartedAt)/SwallowSeconds,0.f,1.f);
-            const FVector End=GetActorTransform().TransformPosition(GateCenter+FVector(1050,0,20));
-            const float Alpha=FMath::SmoothStep(.12f,1.f,T);
-            for (const auto& Piece:Meal) if (auto* Food=Piece.Food.Get(); IsValid(Food) && !Food->IsDisposed())
+            const FVector End=SwallowInlet+SwallowAxis*140;
+            const float Alpha=FMath::SmoothStep(.02f,1.f,T);
+            FVector Side=FVector::CrossProduct(FVector::UpVector,SwallowAxis).GetSafeNormal();
+            if(Side.IsNearlyZero()) Side=GetActorRightVector();
+            const FVector CurlUp=FVector::CrossProduct(SwallowAxis,Side).GetSafeNormal();
+            for (int32 I=0;I<Meal.Num();++I) if (auto* Food=Meal[I].Food.Get(); IsValid(Food) && !Food->IsDisposed())
             {
-                FVector P=FMath::Lerp(Piece.Start,End,Alpha); P.Z+=FMath::Sin(Alpha*PI)*80;
-                Food->SetActorLocationAndRotation(P,FQuat(FVector::RightVector,Alpha*PI)*Piece.Rotation,false,nullptr,ETeleportType::TeleportPhysics);
+                const auto& Piece=Meal[I];
+                const float Angle=Alpha*PI*3+I*2.399963f;
+                const float Envelope=FMath::Sin(Alpha*PI);
+                const float Radius=Envelope*FMath::Min(70.f,ZoneRadius*.24f);
+                FVector P=FMath::Lerp(Piece.Start,End,Alpha)+(Side*FMath::Cos(Angle)+CurlUp*FMath::Sin(Angle))*Radius;
+                P.Z+=Envelope*85;
+                Food->SetActorLocationAndRotation(P,FQuat(SwallowAxis,Alpha*PI*3)*Piece.Rotation,false,nullptr,ETeleportType::TeleportPhysics);
             }
             for(const auto& Entry:SwallowedPlayers) if(auto* Hero=Entry.Hero.Get()) {
                 const float PlayerAlpha=FMath::SmoothStep(0.f,.72f,T);
@@ -359,12 +509,17 @@ void AMCThroat::Tick(float Dt)
                 const FVector Point=GetActorTransform().TransformPosition(ZoneCenter);
                 for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) {const float D=FVector::DistSquared(It->GetActorLocation(),Point);if(D<Distance) {Worker=*It;Distance=D;}}
                 if(Worker) Worker->NotifyTaskFeedback(true,Point);
-                Meal.Reset(); SetPhase(EMCThroatPhase::Recovering,PhaseStartedAt+SwallowSeconds);
+                Meal.Reset();FoodInZone=QueuedFoodCount;SetPhase(EMCThroatPhase::Recovering,Now);
             }
         }
         if(ThroatPhase==EMCThroatPhase::Spasm && Now-PhaseStartedAt>=SpasmSeconds) BeginVomit();
         if(ThroatPhase==EMCThroatPhase::Vomiting && Now-PhaseStartedAt>=FMath::Max(2.f,VomitSeconds)) SetPhase(EMCThroatPhase::Recovering,Now);
-        if (ThroatPhase==EMCThroatPhase::Recovering && Now-PhaseStartedAt>=RecoverySeconds) SetPhase(EMCThroatPhase::Collecting,Now);
+        if (ThroatPhase==EMCThroatPhase::Recovering && Now-PhaseStartedAt>=RecoverySeconds)
+            SetPhase(PendingMeal.IsEmpty()?EMCThroatPhase::Collecting:EMCThroatPhase::Anticipation,Now);
+        // At/after the deadline the meal was already frozen above, so this
+        // delivery enters the next queue rather than extending the old batch.
+        if(!CarriersChecked) CollectCarriedDeliveries();
+        if(Now>=NextIntakeAt) {NextIntakeAt=Now+.1;CollectLooseDeliveries();}
     }
     UpdatePresentation(Dt);
     RingElapsed+=Dt; if (RingElapsed>.2f) { RingElapsed=0; BuildRing(); }
@@ -403,16 +558,21 @@ void AMCThroat::UpdatePresentation(float Dt)
     // The back wall always contains pawns and brushes. Captured food follows a kinematic arc.
     ClosedBarrier->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     const FLinearColor Color=ThroatPhase==EMCThroatPhase::Collecting?FLinearColor(.05f,1.f,.31f):
-        ThroatPhase==EMCThroatPhase::Anticipation || ThroatPhase==EMCThroatPhase::Spasm || ThroatPhase==EMCThroatPhase::Vomiting?FLinearColor(1.f,.035f,.01f)*(1+.45f*FMath::Sin(Time*14)):FLinearColor(1.f,.52f,.045f);
+        ThroatPhase==EMCThroatPhase::Anticipation?FLinearColor(.08f,.72f,.60f)*(1+.12f*FMath::Sin(Time*3)):
+        ThroatPhase==EMCThroatPhase::Spasm || ThroatPhase==EMCThroatPhase::Vomiting?FLinearColor(1.f,.035f,.01f)*(1+.45f*FMath::Sin(Time*14)):FLinearColor(1.f,.52f,.045f);
     if (RingMID) RingMID->SetVectorParameterValue(TEXT("ZoneColor"),Color);
     Label->SetRelativeLocation(ZoneCenter+FVector(-30,0,72));
     Label->SetTextRenderColor(Color.ToFColorSRGB());
-    Label->SetText(FText::FromString(ThroatPhase==EMCThroatPhase::Collecting?
-        FString::Printf(TEXT("%d FOOD  /  DROP INSIDE\n%s"),FoodInZone,FoodInZone>0?TEXT("AUTOMATIC INTAKE"):TEXT("BRING FOOD HERE")):
-        ThroatPhase==EMCThroatPhase::Anticipation?FString::Printf(TEXT("RUN OUTSIDE!  %.1f"),FMath::Max(0.f,AnticipationSeconds-(Time-float(PhaseStartedAt)))):
-        ThroatPhase==EMCThroatPhase::Spasm?TEXT("WRONG INGREDIENT!  BLEURGH!"):
-        ThroatPhase==EMCThroatPhase::Vomiting?TEXT("BLEURGH!"):
-        ThroatPhase==EMCThroatPhase::Swallowing?TEXT("GULP!"):TEXT("CLOSING...")));
+    LabelElapsed+=Dt;
+    if(Dt<=0 || LabelElapsed>=.1f) {
+        LabelElapsed=0;
+        const FString Text=ThroatPhase==EMCThroatPhase::Collecting?TEXT("WALK IN WITH FOOD\nAUTOMATIC DELIVERY"):
+            ThroatPhase==EMCThroatPhase::Anticipation?FString::Printf(TEXT("%d FOOD  /  BRING MORE!  %.1f"),QueuedFoodCount,FMath::Max(0.f,AnticipationSeconds-(Time-float(PhaseStartedAt)))):
+            ThroatPhase==EMCThroatPhase::Spasm?TEXT("WRONG INGREDIENT!  BLEURGH!"):
+            ThroatPhase==EMCThroatPhase::Vomiting?TEXT("BLEURGH!"):
+            ThroatPhase==EMCThroatPhase::Swallowing?FString::Printf(TEXT("GULP!  /  %d NEXT"),QueuedFoodCount):FString::Printf(TEXT("CLOSING...  /  %d NEXT"),QueuedFoodCount);
+        if(Text!=LastLabel) {LastLabel=Text;Label->SetText(FText::FromString(Text));}
+    }
     GeometryElapsed+=Dt;
     if(SculptedTissue->GetSkeletalMeshAsset())
     {
@@ -478,6 +638,8 @@ void AMCThroat::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCThroat,ThroatPhase); DOREPLIFETIME(AMCThroat,PhaseStartedAt); DOREPLIFETIME(AMCThroat,Weight);
     DOREPLIFETIME(AMCThroat,FoodInZone); DOREPLIFETIME(AMCThroat,SwallowCount); DOREPLIFETIME(AMCThroat,FoodSwallowed);
+    DOREPLIFETIME(AMCThroat,QueuedFoodCount);
+    DOREPLIFETIME(AMCThroat,SuctionState);
     DOREPLIFETIME(AMCThroat,SpasmCount);
     DOREPLIFETIME(AMCThroat,VomitCount); DOREPLIFETIME(AMCThroat,MealSequence);
 }

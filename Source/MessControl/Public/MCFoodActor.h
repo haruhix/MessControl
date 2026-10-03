@@ -62,6 +62,8 @@ struct FMCStackPickup
     UPROPERTY() double StartedAt=-100;
     UPROPERTY() float FlightSeconds=.32f;
     UPROPERTY() float SlotHeight=0;
+    UPROPERTY() FVector_NetQuantize10 SlotOffset=FVector::ZeroVector;
+    UPROPERTY() FRotator SlotRotation=FRotator::ZeroRotator;
     UPROPERTY() float ArcHeight=50;
 };
 
@@ -98,6 +100,9 @@ public:
     void AttendFood();
     void SetStackCarrier(AMCToothCharacter* Hero);
     void BeginStackPickup(AMCToothCharacter* Hero,float SlotHeight);
+    float PrepareHorizontalStackPose(const FMCFoodStackSettings* StackSettings,int32 Slot);
+    FQuat StackRestRotation(const FQuat& BaseRotation) const;
+    float StackHalfHeight() const;
     bool IsStackPickupActive() const;
     float StackPickupDuration() const { return (.075f+StackPickup.FlightSeconds+.18f)/FMCStackPickup::PlayRate; }
     FTransform StackPickupPose(const FTransform& Goal) const;
@@ -181,6 +186,7 @@ private:
     TWeakObjectPtr<class AMCThroat> FuseOwner;
     UPROPERTY() TArray<TObjectPtr<class UMaterialInstanceDynamic>> HazardMaterials;
     UPROPERTY() TObjectPtr<class UMaterialInstanceDynamic> ReactionMaterial;
+    FString LastLabelCaption;
 };
 
 /** Replaceable level marker: ordinary food is disposed towards the throat. */

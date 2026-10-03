@@ -131,8 +131,10 @@ bool FMCThroatCycleTest::RunTest(const FString&)
     auto* F=M.GripCube();F->Body->SetSimulatePhysics(false);F->Phase=EMCFoodPhase::Free;
     F->SetActorLocation(Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter+FVector(0,0,60)));
     Throat->Tick(.1f);
-    TestTrue(TEXT("Food intake starts without uvula or player input"),F->Phase==EMCFoodPhase::Swallowing && Throat->SwallowCount==1);
+    TestTrue(TEXT("Food delivery starts the gathering window without uvula or player input"),F->Phase==EMCFoodPhase::Swallowing && Throat->ThroatPhase==EMCThroatPhase::Anticipation && Throat->SwallowCount==0);
     TestFalse(TEXT("Intake cannot be grabbed or cut"),F->TryGrab(M.Worker()) || F->HitFood(10000,FVector::ForwardVector));
+    Throat->PhaseStartedAt-=Throat->AnticipationSeconds+.01;Throat->Tick(.01f);
+    TestTrue(TEXT("The shared gathering deadline starts one visible gulp"),Throat->ThroatPhase==EMCThroatPhase::Swallowing && Throat->SwallowCount==1 && !F->IsDisposed());
     Throat->PhaseStartedAt-=Throat->SwallowSeconds+.01;Throat->Tick(.01f);
     TestTrue(TEXT("Food is committed only after the visible gulp"),F->IsDisposed() && Throat->FoodSwallowed==1);
     Throat->PhaseStartedAt-=Throat->RecoverySeconds+.01;Throat->Tick(.01f);
@@ -170,6 +172,7 @@ bool FMCThroatRiskTest::RunTest(const FString&)
     TestEqual(TEXT("Decorative uvula has no landing collision"),Throat->UvulaLanding->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
     auto* F=M.GripCube();F->Body->SetSimulatePhysics(false);F->Phase=EMCFoodPhase::Free;F->SetActorLocation(P+FVector(0,0,45));
     Throat->Tick(.01f);TestNull(TEXT("Automatic intake never captures nearby players"),H->SwallowedBy.Get());
+    Throat->PhaseStartedAt-=Throat->AnticipationSeconds+.01;Throat->Tick(.01f);
     Throat->PhaseStartedAt-=Throat->SwallowSeconds+.01;Throat->Tick(.01f);
     TestTrue(TEXT("Food succeeds with a player standing in the zone"),F->IsDisposed() && Throat->SpasmCount==0 && H->CanWork());
     return true;
@@ -2400,6 +2403,7 @@ bool FMCVomitMealTest::RunTest(const FString&)
         Throat->ThroatPhase=EMCThroatPhase::Collecting; Throat->PhaseStartedAt=M.World->GetTimeSeconds();
         Throat->Tick(.01f);
         TestTrue(TEXT("Both pieces enter the same gulp"),Good->Phase==EMCFoodPhase::Swallowing && Bad->Phase==EMCFoodPhase::Swallowing);
+        Throat->PhaseStartedAt-=Throat->AnticipationSeconds+.01; Throat->Tick(.01f);
         Throat->PhaseStartedAt-=Throat->SwallowSeconds+1; Throat->Tick(.01f);
         TestEqual(TEXT("Late frame still rejects before committing any piece"),Throat->ThroatPhase,EMCThroatPhase::Spasm);
         TestTrue(TEXT("Healthy part of rejected meal remains alive"),!Good->IsDisposed() && Throat->FoodSwallowed==0);

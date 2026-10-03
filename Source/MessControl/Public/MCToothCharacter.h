@@ -29,6 +29,7 @@ class MESSCONTROL_API AMCToothCharacter : public ACharacter
 #if !UE_BUILD_SHIPPING
     friend void MCTickClimbNetworkValidation(UWorld* World);
     friend void MCTickSprayNetworkValidation(UWorld* World);
+    friend void MCTickDashSuctionValidation(UWorld* World);
 #endif
 public:
     AMCToothCharacter(const FObjectInitializer& ObjectInitializer=FObjectInitializer::Get());
@@ -97,6 +98,12 @@ public:
     void StatusChanged();
     void DropFood();
     void CancelGameplayInput();
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.1",ClampMax="0.35")) float SprintHoldSeconds=.18f;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Dash") bool IsDashing() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashProgress() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Dash") FVector GetDashDirection() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashDuration() const;
+    UFUNCTION(BlueprintCallable,Category="Locomotion|Dash") void SetSprintInputHeld(bool Held);
     UFUNCTION(Server,Reliable) void ServerSetPrimary(bool bActive);
     bool CanContact(AActor* Target) const;
     void UpdateMouthCamera(float Dt);
@@ -172,6 +179,9 @@ private:
     FVector2D WorldPaddleInput() const;
     void StartJump(); void StopJump();
     void StartSprint(); void StopSprint();
+    void CancelSprintInput();
+    bool bSprintInputHeld=false;
+    double SprintInputStartedAt=0;
     void UpdateLocomotion(float Dt);
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void StartPrimary(); void StopPrimary();

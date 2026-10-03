@@ -58,6 +58,8 @@ public:
     UPROPERTY(BlueprintReadOnly,Category="Emotes") TObjectPtr<UMCEmoteLibrary> Library;
     UPROPERTY(Replicated) FMCEmoteState State;
     UPROPERTY(BlueprintReadOnly,Category="Face") EMCEmotion CurrentEmotion=EMCEmotion::Neutral;
+    /** Transient reaction derived locally from the replicated food inhale; never changes an emote. */
+    UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float FoodSuctionReaction=0;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Emotes") void ServerPlayEmote(FName Id);
     bool CanPlay(const FMCEmoteEntry& Entry) const;
     const FMCEmoteEntry* ActiveEntry() const;
@@ -77,6 +79,8 @@ private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
     double Now() const;
     double VoiceAt=-100,NextEmoteAt=0;
+    double FoodSuctionReactionAt=-100;
+    float FoodSuctionFlinch=0;
     float Voice=0,EyeSquint=0,Jaw=0,Smile=0,Brows=0,BrowTilt=0,Round=0,LipClosure=0;
     MCViseme VoiceViseme=MCViseme::Rest;
     TMap<FName,float> MouthWeights;

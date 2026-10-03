@@ -2,6 +2,7 @@
 #include "Misc/AutomationTest.h"
 #include "MCFoodActor.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCFoodStackSettings.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
@@ -12,6 +13,10 @@
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "Engine/DataTable.h"
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+#endif
 #include "GameFramework/CharacterMovementComponent.h"
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
@@ -37,14 +42,14 @@ struct FFoodStackWorld
     { World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false); }
     void Step(float Seconds,float Dt=1.f/60)
     { for(int32 I=0;I<FMath::CeilToInt(Seconds/Dt);++I) {++GFrameCounter;World->Tick(LEVELTICK_All,Dt);} }
-    AMCFoodActor* Food(FVector Position,EMCFoodKind Kind=EMCFoodKind::Food)
+    AMCFoodActor* Food(FVector Position,EMCFoodKind Kind=EMCFoodKind::Food,FVector Scale=FVector(.36))
     {
         auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
 #if WITH_EDITOR
         FStaticMeshCompilingManager::Get().FinishCompilation({Mesh});
 #endif
         FMCFoodRow Row;Row.Kind=Kind;Row.WholeMeshes={Mesh};Row.FragmentMeshes={Mesh};
-        Row.Scale=Row.FragmentScale=FVector(.36);Row.Mass=9;Row.Fragments=3;Row.SpoilSeconds=300; // Each fragment weighs 3 kg.
+        Row.Scale=Row.FragmentScale=Scale;Row.Mass=9;Row.Fragments=3;Row.SpoilSeconds=300; // Each fragment weighs 3 kg.
         const FTransform T(Position);
         auto* F=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         FRandomStream Random(7);F->ConfigureItem(TEXT("StackFixture"),Row,Random,true);F->FinishSpawning(T);
@@ -156,13 +161,13 @@ bool FMCStackPickupAnimation::RunTest(const FString&)
             const FVector Scale=F->Visual->GetRelativeScale3D()/BaseScale;
             Squash|=Scale.Z<.95;Stretch|=Scale.Z>1.1;
             TestTrue(TEXT("Pickup squash/stretch preserves visual volume"),FMath::IsNearlyEqual(Scale.X*Scale.Y*Scale.Z,1.,.01));
-            const FVector Goal=T.Hero->FoodCollection->StackPose(F->StackPickup.SlotHeight).GetLocation();
+            const FVector Goal=T.Hero->FoodCollection->StackPose(F).GetLocation();
             Arc|=F->GetActorLocation().Z>FMath::Max(Start.Z,Goal.Z)+10;
             MaxStep=FMath::Max(MaxStep,FVector::Dist(Previous,F->GetActorLocation()));Previous=F->GetActorLocation();
         }
         TestTrue(TEXT("Anticipation, aerial stretch and a visible arc were sampled"),Squash && Stretch && Arc);
         TestTrue(TEXT("Every phase of the pickup is exactly twice as fast"),FMath::IsNearlyEqual(F->StackPickupDuration()*2,.075f+F->StackPickup.FlightSeconds+.18f,.001f));
-        TestTrue(TEXT("Pickup settles into the moving hand without a teleport"),!F->IsStackPickupActive() && FVector::Dist(F->GetActorLocation(),T.Hero->FoodCollection->StackPose(F->StackPickup.SlotHeight).GetLocation())<1 && MaxStep<70);
+        TestTrue(TEXT("Pickup settles into the moving hand without a teleport"),!F->IsStackPickupActive() && FVector::Dist(F->GetActorLocation(),T.Hero->FoodCollection->StackPose(F).GetLocation())<1 && MaxStep<70);
         TestTrue(TEXT("Authored mesh scale and collision bounds are restored"),F->Visual->GetRelativeScale3D().Equals(BaseScale,.001) && F->Body->GetScaledBoxExtent().Equals(Extent,.001));
         TestEqual(TEXT("A completed hop cannot spill itself"),T.Hero->FoodCollection->FallenPieces,0);
     }
@@ -232,6 +237,96 @@ bool FMCStackPileContacts::RunTest(const FString&)
         for(int32 I=0;I<180;++I) {T.Hero->AddMovementInput(FVector::ForwardVector,1);T.Step(1.f/60);}
         TestTrue(TEXT("Slow contact with a solid wall keeps the stack without passing through the wall"),T.Hero->FoodCollection->Pieces.Num()==3 && T.Hero->FoodCollection->FallenPieces==0 && T.Foods[0]->GetActorLocation().X<160);
     }
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStackHorizontalAxes,"MessControl.Food.Stack.ForcedHorizontalAxesAndSpacing",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStackHorizontalAxes::RunTest(const FString&)
+{
+    FFoodStackWorld T;auto* C=T.Hero->FoodCollection.Get();C->Toggle();
+    const FVector ActorScale(.8,1.2,1.1);
+    const FVector Scales[]={FVector(.12,.54,.5),FVector(.52,.13,.46),FVector(.6,.5,.09)};
+    TArray<FVector> BodyExtents,VisualScales;
+    for(int32 I=0;I<3;++I) {
+        auto* F=T.Food(T.Hero->GetActorLocation()+FVector(110,(I-1)*65,-35),EMCFoodKind::Food,Scales[I]);
+        F->SetActorScale3D(ActorScale);
+        BodyExtents.Add(F->Body->GetScaledBoxExtent());VisualScales.Add(F->Visual->GetRelativeScale3D());
+        if(!TestTrue(TEXT("Slices imported on each of the three thin axes can be collected"),C->Collect(F))) return false;
+    }
+    T.Step(.8f);
+    const FQuat Base=C->StackPose(0.f).GetRotation();
+    for(int32 I=0;I<T.Foods.Num();++I) {
+        auto* F=T.Foods[I];const FVector Axis=F->FoodData.Stack.VerticalAxis(F->ItemMesh,BodyExtents[I]);
+        TestTrue(TEXT("The selected local flat-face normal is aligned with the stack up axis"),FVector::DotProduct(F->GetActorQuat().RotateVector(Axis),Base.RotateVector(FVector::UpVector))>.9999);
+        TestTrue(TEXT("Flat poses preserve actor scale, item scale and authored collision dimensions"),F->GetActorScale3D().Equals(ActorScale,.001) && F->Visual->GetRelativeScale3D().Equals(VisualScales[I],.001) && F->Body->GetScaledBoxExtent().Equals(BodyExtents[I],.001));
+        TestTrue(TEXT("Vertical spacing uses the rotated thin extent"),FMath::IsNearlyEqual(F->StackHalfHeight(),BodyExtents[I].GetMin(),.001));
+        TestTrue(TEXT("The small horizontal offset stays inside its support footprint"),FVector(F->StackPickup.SlotOffset).Size2D()<=F->FoodData.Stack.HorizontalOffset+.001);
+        if(I>0) {
+            const auto* Below=T.Foods[I-1];
+            const float Separation=FVector::DotProduct(F->GetActorLocation()-Below->GetActorLocation(),Base.RotateVector(FVector::UpVector));
+            TestTrue(TEXT("Mixed-axis layers maintain the configured gap without clipping"),FMath::IsNearlyEqual(Separation,F->StackHalfHeight()+Below->StackHalfHeight()+Below->FoodData.Stack.SafeLayerGap(),.01));
+        }
+    }
+    TestTrue(TEXT("Upper layers have deterministic small lateral offsets"),FVector(T.Foods[1]->StackPickup.SlotOffset).Size2D()>.1);
+    T.Foods[1]->SetActorRotation(FRotator(37,15,22),ETeleportType::TeleportPhysics);
+    C->TickComponent(1.f/60,LEVELTICK_All,nullptr);
+    TestTrue(TEXT("Every update enforces the flat pose after rotation drift"),T.Foods[1]->GetActorQuat().Equals(C->StackPose(T.Foods[1]).GetRotation(),.001));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStackDeliveryHandoff,"MessControl.Food.Stack.AtomicDeliveryKeepsRemainingPieces",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStackDeliveryHandoff::RunTest(const FString&)
+{
+    FFoodStackWorld T;if(!T.Collect(3)) return false;T.Step(.8f);
+    auto* C=T.Hero->FoodCollection.Get();auto* Delivered=T.Foods[1];
+    const float PreviousTopHeight=T.Foods[2]->StackPickup.SlotHeight;
+    TestFalse(TEXT("An ordinary free piece cannot be detached as a delivery"),C->DetachForDelivery(T.Foods[0]));
+    TestTrue(TEXT("BeginSwallow atomically accepts a selected carried stack piece"),Delivered->BeginSwallow());
+    TestTrue(TEXT("Delivered food stays unsimulated with collision disabled"),!Delivered->StackCarrier && Delivered->Phase==EMCFoodPhase::Swallowing && !Delivered->Body->IsSimulatingPhysics() && Delivered->Body->GetCollisionEnabled()==ECollisionEnabled::NoCollision);
+    TestTrue(TEXT("Delivery removes only its selected layer and packs the remaining heights"),C->Pieces.Num()==2 && C->bCollecting && C->FallenPieces==0 && T.Foods[0]->StackCarrier==T.Hero && T.Foods[2]->StackCarrier==T.Hero && T.Foods[2]->StackPickup.SlotHeight<PreviousTopHeight);
+    TestFalse(TEXT("Delivered food can neither be reacquired nor delivered twice"),C->CanCollect(Delivered) || Delivered->BeginSwallow());
+    TestTrue(TEXT("Remaining food can join the same delivery"),T.Foods[0]->BeginSwallow() && T.Foods[2]->BeginSwallow());
+    TestTrue(TEXT("The empty delivered stack stops collecting and never records a spill"),C->Pieces.IsEmpty() && !C->bCollecting && C->FallenPieces==0);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStackSavedMenuPose,"MessControl.Food.Stack.SavedMenuFlatPosesAndRowValidation",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStackSavedMenuPose::RunTest(const FString&)
+{
+    auto* Menu=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
+    if(!TestNotNull(TEXT("Stack settings use the existing saved breakfast menu"),Menu)) return false;
+    int32 Checked=0;
+    for(FName Name:Menu->GetRowNames()) if(const auto* Row=Menu->FindRow<FMCFoodRow>(Name,TEXT("Horizontal stack validation"))) {
+        if(Row->Kind!=EMCFoodKind::Food) continue;
+        for(const auto& Choice:Row->FragmentMeshes) if(!Choice.IsNull()) {
+            auto* Mesh=Choice.LoadSynchronous();if(!TestNotNull(TEXT("Saved ordinary fragment mesh loads"),Mesh)) continue;
+#if WITH_EDITOR
+            FStaticMeshCompilingManager::Get().FinishCompilation({Mesh});
+#endif
+            const FVector Extent=Mesh->GetBounds().BoxExtent*Row->FragmentScale.GetAbs();
+            for(int32 Slot=0;Slot<6;++Slot) {
+                const FQuat Rotation=Row->Stack.RestRotation(Mesh,Extent,Slot);
+                TestTrue(TEXT("Every saved ordinary fragment has a flat enforced stack orientation"),FVector::DotProduct(Rotation.RotateVector(Row->Stack.VerticalAxis(Mesh,Extent)),FVector::UpVector)>.99999);
+                TestTrue(TEXT("Every saved fragment gets finite rotated spacing"),!FMCFoodStackSettings::RotatedExtent(Extent,Rotation).ContainsNaN() && FMCFoodStackSettings::RotatedExtent(Extent,Rotation).Z>0);
+            }
+            ++Checked;
+        }
+#if WITH_EDITOR
+        FDataValidationContext RowContext;
+        TestTrue(TEXT("Every ordinary menu row validates its stack tuning"),Row->IsDataValid(RowContext)==EDataValidationResult::Valid);
+#endif
+    }
+    TestTrue(TEXT("The check covers actual saved menu fragments"),Checked>=10);
+#if WITH_EDITOR
+    FMCFoodRow Invalid;Invalid.Stack.HorizontalOffset=-1;
+    FDataValidationContext InvalidContext;
+    TestTrue(TEXT("The menu row rejects unsafe stack offsets before save"),Invalid.IsDataValid(InvalidContext)==EDataValidationResult::Invalid && InvalidContext.GetNumErrors()>0);
+    FMCFoodStackSettings Overrides;FMCFoodStackPoseOverride Entry;
+    Entry.Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));Entry.VerticalAxis=EMCFoodStackAxis::X;
+    Overrides.PoseOverrides.Add(Entry);
+    TestTrue(TEXT("A per-mesh table override takes precedence over automatic bounds"),Overrides.RestRotation(Entry.Mesh.Get(),FVector(20,10,2),0).RotateVector(FVector::ForwardVector).Equals(FVector::UpVector,.001));
+    Overrides.PoseOverrides.Add(Entry);FDataValidationContext DuplicateContext;
+    TestFalse(TEXT("The menu row rejects conflicting normals for the same mesh"),Overrides.Validate(DuplicateContext));
+#endif
     return true;
 }
 #endif

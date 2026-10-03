@@ -96,7 +96,7 @@ void AMCFoodActor::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTra
     {
         // Send the landing pose while the hop is in flight. A delayed packet must
         // never pull a finished client animation back along its old trajectory.
-        const FTransform Pose=StackCarrier && IsStackPickupActive()?StackCarrier->FoodCollection->StackPose(StackPickup.SlotHeight):GetActorTransform();
+        const FTransform Pose=StackCarrier && IsStackPickupActive()?StackCarrier->FoodCollection->StackPose(this):GetActorTransform();
         const FTransform Relative=Pose.GetRelativeTransform(CarryPresentation.Holder->GetActorTransform());
         CarryPresentation.Location=Relative.GetLocation(); CarryPresentation.Rotation=Relative.Rotator();
     }
@@ -112,7 +112,11 @@ void AMCFoodActor::UpdateCarryPresentation(float Dt)
     const FTransform RenderedCarrier=Carrier->StandingMeshTransform().Inverse()*Carrier->GetMesh()->GetComponentTransform();
     if(StackCarrier && IsStackPickupActive())
     {
-        const FTransform Goal(RenderedCarrier.GetRotation(),RenderedCarrier.TransformPosition(FVector(73,12,20+StackPickup.SlotHeight)));
+        // The cue includes its enforced flat orientation and offset. Rebase the
+        // server landing pose onto the same smoothed carrier as ordinary carry.
+        const FTransform Goal=CarryPresentation.Holder==Carrier
+            ?FTransform(CarryPresentation.Rotation,FVector(CarryPresentation.Location))*RenderedCarrier
+            :FTransform(StackRestRotation(RenderedCarrier.GetRotation()),RenderedCarrier.TransformPosition(FVector(73,12,20+StackPickup.SlotHeight)+FVector(StackPickup.SlotOffset)));
         const FTransform Pose=StackPickupPose(Goal);
         SetActorLocationAndRotation(Pose.GetLocation(),Pose.GetRotation(),false,nullptr,ETeleportType::TeleportPhysics);
         PresentationCarrier=Carrier;SmoothedCarryRelative=Pose.GetRelativeTransform(RenderedCarrier);
@@ -398,15 +402,18 @@ void AMCFoodActor::Tick(float Dt)
         { for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]); SetActorLocation(FVector(0,0,Settings.DropHeight),false,nullptr,ETeleportType::TeleportPhysics); Body->SetPhysicsLinearVelocity(FVector::ZeroVector); }
         PrePhysicsVelocity=Body->GetPhysicsLinearVelocity();
     }
+    if(GetNetMode()==NM_DedicatedServer) return;
     FString Caption=Phase==EMCFoodPhase::Stuck?FString::Printf(TEXT("LMB + MOVE TO CENTRE\nPULL %.0f%% | %d GRIPS"),PullProgress*100,Holders.Num()):Phase==EMCFoodPhase::Carried?TEXT("RELEASE LMB: DROP | Q: THROW"):TEXT("HOLD LMB: PICK UP / DRAG");
     if (!UsesLegacyGrip()) Caption=Phase==EMCFoodPhase::Stuck?TEXT("RMB: FREE / CUT FOOD"):StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):TEXT("LMB: COLLECT STACK | RMB: CUT");
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("SPOILED"):FoodData.Kind==EMCFoodKind::Spicy?*FString::Printf(TEXT("%.1fs %s"),FuseRemaining(),bFusePaused?TEXT("PAUSED"):TEXT("THROW INTO THROAT")):FoodData.Kind==EMCFoodKind::ForeignObject?TEXT("FOREIGN OBJECT"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
     if (bBrushTool) Caption=TEXT("LMB: PICK UP BRUSH\nQ: THROW OVERBOARD");
     if(FoodData.Kind==EMCFoodKind::Spicy) {
         Caption=FString::Printf(TEXT("%.1fs%s"),FuseRemaining(),bFusePaused?TEXT(" [PAUSED]"):TEXT(""));
-        Label->SetWorldSize(13); Label->SetRelativeLocation(FVector(0,0,Body->GetUnscaledBoxExtent().Z+30));
+        if(!FMath::IsNearlyEqual(Label->WorldSize,13.f)) Label->SetWorldSize(13);
+        const FVector LabelLocation(0,0,Body->GetUnscaledBoxExtent().Z+30);
+        if(!Label->GetRelativeLocation().Equals(LabelLocation,.001)) Label->SetRelativeLocation(LabelLocation);
     }
-    Label->SetText(FText::FromString(Caption));
+    if(Caption!=LastLabelCaption) {LastLabelCaption=Caption;Label->SetText(FText::FromString(Caption));}
     Label->SetVisibility(Phase!=EMCFoodPhase::Swallowing);
     if (const auto* PC=GetWorld()->GetFirstPlayerController(); PC && PC->PlayerCameraManager)
         Label->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Label->GetComponentLocation()).Rotation());
@@ -546,8 +553,13 @@ bool AMCFoodActor::IsHardFood() const
 }
 bool AMCFoodActor::BeginSwallow()
 {
-    if (!HasAuthority() || StackCarrier || !Holders.IsEmpty() || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
-    Phase=EMCFoodPhase::Swallowing; OnRep_Phase(); ForceNetUpdate(); return true;
+    if (!HasAuthority() || bBrushTool || !Holders.IsEmpty() || (StackCarrier && UsesLegacyGrip()) || (Phase!=EMCFoodPhase::Free && Phase!=EMCFoodPhase::Falling)) return false;
+    auto* Collection=StackCarrier?StackCarrier->FoodCollection.Get():nullptr;
+    if(Collection && !Collection->Contains(this)) return false;
+    // Change phase before detaching so delivery never wakes a dense hand load.
+    Phase=EMCFoodPhase::Swallowing;
+    if(Collection) Collection->DetachForDelivery(this);
+    OnRep_Phase(); ForceNetUpdate(); return true;
 }
 void AMCFoodActor::CancelSwallow()
 {

@@ -52,6 +52,146 @@ public:
     bool WallPlanted[4]={false,false,false,false};
     double NextWallDiagnostic=0;
     float SprayPoseAlpha=0;
+    float DashPoseProgress=-1;
+private:
+    // Не активное, но будет использовано в будущем в других механиках.
+    // Reserved full shoulder roll; the normal dash calls DashLungePose only.
+    void FutureShoulderRollPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
+    {
+        if (!Tooth->IsDashing() || !Tooth->ToothPhysics->CanAct()) return;
+        const float Progress=FMath::Clamp(Tooth->GetDashProgress(),0.f,1.f);
+        DashPoseProgress=Progress;
+        const float Tuck=FMath::SmoothStep(0.f,.18f,Progress)*(1-FMath::SmoothStep(.8f,1.f,Progress));
+        const float PoseAlpha=FMath::SmoothStep(0.f,.1f,Progress)*(1-FMath::SmoothStep(.9f,1.f,Progress));
+        const TArray<FTransform> Locomotion=Pose;
+        Pose=Ref.GetRefBonePose();
+        TArray<FTransform> RestCS;RestCS.SetNum(Pose.Num());
+        for (int32 I=0;I<Pose.Num();++I) RestCS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*RestCS[Ref.GetParentIndex(I)];
+        const FQuat Facing=Tooth->StandingMeshTransform().GetRotation();
+        auto Rotate=[&](FName Role,FRotator Delta) {
+            const int32 Bone=Ref.FindBoneIndex(Tooth->RigBone(Role));if(Bone<0) return;
+            const int32 Parent=Ref.GetParentIndex(Bone);
+            const FQuat Basis=Parent<0?FQuat::Identity:RestCS[Parent].GetRotation();
+            const FQuat MeshDelta=Facing.Inverse()*Delta.Quaternion()*Facing;
+            Pose[Bone].SetRotation((Basis.Inverse()*MeshDelta*Basis*Pose[Bone].GetRotation()).GetNormalized());
+        };
+        Rotate(TEXT("gaze_head"),FRotator(22*Tuck,0,0));
+        for(int32 Side=0;Side<2;++Side) {
+            const FString S=Side==0?TEXT("_l"):TEXT("_r");const float Sign=Side==0?-1.f:1.f;
+            Rotate(FName(*(TEXT("leg")+S)),FRotator(68*Tuck,0,Sign*8*Tuck));
+            Rotate(FName(*(TEXT("knee")+S)),FRotator(-112*Tuck,0,0));
+            Rotate(FName(*(TEXT("foot")+S)),FRotator(42*Tuck,0,0));
+            Rotate(FName(*(TEXT("arm")+S)),FRotator(-48*Tuck,0,Sign*12*Tuck));
+            Rotate(FName(*(TEXT("forearm")+S)),FRotator(-72*Tuck,0,0));
+        }
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        auto Rebuild=[&](){for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];};
+        Rebuild();
+        const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+        if (Body<0) {Pose=Locomotion;return;}
+        // Compact floating mittens curl against the face before the crown rolls.
+        // Move the wrist branch together so the artist's hand stays proportional.
+        for(int32 Side=0;Side<2;++Side) {
+            const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+            const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
+            if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
+            FTransform Goal=CS[Hand];
+            const FVector Touch=CS[Body].GetLocation()+Facing.Inverse().RotateVector(FVector(32,Side==0?-22:22,24));
+            Goal.SetLocation(FMath::Lerp(Goal.GetLocation(),Touch,Tuck));
+            const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Goal;
+            const int32 Parent=Ref.GetParentIndex(Lower);
+            Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
+            Pose[Hand]=Ref.GetRefBonePose()[Hand];Rebuild();
+        }
+        for(int32 I=0;I<Pose.Num();++I) {FTransform Blended;Blended.Blend(Locomotion[I],Pose[I],PoseAlpha);Pose[I]=Blended;}
+        Rebuild();
+        const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        FVector Direction=Tooth->GetDashDirection().GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=Tooth->GetActorForwardVector();
+        // A diagonal rolling axis makes a shoulder-like tumble readable on a tooth
+        // with no shoulders. Apply the complete turn after pose blending: quaternion
+        // shortest-path blending would otherwise turn a 360-degree roll into a lean.
+        const FVector Axis=World.InverseTransformVectorNoScale(
+            FVector::CrossProduct(FVector::UpVector,Direction)+Direction*.38f).GetSafeNormal();
+        const FQuat Turn(Axis,2*PI*FMath::SmoothStep(.12f,.82f,Progress));
+        const FVector Up=World.InverseTransformVectorNoScale(FVector::UpVector);
+        const FVector Pivot=CS[Body].GetLocation()+Up*28;
+        FTransform Rolled=CS[Body];
+        Rolled.SetLocation(Pivot+Up*(-12*Tuck)+Turn.RotateVector(CS[Body].GetLocation()-Pivot));
+        Rolled.SetRotation((Turn*Rolled.GetRotation()).GetNormalized());
+        const int32 Parent=Ref.GetParentIndex(Body);
+        Pose[Body]=Parent<0?Rolled:Rolled.GetRelativeTransform(CS[Parent]);
+    }
+    void DashLungePose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
+    {
+        if(!Tooth->IsDashing() || !Tooth->ToothPhysics->CanAct()) return;
+        const float Progress=FMath::Clamp(Tooth->GetDashProgress(),0.f,1.f);
+        DashPoseProgress=Progress;
+        const float Dip=FMath::SmoothStep(0.f,.16f,Progress)*(1-FMath::SmoothStep(.58f,1.f,Progress));
+        const TArray<FTransform> Locomotion=Pose;
+        Pose=Ref.GetRefBonePose();
+        TArray<FTransform> RestCS;RestCS.SetNum(Pose.Num());
+        for(int32 I=0;I<Pose.Num();++I) RestCS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*RestCS[Ref.GetParentIndex(I)];
+        const FQuat Facing=Tooth->StandingMeshTransform().GetRotation();
+        auto Rotate=[&](FName Role,FRotator Delta) {
+            const int32 Bone=Ref.FindBoneIndex(Tooth->RigBone(Role));if(Bone<0) return;
+            const int32 Parent=Ref.GetParentIndex(Bone);
+            const FQuat Basis=Parent<0?FQuat::Identity:RestCS[Parent].GetRotation();
+            const FQuat MeshDelta=Facing.Inverse()*Delta.Quaternion()*Facing;
+            Pose[Bone].SetRotation((Basis.Inverse()*MeshDelta*Basis*Pose[Bone].GetRotation()).GetNormalized());
+        };
+        FVector Direction=Tooth->GetDashDirection().GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=Tooth->GetActorForwardVector();
+        const float LeadSign=FVector::DotProduct(Direction,Tooth->GetActorRightVector())<-.01f?-1.f:1.f;
+        // Keep the eyes forward, with a modest split stance instead of folded legs.
+        Rotate(TEXT("gaze_head"),FRotator(14*Dip,0,-LeadSign*4*Dip));
+        for(int32 Side=0;Side<2;++Side) {
+            const FString S=Side==0?TEXT("_l"):TEXT("_r");const float Sign=Side==0?-1.f:1.f;
+            const bool Lead=Sign==LeadSign;
+            Rotate(FName(*(TEXT("leg")+S)),FRotator((Lead?18:-14)*Dip,0,Sign*3*Dip));
+            Rotate(FName(*(TEXT("knee")+S)),FRotator((Lead?-28:-18)*Dip,0,0));
+            Rotate(FName(*(TEXT("foot")+S)),FRotator((Lead?12:8)*Dip,0,0));
+            Rotate(FName(*(TEXT("arm")+S)),FRotator((Lead?-28:-18)*Dip,0,Sign*8*Dip));
+            Rotate(FName(*(TEXT("forearm")+S)),FRotator((Lead?-48:-36)*Dip,0,0));
+        }
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        auto Rebuild=[&](){for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];};
+        Rebuild();
+        const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+        if(Body<0) {Pose=Locomotion;return;}
+        // Compact mittens brace at the leading shoulder and trail beside the hip.
+        // Move each wrist branch together to retain the artist's hand proportions.
+        for(int32 Side=0;Side<2;++Side) {
+            const float Sign=Side==0?-1.f:1.f;const bool Lead=Sign==LeadSign;
+            const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+            const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
+            if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
+            FTransform Goal=CS[Hand];
+            const FVector Touch=CS[Body].GetLocation()+Facing.Inverse().RotateVector(FVector(Lead?36:4,Sign*(Lead?23:27),Lead?16:7));
+            Goal.SetLocation(FMath::Lerp(Goal.GetLocation(),Touch,Dip));
+            const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Goal;
+            const int32 Parent=Ref.GetParentIndex(Lower);
+            Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
+            Pose[Hand]=Ref.GetRefBonePose()[Hand];Rebuild();
+        }
+        for(int32 I=0;I<Pose.Num();++I) {FTransform Blended;Blended.Blend(Locomotion[I],Pose[I],Dip);Pose[I]=Blended;}
+        Rebuild();
+        const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        const FVector Up=World.InverseTransformVectorNoScale(FVector::UpVector).GetSafeNormal();
+        const FVector Forward=World.InverseTransformVectorNoScale(Direction).GetSafeNormal();
+        const FVector Right=World.InverseTransformVectorNoScale(FVector::CrossProduct(FVector::UpVector,Direction)).GetSafeNormal();
+        // A bounded shoulder-led lunge: 28-degree forward lean, 10-degree side
+        // dip and 12-degree twist. The tooth stays upright and recovers smoothly.
+        const FQuat Lean(Right,FMath::DegreesToRadians(28.f*Dip));
+        const FQuat Shoulder(Forward,FMath::DegreesToRadians(-LeadSign*10.f*Dip));
+        const FQuat Twist(Up,FMath::DegreesToRadians(-LeadSign*12.f*Dip));
+        FTransform Lunge=CS[Body];
+        Lunge.SetLocation(Lunge.GetLocation()+(Forward*12-Up*3)*Dip);
+        Lunge.SetRotation((Twist*Shoulder*Lean*Lunge.GetRotation()).GetNormalized());
+        const int32 Parent=Ref.GetParentIndex(Body);
+        Pose[Body]=Parent<0?Lunge:Lunge.GetRelativeTransform(CS[Parent]);
+    }
+public:
     void CollectionAndYawnPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
     {
         const bool Yawn=Tooth->IsYawning();
@@ -333,7 +473,7 @@ public:
     {
         Feet[0]=Feet[1]=FMCFootContactDebug();
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
-        const bool Reset=!Tooth->ToothPhysics->CanAct() || FVector::DistSquared(World.GetLocation(),PreviousMeshLocation)>FMath::Square(200.);
+        const bool Reset=Tooth->IsDashing() || !Tooth->ToothPhysics->CanAct() || FVector::DistSquared(World.GetLocation(),PreviousMeshLocation)>FMath::Square(200.);
         PreviousMeshLocation=World.GetLocation();
         if (Reset)
         {
@@ -433,6 +573,7 @@ public:
         const auto* Mesh=Instance->GetSkelMeshComponent()->GetSkeletalMeshAsset();
         if (!Tooth || !Mesh) return;
         const auto& Ref=Mesh->GetRefSkeleton(); Pose=Ref.GetRefBonePose();
+        DashPoseProgress=-1;
         TArray<FTransform> ReferenceCS; ReferenceCS.SetNum(Pose.Num());
         for (int32 I=0;I<Pose.Num();++I) ReferenceCS[I]=Ref.GetParentIndex(I)>=0?Pose[I]*ReferenceCS[Ref.GetParentIndex(I)]:Pose[I];
         auto Rotate=[&](FName Name,FRotator Delta)
@@ -570,12 +711,15 @@ public:
                 Pose[Hand]=Ref.GetRefBonePose()[Hand];
             }
         }
+        DashLungePose(Tooth,Ref);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);
         if (auto* Diagnostics=Cast<UMCToothAnimInstance>(Instance); Diagnostics && Diagnostics->bRecordMotion)
         {
             Diagnostics->FootContacts[0]=Feet[0]; Diagnostics->FootContacts[1]=Feet[1];
+            Diagnostics->DiagnosticDashProgress=DashPoseProgress;
+            Diagnostics->DiagnosticMeshUp=Tooth->GetMesh()->GetComponentTransform().InverseTransformVectorNoScale(FVector::UpVector).GetSafeNormal();
             Diagnostics->DiagnosticPose.SetNum(Pose.Num());
             for (int32 I=0;I<Pose.Num();++I)
                 Diagnostics->DiagnosticPose[I]=Ref.GetParentIndex(I)>=0?Pose[I]*Diagnostics->DiagnosticPose[Ref.GetParentIndex(I)]:Pose[I];

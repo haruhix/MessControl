@@ -20,6 +20,8 @@ public:
     bool bRecordMotion=false;
     TArray<FTransform> DiagnosticPose;
     FMCFootContactDebug FootContacts[2];
+    float DiagnosticDashProgress=-1;
+    FVector DiagnosticMeshUp=FVector::UpVector;
 protected:
     virtual FAnimInstanceProxy* CreateAnimInstanceProxy() override;
     virtual void DestroyAnimInstanceProxy(FAnimInstanceProxy* InProxy) override;
