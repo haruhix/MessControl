@@ -18,8 +18,6 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "NiagaraSystem.h"
-#include "MCBrushContactComponent.h"
 #include "MCToothAnimInstance.h"
 #include "Engine/SkeletalMesh.h"
 
@@ -177,14 +175,6 @@ bool FMCSprayProtection::RunTest(const FString&) {
     TestFalse(TEXT("Less than seven seconds is incomplete"),Patch->IsHealed());
     Tick(1); TestTrue(TEXT("Resumed treatment completes after seven effective seconds"),Patch->IsHealed());
     Tick(10); TestEqual(TEXT("Completed treatment stays at one"),Patch->Healing,1.f);
-    return true;
-}
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoamAsset,"MessControl.Inventory.NiagaraAsset",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCFoamAsset::RunTest(const FString&) {
-    const auto* Default=GetDefault<UMCBrushContactComponent>();
-    const auto* System=Default->FoamSystem.LoadSynchronous();
-    if(!TestNotNull(TEXT("Authored Niagara foam ships with the project"),System)) return false;
-    TestTrue(TEXT("Foam contains an emitter"),System->GetNumEmitters()>0);
     return true;
 }
 #endif

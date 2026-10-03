@@ -80,6 +80,7 @@ bool FMCThroatTwoCarriers::RunTest(const FString&)
         TestTrue(TEXT("Entering the delivery zone clears the hand without an action input"),T.First->FoodCollection->Pieces.IsEmpty() && !T.First->FoodCollection->bCollecting);
         TestEqual(TEXT("First delivered stack opens the gathering window"),T.Throat->ThroatPhase,EMCThroatPhase::Anticipation);
         TestEqual(TEXT("Nothing is consumed at delivery"),T.Throat->FoodSwallowed,0);
+        TestFalse(TEXT("Reserved intake cannot be grabbed or cut"),First[0]->TryGrab(T.First) || First[0]->HitFood(10000,FVector::ForwardVector));
         const double Window=T.Throat->PhaseStartedAt;
         T.Step(1.2f,Dt);T.Enter(T.Second,110);T.Step(.15f,Dt);
         TestTrue(TEXT("Another carrier automatically joins the same batch"),T.Second->FoodCollection->Pieces.IsEmpty() && !T.Second->FoodCollection->bCollecting);

@@ -124,24 +124,6 @@ namespace
     };
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatCycleTest,"MessControl.Throat.AutomaticIntake",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCThroatCycleTest::RunTest(const FString&)
-{
-    FTestMouth M;auto* Throat=M.World->SpawnActor<AMCThroat>(FVector(5000,0,200),FRotator::ZeroRotator);
-    auto* F=M.GripCube();F->Body->SetSimulatePhysics(false);F->Phase=EMCFoodPhase::Free;
-    F->SetActorLocation(Throat->GetActorTransform().TransformPosition(Throat->ZoneCenter+FVector(0,0,60)));
-    Throat->Tick(.1f);
-    TestTrue(TEXT("Food delivery starts the gathering window without uvula or player input"),F->Phase==EMCFoodPhase::Swallowing && Throat->ThroatPhase==EMCThroatPhase::Anticipation && Throat->SwallowCount==0);
-    TestFalse(TEXT("Intake cannot be grabbed or cut"),F->TryGrab(M.Worker()) || F->HitFood(10000,FVector::ForwardVector));
-    Throat->PhaseStartedAt-=Throat->AnticipationSeconds+.01;Throat->Tick(.01f);
-    TestTrue(TEXT("The shared gathering deadline starts one visible gulp"),Throat->ThroatPhase==EMCThroatPhase::Swallowing && Throat->SwallowCount==1 && !F->IsDisposed());
-    Throat->PhaseStartedAt-=Throat->SwallowSeconds+.01;Throat->Tick(.01f);
-    TestTrue(TEXT("Food is committed only after the visible gulp"),F->IsDisposed() && Throat->FoodSwallowed==1);
-    Throat->PhaseStartedAt-=Throat->RecoverySeconds+.01;Throat->Tick(.01f);
-    TestEqual(TEXT("Intake returns to collecting"),Throat->ThroatPhase,EMCThroatPhase::Collecting);
-    return true;
-}
-
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatEligibilityTest,"MessControl.Throat.BoundsHeldFoodAndReset",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCThroatEligibilityTest::RunTest(const FString& Parameters)
 {
@@ -2026,22 +2008,6 @@ bool FMCThroatCameraTest::RunTest(const FString&)
     TestTrue(TEXT("A knocked-down player also becomes kinematic in the gulp"),Hero->ToothPhysics->CanAct() && !Hero->GetMesh()->IsSimulatingPhysics(Hero->RigBone(TEXT("body"))));
     Hero->ClientThroatExit(Exit,Impulse);
     TestTrue(TEXT("Ejected player restores collision"),Hero->GetCapsuleComponent()->GetCollisionEnabled()==ECollisionEnabled::QueryAndPhysics);
-    return true;
-}
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCJumpHeightTest,"MessControl.Locomotion.RaisedJumpHeight",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCJumpHeightTest::RunTest(const FString&)
-{
-    FTestMouth Mouth; auto* Hero=Mouth.Worker();
-    UClass* Blueprint=LoadClass<AMCToothCharacter>(nullptr,TEXT("/Game/Blueprints/BP_ToothCharacter.BP_ToothCharacter_C"));
-    if(!TestNotNull(TEXT("Authored player Blueprint exists"),Blueprint)) return false;
-    auto* Authored=Mouth.World->SpawnActor<AMCToothCharacter>(Blueprint,FVector(5000,0,100),FRotator::ZeroRotator);
-    for(auto* H:{Hero,Authored}) {
-        auto* Move=H->GetCharacterMovement();
-        const float OldHeight=500.f*500.f/(2*FMath::Abs(Move->GetGravityZ()));
-        TestTrue(TEXT("Native and Blueprint players jump 28 percent higher"),FMath::IsNearlyEqual(Move->GetMaxJumpHeight()/OldHeight,1.28f,.001f));
-        Move->SetMovementMode(MOVE_Walking); H->Jump();
-        TestTrue(TEXT("Actual jump accepts the new takeoff velocity"),Move->DoJump(false,1.f/60) && FMath::IsNearlyEqual(Move->Velocity.Z,565.685f,.01f));
-    }
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCHeavyFoodDragTest,"MessControl.Grip.HeavyArtistMeshSpecialObjectMoves",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

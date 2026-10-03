@@ -22,7 +22,7 @@ template<> struct TStructOpsTypeTraits<FMCLocomotionRootMotionSource> : public T
     enum { WithNetSerializer=true,WithCopy=true };
 };
 
-/** Predicted sprint, tap dash and ambient wind, plus ground response and surface swimming. */
+/** Predicted sprint, press dash and ambient wind, plus ground response and surface swimming. */
 UCLASS()
 class MESSCONTROL_API UMCToothMovementComponent : public UCharacterMovementComponent
 {
@@ -36,6 +36,7 @@ public:
     virtual void UpdateFromCompressedFlags(uint8 Flags) override;
     virtual void PerformMovement(float Dt) override;
     virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
+    virtual bool ClientUpdatePositionAfterServerUpdate() override;
     virtual FRotator ComputeOrientToMovementRotation(const FRotator& CurrentRotation,float DeltaTime,FRotator& DeltaRotation) const override;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion",meta=(ClampMin="100",ClampMax="600")) float WalkSpeed=340;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion",meta=(ClampMin="200",ClampMax="900")) float SprintSpeed=560;

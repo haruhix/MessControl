@@ -95,6 +95,22 @@ private:
     double NextJoltAt=0;
     double NextYawnAt=65;
     float Offset(FVector Local,float Time,float& Red,TConstArrayView<FMCTongueMotionState> Pulses) const;
+    // The vertex and its six normal samples never change in local space.
+    // Cache their masks/distances without changing the collision topology.
+    struct FDeformationSample
+    {
+        FVector Point;
+        float SurfaceMask=0,PulseWeight=0,JoltMask=0,IdlePhase=0;
+        float MotionMask=0,Distance=0;
+    };
+    TArray<FDeformationSample> DeformationSamples;
+    FTransform DeformationTransform;
+    int32 DeformationMotionSerial=INDEX_NONE;
+    FMCTongueMotionState DeformationMotion;
+    void BuildDeformationSamples();
+    void RefreshDeformationMotion();
+    float SampleOffset(const FDeformationSample& Sample,float Time,float IdleAngle,float Envelope,float YawnHeight,float& Red,TConstArrayView<FMCTongueMotionState> Pulses) const;
+    friend class FMCTongueCachedDeformationTest;
     void Deform(float Time);
     TArray<FVector> Rest,RestNormals,Positions,Normals;
     TArray<float> AnchorWeights;

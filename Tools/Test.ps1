@@ -10,7 +10,7 @@ $taskProject=Join-Path $taskRoot 'MessControl.uproject'
 $taskLogs=Join-Path $taskRoot 'Saved\Logs'
 New-Item -ItemType Directory -Path $taskLogs -Force | Out-Null
 if ($Mode -eq 'Unit') {
-    & $taskEditor $taskProject -unattended -nop4 -nosplash -nullrhi '-ExecCmds=Automation RunTests MessControl; Quit' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$taskRoot\Saved\TestReports" "-abslog=$taskLogs\Automation.log"
+    & $taskEditor $taskProject -unattended -nop4 -nosplash -nullrhi '-ExecCmds=Automation SetFilter Engine; Automation RunTests MessControl; Quit' '-TestExit=Automation Test Queue Empty' "-ReportExportPath=$taskRoot\Saved\TestReports" "-abslog=$taskLogs\Automation.log"
     if ($LASTEXITCODE -ne 0) { throw 'Unreal automation failed.' }
     $taskReport=Get-Content -Raw "$taskRoot\Saved\TestReports\index.json" | ConvertFrom-Json
     if ($taskReport.failed -ne 0 -or ($taskReport.succeeded + $taskReport.succeededWithWarnings) -lt 36) { throw 'Not all gameplay and physics tests passed.' }

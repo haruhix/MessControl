@@ -229,7 +229,8 @@ void MCTickDashSuctionValidation(UWorld* World)
         if(T>1 && T<2.8 && H->IsDashing()) {
             R.Dash|=Bit;
         }
-        if(T>3.5 && T<4.15) {if(Move->bSprintActive && Move->Velocity.Size2D()>450) R.Sprint|=Bit;R.Invalid|=H->IsDashing();}
+        // A hold begins with a press dash; allow its delayed proxy pose to finish.
+        if(T>3.85 && T<4.15) {if(Move->bSprintActive && Move->Velocity.Size2D()>450) R.Sprint|=Bit;R.Invalid|=H->IsDashing();}
         if(T>7.7 && T<8 && !R.Baseline[I]) {R.Starts[I]=H->GetActorLocation();R.Baseline[I]=true;}
         if(T>8.6 && T<11.5) {
             if(Throat->IsAmbientSuctionActive() && H->Expression->FoodSuctionReaction>.03f) R.Face|=Bit;

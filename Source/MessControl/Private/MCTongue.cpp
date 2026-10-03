@@ -61,6 +61,7 @@ void AMCTongue::RebuildSurface()
     }
     Colors.Init(FColor(0,0,0,255),Rest.Num());
     IndentDepth.Init(0,Rest.Num()); IndentGradient.Init(FVector::ZeroVector,Rest.Num()); PressureHold.Init(0,Rest.Num());
+    BuildDeformationSamples();
     BuildPressureGrid();
     Surface->ClearAllMeshSections();
     Surface->CreateMeshSection(0,Positions,Indices,Normals,UV,Colors,Tangents,true);
@@ -131,6 +132,7 @@ void AMCTongue::ResetPain()
 {
     if (!HasAuthority()) return;
     Motion=FMCTongueMotionState(); HitActors.Empty(); PreviousMotionAge=-1; PlayerPushes=FoodPushes=0;
+    DeformationMotionSerial=INDEX_NONE;
     ScheduleJolt(); ForceNetUpdate();
 }
 float AMCTongue::JoltWeight(FVector P) const
@@ -192,6 +194,62 @@ float AMCTongue::Offset(FVector P,float Time,float& Red,TConstArrayView<FMCTongu
     }
     return Height;
 }
+void AMCTongue::BuildDeformationSamples()
+{
+    static const FVector Steps[]={FVector::ZeroVector,FVector(1,0,0),FVector(-1,0,0),FVector(0,1,0),FVector(0,-1,0),FVector(0,0,1),FVector(0,0,-1)};
+    DeformationSamples.Reset(Rest.Num()*7);
+    for (const FVector& Vertex:Rest) for (const FVector& Step:Steps)
+    {
+        FDeformationSample Sample; Sample.Point=Vertex+Step;
+        Sample.SurfaceMask=SurfaceWeight(Sample.Point); Sample.PulseWeight=FMath::Sqrt(Sample.SurfaceMask);
+        Sample.JoltMask=JoltWeight(Sample.Point);
+        Sample.IdlePhase=float((Sample.Point.Y-RestBounds.Min.Y)/RestBounds.GetSize().Y)*1.2f;
+        DeformationSamples.Add(Sample);
+    }
+    DeformationMotionSerial=INDEX_NONE;
+    RefreshDeformationMotion();
+}
+void AMCTongue::RefreshDeformationMotion()
+{
+    // Reset and a new event can coalesce into one network update with the same
+    // serial. Compare geometry inputs too so clients never retain the old pose.
+    if (DeformationMotionSerial==Motion.Serial && DeformationTransform.Equals(GetActorTransform())
+        && DeformationMotion.Origin.Equals(Motion.Origin) && DeformationMotion.Direction.Equals(Motion.Direction)
+        && DeformationMotion.Settings.Shape==Motion.Settings.Shape && DeformationMotion.Settings.Radius==Motion.Settings.Radius) return;
+    DeformationMotionSerial=Motion.Serial; DeformationTransform=GetActorTransform();
+    DeformationMotion=Motion;
+    for (FDeformationSample& Sample:DeformationSamples)
+    {
+        Sample.Distance=MotionDistance(Sample.Point);
+        const auto& S=Motion.Settings;
+        if (S.Shape==EMCTongueShape::FrontBend) Sample.MotionMask=Sample.JoltMask;
+        else if (S.Shape==EMCTongueShape::LocalLift) Sample.MotionMask=Sample.PulseWeight*(1-FMath::SmoothStep(0.f,S.Radius,Sample.Distance));
+        else if (S.Shape==EMCTongueShape::DirectionalWave)
+        {
+            const FVector Delta=DeformationTransform.TransformVector(Sample.Point-Motion.Origin);
+            const FVector Direction=DeformationTransform.TransformVectorNoScale(Motion.Direction);
+            const float Side=FMath::Abs(FVector::DotProduct(Delta,FVector::CrossProduct(Direction,FVector::UpVector)));
+            Sample.MotionMask=Sample.PulseWeight*(1-FMath::SmoothStep(S.Radius*.6f,S.Radius,Side));
+        }
+        else Sample.MotionMask=Sample.PulseWeight;
+    }
+}
+float AMCTongue::SampleOffset(const FDeformationSample& Sample,float Time,float IdleAngle,float Envelope,float YawnHeight,float& Red,TConstArrayView<FMCTongueMotionState> Pulses) const
+{
+    const auto& S=Motion.Settings;
+    const float Amount=Motion.Serial>0?Sample.MotionMask*(S.IsWave()?S.Band(Sample.Distance,Time-Motion.StartedAt):Envelope):0;
+    Red=FMath::Max(0.f,Amount)*S.Redness;
+    float Height=Sample.SurfaceMask*Settings.IdleHeight*FMath::Sin(IdleAngle+Sample.IdlePhase)+S.Height*Amount;
+    Height+=Sample.SurfaceMask*YawnHeight;
+    for (const auto& Pulse:Pulses)
+    {
+        const float Distance=DeformationTransform.TransformVector(Sample.Point-Pulse.Origin).Size2D();
+        const float PulseAmount=Sample.PulseWeight*Pulse.Settings.Band(Distance,Time-Pulse.StartedAt);
+        Height+=Pulse.Settings.Height*PulseAmount;
+        Red=FMath::Max(Red,FMath::Max(0.f,PulseAmount)*Pulse.Settings.Redness);
+    }
+    return Height;
+}
 void AMCTongue::Deform(float Time)
 {
     TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_DeformAndCollision);
@@ -201,23 +259,31 @@ void AMCTongue::Deform(float Time)
         FMCTongueMotionState Pulse;
         if(It->SurfaceMotion(this,Time,Pulse)) Pulses.Add(Pulse);
     }
+    RefreshDeformationMotion();
+    const float IdleAngle=Time*2*PI/Settings.IdlePeriod;
+    const float Envelope=Motion.Settings.IsWave()?0:Motion.Settings.Envelope(Time-Motion.StartedAt);
+    const float YawnHeight=YawnStartedAt>=0 && Time>=YawnStartedAt && Time<YawnStartedAt+YawnDuration
+        ?45*FMath::Sin(PI*(Time-YawnStartedAt)/FMath::Max(1.f,YawnDuration)):0;
+    const float ScaleZ=FMath::Abs(GetActorScale3D().Z);
     for (int32 I=0;I<Rest.Num();++I)
     {
         const FVector P=Rest[I]; float Red=0,Dummy=0;
-        const float PhysicalHeight=Offset(P,Time,Red,Pulses),Height=PhysicalHeight-IndentDepth[I],Anchor=AnchorWeights[I];
+        const FDeformationSample* Samples=&DeformationSamples[I*7];
+        auto OffsetAt=[&](int32 J,float& R) { return SampleOffset(Samples[J],Time,IdleAngle,Envelope,YawnHeight,R,Pulses); };
+        const float PhysicalHeight=OffsetAt(0,Red),Height=PhysicalHeight-IndentDepth[I],Anchor=AnchorWeights[I];
         // Events and weight share this buffer with Chaos. Never add a second
         // material-only displacement: it leaves feet/food above the visible dent.
         Positions[I]=P+FVector(0,0,Height*Anchor); Red*=Anchor;
         // Transform artist normals/tangents with the displacement gradient; keep UV seam smoothing.
-        const float Dx=((Offset(P+FVector(1,0,0),Time,Dummy,Pulses)-Offset(P-FVector(1,0,0),Time,Dummy,Pulses))*.5f-IndentGradient[I].X)*Anchor+Height*AnchorGradients[I].X;
-        const float Dy=((Offset(P+FVector(0,1,0),Time,Dummy,Pulses)-Offset(P-FVector(0,1,0),Time,Dummy,Pulses))*.5f-IndentGradient[I].Y)*Anchor+Height*AnchorGradients[I].Y;
-        const float Dz=((Offset(P+FVector(0,0,1),Time,Dummy,Pulses)-Offset(P-FVector(0,0,1),Time,Dummy,Pulses))*.5f-IndentGradient[I].Z)*Anchor+Height*AnchorGradients[I].Z;
+        const float Dx=((OffsetAt(1,Dummy)-OffsetAt(2,Dummy))*.5f-IndentGradient[I].X)*Anchor+Height*AnchorGradients[I].X;
+        const float Dy=((OffsetAt(3,Dummy)-OffsetAt(4,Dummy))*.5f-IndentGradient[I].Y)*Anchor+Height*AnchorGradients[I].Y;
+        const float Dz=((OffsetAt(5,Dummy)-OffsetAt(6,Dummy))*.5f-IndentGradient[I].Z)*Anchor+Height*AnchorGradients[I].Z;
         const FVector N=RestNormals[I],T=RestTangents[I].TangentX;
         const float Nz=N.Z/FMath::Max(.5f,1+Dz);
         Normals[I]=FVector(N.X-Dx*Nz,N.Y-Dy*Nz,Nz).GetSafeNormal();
         Tangents[I]=FProcMeshTangent((T+FVector(0,0,Dx*T.X+Dy*T.Y+Dz*T.Z)).GetSafeNormal(),RestTangents[I].bFlipTangentY);
         // One pressure field drives geometry, physics and material masks. No UV1 displacement.
-        const float Depth=IndentDepth[I]*Anchor*FMath::Abs(GetActorScale3D().Z);
+        const float Depth=IndentDepth[I]*Anchor*ScaleZ;
         const float Mask=FMath::Clamp(Depth/FMath::Max(1.f,PressureSettings.MaxDepth),0.f,1.f);
         const float Rim=FMath::Clamp(float((IndentGradient[I]*Anchor+IndentDepth[I]*AnchorGradients[I]).Size2D())*4,0.f,1.f);
         Colors[I]=FColor(FMath::RoundToInt(FMath::Clamp(Red,0.f,1.f)*255),FMath::RoundToInt(Mask*255),FMath::RoundToInt(Rim*255),255);

@@ -3,6 +3,7 @@
 #include "PhysicsEngine/BodySetup.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Chaos/Convex.h"
+#include "Chaos/TriangleMeshImplicitObject.h"
 
 namespace
 {
@@ -26,6 +27,45 @@ namespace
     // Components retain the immutable setup through ShapeBodySetup. The cache must
     // not keep meshes or collision data alive after the last item is collected.
     TMap<FFoodCollisionKey,TWeakObjectPtr<UBodySetup>> FoodCollisionCache;
+    // Only live components retain these wrappers; cooked triangle meshes remain
+    // shared with the source asset and other grip components.
+    TMap<TWeakObjectPtr<UBodySetup>,TWeakObjectPtr<UBodySetup>> FoodGripCache;
+}
+
+UBodySetup* UMCFoodGripComponent::GetBodySetup()
+{
+    // Async creation has already resolved the setup on the game thread.
+    if(!IsInGameThread() && !IsInParallelGameThread() && IsAsyncCreatePhysicsStateRunning())
+        return Super::GetBodySetup();
+    UBodySetup* Source=Super::GetBodySetup();
+    if(!Source) {QueryBodySetup=nullptr;QuerySource.Reset();return nullptr;}
+    if(QuerySource==Source && QueryBodySetup && QueryBodySetup->BodySetupGuid==Source->BodySetupGuid)
+        return QueryBodySetup;
+    Source->CreatePhysicsMeshes();
+    // Preserve the engine fallback for assets that have no detailed mesh data.
+    if(Source->TriMeshGeometries.IsEmpty()) {QueryBodySetup=nullptr;QuerySource.Reset();return Source;}
+    for(auto It=FoodGripCache.CreateIterator();It;++It)
+        if(!It.Key().IsValid() || !It.Value().IsValid()) It.RemoveCurrent();
+    if(const auto* Cached=FoodGripCache.Find(Source); Cached && Cached->IsValid()
+        && Cached->Get()->BodySetupGuid==Source->BodySetupGuid)
+        QueryBodySetup=Cached->Get();
+    else
+    {
+        QueryBodySetup=NewObject<UBodySetup>(GetTransientPackage(),NAME_None,RF_Transient);
+        QueryBodySetup->BodySetupGuid=Source->BodySetupGuid;
+        QueryBodySetup->CollisionTraceFlag=CTF_UseComplexAsSimple;
+        QueryBodySetup->TriMeshGeometries=Source->TriMeshGeometries;
+        QueryBodySetup->BuildScale3D=Source->BuildScale3D;
+        QueryBodySetup->bDoubleSidedGeometry=Source->bDoubleSidedGeometry;
+        QueryBodySetup->UVInfo=Source->UVInfo;
+        QueryBodySetup->FaceRemap=Source->FaceRemap;
+        QueryBodySetup->PhysMaterial=Source->PhysMaterial;
+        QueryBodySetup->bCreatedPhysicsMeshes=true;
+        QueryBodySetup->bNeverNeedsCookedCollisionData=true;
+        FoodGripCache.Add(Source,QueryBodySetup.Get());
+    }
+    QuerySource=Source;
+    return QueryBodySetup;
 }
 
 UMCFoodBodyComponent::UMCFoodBodyComponent()

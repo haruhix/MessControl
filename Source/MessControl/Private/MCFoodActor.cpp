@@ -48,7 +48,7 @@ AMCFoodActor::AMCFoodActor()
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetRelativeLocation(FVector(0,0,-25)); Visual->SetRelativeScale3D(FVector(1.5));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Stylized_Vegetables/Meshes/SM_Broccoli"));
     if (Mesh.Succeeded()) Visual->SetStaticMesh(Mesh.Object);
-    GripSurface=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GripSurface")); GripSurface->SetupAttachment(Visual);
+    GripSurface=CreateDefaultSubobject<UMCFoodGripComponent>(TEXT("GripSurface")); GripSurface->SetupAttachment(Visual);
     GripSurface->SetVisibility(false); GripSurface->SetHiddenInGame(true); GripSurface->SetCastShadow(false);
     GripSurface->SetCollisionEnabled(ECollisionEnabled::QueryOnly); GripSurface->SetCollisionResponseToAllChannels(ECR_Ignore);
     GripSurface->SetGenerateOverlapEvents(false);
@@ -197,8 +197,19 @@ bool AMCFoodActor::FindGripSurface(FVector From,FHitResult& Hit) const
         }
     };
     FVector Closest;
-    if (GripSurface->GetClosestPointOnCollision(From,Closest)>=0)
+    // Closest-point queries require convex shapes. Use the existing simulation
+    // body as an aim hint, then trace the detailed, deformed triangle surface.
+    if (Body->GetClosestPointOnCollision(From,Closest)>=0)
+    {
+        if(!bBrushTool && ItemMesh)
+        {
+            const FVector Scale=bFragment?FoodData.FragmentScale:FoodData.Scale;
+            const FTransform RestPose(FQuat::Identity,-ItemMesh->GetBounds().Origin*Scale,Scale);
+            const FVector MeshPoint=RestPose.InverseTransformPosition(Body->GetComponentTransform().InverseTransformPosition(Closest));
+            Closest=Visual->GetComponentTransform().TransformPosition(MeshPoint);
+        }
         TryRay(Closest);
+    }
     TryRay(Near); TryRay(Center);
     // A horizontal ray can hit a narrow stalk beyond arm reach although a floret
     // just above it is reachable. Search the actual outline before refusing a grip.

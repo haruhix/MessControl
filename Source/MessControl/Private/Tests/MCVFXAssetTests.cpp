@@ -1,5 +1,6 @@
 #if WITH_EDITOR && WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
+#include "MCBrushContactComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraMeshRendererProperties.h"
 #include "Stateless/NiagaraStatelessEmitter.h"
@@ -9,9 +10,14 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCVFXMeshSlotsTest,"MessControl.VFX.SavedParticleMeshSlots",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCVFXMeshSlotsTest::RunTest(const FString&)
 {
-    for(const TCHAR* Name:{TEXT("NS_BrushFoam"),TEXT("NS_SprayMist"),TEXT("NS_IceShatter")}) {
-        const FString Path=FString::Printf(TEXT("/Game/Gameplay/VFX/%s.%s"),Name,Name);
-        auto* System=LoadObject<UNiagaraSystem>(nullptr,*Path);
+    const TArray<TSoftObjectPtr<UNiagaraSystem>> Assets={
+        GetDefault<UMCBrushContactComponent>()->FoamSystem,
+        TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_SprayMist.NS_SprayMist"))),
+        TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_IceShatter.NS_IceShatter")))
+    };
+    for(const auto& Asset:Assets) {
+        const FString Path=Asset.ToSoftObjectPath().ToString();
+        auto* System=Asset.LoadSynchronous();
         if(!TestNotNull(Path,System)) continue;
         int32 MeshRenderers=0;
         for(int32 I=0;I<System->GetNumEmitters();++I) {

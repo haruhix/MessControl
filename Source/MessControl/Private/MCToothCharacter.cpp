@@ -346,20 +346,23 @@ void AMCToothCharacter::SetSprintInputHeld(bool Held) { if(Held) StartSprint(); 
 void AMCToothCharacter::StartSprint()
 {
     if(bSprintInputHeld || !CanWork()) return;
-    bSprintInputHeld=true;SprintInputStartedAt=GetWorld()->GetTimeSeconds();
-    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(false);
+    bSprintInputHeld=true;
+    auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
+    Move->SetSprinting(true);
+    // Start the predicted lunge on the press. Waiting for release makes the
+    // response depend on tap length and loses taps during slow frames.
+    Move->RequestDash();
 }
 void AMCToothCharacter::StopSprint()
 {
     auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
-    const bool Tap=bSprintInputHeld && GetWorld()->GetTimeSeconds()-SprintInputStartedAt<SprintHoldSeconds;
     bSprintInputHeld=false;Move->SetSprinting(false);
-    if(Tap && CanWork()) Move->RequestDash();
 }
 void AMCToothCharacter::CancelSprintInput()
 {
     bSprintInputHeld=false;
-    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(false);
+    auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
+    Move->SetSprinting(false);Move->SetWantsDash(false);
 }
 bool AMCToothCharacter::IsDashing() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsDashing(); }
 float AMCToothCharacter::GetDashProgress() const { return CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->GetDashProgress(); }
@@ -518,7 +521,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
     if(IsLocallyControlled() && bSprintInputHeld) {
         if(!CanWork()) CancelSprintInput();
-        else CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(GetWorld()->GetTimeSeconds()-SprintInputStartedAt>=SprintHoldSeconds);
+        else CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(true);
     }
     UpdateYawn(DeltaSeconds);
     const auto* OrderState=GetWorld()->GetGameState();

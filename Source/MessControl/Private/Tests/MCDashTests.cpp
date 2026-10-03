@@ -57,14 +57,17 @@ struct FDashWorld
 };
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDashTapHold,"MessControl.Dash.TapHoldCooldownAndCancellation",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDashTapHold,"MessControl.Dash.PressHoldCooldownAndCancellation",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCDashTapHold::RunTest(const FString&)
 {
     for(float Dt:{1.f/30,1.f/60,1.f/120}) {
         FDashWorld T;
         if(!TestTrue(TEXT("Fixture has a local actionable character standing on its collision floor"),T.Ready())) return false;
-        const FVector Start=T.Hero->GetActorLocation();T.Tap(Dt);
-        TestTrue(TEXT("A short Shift tap starts the predicted dash"),T.Hero->IsDashing());
+        const FVector Start=T.Hero->GetActorLocation();
+        T.Hero->SetSprintInputHeld(true);T.Step(Dt,Dt);
+        TestTrue(TEXT("Shift starts the predicted dash on the first movement frame while still held"),T.Hero->IsDashing());
+        TestTrue(TEXT("Shift press immediately moves the capsule"),T.Hero->GetActorLocation().X-Start.X>5);
+        T.Hero->SetSprintInputHeld(false);T.Step(Dt,Dt);
         TestTrue(TEXT("Dash has a measurable normalized animation phase"),T.Hero->GetDashProgress()>0 && T.Hero->GetDashProgress()<1);
         TestTrue(TEXT("Dash without direction uses the facing direction"),FVector::DotProduct(T.Hero->GetDashDirection(),FVector::ForwardVector)>.99);
         T.Step(.45f,Dt);
@@ -76,13 +79,29 @@ bool FMCDashTapHold::RunTest(const FString&)
         T.Hero->CancelGameplayInput();TestFalse(TEXT("Cancel stops an active dash immediately"),T.Hero->IsDashing());
         T.Step(1.2f,Dt);T.Hero->SetSprintInputHeld(true);T.Step(.08f,Dt);
         T.Hero->CancelGameplayInput();T.Step(.05f,Dt);
-        TestFalse(TEXT("Input cancellation never converts a short press into a dash"),T.Hero->IsDashing());
+        TestFalse(TEXT("Input cancellation stops the press dash without restarting it"),T.Hero->IsDashing());
         T.Hero->SetSprintInputHeld(true);T.Step(1.f,Dt,true);
-        TestTrue(TEXT("Holding Shift starts sprinting after the tap window"),T.Move->bSprintActive && T.Hero->GetVelocity().Size2D()>500);
+        TestTrue(TEXT("Holding Shift transitions into sustained sprinting"),T.Move->bSprintActive && T.Hero->GetVelocity().Size2D()>500);
         T.Hero->SetSprintInputHeld(false);T.Step(Dt,Dt);
         TestFalse(TEXT("Releasing a long hold never triggers a dash"),T.Hero->IsDashing());
         TestFalse(TEXT("Releasing Shift clears sprint intent"),T.Move->WantsToSprint());
+        T.Hero->SetSprintInputHeld(true);T.Hero->AddMovementInput(FVector::RightVector);T.Step(Dt,Dt);
+        TestTrue(TEXT("Repressing Shift after sprint starts a new dash immediately"),T.Hero->IsDashing());
+        TestTrue(TEXT("Dash uses this frame's direction even when input arrives after the press"),FVector::DotProduct(T.Hero->GetDashDirection(),FVector::RightVector)>.99);
+        T.Hero->SetSprintInputHeld(false);
     }
+    FDashWorld T;if(!TestTrue(TEXT("Press fixture starts with an available ground dash"),T.Ready())) return false;
+    T.Hero->SetSprintInputHeld(true);T.Step(.25f,.25f);
+    TestTrue(TEXT("A frame longer than the hold threshold still starts the dash on press"),T.Hero->IsDashing());
+    T.Step(1.2f);
+    TestFalse(TEXT("Holding past the cooldown does not automatically repeat the dash"),T.Hero->IsDashing());
+    TestTrue(TEXT("The cooldown has elapsed before release"),T.Move->CanDash());
+    T.Hero->SetSprintInputHeld(false);T.Step(1.f/60);
+    TestFalse(TEXT("Release never starts a second dash after cooldown"),T.Hero->IsDashing());
+    T.Hero->SetSprintInputHeld(true);T.Hero->CancelGameplayInput();T.Step(1.f/60);
+    TestFalse(TEXT("Cancel before the next movement frame clears the queued dash"),T.Hero->IsDashing());
+    T.Hero->SetSprintInputHeld(true);T.Hero->SetSprintInputHeld(false);T.Step(1.f/60);
+    TestTrue(TEXT("Press and release within one frame still executes one dash"),T.Hero->IsDashing());
     return true;
 }
 

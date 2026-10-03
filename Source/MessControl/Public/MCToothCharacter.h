@@ -98,7 +98,8 @@ public:
     void StatusChanged();
     void DropFood();
     void CancelGameplayInput();
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.1",ClampMax="0.35")) float SprintHoldSeconds=.18f;
+    // Retained for saved Blueprint compatibility; Shift now acts on press.
+    UPROPERTY(meta=(DeprecatedProperty,DeprecationMessage="Sprint and dash now start on Shift press.")) float SprintHoldSeconds=.18f;
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") bool IsDashing() const;
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashProgress() const;
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") FVector GetDashDirection() const;
@@ -182,7 +183,6 @@ private:
     void StartSprint(); void StopSprint();
     void CancelSprintInput();
     bool bSprintInputHeld=false;
-    double SprintInputStartedAt=0;
     void UpdateLocomotion(float Dt);
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void StartPrimary(); void StopPrimary();

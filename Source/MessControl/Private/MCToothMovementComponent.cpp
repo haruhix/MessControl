@@ -97,6 +97,15 @@ FNetworkPredictionData_Client* UMCToothMovementComponent::GetPredictionData_Clie
     if (!ClientPredictionData) const_cast<UMCToothMovementComponent*>(this)->ClientPredictionData=new FMCStridePrediction(*this);
     return ClientPredictionData;
 }
+bool UMCToothMovementComponent::ClientUpdatePositionAfterServerUpdate()
+{
+    // PrepMoveFor restores old input while replaying corrections. Preserve the
+    // live intents, including a fresh Shift press not yet captured in a move.
+    const bool Sprint=bWantsToSprint,Climb=bWantsToClimb,Dash=bWantsDash;
+    const bool Replayed=Super::ClientUpdatePositionAfterServerUpdate();
+    bWantsToSprint=Sprint;bWantsToClimb=Climb;bWantsDash=Dash;
+    return Replayed;
+}
 void UMCToothMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
 { Super::UpdateFromCompressedFlags(Flags); bWantsToSprint=(Flags&FSavedMove_Character::FLAG_Custom_0)!=0; bWantsToClimb=(Flags&FSavedMove_Character::FLAG_Custom_1)!=0; bWantsDash=(Flags&FSavedMove_Character::FLAG_Custom_2)!=0; }
 void UMCToothMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -10,6 +10,7 @@ public class MessControl : ModuleRules
         PrivateDependencyModuleNames.Add("Chaos");
         PrivateDependencyModuleNames.Add("ChaosCore");
         PrivateDependencyModuleNames.Add("RHI");
+        PrivateDependencyModuleNames.Add("RenderCore");
         PrivateDependencyModuleNames.Add("ApplicationCore");
         PublicDependencyModuleNames.AddRange(new[] { "OnlineBase", "OnlineSubsystem", "OnlineSubsystemUtils" });
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");

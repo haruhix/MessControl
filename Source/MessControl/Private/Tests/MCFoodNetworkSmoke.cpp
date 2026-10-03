@@ -25,7 +25,7 @@
 void MCTickFoodNetworkValidation(UWorld* W)
 {
     struct FRun {
-        TWeakObjectPtr<UWorld> W;double At=0;int32 Stage=0,MaxStack=0;bool Setup=false,Failed=false,YawnSeen=false,StarsSeen=false,FireSeen=false,FireSuppressed=false;
+        TWeakObjectPtr<UWorld> W;double At=0,NextFireDiagnostic=0;int32 Stage=0,MaxStack=0;bool Setup=false,Failed=false,YawnSeen=false,StarsSeen=false,FireSeen=false,FireSuppressed=false;
         bool CollisionScaleSent=false,CollisionVariantSent=false,StableStackSeen=false,PickupHopSeen=false,PickupStretchSeen=false;
         TMap<TWeakObjectPtr<AMCToothCharacter>,int32> ServerMax;
     };static FRun R;if(R.W!=W) {R=FRun();R.W=W;}
@@ -33,6 +33,10 @@ void MCTickFoodNetworkValidation(UWorld* W)
     if(!GS || !H) return;
     AMCTongue* Tongue=nullptr;for(TActorIterator<AMCTongue> It(W);It;++It) {Tongue=*It;break;}if(!Tongue) return;
     auto Check=[&](bool OK,const TCHAR* Text){R.Failed|=!OK;UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_CHECK net=%d %s %s"),int32(W->GetNetMode()),OK?TEXT("PASS"):TEXT("FAIL"),Text);};
+    auto TraceFireLine=[&](AMCToothCharacter* Hero,FVector Aim,AActor* Fire,FHitResult& Hit) {
+        FCollisionQueryParams Q(SCENE_QUERY_STAT(MCFireSpray),false,Hero);if(Fire) Q.AddIgnoredActor(Fire);
+        return W->LineTraceSingleByChannel(Hit,Hero->GetActorLocation(),Aim,ECC_Visibility,Q);
+    };
     const double Now=GS->GetServerWorldTimeSeconds();
     if(W->GetNetMode()!=NM_Client && !R.Setup) {
         if(GS->PlayerArray.Num()!=4 || W->GetTimeSeconds()<5) return;
@@ -105,9 +109,31 @@ void MCTickFoodNetworkValidation(UWorld* W)
         }
     }
     if(W->GetNetMode()!=NM_Client && T>10 && R.Stage==1) {
+        // Pickup and yawn have finished; their released food must not become
+        // an accidental Visibility obstacle in the independent spray check.
         for(TActorIterator<AMCToothCharacter> It(W);It;++It) {
-            It->SetActorRotation(FRotator::ZeroRotator);FHitResult Floor;
+            FHitResult Floor,Block;
             if(Tongue->SurfacePoint(It->GetActorLocation()+FVector(130,0,0),Floor)) {
+                const bool Blocked=TraceFireLine(*It,Floor.ImpactPoint+Floor.ImpactNormal*5+FVector(0,0,20),nullptr,Block);
+                UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_FIRE_BEFORE_CLEANUP hero=%s blocked=%d actor=%s component=%s impact=%s"),
+                    *It->GetName(),Blocked,*GetNameSafe(Block.GetActor()),*GetNameSafe(Block.GetComponent()),*Block.ImpactPoint.ToString());
+            }
+        }
+        int32 Removed=0;for(TActorIterator<AMCFoodActor> It(W);It;++It) if(It->Batch==91001) {It->Destroy();++Removed;}
+        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_FIRE_ISOLATION removed_batch91001=%d"),Removed);
+        for(TActorIterator<AMCToothCharacter> It(W);It;++It) {
+            It->SetActorRotation(FRotator::ZeroRotator);It->ForceNetUpdate();FHitResult Floor;bool ClearSite=false;
+            for(float Angle:{0.f,25.f,-25.f,50.f,-50.f,70.f,-70.f}) {
+                if(!Tongue->SurfacePoint(It->GetActorLocation()+FRotator(0,Angle,0).Vector()*120,Floor)) continue;
+                const FVector FirePoint=Floor.ImpactPoint+Floor.ImpactNormal*5,D=FirePoint-It->GetActorLocation();FHitResult Block;
+                const bool Blocked=TraceFireLine(*It,FirePoint+FVector(0,0,20),nullptr,Block);
+                UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_FIRE_SITE hero=%s angle=%.0f blocked=%d actor=%s component=%s"),
+                    *It->GetName(),Angle,Blocked,*GetNameSafe(Block.GetActor()),*GetNameSafe(Block.GetComponent()));
+                if(Blocked || D.Size2D()>130 || FVector::DotProduct(D.GetSafeNormal2D(),It->GetActorForwardVector())<.15f) continue;
+                ClearSite=true;break;
+            }
+            Check(ClearSite,TEXT("spray fixture has a supported clear target within 130cm"));
+            if(ClearSite) {
                 auto* Fire=AMCFirePatch::Ignite(*It,Floor.ImpactPoint,48,0,91002,false);if(Fire) Fire->SetOwner(*It);
             }
         }
@@ -117,12 +143,26 @@ void MCTickFoodNetworkValidation(UWorld* W)
     for(TActorIterator<AMCFirePatch> It(W);It;++It) if(It->Batch==91002 && It->GetOwner()==H) {
         OwnedFire=*It;R.FireSeen|=It->Heat>.1f;R.FireSuppressed|=It->Heat<=0;
     }
+    if(W->GetNetMode()!=NM_Client && T>10 && T>=R.NextFireDiagnostic) {
+        R.NextFireDiagnostic=T+.5;
+        for(TActorIterator<AMCFirePatch> It(W);It;++It) if(It->Batch==91002) {
+            auto* Hero=Cast<AMCToothCharacter>(It->GetOwner());if(!Hero) continue;FHitResult Block;
+            const bool Blocked=TraceFireLine(Hero,It->GetActorLocation()+FVector(0,0,20),*It,Block);
+            const FVector D=It->GetActorLocation()-Hero->GetActorLocation();
+            UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_FIRE t=%.2f hero=%s heat=%.3f selected=%d primary=%d canwork=%d presented=%d target=%s distance=%.2f dot=%.3f blocked=%d actor=%s component=%s penetrating=%d"),
+                T,*Hero->GetName(),It->Heat,int32(Hero->Inventory->Selected),Hero->IsPrimaryHeld(),Hero->CanWork(),Hero->Inventory->ShouldPresentTool(),
+                *GetNameSafe(Hero->Inventory->FireTarget),D.Size(),FVector::DotProduct(D.GetSafeNormal2D(),Hero->GetActorForwardVector()),
+                Blocked,*GetNameSafe(Block.GetActor()),*GetNameSafe(Block.GetComponent()),Block.bStartPenetrating);
+        }
+    }
     if(H->IsLocallyControlled() && T>11 && R.Stage<3 && OwnedFire && OwnedFire->IsBurning()) {
         H->SetActorRotation((OwnedFire->GetActorLocation()-H->GetActorLocation()).GetSafeNormal2D().Rotation());
         H->Inventory->ServerSelect(EMCToolSlot::Spray);H->ServerSetPrimary(true);R.Stage=3;
     }
     if(T>(W->GetNetMode()==NM_Client?16:18)) {
         H->ServerSetPrimary(false);
+        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_FIRE_RESULT net=%d seen=%d suppressed=%d heat=%.3f"),
+            int32(W->GetNetMode()),R.FireSeen,R.FireSuppressed,OwnedFire?OwnedFire->Heat:-1.f);
         Check(R.FireSeen && R.FireSuppressed,TEXT("owning client spray extinguishes replicated persistent fire"));
         Check(R.MaxStack>=3,TEXT("owning input produced a replicated three-piece physical stack"));
         Check(R.StableStackSeen,TEXT("all collected pieces stay held without falling on this peer"));

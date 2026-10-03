@@ -265,14 +265,35 @@ bool FMCFoodCollisionDropTest::RunTest(const FString&)
         // its genuine rolling contact settle before asserting resting motion.
         Fixture.Step(30);
         const FVector Position=Food->GetActorLocation(),Velocity=Food->Body->GetPhysicsLinearVelocity();
+        const FQuat Rotation=Food->GetActorQuat();
         const double Bottom=LowestVisibleVertex(Food);
+        const FTransform BodyTransform=Food->Body->GetComponentTransform();
+        const auto* Setup=Food->Body->GetBodySetup();
+        double CookedBottom=TNumericLimits<double>::Max();
+        int32 CookedVertices=0;
+        for (const auto& Hull:Setup->AggGeom.ConvexElems)
+            for (const FVector& Vertex:Hull.VertexData)
+            {
+                ++CookedVertices;
+                CookedBottom=FMath::Min(CookedBottom,
+                    BodyTransform.TransformPosition(Hull.GetTransform().TransformPosition(Vertex)).Z);
+            }
+        int32 LiveShapes=-1;
+        if (auto* Instance=Food->Body->GetBodyInstance())
+            FPhysicsCommand::ExecuteRead(Instance->GetPhysicsActor(),[&](const FPhysicsActorHandle&)
+            {
+                TArray<FPhysicsShapeHandle> Shapes;
+                Instance->GetAllShapes_AssumesLocked(Shapes); LiveShapes=Shapes.Num();
+            });
         TestTrue(*(Name+TEXT(" falls under actual gravity")),Position.Z<InitialCentre-300);
         TestTrue(*(Name+TEXT(" settles with finite transform and velocity")),!Position.ContainsNaN() && !Velocity.ContainsNaN() && Velocity.Size()<5);
         TestTrue(*(Name+TEXT(" visible mesh does not penetrate the supporting floor")),Bottom>=-2);
         TestTrue(*(Name+TEXT(" rests on its visible surface without hovering on a bounding box")),Bottom<=FMath::Max(3.,Food->Visual->Bounds.BoxExtent.GetMax()*.025));
         const FVector Before=Food->GetActorLocation(); Fixture.Step(.5f);
         TestTrue(*(Name+TEXT(" stays at rest after contact")),FVector::Dist(Before,Food->GetActorLocation())<2);
-        AddInfo(FString::Printf(TEXT("%s bottom=%.3f final=%s velocity=%s"),*Name,Bottom,*Position.ToCompactString(),*Velocity.ToCompactString()));
+        AddInfo(FString::Printf(TEXT("%s bottom=%.3f cooked_bottom=%.6f final=%s velocity=%s final_quaternion=(X=%.9f,Y=%.9f,Z=%.9f,W=%.9f) cooked_hulls=%d cooked_vertices=%d live_chaos_shapes=%d"),
+            *Name,Bottom,CookedBottom,*Position.ToCompactString(),*Velocity.ToCompactString(),
+            Rotation.X,Rotation.Y,Rotation.Z,Rotation.W,Setup->AggGeom.ConvexElems.Num(),CookedVertices,LiveShapes));
         Food->Destroy();
     }
     // Exercise production fracture at the same scale as the drop cases.
@@ -343,6 +364,23 @@ bool FMCFoodCollisionCacheTest::RunTest(const FString&)
     auto* Shared=First->Body->GetBodySetup();
     TestTrue(TEXT("Identical mesh and item scale share cooked geometry"),Shared==Second->Body->GetBodySetup());
     TestTrue(TEXT("Runtime geometry does not mutate the source mesh setup"),Shared!=First->ItemMesh->GetBodySetup());
+    auto* GripSetup=First->GripSurface->GetBodySetup();
+    auto* SourceSetup=First->ItemMesh->GetBodySetup();
+    TestTrue(TEXT("Detailed grips share their query setup"),GripSetup==Second->GripSurface->GetBodySetup());
+    TestTrue(TEXT("Grip queries leave the source setup unchanged"),GripSetup!=SourceSetup);
+    TestTrue(TEXT("Grip queries use triangle geometry only"),GripSetup->GetCollisionTraceFlag()==CTF_UseComplexAsSimple && GripSetup->AggGeom.GetElementCount()==0);
+    TestTrue(TEXT("Grip queries share the source cooked triangles"),!GripSetup->TriMeshGeometries.IsEmpty() && GripSetup->TriMeshGeometries[0]==SourceSetup->TriMeshGeometries[0]);
+    int32 GripShapes=0;
+    FPhysicsCommand::ExecuteRead(First->GripSurface->GetBodyInstance()->GetPhysicsActor(),[&](const FPhysicsActorHandle& Actor)
+    {
+        TArray<FPhysicsShapeHandle> Shapes;
+        GripShapes=FPhysicsInterface::GetAllShapes_AssumedLocked(Actor,Shapes);
+    });
+    TestEqual(TEXT("Live grip shapes exclude the compound convex copy"),GripShapes,GripSetup->TriMeshGeometries.Num());
+    First->Visual->SetRelativeScale3D(First->Visual->GetRelativeScale3D()*FVector(1.1,.9,1.2));
+    const FVector GripCenter=First->Visual->Bounds.Origin,RayOffset(0,0,First->Visual->Bounds.BoxExtent.Z*2);
+    FHitResult GripHit;
+    TestTrue(TEXT("Detailed grip ray follows the deformed visible mesh"),Ray(First->GripSurface,GripCenter+RayOffset,GripCenter-RayOffset,true,GripHit));
     TestFalse(TEXT("Food does not generate expensive overlap events"),First->Body->GetGenerateOverlapEvents());
     TestTrue(TEXT("Food keeps hit notifications for impacts"),First->Body->GetBodyInstance()->bNotifyRigidBodyCollision);
     auto* Scaled=CastChecked<UMCFoodBodyComponent>(Second->Body);
@@ -357,7 +395,7 @@ bool FMCFoodCollisionCacheTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodCollisionBudgetTest,"MessControl.Food.Collision.CurrentMenuCompoundChaosBudget",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFoodCollisionBudgetTest,"MessControl.Food.Collision.CurrentMenuCompoundChaosBudget",EAutomationTestFlags::EditorContext|EAutomationTestFlags::PerfFilter)
 bool FMCFoodCollisionBudgetTest::RunTest(const FString&)
 {
     auto* Table=LoadObject<UDataTable>(nullptr,TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu"));
