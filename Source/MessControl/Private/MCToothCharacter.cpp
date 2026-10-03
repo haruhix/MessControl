@@ -704,6 +704,15 @@ void AMCToothCharacter::ResolveSwing()
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {
     if(HasAuthority()) FoodCollection->HandleCarrierCollision(OtherActor,OtherComponent,NormalImpulse,Hit);
+    if(auto* OtherPlayer=Cast<AMCToothCharacter>(OtherActor)) {
+        if(HasAuthority() && OtherPlayer!=this) {
+            FHitResult Reverse=Hit;Reverse.Normal=-Hit.Normal;Reverse.ImpactNormal=-Hit.ImpactNormal;
+            OtherPlayer->FoodCollection->HandleCarrierCollision(this,HitComponent,-NormalImpulse,Reverse);
+        }
+        // Ordinary player contact only knocks a food carrier. Explicit attacks
+        // still go through ResolveSwing/ApplyHit independently of this callback.
+        return;
+    }
     if (Cast<AMCFoodActor>(OtherActor)) return;
     if (!HasAuthority() || !ToothPhysics->CanAct() || !OtherComponent || OtherActor==this || GetWorld()->GetTimeSeconds()-LastEnvironmentHit<0.6f) return;
     FVector Impact=FVector::ZeroVector;

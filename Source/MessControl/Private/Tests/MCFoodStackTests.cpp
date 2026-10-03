@@ -8,6 +8,8 @@
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -68,6 +70,103 @@ struct FFoodStackWorld
         A->SetRootComponent(Box);Box->SetBoxExtent(Extent);Box->SetCollisionProfileName(TEXT("BlockAll"));Box->RegisterComponent();A->SetActorLocation(Position);return A;
     }
 };
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCarrierPlayerContact,"MessControl.Food.Stack.PlayerContactKnocksCarrierOnly",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCarrierPlayerContact::RunTest(const FString&)
+{
+    for(float Dt:{1.f/30,1.f/120}) for(bool Pickup:{false,true}) {
+        FFoodStackWorld T;
+        const FVector Origin=T.Hero->GetActorLocation();
+        auto* Other=T.World->SpawnActor<AMCToothCharacter>(Origin+FVector(500,0,0),FRotator::ZeroRotator);
+        if(!TestNotNull(TEXT("Second player spawns away from the pickup slot"),Other)) return false;
+        Other->GetCharacterMovement()->DisableMovement();
+        T.Step(.8f,Dt); // Neither player retains spawn hit immunity.
+        if(!TestTrue(TEXT("Carrier collects one piece"),T.Collect(1))) return false;
+        if(!Pickup) T.Step(.7f,Dt);
+        // A real swept food contact during the hop, or a swept carrier capsule contact.
+        Other->SetActorLocation(Origin+FVector(Pickup?100:70,0,0),false,nullptr,ETeleportType::TeleportPhysics);
+        const float Health=Other->Status->State.Health;
+        if(Pickup) T.Step(.32f,Dt);
+        else {
+            FHitResult Hit;T.Hero->SetActorLocation(Origin+FVector(25,0,0),true,&Hit);
+            TestTrue(TEXT("Carrier capsule actually contacts the other player"),Hit.bBlockingHit && Hit.GetActor()==Other);
+        }
+        TestEqual(TEXT("Only the carrier is knocked down"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
+        TestTrue(TEXT("Contact spills the whole load once"),T.Hero->FoodCollection->Pieces.IsEmpty() && T.Hero->FoodCollection->FallenPieces==1);
+        T.Step(.3f,Dt);
+        TestEqual(TEXT("The empty-handed player stays standing"),Other->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+        TestEqual(TEXT("Dropped food cannot damage the bystander"),Other->Status->State.Health,Health);
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNearbyRecovery,"MessControl.Physics.Recovery.NearbyGroundedSpace",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNearbyRecovery::RunTest(const FString&)
+{
+    FFoodStackWorld T;const FVector Origin=T.Hero->GetActorLocation();
+    const float Half=T.Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+    auto* Ground=T.Wall(Origin-FVector(0,0,Half+5),FVector(800,800,5));
+    T.Step(.8f);
+    T.Hero->ToothPhysics->ApplyHit(FVector(250,0,0),Origin);
+    T.Step(.8f);
+    const FVector Center=T.Hero->ToothPhysics->PhysicalLocation();
+    // The ragdoll fits below low shelves, but none of the old five get-up probes do.
+    TArray<AActor*> Shelves;
+    for(FVector Offset:{FVector::ZeroVector,FVector(80,0,0),FVector(-80,0,0),FVector(0,80,0),FVector(0,-80,0)})
+        Shelves.Add(T.Wall(Center+Offset+FVector(0,0,70),FVector(24,24,4)));
+    TestTrue(TEXT("Living ragdoll finds nearby diagonal standing room"),T.Hero->ToothPhysics->TryRecover());
+    T.Step(1.2f);
+    TestTrue(TEXT("Recovery restores walking and actions"),T.Hero->ToothPhysics->CanAct() && T.Hero->GetCharacterMovement()->IsWalking());
+    FCollisionQueryParams Q(SCENE_QUERY_STAT(MCTestRecovery),false,T.Hero);
+    TestFalse(TEXT("Recovered capsule does not intersect shelves or floor"),T.World->OverlapBlockingTestByProfile(T.Hero->GetActorLocation(),FQuat::Identity,TEXT("Pawn"),FCollisionShape::MakeCapsule(T.Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()-.5f,Half-.5f),Q));
+    Ground->Destroy();
+    for(auto* Shelf:Shelves) Shelf->Destroy();
+    T.Step(.8f);T.Hero->ToothPhysics->ApplyHit(FVector(250,0,0),T.Hero->GetActorLocation());
+    TestFalse(TEXT("A player without supporting ground cannot stand in midair"),T.Hero->ToothPhysics->TryRecover());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRepeatedContactRecovery,"MessControl.Physics.Recovery.RepeatedContactCannotExtendStunForever",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCRepeatedContactRecovery::RunTest(const FString&)
+{
+    FFoodStackWorld T;
+    T.Wall(T.Hero->GetActorLocation()-FVector(0,0,T.Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+5),FVector(2000,2000,5));
+    T.Step(.8f);const float Health=T.Hero->Status->State.Health;
+    T.Hero->ToothPhysics->ApplyHit(FVector(250,0,0),T.Hero->GetActorLocation());
+    for(int32 I=0;I<24;++I) {
+        T.Hero->ToothPhysics->ApplyHit(FVector(5,0,0),T.Hero->ToothPhysics->PhysicalLocation());
+        T.Step(.3f);
+    }
+    TestTrue(TEXT("A living player regains control despite repeated small contacts"),T.Hero->ToothPhysics->CanAct());
+    TestEqual(TEXT("Contact recovery preserves health"),T.Hero->Status->State.Health,Health);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStackReleaseSafety,"MessControl.Food.Stack.DropProtectsBystandersWithoutDisablingFoodHazards",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCStackReleaseSafety::RunTest(const FString&)
+{
+    FFoodStackWorld T;const FVector Origin=T.Hero->GetActorLocation();
+    auto* Other=T.World->SpawnActor<AMCToothCharacter>(Origin+FVector(500,0,0),FRotator::ZeroRotator);
+    if(!TestNotNull(TEXT("Bystander spawns outside the pickup area"),Other)) return false;
+    Other->GetCharacterMovement()->DisableMovement();T.Step(.8f);
+    if(!T.Collect(1)) return false;
+    T.Step(.12f);auto* Food=T.Foods[0];
+    TestTrue(TEXT("Drop happens while the piece is mid-hop"),Food->IsStackPickupActive());
+    T.Hero->FoodCollection->Stop();
+    TestTrue(TEXT("Ordinary drop does not retain the hop's projectile velocity"),Food->Body->GetPhysicsLinearVelocity().Size()<50);
+    const float Health=Other->Status->State.Health;
+    const FVector Position=Other->GetActorLocation()-FVector(100,0,0);
+    Food->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics);
+    Food->Body->SetEnableGravity(false);Food->Body->SetPhysicsLinearVelocity(FVector(450,0,0));
+    T.Step(.25f);
+    TestEqual(TEXT("Even an incoming dropped piece cannot injure a bystander during settling"),Other->Status->State.Health,Health);
+    TestTrue(TEXT("Settling contact leaves the bystander in control"),Other->ToothPhysics->CanAct());
+    T.Step(.8f);
+    Food->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics);Food->Body->SetPhysicsLinearVelocity(FVector(450,0,0));
+    T.Step(.25f);
+    TestTrue(TEXT("Real incoming food still damages players after the short drop protection expires"),Other->Status->State.Health<Health);
+    return true;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCStackStableSway,"MessControl.Food.Stack.StableSwayAtDifferentFrameRates",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

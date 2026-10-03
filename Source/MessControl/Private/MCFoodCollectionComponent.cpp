@@ -136,9 +136,12 @@ void UMCFoodCollectionComponent::ReleaseFrom(int32 Index,bool Throw,FVector Impu
             for(const auto& Piece:Pieces) if(IsValid(Piece) && Piece!=F) {
                 F->Body->IgnoreActorWhenMoving(Piece,false); Piece->Body->IgnoreActorWhenMoving(F,false);
             }
+            F->ProtectPlayersOnStackRelease(Throw);
             F->SetStackCarrier(nullptr); DroppedAt.Add(F,GetWorld()->GetTimeSeconds()); PieceMotion.Remove(F);
             if(F->Body->IsSimulatingPhysics()) {
-                F->Body->SetPhysicsLinearVelocity(Motion.Linear+Impulse);
+                // The pickup arc is an animation, not stored projectile energy.
+                // Ordinary drops inherit the carrier's motion; Q still throws forwards.
+                F->Body->SetPhysicsLinearVelocity((Throw?Motion.Linear:H->GetVelocity())+Impulse);
                 F->Body->SetPhysicsAngularVelocityInRadians(Motion.Angular);
                 if(Throw) F->Body->AddImpulse(H->GetActorForwardVector()*500+FVector(0,0,180),NAME_None,true);
             }
@@ -174,7 +177,9 @@ float UMCFoodCollectionComponent::ContactStrength(float HeldMass,AActor* Other,U
 }
 void UMCFoodCollectionComponent::HandleCarrierCollision(AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
-    if(!GetOwner()->HasAuthority() || Pieces.IsEmpty() || !IsValid(Other) || Other==GetOwner() || Hit.ImpactNormal.Z>.55f) return;
+    if(!GetOwner()->HasAuthority() || Pieces.IsEmpty() || !IsValid(Other) || Other==GetOwner()) return;
+    if(auto* Player=Cast<AMCToothCharacter>(Other)) {SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);return;}
+    if(Hit.ImpactNormal.Z>.55f) return;
     if(const auto* Food=Cast<AMCFoodActor>(Other); Food && (Contains(Food) || IsSettlingRelease(Food))) return;
     const auto* H=Cast<AMCToothCharacter>(GetOwner());
     const float Strength=ContactStrength(H->ToothPhysics->Settings.Mass,Other,OtherComponent,Impulse,Hit.ImpactNormal);
@@ -186,12 +191,23 @@ void UMCFoodCollectionComponent::HandleCarrierCollision(AActor* Other,UPrimitive
 void UMCFoodCollectionComponent::HandleStackCollision(AMCFoodActor* Food,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
     if(!GetOwner()->HasAuthority() || !Contains(Food) || !IsValid(Other) || Other==GetOwner()) return;
+    if(auto* Player=Cast<AMCToothCharacter>(Other)) {SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);return;}
     if(const auto* Piece=Cast<AMCFoodActor>(Other); Piece && (Contains(Piece) || IsSettlingRelease(Piece))) return;
     const float Strength=ContactStrength(Food->Settings.Mass,Other,OtherComponent,Impulse,Hit.ImpactNormal);
     if(Strength>=ContactThreshold()) {
         UE_LOG(LogTemp,Log,TEXT("MC_STACK_CONTACT carrier=%s food=%s other=%s impulse=%.1f threshold=%.1f hop=%d normal=%s"),*GetNameSafe(GetOwner()),*GetNameSafe(Food),*GetNameSafe(Other),Strength,ContactThreshold(),Food->IsStackPickupActive(),*Hit.ImpactNormal.ToString());
         Spill(Hit.ImpactNormal*160+FVector(0,0,55));
     }
+}
+void UMCFoodCollectionComponent::SpillOnPlayerContact(AMCToothCharacter* Other,FVector Normal,FVector ContactPoint)
+{
+    auto* Carrier=CastChecked<AMCToothCharacter>(GetOwner());
+    FVector Direction=Normal.GetSafeNormal2D();
+    if(Direction.IsNearlyZero()) Direction=(Carrier->GetActorLocation()-Other->GetActorLocation()).GetSafeNormal2D();
+    if(Direction.IsNearlyZero()) Direction=-Carrier->GetActorForwardVector();
+    // Empty the load first: ApplyHit also spills and can synchronously change collision.
+    Spill(Direction*120+FVector(0,0,45));
+    Carrier->ToothPhysics->ApplyHit(Direction*Carrier->ToothPhysics->Settings.Knockback+FVector(0,0,Carrier->ToothPhysics->Settings.Lift),ContactPoint);
 }
 void UMCFoodCollectionComponent::CheckIncomingContacts(AMCFoodActor* Food)
 {
