@@ -124,6 +124,7 @@ public:
     FTransform StandingMeshTransform() const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<UCameraComponent> Camera;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="UI") TObjectPtr<class UMCPlayerNameComponent> PlayerNameLabel;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="400",ClampMax="1600")) float FollowDistance=900;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="150",ClampMax="700")) float FollowHeight=500;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ClampMin="45",ClampMax="95")) float FollowFOV=55;

@@ -6,6 +6,7 @@
 #include "MCBrushContactComponent.h"
 #include "MCOrbitSpringArmComponent.h"
 #include "MCPlayerCameraComponent.h"
+#include "MCPlayerNameComponent.h"
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
@@ -94,6 +95,8 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     Camera = CreateDefaultSubobject<UMCPlayerCameraComponent>(TEXT("Camera")); Camera->SetupAttachment(CameraBoom);
     Camera->SetUsingAbsoluteRotation(true);
     Camera->FieldOfView = FollowFOV;
+    PlayerNameLabel=CreateDefaultSubobject<UMCPlayerNameComponent>(TEXT("PlayerName"));
+    PlayerNameLabel->SetupAttachment(RootComponent);
     static ConstructorHelpers::FObjectFinder<USkeletalMesh> ToothAsset(TEXT("/Game/Art/Rig/SK_ToothHero"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> BrushAsset(TEXT("/Game/Art/Meshes/SM_Brush"));
     static ConstructorHelpers::FObjectFinder<UMCAnimationProfile> AnimAsset(TEXT("/Game/Data/DA_ToothAnimation"));
