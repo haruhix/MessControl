@@ -18,7 +18,7 @@ public:
     virtual void BeginPlay() override;
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
-    void Contact(AActor* Surface,FVector Point,FVector Normal);
+    void Contact(AActor* Surface,FVector Point,FVector Normal,const FVector* FacingPoint=nullptr);
     void Release();
     bool CanReach(FVector Point,FVector Normal,const AActor* Surface=nullptr) const;
     bool CanReachAfterFacing(FVector Point,FVector Normal,const AActor* Surface=nullptr) const;
@@ -43,6 +43,7 @@ public:
     bool IsPresenting() const { return Blend>.001f || bHandPresented; }
     UPROPERTY(Replicated) TObjectPtr<AActor> Target;
     UPROPERTY(Replicated) FVector_NetQuantize10 LocalPoint=FVector::ZeroVector;
+    UPROPERTY(Replicated) FVector_NetQuantize10 LocalFacingPoint=FVector::ZeroVector;
     UPROPERTY(Replicated) FVector_NetQuantizeNormal LocalNormal=FVector::UpVector;
     UPROPERTY(Replicated) double ContactAt=-100;
     UPROPERTY(Replicated) double ApproachStartedAt=-100;

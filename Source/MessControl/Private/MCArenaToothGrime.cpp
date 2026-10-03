@@ -301,9 +301,9 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     const FVector Dimensions=Size*Visual->GetComponentScale().GetAbs();
     const bool Continuous=Now-History.At<.2 && ((UV-History.UV)*Dimensions).Size()<65;
     if (GrimeMask.Num()!=FMCSurfaceWipe::Count) FMCSurfaceWipe::Reset(GrimeMask);
-    Worker->BrushContact->Contact(this,Hit.ImpactPoint,Hit.ImpactNormal);
+    Worker->BrushContact->Contact(this,Hit.ImpactPoint,Hit.ImpactNormal,&SelectedPoint);
     if(!Worker->BrushContact->IsWorkReady()) { History.At=Now; return true; }
-    if (FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,36,Seconds,&PreciseGrimeMask)) OnRep_Grime();
+    if(FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,36,Seconds,&PreciseGrimeMask)) OnRep_Grime();
     History.UV=UV; History.At=Now; BrushAt=Now;
     const float Left=RemainingGrime();
     const int32 RemainingLayers=Left<.025f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));

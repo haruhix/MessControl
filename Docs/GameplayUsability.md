@@ -51,7 +51,21 @@ consistent across frame rates. Holding the brush keeps the acquired crown while
 the player turns toward its next reachable stain. Coating generation samples the
 resting tongue and permanent gum floor once per patch, leaving clearance for the
 brush head instead of placing dirt behind the enlarged arena's gum collision.
+The body's heading follows the stain center independently of the small brush
+stroke; reach and work checks still use the actual bristle contact. Tongue
+cleaning interpolates an unstroked center before adding the current stroke, so
+the previous stroke does not accumulate into movement at higher frame rates.
+An empty coating result is cached after generation instead of being rebuilt
+every frame.
 Ice keeps hard references to its required mesh and material assets for cooking;
 its render proxy does not wait for asynchronous PSO precaching.
 
 The tooth emergence animation is deferred as requested.
+
+## Test maintenance
+
+The duplicate `MessControl.Animation.Teeth3Layers` registration was removed.
+Its unique work clips are checked by `MessControl.Physics.ArtistRigIntegration`,
+and its face emote IDs by `MessControl.Animation.EmotesReactionsAndSpeech`.
+Both consolidated tests passed. Existing gameplay and network checks cover the
+new behavior; no additional Automation registrations were introduced for it.

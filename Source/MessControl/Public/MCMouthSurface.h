@@ -82,6 +82,8 @@ private:
     TArray<FVector2D> LiquidUV;
     TArray<FProcMeshTangent> LiquidTangents;
     TMap<TWeakObjectPtr<AActor>,FVector2D> PreviousBrush;
+    struct FBrushCenter { FVector Point=FVector::ZeroVector; double At=-100; };
+    TMap<TWeakObjectPtr<AActor>,FBrushCenter> BrushCenters;
     TArray<float> WipeFractional;
     TWeakObjectPtr<AMCTongue> BoundTongue;
     float Finish=0,TextureElapsed=0,GeometryElapsed=0,BrushClock=0;

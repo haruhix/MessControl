@@ -44,7 +44,7 @@ void AMCMouthSurface::OnRep_LiquidSize()
 void AMCMouthSurface::ResetLiquid()
 {
     if (!HasAuthority()) return;
-    FMCCoffeeWipe::Reset(WipeMask); WipeFractional.Reset(); PreviousBrush.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
+    FMCCoffeeWipe::Reset(WipeMask); WipeFractional.Reset(); PreviousBrush.Reset(); BrushCenters.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
     OnRep_Wipe(); ForceNetUpdate();
 }
 void AMCMouthSurface::OnRep_Wipe() { bWipeDirty=true; }
@@ -98,13 +98,18 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
     const auto* GS=GetWorld()->GetGameState();
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     auto* Contact=Worker->BrushContact.Get();
+    auto& Center=BrushCenters.FindOrAdd(Worker);
     if(FVector::DotProduct(Worker->GetActorForwardVector(),(Point-Worker->GetActorLocation()).GetSafeNormal2D())<.85f
         || !Contact->CanReach(Point,Normal)) {
+        Center.At=-100;
         Contact->Contact(this,Point,Normal);
         return true;
     }
-    if(Contact->Target==this && Now-Contact->ContactAt<.2)
-        Point=FMath::VInterpConstantTo(Contact->ContactPoint(),Point,Seconds,180.f);
+    const FTransform Surface=GetActorTransform();
+    // Interpolate the unstroked center. Feeding the previous sine offset back
+    // into this interpolation accumulates motion differently at each FPS.
+    if(Contact->Target==this && Now-Contact->ContactAt<.2 && Now-Center.At<.2)
+        Point=FMath::VInterpConstantTo(Surface.TransformPosition(Center.Point),Point,Seconds,180.f);
     const FVector Facing=GetActorTransform().InverseTransformVectorNoScale(Worker->GetActorForwardVector());
     const FVector2D Forward=FVector2D(Facing).GetSafeNormal();
     const FVector2D Side(-Forward.Y,Forward.X);
@@ -114,12 +119,13 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
     FHitResult Floor;
     if(Tongue && Tongue->SurfacePoint(Point,Floor)) { Point=Floor.ImpactPoint+Floor.ImpactNormal*2; Normal=Floor.ImpactNormal; }
     if(!Contact->CanReach(Point,Normal)) Point=Base;
-    if(!Contact->CanReach(Point,Normal)) return false;
+    if(!Contact->CanReach(Point,Normal)) { Center.At=-100; return false; }
+    Center.Point=Surface.InverseTransformPosition(Base); Center.At=Now;
     const FVector2D UV=FVector2D(GetActorTransform().InverseTransformPosition(Point))/(2*LiquidHalfSize)+FVector2D(.5);
     const FVector2D* Previous=PreviousBrush.Find(Worker);
     // Never connect a teleport or a changed target with a long erased stripe.
     const FVector2D From=Previous && FVector2D::Distance(*Previous,UV)<.3?*Previous:UV;
-    Worker->BrushContact->Contact(this,Point,Normal);
+    Worker->BrushContact->Contact(this,Point,Normal,&Base);
     if(!Worker->BrushContact->IsWorkReady()) return true;
     if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,36/(2*LiquidHalfSize),Seconds,&WipeFractional)) OnRep_Wipe();
     BrushDirection=(UV-From).IsNearlyZero()?Side:(UV-From).GetSafeNormal();

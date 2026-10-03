@@ -217,7 +217,7 @@ bool UMCBrushContactComponent::WantsFacing(FVector& Direction) const
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     if(Now-ContactAt>=.3) return false;
     if(!CanBrushToward(ContactPoint()) && !CanContinueCrownTurn(*this,Hero,Target,ContactPoint())) return false;
-    Direction=(ContactPoint()-Hero->GetActorLocation()).GetSafeNormal2D();
+    Direction=(SurfaceTransform().TransformPosition(LocalFacingPoint)-Hero->GetActorLocation()).GetSafeNormal2D();
     return !Direction.IsNearlyZero();
 }
 bool UMCBrushContactComponent::IsFacingContact() const
@@ -225,13 +225,15 @@ bool UMCBrushContactComponent::IsFacingContact() const
     return Hero && IsValid(Target) && CanBrushToward(ContactPoint())
         && FVector::DotProduct((ContactPoint()-Hero->GetActorLocation()).GetSafeNormal2D(),Hero->GetActorForwardVector())>=.85f;
 }
-void UMCBrushContactComponent::Contact(AActor* Surface,FVector Point,FVector Normal)
+void UMCBrushContactComponent::Contact(AActor* Surface,FVector Point,FVector Normal,const FVector* FacingPoint)
 {
     if (!GetOwner()->HasAuthority() || !IsValid(Surface)) return;
     const double Now=GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     const bool Fresh=Target!=Surface || Now-ContactAt>=.3 || FVector::DistSquared(Point,ContactPoint())>FMath::Square(60.f);
     Target=Surface; const auto T=SurfaceTransform();
     LocalPoint=T.InverseTransformPosition(Point); LocalNormal=T.InverseTransformVectorNoScale(Normal).GetSafeNormal();
+    // Body turning follows the stain center while the bristles make their stroke.
+    LocalFacingPoint=T.InverseTransformPosition(FacingPoint?*FacingPoint:Point);
     ContactAt=Now;
     if(ApproachStartedAt<0 || Fresh || !IsFacingContact() || !CanReach(Point,Normal,Surface)) ApproachStartedAt=Now;
 }
@@ -379,5 +381,6 @@ void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferen
 void UMCBrushContactComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCBrushContactComponent,Target); DOREPLIFETIME(UMCBrushContactComponent,LocalPoint);
+    DOREPLIFETIME(UMCBrushContactComponent,LocalFacingPoint);
     DOREPLIFETIME(UMCBrushContactComponent,LocalNormal); DOREPLIFETIME(UMCBrushContactComponent,ContactAt); DOREPLIFETIME(UMCBrushContactComponent,ApproachStartedAt);
 }
