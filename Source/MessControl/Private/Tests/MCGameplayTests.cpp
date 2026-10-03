@@ -31,6 +31,8 @@
 #include "MCMotionRecorder.h"
 #include "Animation/AnimSequence.h"
 #include "Engine/StaticMesh.h"
+#include "Sound/AudioSettings.h"
+#include "Sound/SoundBase.h"
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
 
@@ -122,6 +124,56 @@ namespace
             Tooth->GetCharacterMovement()->DisableMovement(); return Tooth;
         }
     };
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToothPianoTest,"MessControl.Piano.LandingReturnAndNotes",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCToothPianoTest::RunTest(const FString&)
+{
+    FTestMouth M; M.Mode->SetActorTickEnabled(false); M.State->bDevManualEvents=true;
+    M.State->Phase=EMCShiftPhase::Working; M.State->PhaseEndsAt=0;
+    const FTransform T(FVector(10000,0,1000));
+    auto* Key=M.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),T);
+    Key->SetAppearance(ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Cube.Cube")),FVector(4,4,2));
+    Key->Initialize(1,FMCArenaToothSettings()); Key->FinishSpawning(T);
+    TestNotNull(TEXT("Imported piano sound is available"),Key->PianoSound.Get());
+    const float Health=Key->State.Health; const FVector Rest=Key->Visual->GetRelativeLocation();
+    auto* H=M.Worker(); auto* Move=H->GetCharacterMovement(); Move->bRunPhysicsWithNoController=true;
+    H->SetActorLocation(T.GetLocation()+FVector(0,0,Key->Body->GetScaledBoxExtent().Z+180));
+    Move->SetMovementMode(MOVE_Falling); Move->Velocity=FVector(0,0,-150);
+    for(int32 I=0;I<90 && Key->PianoState.Serial==0;++I) M.Step(1.f/60);
+    if(!TestEqual(TEXT("Real falling character presses the tooth once"),Key->PianoState.Serial,1)) return false;
+    M.Step(.07f);
+    TestTrue(TEXT("Enamel visibly sinks after landing"),Key->Visual->GetRelativeLocation().Z<Rest.Z-5);
+    M.Step(.6f);
+    TestTrue(TEXT("Key returns exactly to its resting pose"),Key->Visual->GetRelativeLocation().Equals(Rest,.001));
+    TestEqual(TEXT("Standing on a tooth does not repeat the note"),Key->PianoState.Serial,1);
+    TestEqual(TEXT("Playing the piano preserves tooth health"),Key->State.Health,Health);
+    H->Jump(); M.Step(1.2f);
+    TestEqual(TEXT("Another jump on the same key plays again"),Key->PianoState.Serial,2);
+    TestTrue(TEXT("Character still stands on the tooth after playing"),Move->IsMovingOnGround());
+    FHitResult Side; FCollisionQueryParams Q(SCENE_QUERY_STAT(ToothPianoSide),false);
+    TestTrue(TEXT("Side probe reaches the physical tooth"),Key->Body->LineTraceComponent(Side,T.GetLocation()+FVector(-300,0,0),T.GetLocation(),Q));
+    TestFalse(TEXT("Side contact cannot play a key"),Key->NotifyPianoLanding(H,Side,500));
+    FHitResult Top;
+    TestTrue(TEXT("Top probe reaches the physical tooth"),Key->Body->LineTraceComponent(Top,T.GetLocation()+FVector(0,0,300),T.GetLocation(),Q));
+    TestFalse(TEXT("Resting contact cannot play a key"),Key->NotifyPianoLanding(H,Top,0));
+    Key->Settings.bPianoEnabled=false;
+    TestFalse(TEXT("Piano can be disabled in the tooth profile"),Key->NotifyPianoLanding(H,Top,500));
+    Key->Settings.bPianoEnabled=true; Key->State.bLost=true;
+    TestFalse(TEXT("Lost teeth cannot play"),Key->NotifyPianoLanding(H,Top,500));
+    int32 Previous=0;
+    const auto* AudioSettings=GetDefault<UAudioSettings>();
+    for(int32 Id=1;Id<=28;++Id) {
+        Key->State.ToothId=Id;
+        TestTrue(TEXT("Every arena tooth has a distinct ascending note"),Key->PianoMidiNote()>Previous);
+        Previous=Key->PianoMidiNote();
+        auto* NoteSound=Key->PianoNoteSound();
+        if(TestNotNull(TEXT("Each octave has an imported sample"),NoteSound))
+            TestEqual(TEXT("The sound sample matches the note's octave"),NoteSound->GetName(),FString::Printf(TEXT("S_ToothPianoC%d"),Key->PianoMidiNote()/12-1));
+        TestTrue(TEXT("The mixer cannot clamp distinct notes into the same pitch"),
+            Key->PianoPitchScale()>=AudioSettings->GlobalMinPitchScale && Key->PianoPitchScale()<=AudioSettings->GlobalMaxPitchScale);
+    }
+    return true;
 }
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCThroatEligibilityTest,"MessControl.Throat.BoundsHeldFoodAndReset",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

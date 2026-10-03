@@ -11,6 +11,8 @@ class UTextRenderComponent;
 class UStaticMesh;
 class UMaterialInterface;
 class UMCToothStatusComponent;
+class USoundBase;
+class USoundAttenuation;
 
 USTRUCT()
 struct FMCArenaToothAppearance
@@ -35,6 +37,9 @@ struct MESSCONTROL_API FMCArenaToothSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fall", meta=(ClampMin="0",ClampMax="1")) float FallAnticipation=0.25f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fall", meta=(ClampMin="0",ClampMax="1000")) float FallLift=310;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fall", meta=(ClampMin="0",ClampMax="1000")) float FallSpeed=220;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Piano") bool bPianoEnabled=true;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Piano", meta=(ClampMin="0",ClampMax="25",Units="cm")) float PianoPressDepth=10;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Piano", meta=(ClampMin="0.15",ClampMax="1",Units="s")) float PianoPressSeconds=0.36f;
     void Sanitize();
 };
 
@@ -63,6 +68,16 @@ struct FMCArenaToothState
     UPROPERTY() int32 HitSerial=0;
 };
 
+/** Timestamped key press; clients animate against the server clock. */
+USTRUCT(BlueprintType)
+struct FMCArenaPianoState
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) int32 Serial=0;
+    UPROPERTY(BlueprintReadOnly) double PressedAt=-100;
+    UPROPERTY(BlueprintReadOnly) float Strength=1;
+};
+
 /** Root box is the physical body; only the child mesh squashes/wobbles. */
 UCLASS()
 class MESSCONTROL_API AMCArenaTooth : public AActor
@@ -84,6 +99,14 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_Grime,BlueprintReadOnly,Category="Care") TArray<uint8> GrimeMask;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Care") bool bShowCareLabel=false;
     bool ConsumeForRespawn();
+    bool NotifyPianoLanding(class AMCToothCharacter* Worker,const FHitResult& Hit,float DownSpeed);
+    UFUNCTION(BlueprintPure, Category="Piano") int32 PianoMidiNote() const;
+    UFUNCTION(BlueprintPure, Category="Piano") float PianoPitchScale() const;
+    UFUNCTION(BlueprintPure, Category="Piano") USoundBase* PianoNoteSound() const;
+    UFUNCTION(BlueprintPure, Category="Piano") float PianoOffset() const;
+    UPROPERTY(ReplicatedUsing=OnRep_Piano, BlueprintReadOnly, Category="Piano") FMCArenaPianoState PianoState;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Piano") TObjectPtr<USoundBase> PianoSound;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Piano") TArray<TObjectPtr<USoundBase>> PianoUpperOctaves;
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") bool ReceiveArenaHit(float Damage,FVector Direction);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") void SetCoffee(float Amount);
     UFUNCTION(BlueprintPure, Category="Arena Tooth") bool IsAvailable() const { return !State.bLost && !State.bConsumed && State.Health>0; }
@@ -97,6 +120,9 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<class UProceduralMeshComponent> GrimeRelief;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> Label;
 private:
+    UFUNCTION() void OnRep_Piano();
+    UPROPERTY() TObjectPtr<USoundAttenuation> PianoAttenuation;
+    int32 PlayedPianoSerial=0;
     UFUNCTION() void ApplyAppearance();
     UPROPERTY(ReplicatedUsing=ApplyAppearance) FMCArenaToothAppearance Appearance;
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);

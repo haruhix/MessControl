@@ -525,10 +525,14 @@ void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActiv
 void AMCToothCharacter::OnRep_Working() { WorkStartedAt = GetWorld()->GetTimeSeconds(); }
 void AMCToothCharacter::Landed(const FHitResult& Hit)
 {
+    auto* Key=Cast<AMCArenaTooth>(Hit.GetActor());
+    if (Key) Key->NotifyPianoLanding(this,Hit,-GetVelocity().Z);
+    const bool PianoLanding=Key && Key->Settings.bPianoEnabled && Key->IsAvailable()
+        && Hit.GetComponent()==Key->Body && Hit.ImpactNormal.Z>=0.5f && -GetVelocity().Z>=40;
     if (auto* Throat=Cast<AMCThroat>(Hit.GetActor())) Throat->NotifyUvulaLanding(this,Hit,-GetVelocity().Z);
     Super::Landed(Hit); LandingImpulse = 1.f;
     if(OrderJumpTarget || !OrderJumpIgnoredActors.IsEmpty()) ClearOrderJump();
-    if (SoundPalette) SoundPalette->Play(this,TEXT("Jump"),GetActorLocation());
+    if (SoundPalette && !PianoLanding) SoundPalette->Play(this,TEXT("Jump"),GetActorLocation());
 }
 void AMCToothCharacter::FindWork(float DeltaSeconds)
 {
