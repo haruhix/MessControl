@@ -68,18 +68,27 @@ void MCTickBrushValidation(UWorld* World)
         const FVector Inward=(-Tooth->GetActorLocation()).GetSafeNormal2D(),Side=FVector::CrossProduct(Inward,FVector::UpVector);
         const FVector E=Tooth->Visual->Bounds.BoxExtent;
         const float Radius=FMath::Abs(Inward.X)*E.X+FMath::Abs(Inward.Y)*E.Y;
+        FVector Approach=Tooth->GetActorLocation()+Inward*Radius;
+        FHitResult Face; FCollisionQueryParams SurfaceQuery(SCENE_QUERY_STAT(MCBrushFixtureFace),true);
+        if(Tooth->BrushSurface->LineTraceComponent(Face,Tooth->GetActorLocation()+Inward*600,
+            Tooth->GetActorLocation()-Inward*200,SurfaceQuery)) Approach=Face.ImpactPoint;
+        FCollisionQueryParams Room(SCENE_QUERY_STAT(MCBrushFixtureRoom),false,Hero);
         bool Found=false; FVector Contact,Normal;
         Hero->GetCharacterMovement()->StopMovementImmediately(); Hero->GetCharacterMovement()->DisableMovement();
-        for(float Gap: {80.f,100.f,120.f}) {
+        // A rotated crown's AABB can put the old fixture beyond brush reach.
+        // Approach the actual enamel, keeping the whole capsule outside blockers.
+        for(float Gap: {65.f,80.f,100.f,120.f}) {
             for(int32 I: {0,-1,1,-2,2,-3,3,-4,4,-5,5,-6,6}) {
-                FVector P=Tooth->GetActorLocation()+Inward*(Radius+Gap)+Side*(I*16);
+                FVector P=Approach+Inward*Gap+Side*(I*16);
                 FHitResult Floor; if(!Tongue->SurfacePoint(P,Floor)) continue; P.Z=Floor.ImpactPoint.Z+Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+2;
+                if(World->OverlapBlockingTestByProfile(P,FQuat::Identity,Hero->GetCapsuleComponent()->GetCollisionProfileName(),
+                    Hero->GetCapsuleComponent()->GetCollisionShape(),Room)) continue;
                 Hero->SetActorLocationAndRotation(P,(-Inward).Rotation(),false,nullptr,ETeleportType::TeleportPhysics);
                 if(Tooth->FindDirtyContact(Hero,Contact,Normal)) {Found=true;break;}
             }
             if(Found) break;
         }
-        UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_FIXTURE found=%d hero=%s contact=%s"),Found,*Hero->GetActorLocation().ToString(),*Contact.ToString());
+        UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_FIXTURE found=%d capsuleFree=%d hero=%s contact=%s"),Found,Found,*Hero->GetActorLocation().ToString(),*Contact.ToString());
         if(!Found) { UE_LOG(LogTemp,Error,TEXT("MC_BRUSH_FAIL no reachable visible stain")); FPlatformMisc::RequestExitWithStatus(false,1); return; }
         R.Tooth=Tooth; R.Hero=Hero; R.Setup=true; GS->bDevManualEvents=true; GS->DayStartedAt=Now; GS->ForceNetUpdate(); Hero->ForceNetUpdate();
         auto* Recorder=Hero->FindComponentByClass<UMCMotionRecorder>();
@@ -95,14 +104,16 @@ void MCTickBrushValidation(UWorld* World)
     AMCArenaTooth* Tooth=nullptr; for(AMCArenaTooth* T:GS->ArenaTeeth) if(T && T->State.ToothId==3) Tooth=T;
     if(!Tooth) return;
     const float T=Now-GS->DayStartedAt;
+    // Review recordings include the final coating fade and foam release.
+    const float WorkEnds=Capture?12.5f:10.f,RecordingEnds=Capture?14.f:12.f;
     if(Host && R.Hero.IsValid()) {
         auto* H=R.Hero.Get();
         // Start the retreat during verified contact; stain completion time varies with frame rate.
         if(MovementCase && R.MotionAt<0 && H->BrushContact->IsPresenting() &&
             (Measure?R.Contacts>20:((R.Seen&2)!=0 && T>2.2f))) R.MotionAt=T;
-        const bool Work=MovementCase?(T>1.5f && (R.MotionAt<0 || T<R.MotionAt+.1f)):((T>1.5f && T<4.f) || (T>5.5f && T<10.f));
+        const bool Work=MovementCase?(T>1.5f && (R.MotionAt<0 || T<R.MotionAt+.1f)):((T>1.5f && T<4.f) || (T>5.5f && T<WorkEnds));
         H->ServerSetPrimary(Work);
-        if(R.Recorder.IsValid()) R.Recorder->Stage=T<1.5f?TEXT("idle"):T<4?TEXT("brush"):T<5.5f?TEXT("release"):T<10?TEXT("brush_again"):TEXT("released");
+        if(R.Recorder.IsValid()) R.Recorder->Stage=T<1.5f?TEXT("idle"):T<4?TEXT("brush"):T<5.5f?TEXT("release"):T<WorkEnds?TEXT("brush_again"):TEXT("released");
         if(MovementCase && R.MotionAt>=0) {
             const float MotionT=T-R.MotionAt;
             auto* Move=CastChecked<UMCToothMovementComponent>(H->GetCharacterMovement());
@@ -161,13 +172,13 @@ void MCTickBrushValidation(UWorld* World)
     }
     if(T>4.5f && T<5.3f) {if(!R.PausedHash) R.PausedHash=Hash; R.Invalid|=R.PausedHash!=Hash; R.Seen|=8;}
     if(Changed>0 && Tooth->Status->State.CoffeeLeft>0) R.Seen|=16;
-    if(Capture && T>=R.NextFrame && T<12) {
+    if(Capture && T>=R.NextFrame && T<RecordingEnds) {
         R.NextFrame=T+1.f/30;
         if(R.LastFrame>=0) R.Timing+=FString::Printf(TEXT("duration %.6f\n"),T-R.LastFrame);
         R.Timing+=FString::Printf(TEXT("file 'Frame%05d.png'\n"),R.Frame);
         FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("BrushFrames")/FString::Printf(TEXT("Frame%05d.png"),R.Frame++),false,false); R.LastFrame=T;
     }
-    if(T>(Host?15:13) || R.Age>60) {
+    if(T>(Host?(Capture?17:15):13) || R.Age>60) {
         const bool MotionPass=!MovementCase || (R.ReturnSamples>2 && R.ReturnTravel>30 && R.Air && R.MotionSpeed>470 && FVector::Dist2D(R.MotionStart,R.Hero->GetActorLocation())>300 && R.ReachExcess<=12);
         const bool Pass=MotionPass && R.Seen==31 && !R.Invalid && (!Host || (R.FreeHandStep<1.5f && R.WorkHandStep<10)) && (!Measure || (R.Contacts>20 && R.MaxError<18 && R.ReachExcess<=12 && R.MaxWristStretch<1.05f && R.MinHandClearance>=8 && R.PeakFoam>0 && R.ReleasedFoam==0));
         if(Capture) FFileHelper::SaveStringToFile(R.Timing,*(FPaths::ProjectSavedDir()/TEXT("BrushFrames/times.csv")));
