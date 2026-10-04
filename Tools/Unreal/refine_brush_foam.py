@@ -73,7 +73,7 @@ float2 glintUV = v - float2(-.32,-.34);
 float glint = pow(saturate(1 - dot(glintUV,glintUV)*11), 5);
 color = lerp(color, float3(.99,1,1), glint*.44);
 float life = smoothstep(0,.10,saturate(Age)) * (1 - smoothstep(.68,1,saturate(Age)));
-float alpha = coverage * lerp(.19,.55,z) * saturate(Density) * saturate(Particle.a) * life;
+float alpha = coverage * lerp(.25,.65,z) * saturate(Density) * saturate(Particle.a) * life;
 return float4(color * saturate(Particle.rgb), alpha);
 '''
 
@@ -82,7 +82,7 @@ float2 p = (UV - .5) * 2;
 float r = length(p);
 float aa = max(fwidth(r) * 1.1, .006);
 float disk = 1 - smoothstep(.80-aa,.80+aa,r);
-float rim = 1 - smoothstep(.025-aa,.025+aa,abs(r-.765));
+float rim = 1 - smoothstep(.035-aa,.035+aa,abs(r-.765));
 float2 direction = p/max(r,.001);
 float upper = pow(saturate(dot(direction,float2(-.40,-.9165))),16) * rim;
 float lower = pow(saturate(dot(direction,float2(.70,.714))),22) * rim;
@@ -92,7 +92,7 @@ float3 film = lerp(float3(.59,.76,.84),float3(.76,.69,.84),tint*.32);
 float3 color = film * lerp(.58,.87,rim);
 color = lerp(color,float3(.97,.995,1),saturate(upper*.92+lower*.54));
 float life = smoothstep(0,.10,saturate(Age)) * (1 - smoothstep(.70,1,saturate(Age)));
-float alpha = disk * (.010 + rim*.25 + upper*.34 + lower*.12)
+float alpha = disk * (.010 + rim*.42 + upper*.34 + lower*.16)
     * saturate(Density) * saturate(Particle.a) * life;
 return float4(color * saturate(Particle.rgb), alpha);
 '''

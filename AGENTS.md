@@ -12,3 +12,17 @@ The source of truth is the current source and saved Unreal packages. Indexes are
 - Use the existing `unreal_epic` connection to inspect/change a running editor. It requires Unreal to be running. Use headless commands when the editor is closed. Package modifications belong in Unreal, with Blueprint compilation, Core Redirects/migration where applicable, builds and relevant gameplay/network checks.
 - The editor-only export plugin is `Plugins/MessControlProjectIndex`. It never saves source assets and is excluded from packaged game targets. Generated databases, snapshots and logs live in `Saved/ProjectIndex`; do not commit them.
 - CLI fallback: `python Tools/ProjectIndex/index.py status`, `refresh`, `read --asset /Game/...`, `search --query ...`, or `references --query ...`. Setup: `Tools/ProjectIndex/Setup.ps1`.
+
+# Unreal and DCC MCP tools
+
+Codex has project-configured MCP connections for Unreal Engine, Blender, Adobe Substance 3D Painter and Adobe Substance 3D Designer. Prefer the relevant MCP for application inspection and authoring; discover its tools and check the live connection before choosing a fallback.
+
+- `unreal_epic`: inspect and edit the running Unreal Editor, including assets, materials, Blueprints and editor/runtime state. Use `messcontrol_assets` alongside it for saved package evidence; the asset index does not replace live editor inspection.
+- `blender`: inspect and author meshes, UVs, scene objects and Blender materials; execute Blender Python and capture/render previews. Blender must be running with its MCP add-on connected.
+- `substance_painter`: inspect texture sets and layers, author fills/masks/materials, bake mesh maps and export textures through the running Painter bridge.
+- `substance_designer`: inspect and author procedural graphs, connect nodes, tune parameters, compute and export texture outputs through the running Designer bridge.
+- MCP configuration does not guarantee a live connection or that every advertised tool is exposed in the current session. Check available tools/status, report a concrete connection limitation, and use an appropriate engine/CLI fallback when necessary. Preserve unrelated open projects and unsaved application edits.
+
+# Validation scope
+
+For routine visual/gameplay edits, verify the result in the Unreal Editor and use only focused checks appropriate to the change. Windows build/cook/package is a separate task and runs only when the user requests it; do not package after every edit.
