@@ -6,7 +6,6 @@
 
 class AMCToothCharacter;
 class AMCRewardChest;
-class AMCPerkPickup;
 class AMCBossCharacter;
 class ACameraActor;
 class UMCPerkComponent;
@@ -29,7 +28,6 @@ private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
     UPROPERTY() TObjectPtr<UMCPerkComponent> Perks;
     UPROPERTY() TObjectPtr<AMCRewardChest> Chest;
-    UPROPERTY() TObjectPtr<AMCPerkPickup> Chosen;
     UPROPERTY() TObjectPtr<AMCBossCharacter> Boss;
     UPROPERTY() TObjectPtr<ACameraActor> Camera;
     FTimerHandle StepTimer;
@@ -38,4 +36,5 @@ private:
     FName ChosenID;
     FVector BossStarted=FVector::ZeroVector;
     bool bSawChase=false,bSawTarget=false,bSawTelegraph=false,bSawAttack=false,bFinished=false;
+    bool bOpeningPhotographed=false;
 };

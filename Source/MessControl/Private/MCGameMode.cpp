@@ -193,7 +193,10 @@ void AMCGameMode::RestartShift()
     }
     if (IsValid(RoguelikeDirector)) RoguelikeDirector->ResetRewards();
     for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if (It->bPlacedReward) It->ResetPlacedReward();
-    for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) It->ResetForRun();
+    for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
+        if (It->ActorHasTag(TEXT("MC_DevBoss"))) It->Destroy();
+        else It->ResetForRun();
+    }
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 8.;
     State->StepStartedAt=State->GetServerWorldTimeSeconds(); State->PreviousStepFailed=false;
     State->ForceNetUpdate();

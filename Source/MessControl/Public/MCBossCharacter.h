@@ -23,6 +23,11 @@ struct FMCBossRuntimeState
     UPROPERTY(BlueprintReadOnly) double StateStartedAt=0;
     UPROPERTY(BlueprintReadOnly) double StateEndsAt=0;
     UPROPERTY(BlueprintReadOnly) FVector AttackForward=FVector::ForwardVector;
+    UPROPERTY(BlueprintReadOnly) double AttackStartedAt=0;
+    UPROPERTY(BlueprintReadOnly) double HurtStartedAt=-1000;
+    UPROPERTY(BlueprintReadOnly) EMCBossAnimationPreview AnimationPreview=EMCBossAnimationPreview::None;
+    UPROPERTY(BlueprintReadOnly) int32 PreviewSerial=0;
+    UPROPERTY(BlueprintReadOnly) double PreviewStartedAt=0;
 };
 
 UCLASS(Blueprintable)
@@ -31,16 +36,19 @@ class MESSCONTROL_API AMCBossCharacter : public ACharacter
     GENERATED_BODY()
 public:
     AMCBossCharacter();
+    virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual float TakeDamage(float DamageAmount,const FDamageEvent& DamageEvent,AController* EventInstigator,AActor* DamageCauser) override;
     UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_Profile, BlueprintReadOnly, Category="Boss") TSoftObjectPtr<UMCBossProfile> Profile;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Boss") bool bStartAwake=false;
+    /** Retained for old packages. Bosses always start dormant; activation is an explicit dev action. */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Boss", meta=(DeprecatedProperty, DeprecationMessage="Use the explicit F3 AI test.")) bool bStartAwake=false;
     UPROPERTY(ReplicatedUsing=OnRep_Runtime, BlueprintReadOnly, Category="Boss") FMCBossRuntimeState Runtime;
     UFUNCTION(BlueprintPure, Category="Boss") bool IsBossAlive() const { return Runtime.Health>0.f && Runtime.State!=EMCBossState::Dead; }
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void ActivateBoss();
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void DeactivateBoss();
     /** Restart the encounter without activating it, including a previously killed boss. */
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void ResetForRun();
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss|Debug") bool PreviewAnimation(EMCBossAnimationPreview Preview);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") float ReceiveBossDamage(float Damage,AActor* DamageCauser);
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") bool BeginAttack(FName AttackId,AMCToothCharacter* Target);
     UFUNCTION(BlueprintPure, Category="Boss") float GetStateAge() const;
@@ -74,6 +82,8 @@ private:
     void PublishRuntime();
     void ChangeState(EMCBossState State,float Duration=0.f);
     void UpdatePhase();
+    void UpdateAnimationPresentation();
+    UAnimSequence* PreviewSequence(EMCBossAnimationPreview Preview) const;
     double ServerNow() const;
     UPROPERTY(Transient) TObjectPtr<UMCBossProfile> ResolvedProfile;
     TArray<FMCBossAttackDefinition> AttackDefinitions;
@@ -81,6 +91,9 @@ private:
     TMap<FName,double> NextAttackAt;
     FMCBossAttackDefinition PendingAttack;
     FMCBossRuntimeState LastPresented;
+    UPROPERTY(Transient) TArray<TObjectPtr<UAnimSequence>> LoadedAnimations;
+    UPROPERTY(Transient) TObjectPtr<UAnimSequence> CurrentAnimation;
+    double CurrentAnimationStartedAt=-1000;
     FTimerHandle AttackTimer;
     float BaseWalkSpeed=260.f;
 };

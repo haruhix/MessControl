@@ -2,6 +2,8 @@
 #include "MCBossAIController.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "Animation/AnimSequence.h"
+#include "Animation/AnimSingleNodeInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -27,6 +29,7 @@ AMCBossCharacter::AMCBossCharacter()
     GetCharacterMovement()->bUseControllerDesiredRotation=true;
     GetCharacterMovement()->RotationRate=FRotator(0.f,540.f,0.f);
     GetCharacterMovement()->MaxWalkSpeed=BaseWalkSpeed;
+    PrimaryActorTick.bCanEverTick=true;
 }
 
 void AMCBossCharacter::BeginPlay()
@@ -60,7 +63,7 @@ void AMCBossCharacter::BeginPlay()
     PhaseDefinitions.Sort([](const FMCBossPhaseDefinition& A,const FMCBossPhaseDefinition& B)
     { return A.HealthFraction>B.HealthFraction; });
     ChangeState(EMCBossState::Dormant);
-    if (bStartAwake) ActivateBoss();
+    // No encounter is wired yet. An imported/placed boss must not wake from the normal game flow.
 }
 
 void AMCBossCharacter::OnRep_Profile()
@@ -74,6 +77,19 @@ void AMCBossCharacter::OnRep_Profile()
         if (!ResolvedProfile->AnimationClass.IsNull())
             if (auto* AnimClass=ResolvedProfile->AnimationClass.LoadSynchronous()) GetMesh()->SetAnimInstanceClass(AnimClass);
         GetMesh()->SetRelativeTransform(ResolvedProfile->MeshTransform);
+        LoadedAnimations.Reset();
+        auto KeepClip=[this](const TSoftObjectPtr<UAnimSequence>& Reference)
+        {
+            if (!Reference.IsNull()) if (UAnimSequence* Clip=Reference.LoadSynchronous())
+                LoadedAnimations.AddUnique(Clip);
+        };
+        KeepClip(ResolvedProfile->IdleAnimation);
+        KeepClip(ResolvedProfile->WalkAnimation);
+        KeepClip(ResolvedProfile->HurtAnimation);
+        KeepClip(ResolvedProfile->DeathAnimation);
+        for (const auto& Attack:ResolvedProfile->Attacks) KeepClip(Attack.Animation);
+        CurrentAnimation=nullptr;
+        UpdateAnimationPresentation();
     }
 }
 
@@ -98,6 +114,8 @@ float AMCBossCharacter::GetStateAge() const
 void AMCBossCharacter::ActivateBoss()
 {
     if (!HasAuthority() || !IsBossAlive()) return;
+    Runtime.AnimationPreview=EMCBossAnimationPreview::None;
+    GetCharacterMovement()->SetMovementMode(MOVE_Walking);
     if (!GetController()) SpawnDefaultController();
     if (Runtime.State==EMCBossState::Dormant) ChangeState(EMCBossState::Searching);
     if (auto* Brain=Cast<AMCBossAIController>(GetController())) Brain->StartBossBrain();
@@ -110,6 +128,7 @@ void AMCBossCharacter::DeactivateBoss()
     if (auto* Brain=Cast<AMCBossAIController>(GetController())) Brain->StopBossBrain();
     Runtime.Target=nullptr;
     Runtime.AttackId=NAME_None;
+    Runtime.AnimationPreview=EMCBossAnimationPreview::None;
     ChangeState(EMCBossState::Dormant);
 }
 
@@ -124,6 +143,8 @@ void AMCBossCharacter::ResetForRun()
     Runtime.Phase=0;
     Runtime.Target=nullptr;
     Runtime.AttackId=NAME_None;
+    Runtime.AnimationPreview=EMCBossAnimationPreview::None;
+    Runtime.HurtStartedAt=-1000;
     Runtime.AttackForward=GetActorForwardVector();
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
     GetCharacterMovement()->StopMovementImmediately();
@@ -141,7 +162,8 @@ float AMCBossCharacter::TakeDamage(float DamageAmount,const FDamageEvent& Damage
 
 float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
 {
-    if (!HasAuthority() || IsActorBeingDestroyed() || !IsBossAlive() || !FMath::IsFinite(Damage) || Damage<=0.f) return 0.f;
+    if (!HasAuthority() || IsActorBeingDestroyed() || !IsBossAlive() || Runtime.AnimationPreview!=EMCBossAnimationPreview::None
+        || !FMath::IsFinite(Damage) || Damage<=0.f) return 0.f;
     const float Applied=FMath::Min(Runtime.Health,Damage);
     Runtime.Health-=Applied;
     if (Runtime.Health<=0.f)
@@ -156,7 +178,7 @@ float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
     else
     {
         UpdatePhase();
-        if (Runtime.State==EMCBossState::Dormant) ActivateBoss();
+        Runtime.HurtStartedAt=ServerNow();
         PublishRuntime();
     }
     return Applied;
@@ -216,6 +238,7 @@ bool AMCBossCharacter::BeginAttack(FName AttackId,AMCToothCharacter* Target)
     GetCharacterMovement()->StopMovementImmediately();
     Runtime.Target=Target;
     Runtime.AttackId=AttackId;
+    Runtime.AttackStartedAt=ServerNow();
     ++Runtime.AttackSerial;
     Runtime.AttackForward=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D();
     if (Runtime.AttackForward.IsNearlyZero()) Runtime.AttackForward=GetActorForwardVector();
@@ -305,6 +328,103 @@ void AMCBossCharacter::OnRep_Runtime()
         OnBossDied();
     }
     LastPresented=Runtime;
+    UpdateAnimationPresentation();
+}
+
+void AMCBossCharacter::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    if (GetNetMode()!=NM_DedicatedServer) UpdateAnimationPresentation();
+}
+
+UAnimSequence* AMCBossCharacter::PreviewSequence(EMCBossAnimationPreview Preview) const
+{
+    if (!ResolvedProfile) return nullptr;
+    switch (Preview)
+    {
+    case EMCBossAnimationPreview::Idle: return ResolvedProfile->IdleAnimation.Get();
+    case EMCBossAnimationPreview::Walk: return ResolvedProfile->WalkAnimation.Get();
+    case EMCBossAnimationPreview::Hurt: return ResolvedProfile->HurtAnimation.Get();
+    case EMCBossAnimationPreview::Death: return ResolvedProfile->DeathAnimation.Get();
+    default: break;
+    }
+    const FName Id=Preview==EMCBossAnimationPreview::PunchLeft?FName(TEXT("PunchLeft")):
+        Preview==EMCBossAnimationPreview::PunchRight?FName(TEXT("PunchRight")):Preview==EMCBossAnimationPreview::Kick?FName(TEXT("Kick")):FName(NAME_None);
+    for (const auto& Attack:ResolvedProfile->Attacks) if (Attack.AttackId==Id) return Attack.Animation.Get();
+    return nullptr;
+}
+
+bool AMCBossCharacter::PreviewAnimation(EMCBossAnimationPreview Preview)
+{
+#if UE_BUILD_SHIPPING
+    return false;
+#else
+    if (!HasAuthority() || !ActorHasTag(TEXT("MC_DevBoss")) || !PreviewSequence(Preview)) return false;
+    ResetForRun();
+    GetCharacterMovement()->DisableMovement();
+    Runtime.AnimationPreview=Preview;
+    Runtime.PreviewStartedAt=ServerNow();
+    ++Runtime.PreviewSerial;
+    PublishRuntime();
+    return true;
+#endif
+}
+
+void AMCBossCharacter::UpdateAnimationPresentation()
+{
+    if (!ResolvedProfile || !ResolvedProfile->AnimationClass.IsNull() || GetNetMode()==NM_DedicatedServer) return;
+    const double Now=ServerNow();
+    UAnimSequence* Clip=nullptr;
+    double StartedAt=Runtime.StateStartedAt;
+    float Rate=1.f;
+    bool bLoop=false;
+    if (Runtime.AnimationPreview!=EMCBossAnimationPreview::None)
+    {
+        Clip=PreviewSequence(Runtime.AnimationPreview);
+        StartedAt=Runtime.PreviewStartedAt;
+        bLoop=Runtime.AnimationPreview==EMCBossAnimationPreview::Idle || Runtime.AnimationPreview==EMCBossAnimationPreview::Walk;
+    }
+    else if (Runtime.State==EMCBossState::Dead) Clip=ResolvedProfile->DeathAnimation.Get();
+    else if (Runtime.State==EMCBossState::Telegraph || Runtime.State==EMCBossState::Attacking || Runtime.State==EMCBossState::Recovering)
+    {
+        for (const auto& Attack:ResolvedProfile->Attacks) if (Attack.AttackId==Runtime.AttackId)
+        {
+            Clip=Attack.Animation.Get();
+            // The complete clip retains its phase through Telegraph -> Attacking -> Recovering.
+            StartedAt=Runtime.AttackStartedAt;
+            if (Clip) Rate=Clip->GetPlayLength()/FMath::Max(.15f,Attack.WindupSeconds+Attack.ActiveSeconds+Attack.RecoverySeconds);
+            break;
+        }
+    }
+    else if (UAnimSequence* Hurt=ResolvedProfile->HurtAnimation.Get(); Hurt && Now-Runtime.HurtStartedAt<Hurt->GetPlayLength())
+    {
+        Clip=Hurt;
+        StartedAt=Runtime.HurtStartedAt;
+    }
+    else
+    {
+        const float Speed=GetVelocity().Size2D();
+        Clip=Speed>12.f?ResolvedProfile->WalkAnimation.Get():ResolvedProfile->IdleAnimation.Get();
+        bLoop=true;
+        if (Speed>12.f) Rate=FMath::Clamp(Speed/115.f,.5f,2.5f);
+        StartedAt=Clip==CurrentAnimation?CurrentAnimationStartedAt:Now;
+    }
+    if (!Clip || !GetMesh()->GetSkeletalMeshAsset() || Clip->GetSkeleton()!=GetMesh()->GetSkeletalMeshAsset()->GetSkeleton()) return;
+    if (Clip!=CurrentAnimation || StartedAt!=CurrentAnimationStartedAt)
+    {
+        CurrentAnimation=Clip;
+        CurrentAnimationStartedAt=StartedAt;
+        GetMesh()->PlayAnimation(Clip,bLoop);
+    }
+    if (UAnimSingleNodeInstance* Instance=GetMesh()->GetSingleNodeInstance())
+    {
+        const float Length=Clip->GetPlayLength();
+        float Position=FMath::Max(0.f,float(Now-StartedAt))*Rate;
+        Position=bLoop && Length>0.f?FMath::Fmod(Position,Length):FMath::Min(Position,Length);
+        // Presentation follows the replicated server timestamps. Notifies never own combat damage.
+        Instance->SetPlaying(false);
+        Instance->SetPosition(Position,false);
+    }
 }
 
 void AMCBossCharacter::MulticastAttackImpact_Implementation(FName AttackId,int32 AttackSerial)

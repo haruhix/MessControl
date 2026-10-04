@@ -5,6 +5,7 @@
 #include "MCPerkComponent.h"
 #include "MCPerkEffect.h"
 #include "MCPlayerState.h"
+#include "MCPlayerController.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -15,6 +16,7 @@
 #include "Engine/DataTable.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Misc/Crc.h"
 #include "UObject/ConstructorHelpers.h"
@@ -68,9 +70,8 @@ AMCRewardChest::AMCRewardChest()
     if(Disc.Succeeded()) Telegraph->SetStaticMesh(Disc.Object);
     if(MarkerMaterial.Succeeded()) Telegraph->SetMaterial(0,MarkerMaterial.Object);
     Approach=CreateDefaultSubobject<USphereComponent>(TEXT("LivingPlayerApproach")); Approach->SetupAttachment(Scene);
-    Approach->InitSphereRadius(OpenRadius); Approach->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    Approach->InitSphereRadius(OpenRadius); Approach->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Approach->SetCollisionResponseToAllChannels(ECR_Ignore); Approach->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
-    PickupClass=AMCPerkPickup::StaticClass();
     PerkTable=TSoftObjectPtr<UDataTable>(FSoftObjectPath(TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks")));
     ConfigureGeometry();
 }
@@ -80,10 +81,10 @@ void AMCRewardChest::ConfigureGeometry()
     if(!Body->GetStaticMesh() || !Lid->GetStaticMesh()) return;
     const float Scale=FMath::IsFinite(ModelScale)?FMath::Clamp(ModelScale,.05f,2.f):.35f;
     const FBox Bottom=Body->GetStaticMesh()->GetBoundingBox(),Top=Lid->GetStaticMesh()->GetBoundingBox();
-    const float BottomOffset=float(-Bottom.Min.Z*Scale),HingeZ=float((Bottom.Max.Z-Bottom.Min.Z)*Scale),HingeY=float(Top.Max.Y*Scale);
+    const float BottomOffset=float(-Bottom.Min.Z*Scale),HingeZ=float((Bottom.Max.Z-Bottom.Min.Z)*Scale),HingeX=float(Top.Min.X*Scale);
     Body->SetRelativeScale3D(FVector(Scale)); Body->SetRelativeLocation(FVector(0,0,BottomOffset));
-    LidPivot->SetRelativeLocation(FVector(0,HingeY,HingeZ));
-    Lid->SetRelativeScale3D(FVector(Scale)); Lid->SetRelativeLocation(FVector(0,-HingeY,-Top.Min.Z*Scale));
+    LidPivot->SetRelativeLocation(FVector(HingeX,0,HingeZ));
+    Lid->SetRelativeScale3D(FVector(Scale)); Lid->SetRelativeLocation(FVector(-HingeX,0,-Top.Min.Z*Scale));
     FBox Closed=Bottom.TransformBy(FTransform(FQuat::Identity,FVector(0,0,BottomOffset),FVector(Scale)));
     Closed+=Top.TransformBy(FTransform(FQuat::Identity,FVector(0,0,HingeZ-Top.Min.Z*Scale),FVector(Scale)));
     Solid->SetBoxExtent(Closed.GetExtent()); Solid->SetRelativeLocation(Closed.GetCenter());
@@ -99,7 +100,7 @@ FVector AMCRewardChest::GetPlacementHalfExtent() const
     const FBox Bottom=Body->GetStaticMesh()->GetBoundingBox(),Top=Lid->GetStaticMesh()->GetBoundingBox();
     const double Side=FMath::Max(95.,Bottom.GetExtent().X*Scale)+34;
     const double Front=Bottom.GetExtent().Y*Scale+70+34;
-    // Enclose the three outside pickups and any yaw, not only the closed chest.
+    // A conservative envelope includes the lid sweep and any landing yaw.
     const double Radius=FMath::Sqrt(Side*Side+Front*Front);
     const double Height=FMath::Max(180.,(Bottom.GetSize().Z+Top.GetSize().Z)*Scale+50);
     return FVector(Radius,Radius,Height*.5);
@@ -147,14 +148,14 @@ void AMCRewardChest::RefreshPresentation()
     SetActorHiddenInGame(!bRewardInitialized);
     const bool Landed=bRewardInitialized && Stage>=EMCRewardChestStage::Landed;
     Solid->SetCollisionEnabled(Landed?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision);
-    Approach->SetCollisionEnabled(Landed && Stage!=EMCRewardChestStage::Exhausted?ECollisionEnabled::QueryOnly:ECollisionEnabled::NoCollision);
+    Approach->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Telegraph->SetVisibility(bRewardInitialized && (Stage==EMCRewardChestStage::Telegraph || Stage==EMCRewardChestStage::Falling));
     Telegraph->SetWorldLocation(LandingPoint+FVector(0,0,2));
     const bool Animated=bRewardInitialized && (Stage==EMCRewardChestStage::Telegraph || Stage==EMCRewardChestStage::Falling || Stage==EMCRewardChestStage::Opening);
     SetActorTickEnabled(Animated);
     if(bRewardInitialized && !Animated) {
         SetActorLocation(LandingPoint);
-        LidPivot->SetRelativeRotation(FRotator(0,0,Stage>=EMCRewardChestStage::Open?-105.f:0.f));
+        LidPivot->SetRelativeRotation(FRotator(Stage>=EMCRewardChestStage::Open?105.f:0.f,0,0));
     }
 }
 
@@ -176,10 +177,11 @@ void AMCRewardChest::Tick(float Dt)
         SetActorLocation(FMath::Lerp(FallStart,LandingPoint,Alpha*Alpha));
     } else if(Stage==EMCRewardChestStage::Opening) {
         const float Alpha=FMath::Clamp(float(Age/FMath::Max(.1f,OpeningSeconds)),0.f,1.f);
-        LidPivot->SetRelativeRotation(FRotator(0,0,-105.f*(Alpha*Alpha*(3-2*Alpha))));
+        LidPivot->SetRelativeRotation(FRotator(105.f*(Alpha*Alpha*(3-2*Alpha)),0,0));
         if(HasAuthority() && Alpha>=1) {
             SetStage(EMCRewardChestStage::Open);
-            for(AMCPerkPickup* Pickup:Pickups) if(IsValid(Pickup)) { Pickup->SetActorEnableCollision(true); Pickup->StartArming(); }
+            if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
+                PC->ClientShowPerkChoices(this,LootIDs,Polarity);
         }
     }
 }
@@ -224,28 +226,27 @@ void AMCRewardChest::PollApproach()
         }
         return;
     }
-    TArray<AActor*> Nearby;
-    if(Stage==EMCRewardChestStage::Landed) {
-        Approach->GetOverlappingActors(Nearby,AMCToothCharacter::StaticClass());
-        Nearby.Sort([this](const AActor& A,const AActor& B) {
-            const double DA=FVector::DistSquared(A.GetActorLocation(),GetActorLocation()),DB=FVector::DistSquared(B.GetActorLocation(),GetActorLocation());
-            return DA==DB?A.GetPathName()<B.GetPathName():DA<DB;
-        });
-        for(AActor* Actor:Nearby) if(OpenFor(Cast<AMCToothCharacter>(Actor))) break;
+    if(Stage==EMCRewardChestStage::Lockpicking || Stage==EMCRewardChestStage::Opening || Stage==EMCRewardChestStage::Open) {
+        if(!OpenerCanContinue()) { CancelOpening(); return; }
+        if(Stage==EMCRewardChestStage::Lockpicking && ServerNow()-StageStartedAt>=FMath::Clamp(LockpickingSeconds,.1f,60.f))
+            SetStage(EMCRewardChestStage::Opening);
     }
 }
 
-bool AMCRewardChest::OpenFor(AMCToothCharacter* Player)
+bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
 {
     if(!HasAuthority() || Stage!=EMCRewardChestStage::Landed || !IsLivingPlayer(Player)
-        || !IsValid(DropZone) || !PickupClass || !Body->GetStaticMesh() || !Lid->GetStaticMesh()) return false;
+        || !Player->CanWork() || !IsValid(DropZone) || !Body->GetStaticMesh() || !Lid->GetStaticMesh()
+        || FVector::DistSquared(Player->GetActorLocation(),GetActorLocation())>FMath::Square(FMath::Clamp(OpenRadius,100.f,800.f))) return false;
     auto* PS=Player->GetPlayerState<AMCPlayerState>();
-    if(!PS->Perks || PS->Perks->GetPerkTable()!=RewardTable) return false;
+    auto* PC=Cast<AMCPlayerController>(Player->GetController());
+    if(!PC || !PS->Perks || PS->Perks->GetPerkTable()!=RewardTable) return false;
     FCollisionQueryParams Query(SCENE_QUERY_STAT(RewardApproach),true,this); Query.AddIgnoredActor(Player);
     FHitResult Block;
     const FVector Eye=Player->GetActorLocation()+FVector(0,0,35),Center=Solid->Bounds.Origin;
     if(GetWorld()->LineTraceSingleByChannel(Block,Eye,Center,ECC_Visibility,Query)) return false;
-    if(LootIDs.IsEmpty()) {
+    LootIDs.Reset();
+    {
         TArray<FName> Positive,Negative; EligibleRows(RewardTable,PS->Perks,Positive,Negative);
         if(Positive.Num()<3 && Negative.Num()<3) return false;
         FRandomStream Roll(RollSeed);
@@ -262,55 +263,52 @@ bool AMCRewardChest::OpenFor(AMCToothCharacter* Player)
     }
     if(LootIDs.Num()!=3) return false;
     for(FName ID:LootIDs) if(!PS->Perks->CanGrantPerk(ID)) return false;
-    FVector Points[3];
-    const double Front=Body->GetStaticMesh()->GetBoundingBox().GetExtent().Y*FMath::Clamp(ModelScale,.05f,2.f)+70;
-    for(int32 I=0;I<3;++I) {
-        const FVector P=GetActorTransform().TransformPosition(FVector((I-1)*95,-Front,0)); FHitResult Floor;
-        if(!GetWorld()->LineTraceSingleByChannel(Floor,P+FVector(0,0,100),P-FVector(0,0,100),ECC_Visibility,Query)
-            || !DropZone->AcceptsFloor(Floor) || !DropZone->ContainsFootprint(Floor.ImpactPoint,FVector(34,34,0))) return false;
-        Points[I]=Floor.ImpactPoint+FVector(0,0,45);
-        FCollisionQueryParams Clearance(SCENE_QUERY_STAT(RewardPickupSpace),false,this);
-        Clearance.AddIgnoredActor(Player); Clearance.AddIgnoredActor(Floor.GetActor());
-        FCollisionObjectQueryParams Objects;
-        Objects.AddObjectTypesToQuery(ECC_WorldStatic); Objects.AddObjectTypesToQuery(ECC_WorldDynamic);
-        Objects.AddObjectTypesToQuery(ECC_PhysicsBody);
-        if(GetWorld()->OverlapAnyTestByObjectType(Points[I],FQuat::Identity,Objects,FCollisionShape::MakeSphere(34),Clearance)) return false;
-    }
-    TArray<TObjectPtr<AMCPerkPickup>> Staged;
-    for(int32 I=0;I<3;++I) {
-        const auto* Row=RewardTable->FindRow<FMCPerkDefinition>(LootIDs[I],TEXT("Display loot"),false);
-        if(!ValidRow(Row)) { for(AMCPerkPickup* Spawned:Staged) Spawned->Destroy(); return false; }
-        const FTransform Transform(FRotator(0,GetActorRotation().Yaw-90,0),Points[I]);
-        auto* Pickup=GetWorld()->SpawnActorDeferred<AMCPerkPickup>(PickupClass,Transform,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-        if(!Pickup) { for(AMCPerkPickup* Spawned:Staged) Spawned->Destroy(); return false; }
-        Pickup->InitializePickup(this,I,LootIDs[I],Row->DisplayName,Row->Description,Polarity);
-        Pickup->FinishSpawning(Transform); Pickup->SetActorEnableCollision(false); Staged.Add(Pickup);
-    }
-    Pickups=MoveTemp(Staged); SetStage(EMCRewardChestStage::Opening);
-    UE_LOG(LogTemp,Display,TEXT("MC_REWARD_OPEN %s polarity=%d ids=%s,%s,%s"),*GetName(),int32(Polarity),*LootIDs[0].ToString(),*LootIDs[1].ToString(),*LootIDs[2].ToString());
+    OpeningPlayer=Player; Player->CancelGameplayInput(); Player->RewardInteraction=this;
+    Player->GetCharacterMovement()->StopMovementImmediately(); Player->ForceNetUpdate();
+    SetStage(EMCRewardChestStage::Lockpicking);
+    PC->ClientShowRewardOpening(this,StageStartedAt+FMath::Clamp(LockpickingSeconds,.1f,60.f));
+    UE_LOG(LogTemp,Display,TEXT("MC_REWARD_LOCKPICK %s player=%s"),*GetName(),*PS->GetPlayerName());
     return true;
 }
 
-bool AMCRewardChest::TryClaim(AMCPerkPickup* Pickup,AMCToothCharacter* Player)
+bool AMCRewardChest::OpenerCanContinue() const
 {
-    if(!HasAuthority() || bClaimInProgress || Stage!=EMCRewardChestStage::Open || !IsLivingPlayer(Player)
-        || !IsValid(Pickup) || Pickup->bClaimed || Pickup->RewardChest!=this || !Pickups.Contains(Pickup)
-        || !LootIDs.IsValidIndex(Pickup->LootIndex) || LootIDs[Pickup->LootIndex]!=Pickup->PerkID
-        || (ClaimedMask&(1<<Pickup->LootIndex)) || FVector::DistSquared(Player->GetActorLocation(),Pickup->GetActorLocation())>FMath::Square(160.f)) return false;
+    return IsLivingPlayer(OpeningPlayer) && Cast<AMCPlayerController>(OpeningPlayer->GetController())
+        && OpeningPlayer->RewardInteraction==this
+        && FVector::DistSquared(OpeningPlayer->GetActorLocation(),GetActorLocation())<=FMath::Square(FMath::Clamp(OpenRadius,100.f,800.f)+100.f);
+}
+
+void AMCRewardChest::ReleaseOpener()
+{
+    if(IsValid(OpeningPlayer)) {
+        if(OpeningPlayer->RewardInteraction==this) { OpeningPlayer->RewardInteraction=nullptr; OpeningPlayer->ForceNetUpdate(); }
+        if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController())) PC->ClientClosePerkChoices(this);
+    }
+    OpeningPlayer=nullptr;
+}
+
+void AMCRewardChest::CancelOpening()
+{
+    ReleaseOpener(); LootIDs.Reset(); SetStage(EMCRewardChestStage::Landed);
+}
+
+bool AMCRewardChest::TryClaim(AMCPerkPickup*,AMCToothCharacter*) { return false; }
+
+bool AMCRewardChest::TryChooseCard(AMCToothCharacter* Player,int32 Index)
+{
+    if(!HasAuthority() || bClaimInProgress || Stage!=EMCRewardChestStage::Open || OpeningPlayer!=Player
+        || !OpenerCanContinue() || LootIDs.Num()!=3 || !LootIDs.IsValidIndex(Index) || ClaimedMask!=0) return false;
     auto* PS=Player->GetPlayerState<AMCPlayerState>();
     if(!PS->Perks || PS->Perks->GetPerkTable()!=RewardTable) return false;
-    FCollisionQueryParams Query(SCENE_QUERY_STAT(RewardClaim),true,this); Query.AddIgnoredActor(Player); Query.AddIgnoredActor(Pickup);
-    FHitResult Block;
-    if(GetWorld()->LineTraceSingleByChannel(Block,Player->GetActorLocation()+FVector(0,0,35),Pickup->GetActorLocation(),ECC_Visibility,Query)) return false;
+    const FName ChosenID=LootIDs[Index];
+    const auto* Row=RewardTable->FindRow<FMCPerkDefinition>(ChosenID,TEXT("Reward card"),false);
+    if(!ValidRow(Row) || Row->Polarity!=Polarity) return false;
     TGuardValue<bool> Guard(bClaimInProgress,true);
-    if(!PS->Perks->ServerGrantPerk(Pickup->PerkID)) return false;
-    ClaimedMask|=uint8(1<<Pickup->LootIndex); Pickup->MarkClaimed();
-    if(SelectionPolicy==EMCRewardSelectionPolicy::ChooseOne) {
-        ClaimedMask=7; for(AMCPerkPickup* Other:Pickups) if(IsValid(Other)) Other->MarkClaimed();
-    }
+    if(!PS->Perks->ServerGrantPerk(ChosenID)) return false;
+    ClaimedMask=7;
     ForceNetUpdate();
-    UE_LOG(LogTemp,Display,TEXT("MC_REWARD_CLAIM player=%s perk=%s"),*PS->GetPlayerName(),*Pickup->PerkID.ToString());
-    if(ClaimedMask==7) FinishReward(false);
+    UE_LOG(LogTemp,Display,TEXT("MC_REWARD_CARD player=%s perk=%s"),*PS->GetPlayerName(),*ChosenID.ToString());
+    FinishReward(false);
     return true;
 }
 
@@ -319,7 +317,7 @@ void AMCRewardChest::FinishReward(bool bRequeue)
     if(!HasAuthority() || bReported) return;
     bReported=true; GetWorldTimerManager().ClearTimer(ApproachTimer);
     if(auto* Director=Cast<AMCRoguelikeDirector>(GetOwner())) Director->NotifyChestFinished(this,bRequeue);
-    for(AMCPerkPickup* Pickup:Pickups) if(IsValid(Pickup)) { Pickup->MarkClaimed(); Pickup->SetLifeSpan(2); }
+    ReleaseOpener();
     SetStage(EMCRewardChestStage::Exhausted);
     if(!bPlacedReward) SetLifeSpan(bRequeue?.1f:2.f);
 }
@@ -329,8 +327,7 @@ void AMCRewardChest::ResetPlacedReward()
     if(!HasAuthority() || !bPlacedReward) return;
     const FVector AuthoredLanding=bRewardInitialized?LandingPoint:GetActorLocation();
     GetWorldTimerManager().ClearTimer(ApproachTimer); SetLifeSpan(0);
-    for(AMCPerkPickup* Pickup:Pickups) if(IsValid(Pickup)) Pickup->Destroy();
-    Pickups.Reset(); LootIDs.Reset(); ClaimedMask=0; bReported=false; bClaimInProgress=false;
+    ReleaseOpener(); LootIDs.Reset(); ClaimedMask=0; bReported=false; bClaimInProgress=false;
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     InitializeReward(AuthoredLanding,AuthoredLanding,int32(FCrc::StrCrc32(*GetName()))^(State?State->RunSeed:0),
         PerkTable.LoadSynchronous(),EMCRewardSelectionPolicy::ChooseOne,IsValid(PlacedDropZone)?PlacedDropZone.Get():DropZone.Get());
@@ -342,7 +339,7 @@ void AMCRewardChest::EndPlay(const EEndPlayReason::Type Reason)
 {
     GetWorldTimerManager().ClearAllTimersForObject(this);
     if(HasAuthority()) {
-        for(AMCPerkPickup* Pickup:Pickups) if(IsValid(Pickup)) Pickup->Destroy();
+        ReleaseOpener();
         if(!bReported && Reason==EEndPlayReason::Destroyed)
             if(auto* Director=Cast<AMCRoguelikeDirector>(GetOwner())) Director->NotifyChestFinished(this,ClaimedMask==0);
     }
@@ -355,4 +352,5 @@ void AMCRewardChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AMCRewardChest,SelectionPolicy); DOREPLIFETIME(AMCRewardChest,Stage); DOREPLIFETIME(AMCRewardChest,StageStartedAt);
     DOREPLIFETIME(AMCRewardChest,LandingPoint); DOREPLIFETIME(AMCRewardChest,FallStart); DOREPLIFETIME(AMCRewardChest,LootIDs);
     DOREPLIFETIME(AMCRewardChest,Polarity); DOREPLIFETIME(AMCRewardChest,ClaimedMask); DOREPLIFETIME(AMCRewardChest,bRewardInitialized);
+    DOREPLIFETIME(AMCRewardChest,OpeningPlayer);
 }

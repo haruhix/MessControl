@@ -6,6 +6,14 @@
 #include "MCBossProfile.generated.h"
 
 class USkeletalMesh;
+class UAnimSequence;
+
+/** Explicit F3 presentation previews. These never run combat or navigation. */
+UENUM(BlueprintType)
+enum class EMCBossAnimationPreview : uint8
+{
+    None, Idle, Walk, PunchLeft, PunchRight, Kick, Hurt, Death
+};
 
 UENUM(BlueprintType)
 enum class EMCBossState : uint8
@@ -29,6 +37,8 @@ struct FMCBossAttackDefinition
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0.05")) float ActiveSeconds=.15f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0.05")) float RecoverySeconds=.7f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0")) float CooldownSeconds=2.f;
+    /** Full windup/impact/recovery clip, authored in place on this boss's own skeleton. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> Animation;
     void Sanitize();
 };
 
@@ -60,5 +70,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat") TArray<FMCBossPhaseDefinition> Phases;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<USkeletalMesh> SkeletalMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftClassPtr<UAnimInstance> AnimationClass;
+    /** Native sequence playback is used when AnimationClass is empty. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> IdleAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> WalkAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> HurtAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> DeathAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") FTransform MeshTransform=FTransform::Identity;
 };

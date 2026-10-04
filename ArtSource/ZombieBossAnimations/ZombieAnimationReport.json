@@ -1,0 +1,88 @@
+{
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\ZombieBoss\\ZombieBoss.blend",
+  "source_sha256": "1ae05479ea038b53f6a4d57112673302c2b3ca0b6d69e2f190826758beb52aef",
+  "bones": 85,
+  "clips": [
+    {
+      "name": "AN_Zombie_Idle",
+      "file": "AN_Zombie_Idle.fbx",
+      "frames": 73,
+      "fps": 30,
+      "duration_seconds": 2.4,
+      "impact_seconds": null,
+      "loop": true,
+      "root_motion": false,
+      "review_start_frame": 1
+    },
+    {
+      "name": "AN_Zombie_Shamble",
+      "file": "AN_Zombie_Shamble.fbx",
+      "frames": 49,
+      "fps": 30,
+      "duration_seconds": 1.6,
+      "impact_seconds": null,
+      "loop": true,
+      "root_motion": false,
+      "review_start_frame": 82
+    },
+    {
+      "name": "AN_Zombie_PunchLeft",
+      "file": "AN_Zombie_PunchLeft.fbx",
+      "frames": 43,
+      "fps": 30,
+      "duration_seconds": 1.4,
+      "impact_seconds": 0.7,
+      "loop": false,
+      "root_motion": false,
+      "review_start_frame": 139
+    },
+    {
+      "name": "AN_Zombie_PunchRight",
+      "file": "AN_Zombie_PunchRight.fbx",
+      "frames": 46,
+      "fps": 30,
+      "duration_seconds": 1.5,
+      "impact_seconds": 0.76,
+      "loop": false,
+      "root_motion": false,
+      "review_start_frame": 190
+    },
+    {
+      "name": "AN_Zombie_Kick",
+      "file": "AN_Zombie_Kick.fbx",
+      "frames": 55,
+      "fps": 30,
+      "duration_seconds": 1.8,
+      "impact_seconds": 0.9,
+      "loop": false,
+      "root_motion": false,
+      "review_start_frame": 244
+    },
+    {
+      "name": "AN_Zombie_Hurt",
+      "file": "AN_Zombie_Hurt.fbx",
+      "frames": 21,
+      "fps": 30,
+      "duration_seconds": 0.6666666666666666,
+      "impact_seconds": null,
+      "loop": false,
+      "root_motion": false,
+      "review_start_frame": 307
+    },
+    {
+      "name": "AN_Zombie_Death",
+      "file": "AN_Zombie_Death.fbx",
+      "frames": 73,
+      "fps": 30,
+      "duration_seconds": 2.4,
+      "impact_seconds": null,
+      "loop": false,
+      "root_motion": false,
+      "review_start_frame": 336
+    }
+  ],
+  "review_blend": "ZombieBossAnimations.blend",
+  "review_timeline_frames": 409,
+  "root_motion": false,
+  "reference_pose_unchanged": true
+}

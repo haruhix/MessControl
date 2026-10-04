@@ -1,0 +1,26 @@
+{
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterCurrent\\CharacterGameplay.blend",
+  "source_sha256": "6d835c6a7ec3a1d44a7ed24b9bcdb4a2ebde01c1fcce35501847bac5266f144c",
+  "hero_bones": 107,
+  "frames": [
+    1,
+    120
+  ],
+  "fps": 24,
+  "seconds": 5,
+  "prop_model_scale": 0.35,
+  "brush_handle_tip_cm": [
+    -17.640369415283203,
+    -8.940696716308594e-08,
+    1.4859288930892944
+  ],
+  "socket_m": [
+    0.0,
+    -0.5203354358673096,
+    0.5677708983421326
+  ],
+  "max_brush_contact_error_m": 6.019111213109093e-08,
+  "approval": "pending",
+  "imported_into_unreal": false,
+  "note": "Existing Bottom keyhole (+X in source) reused. Props rotated -90 degrees only in this derived scene. Deformation preserves current reference skeleton; no source files changed."
+}

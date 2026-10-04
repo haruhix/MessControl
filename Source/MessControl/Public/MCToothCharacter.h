@@ -16,6 +16,7 @@ class UMCGripComponent;
 class UMCExpressionComponent;
 class AMCFoodActor;
 class AMCArenaTooth;
+class AMCRewardChest;
 class UMaterialInstanceDynamic;
 class UMeshComponent;
 class UEnhancedInputLocalPlayerSubsystem;
@@ -83,6 +84,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
     bool CanWork() const;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCRewardChest> RewardInteraction;
+    UFUNCTION(Server,Reliable) void ServerBeginRewardOpening(AMCRewardChest* Chest);
     bool IsPrimaryHeld() const { return bPrimaryHeld; }
     UPROPERTY(ReplicatedUsing=OnRep_ThroatCapture,BlueprintReadOnly,Category="Throat") TObjectPtr<class AMCThroat> SwallowedBy;
     UPROPERTY(Replicated) FVector ThroatCaptureStart=FVector::ZeroVector;

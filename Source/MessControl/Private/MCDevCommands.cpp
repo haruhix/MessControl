@@ -23,6 +23,63 @@
 #include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
+#include "NavigationSystem.h"
+#include "NavigationData.h"
+
+namespace
+{
+#if !UE_BUILD_SHIPPING
+    AMCBossCharacter* FindDevBoss(UWorld* World)
+    {
+        for (TActorIterator<AMCBossCharacter> It(World);It;++It)
+            if (It->ActorHasTag(TEXT("MC_DevBoss")) && !It->IsActorBeingDestroyed()) return *It;
+        return nullptr;
+    }
+
+    AMCBossCharacter* SpawnDevBoss(UWorld* World,APlayerController* Requester)
+    {
+        if (AMCBossCharacter* Existing=FindDevBoss(World)) return Existing;
+        const AMCToothCharacter* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
+        if (!AMCBossCharacter::IsLivingPlayer(Hero)) return nullptr;
+        UClass* BossClass=LoadClass<AMCBossCharacter>(nullptr,TEXT("/Game/Gameplay/Boss/BP_ZombieBoss.BP_ZombieBoss_C"));
+        const AMCBossCharacter* Defaults=BossClass?BossClass->GetDefaultObject<AMCBossCharacter>():nullptr;
+        UNavigationSystemV1* Nav=FNavigationSystem::GetCurrent<UNavigationSystemV1>(World);
+        if (!Defaults || !Nav) return nullptr;
+        const float Radius=Defaults->GetCapsuleComponent()->GetScaledCapsuleRadius();
+        const float HalfHeight=Defaults->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+        FNavAgentProperties Agent=Defaults->GetNavAgentPropertiesRef();
+        // A CDO has not run the movement component's owner-collision update yet.
+        Agent.AgentRadius=Radius; Agent.AgentHeight=HalfHeight*2.f;
+        const ANavigationData* NavData=Nav->GetNavDataForProps(Agent,Hero->GetActorLocation());
+        if (!NavData) return nullptr;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCDevBossSpawn),false,Hero);
+        FCollisionObjectQueryParams Objects;
+        Objects.AddObjectTypesToQuery(ECC_WorldStatic); Objects.AddObjectTypesToQuery(ECC_WorldDynamic);
+        Objects.AddObjectTypesToQuery(ECC_Pawn); Objects.AddObjectTypesToQuery(ECC_PhysicsBody);
+        for (float Angle:{0.f,45.f,-45.f,90.f,-90.f,135.f,-135.f,180.f})
+        {
+            const FVector Direction=Hero->GetActorForwardVector().RotateAngleAxis(Angle,FVector::UpVector);
+            FNavLocation Floor;
+            if (!Nav->ProjectPointToNavigation(Hero->GetActorLocation()+Direction*500.f,Floor,FVector(180,180,500),NavData)) continue;
+            if (FVector::DistSquared2D(Floor.Location,Hero->GetActorLocation())<FMath::Square(250.f)) continue;
+            const FVector Position=Floor.Location+FVector(0,0,HalfHeight+3.f);
+            if (World->OverlapAnyTestByObjectType(Position,FQuat::Identity,Objects,FCollisionShape::MakeCapsule(Radius,HalfHeight),Query)) continue;
+            FActorSpawnParameters Spawn;
+            Spawn.Owner=Requester;
+            Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
+            const FRotator Facing=(Hero->GetActorLocation()-Position).Rotation();
+            AMCBossCharacter* Boss=World->SpawnActor<AMCBossCharacter>(BossClass,Position,FRotator(0,Facing.Yaw,0),Spawn);
+            if (Boss)
+            {
+                Boss->Tags.Add(TEXT("MC_DevBoss"));
+                Boss->PreviewAnimation(EMCBossAnimationPreview::Idle);
+                return Boss;
+            }
+        }
+        return nullptr;
+    }
+#endif
+}
 
 bool AMCGameMode::CanUseDevPanel(const APlayerController* Requester) const
 {
@@ -46,13 +103,26 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         RoguelikeDirector->NotifyTaskCompleted();
         return FText::FromString(TEXT("Награда поставлена в очередь: сундук выберет свободную зону с наименьшим числом игроков."));
     }
-    if (Action==EMCDevAction::BossPractice)
+    if (Action==EMCDevAction::BossRemove)
     {
-        AMCBossCharacter* Boss=nullptr;
-        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) if(It->IsBossAlive()) { Boss=*It; break; }
-        if (!Boss) return FText::FromString(TEXT("Размести BP_ZombieBoss в зоне NavMesh перед запуском PIE."));
-        Boss->ActivateBoss();
-        return FText::FromString(TEXT("Босс активирован. Перед ударом есть предупреждение; нож и кирка наносят ему урон."));
+        if (AMCBossCharacter* Boss=FindDevBoss(GetWorld())) Boss->Destroy();
+        return FText::FromString(TEXT("Тестовый Zombie убран. Обычная игра не спавнит босса."));
+    }
+    if (Action==EMCDevAction::BossPractice || Action==EMCDevAction::BossAI || Action==EMCDevAction::BossStop || Action==EMCDevAction::BossAnimation)
+    {
+        if (Action==EMCDevAction::BossAnimation && (StepIndex<1 || StepIndex>7)) return FText::FromString(TEXT("Неизвестная анимация босса."));
+        AMCBossCharacter* Boss=SpawnDevBoss(GetWorld(),Requester);
+        if (!Boss) return FText::FromString(TEXT("Нет свободного места на Boss NavMesh рядом с живым игроком. Перейди к центру языка."));
+        if (Action==EMCDevAction::BossAI)
+        {
+            Boss->ResetForRun(); Boss->ActivateBoss();
+            return FText::FromString(TEXT("Тест AI: Zombie преследует игроков, бьёт руками и пинает. Перед ударом есть замах; нож и кирка наносят урон."));
+        }
+        const auto Clip=Action==EMCDevAction::BossAnimation?static_cast<EMCBossAnimationPreview>(StepIndex):EMCBossAnimationPreview::Idle;
+        if (!Boss->PreviewAnimation(Clip)) return FText::FromString(TEXT("Клип пока не назначен в DA_ZombieBoss."));
+        return FText::FromString(Action==EMCDevAction::BossPractice?TEXT("Zombie создан для просмотра. AI и урон выключены; F3 → AI включает бой."):
+            Action==EMCDevAction::BossStop?TEXT("AI остановлен, здоровье восстановлено. Zombie показывает idle."):
+            TEXT("Показ выбранной анимации: без движения AI и без нанесения урона. F3 — закрыть панель."));
     }
     if(Action==EMCDevAction::ActiveRagdoll) {
         if(StepIndex<0 || StepIndex>2) return FText::FromString(TEXT("Неизвестный режим физики."));

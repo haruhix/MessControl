@@ -19,7 +19,7 @@ UENUM(BlueprintType)
 enum class EMCRewardSelectionPolicy : uint8 { ChooseOne, CollectAll };
 
 UENUM(BlueprintType)
-enum class EMCRewardChestStage : uint8 { Telegraph, Falling, Landed, Opening, Open, Exhausted };
+enum class EMCRewardChestStage : uint8 { Telegraph, Falling, Landed, Lockpicking, Opening, Open, Exhausted };
 
 /** Server-owned rewards, deterministic presentation, no rigid-body simulation. */
 UCLASS()
@@ -37,6 +37,10 @@ public:
         EMCRewardSelectionPolicy Policy,AMCRewardDropZone* Zone);
     FVector GetPlacementHalfExtent() const;
     static bool HasValidLoot(UDataTable* Table,const UMCPerkComponent* Recipient=nullptr);
+    bool BeginLockpicking(AMCToothCharacter* Player);
+    bool TryChooseCard(AMCToothCharacter* Player,int32 Index);
+    AMCToothCharacter* GetOpener() const { return OpeningPlayer; }
+    /** Compatibility for saved references; world pickup collection is no longer used. */
     bool TryClaim(AMCPerkPickup* Pickup,AMCToothCharacter* Player);
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards") void ResetPlacedReward();
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USceneComponent> Scene;
@@ -50,8 +54,9 @@ public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1")) float TelegraphSeconds=1.2f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1")) float FallSeconds=1.2f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1")) float OpeningSeconds=.7f;
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1",ClampMax="60")) float LockpickingSeconds=5.f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="100")) float OpenRadius=320.f;
-    UPROPERTY(EditDefaultsOnly,Category="Rewards") TSubclassOf<AMCPerkPickup> PickupClass;
+    UPROPERTY(meta=(DeprecatedProperty,DeprecationMessage="Rewards are selected using HUD cards.")) TSubclassOf<AMCPerkPickup> PickupClass;
     UPROPERTY(EditInstanceOnly,BlueprintReadOnly,Category="Rewards") bool bPlacedReward=false;
     UPROPERTY(EditInstanceOnly,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCRewardDropZone> PlacedDropZone;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards") TSoftObjectPtr<UDataTable> PerkTable;
@@ -63,11 +68,14 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") TArray<FName> LootIDs;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") EMCPerkPolarity Polarity=EMCPerkPolarity::Positive;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") uint8 ClaimedMask=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCToothCharacter> OpeningPlayer;
 private:
     UFUNCTION() void RefreshPresentation();
     void ConfigureGeometry();
     void PollApproach();
-    bool OpenFor(AMCToothCharacter* Player);
+    void ReleaseOpener();
+    void CancelOpening();
+    bool OpenerCanContinue() const;
     bool IsLivingPlayer(const AMCToothCharacter* Player) const;
     bool HasClearLanding() const;
     void SetStage(EMCRewardChestStage Next);
@@ -75,7 +83,6 @@ private:
     double ServerNow() const;
     UPROPERTY() TObjectPtr<UDataTable> RewardTable;
     UPROPERTY() TObjectPtr<AMCRewardDropZone> DropZone;
-    UPROPERTY() TArray<TObjectPtr<AMCPerkPickup>> Pickups;
     UPROPERTY(ReplicatedUsing=RefreshPresentation) bool bRewardInitialized=false;
     FTimerHandle ApproachTimer;
     int32 RollSeed=0;

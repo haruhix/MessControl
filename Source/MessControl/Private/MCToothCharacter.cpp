@@ -1,6 +1,8 @@
 ﻿#include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
 #include "MCBossCharacter.h"
+#include "MCRewardChest.h"
+#include "Components/BoxComponent.h"
 #include "MCColdCola.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
@@ -391,10 +393,27 @@ void AMCToothCharacter::StartBrush() { ServerSetWorking(true,true); }
 void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
 void AMCToothCharacter::StartHandle()
 {
+    if(!CanWork()) return;
+    AMCRewardChest* Nearby=nullptr;
+    double Nearest=TNumericLimits<double>::Max();
+    for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) {
+        const double Distance=FVector::DistSquared(GetActorLocation(),It->GetActorLocation());
+        if(It->Stage!=EMCRewardChestStage::Landed || Distance>=Nearest
+            || Distance>FMath::Square(FMath::Clamp(It->OpenRadius,100.f,800.f))) continue;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(RewardInteractionCandidate),true,this); Query.AddIgnoredActor(*It);
+        FHitResult Block;
+        if(GetWorld()->LineTraceSingleByChannel(Block,GetActorLocation()+FVector(0,0,35),It->Solid->Bounds.Origin,ECC_Visibility,Query)) continue;
+        Nearby=*It; Nearest=Distance;
+    }
+    if(Nearby) { ServerBeginRewardOpening(Nearby); return; }
     if (CanWork() && !bInCoffee && !bSelfCare && !CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()
         && (FoodCollection->bCollecting || FoodCollection->HasCandidate()))
     { ServerToggleFoodCollection(); return; }
     CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(true); ServerSetWorking(false,true);
+}
+void AMCToothCharacter::ServerBeginRewardOpening_Implementation(AMCRewardChest* Chest)
+{
+    if(IsValid(Chest) && Chest->GetWorld()==GetWorld()) Chest->BeginLockpicking(this);
 }
 void AMCToothCharacter::StopHandle() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false); ServerSetWorking(false,false); }
 void AMCToothCharacter::StartPrimary()
@@ -814,13 +833,14 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCToothCharacter,OrderJumpStartedAt); DOREPLIFETIME(AMCToothCharacter,bOrderJumpLaunched);
     DOREPLIFETIME(AMCToothCharacter,ThroatCaptureStart);
     DOREPLIFETIME(AMCToothCharacter,TaskSuccessAt); DOREPLIFETIME(AMCToothCharacter,TaskFailureAt);
+    DOREPLIFETIME(AMCToothCharacter,RewardInteraction);
     DOREPLIFETIME(AMCToothCharacter,YawnEndsAt);DOREPLIFETIME(AMCToothCharacter,YawnTongue);DOREPLIFETIME(AMCToothCharacter,YawnAnchor);DOREPLIFETIME(AMCToothCharacter,YawnStartedAt);DOREPLIFETIME(AMCToothCharacter,YawnPullDirection);
 }
 
 bool AMCToothCharacter::CanWork() const
 {
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
-    return !IsYawning() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
+    return !IsValid(RewardInteraction) && !IsYawning() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
 }
 void AMCToothCharacter::ToggleSelfCare() { ServerToggleSelfCare(); }
 void AMCToothCharacter::ServerToggleSelfCare_Implementation()

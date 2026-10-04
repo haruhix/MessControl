@@ -107,8 +107,14 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Active Ragdoll — мягкий"),TEXT("Как в ролике: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Для всех текущих игроков."),EMCDevAction::ActiveRagdoll,1);
     AddAction(Actions,TEXT("Active Ragdoll — упругий"),TEXT("Сравни более сильные мышцы при поворотах, прыжках и ударах. Точные контакты сохраняются."),EMCDevAction::ActiveRagdoll,2);
     AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Возвращает текущую систему анимаций без перезапуска. Эксперимент по умолчанию выключен."),EMCDevAction::ActiveRagdoll,0);
-    AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. Подойди к сундуку, затем выбери один из трёх перков одного знака."),EMCDevAction::RewardChest);
-    AddAction(Actions,TEXT("Босс — активировать Zombie"),TEXT("Запускает размещённого босса: поиск, NavMesh, предупреждение перед ударом, атака и восстановление."),EMCDevAction::BossPractice);
+    AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. Нажми E рядом с сундуком: 5 секунд вскрытия, затем выбор одной из трёх карточек."),EMCDevAction::RewardChest);
+    AddAction(Actions,TEXT("Босс — создать Zombie для теста"),TEXT("Спавн рядом на свободном Boss NavMesh. AI выключен, обычная игра босса не создаёт."),EMCDevAction::BossPractice);
+    AddAction(Actions,TEXT("Босс — включить AI и бой"),TEXT("Создаёт тестового Zombie, если его нет. Преследование, удары руками и пинок с уроном."),EMCDevAction::BossAI);
+    AddAction(Actions,TEXT("Босс — остановить AI / восстановить"),TEXT("Выключить бой, восстановить здоровье и вернуть idle."),EMCDevAction::BossStop);
+    const TCHAR* BossClips[]={TEXT("Idle / дыхание"),TEXT("Шаркающая походка"),TEXT("Удар левой рукой"),TEXT("Удар правой рукой"),TEXT("Пинок"),TEXT("Получение урона"),TEXT("Падение / смерть")};
+    for (int32 I=0;I<UE_ARRAY_COUNT(BossClips);++I)
+        AddAction(Actions,FString(TEXT("Босс — анимация: "))+BossClips[I],TEXT("Изолированный просмотр bone clip. AI и игровой урон выключены; повторное нажатие начинает заново."),EMCDevAction::BossAnimation,I+1);
+    AddAction(Actions,TEXT("Босс — убрать тестового Zombie"),TEXT("Удаляет только объект, созданный кнопками F3."),EMCDevAction::BossRemove);
     AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
     AddAction(Actions,TEXT("Перец — таймер и красная волна"),TEXT("Настоящий предмет из таблицы. Проглоти до детонации; от волны можно перепрыгнуть."),EMCDevAction::SpicyPepper);
     AddAction(Actions,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);

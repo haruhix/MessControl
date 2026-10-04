@@ -128,7 +128,7 @@ if not profile:
     factory.set_editor_property('data_asset_class', u.MCBossProfile)
     profile = assets.create_asset('DA_ZombieBoss', BOSS, u.MCBossProfile, factory)
     profile.set_editor_property('skeletal_mesh', mesh)
-    profile.set_editor_property('mesh_transform', u.Transform(location=u.Vector(0,0,-110), rotation=u.Rotator(0,-90,0), scale=u.Vector(1.8,1.8,1.8)))
+    profile.set_editor_property('mesh_transform', u.Transform(location=u.Vector(0,0,-110), rotation=u.Rotator(pitch=0,yaw=-90,roll=0), scale=u.Vector(1.8,1.8,1.8)))
     phase = u.MCBossPhaseDefinition()
     phase.health_fraction = .5
     phase.movement_multiplier = 1.2
@@ -226,15 +226,10 @@ if not placed:
 
 # Explicit nav volume. Actual pathing will be checked by the rendered demonstration.
 assert u.MCRoguelikeEditorLibrary.configure_boss_navigation(world, center, extent + u.Vector(150,150,500))
-boss = owned('MC_ZombieBoss', boss_bp.generated_class(), center + u.Vector(400,350,200), 'Zombie Boss (F3 Activate)')
-boss.get_editor_property('mesh').set_skeletal_mesh_asset(mesh)
-boss.get_editor_property('mesh').set_relative_transform(profile.get_editor_property('mesh_transform'), False, True)
-boss_nav = next(a for a in actors.get_all_level_actors() if isinstance(a,u.RecastNavMesh) and abs(a.get_editor_property('agent_radius')-60) < .1)
-projected = u.NavigationSystemV1.project_point_to_navigation(world, center + u.Vector(400,350,100), nav_data=boss_nav, filter_class=None, query_extent=u.Vector(500,500,700))
-assert projected is not None, 'No navigation point for boss'
-boss.set_actor_location(projected + u.Vector(0,0,110), False, True)
-boss.set_editor_property('start_awake', False)
-report['boss_location'] = str(boss.get_actor_location())
+for actor in actors.get_all_level_actors():
+    if actor.actor_has_tag('MC_ZombieBoss'):
+        assert actors.destroy_actor(actor)
+report['boss_spawn'] = 'F3 only; no map boss'
 report['profile'] = profile.get_path_name()
 assert level.save_current_level()
 report['map'] = MAP

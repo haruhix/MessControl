@@ -4,6 +4,8 @@
 #include "MCPerkComponent.h"
 #include "MCPerkPickup.h"
 #include "MCPlayerState.h"
+#include "MCPlayerController.h"
+#include "MCPerkChoiceWidget.h"
 #include "MCRewardChest.h"
 #include "MCRoguelikeDirector.h"
 #include "MCToothCharacter.h"
@@ -67,7 +69,7 @@ void AMCRoguelikePreview::Photograph(const TCHAR* Filename,FVector Focus)
     Camera->SetActorLocationAndRotation(Eye,(Focus-Eye).Rotation());
     Camera->GetCameraComponent()->SetFieldOfView(60.f);
     PC->SetViewTarget(Camera);
-    FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("RogueReview")/Filename,false,false);
+    FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("RogueReview")/Filename,true,false);
 }
 
 void AMCRoguelikePreview::Finish(bool Passed,const FString& Detail)
@@ -101,6 +103,8 @@ void AMCRoguelikePreview::Step()
             ++LivingPlayers; if (!Hero) { Hero=Player; Perks=PS->Perks; }
         }
         if (LivingPlayers<ExpectedPlayers || !Hero) return;
+        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+        { Finish(false,TEXT("Normal map contains a boss before an explicit F3 spawn.")); return; }
         for (const auto& Perk:Perks->ActivePerks) BeforeStacks+=Perk.Stacks;
         auto* Director=Mode->RoguelikeDirector.Get();
         BeforeSpawned=Director->RewardsSpawned;
@@ -126,13 +130,28 @@ void AMCRoguelikePreview::Step()
         if (!IsValid(Chest) || Chest->Stage!=EMCRewardChestStage::Landed) return;
         const FVector Approach=Chest->GetActorTransform().TransformPosition(FVector(0,-Chest->OpenRadius*.8f,0));
         if (!PlacePlayer(Approach)) { Finish(false,TEXT("Safe chest approach teleport failed.")); return; }
+        // Exercise the production E interaction RPC instead of bypassing lockpicking.
+        Hero->ServerBeginRewardOpening(Chest);
+        const auto* PC=Cast<AMCPlayerController>(Hero->GetController());
+        if (Chest->Stage!=EMCRewardChestStage::Lockpicking || Chest->OpeningPlayer!=Hero
+            || Hero->RewardInteraction!=Chest || !PC || !PC->IsRewardMenuOpen())
+        { Finish(false,TEXT("Production E interaction did not reserve the chest and show lockpicking HUD.")); return; }
         Photograph(TEXT("Chest.png"),Chest->LandingPoint+FVector(0,0,60));
         Stage=2; StageStartedAt=Now; return;
     }
     if (Stage==2)
     {
         if (!IsValid(Chest)) { Finish(false,TEXT("Chest disappeared before opening.")); return; }
+        if (Chest->Stage==EMCRewardChestStage::Lockpicking && !bOpeningPhotographed && Now-StageStartedAt>=1.5)
+        {
+            bOpeningPhotographed=true;
+            Photograph(TEXT("ChestOpening.png"),Chest->LandingPoint+FVector(0,0,60));
+        }
         if (Chest->Stage!=EMCRewardChestStage::Open) return;
+        const auto* PC=Cast<AMCPlayerController>(Hero->GetController());
+        if (Now-StageStartedAt<4.9 || !bOpeningPhotographed || !PC || !PC->IsRewardMenuOpen()
+            || !PC->PerkChoiceWidget || !PC->PerkChoiceWidget->IsShowingChoices())
+        { Finish(false,TEXT("Chest skipped its five-second opening or failed to transition into HUD cards.")); return; }
         if (Chest->LootIDs.Num()!=3 || Chest->LootIDs[0]==Chest->LootIDs[1] || Chest->LootIDs[0]==Chest->LootIDs[2] || Chest->LootIDs[1]==Chest->LootIDs[2])
         { Finish(false,TEXT("Chest did not expose three distinct perk IDs.")); return; }
         for (FName ID:Chest->LootIDs)
@@ -146,27 +165,27 @@ void AMCRoguelikePreview::Step()
     }
     if (Stage==3)
     {
-        if (Now-StageStartedAt<1.5) return;
+        if (Now-StageStartedAt<1.) return;
         for (TActorIterator<AMCPerkPickup> It(GetWorld());It;++It)
-            if (It->RewardChest==Chest && It->LootIndex==0 && !It->bClaimed) { Chosen=*It; break; }
-        if (!Chosen) { Finish(false,TEXT("First choice pickup missing.")); return; }
-        ChosenID=Chosen->PerkID;
+            if (It->RewardChest==Chest) { Finish(false,TEXT("Card reward incorrectly spawned a world pickup.")); return; }
+        if (!IsValid(Chest) || Chest->LootIDs.Num()!=3) { Finish(false,TEXT("Choice chest or card IDs disappeared.")); return; }
+        auto* PC=Cast<AMCPlayerController>(Hero->GetController());
+        if (!PC || !PC->IsRewardMenuOpen()) { Finish(false,TEXT("Card choice modal closed before selection.")); return; }
+        ChosenID=Chest->LootIDs[0];
         const int32 PreviousChosenStacks=Perks->GetStacks(ChosenID);
-        // Arming has elapsed while choices were visible. Exit first so an existing observer must re-enter.
-        const FVector ExitPoint=Chosen->GetActorLocation()-Chest->GetActorForwardVector()*120-FVector(0,0,45);
-        if (!PlacePlayer(ExitPoint)) { Finish(false,TEXT("Pickup exit teleport failed.")); return; }
-        const FVector FootPoint=Chosen->GetActorLocation()-FVector(0,0,45);
-        if (!PlacePlayer(FootPoint)) { Finish(false,TEXT("Pickup approach teleport failed.")); return; }
-        // Overlap may grant during teleport; otherwise invoke the same server proximity/LoS validated claim.
-        if (!Chosen->bClaimed && !Chosen->TryCollect(Hero)) { Finish(false,TEXT("Validated nearby pickup claim failed.")); return; }
+        PC->ChooseRewardPerk(0);
+        // A repeated owning-controller RPC must remain harmless even after local UI has closed.
+        PC->ServerChooseRewardPerk(Chest,0);
         int32 Stacks=0; for (const auto& Perk:Perks->ActivePerks) Stacks+=Perk.Stacks;
-        if (Stacks!=BeforeStacks+1 || Perks->GetStacks(ChosenID)!=PreviousChosenStacks+1 || Chosen->TryCollect(Hero))
-        { Finish(false,TEXT("Pickup granted a different choice, an incorrect stack count or accepted a duplicate.")); return; }
-        if (!Chest || Chest->ClaimedMask!=7) { Finish(false,TEXT("Sibling placeholder choices remain collectible.")); return; }
-        for (TActorIterator<AMCPerkPickup> It(GetWorld());It;++It)
-            if (It->RewardChest==Chest && !It->bClaimed) { Finish(false,TEXT("Unchosen pickup remained claimable under ChooseOne policy.")); return; }
-        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) if (It->IsBossAlive()) { Boss=*It; break; }
-        if (!Boss) { Finish(false,TEXT("Placed boss foundation missing.")); return; }
+        if (Stacks!=BeforeStacks+1 || Perks->GetStacks(ChosenID)!=PreviousChosenStacks+1)
+        { Finish(false,TEXT("Card RPC granted an incorrect stack count or accepted a duplicate.")); return; }
+        if (Chest->ClaimedMask!=7 || Chest->Stage!=EMCRewardChestStage::Exhausted || PC->IsRewardMenuOpen() || Hero->RewardInteraction)
+        { Finish(false,TEXT("Selection did not consume siblings and restore gameplay input.")); return; }
+        const FText SpawnResult=Mode->ExecuteDevAction(PC,EMCDevAction::BossPractice);
+        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+            if (It->ActorHasTag(TEXT("MC_DevBoss"))) { Boss=*It; break; }
+        if (!Boss || Boss->Runtime.State!=EMCBossState::Dormant || Boss->Runtime.AnimationPreview!=EMCBossAnimationPreview::Idle)
+        { Finish(false,FString::Printf(TEXT("F3 spawn did not create a dormant test-only boss: %s"),*SpawnResult.ToString())); return; }
         auto* NavSystem=UNavigationSystemV1::GetCurrent(GetWorld()); FNavLocation NavPoint;
         const FVector Candidate=Boss->GetActorLocation()+Boss->GetActorForwardVector()*650;
         const ANavigationData* BossNav=NavSystem?NavSystem->GetNavDataForProps(Boss->GetNavAgentPropertiesRef(),Boss->GetActorLocation()):nullptr;
@@ -174,15 +193,31 @@ void AMCRoguelikePreview::Step()
         { Finish(false,TEXT("No safe navigable player staging point near the boss.")); return; }
         BossStarted=Boss->GetActorLocation();
         const float Health=Boss->Runtime.Health;
-        const float Damage=FMath::Min(10.f,Health*.1f);
-        Boss->ReceiveBossDamage(Damage,Hero);
-        if (!FMath::IsNearlyEqual(Boss->Runtime.Health,Health-Damage)) { Finish(false,TEXT("Boss authoritative damage failed.")); return; }
-        Boss->ActivateBoss();
+        Boss->ReceiveBossDamage(10.f,Hero);
+        if (!FMath::IsNearlyEqual(Boss->Runtime.Health,Health)) { Finish(false,TEXT("Dormant F3 animation preview accepted combat damage.")); return; }
         Stage=4; StageStartedAt=Now;
-        UE_LOG(LogTemp,Display,TEXT("MC_ROGUE_PREVIEW Placeholder %s granted exactly once; boss activated."),*ChosenID.ToString());
+        Photograph(TEXT("BossIdle.png"),Boss->GetActorLocation()+FVector(0,0,60));
         return;
     }
     if (Stage==4)
+    {
+        if (Now-StageStartedAt<.8) return;
+        if (!IsValid(Boss) || Boss->Runtime.State!=EMCBossState::Dormant || !Boss->GetVelocity().IsNearlyZero())
+        { Finish(false,TEXT("F3 presentation preview started moving or activating AI.")); return; }
+        auto* PC=Cast<AMCPlayerController>(Hero->GetController());
+        // The second explicit F3 command, rather than ordinary gameplay, activates combat.
+        const FText AIResult=Mode->ExecuteDevAction(PC,EMCDevAction::BossAI);
+        if (Boss->Runtime.State==EMCBossState::Dormant)
+        { Finish(false,FString::Printf(TEXT("F3 AI command did not activate the test boss: %s"),*AIResult.ToString())); return; }
+        const float Health=Boss->Runtime.Health;
+        const float Damage=FMath::Min(10.f,Health*.1f);
+        Boss->ReceiveBossDamage(Damage,Hero);
+        if (!FMath::IsNearlyEqual(Boss->Runtime.Health,Health-Damage)) { Finish(false,TEXT("Boss authoritative damage failed.")); return; }
+        Stage=5; StageStartedAt=Now;
+        UE_LOG(LogTemp,Display,TEXT("MC_ROGUE_PREVIEW HUD placeholder %s granted exactly once; F3 boss spawn/AI activated."),*ChosenID.ToString());
+        return;
+    }
+    if (Stage==5)
     {
         if (!IsValid(Boss)) { Finish(false,TEXT("Boss disappeared during demonstration.")); return; }
         bSawTarget|=Boss->Runtime.Target==Hero;
@@ -194,13 +229,18 @@ void AMCRoguelikePreview::Step()
         {
             Boss->ReceiveBossDamage(Boss->Runtime.MaxHealth,Hero);
             if (Boss->Runtime.State!=EMCBossState::Dead || Boss->IsBossAlive()) { Finish(false,TEXT("Boss death did not cancel behavior.")); return; }
-            Stage=5; StageStartedAt=Now; return;
+            Stage=6; StageStartedAt=Now; return;
         }
     }
-    if (Stage==5 && Now-StageStartedAt>=1.)
+    if (Stage==6 && Now-StageStartedAt>=1.)
     {
         if (!IsValid(Boss) || Boss->Runtime.State!=EMCBossState::Dead || !Boss->GetVelocity().IsNearlyZero())
         { Finish(false,TEXT("Dead boss resumed behavior or movement.")); return; }
-        Finish(true,TEXT("objective->safe falling chest->three distinct same-polarity placeholders->one choice/no duplicate; boss damage/target/nav chase/telegraph/impact/death. Network replication not verified by this solo demonstration."));
+        Photograph(TEXT("BossDeath.png"),Boss->GetActorLocation()+FVector(0,0,40));
+        Stage=7; StageStartedAt=Now; return;
+    }
+    if (Stage==7 && Now-StageStartedAt>=.4)
+    {
+        Finish(true,TEXT("no ordinary-map boss; objective->safe falling chest->E/five-second opening HUD->three distinct same-polarity cards->one owning-controller choice/no pickups/no duplicate; explicit F3 dormant spawn/AI; boss damage/target/nav chase/telegraph/impact/death. Network replication not verified by this solo demonstration."));
     }
 }

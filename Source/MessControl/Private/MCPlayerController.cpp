@@ -13,6 +13,9 @@
 #include "MCPlayerState.h"
 #include "MCToothStatusComponent.h"
 #include "EngineUtils.h"
+#include "MCRewardChest.h"
+#include "MCPerkChoiceWidget.h"
+#include "TimerManager.h"
 
 void AMCPlayerController::BeginPlay()
 {
@@ -38,7 +41,7 @@ void AMCPlayerController::SetupInputComponent()
 }
 void AMCPlayerController::ShowScoreboard()
 {
-    if (!IsLocalController()) return;
+    if (!IsLocalController() || IsRewardMenuOpen()) return;
     if (!ScoreboardWidget)
     {
         ScoreboardWidget=CreateWidget<UMCScoreboardWidget>(this,UMCScoreboardWidget::StaticClass());
@@ -126,7 +129,7 @@ void AMCPlayerController::ServerSetPlayerColor_Implementation(FLinearColor Color
 void AMCPlayerController::ToggleDevPanel()
 {
 #if !UE_BUILD_SHIPPING
-    if (!IsLocalController()) return;
+    if (!IsLocalController() || IsRewardMenuOpen()) return;
     if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     if (!DevPanel)
     {
@@ -157,7 +160,7 @@ void AMCPlayerController::RequestDevAction(EMCDevAction Action,int32 StepIndex)
 }
 void AMCPlayerController::ToggleEmotes()
 {
-    if (!IsLocalController()) return;
+    if (!IsLocalController() || IsRewardMenuOpen()) return;
     if (!EmoteWidget)
     {
         EmoteWidget=CreateWidget<UMCEmoteWidget>(this,UMCEmoteWidget::StaticClass());
@@ -169,24 +172,128 @@ void AMCPlayerController::ToggleEmotes()
     EmoteWidget->SetVisibility(Open?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     if (Open) EmoteWidget->Refresh(); UpdateInputMode();
 }
-void AMCPlayerController::ToggleTuning() { if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
-void AMCPlayerController::ToggleConnection() { if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleTuning() { if (IsRewardMenuOpen()) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleConnection() { if (IsRewardMenuOpen()) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
 void AMCPlayerController::UpdateInputMode()
 {
+    const bool bReward=IsRewardMenuOpen();
     const bool bDev=DevPanel && DevPanel->IsVisible();
     const bool bEmote=EmoteWidget && EmoteWidget->IsVisible();
-    const bool bPanel = bEmote || bDev || (PrototypeWidget && PrototypeWidget->IsPanelOpen());
+    const bool bPanel = bReward || bEmote || bDev || (PrototypeWidget && PrototypeWidget->IsPanelOpen());
     bShowMouseCursor = bPanel;
     if (auto* Tooth = Cast<AMCToothCharacter>(GetPawn())) Tooth->bPreviewAnimation = PrototypeWidget && PrototypeWidget->IsTuningOpen();
     ResetIgnoreMoveInput(); SetIgnoreMoveInput(bPanel);
     ResetIgnoreLookInput(); SetIgnoreLookInput(bPanel);
-    if (bDev || bEmote)
+    if (bReward || bDev || bEmote)
     {
         if (auto* Tooth=Cast<AMCToothCharacter>(GetPawn())) Tooth->CancelGameplayInput();
-        FInputModeUIOnly Mode; Mode.SetWidgetToFocus(bEmote?EmoteWidget->TakeWidget():DevPanel->TakeWidget()); SetInputMode(Mode);
+        FInputModeUIOnly Mode; Mode.SetWidgetToFocus(bReward?PerkChoiceWidget->TakeWidget():(bEmote?EmoteWidget->TakeWidget():DevPanel->TakeWidget())); SetInputMode(Mode);
     }
     else if (bPanel) { FInputModeGameAndUI Mode; Mode.SetWidgetToFocus(PrototypeWidget->TakeWidget()); Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode); }
     else SetInputMode(FInputModeGameOnly());
+}
+
+bool AMCPlayerController::IsRewardMenuOpen() const
+{
+    return PerkChoiceWidget && PerkChoiceWidget->IsInViewport() && PerkChoiceWidget->IsVisible();
+}
+
+bool AMCPlayerController::PrepareRewardUI(AMCRewardChest* Chest)
+{
+    auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    if (!IsLocalController() || !IsValid(Chest) || !Hero || !Hero->Status || !Hero->Status->IsAlive()) return false;
+    if (!PerkChoiceWidget)
+        PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCPerkChoiceWidget::StaticClass());
+    if (!PerkChoiceWidget) return false;
+    ActiveRewardChest=Chest;
+    RewardPawn=Hero;
+    RewardShownAt=GetWorld()->GetTimeSeconds();
+    bRewardChoicePending=false;
+    if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+    if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
+    if (PrototypeWidget) PrototypeWidget->ClosePanels();
+    HideScoreboard();
+    if (!PerkChoiceWidget->IsInViewport()) PerkChoiceWidget->AddToViewport(30);
+    PerkChoiceWidget->SetVisibility(ESlateVisibility::Visible);
+    GetWorldTimerManager().SetTimer(RewardUITimer,this,&AMCPlayerController::CheckRewardUI,.1f,true);
+    return true;
+}
+
+void AMCPlayerController::ClientShowRewardOpening_Implementation(AMCRewardChest* Chest,double ServerEndsAt)
+{
+    if (!FMath::IsFinite(ServerEndsAt) || !PrepareRewardUI(Chest)) return;
+    PerkChoiceWidget->ShowOpening(ServerEndsAt);
+    UpdateInputMode();
+    PerkChoiceWidget->SetUserFocus(this);
+    CheckRewardUI();
+}
+
+void AMCPlayerController::ClientShowPerkChoices_Implementation(AMCRewardChest* Chest,const TArray<FName>& IDs,EMCPerkPolarity Polarity)
+{
+    if (IDs.Num()!=3 || IDs.Contains(NAME_None) || IDs[0]==IDs[1] || IDs[1]==IDs[2] || IDs[0]==IDs[2]
+        || uint8(Polarity)>uint8(EMCPerkPolarity::Negative) || !PrepareRewardUI(Chest)) return;
+    // Render the reliable payload directly; actor replication may still be one frame behind this RPC.
+    PerkChoiceWidget->ShowChoices(IDs,Polarity);
+    UpdateInputMode();
+    PerkChoiceWidget->SetUserFocus(this);
+}
+
+void AMCPlayerController::ChooseRewardPerk(int32 ChoiceIndex)
+{
+    if (!IsLocalController() || !IsRewardMenuOpen() || !PerkChoiceWidget->IsShowingChoices()
+        || bRewardChoicePending || ChoiceIndex<0 || ChoiceIndex>=3) return;
+    auto* Chest=ActiveRewardChest.Get();
+    if (!IsValid(Chest)) { CloseRewardUI(); return; }
+    bRewardChoicePending=true;
+    PerkChoiceWidget->SetSelectionPending(true);
+    ServerChooseRewardPerk(Chest,ChoiceIndex);
+}
+
+void AMCPlayerController::ServerChooseRewardPerk_Implementation(AMCRewardChest* Chest,int32 ChoiceIndex)
+{
+    auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    if (!IsValid(Chest) || ChoiceIndex<0 || ChoiceIndex>=3 || !Hero || !Chest->TryChooseCard(Hero,ChoiceIndex))
+    {
+        if (IsValid(Chest) && Hero && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero)
+            ClientShowPerkChoices(Chest,Chest->LootIDs,Chest->Polarity);
+        else ClientClosePerkChoices(Chest);
+    }
+}
+
+void AMCPlayerController::ClientClosePerkChoices_Implementation(AMCRewardChest* Chest)
+{
+    if (!Chest || ActiveRewardChest.Get()==Chest) CloseRewardUI();
+}
+
+void AMCPlayerController::CheckRewardUI()
+{
+    auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    auto* Chest=ActiveRewardChest.Get();
+    if (!IsRewardMenuOpen() || !IsValid(Chest) || !Hero || Hero!=RewardPawn.Get() || !Hero->Status || !Hero->Status->IsAlive()
+        || Chest->Stage==EMCRewardChestStage::Exhausted)
+    { CloseRewardUI(); return; }
+    // The explicit close RPC handles restart; this also covers loss of actor relevance or a cancelled interaction.
+    if (GetWorld()->GetTimeSeconds()-RewardShownAt>2. && Chest->Stage!=EMCRewardChestStage::Lockpicking
+        && Chest->Stage!=EMCRewardChestStage::Opening && Chest->Stage!=EMCRewardChestStage::Open)
+    { CloseRewardUI(); return; }
+    const auto* State=GetWorld()->GetGameState();
+    PerkChoiceWidget->UpdateOpeningProgress(State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds());
+}
+
+void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
+{
+    GetWorldTimerManager().ClearTimer(RewardUITimer);
+    ActiveRewardChest.Reset();
+    RewardPawn.Reset();
+    bRewardChoicePending=false;
+    if (PerkChoiceWidget) PerkChoiceWidget->RemoveFromParent();
+    if (bRestoreInput && IsLocalController()) UpdateInputMode();
+}
+
+void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    CloseRewardUI(false);
+    Super::EndPlay(EndPlayReason);
 }
 void AMCPlayerController::HostGame()
 {
