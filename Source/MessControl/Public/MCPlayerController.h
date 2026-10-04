@@ -4,6 +4,7 @@
 #include "MCDevCommands.h"
 #include "MCPresentationTypes.h"
 #include "MCPerkTypes.h"
+#include "Components/SlateWrapperTypes.h"
 #include "MCPlayerController.generated.h"
 class UMCPrototypeWidget;
 class UMCDevPanelWidget;
@@ -12,6 +13,9 @@ class UMCScoreboardWidget;
 class AMCToothCharacter;
 class AMCRewardChest;
 class UMCPerkChoiceWidget;
+class UMCBossHealthWidget;
+class AMCBossCharacter;
+class AMCBossIntro;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -25,7 +29,7 @@ public:
     void ToggleDevPanel();
     void ToggleEmotes();
     bool CanUseDevPanel() const;
-    void RequestDevAction(EMCDevAction Action,int32 StepIndex=INDEX_NONE);
+    UFUNCTION(BlueprintCallable, Category="Debug") void RequestDevAction(EMCDevAction Action,int32 StepIndex=-1);
     void ToggleTuning();
     void ToggleConnection();
     void UpdateInputMode();
@@ -47,12 +51,28 @@ public:
     UFUNCTION(Client, Reliable) void ClientClosePerkChoices(AMCRewardChest* Chest);
     UFUNCTION(BlueprintCallable, Category="Rewards") void ChooseRewardPerk(int32 ChoiceIndex);
     UFUNCTION(BlueprintPure, Category="Rewards") bool IsRewardMenuOpen() const;
+    UFUNCTION(Client, Reliable) void ClientPlayBossIntro(AMCBossCharacter* Boss);
+    UFUNCTION(BlueprintPure, Category="Boss") bool IsBossIntroPlaying() const;
+    void SetBossIntroGuard(AMCBossCharacter* Boss);
+    void BeginBossIntroPresentation();
+    void FinishBossIntroPresentation();
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPrototypeWidget> PrototypeWidget;
     UPROPERTY() TObjectPtr<UMCDevPanelWidget> DevPanel;
     UPROPERTY() TObjectPtr<UMCEmoteWidget> EmoteWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCScoreboardWidget> ScoreboardWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
+    UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    void RefreshBossHUD();
+    UPROPERTY(Transient) TObjectPtr<AMCBossIntro> BossIntro;
+    TWeakObjectPtr<AMCBossCharacter> HealthBoss;
+    TWeakObjectPtr<AMCBossCharacter> GuardedIntroBoss;
+    int32 GuardedIntroSerial=0;
+    FTimerHandle BossHUDTimer;
+    double NextBossScan=0;
+    double BossDiedAt=-1;
+    bool bBossIntroPlaying=false;
+    ESlateVisibility PreviousPrototypeVisibility=ESlateVisibility::Visible;
     bool PrepareRewardUI(AMCRewardChest* Chest);
     void CloseRewardUI(bool bRestoreInput=true);
     void CheckRewardUI();

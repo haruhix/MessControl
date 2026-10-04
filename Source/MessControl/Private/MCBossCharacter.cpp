@@ -1,5 +1,6 @@
 #include "MCBossCharacter.h"
 #include "MCBossAIController.h"
+#include "MCBossFaceComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "Animation/AnimSequence.h"
@@ -23,6 +24,15 @@ AMCBossCharacter::AMCBossCharacter()
     AutoPossessAI=EAutoPossessAI::PlacedInWorldOrSpawned;
     GetCapsuleComponent()->InitCapsuleSize(60.f,110.f);
     GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+    BodyHitbox=CreateDefaultSubobject<UCapsuleComponent>(TEXT("BodyHitbox"));
+    BodyHitbox->SetupAttachment(GetCapsuleComponent());
+    BodyHitbox->InitCapsuleSize(85.f,100.f);
+    BodyHitbox->SetRelativeLocation(FVector(0.f,0.f,-10.f));
+    BodyHitbox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    BodyHitbox->SetCollisionResponseToAllChannels(ECR_Ignore);
+    BodyHitbox->SetGenerateOverlapEvents(false);
+    BodyHitbox->SetCanEverAffectNavigation(false);
+    Face=CreateDefaultSubobject<UMCBossFaceComponent>(TEXT("BossFace"));
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     bUseControllerRotationYaw=false;
     GetCharacterMovement()->bOrientRotationToMovement=false;
@@ -87,10 +97,25 @@ void AMCBossCharacter::OnRep_Profile()
         KeepClip(ResolvedProfile->WalkAnimation);
         KeepClip(ResolvedProfile->HurtAnimation);
         KeepClip(ResolvedProfile->DeathAnimation);
+        KeepClip(ResolvedProfile->RoarAnimation);
         for (const auto& Attack:ResolvedProfile->Attacks) KeepClip(Attack.Animation);
         CurrentAnimation=nullptr;
         UpdateAnimationPresentation();
     }
+    Face->RefreshMorphTargets();
+}
+
+FVector AMCBossCharacter::GetMeleeTargetPoint(const FVector& Source) const
+{
+    if (!BodyHitbox) return GetActorLocation();
+    const FVector Center=BodyHitbox->GetComponentLocation();
+    const FVector Axis=BodyHitbox->GetUpVector();
+    const float Radius=BodyHitbox->GetScaledCapsuleRadius();
+    const float Segment=FMath::Max(0.f,BodyHitbox->GetScaledCapsuleHalfHeight()-Radius);
+    const FVector Spine=Center+Axis*FMath::Clamp(FVector::DotProduct(Source-Center,Axis),-Segment,Segment);
+    const FVector Offset=Source-Spine;
+    // A source already inside the volume has zero distance to it.
+    return Offset.SizeSquared()<=FMath::Square(Radius)?Source:Spine+Offset.GetSafeNormal()*Radius;
 }
 
 void AMCBossCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -129,6 +154,7 @@ void AMCBossCharacter::DeactivateBoss()
     Runtime.Target=nullptr;
     Runtime.AttackId=NAME_None;
     Runtime.AnimationPreview=EMCBossAnimationPreview::None;
+    Face->ClearRoarExpression();
     ChangeState(EMCBossState::Dormant);
 }
 
@@ -145,8 +171,10 @@ void AMCBossCharacter::ResetForRun()
     Runtime.AttackId=NAME_None;
     Runtime.AnimationPreview=EMCBossAnimationPreview::None;
     Runtime.HurtStartedAt=-1000;
+    Face->ClearRoarExpression();
     Runtime.AttackForward=GetActorForwardVector();
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    BodyHitbox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     GetCharacterMovement()->StopMovementImmediately();
     GetCharacterMovement()->SetMovementMode(MOVE_Walking);
     GetCharacterMovement()->MaxWalkSpeed=BaseWalkSpeed;
@@ -162,7 +190,7 @@ float AMCBossCharacter::TakeDamage(float DamageAmount,const FDamageEvent& Damage
 
 float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
 {
-    if (!HasAuthority() || IsActorBeingDestroyed() || !IsBossAlive() || Runtime.AnimationPreview!=EMCBossAnimationPreview::None
+    if (!HasAuthority() || IsActorBeingDestroyed() || !CanReceiveWeaponHit()
         || !FMath::IsFinite(Damage) || Damage<=0.f) return 0.f;
     const float Applied=FMath::Min(Runtime.Health,Damage);
     Runtime.Health-=Applied;
@@ -172,6 +200,7 @@ float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
         if (auto* Brain=Cast<AMCBossAIController>(GetController())) Brain->StopBossBrain();
         GetCharacterMovement()->DisableMovement();
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        BodyHitbox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         Runtime.Target=nullptr;
         ChangeState(EMCBossState::Dead);
     }
@@ -315,7 +344,10 @@ void AMCBossCharacter::PublishRuntime()
 void AMCBossCharacter::OnRep_Runtime()
 {
     if (LastPresented.State==EMCBossState::Dead && Runtime.State!=EMCBossState::Dead)
+    {
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        BodyHitbox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    }
     if (Runtime.Health!=LastPresented.Health || Runtime.MaxHealth!=LastPresented.MaxHealth) OnBossHealthChanged(Runtime.Health,Runtime.MaxHealth);
     if (Runtime.Phase!=LastPresented.Phase) OnBossPhaseChanged(Runtime.Phase);
     if (Runtime.State!=LastPresented.State || Runtime.StateStartedAt!=LastPresented.StateStartedAt || Runtime.Target!=LastPresented.Target)
@@ -325,6 +357,7 @@ void AMCBossCharacter::OnRep_Runtime()
     if (Runtime.State==EMCBossState::Dead && LastPresented.State!=EMCBossState::Dead)
     {
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        BodyHitbox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         OnBossDied();
     }
     LastPresented=Runtime;
@@ -346,6 +379,7 @@ UAnimSequence* AMCBossCharacter::PreviewSequence(EMCBossAnimationPreview Preview
     case EMCBossAnimationPreview::Walk: return ResolvedProfile->WalkAnimation.Get();
     case EMCBossAnimationPreview::Hurt: return ResolvedProfile->HurtAnimation.Get();
     case EMCBossAnimationPreview::Death: return ResolvedProfile->DeathAnimation.Get();
+    case EMCBossAnimationPreview::Roar: return ResolvedProfile->RoarAnimation.Get();
     default: break;
     }
     const FName Id=Preview==EMCBossAnimationPreview::PunchLeft?FName(TEXT("PunchLeft")):

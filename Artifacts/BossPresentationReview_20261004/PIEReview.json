@@ -1,0 +1,13 @@
+{
+  "intro_started": true,
+  "intro_frame": true,
+  "roar_morph": 0.8006012439727783,
+  "intro_restored": true,
+  "knife_damage": 25.0,
+  "combat_frame": true,
+  "pain_morph": 0.3571763038635254,
+  "pickaxe_damage": 40.0,
+  "cancel_restored": true,
+  "passed": true,
+  "detail": "F3-only Sequencer5s/roar/restore/cancel; production Knife25 + Pickaxe40; procedural pain; combat UMG HP widget. Solo PIE; no packaged build."
+}

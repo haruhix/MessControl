@@ -48,6 +48,11 @@
 			]
 		},
 		{
+			"Name": "SequencerScripting",
+			"Enabled": true,
+			"TargetAllowList": ["Editor"]
+		},
+		{
 			"Name": "EnhancedInput",
 			"Enabled": true
 		},

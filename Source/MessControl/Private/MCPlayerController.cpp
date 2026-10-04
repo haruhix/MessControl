@@ -16,6 +16,9 @@
 #include "MCRewardChest.h"
 #include "MCPerkChoiceWidget.h"
 #include "TimerManager.h"
+#include "MCBossCharacter.h"
+#include "MCBossIntro.h"
+#include "MCBossHealthWidget.h"
 
 void AMCPlayerController::BeginPlay()
 {
@@ -25,6 +28,9 @@ void AMCPlayerController::BeginPlay()
         if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->RefreshAvailability();
         PrototypeWidget = CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
         PrototypeWidget->AddToViewport(); UpdateInputMode();
+        BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCBossHealthWidget::StaticClass());
+        if (BossHealthWidget) BossHealthWidget->AddToViewport(40);
+        GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
     }
 }
 void AMCPlayerController::SetupInputComponent()
@@ -41,7 +47,7 @@ void AMCPlayerController::SetupInputComponent()
 }
 void AMCPlayerController::ShowScoreboard()
 {
-    if (!IsLocalController() || IsRewardMenuOpen()) return;
+    if (!IsLocalController() || IsRewardMenuOpen() || bBossIntroPlaying) return;
     if (!ScoreboardWidget)
     {
         ScoreboardWidget=CreateWidget<UMCScoreboardWidget>(this,UMCScoreboardWidget::StaticClass());
@@ -56,6 +62,7 @@ void AMCPlayerController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     if (!IsLocalController()) return;
+    if (bBossIntroPlaying) return;
     // UI input mode can swallow the release event when a menu opens while Tab is held.
     if (ScoreboardWidget && ScoreboardWidget->IsVisible() && !IsInputKeyDown(EKeys::Tab)) HideScoreboard();
     const double Now=GetWorld()->GetTimeSeconds();
@@ -129,7 +136,7 @@ void AMCPlayerController::ServerSetPlayerColor_Implementation(FLinearColor Color
 void AMCPlayerController::ToggleDevPanel()
 {
 #if !UE_BUILD_SHIPPING
-    if (!IsLocalController() || IsRewardMenuOpen()) return;
+    if (!IsLocalController() || IsRewardMenuOpen() || bBossIntroPlaying) return;
     if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     if (!DevPanel)
     {
@@ -160,7 +167,7 @@ void AMCPlayerController::RequestDevAction(EMCDevAction Action,int32 StepIndex)
 }
 void AMCPlayerController::ToggleEmotes()
 {
-    if (!IsLocalController() || IsRewardMenuOpen()) return;
+    if (!IsLocalController() || IsRewardMenuOpen() || bBossIntroPlaying) return;
     if (!EmoteWidget)
     {
         EmoteWidget=CreateWidget<UMCEmoteWidget>(this,UMCEmoteWidget::StaticClass());
@@ -172,10 +179,18 @@ void AMCPlayerController::ToggleEmotes()
     EmoteWidget->SetVisibility(Open?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     if (Open) EmoteWidget->Refresh(); UpdateInputMode();
 }
-void AMCPlayerController::ToggleTuning() { if (IsRewardMenuOpen()) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
-void AMCPlayerController::ToggleConnection() { if (IsRewardMenuOpen()) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleTuning() { if (IsRewardMenuOpen() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleConnection() { if (IsRewardMenuOpen() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
 void AMCPlayerController::UpdateInputMode()
 {
+    if (bBossIntroPlaying)
+    {
+        bShowMouseCursor=false;
+        ResetIgnoreMoveInput(); SetIgnoreMoveInput(true);
+        ResetIgnoreLookInput(); SetIgnoreLookInput(true);
+        SetInputMode(FInputModeGameOnly());
+        return;
+    }
     const bool bReward=IsRewardMenuOpen();
     const bool bDev=DevPanel && DevPanel->IsVisible();
     const bool bEmote=EmoteWidget && EmoteWidget->IsVisible();
@@ -292,8 +307,102 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 
 void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    GetWorldTimerManager().ClearTimer(BossHUDTimer);
+    if (IsValid(BossIntro)) BossIntro->CancelIntro();
+    BossIntro=nullptr;
+    if (BossHealthWidget) BossHealthWidget->RemoveFromParent();
     CloseRewardUI(false);
     Super::EndPlay(EndPlayReason);
+}
+
+void AMCPlayerController::ClientPlayBossIntro_Implementation(AMCBossCharacter* Boss)
+{
+    if (!IsLocalController() || IsRewardMenuOpen() || !IsValid(Boss)) return;
+    if (IsValid(BossIntro)) BossIntro->CancelIntro();
+    FActorSpawnParameters Spawn; Spawn.Owner=this;
+    BossIntro=GetWorld()->SpawnActor<AMCBossIntro>(AMCBossIntro::StaticClass(),FTransform::Identity,Spawn);
+    if (BossIntro && !BossIntro->PlayIntro(this,Boss)) { BossIntro->Destroy(); BossIntro=nullptr; }
+}
+
+void AMCPlayerController::SetBossIntroGuard(AMCBossCharacter* Boss)
+{
+    if (!HasAuthority()) return;
+    GuardedIntroBoss=Boss;
+    GuardedIntroSerial=IsValid(Boss)?Boss->Runtime.PreviewSerial:0;
+}
+
+bool AMCPlayerController::IsBossIntroPlaying() const
+{
+    const auto* Boss=GuardedIntroBoss.Get();
+    return bBossIntroPlaying || (HasAuthority() && IsValid(Boss) && Boss->IsBossAlive()
+        && Boss->Runtime.AnimationPreview==EMCBossAnimationPreview::Roar
+        && Boss->Runtime.PreviewSerial==GuardedIntroSerial);
+}
+
+void AMCPlayerController::BeginBossIntroPresentation()
+{
+    if (bBossIntroPlaying) return;
+    bBossIntroPlaying=true;
+    if (PrototypeWidget)
+    {
+        PreviousPrototypeVisibility=PrototypeWidget->GetVisibility();
+        PrototypeWidget->ClosePanels(); PrototypeWidget->SetVisibility(ESlateVisibility::Collapsed);
+    }
+    if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+    if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
+    HideScoreboard();
+    if (auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
+    if (BossHealthWidget) BossHealthWidget->SetLetterbox(true);
+    UpdateInputMode();
+}
+
+void AMCPlayerController::FinishBossIntroPresentation()
+{
+    if (!bBossIntroPlaying) return;
+    if (auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
+    bBossIntroPlaying=false;
+    if (PrototypeWidget) PrototypeWidget->SetVisibility(PreviousPrototypeVisibility);
+    if (BossHealthWidget) BossHealthWidget->SetLetterbox(false);
+    UpdateInputMode();
+    RefreshBossHUD();
+}
+
+void AMCPlayerController::RefreshBossHUD()
+{
+    if (!BossHealthWidget || !IsLocalController()) return;
+    const double Now=GetWorld()->GetTimeSeconds();
+    auto* Boss=HealthBoss.Get();
+    const auto Relevant=[](const AMCBossCharacter* Candidate)
+    {
+        return IsValid(Candidate) && !Candidate->IsActorBeingDestroyed()
+            && Candidate->Runtime.AnimationPreview==EMCBossAnimationPreview::None
+            && Candidate->Runtime.State!=EMCBossState::Dormant;
+    };
+    if (!Relevant(Boss))
+    {
+        HealthBoss.Reset(); Boss=nullptr; BossDiedAt=-1;
+        if (Now>=NextBossScan)
+        {
+            NextBossScan=Now+.5;
+            double BestDistance=FMath::Square(6500.f);
+            const FVector Eye=GetPawn()?GetPawn()->GetActorLocation():GetFocalLocation();
+            for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+            {
+                if (!Relevant(*It) || It->Runtime.State==EMCBossState::Dead) continue;
+                const double Distance=FVector::DistSquared(Eye,It->GetActorLocation());
+                if (Distance<BestDistance) { BestDistance=Distance; Boss=*It; }
+            }
+            HealthBoss=Boss;
+        }
+    }
+    if (Boss && Boss->Runtime.State==EMCBossState::Dead)
+    {
+        if (BossDiedAt<0) BossDiedAt=Now;
+        if (Now-BossDiedAt>2.) { BossHealthWidget->HideHealth(); return; }
+    }
+    else BossDiedAt=-1;
+    if (Boss) BossHealthWidget->ShowHealth(Boss->Runtime.Health,Boss->Runtime.MaxHealth,.1f);
+    else BossHealthWidget->HideHealth();
 }
 void AMCPlayerController::HostGame()
 {

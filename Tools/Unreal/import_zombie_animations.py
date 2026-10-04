@@ -1,4 +1,4 @@
-"""Import the seven owned Zombie bone clips and assign native presentation.
+"""Import the owned Zombie face morphs and eight bone clips.
 
 Run after compiling the current Editor module. No level actors are created,
 no player skeleton is touched, and no game package/cook is performed.
@@ -18,6 +18,53 @@ mesh=lib.load_asset(BOSS+'/Zombie/SK_ZombieBoss')
 skeleton=mesh.get_editor_property('skeleton')
 assert skeleton.get_path_name()==BOSS+'/Zombie/SK_ZombieBoss_Skeleton.SK_ZombieBoss_Skeleton'
 u.SystemLibrary.execute_console_command(None,'Interchange.FeatureFlags.Import.FBX 0')
+# Reimport onto the same asset and independent skeleton. Preserve the project's
+# actual material assignments; the artist source/mesh reference is unchanged.
+face_report=json.loads((SOURCE/'ZombieFaceReport.json').read_text(encoding='utf8'))
+assert face_report['reference_pose_unchanged'] and face_report['topology_weights_uvs_unchanged']
+material_slots=list(mesh.get_editor_property('materials'))
+# The legacy factory can retain existing import settings on replace/reimport.
+# Enable morphs there too; merely changing the task UI is insufficient.
+existing_import=mesh.get_editor_property('asset_import_data')
+existing_import.set_editor_property('import_morph_targets',True)
+existing_import.set_editor_property('update_skeleton_reference_pose',False)
+existing_import.set_editor_property('use_t0_as_ref_pose',False)
+face_task=u.AssetImportTask()
+face_task.filename=str(SOURCE/'SK_ZombieBoss_Face.fbx')
+face_task.destination_path=BOSS+'/Zombie'
+face_task.destination_name='SK_ZombieBoss'
+face_task.automated=face_task.save=True
+face_task.replace_existing=face_task.replace_existing_settings=True
+face_task.factory=u.FbxFactory()
+options=u.FbxImportUI()
+options.set_editor_property('automated_import_should_detect_type',False)
+options.set_editor_property('mesh_type_to_import',u.FBXImportType.FBXIT_SKELETAL_MESH)
+options.set_editor_property('import_mesh',True)
+options.set_editor_property('import_as_skeletal',True)
+options.set_editor_property('import_animations',False)
+options.set_editor_property('import_materials',False)
+options.set_editor_property('import_textures',False)
+options.set_editor_property('create_physics_asset',False)
+options.set_editor_property('skeleton',skeleton)
+data=options.get_editor_property('skeletal_mesh_import_data')
+data.set_editor_property('import_morph_targets',True)
+data.set_editor_property('update_skeleton_reference_pose',False)
+data.set_editor_property('use_t0_as_ref_pose',False)
+data.set_editor_property('normal_import_method',u.FBXNormalImportMethod.FBXNIM_IMPORT_NORMALS)
+face_task.options=options
+assets.import_asset_tasks([face_task])
+mesh=lib.load_asset(BOSS+'/Zombie/SK_ZombieBoss')
+assert isinstance(mesh,u.SkeletalMesh) and mesh.get_editor_property('skeleton')==skeleton
+mesh.set_editor_property('materials',material_slots)
+morph_names={target.get_name() for target in mesh.get_editor_property('morph_targets')}
+assert set(face_report['morphs']).issubset(morph_names),sorted(morph_names)
+assert lib.save_loaded_asset(mesh,only_if_is_dirty=False)
+for slot in material_slots:
+    material=slot.material_interface
+    if isinstance(material,u.Material):
+        u.MaterialEditingLibrary.set_base_material_usage(material,u.MaterialUsage.MATUSAGE_MORPH_TARGETS)
+        u.MaterialEditingLibrary.recompile_material(material)
+        assert lib.save_loaded_asset(material,only_if_is_dirty=False)
 tasks=[]
 for record in manifest['clips']:
     task=u.AssetImportTask()
@@ -63,7 +110,7 @@ for task,record in zip(tasks,manifest['clips']):
 
 profile=lib.load_asset(BOSS+'/DA_ZombieBoss')
 assert profile
-for prop,name in (('idle_animation','Idle'),('walk_animation','Shamble'),('hurt_animation','Hurt'),('death_animation','Death')):
+for prop,name in (('idle_animation','Idle'),('walk_animation','Shamble'),('hurt_animation','Hurt'),('death_animation','Death'),('roar_animation','Roar')):
     profile.set_editor_property(prop,clips['AN_Zombie_'+name])
 profile.set_editor_property('animation_class',None)
 attacks=[]
@@ -90,6 +137,7 @@ u.BlueprintEditorLibrary.compile_blueprint(bp)
 assert lib.save_loaded_asset(bp,only_if_is_dirty=False)
 assert lib.save_loaded_asset(skeleton,only_if_is_dirty=False)
 report={'clips':[{**record,'asset':clips[record['name']].get_path_name()} for record in manifest['clips']],
+        'morphs':sorted(morph_names),'mesh':mesh.get_path_name(),
         'profile':profile.get_path_name(),'boss_spawn':'Explicit F3 only; this script creates no actor'}
 out=ROOT/'Saved/ChestBossReview/ZombieAnimationImport.json'
 out.parent.mkdir(parents=True,exist_ok=True)

@@ -1,0 +1,88 @@
+{
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\ZombieBoss\\ZombieBoss.blend",
+  "source_sha256": "1ae05479ea038b53f6a4d57112673302c2b3ca0b6d69e2f190826758beb52aef",
+  "bones": 85,
+  "vertices": [
+    3353,
+    35
+  ],
+  "morphs": {
+    "Eyes_Blink": {
+      "nonzero_vertices": 478,
+      "max_delta_cm": 13.033992485762527
+    },
+    "Eyes_Squint": {
+      "nonzero_vertices": 478,
+      "max_delta_cm": 7.348355299820226
+    },
+    "Brow_Angry": {
+      "nonzero_vertices": 72,
+      "max_delta_cm": 4.015403691955323
+    },
+    "Mouth_Pain": {
+      "nonzero_vertices": 213,
+      "max_delta_cm": 12.723331048185885
+    },
+    "Mouth_Roar": {
+      "nonzero_vertices": 213,
+      "max_delta_cm": 10.015231786855749
+    }
+  },
+  "reference_pose_unchanged": true,
+  "topology_weights_uvs_unchanged": true,
+  "fbx_blendshape_channels": [
+    "Mouth_Angry\u0000\u0001SubDeformer",
+    "Mouth_Surprise\u0000\u0001SubDeformer",
+    "Eyes_Blink\u0000\u0001SubDeformer",
+    "Eyes_Squint\u0000\u0001SubDeformer",
+    "Brow_Angry\u0000\u0001SubDeformer",
+    "Mouth_Pain\u0000\u0001SubDeformer",
+    "Mouth_Roar\u0000\u0001SubDeformer",
+    "Mouth_MBP\u0000\u0001SubDeformer",
+    "Mouth_A\u0000\u0001SubDeformer",
+    "Mouth_E\u0000\u0001SubDeformer",
+    "Mouth_I\u0000\u0001SubDeformer",
+    "Mouth_O\u0000\u0001SubDeformer",
+    "Mouth_U\u0000\u0001SubDeformer",
+    "Mouth_FV\u0000\u0001SubDeformer",
+    "Mouth_L\u0000\u0001SubDeformer",
+    "Mouth_TH\u0000\u0001SubDeformer",
+    "Mouth_CH\u0000\u0001SubDeformer",
+    "Mouth_S\u0000\u0001SubDeformer",
+    "Mouth_D\u0000\u0001SubDeformer",
+    "Mouth_Happy\u0000\u0001SubDeformer",
+    "Mouth_Sad\u0000\u0001SubDeformer",
+    "Mouth_Angry\u0000\u0001SubDeformer",
+    "Mouth_Surprise\u0000\u0001SubDeformer",
+    "Mouth_Effort\u0000\u0001SubDeformer",
+    "Eyes_Blink\u0000\u0001SubDeformer",
+    "Eyes_Scary\u0000\u0001SubDeformer",
+    "Eyes_delight\u0000\u0001SubDeformer",
+    "Mouth_Pain\u0000\u0001SubDeformer",
+    "Mouth_Roar\u0000\u0001SubDeformer"
+  ],
+  "eyelid_shells": [
+    {
+      "side": "r",
+      "upper": true,
+      "vertices": 354
+    },
+    {
+      "side": "l",
+      "upper": true,
+      "vertices": 354
+    },
+    {
+      "side": "l",
+      "upper": false,
+      "vertices": 354
+    },
+    {
+      "side": "r",
+      "upper": false,
+      "vertices": 354
+    }
+  ],
+  "mouth_targets_include_lip_jaw_and_cavity": true,
+  "no_extra_face_tick_bones": true
+}

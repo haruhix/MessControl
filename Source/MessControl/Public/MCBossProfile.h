@@ -12,7 +12,7 @@ class UAnimSequence;
 UENUM(BlueprintType)
 enum class EMCBossAnimationPreview : uint8
 {
-    None, Idle, Walk, PunchLeft, PunchRight, Kick, Hurt, Death
+    None, Idle, Walk, PunchLeft, PunchRight, Kick, Hurt, Death, Roar
 };
 
 UENUM(BlueprintType)
@@ -75,5 +75,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> WalkAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> HurtAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> DeathAnimation;
+    /** Five-second in-place scream used by the encounter intro and the explicit F3 preview. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> RoarAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") FTransform MeshTransform=FTransform::Identity;
 };

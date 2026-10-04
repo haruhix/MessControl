@@ -109,9 +109,10 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Возвращает текущую систему анимаций без перезапуска. Эксперимент по умолчанию выключен."),EMCDevAction::ActiveRagdoll,0);
     AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. Нажми E рядом с сундуком: 5 секунд вскрытия, затем выбор одной из трёх карточек."),EMCDevAction::RewardChest);
     AddAction(Actions,TEXT("Босс — создать Zombie для теста"),TEXT("Спавн рядом на свободном Boss NavMesh. AI выключен, обычная игра босса не создаёт."),EMCDevAction::BossPractice);
+    AddAction(Actions,TEXT("Босс — интро / рёв [5 секунд]"),TEXT("Перемещает тестового Zombie в свободный центр языка. Sequencer-камера, рёв и кинополосы; управление вернётся через 5 секунд. Бой затем включается отдельно."),EMCDevAction::BossIntro);
     AddAction(Actions,TEXT("Босс — включить AI и бой"),TEXT("Создаёт тестового Zombie, если его нет. Преследование, удары руками и пинок с уроном."),EMCDevAction::BossAI);
     AddAction(Actions,TEXT("Босс — остановить AI / восстановить"),TEXT("Выключить бой, восстановить здоровье и вернуть idle."),EMCDevAction::BossStop);
-    const TCHAR* BossClips[]={TEXT("Idle / дыхание"),TEXT("Шаркающая походка"),TEXT("Удар левой рукой"),TEXT("Удар правой рукой"),TEXT("Пинок"),TEXT("Получение урона"),TEXT("Падение / смерть")};
+    const TCHAR* BossClips[]={TEXT("Idle / дыхание"),TEXT("Шаркающая походка"),TEXT("Удар левой рукой"),TEXT("Удар правой рукой"),TEXT("Пинок"),TEXT("Получение урона"),TEXT("Падение / смерть"),TEXT("Рёв / интро")};
     for (int32 I=0;I<UE_ARRAY_COUNT(BossClips);++I)
         AddAction(Actions,FString(TEXT("Босс — анимация: "))+BossClips[I],TEXT("Изолированный просмотр bone clip. AI и игровой урон выключены; повторное нажатие начинает заново."),EMCDevAction::BossAnimation,I+1);
     AddAction(Actions,TEXT("Босс — убрать тестового Zombie"),TEXT("Удаляет только объект, созданный кнопками F3."),EMCDevAction::BossRemove);

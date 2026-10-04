@@ -3,7 +3,7 @@
 Run isolated Blender with ArtSource/ZombieBoss/ZombieBoss.blend open. The
 deform export intentionally has no artist controls. Analytic shoulder/elbow and
 hip/knee pivots drive its weighted bones without changing the reference pose.
-The saved review blend has all seven actions and a consecutive NLA timeline.
+The saved review blend has all eight actions and a consecutive NLA timeline.
 """
 import bpy
 import hashlib
@@ -51,8 +51,11 @@ def pose(kind, t, duration):
     wave = math.sin(t*2*math.pi/2.4)
     body = Matrix.Translation((0,0,.9*wave)) @ pivot((0,8,41), rotation(4+1.5*wave,0,1.8*wave))
     head = pivot((0,6,47), rotation(3,0,3+2*math.sin(t*2*math.pi/2.4)))
-    upper = {'l': [52,-18], 'r': [60,-10]}
-    lower = {'l': [-30,-40], 'r': [-35,-45]}
+    # Reference arms point sideways. Keep the upper arms near shoulder height,
+    # sweep them forward and bend the elbows; the old 52/60-degree droop made
+    # the hands hang at the feet and hid the combat silhouette.
+    upper = {'l': [-8,-35], 'r': [-3,-31]}
+    lower = {'l': [-12,-38], 'r': [-17,-42]}
     hips = {'l': 0., 'r': 0.}
     knees = {'l': 3., 'r': 3.}
     curl = .25
@@ -77,10 +80,10 @@ def pose(kind, t, duration):
         extension = pulse(t,impact-.17,impact,impact+.30)
         recover = 1-smooth((t-impact-.05)/(duration-impact-.05))
         windup *= recover
-        upper[side] = [52-32*windup-55*extension, -18+52*windup-105*extension]
-        lower[side] = [-30-47*windup+77*extension,-40+18*windup+32*extension]
-        upper[other][0] = 68
-        lower[other][0] = -42
+        upper[side] = [-8+16*windup-23*extension, -35+40*windup-85*extension]
+        lower[side] = [-12-26*windup+38*extension,-38+30*windup+8*extension]
+        upper[other] = [-3,-35]
+        lower[other] = [-24,-48]
         body = Matrix.Translation((sign*1.7*extension,-3.5*extension,-.6*windup)) @ pivot((0,8,41),rotation(5+7*extension,0,sign*(-9*windup+15*extension)))
         head = pivot((0,6,47),rotation(3+3*extension,0,-sign*5*windup))
         curl = .8
@@ -92,24 +95,38 @@ def pose(kind, t, duration):
         hips['l'] = 5*chamber
         knees['l'] = 7+8*chamber
         body = Matrix.Translation((5*chamber,0,-1.3*chamber)) @ pivot((0,8,41),rotation(4-13*kick,0,4*chamber))
-        upper['l']=[48,-30-14*chamber]
-        upper['r']=[72,-6+18*chamber]
+        upper['l']=[-8,-35-14*chamber]
+        upper['r']=[-3,-31+30*chamber]
         head=pivot((0,6,47),rotation(3+8*kick,0,-4*chamber))
         curl=.65
     elif kind == 'Hurt':
         flinch=pulse(t,0,.14,duration)
         body=Matrix.Translation((0,3*flinch,-1*flinch)) @ pivot((0,8,41),rotation(4-15*flinch,0,-6*flinch))
         head=pivot((0,6,47),rotation(-10*flinch,0,8*flinch))
-        upper['l'][0] -= 15*flinch
-        upper['r'][0] -= 19*flinch
+        upper['l'][0] -= 12*flinch
+        upper['r'][0] -= 15*flinch
         knees={s:3+10*flinch for s in knees}
+    elif kind == 'Roar':
+        # Five seconds: crouch/inhalation, broad chest opening, shaking roar,
+        # then settle back to the raised in-place combat guard.
+        inhale=pulse(t,0,.75,1.45)
+        roar=pulse(t,.75,1.35,4.35)
+        shake=math.sin(t*31)*roar*.85
+        body=Matrix.Translation((0,-1.8*roar,-3*inhale+1.4*roar)) @ pivot((0,8,41),rotation(4+10*inhale-9*roar,0,shake))
+        head=pivot((0,6,47),rotation(3-14*roar+2*shake,0,3+shake*.7))
+        upper['l']=[-8-12*roar,-35+16*roar]
+        upper['r']=[-3-17*roar,-31+13*roar]
+        lower['l']=[-12+8*roar,-38+18*roar]
+        lower['r']=[-17+9*roar,-42+20*roar]
+        knees={s:3+11*inhale for s in knees}
+        curl=.25+.65*roar
     elif kind == 'Death':
         collapse=smooth((t-.2)/1.05)
         settle=1.2*math.exp(-max(0,t-1.4)*5)*math.sin(max(0,t-1.4)*22) if t>1.4 else 0
         body=Matrix.Translation((0,0,7*collapse+settle)) @ pivot((0,0,0),rotation(-88*collapse,0,-9*collapse))
         head=pivot((0,6,47),rotation(8*collapse,0,9*collapse))
-        upper['l']=[52+18*collapse,-18+13*collapse]
-        upper['r']=[60-25*collapse,-10+24*collapse]
+        upper['l']=[-8+63*collapse,-35+30*collapse]
+        upper['r']=[-3+38*collapse,-31+45*collapse]
         hips={'l':-9*collapse,'r':12*collapse}
         knees={'l':3+18*collapse,'r':3+28*collapse}
         curl=.25*(1-collapse)
@@ -160,7 +177,8 @@ def pose(kind, t, duration):
 
 clips=[('Idle',2.4,None,True),('Shamble',1.6,None,True),
        ('PunchLeft',1.4,.70,False),('PunchRight',1.5,.76,False),
-       ('Kick',1.8,.90,False),('Hurt',2/3,None,False),('Death',2.4,None,False)]
+       ('Kick',1.8,.90,False),('Hurt',2/3,None,False),('Death',2.4,None,False),
+       ('Roar',5.,None,False)]
 records=[]
 actions=[]
 for name,duration,impact,loop in clips:
@@ -278,6 +296,7 @@ if '--preview' in sys.argv:
     for record in records:
         sample=record['impact_seconds'] if record['impact_seconds'] is not None else .6
         if record['name'].endswith('Death'): sample=1.7
+        if record['name'].endswith('Roar'): sample=1.55
         scene.frame_set(record['review_start_frame']+round(sample*30))
         scene.render.filepath=str(OUT/(record['name']+'.png'))
         bpy.ops.render.render(write_still=True)
@@ -292,7 +311,7 @@ if '--video' in sys.argv:
         bpy.ops.render.render(write_still=True)
     filters=[]
     labels={'Idle':'Idle / breathing','Shamble':'Shamble walk','PunchLeft':'Left hand punch',
-            'PunchRight':'Right hand punch','Kick':'Kick','Hurt':'Hurt reaction','Death':'Death / fall'}
+            'PunchRight':'Right hand punch','Kick':'Kick','Hurt':'Hurt reaction','Death':'Death / fall','Roar':'Roar intro / 5 seconds'}
     for index,record in enumerate(records):
         begin=(record['review_start_frame']-1)/30
         end=(records[index+1]['review_start_frame']-1)/30 if index+1<len(records) else scene.frame_end/30

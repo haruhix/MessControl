@@ -25,6 +25,9 @@
 #include "GameFramework/PlayerController.h"
 #include "NavigationSystem.h"
 #include "NavigationData.h"
+#include "MCPlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "TimerManager.h"
 
 namespace
 {
@@ -78,6 +81,38 @@ namespace
         }
         return nullptr;
     }
+
+    bool CenterDevBoss(UWorld* World,AMCBossCharacter* Boss,APlayerController* Requester)
+    {
+        const float Radius=Boss->GetCapsuleComponent()->GetScaledCapsuleRadius();
+        const float HalfHeight=Boss->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+        UNavigationSystemV1* Nav=FNavigationSystem::GetCurrent<UNavigationSystemV1>(World);
+        const ANavigationData* NavData=Nav?Nav->GetNavDataForProps(Boss->GetNavAgentPropertiesRef(),Boss->GetActorLocation()):nullptr;
+        if (!NavData) return false;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCDevBossIntro),false,Boss);
+        FCollisionObjectQueryParams Objects;
+        Objects.AddObjectTypesToQuery(ECC_WorldStatic); Objects.AddObjectTypesToQuery(ECC_WorldDynamic);
+        Objects.AddObjectTypesToQuery(ECC_Pawn); Objects.AddObjectTypesToQuery(ECC_PhysicsBody);
+        for (TActorIterator<AMCTongue> It(World);It;++It)
+        {
+            const FVector Center=It->Surface->Bounds.Origin;
+            for (float Distance:{0.f,180.f,350.f}) for (float Angle:{0.f,60.f,120.f,180.f,240.f,300.f})
+            {
+                FHitResult Support;
+                const FVector Offset=FVector::ForwardVector.RotateAngleAxis(Angle,FVector::UpVector)*Distance;
+                if (!It->InteriorSurfacePoint(Center+Offset,Radius+100.f,Support)) continue;
+                FNavLocation Floor;
+                if (!Nav->ProjectPointToNavigation(Support.ImpactPoint,Floor,FVector(150,150,200),NavData)) continue;
+                const FVector Position=Floor.Location+FVector(0,0,HalfHeight+4.f);
+                if (World->OverlapAnyTestByObjectType(Position,FQuat::Identity,Objects,FCollisionShape::MakeCapsule(Radius,HalfHeight),Query)) continue;
+                const FVector Facing=(Requester->GetPawn()?Requester->GetPawn()->GetActorLocation():Requester->GetFocalLocation())-Position;
+                Boss->DeactivateBoss(); Boss->GetCharacterMovement()->StopMovementImmediately();
+                Boss->SetActorLocationAndRotation(Position,FRotator(0,Facing.Rotation().Yaw,0),false,nullptr,ETeleportType::TeleportPhysics);
+                Boss->ForceNetUpdate(); return true;
+            }
+        }
+        return false;
+    }
 #endif
 }
 
@@ -108,9 +143,28 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         if (AMCBossCharacter* Boss=FindDevBoss(GetWorld())) Boss->Destroy();
         return FText::FromString(TEXT("Тестовый Zombie убран. Обычная игра не спавнит босса."));
     }
+    if (Action==EMCDevAction::BossIntro)
+    {
+        AMCBossCharacter* Boss=SpawnDevBoss(GetWorld(),Requester);
+        if (!Boss || !CenterDevBoss(GetWorld(),Boss,Requester))
+            return FText::FromString(TEXT("Для интро нужно свободное место в центре языка на Boss NavMesh."));
+        if (!Boss->PreviewAnimation(EMCBossAnimationPreview::Roar))
+            return FText::FromString(TEXT("Назначь Roar Animation в DA_ZombieBoss."));
+        const int32 Serial=Boss->Runtime.PreviewSerial;
+        for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+            if (auto* PC=Cast<AMCPlayerController>(It->Get()))
+            { PC->SetBossIntroGuard(Boss); PC->ClientPlayBossIntro(Boss); }
+        FTimerHandle Finish;
+        GetWorldTimerManager().SetTimer(Finish,FTimerDelegate::CreateWeakLambda(Boss,[Boss,Serial]()
+        {
+            if (Boss->Runtime.AnimationPreview==EMCBossAnimationPreview::Roar && Boss->Runtime.PreviewSerial==Serial)
+                Boss->PreviewAnimation(EMCBossAnimationPreview::Idle);
+        }),5.1f,false);
+        return FText::FromString(TEXT("Интро: 5 секунд Sequencer, рёв в центре, чёрные полосы. После него F3 → AI включает бой."));
+    }
     if (Action==EMCDevAction::BossPractice || Action==EMCDevAction::BossAI || Action==EMCDevAction::BossStop || Action==EMCDevAction::BossAnimation)
     {
-        if (Action==EMCDevAction::BossAnimation && (StepIndex<1 || StepIndex>7)) return FText::FromString(TEXT("Неизвестная анимация босса."));
+        if (Action==EMCDevAction::BossAnimation && (StepIndex<1 || StepIndex>8)) return FText::FromString(TEXT("Неизвестная анимация босса."));
         AMCBossCharacter* Boss=SpawnDevBoss(GetWorld(),Requester);
         if (!Boss) return FText::FromString(TEXT("Нет свободного места на Boss NavMesh рядом с живым игроком. Перейди к центру языка."));
         if (Action==EMCDevAction::BossAI)

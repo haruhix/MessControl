@@ -14,6 +14,7 @@ public class MessControl : ModuleRules
         PrivateDependencyModuleNames.Add("RHI");
         PrivateDependencyModuleNames.Add("RenderCore");
         PrivateDependencyModuleNames.Add("ApplicationCore");
+        PrivateDependencyModuleNames.AddRange(new[] { "LevelSequence", "MovieScene", "MovieSceneTracks", "CinematicCamera" });
         PublicDependencyModuleNames.AddRange(new[] { "OnlineBase", "OnlineSubsystem", "OnlineSubsystemUtils" });
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
         if (Target.bBuildEditor)

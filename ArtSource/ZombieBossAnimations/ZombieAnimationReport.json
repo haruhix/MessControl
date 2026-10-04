@@ -79,10 +79,21 @@
       "loop": false,
       "root_motion": false,
       "review_start_frame": 336
+    },
+    {
+      "name": "AN_Zombie_Roar",
+      "file": "AN_Zombie_Roar.fbx",
+      "frames": 151,
+      "fps": 30,
+      "duration_seconds": 5.0,
+      "impact_seconds": null,
+      "loop": false,
+      "root_motion": false,
+      "review_start_frame": 417
     }
   ],
   "review_blend": "ZombieBossAnimations.blend",
-  "review_timeline_frames": 409,
+  "review_timeline_frames": 568,
   "root_motion": false,
   "reference_pose_unchanged": true
 }

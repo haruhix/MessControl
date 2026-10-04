@@ -7,6 +7,8 @@
 
 class AMCToothCharacter;
 class AMCBossAIController;
+class UCapsuleComponent;
+class UMCBossFaceComponent;
 
 /** One replicated snapshot keeps phase and attack presentation coherent on clients. Times use server world time. */
 USTRUCT(BlueprintType)
@@ -36,6 +38,9 @@ class MESSCONTROL_API AMCBossCharacter : public ACharacter
     GENERATED_BODY()
 public:
     AMCBossCharacter();
+    /** Combat volume follows the torso; the narrower root capsule remains the navigation shape. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Boss|Collision") TObjectPtr<UCapsuleComponent> BodyHitbox;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Boss|Presentation") TObjectPtr<UMCBossFaceComponent> Face;
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual float TakeDamage(float DamageAmount,const FDamageEvent& DamageEvent,AController* EventInstigator,AActor* DamageCauser) override;
@@ -44,6 +49,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Boss", meta=(DeprecatedProperty, DeprecationMessage="Use the explicit F3 AI test.")) bool bStartAwake=false;
     UPROPERTY(ReplicatedUsing=OnRep_Runtime, BlueprintReadOnly, Category="Boss") FMCBossRuntimeState Runtime;
     UFUNCTION(BlueprintPure, Category="Boss") bool IsBossAlive() const { return Runtime.Health>0.f && Runtime.State!=EMCBossState::Dead; }
+    UFUNCTION(BlueprintPure, Category="Boss|Collision") bool CanReceiveWeaponHit() const { return IsBossAlive() && Runtime.AnimationPreview==EMCBossAnimationPreview::None; }
+    /** Closest point on the actual torso capsule, rather than its enclosing axis-aligned box. */
+    FVector GetMeleeTargetPoint(const FVector& Source) const;
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void ActivateBoss();
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void DeactivateBoss();
     /** Restart the encounter without activating it, including a previously killed boss. */

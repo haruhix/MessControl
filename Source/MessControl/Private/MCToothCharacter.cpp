@@ -740,18 +740,20 @@ void AMCToothCharacter::ResolveSwing()
     AMCBossCharacter* BossTarget=nullptr;
     if (!Inventory->IsCleaningTool()) for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
     {
-        const FVector Point=It->GetCapsuleComponent()->Bounds.GetBox().GetClosestPointTo(GetActorLocation());
+        const FVector Point=It->GetMeleeTargetPoint(GetActorLocation());
         const FVector Offset=Point-GetActorLocation();
-        if (!It->IsBossAlive() || Offset.SizeSquared2D()>=Best || FMath::Abs(Offset.Z)>120
-            || FVector::DotProduct(GetActorForwardVector(),Offset.GetSafeNormal2D())<.25f) continue;
+        const FVector AimOffset=It->GetActorLocation()-GetActorLocation();
+        if (!It->CanReceiveWeaponHit() || Offset.SizeSquared2D()>=Best || FMath::Abs(Offset.Z)>120
+            || FVector::DotProduct(GetActorForwardVector(),AimOffset.GetSafeNormal2D())<.25f) continue;
         FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCBossWeaponHit),false,this); Query.AddIgnoredActor(*It);
         if (GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),Point,ECC_Visibility,Query)) continue;
         BossTarget=*It; Best=Offset.SizeSquared2D();
     }
     if (BossTarget)
     {
-        BossTarget->ReceiveBossDamage(Inventory->Damage(),this);
-        ++ConfirmedHitCount; MulticastHitSound(BossTarget->GetActorLocation()); return;
+        if (BossTarget->ReceiveBossDamage(Inventory->Damage(),this)>0.f)
+        { ++ConfirmedHitCount; MulticastHitSound(BossTarget->GetMeleeTargetPoint(GetActorLocation())); }
+        return;
     }
     if(Inventory->IsCleaningTool()) for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
     {
@@ -840,7 +842,8 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 bool AMCToothCharacter::CanWork() const
 {
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
-    return !IsValid(RewardInteraction) && !IsYawning() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
+    const auto* Player=Cast<AMCPlayerController>(GetController());
+    return (!Player || !Player->IsBossIntroPlaying()) && !IsValid(RewardInteraction) && !IsYawning() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
 }
 void AMCToothCharacter::ToggleSelfCare() { ServerToggleSelfCare(); }
 void AMCToothCharacter::ServerToggleSelfCare_Implementation()
