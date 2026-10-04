@@ -81,7 +81,8 @@ void AMCRewardChest::ConfigureGeometry()
     if(!Body->GetStaticMesh() || !Lid->GetStaticMesh()) return;
     const float Scale=FMath::IsFinite(ModelScale)?FMath::Clamp(ModelScale,.05f,2.f):.35f;
     const FBox Bottom=Body->GetStaticMesh()->GetBoundingBox(),Top=Lid->GetStaticMesh()->GetBoundingBox();
-    const float BottomOffset=float(-Bottom.Min.Z*Scale),HingeZ=float((Bottom.Max.Z-Bottom.Min.Z)*Scale),HingeX=float(Top.Min.X*Scale);
+    const float SeatOffset=FMath::IsFinite(LidSeatOffset)?LidSeatOffset:0.f;
+    const float BottomOffset=float(-Bottom.Min.Z*Scale),HingeZ=float((Bottom.Max.Z-Bottom.Min.Z+SeatOffset)*Scale),HingeX=float(Top.Min.X*Scale);
     Body->SetRelativeScale3D(FVector(Scale)); Body->SetRelativeLocation(FVector(0,0,BottomOffset));
     LidPivot->SetRelativeLocation(FVector(HingeX,0,HingeZ));
     Lid->SetRelativeScale3D(FVector(Scale)); Lid->SetRelativeLocation(FVector(-HingeX,0,-Top.Min.Z*Scale));

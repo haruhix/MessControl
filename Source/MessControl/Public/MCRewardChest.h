@@ -51,6 +51,8 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Telegraph;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USphereComponent> Approach;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.05",ClampMax="2")) float ModelScale=.35f;
+    /** Lid seating adjustment in mesh units, applied before ModelScale. */
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards") float LidSeatOffset=0.f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1")) float TelegraphSeconds=1.2f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1")) float FallSeconds=1.2f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1")) float OpeningSeconds=.7f;
