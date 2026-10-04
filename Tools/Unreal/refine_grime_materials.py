@@ -1,7 +1,7 @@
 """Author scale-stable plaque optics in the stopped project editor.
 
 Preserves the canonical arena wipe/coverage and player Coffee/face/fracture
-contracts. Existing artist pigment and ORM supply detail; no new render pass.
+contracts. Substance height, normals and pigment supply lit surface relief.
 Run with Tools/Unreal/remote_python.py. Reapplication updates named nodes.
 """
 import json
@@ -27,6 +27,11 @@ for path in paths+instances:
     shutil.copy2(root/'Content'/Path(path.removeprefix('/Game/')+'.uasset'), backup/(path.rsplit('/',1)[1]+'.uasset'))
 
 report = {'backup':str(backup), 'materials':{}, 'texture_density':'Object/rest coordinates; centimetres for arena detail'}
+rich_paths = {name:'/Game/Gameplay/Care/Textures/T_GrimeRich_'+name
+              for name in ('BaseColor','Height','Normal','Roughness')}
+report['rich_texture_maps']=rich_paths
+# Fail before editing either material if the coordinated texture import is incomplete.
+assert all(lib.load_asset(path) for path in rich_paths.values()), 'Import all four GrimeRich maps first'
 
 def nodes_for(mat):
     nodes=list(edit.get_material_expressions(mat))
@@ -54,7 +59,7 @@ def vector(mat,params,name,value):
     n.set_editor_property('group','Grime optics')
     return n
 
-def texture(mat,params,name,path,linear=False):
+def texture(mat,params,name,path,linear=False,normal=False):
     n=params.get(name)
     if n is None:
         n=edit.create_material_expression(mat,u.MaterialExpressionTextureObjectParameter,700,3400+len(params)*80)
@@ -63,7 +68,9 @@ def texture(mat,params,name,path,linear=False):
     t=lib.load_asset(path)
     assert t, path
     n.set_editor_property('texture',t)
-    n.set_editor_property('sampler_type',u.MaterialSamplerType.SAMPLERTYPE_LINEAR_COLOR if linear else u.MaterialSamplerType.SAMPLERTYPE_COLOR)
+    sampler=(u.MaterialSamplerType.SAMPLERTYPE_NORMAL if normal else
+             u.MaterialSamplerType.SAMPLERTYPE_LINEAR_COLOR if linear else u.MaterialSamplerType.SAMPLERTYPE_COLOR)
+    n.set_editor_property('sampler_type',sampler)
     n.set_editor_property('group','Grime optics')
     return n
 
@@ -92,16 +99,54 @@ DETAIL='''
 // Coordinates follow the surface, including piano movement and skeletal pose.
 float3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);
 float3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);
-float3 p=Texture2DSample(Pigment,PigmentSampler,q.yz).rgb*w.x
-        +Texture2DSample(Pigment,PigmentSampler,q.xz).rgb*w.y
-        +Texture2DSample(Pigment,PigmentSampler,q.xy).rgb*w.z;
-float2 o=Texture2DSample(Surface,SurfaceSampler,q.yz).rg*w.x
-        +Texture2DSample(Surface,SurfaceSampler,q.xz).rg*w.y
-        +Texture2DSample(Surface,SurfaceSampler,q.xy).rg*w.z;
-float grain=saturate(p.r*4.2);
-// ORM uses linear data. Height is a tiny presentation detail, not displacement.
-return float4(grain,saturate(o.r),saturate(o.g),(1-saturate(o.r))*.07+(grain-.5)*.035);
+float h=Texture2DSample(Height,HeightSampler,q.yz).r*w.x
+       +Texture2DSample(Height,HeightSampler,q.xz).r*w.y
+       +Texture2DSample(Height,HeightSampler,q.xy).r*w.z;
+float rough=Texture2DSample(Surface,SurfaceSampler,q.yz).r*w.x
+           +Texture2DSample(Surface,SurfaceSampler,q.xz).r*w.y
+           +Texture2DSample(Surface,SurfaceSampler,q.xy).r*w.z;
+// Height is independent of albedo: pits, granules and built-up plateaus remain
+// visible under moving lights rather than collapsing to one saturated brown.
+float plateau=smoothstep(.24,.78,h);
+float pit=1-smoothstep(.13,.43,h);
+float relief=(h-.5)*.72+plateau*.28-pit*.13;
+return float4(h,1-pit*.52,saturate(rough),relief);
 '''
+
+PIGMENT='''
+[branch] if (Amount<=.0001) return float3(.2,.08,.018);
+float3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);
+float3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);
+return Texture2DSample(Pigment,PigmentSampler,q.yz).rgb*w.x
+      +Texture2DSample(Pigment,PigmentSampler,q.xz).rgb*w.y
+      +Texture2DSample(Pigment,PigmentSampler,q.xy).rgb*w.z;
+'''
+
+SLOPE='''
+[branch] if (Amount<=.0001) return float3(0,0,0);
+float3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);
+float3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);
+// BC5 normal textures store signed tangent X/Y in their two sampled channels.
+// Reconstruct Z, then express the three projection slopes in rest-space cm.
+float2 x=Texture2DSample(NormalMap,NormalMapSampler,q.yz).rg*2-1;
+float2 y=Texture2DSample(NormalMap,NormalMapSampler,q.xz).rg*2-1;
+float2 z=Texture2DSample(NormalMap,NormalMapSampler,q.xy).rg*2-1;
+x/=-max(sqrt(saturate(1-dot(x,x))),.35);
+y/=-max(sqrt(saturate(1-dot(y,y))),.35);
+z/=-max(sqrt(saturate(1-dot(z,z))),.35);
+return float3(0,x.x,x.y)*w.x+float3(y.x,0,y.y)*w.y+float3(z.x,z.y,0)*w.z;
+'''
+
+def rich_detail(mat,cs,ps,label,position,normal,scale,tile,seed,amount):
+    common={'P':position,'N':normal,'Scale':scale,'Tile':tile,'Seed':seed,'Amount':amount}
+    pigment=texture(mat,ps,'GrimePigment',rich_paths['BaseColor'])
+    height=texture(mat,ps,'GrimeHeight',rich_paths['Height'],True)
+    surface=texture(mat,ps,'GrimeSurface',rich_paths['Roughness'],True)
+    normal_map=texture(mat,ps,'GrimeNormal',rich_paths['Normal'],normal=True)
+    detail=custom(mat,cs,label,DETAIL,dict(common,Height=height,Surface=surface),u.CustomMaterialOutputType.CMOT_FLOAT4)
+    color=custom(mat,cs,label+' pigment',PIGMENT,dict(common,Pigment=pigment),u.CustomMaterialOutputType.CMOT_FLOAT3)
+    slope=custom(mat,cs,label+' normal slope',SLOPE,dict(common,NormalMap=normal_map),u.CustomMaterialOutputType.CMOT_FLOAT3)
+    return detail,color,slope
 
 with u.ScopedEditorTransaction('Scale-stable tooth grime optics'):
     mat=lib.load_asset(paths[0])
@@ -113,42 +158,55 @@ with u.ScopedEditorTransaction('Scale-stable tooth grime optics'):
                     and any(isinstance(src,cls) for src in edit.get_inputs_for_material_expression(mat,n)))
     position=interpolated(u.MaterialExpressionPreSkinnedPosition)
     local_normal=interpolated(u.MaterialExpressionPreSkinnedNormal)
-    pigment=texture(mat,ps,'GrimePigment','/Game/Gameplay/Care/Textures/T_Grime_BaseColor')
-    surface=texture(mat,ps,'GrimeSurface','/Game/Gameplay/Care/Textures/T_Grime_OcclusionRoughnessMetallic',True)
-    tile=scalar(mat,ps,'GrimeDetailSize',48.)
+    mat.set_editor_property('shading_model',u.MaterialShadingModel.MSM_DEFAULT_LIT)
+    mat.set_editor_property('tangent_space_normal',False)
+    # The 1024px Substance recipe has roughly 12 granule cells and five broad
+    # cloud islands per tile: 36cm keeps them visible from the gameplay camera.
+    tile=scalar(mat,ps,'GrimeDetailSize',36.)
     seed=scalar(mat,ps,'GrimeSeed',1.)
-    strength=scalar(mat,ps,'GrimeMicroRelief',1.)
-    light=vector(mat,ps,'GrimeLightColor',(.28,.14,.040,1))
-    dark=vector(mat,ps,'GrimeDarkColor',(.075,.027,.009,1))
-    rim=vector(mat,ps,'GrimeRimColor',(.43,.255,.095,1))
-    detail=custom(mat,cs,'MC Care: anchored plaque detail',DETAIL,
-        {'P':position,'N':local_normal,'Scale':ps['GrimeScale'],'Tile':tile,'Seed':seed,'Pigment':pigment,'Surface':surface,'Amount':ps['GrimeAmount']},u.CustomMaterialOutputType.CMOT_FLOAT4)
+    strength=scalar(mat,ps,'GrimeMicroRelief',1.15)
+    normal_strength=scalar(mat,ps,'GrimeNormalStrength',.65)
+    light=vector(mat,ps,'GrimeLightColor',(.42,.21,.065,1))
+    dark=vector(mat,ps,'GrimeDarkColor',(.105,.032,.008,1))
+    rim=vector(mat,ps,'GrimeRimColor',(.53,.30,.10,1))
+    detail,pigment,slope=rich_detail(mat,cs,ps,'MC Care: anchored plaque detail',
+        position,local_normal,ps['GrimeScale'],tile,seed,ps['GrimeAmount'])
     custom(mat,cs,'MC Care: coatingColor','''
-float body=saturate(F.z*.85+(1-D.x)*.30+F.w*.13);
-float3 color=lerp(Light,Dark,smoothstep(.06,.83,body));
-color*=lerp(.84,1.08,D.x)*lerp(.92,1,D.y);
-float margin=1-smoothstep(.30,.78,F.x);
-color=lerp(color,Rim,margin*.58);
+float body=saturate(F.z*.62+(1-D.x)*.28+F.w*.10);
+float3 color=lerp(lerp(Light,Dark,smoothstep(.06,.83,body)),Pigment,.72);
+color*=lerp(.54,1.22,smoothstep(.08,.92,D.x))*D.y;
+float margin=1-smoothstep(.18,.56,F.x);
+color=lerp(color,Rim,margin*.38);
 return lerp(color,float3(.92,.97,.94),F.y*.96);
-''',{'D':detail,'Light':light,'Dark':dark,'Rim':rim},u.CustomMaterialOutputType.CMOT_FLOAT3)
+''',{'D':detail,'Pigment':pigment,'Light':light,'Dark':dark,'Rim':rim},u.CustomMaterialOutputType.CMOT_FLOAT3)
     custom(mat,cs,'MC Care: coatingRoughness','''
-float margin=1-smoothstep(.30,.78,F.x);
-float rough=lerp(.37,.55,D.z)+F.w*.025;
-rough=lerp(rough,.27,margin*.72);
+float margin=1-smoothstep(.18,.56,F.x);
+float rough=lerp(.33,.83,D.z)+(1-D.y)*.06;
+rough=lerp(rough,.17,margin*.84);
 return lerp(rough,.43,F.y);
 ''',{'D':detail},u.CustomMaterialOutputType.CMOT_FLOAT1)
     custom(mat,cs,'MC Care: meniscusNormal','''
 float3 n=normalize(N);
-float h=D.w*max(Strength,0);
+// The mesh supplies the silhouette; these centimetre-scale derivatives add
+// built-up body, tapered edges and actual pits without moving contact geometry.
+float coverage=saturate(F.x);
+float h=coverage*(.10+.64*smoothstep(.12,.92,F.z)+D.w*max(Strength,0));
 float3 dx=ddx(World),dy=ddy(World),rx=cross(dy,n),ry=cross(n,dx);
 float det=dot(dx,rx);
-return normalize(n-(ddx(h)*rx+ddy(h)*ry)*sign(det)/max(abs(det),1e-5));
-''',{'D':detail,'Strength':strength},u.CustomMaterialOutputType.CMOT_FLOAT3)
-    scalar(mat,ps,'Specular',.46)
+// Map the rest-space normal slopes through current surface derivatives. This
+// remains attached under rotation and pose instead of treating them as world XY.
+float sx=ddx(h)+coverage*max(NormalStrength,0)*dot(Slope,ddx(P*Scale));
+float sy=ddy(h)+coverage*max(NormalStrength,0)*dot(Slope,ddy(P*Scale));
+return normalize(n-(sx*rx+sy*ry)*sign(det)/max(abs(det),1e-5));
+''',{'D':detail,'Slope':slope,'P':position,'Scale':ps['GrimeScale'],
+     'Strength':strength,'NormalStrength':normal_strength},u.CustomMaterialOutputType.CMOT_FLOAT3)
+    scalar(mat,ps,'Specular',.52)
     errors=list(edit.recompile_material(mat))
     assert not errors, errors
     assert lib.save_loaded_asset(mat,False)
-    report['materials'][paths[0]]={'compile_errors':errors,'detail_size_cm':48,'coverage_preserved':True}
+    report['materials'][paths[0]]={'compile_errors':errors,'detail_size_cm':36,'coverage_preserved':True,
+        'relief':'Substance pits/plateaus + rest normal slopes + coating body/edge',
+        'geometry':'Existing procedural relief; no WPO or contact geometry changes'}
 
     mat=lib.load_asset(paths[1])
     nodes,cs,ps=nodes_for(mat)
@@ -168,29 +226,30 @@ return normalize(n-(ddx(h)*rx+ddy(h)*ry)*sign(det)/max(abs(det),1e-5));
         interpolator.set_editor_property('desc','Grime rest normal')
     assert edit.connect_material_expressions(normal,'',interpolator,'')
     scale=vector(mat,ps,'GrimeRestScale',(1,1,1,1))
-    tile=scalar(mat,ps,'GrimeDetailSize',22.)
+    mat.set_editor_property('shading_model',u.MaterialShadingModel.MSM_DEFAULT_LIT)
+    assert mat.get_editor_property('tangent_space_normal'), 'Preserve the player world-to-tangent normal chain'
+    tile=scalar(mat,ps,'GrimeDetailSize',24.)
     seed=scalar(mat,ps,'GrimeDetailSeed',1.)
-    strength=scalar(mat,ps,'GrimeMicroRelief',.7)
-    pigment=texture(mat,ps,'GrimePigment','/Game/Gameplay/Care/Textures/T_Grime_BaseColor')
-    surface=texture(mat,ps,'GrimeSurface','/Game/Gameplay/Care/Textures/T_Grime_OcclusionRoughnessMetallic',True)
-    light=vector(mat,ps,'GrimeLightColor',(.28,.14,.040,1))
-    dark=vector(mat,ps,'GrimeDarkColor',(.075,.027,.009,1))
-    rim=vector(mat,ps,'GrimeRimColor',(.43,.255,.095,1))
-    detail=custom(mat,cs,'Anchored player grime detail',DETAIL,
-        {'P':position,'N':interpolator,'Scale':scale,'Tile':tile,'Seed':seed,'Pigment':pigment,'Surface':surface,'Amount':ps['Coffee']},u.CustomMaterialOutputType.CMOT_FLOAT4)
+    strength=scalar(mat,ps,'GrimeMicroRelief',.85)
+    normal_strength=scalar(mat,ps,'GrimeNormalStrength',.55)
+    light=vector(mat,ps,'GrimeLightColor',(.42,.21,.065,1))
+    dark=vector(mat,ps,'GrimeDarkColor',(.105,.032,.008,1))
+    rim=vector(mat,ps,'GrimeRimColor',(.53,.30,.10,1))
+    detail,pigment,slope=rich_detail(mat,cs,ps,'Anchored player grime detail',
+        position,interpolator,scale,tile,seed,ps['Coffee'])
     custom(mat,cs,'Gameplay stains over the original textured enamel','''
-float body=saturate(Stain.y*.80+(1-D.x)*.32);
-float3 dirt=lerp(GrimeLight,GrimeDark,body);
-dirt*=lerp(.86,1.08,D.x)*lerp(.93,1,D.y);
-dirt=lerp(dirt,GrimeRim,Stain.z*.48);
+float body=saturate(Stain.y*.68+(1-D.x)*.28);
+float3 dirt=lerp(lerp(GrimeLight,GrimeDark,body),Pigment,.72);
+dirt*=lerp(.54,1.22,smoothstep(.08,.92,D.x))*D.y;
+dirt=lerp(dirt,GrimeRim,Stain.z*.38);
 float enamel=smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));
 float patch=Stain.x*saturate(GrimeOpacity)*enamel;
 float3 color=lerp(Enamel,dirt,patch);
-'''+tail,{'D':detail},u.CustomMaterialOutputType.CMOT_FLOAT3)
+'''+tail,{'D':detail,'Pigment':pigment},u.CustomMaterialOutputType.CMOT_FLOAT3)
     custom(mat,cs,'Matte player grime','''
 float enamel=smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));
-float rough=lerp(.39,.57,D.z);
-rough=lerp(rough,.30,Stain.z*.65);
+float rough=lerp(.33,.83,D.z)+(1-D.y)*.06;
+rough=lerp(rough,.18,Stain.z*.84);
 return lerp(Base,rough,Stain.x*enamel);
 ''',{'D':detail},u.CustomMaterialOutputType.CMOT_FLOAT1)
     custom(mat,cs,'Reduced player grime shine','''
@@ -202,21 +261,28 @@ float3 n=normalize(N);
 float3 dx=ddx(WP),dy=ddy(WP),rx=cross(dy,n),ry=cross(n,dx);
 float determinant=dot(dx,rx);
 float enamel=smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));
-float plaque=Stain.x*enamel*max(Strength,0)*(D.w+.065*Stain.y);
+float coverage=Stain.x*enamel*saturate(Opacity);
+float plaque=coverage*(max(Strength,0)*D.w+.35*Stain.y);
 float height=max(Depth,0)*Fracture.z+plaque;
-float3 gradient=sign(determinant)*(ddx(height)*rx+ddy(height)*ry);
+float sx=ddx(height)+coverage*max(NormalStrength,0)*dot(Slope,ddx(P*Scale));
+float sy=ddy(height)+coverage*max(NormalStrength,0)*dot(Slope,ddy(P*Scale));
+float3 gradient=sign(determinant)*(sx*rx+sy*ry);
 return normalize(max(abs(determinant),.00001)*n-gradient);
-''',{'Stain':cs['Rounded player grime mask'],'D':detail,'Strength':strength,'Enamel':by_name['MaterialExpressionLinearInterpolate_1']},u.CustomMaterialOutputType.CMOT_FLOAT3)
+''',{'Stain':cs['Rounded player grime mask'],'D':detail,'Slope':slope,'Strength':strength,
+     'NormalStrength':normal_strength,'P':position,'Scale':scale,'Opacity':ps['GrimeOpacity'],
+     'Enamel':by_name['MaterialExpressionLinearInterpolate_1']},u.CustomMaterialOutputType.CMOT_FLOAT3)
     errors=list(edit.recompile_material(mat))
     assert not errors,errors
     assert lib.save_loaded_asset(mat,False)
-    report['materials'][paths[1]]={'compile_errors':errors,'detail_size_rest_cm':22,'preserved':['Coffee mask','face exclusion','fractures','HitFlash','BodyStretch','artist texture normals']}
+    report['materials'][paths[1]]={'compile_errors':errors,'detail_size_rest_cm':24,
+        'relief':'Substance height/roughness/pigment and pose-following normal slopes',
+        'preserved':['Coffee mask','face exclusion','fractures','HitFlash','BodyStretch','artist texture normals']}
 
 for path in instances:
     instance=lib.load_asset(path)
     if instance:
         # These saved instances carry palette overrides from the earlier look.
-        for name,value in [('GrimeLightColor',(.28,.14,.040,1)),('GrimeDarkColor',(.075,.027,.009,1)),('GrimeRimColor',(.43,.255,.095,1))]:
+        for name,value in [('GrimeLightColor',(.42,.21,.065,1)),('GrimeDarkColor',(.105,.032,.008,1)),('GrimeRimColor',(.53,.30,.10,1))]:
             edit.set_material_instance_vector_parameter_value(instance,name,u.LinearColor(*value))
         edit.update_material_instance(instance)
         lib.save_loaded_asset(instance,True)

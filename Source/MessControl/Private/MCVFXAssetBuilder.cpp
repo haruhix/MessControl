@@ -200,21 +200,22 @@ UNiagaraSystem* UMCVFXAssetBuilder::RefineBrushFoam()
             Spawn->Rate=FNiagaraDistributionRangeFloat(Bubbles?18.f:48.f);
             Spawn->bLoopCountLimitEnabled=false; Spawn->bSpawnProbabilityEnabled=false;
         }
-        Init->LifetimeDistribution=Bubbles?FNiagaraDistributionRangeFloat(.55f,.95f):FNiagaraDistributionRangeFloat(.35f,.55f);
-        const float MinimumSize=Bubbles?5.f:4.f,MaximumSize=Bubbles?9.f:8.f;
+        // Larger silhouettes, with the same rates and about 44 live particles.
+        Init->LifetimeDistribution=Bubbles?FNiagaraDistributionRangeFloat(.9f,1.1f):FNiagaraDistributionRangeFloat(.35f,.5f);
+        const float MinimumSize=Bubbles?12.f:10.f,MaximumSize=Bubbles?24.f:18.f;
         Init->SpriteSizeDistribution.InitConstant(FVector2f(MinimumSize));
         Init->SpriteSizeDistribution.Mode=ENiagaraDistributionMode::UniformRange;
         Init->SpriteSizeDistribution.Min=FVector2f(MinimumSize); Init->SpriteSizeDistribution.Max=FVector2f(MaximumSize);
         Init->SpriteSizeDistribution.ChannelConstantsAndRanges={MinimumSize,MaximumSize};
         Init->SpriteRotationDistribution=FNiagaraDistributionRangeFloat(-28.f,28.f);
         Init->ColorDistribution=FNiagaraDistributionColor(FLinearColor::White);
-        Init->InitialPositionDistribution=FNiagaraDistributionPosition(FVector3f(0,0,Bubbles?5.f:3.f));
+        Init->InitialPositionDistribution=FNiagaraDistributionPosition(FVector3f(0,0,Bubbles?10.f:7.f));
         Shape->SetIsModuleEnabled(true); Shape->ShapePrimitive=ENSM_ShapePrimitive::Plane;
-        Shape->PlaneSize.InitConstant(Bubbles?FVector2f(10,6):FVector2f(14,7));
+        Shape->PlaneSize.InitConstant(Bubbles?FVector2f(18,10):FVector2f(20,12));
         Shape->bPlaneEdgesOnly=false; Shape->CoordinateSpace=ENiagaraCoordinateSpace::Local;
         Velocity->SetIsModuleEnabled(true); Velocity->VelocityType=ENSM_VelocityType::InCone;
-        Velocity->ConeVelocityDistribution=Bubbles?FNiagaraDistributionRangeFloat(12.f,24.f):FNiagaraDistributionRangeFloat(3.f,9.f);
-        Velocity->ConeAngle=Bubbles?24.f:70.f; Velocity->ConeRotationType=ENSM_ConeRotationType::Direction;
+        Velocity->ConeVelocityDistribution=Bubbles?FNiagaraDistributionRangeFloat(50.f,68.f):FNiagaraDistributionRangeFloat(3.f,9.f);
+        Velocity->ConeAngle=Bubbles?18.f:70.f; Velocity->ConeRotationType=ENSM_ConeRotationType::Direction;
         Velocity->ConeDirection.InitConstant(FVector3f::ZAxisVector);
         // Stateless particles remain near the moving contact; world-up velocity
         // keeps the small rising layer useful on both crowns and the tongue.
@@ -224,14 +225,14 @@ UNiagaraSystem* UMCVFXAssetBuilder::RefineBrushFoam()
                 || Module->IsA<UNiagaraStatelessModule_ScaleMeshSize>()) Module->SetIsModuleEnabled(false);
         }
         if(auto* Drag=Cast<UNiagaraStatelessModule_Drag>(Emitter->GetModule(UNiagaraStatelessModule_Drag::StaticClass()))) {
-            Drag->SetIsModuleEnabled(true); Drag->DragDistribution=FNiagaraDistributionRangeFloat(Bubbles?.18f:.6f);
+            Drag->SetIsModuleEnabled(true); Drag->DragDistribution=FNiagaraDistributionRangeFloat(Bubbles?.1f:.6f);
         }
         SpriteScale->SetIsModuleEnabled(true);
         auto& SizeCurve=SpriteScale->ScaleDistribution;
         SizeCurve.Mode=ENiagaraDistributionMode::UniformCurve; SizeCurve.ChannelCurves.SetNum(1);
         SizeCurve.ChannelCurves[0].Reset();
-        SizeCurve.ChannelCurves[0].AddKey(0,.55f); SizeCurve.ChannelCurves[0].AddKey(.2f,.95f);
-        SizeCurve.ChannelCurves[0].AddKey(.7f,Bubbles?1.12f:1.f); SizeCurve.ChannelCurves[0].AddKey(1,Bubbles?1.3f:.65f);
+        SizeCurve.ChannelCurves[0].AddKey(0,.85f); SizeCurve.ChannelCurves[0].AddKey(.15f,1.f);
+        SizeCurve.ChannelCurves[0].AddKey(.75f,Bubbles?1.08f:1.f); SizeCurve.ChannelCurves[0].AddKey(1,Bubbles?1.15f:.9f);
         SizeCurve.UpdateValuesFromDistribution();
         ColorScale->SetIsModuleEnabled(true);
         auto& Fade=ColorScale->ScaleDistribution;
@@ -239,12 +240,12 @@ UNiagaraSystem* UMCVFXAssetBuilder::RefineBrushFoam()
         for(int32 Channel=0;Channel<4;++Channel) {
             Fade.ChannelCurves[Channel].Reset();
             Fade.ChannelCurves[Channel].AddKey(0,Channel==3?0.f:1.f);
-            Fade.ChannelCurves[Channel].AddKey(.1f,1.f); Fade.ChannelCurves[Channel].AddKey(.72f,Channel==3?.92f:1.f);
+            Fade.ChannelCurves[Channel].AddKey(.06f,1.f); Fade.ChannelCurves[Channel].AddKey(.8f,1.f);
             Fade.ChannelCurves[Channel].AddKey(1,Channel==3?0.f:1.f);
         }
         Fade.UpdateValuesFromDistribution();
-        // Lightweight templates do not export ParticleRelativeTime. Supply
-        // normalized age explicitly so the saved material fades at every tier.
+        // Retain the normalized-age channel for artist edits. ScaleColor owns
+        // opacity fading; the material does not multiply a second life envelope.
         Dynamic->SetIsModuleEnabled(true); Dynamic->bParameter0Enabled=true;
         Dynamic->bParameter1Enabled=false; Dynamic->bParameter2Enabled=false; Dynamic->bParameter3Enabled=false;
         Dynamic->Parameter0.bXChannelEnabled=true; Dynamic->Parameter0.bYChannelEnabled=false;
@@ -258,13 +259,13 @@ UNiagaraSystem* UMCVFXAssetBuilder::RefineBrushFoam()
         Renderer->SortMode=ENiagaraSortMode::ViewDepth;
         Emitter->AddRenderer(Renderer,FGuid()); Emitter->PostEditChange();
     }
-    System->bFixedBounds=true; System->SetFixedBounds(FBox(FVector(-100),FVector(100)));
+    System->bFixedBounds=true; System->SetFixedBounds(FBox(FVector(-110),FVector(110)));
     System->PostEditChange(); System->RequestCompile(true); System->WaitForCompilationComplete(false,false);
     System->MarkPackageDirty();
     FSavePackageArgs Save; Save.TopLevelFlags=RF_Public|RF_Standalone; Save.SaveFlags=SAVE_NoError;
     const FString Filename=FPackageName::LongPackageNameToFilename(System->GetOutermost()->GetName(),FPackageName::GetAssetPackageExtension());
     if(!UPackage::SavePackage(System->GetOutermost(),System,*Filename,Save)) return nullptr;
-    UE_LOG(LogTemp,Display,TEXT("MC_FOAM_REFINED emitters=%d rate=48+18 maxLive=44 renderers=sprites"),System->GetNumEmitters());
+    UE_LOG(LogTemp,Display,TEXT("MC_FOAM_REFINED emitters=%d rate=48+18 maxLiveApprox=44 sizes=10-18+12-24 rise=40-70 renderers=sprites"),System->GetNumEmitters());
     return System;
 #else
     return nullptr;
