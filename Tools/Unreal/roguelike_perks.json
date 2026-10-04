@@ -1,0 +1,14 @@
+[
+  {"Name": "QuickFeet", "DisplayName": "Positive Placeholder 01", "Description": "", "Polarity": "Positive", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "LightDash", "DisplayName": "Positive Placeholder 02", "Description": "", "Polarity": "Positive", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "SecondWind", "DisplayName": "Positive Placeholder 03", "Description": "", "Polarity": "Positive", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "SharpEdge", "DisplayName": "Positive Placeholder 04", "Description": "", "Polarity": "Positive", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "HardEnamel", "DisplayName": "Positive Placeholder 05", "Description": "", "Polarity": "Positive", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "DeepClean", "DisplayName": "Positive Placeholder 06", "Description": "", "Polarity": "Positive", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "HeavyFeet", "DisplayName": "Negative Placeholder 01", "Description": "", "Polarity": "Negative", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "HeavyDash", "DisplayName": "Negative Placeholder 02", "Description": "", "Polarity": "Negative", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "ShortBreath", "DisplayName": "Negative Placeholder 03", "Description": "", "Polarity": "Negative", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "BluntEdge", "DisplayName": "Negative Placeholder 04", "Description": "", "Polarity": "Negative", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "SoftEnamel", "DisplayName": "Negative Placeholder 05", "Description": "", "Polarity": "Negative", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"},
+  {"Name": "StickyBrush", "DisplayName": "Negative Placeholder 06", "Description": "", "Polarity": "Negative", "Weight": 1, "MaxStacks": 3, "EffectClass": "None", "Icon": "None"}
+]

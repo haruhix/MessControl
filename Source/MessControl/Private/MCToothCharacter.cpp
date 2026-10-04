@@ -1,5 +1,6 @@
 ﻿#include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
+#include "MCBossCharacter.h"
 #include "MCColdCola.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
@@ -717,6 +718,22 @@ void AMCToothCharacter::ResolveSwing()
         Target=*It; Best=Offset.SizeSquared2D();
     }
     AMCArenaTooth* ArenaTarget=nullptr;
+    AMCBossCharacter* BossTarget=nullptr;
+    if (!Inventory->IsCleaningTool()) for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+    {
+        const FVector Point=It->GetCapsuleComponent()->Bounds.GetBox().GetClosestPointTo(GetActorLocation());
+        const FVector Offset=Point-GetActorLocation();
+        if (!It->IsBossAlive() || Offset.SizeSquared2D()>=Best || FMath::Abs(Offset.Z)>120
+            || FVector::DotProduct(GetActorForwardVector(),Offset.GetSafeNormal2D())<.25f) continue;
+        FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCBossWeaponHit),false,this); Query.AddIgnoredActor(*It);
+        if (GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),Point,ECC_Visibility,Query)) continue;
+        BossTarget=*It; Best=Offset.SizeSquared2D();
+    }
+    if (BossTarget)
+    {
+        BossTarget->ReceiveBossDamage(Inventory->Damage(),this);
+        ++ConfirmedHitCount; MulticastHitSound(BossTarget->GetActorLocation()); return;
+    }
     if(Inventory->IsCleaningTool()) for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
     {
         const FVector Offset=It->GetActorLocation()-GetActorLocation();

@@ -9,6 +9,10 @@
 #include "MCReactionVFX.h"
 #include "MCCoffeeFlood.h"
 #include "MCGameState.h"
+#include "MCRoguelikeDirector.h"
+#include "MCRoguelikePreview.h"
+#include "MCRewardChest.h"
+#include "MCBossCharacter.h"
 #include "MCInventoryComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
@@ -75,6 +79,7 @@ void AMCGameMode::BeginPlay()
         GetWorld()->SpawnActor<AMCArenaDemo>();
     if (FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) GetWorld()->SpawnActor<AMCCoreScenario>();
     if (FParse::Param(FCommandLine::Get(),TEXT("MCDayOne"))) GetWorld()->SpawnActor<AMCDayOneScenario>();
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCRoguelikePreview"))) GetWorld()->SpawnActor<AMCRoguelikePreview>();
 #endif
 }
 void AMCGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
@@ -110,6 +115,11 @@ void AMCGameMode::AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Ki
 {
     if (!HasAuthority() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()) return;
     Worker->AddPoints(ScoreRewards.ForTask(Kind));
+}
+void AMCGameMode::NotifyObjectiveCompleted(FName CompletionId)
+{
+    if (!HasAuthority() || CompletionId.IsNone() || !IsValid(RoguelikeDirector)) return;
+    RoguelikeDirector->NotifyTaskCompleted(CompletionId);
 }
 void AMCGameMode::RestartShift()
 {
@@ -176,6 +186,14 @@ void AMCGameMode::RestartShift()
     const FString SeedOption = UGameplayStatics::ParseOption(OptionsString, TEXT("Seed"));
     if (!SeedOption.IsEmpty()) State->RunSeed = FCString::Atoi(*SeedOption);
     Random.Initialize(State->RunSeed); PreviousEvent = INDEX_NONE;
+    if (!IsValid(RoguelikeDirector))
+    {
+        for (TActorIterator<AMCRoguelikeDirector> It(GetWorld());It;++It) { RoguelikeDirector=*It; break; }
+        if (!RoguelikeDirector) RoguelikeDirector=GetWorld()->SpawnActor<AMCRoguelikeDirector>();
+    }
+    if (IsValid(RoguelikeDirector)) RoguelikeDirector->ResetRewards();
+    for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if (It->bPlacedReward) It->ResetPlacedReward();
+    for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) It->ResetForRun();
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 8.;
     State->StepStartedAt=State->GetServerWorldTimeSeconds(); State->PreviousStepFailed=false;
     State->ForceNetUpdate();
@@ -262,6 +280,7 @@ void AMCGameMode::FinishDay(bool bTimedOut)
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State || State->Phase != EMCShiftPhase::Working) return;
     if (bTimedOut) State->MouthHealth = FMath::Max(0.f, State->MouthHealth - State->TasksLeft * State->CurrentEvent->MissedTaskDamage);
+    else NotifyObjectiveCompleted(FName(*FString::Printf(TEXT("LegacyDay_%d"),State->Day)));
     State->PreviousStepFailed=bTimedOut;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) It->NotifyTaskFeedback(!bTimedOut);
     // Unfinished coffee, damage and food persist into the following day.

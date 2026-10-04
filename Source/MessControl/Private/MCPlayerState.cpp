@@ -1,5 +1,11 @@
 #include "MCPlayerState.h"
+#include "MCPerkComponent.h"
 #include "Net/UnrealNetwork.h"
+
+AMCPlayerState::AMCPlayerState()
+{
+    Perks = CreateDefaultSubobject<UMCPerkComponent>(TEXT("Perks"));
+}
 
 int32 FMCScoreRewards::ForTask(EMCScoreTask Task) const
 {
@@ -22,13 +28,18 @@ void AMCPlayerState::AddPoints(int32 Amount)
 void AMCPlayerState::ResetMatchScore()
 {
     if (!HasAuthority()) return;
-    Points=0; SetScore(0); Alarm=EMCPlayerAlarm::None; AlarmUntil=0; ForceNetUpdate();
+    Points=0; SetScore(0); Alarm=EMCPlayerAlarm::None; AlarmUntil=0;
+    if (Perks) Perks->ResetPerks();
+    ForceNetUpdate();
 }
 void AMCPlayerState::CopyProperties(APlayerState* Target)
 {
     Super::CopyProperties(Target);
     if (auto* State=Cast<AMCPlayerState>(Target))
-    { State->Points=Points; State->PlayerColor=PlayerColor; State->bSessionHost=bSessionHost; }
+    {
+        State->Points=Points; State->PlayerColor=PlayerColor; State->bSessionHost=bSessionHost;
+        if (Perks) Perks->CopyPerksTo(State->Perks);
+    }
 }
 void AMCPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

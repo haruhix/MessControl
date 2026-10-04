@@ -4,6 +4,8 @@
 #include "MCPresentationTypes.h"
 #include "MCPlayerState.generated.h"
 
+class UMCPerkComponent;
+
 UENUM(BlueprintType)
 enum class EMCScoreTask : uint8 { Coffee, Repair, Food, Ulcer, Ice };
 
@@ -25,6 +27,7 @@ class MESSCONTROL_API AMCPlayerState : public APlayerState
 {
     GENERATED_BODY()
 public:
+    AMCPlayerState();
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     virtual void CopyProperties(APlayerState* Target) override;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Score") int32 Points=0;
@@ -32,6 +35,7 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Appearance") FLinearColor PlayerColor=FLinearColor(.24f,.65f,1.f);
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Alarms") EMCPlayerAlarm Alarm=EMCPlayerAlarm::None;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Alarms") double AlarmUntil=0;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perks") TObjectPtr<UMCPerkComponent> Perks;
     void AddPoints(int32 Amount);
     void ResetMatchScore();
 };

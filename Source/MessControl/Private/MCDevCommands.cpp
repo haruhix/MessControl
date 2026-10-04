@@ -3,6 +3,9 @@
 #include "Components/StaticMeshComponent.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCRoguelikeDirector.h"
+#include "MCBossCharacter.h"
+#include "MCBossProfile.h"
 #include "MCDayDirector.h"
 #include "MCCoffeeFlood.h"
 #include "MCColdCola.h"
@@ -37,6 +40,20 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
 #if !UE_BUILD_SHIPPING
     auto* GS=GetGameState<AMCGameState>();
     if (!GS) return FText::FromString(TEXT("Мир ещё не готов."));
+    if (Action==EMCDevAction::RewardChest)
+    {
+        if (!IsValid(RoguelikeDirector)) return FText::FromString(TEXT("Система наград ещё не готова."));
+        RoguelikeDirector->NotifyTaskCompleted();
+        return FText::FromString(TEXT("Награда поставлена в очередь: сундук выберет свободную зону с наименьшим числом игроков."));
+    }
+    if (Action==EMCDevAction::BossPractice)
+    {
+        AMCBossCharacter* Boss=nullptr;
+        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) if(It->IsBossAlive()) { Boss=*It; break; }
+        if (!Boss) return FText::FromString(TEXT("Размести BP_ZombieBoss в зоне NavMesh перед запуском PIE."));
+        Boss->ActivateBoss();
+        return FText::FromString(TEXT("Босс активирован. Перед ударом есть предупреждение; нож и кирка наносят ему урон."));
+    }
     if(Action==EMCDevAction::ActiveRagdoll) {
         if(StepIndex<0 || StepIndex>2) return FText::FromString(TEXT("Неизвестный режим физики."));
         for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)

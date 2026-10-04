@@ -1,0 +1,86 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+#include "MCBossProfile.h"
+#include "MCBossCharacter.generated.h"
+
+class AMCToothCharacter;
+class AMCBossAIController;
+
+/** One replicated snapshot keeps phase and attack presentation coherent on clients. Times use server world time. */
+USTRUCT(BlueprintType)
+struct FMCBossRuntimeState
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) EMCBossState State=EMCBossState::Dormant;
+    UPROPERTY(BlueprintReadOnly) float Health=600.f;
+    UPROPERTY(BlueprintReadOnly) float MaxHealth=600.f;
+    UPROPERTY(BlueprintReadOnly) int32 Phase=0;
+    UPROPERTY(BlueprintReadOnly) TObjectPtr<AMCToothCharacter> Target;
+    UPROPERTY(BlueprintReadOnly) FName AttackId;
+    UPROPERTY(BlueprintReadOnly) int32 AttackSerial=0;
+    UPROPERTY(BlueprintReadOnly) double StateStartedAt=0;
+    UPROPERTY(BlueprintReadOnly) double StateEndsAt=0;
+    UPROPERTY(BlueprintReadOnly) FVector AttackForward=FVector::ForwardVector;
+};
+
+UCLASS(Blueprintable)
+class MESSCONTROL_API AMCBossCharacter : public ACharacter
+{
+    GENERATED_BODY()
+public:
+    AMCBossCharacter();
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    virtual float TakeDamage(float DamageAmount,const FDamageEvent& DamageEvent,AController* EventInstigator,AActor* DamageCauser) override;
+    UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_Profile, BlueprintReadOnly, Category="Boss") TSoftObjectPtr<UMCBossProfile> Profile;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Boss") bool bStartAwake=false;
+    UPROPERTY(ReplicatedUsing=OnRep_Runtime, BlueprintReadOnly, Category="Boss") FMCBossRuntimeState Runtime;
+    UFUNCTION(BlueprintPure, Category="Boss") bool IsBossAlive() const { return Runtime.Health>0.f && Runtime.State!=EMCBossState::Dead; }
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void ActivateBoss();
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void DeactivateBoss();
+    /** Restart the encounter without activating it, including a previously killed boss. */
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") void ResetForRun();
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") float ReceiveBossDamage(float Damage,AActor* DamageCauser);
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Boss") bool BeginAttack(FName AttackId,AMCToothCharacter* Target);
+    UFUNCTION(BlueprintPure, Category="Boss") float GetStateAge() const;
+    /** Executes only on authority and only once per attack. Overrides own authoritative damage, projectiles or hazards. */
+    UFUNCTION(BlueprintNativeEvent, Category="Boss|Attacks") void ExecuteAttack(const FMCBossAttackDefinition& Attack,AMCToothCharacter* Target);
+    virtual void ExecuteAttack_Implementation(const FMCBossAttackDefinition& Attack,AMCToothCharacter* Target);
+    UFUNCTION(BlueprintImplementableEvent, Category="Boss|Presentation") void OnBossStateChanged(const FMCBossRuntimeState& State);
+    UFUNCTION(BlueprintImplementableEvent, Category="Boss|Presentation") void OnBossHealthChanged(float Health,float MaxHealth);
+    UFUNCTION(BlueprintImplementableEvent, Category="Boss|Presentation") void OnBossPhaseChanged(int32 Phase);
+    /** Runs for authority and peers. Drive VFX/montages from StateStartedAt and StateEndsAt, never damage here. */
+    UFUNCTION(BlueprintImplementableEvent, Category="Boss|Presentation") void OnBossTelegraph(FName AttackId,int32 AttackSerial,FVector Direction,double StartsAt,double EndsAt);
+    UFUNCTION(BlueprintImplementableEvent, Category="Boss|Presentation") void OnBossAttackImpact(FName AttackId,int32 AttackSerial);
+    UFUNCTION(BlueprintImplementableEvent, Category="Boss|Presentation") void OnBossDied();
+    const UMCBossProfile* GetResolvedProfile() const { return ResolvedProfile; }
+    const TArray<FMCBossAttackDefinition>& GetAttackDefinitions() const { return AttackDefinitions; }
+    bool IsAttackReady(const FMCBossAttackDefinition& Attack) const;
+    static bool IsLivingPlayer(const AMCToothCharacter* Target);
+    bool CanSeePlayer(const AMCToothCharacter* Target) const;
+    bool IsPlayerInAttack(const AMCToothCharacter* Target,const FMCBossAttackDefinition& Attack,const FVector& Forward) const;
+    void SetBrainState(EMCBossState State,AMCToothCharacter* Target);
+protected:
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+private:
+    UFUNCTION() void OnRep_Profile();
+    UFUNCTION() void OnRep_Runtime();
+    UFUNCTION(NetMulticast, Reliable) void MulticastAttackImpact(FName AttackId,int32 AttackSerial);
+    void ImpactAttack();
+    void RecoverAttack();
+    void FinishRecovery();
+    void PublishRuntime();
+    void ChangeState(EMCBossState State,float Duration=0.f);
+    void UpdatePhase();
+    double ServerNow() const;
+    UPROPERTY(Transient) TObjectPtr<UMCBossProfile> ResolvedProfile;
+    TArray<FMCBossAttackDefinition> AttackDefinitions;
+    TArray<FMCBossPhaseDefinition> PhaseDefinitions;
+    TMap<FName,double> NextAttackAt;
+    FMCBossAttackDefinition PendingAttack;
+    FMCBossRuntimeState LastPresented;
+    FTimerHandle AttackTimer;
+    float BaseWalkSpeed=260.f;
+};

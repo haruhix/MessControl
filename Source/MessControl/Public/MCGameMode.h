@@ -35,6 +35,8 @@ public:
     void ResolveTask(AMCTaskActor* Task, AMCToothCharacter* Worker=nullptr);
     void AwardTask(AMCToothCharacter* Worker, EMCScoreTask Kind);
     void AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Kind);
+    /** One shared reward for a completed objective, independent of per-item score awards. */
+    void NotifyObjectiveCompleted(FName CompletionId);
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Score") FMCScoreRewards ScoreRewards;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Respawn", meta=(ClampMin="0.1")) float RespawnDelay=5.f;
     void PlayerDied(AMCToothCharacter* Hero);
@@ -51,6 +53,7 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<class UMCDayPlan> FirstDayPlan;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") bool bUseDayOnePlan=true;
     UPROPERTY() TObjectPtr<AMCDayDirector> DayDirector;
+    UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;
 private:
     void StartDay();
     void FinishDay(bool bTimedOut);

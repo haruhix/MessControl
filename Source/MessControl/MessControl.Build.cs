@@ -6,6 +6,8 @@ public class MessControl : ModuleRules
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         PublicDependencyModuleNames.AddRange(new[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "UMG", "Slate", "SlateCore", "PhysicsControl", "PhysicsCore", "NetCore", "ProceduralMeshComponent" });
         PublicDependencyModuleNames.Add("Niagara");
+        PublicDependencyModuleNames.AddRange(new[] { "AIModule", "GameplayTasks" });
+        PrivateDependencyModuleNames.Add("NavigationSystem");
         PrivateDependencyModuleNames.Add("AnimationCore");
         PrivateDependencyModuleNames.Add("Chaos");
         PrivateDependencyModuleNames.Add("ChaosCore");

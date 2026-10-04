@@ -107,6 +107,8 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Active Ragdoll — мягкий"),TEXT("Как в ролике: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Для всех текущих игроков."),EMCDevAction::ActiveRagdoll,1);
     AddAction(Actions,TEXT("Active Ragdoll — упругий"),TEXT("Сравни более сильные мышцы при поворотах, прыжках и ударах. Точные контакты сохраняются."),EMCDevAction::ActiveRagdoll,2);
     AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Возвращает текущую систему анимаций без перезапуска. Эксперимент по умолчанию выключен."),EMCDevAction::ActiveRagdoll,0);
+    AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. Подойди к сундуку, затем выбери один из трёх перков одного знака."),EMCDevAction::RewardChest);
+    AddAction(Actions,TEXT("Босс — активировать Zombie"),TEXT("Запускает размещённого босса: поиск, NavMesh, предупреждение перед ударом, атака и восстановление."),EMCDevAction::BossPractice);
     AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
     AddAction(Actions,TEXT("Перец — таймер и красная волна"),TEXT("Настоящий предмет из таблицы. Проглоти до детонации; от волны можно перепрыгнуть."),EMCDevAction::SpicyPepper);
     AddAction(Actions,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);

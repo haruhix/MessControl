@@ -1,5 +1,6 @@
 #include "MCDayDirector.h"
 #include "MCGameState.h"
+#include "MCGameMode.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
@@ -150,6 +151,12 @@ void AMCDayDirector::Next(bool bFailed)
     if (!HasAuthority() || !Settings) return;
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if (!GS || GS->bDayOneComplete || !Settings->Steps.IsValidIndex(GS->StepIndex)) return;
     if (bFailed) { ++GS->FailedEvents; GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-Settings->Steps[GS->StepIndex].FailureDamage); }
+    else if (Settings->Steps[GS->StepIndex].Step!=EMCDayStep::BreakfastRain
+        && Settings->Steps[GS->StepIndex].Step!=EMCDayStep::Complete)
+    {
+        if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>())
+            Mode->NotifyObjectiveCompleted(FName(*FString::Printf(TEXT("DayStep_%d_%d"),GS->Day,GS->StepIndex)));
+    }
     GS->PreviousStepFailed=bFailed;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) It->NotifyTaskFeedback(!bFailed);
     if (Flood) Flood->Stop();
