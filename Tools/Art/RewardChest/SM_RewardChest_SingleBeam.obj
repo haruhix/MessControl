@@ -1,0 +1,9 @@
+# Reward chest presentation mesh; Unreal units are centimeters.
+o SM_RewardChest_SingleBeam
+v -105.000000 0.000000 10.000000
+v 105.000000 0.000000 10.000000
+v 0.000000 0.000000 420.000000
+vt 0.000000 0.000000
+vt 1.000000 0.000000
+vt 0.500000 1.000000
+f 1/1 2/2 3/3
