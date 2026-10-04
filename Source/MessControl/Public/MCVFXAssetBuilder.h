@@ -11,6 +11,8 @@ class MESSCONTROL_API UMCVFXAssetBuilder : public UBlueprintFunctionLibrary
 public:
     /** Creates the editable foam asset once; re-running preserves artist edits. */
     UFUNCTION(BlueprintCallable,Category="MessControl|Editor") static UNiagaraSystem* CreateBrushFoam();
+    /** Explicitly applies the contact foam and bubble presentation; ordinary creation preserves artist edits. */
+    UFUNCTION(BlueprintCallable,Category="MessControl|Editor") static UNiagaraSystem* RefineBrushFoam();
     UFUNCTION(BlueprintCallable,Category="MessControl|Editor") static UNiagaraSystem* CreateIceShatter();
     UFUNCTION(BlueprintCallable,Category="MessControl|Editor") static UNiagaraSystem* CreateSprayMist();
     /** Creates ambient motes with editable Niagara user parameters; preserves an existing asset. */

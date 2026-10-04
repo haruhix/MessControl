@@ -11,6 +11,8 @@
 #include "Stateless/Modules/NiagaraStatelessModule_MeshIndex.h"
 #include "Stateless/Modules/NiagaraStatelessModule_CurlNoiseForce.h"
 #include "Stateless/Modules/NiagaraStatelessModule_Drag.h"
+#include "Stateless/Modules/NiagaraStatelessModule_ScaleColor.h"
+#include "Stateless/Modules/NiagaraStatelessModule_DynamicMaterialParameters.h"
 #include "NiagaraMeshRendererProperties.h"
 #include "NiagaraSpriteRendererProperties.h"
 #include "Materials/Material.h"
@@ -159,6 +161,116 @@ UNiagaraSystem* UMCVFXAssetBuilder::CreateBrushFoam()
 #endif
 }
 
+UNiagaraSystem* UMCVFXAssetBuilder::RefineBrushFoam()
+{
+#if WITH_EDITOR
+    auto* System=CreateBrushFoam();
+    auto* FoamMaterial=LoadObject<UMaterial>(nullptr,TEXT("/Game/Gameplay/Care/M_BrushFoam.M_BrushFoam"));
+    auto* BubbleMaterial=LoadObject<UMaterial>(nullptr,TEXT("/Game/Gameplay/Care/M_BrushBubble.M_BrushBubble"));
+    if(!System || !FoamMaterial || !BubbleMaterial || System->GetNumEmitters()<1 || System->GetNumEmitters()>2) return nullptr;
+    // Preserve other artist emitters rather than silently deleting them.
+    for(int32 I=0;I<System->GetNumEmitters();++I) {
+        const auto& Handle=System->GetEmitterHandle(I);
+        if(!Handle.GetStatelessEmitter() || (Handle.GetName()!=TEXT("ContactFoam") && Handle.GetName()!=TEXT("FloatingBubbles"))) return nullptr;
+    }
+    if(System->GetNumEmitters()==1) {
+        // DuplicateEmitterHandle grows the handle array, then reads its argument again.
+        const FNiagaraEmitterHandle Source=System->GetEmitterHandle(0);
+        System->DuplicateEmitterHandle(Source,TEXT("FloatingBubbles"));
+        System->GetEmitterHandle(1).SetName(TEXT("FloatingBubbles"),*System);
+    }
+    System->Modify();
+    for(int32 I=0;I<System->GetNumEmitters();++I) {
+        auto& Handle=System->GetEmitterHandle(I);
+        const bool Bubbles=Handle.GetName()==TEXT("FloatingBubbles");
+        auto* Emitter=Handle.GetStatelessEmitter();
+        auto* Init=Cast<UNiagaraStatelessModule_InitializeParticle>(Emitter->GetModule(UNiagaraStatelessModule_InitializeParticle::StaticClass()));
+        auto* Shape=Cast<UNiagaraStatelessModule_ShapeLocation>(Emitter->GetModule(UNiagaraStatelessModule_ShapeLocation::StaticClass()));
+        auto* Velocity=Cast<UNiagaraStatelessModule_AddVelocity>(Emitter->GetModule(UNiagaraStatelessModule_AddVelocity::StaticClass()));
+        auto* SpriteScale=Cast<UNiagaraStatelessModule_ScaleSpriteSize>(Emitter->GetModule(UNiagaraStatelessModule_ScaleSpriteSize::StaticClass()));
+        auto* ColorScale=Cast<UNiagaraStatelessModule_ScaleColor>(Emitter->GetModule(UNiagaraStatelessModule_ScaleColor::StaticClass()));
+        auto* Dynamic=Cast<UNiagaraStatelessModule_DynamicMaterialParameters>(Emitter->GetModule(UNiagaraStatelessModule_DynamicMaterialParameters::StaticClass()));
+        if(!Init || !Shape || !Velocity || !SpriteScale || !ColorScale || !Dynamic) return nullptr;
+        Emitter->Modify();
+        Handle.SetIsEnabled(true,*System,false);
+        if(!Emitter->GetNumSpawnInfos()) Emitter->AddSpawnInfo();
+        for(int32 SpawnIndex=0;SpawnIndex<Emitter->GetNumSpawnInfos();++SpawnIndex) {
+            auto* Spawn=Emitter->GetSpawnInfoByIndex(SpawnIndex);
+            Spawn->bEnabled=SpawnIndex==0; Spawn->Type=ENiagaraStatelessSpawnInfoType::Rate;
+            Spawn->Rate=FNiagaraDistributionRangeFloat(Bubbles?18.f:48.f);
+            Spawn->bLoopCountLimitEnabled=false; Spawn->bSpawnProbabilityEnabled=false;
+        }
+        Init->LifetimeDistribution=Bubbles?FNiagaraDistributionRangeFloat(.55f,.95f):FNiagaraDistributionRangeFloat(.35f,.55f);
+        const float MinimumSize=Bubbles?5.f:4.f,MaximumSize=Bubbles?9.f:8.f;
+        Init->SpriteSizeDistribution.InitConstant(FVector2f(MinimumSize));
+        Init->SpriteSizeDistribution.Mode=ENiagaraDistributionMode::UniformRange;
+        Init->SpriteSizeDistribution.Min=FVector2f(MinimumSize); Init->SpriteSizeDistribution.Max=FVector2f(MaximumSize);
+        Init->SpriteSizeDistribution.ChannelConstantsAndRanges={MinimumSize,MaximumSize};
+        Init->SpriteRotationDistribution=FNiagaraDistributionRangeFloat(-28.f,28.f);
+        Init->ColorDistribution=FNiagaraDistributionColor(FLinearColor::White);
+        Init->InitialPositionDistribution=FNiagaraDistributionPosition(FVector3f(0,0,Bubbles?5.f:3.f));
+        Shape->SetIsModuleEnabled(true); Shape->ShapePrimitive=ENSM_ShapePrimitive::Plane;
+        Shape->PlaneSize.InitConstant(Bubbles?FVector2f(10,6):FVector2f(14,7));
+        Shape->bPlaneEdgesOnly=false; Shape->CoordinateSpace=ENiagaraCoordinateSpace::Local;
+        Velocity->SetIsModuleEnabled(true); Velocity->VelocityType=ENSM_VelocityType::InCone;
+        Velocity->ConeVelocityDistribution=Bubbles?FNiagaraDistributionRangeFloat(12.f,24.f):FNiagaraDistributionRangeFloat(3.f,9.f);
+        Velocity->ConeAngle=Bubbles?24.f:70.f; Velocity->ConeRotationType=ENSM_ConeRotationType::Direction;
+        Velocity->ConeDirection.InitConstant(FVector3f::ZAxisVector);
+        // Stateless particles remain near the moving contact; world-up velocity
+        // keeps the small rising layer useful on both crowns and the tongue.
+        Velocity->CoordinateSpace=Bubbles?ENiagaraCoordinateSpace::World:ENiagaraCoordinateSpace::Local;
+        for(const auto& Module:Emitter->GetModules()) {
+            if(Module->IsA<UNiagaraStatelessModule_GravityForce>() || Module->IsA<UNiagaraStatelessModule_CurlNoiseForce>()
+                || Module->IsA<UNiagaraStatelessModule_ScaleMeshSize>()) Module->SetIsModuleEnabled(false);
+        }
+        if(auto* Drag=Cast<UNiagaraStatelessModule_Drag>(Emitter->GetModule(UNiagaraStatelessModule_Drag::StaticClass()))) {
+            Drag->SetIsModuleEnabled(true); Drag->DragDistribution=FNiagaraDistributionRangeFloat(Bubbles?.18f:.6f);
+        }
+        SpriteScale->SetIsModuleEnabled(true);
+        auto& SizeCurve=SpriteScale->ScaleDistribution;
+        SizeCurve.Mode=ENiagaraDistributionMode::UniformCurve; SizeCurve.ChannelCurves.SetNum(1);
+        SizeCurve.ChannelCurves[0].Reset();
+        SizeCurve.ChannelCurves[0].AddKey(0,.55f); SizeCurve.ChannelCurves[0].AddKey(.2f,.95f);
+        SizeCurve.ChannelCurves[0].AddKey(.7f,Bubbles?1.12f:1.f); SizeCurve.ChannelCurves[0].AddKey(1,Bubbles?1.3f:.65f);
+        SizeCurve.UpdateValuesFromDistribution();
+        ColorScale->SetIsModuleEnabled(true);
+        auto& Fade=ColorScale->ScaleDistribution;
+        Fade.Mode=ENiagaraDistributionMode::NonUniformCurve; Fade.ChannelCurves.SetNum(4);
+        for(int32 Channel=0;Channel<4;++Channel) {
+            Fade.ChannelCurves[Channel].Reset();
+            Fade.ChannelCurves[Channel].AddKey(0,Channel==3?0.f:1.f);
+            Fade.ChannelCurves[Channel].AddKey(.1f,1.f); Fade.ChannelCurves[Channel].AddKey(.72f,Channel==3?.92f:1.f);
+            Fade.ChannelCurves[Channel].AddKey(1,Channel==3?0.f:1.f);
+        }
+        Fade.UpdateValuesFromDistribution();
+        // Lightweight templates do not export ParticleRelativeTime. Supply
+        // normalized age explicitly so the saved material fades at every tier.
+        Dynamic->SetIsModuleEnabled(true); Dynamic->bParameter0Enabled=true;
+        Dynamic->bParameter1Enabled=false; Dynamic->bParameter2Enabled=false; Dynamic->bParameter3Enabled=false;
+        Dynamic->Parameter0.bXChannelEnabled=true; Dynamic->Parameter0.bYChannelEnabled=false;
+        Dynamic->Parameter0.bZChannelEnabled=false; Dynamic->Parameter0.bWChannelEnabled=false;
+        Dynamic->Parameter0.XChannelDistribution=FNiagaraDistributionFloat({0.f,1.f});
+        const auto OldRenderers=Emitter->GetRenderers();
+        for(auto* Renderer:OldRenderers) Emitter->RemoveRenderer(Renderer,FGuid());
+        auto* Renderer=NewObject<UNiagaraSpriteRendererProperties>(Emitter,NAME_None,RF_Transactional);
+        Renderer->Material=Bubbles?BubbleMaterial:FoamMaterial;
+        Renderer->FacingMode=ENiagaraSpriteFacingMode::FaceCamera;
+        Renderer->SortMode=ENiagaraSortMode::ViewDepth;
+        Emitter->AddRenderer(Renderer,FGuid()); Emitter->PostEditChange();
+    }
+    System->bFixedBounds=true; System->SetFixedBounds(FBox(FVector(-100),FVector(100)));
+    System->PostEditChange(); System->RequestCompile(true); System->WaitForCompilationComplete(false,false);
+    System->MarkPackageDirty();
+    FSavePackageArgs Save; Save.TopLevelFlags=RF_Public|RF_Standalone; Save.SaveFlags=SAVE_NoError;
+    const FString Filename=FPackageName::LongPackageNameToFilename(System->GetOutermost()->GetName(),FPackageName::GetAssetPackageExtension());
+    if(!UPackage::SavePackage(System->GetOutermost(),System,*Filename,Save)) return nullptr;
+    UE_LOG(LogTemp,Display,TEXT("MC_FOAM_REFINED emitters=%d rate=48+18 maxLive=44 renderers=sprites"),System->GetNumEmitters());
+    return System;
+#else
+    return nullptr;
+#endif
+}
+
 UNiagaraSystem* UMCVFXAssetBuilder::CreateSprayMist()
 {
 #if WITH_EDITOR
@@ -260,20 +372,33 @@ UNiagaraSystem* UMCVFXAssetBuilder::CreateIceShatter()
 #if WITH_EDITOR
     const FString Path=TEXT("/Game/Gameplay/VFX/NS_IceShatter");
     if(FPackageName::DoesPackageExist(Path)) return LoadObject<UNiagaraSystem>(nullptr,*(Path+TEXT(".NS_IceShatter")));
-    auto* Template=CreateBrushFoam(); if(!Template) return nullptr;
+    // Ice must not inherit the saved brush asset's renderer or emitter count.
+    auto* Template=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Niagara/DefaultAssets/Templates/Systems/FountainLightweight.FountainLightweight")); if(!Template) return nullptr;
     auto* Package=CreatePackage(*Path); auto* System=DuplicateObject<UNiagaraSystem>(Template,Package,TEXT("NS_IceShatter"));
     System->SetFlags(RF_Public|RF_Standalone); auto* Emitter=System->GetEmitterHandle(0).GetStatelessEmitter(); if(!Emitter) return nullptr;
     for(int32 I=0;I<Emitter->GetNumSpawnInfos();++I) { auto* Spawn=Emitter->GetSpawnInfoByIndex(I); Spawn->Type=ENiagaraStatelessSpawnInfoType::Burst; Spawn->SpawnTime=0; Spawn->Amount=FNiagaraDistributionRangeInt(40); Spawn->bLoopCountLimitEnabled=true; Spawn->LoopCountLimit=FNiagaraDistributionRangeInt(1); }
     auto* Init=Cast<UNiagaraStatelessModule_InitializeParticle>(Emitter->GetModule(UNiagaraStatelessModule_InitializeParticle::StaticClass()));
     Init->LifetimeDistribution=FNiagaraDistributionRangeFloat(.55f,1.25f); Init->MeshScaleDistribution.InitConstant(FVector3f(.06f,.11f,.035f));
     auto* Velocity=Cast<UNiagaraStatelessModule_AddVelocity>(Emitter->GetModule(UNiagaraStatelessModule_AddVelocity::StaticClass()));
+    Velocity->SetIsModuleEnabled(true); Velocity->VelocityType=ENSM_VelocityType::InCone;
+    Velocity->ConeRotationType=ENSM_ConeRotationType::Direction; Velocity->ConeDirection.InitConstant(FVector3f::ZAxisVector);
+    Velocity->CoordinateSpace=ENiagaraCoordinateSpace::Local;
     Velocity->ConeVelocityDistribution=FNiagaraDistributionRangeFloat(160,430); Velocity->ConeAngle=82;
-    Cast<UNiagaraStatelessModule_GravityForce>(Emitter->GetModule(UNiagaraStatelessModule_GravityForce::StaticClass()))->GravityDistribution.InitConstant(FVector3f(0,0,-600));
-    for(auto* R:Emitter->GetRenderers()) if(auto* Mesh=Cast<UNiagaraMeshRendererProperties>(R)) {
-        Mesh->Meshes[0].Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
-        auto* Mat=LoadObject<UMaterial>(nullptr,TEXT("/Game/Gameplay/Cold/M_StylizedIce.M_StylizedIce")); if(!Mat) return nullptr;
-        Mat->SetMaterialUsage(MATUSAGE_NiagaraMeshParticles); Mat->PostEditChange(); Mesh->OverrideMaterials[0].ExplicitMat=Mat;
-    }
+    auto* Gravity=Cast<UNiagaraStatelessModule_GravityForce>(Emitter->GetModule(UNiagaraStatelessModule_GravityForce::StaticClass()));
+    Gravity->SetIsModuleEnabled(true); Gravity->GravityDistribution.InitConstant(FVector3f(0,0,-600));
+    auto* Shape=Cast<UNiagaraStatelessModule_ShapeLocation>(Emitter->GetModule(UNiagaraStatelessModule_ShapeLocation::StaticClass()));
+    Shape->SetIsModuleEnabled(true); Shape->ShapePrimitive=ENSM_ShapePrimitive::Sphere; Shape->SphereRadius=FNiagaraDistributionRangeFloat(0,10);
+    auto* Scale=Cast<UNiagaraStatelessModule_ScaleMeshSize>(Emitter->GetModule(UNiagaraStatelessModule_ScaleMeshSize::StaticClass()));
+    Scale->SetIsModuleEnabled(true); Scale->ScaleDistribution=FNiagaraDistributionVector3({.35f,1.f,1.f,.8f,0.f});
+    if(auto* SpriteScale=Emitter->GetModule(UNiagaraStatelessModule_ScaleSpriteSize::StaticClass())) SpriteScale->SetIsModuleEnabled(false);
+    const auto OldRenderers=Emitter->GetRenderers(); for(auto* Renderer:OldRenderers) Emitter->RemoveRenderer(Renderer,FGuid());
+    auto* Renderer=NewObject<UNiagaraMeshRendererProperties>(Emitter,NAME_None,RF_Transactional);
+    Renderer->Meshes.Reset(); FNiagaraMeshRendererMeshProperties Cube;
+    Cube.Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")); Renderer->Meshes.Add(Cube);
+    auto* Mat=LoadObject<UMaterial>(nullptr,TEXT("/Game/Gameplay/Cold/M_StylizedIce.M_StylizedIce")); if(!Mat) return nullptr;
+    Mat->SetMaterialUsage(MATUSAGE_NiagaraMeshParticles); Mat->PostEditChange();
+    Renderer->bOverrideMaterials=true; FNiagaraMeshMaterialOverride IceMaterial; IceMaterial.ExplicitMat=Mat;
+    Renderer->OverrideMaterials.Add(IceMaterial); Emitter->AddRenderer(Renderer,FGuid());
     Emitter->PostEditChange(); System->PostEditChange(); System->RequestCompile(true); System->WaitForCompilationComplete(false,false);
     FAssetRegistryModule::AssetCreated(System); System->MarkPackageDirty(); FSavePackageArgs Save; Save.TopLevelFlags=RF_Public|RF_Standalone;
     if(!UPackage::SavePackage(Package,System,*FPackageName::LongPackageNameToFilename(Path,FPackageName::GetAssetPackageExtension()),Save)) return nullptr;

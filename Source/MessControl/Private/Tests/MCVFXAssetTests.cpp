@@ -1,6 +1,5 @@
 #if WITH_EDITOR && WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
-#include "MCBrushContactComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraMeshRendererProperties.h"
 #include "Stateless/NiagaraStatelessEmitter.h"
@@ -11,7 +10,6 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCVFXMeshSlotsTest,"MessControl.VFX.SavedParti
 bool FMCVFXMeshSlotsTest::RunTest(const FString&)
 {
     const TArray<TSoftObjectPtr<UNiagaraSystem>> Assets={
-        GetDefault<UMCBrushContactComponent>()->FoamSystem,
         TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_SprayMist.NS_SprayMist"))),
         TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NS_IceShatter.NS_IceShatter")))
     };
