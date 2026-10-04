@@ -20,6 +20,12 @@ void AMCArenaTooth::BuildGrimeRelief()
     GrimeSamples.Reset();
     const FTransform Transform=Visual->GetComponentTransform();
     const FBoxSphereBounds Bounds=Visual->GetStaticMesh()->GetBounds();
+    auto HalfSpan=[&](FVector Axis) {
+        return FMath::Abs(FVector::DotProduct(Transform.TransformVector(FVector(Bounds.BoxExtent.X,0,0)),Axis))
+            +FMath::Abs(FVector::DotProduct(Transform.TransformVector(FVector(0,Bounds.BoxExtent.Y,0)),Axis))
+            +FMath::Abs(FVector::DotProduct(Transform.TransformVector(FVector(0,0,Bounds.BoxExtent.Z)),Axis));
+    };
+    const float ToothHeight=2*HalfSpan(FVector::UpVector);
     FRandomStream Random(State.ToothId*193+71);
     TArray<FVector> Vertices,Normals; TArray<int32> Triangles; TArray<FVector2D> UV;
     TArray<FLinearColor> Colors; TArray<FProcMeshTangent> Tangents;
@@ -45,11 +51,11 @@ void AMCArenaTooth::BuildGrimeRelief()
         const float H=FMath::Clamp(.5f+.5f*(B-A)/K,0.f,1.f);
         return FMath::Lerp(B,A,H)-K*H*(1-H);
     };
-    // Two continuous coatings projected onto the actual artist mesh. A shallow
-    // meniscus and rounded clumps catch light; no floating balls or extra collision.
+    // Two projection windows share the existing mesh budget. Each contains broad,
+    // irregular islands scaled to this crown, with detail still authored in cm.
     for (int32 Patch=0;Patch<2;++Patch)
     {
-        const float Angle=Side*(Patch==0?-.30f:.43f)+Random.FRandRange(-.10f,.10f);
+        const float Angle=Side*(Patch==0?-.22f:.30f)+Random.FRandRange(-.08f,.08f);
         const FVector Radial=Inward.RotateAngleAxis(FMath::RadiansToDegrees(Angle),FVector::UpVector);
         FVector Aim=Bounds.Origin;
         Aim.Z=Bounds.Origin.Z+Bounds.BoxExtent.Z*((Patch==0?.61f:.43f)*2-1);
@@ -57,7 +63,8 @@ void AMCArenaTooth::BuildGrimeRelief()
         if(Tongue) {
             FVector Floor;
             if(Tongue->RestSurfacePoint(WorldAim+Inward*75,Floor)) {
-                WorldAim.Z=FMath::Min(Visual->Bounds.GetBox().Max.Z-12,FMath::Max(WorldAim.Z,Floor.Z+(Patch==0?65:45)));
+                WorldAim.Z=FMath::Min(Visual->Bounds.GetBox().Max.Z-12,
+                    FMath::Clamp(WorldAim.Z,Floor.Z+(Patch==0?90:52),Floor.Z+(Patch==0?110:65)));
             }
         }
         FHitResult CenterHit;
@@ -65,8 +72,8 @@ void AMCArenaTooth::BuildGrimeRelief()
         FVector N=CenterHit.ImpactNormal.GetSafeNormal();
         FVector Y=FVector::VectorPlaneProject(FVector::UpVector,N).GetSafeNormal();
         FVector X=FVector::CrossProduct(Y,N).GetSafeNormal();
-        const float Width=(Patch==0?54.f:42.f)*Random.FRandRange(.85f,1.12f);
-        const float Height=(Patch==0?78.f:30.f)*Random.FRandRange(.90f,1.1f);
+        const float Width=FMath::Clamp(float(HalfSpan(X))*.42f,60.f,96.f)*(Patch==0?1.f:.9f)*Random.FRandRange(.93f,1.06f);
+        const float Height=FMath::Clamp(ToothHeight*(Patch==0?.12f:.095f),34.f,58.f)*Random.FRandRange(.95f,1.05f);
         // A horizontal room sweep can run underneath the permanent gum ridge.
         // Cache floor heights across the coating and the approach footprint;
         // never scan the tongue triangles again for individual coating vertices.
@@ -94,10 +101,12 @@ void AMCArenaTooth::BuildGrimeRelief()
         };
         float FloorZ=CacheFloor();
         // An approach sample can reveal a higher floor than the initial aim.
-        // Move the whole patch above it, then cache its new footprint once.
+        // Keep both windows above it and within the lower reachable face, then
+        // cache their adjusted footprint once rather than scanning per vertex.
         if(FloorZ> -MAX_flt) {
-            const float RaisedZ=FMath::Min(Visual->Bounds.GetBox().Max.Z-12,FMath::Max(WorldAim.Z,double(FloorZ+(Patch==0?65:45))));
-            if(RaisedZ>WorldAim.Z+UE_SMALL_NUMBER) {
+            const float RaisedZ=FMath::Min(Visual->Bounds.GetBox().Max.Z-12,
+                FMath::Clamp(WorldAim.Z,double(FloorZ+(Patch==0?90:52)),double(FloorZ+(Patch==0?110:65))));
+            if(FMath::Abs(RaisedZ-WorldAim.Z)>UE_SMALL_NUMBER) {
                 const FVector RaisedAim(WorldAim.X,WorldAim.Y,RaisedZ);
                 FHitResult RaisedHit;
                 if(BrushSurface->LineTraceComponent(RaisedHit,RaisedAim+Radial*600,RaisedAim-Radial*300,Query)) {
@@ -111,43 +120,48 @@ void AMCArenaTooth::BuildGrimeRelief()
         }
         constexpr int32 Columns=96,SampleStride=4;
         const int32 Rows=Patch==0?192:80,Base=Vertices.Num();
-        struct FLobe { FVector2D Center,Radius; };
+        struct FLobe { FVector2D Center,Radius,Rotation; };
         TArray<FLobe> Lobes;
-        for (int32 L=0;L<11;++L)
+        for (int32 L=0;L<3;++L)
         {
-            const float V=-.72f+L*.144f+Random.FRandRange(-.045f,.045f);
-            const float U=Random.FRandRange(-.30f,.30f),R=Width*Random.FRandRange(.17f,.34f);
-            // Author these lobes in centimetres: normalized UV radii flattened
-            // the short gumline patch into a stack of horizontal pancakes.
-            Lobes.Add({FVector2D(U,V),FVector2D(R/Width,R*Random.FRandRange(.85f,1.15f)/Height)});
+            const FVector2D Center=L==0?FVector2D(-.26,.16):L==1?FVector2D(.28,-.08):FVector2D(-.02,-.55);
+            const float Size=L==2?.38f:1.f;
+            const FVector2D Position((Center.X+Random.FRandRange(-.04f,.04f))*Width,(Center.Y+Random.FRandRange(-.06f,.06f))*Height);
+            const FVector2D Radius(Width*Size*Random.FRandRange(.36f,.40f),Height*Size*Random.FRandRange(.46f,.54f));
+            const float LobeAngle=Random.FRandRange(-.35f,.35f);
+            Lobes.Add({Position,Radius,FVector2D(FMath::Cos(LobeAngle),FMath::Sin(LobeAngle))});
         }
         struct FClump { FVector2D Center; float Radius,Height; };
         TArray<FClump> Clumps;
         for(int32 I=0;I<32;++I)
-            Clumps.Add({FVector2D(Random.FRandRange(-Width*.42f,Width*.42f),Random.FRandRange(-Height*.78f,Height*.78f)),
+            Clumps.Add({FVector2D(Random.FRandRange(-Width*.85f,Width*.85f),Random.FRandRange(-Height*.78f,Height*.78f)),
                 float(Random.FRandRange(3.f,8.f)),float(Random.FRandRange(.8f,2.8f))});
         TArray<FVector> WorldPoints; TArray<bool> Valid; TArray<FGrimeSample> Candidates;
         for (int32 R=0;R<=Rows;++R) for (int32 C=0;C<=Columns;++C)
         {
             const FVector2D Q(double(C)/Columns*2-1,double(R)/Rows*2-1);
-            const float Bend=.09f*FMath::Sin(Q.Y*7+State.ToothId);
-            float D=(FVector2D((Q.X-Bend)/.21f,Q.Y/.82f).Size()-1)*.21f;
+            const FVector2D PatchPoint(Q.X*Width,Q.Y*Height);
+            float D=MAX_flt;
             for (const auto& L:Lobes)
             {
-                const float E=((Q-L.Center)/L.Radius).Size()-1;
-                D=SmoothUnion(D,E*FMath::Min(L.Radius.X,L.Radius.Y),.055f);
+                const FVector2D Delta=PatchPoint-L.Center;
+                const FVector2D Rotated(Delta.X*L.Rotation.X-Delta.Y*L.Rotation.Y,Delta.X*L.Rotation.Y+Delta.Y*L.Rotation.X);
+                const float E=(Rotated/L.Radius).Size()-1;
+                D=SmoothUnion(D,E*FMath::Min(L.Radius.X,L.Radius.Y),2.5f);
             }
-            D+=.011f*FMath::Sin(Q.X*34+Q.Y*13)*FMath::Sin(Q.Y*28+State.ToothId);
-            float Coverage=1-FMath::SmoothStep(-.020f,.018f,D);
+            D+=3.f*FMath::PerlinNoise2D(PatchPoint*.065f+FVector2D(State.ToothId*11,Patch*19))
+                +.65f*FMath::Sin(PatchPoint.X*.5f+PatchPoint.Y*.19f)*FMath::Sin(PatchPoint.Y*.47f+State.ToothId);
+            float Coverage=1-FMath::SmoothStep(-1.5f,1.5f,D);
             const FVector Plane=CenterHit.ImpactPoint+X*(Q.X*Width)+Y*(Q.Y*Height);
             FHitResult Hit;
-            bool bHit=D<.18f && BrushSurface->LineTraceComponent(Hit,Plane+N*150,Plane-N*210,Query)
+            bool bHit=D<8.f && BrushSurface->LineTraceComponent(Hit,Plane+N*150,Plane-N*210,Query)
                 && FVector::DotProduct(Hit.ImpactNormal,N)>.22f;
             if(bHit) {
                 // Leave space for the whole brush head above the tongue/gum,
                 // and keep the coating on the face visible from the mouth.
                 Coverage*=FMath::SmoothStep(FloorZ+22,FloorZ+38,float(Hit.ImpactPoint.Z))
                     *FMath::SmoothStep(.45f,.70f,float(FVector::DotProduct(Hit.ImpactNormal,Inward)));
+                if(FloorZ> -MAX_flt) Coverage*=1-FMath::SmoothStep(FloorZ+160,FloorZ+180,float(Hit.ImpactPoint.Z));
                 const FVector Start=Hit.ImpactPoint+Hit.ImpactNormal*12,End=Start+Inward*65;
                 FHitResult Obstacle;
                 bool Blocked=GetWorld()->SweepSingleByObjectType(Obstacle,Start,End,FQuat::Identity,StaticObjects,FCollisionShape::MakeSphere(8),Room);
@@ -163,8 +177,7 @@ void AMCArenaTooth::BuildGrimeRelief()
                 bHit=!Blocked;
                 if(!bHit) Coverage=0;
             }
-            const float Interior=FMath::Pow(FMath::Clamp(-D*8,0.f,1.f),.65f);
-            const FVector2D PatchPoint(Q.X*Width,Q.Y*Height);
+            const float Interior=FMath::Pow(FMath::Clamp(-D/8.f,0.f,1.f),.65f);
             const float Grain=FMath::Clamp(.5f+.5f*FMath::PerlinNoise2D(PatchPoint*.19f+FVector2D(State.ToothId*17,Patch*31)),0.f,1.f);
             float ClumpDepth=0;
             for(const auto& Clump:Clumps) {
