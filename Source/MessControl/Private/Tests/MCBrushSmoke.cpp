@@ -74,7 +74,7 @@ void MCTickBrushValidation(UWorld* World)
             Tooth->GetActorLocation()-Inward*200,SurfaceQuery)) Approach=Face.ImpactPoint;
         FCollisionQueryParams Room(SCENE_QUERY_STAT(MCBrushFixtureRoom),false,Hero);
         bool Found=false; FVector Contact,Normal;
-        Hero->GetCharacterMovement()->StopMovementImmediately(); Hero->GetCharacterMovement()->DisableMovement();
+        Hero->GetCharacterMovement()->StopMovementImmediately(); Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
         // A rotated crown's AABB can put the old fixture beyond brush reach.
         // Approach the actual enamel, keeping the whole capsule outside blockers.
         for(float Gap: {65.f,80.f,100.f,120.f}) {
