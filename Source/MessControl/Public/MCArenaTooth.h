@@ -13,6 +13,7 @@ class UMaterialInterface;
 class UMCToothStatusComponent;
 class USoundBase;
 class USoundAttenuation;
+class UMCToothCalculusComponent;
 
 USTRUCT()
 struct FMCArenaToothAppearance
@@ -40,6 +41,9 @@ struct MESSCONTROL_API FMCArenaToothSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Piano") bool bPianoEnabled=true;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Piano", meta=(ClampMin="0",ClampMax="25",Units="cm")) float PianoPressDepth=10;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Piano", meta=(ClampMin="0.15",ClampMax="1",Units="s")) float PianoPressSeconds=0.36f;
+    // Zero disables initial deposits; authored teeth share a small, deterministic budget.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Calculus", meta=(ClampMin="0",ClampMax="28")) int32 InitialCalculusEveryNthTooth=6;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Calculus", meta=(ClampMin="1",ClampMax="6")) int32 InitialCalculusPatchCount=2;
     void Sanitize();
 };
 
@@ -118,6 +122,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> BrushSurface;
     UPROPERTY(VisibleAnywhere) TObjectPtr<class UProceduralMeshComponent> GrimeRelief;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothCalculusComponent> Calculus;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UTextRenderComponent> Label;
 private:
     UFUNCTION() void OnRep_Piano();
@@ -148,4 +153,6 @@ private:
     FVector MeshBaseScale=FVector::OneVector;
     double LastPhysicsHit=-100;
     bool bFallStarted=false;
+    bool bInitialCalculusSeeded=false;
+    void SeedInitialCalculus();
 };

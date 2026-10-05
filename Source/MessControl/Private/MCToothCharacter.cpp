@@ -11,6 +11,7 @@
 #include "MCPlayerCameraComponent.h"
 #include "MCPlayerNameComponent.h"
 #include "MCArenaTooth.h"
+#include "MCToothCalculusComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCGameMode.h"
@@ -663,7 +664,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     const float Bob = bAir ? 0.f : (FMath::Abs(FMath::Sin(Gait))-.5f)*A.Bob*Speed*(1-.5f*AnimationSticky) + FMath::Sin(Time*2.f)*0.7f;
     const float Pitch = Speed*A.Lean + Anticipation*15.f + (bHandling && !HeldFood && !Grip->GrabbedPlayer && AnimationClimb<.05f ? FMath::Sin(Time*13.f)*7.f : 0.f);
-    const float AttackTime=Time-SwingStartedAt;
+    const float AttackTime=GetToolSwingElapsed();
     AnimationToolOffset=GetActorRotation().RotateVector(UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime));
     const float AttackAngle=UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
     const float Swing = AttackTime<Inventory->SwingDuration()?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
@@ -687,22 +688,89 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
     const float Now=GetWorld()->GetTimeSeconds();
     if (!CanWork() || Now<NextSwingTime) return;
     if(Inventory->Selected==EMCToolSlot::Spray) { Inventory->ServerSpray(); return; }
+    FVector Point=FVector::ZeroVector,Normal=FVector::UpVector;
+    CalculusTarget=Inventory->Selected==EMCToolSlot::Pickaxe?FindCalculusTarget(Point,Normal):nullptr;
+    CalculusContactLocal=CalculusTarget?CalculusTarget->Visual->GetComponentTransform().InverseTransformPosition(Point):FVector::ZeroVector;
+    const FTransform Surface=CalculusTarget?CalculusTarget->Visual->GetComponentTransform():FTransform::Identity;
+    CalculusNormalLocal=CalculusTarget?(Surface.InverseTransformVectorNoScale(Normal)*Surface.GetScale3D()).GetSafeNormal():FVector::UpVector;
+    const auto* GS=GetWorld()->GetGameState();
+    SwingStartedAt=GS?GS->GetServerWorldTimeSeconds():Now;
     NextSwingTime=Now+Inventory->SwingDuration(); ++ValidatedSwingCount;
-    bBrushing=false; bHandling=false; DropFood(); ForceNetUpdate(); MulticastSwing();
+    bBrushing=false; bHandling=false; DropFood(); ForceNetUpdate();
+    MulticastSwing(SwingStartedAt,CalculusTarget,CalculusContactLocal,CalculusNormalLocal);
     ResetContact();
     SwingContactEndsAt=Now+Inventory->SwingContactTime()+.12f;
     GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,Inventory->SwingContactTime(),false);
 }
-void AMCToothCharacter::MulticastSwing_Implementation()
+void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal)
 {
-    SwingStartedAt=GetWorld()->GetTimeSeconds();
+    SwingStartedAt=StartedAt; CalculusTarget=AimTooth; CalculusContactLocal=LocalPoint; CalculusNormalLocal=LocalNormal;
     if (SoundPalette) SoundPalette->Play(this,TEXT("Whoosh"),GetActorLocation());
 }
 void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location) { if (SoundPalette) SoundPalette->Play(this,TEXT("Hit"),Location); }
+float AMCToothCharacter::GetToolSwingElapsed() const
+{
+    const auto* GS=GetWorld()?GetWorld()->GetGameState():nullptr;
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()?GetWorld()->GetTimeSeconds():0;
+    return float(Now-SwingStartedAt);
+}
+bool AMCToothCharacter::GetCalculusSwingContact(FVector& Point,FVector& Normal) const
+{
+    const float Elapsed=GetToolSwingElapsed();
+    if(!Inventory || Inventory->Selected!=EMCToolSlot::Pickaxe || !CanWork() || bInCoffee
+        || !IsValid(CalculusTarget) || !CalculusTarget->IsAvailable() || !CalculusTarget->Visual
+        || Elapsed<0 || Elapsed>=Inventory->SwingDuration()) return false;
+    const FTransform Surface=CalculusTarget->Visual->GetComponentTransform();
+    Point=Surface.TransformPosition(CalculusContactLocal);
+    const FVector Scale=Surface.GetScale3D().GetAbs().ComponentMax(FVector(.001f));
+    Normal=Surface.TransformVectorNoScale(CalculusNormalLocal/Scale).GetSafeNormal();
+    return !Point.ContainsNaN() && !Normal.IsNearlyZero();
+}
+bool AMCToothCharacter::WantsCalculusFacing(FVector& Direction) const
+{
+    FVector Point,Normal;
+    if(!BrushContact || !GetCalculusSwingContact(Point,Normal)
+        || !BrushContact->CanAcquireSurface(CalculusTarget) || !BrushContact->CanBrushToward(Point)) return false;
+    Direction=(Point-GetActorLocation()).GetSafeNormal2D();
+    return !Direction.IsNearlyZero();
+}
+AMCArenaTooth* AMCToothCharacter::FindCalculusTarget(FVector& Point,FVector& Normal) const
+{
+    if(!Inventory || Inventory->Selected!=EMCToolSlot::Pickaxe || !CanWork() || bInCoffee
+        || bSelfCare || HeldFood || !BrushContact) return nullptr;
+    auto Eligible=[&](AMCArenaTooth* Tooth,FVector& P,FVector& N) {
+        return IsValid(Tooth) && Tooth->IsAvailable() && Tooth->Calculus
+            && Tooth->Calculus->HasCalculus() && BrushContact->CanAcquireSurface(Tooth)
+            && Tooth->Calculus->FindContact(const_cast<AMCToothCharacter*>(this),P,N)
+            && BrushContact->CanBrushToward(P);
+    };
+    // Match cleaning: retain the acquired crown while held and reachable.
+    if(Eligible(CalculusTarget,Point,Normal)) return CalculusTarget;
+    AMCArenaTooth* Best=nullptr; float Distance=MAX_flt;
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) {
+        FVector P,N;
+        if(!Eligible(*It,P,N)) continue;
+        const float D=FVector::DistSquared(P,GetActorLocation());
+        if(D<Distance) {Best=*It;Distance=D;Point=P;Normal=N;}
+    }
+    return Best;
+}
 void AMCToothCharacter::ResolveSwing()
 {
     if (!HasAuthority() || !CanWork() || Inventory->Selected==EMCToolSlot::Spray) return;
     if(Inventory->Selected==EMCToolSlot::Pickaxe) {
+        // An aimed swing never falls through to the tooth or a player if
+        // another worker already broke its patch during the wind-up.
+        if(CalculusTarget) {
+            FVector Point,Normal,EligiblePoint,EligibleNormal;
+            if(GetCalculusSwingContact(Point,Normal) && CalculusTarget->Calculus
+                && CalculusTarget->Calculus->FindContact(this,EligiblePoint,EligibleNormal)
+                && CalculusTarget->Calculus->ApplyPickaxeHit(this,Point,Normal,Inventory->Damage())) {
+                ++ConfirmedHitCount; MulticastHitSound(Point);
+                if(!CalculusTarget->Calculus->HasCalculus()) NotifyTaskFeedback(true,Point);
+            }
+            return;
+        }
         AMCIceBlock* BestIce=nullptr; float Distance=FMath::Square(180.f);
         for(TActorIterator<AMCIceBlock> It(GetWorld());It;++It) {
             const FVector D=It->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();
@@ -826,6 +894,8 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCToothCharacter,bBrushing); DOREPLIFETIME(AMCToothCharacter,bHandling);
     DOREPLIFETIME(AMCToothCharacter,bPrimaryHeld);
+    DOREPLIFETIME(AMCToothCharacter,CalculusTarget); DOREPLIFETIME(AMCToothCharacter,CalculusContactLocal);
+    DOREPLIFETIME(AMCToothCharacter,CalculusNormalLocal); DOREPLIFETIME(AMCToothCharacter,SwingStartedAt);
     DOREPLIFETIME(AMCToothCharacter,BagColor);
     DOREPLIFETIME(AMCToothCharacter,bSelfCare); DOREPLIFETIME(AMCToothCharacter,CareTarget); DOREPLIFETIME(AMCToothCharacter,ContactProgress);
     DOREPLIFETIME(AMCToothCharacter,HeldFood); DOREPLIFETIME(AMCToothCharacter,RespawnAt); DOREPLIFETIME(AMCToothCharacter,RespawnSourceId);

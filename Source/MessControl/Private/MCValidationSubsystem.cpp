@@ -46,12 +46,14 @@ void MCTickCameraSteadyValidation(UWorld* World);
 void MCTickDashSuctionValidation(UWorld* World);
 void MCTickPlayerNameValidation(UWorld* World);
 void MCTickToothPianoValidation(UWorld* World);
+void MCTickCalculusValidation(UWorld* World);
 #endif
 
 void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
     if (FParse::Param(FCommandLine::Get(),TEXT("MCSwimTest"))) { TickSwim(DeltaSeconds); return; }
 #if !UE_BUILD_SHIPPING
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCCalculusTest"))) { MCTickCalculusValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCToothPianoTest"))) { MCTickToothPianoValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCPlayerNameTest"))) { MCTickPlayerNameValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCDashSuctionTest"))) { MCTickApprovalRecorder(GetWorld()); MCTickDashSuctionValidation(GetWorld()); return; }

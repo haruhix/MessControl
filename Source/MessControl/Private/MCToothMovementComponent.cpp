@@ -383,7 +383,7 @@ FRotator UMCToothMovementComponent::ComputeOrientToMovementRotation(const FRotat
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     FRotator Desired=Super::ComputeOrientToMovementRotation(Current,Dt,Delta);
     FVector BrushDirection;
-    if(Hero && Hero->BrushContact && Hero->BrushContact->WantsFacing(BrushDirection))
+    if(Hero && ((Hero->BrushContact && Hero->BrushContact->WantsFacing(BrushDirection)) || Hero->WantsCalculusFacing(BrushDirection)))
         return FRotator(0,BrushDirection.Rotation().Yaw,0);
     if (HasHeavyGrip() && Acceleration.SizeSquared2D()>1)
     {

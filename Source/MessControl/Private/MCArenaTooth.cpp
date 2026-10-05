@@ -1,5 +1,6 @@
 #include "MCArenaTooth.h"
 #include "MCToothStatusComponent.h"
+#include "MCToothCalculusComponent.h"
 #include "MCFoodActor.h"
 #include "MCToothCharacter.h"
 #include "MCGameState.h"
@@ -25,6 +26,8 @@ void FMCArenaToothSettings::Sanitize()
     WobbleDegrees=Safe(WobbleDegrees,12,0,25); ReactionSeconds=Safe(ReactionSeconds,0.8f,0.2f,3);
     FallAnticipation=Safe(FallAnticipation,0.25f,0,1); FallLift=Safe(FallLift,310,0,1000); FallSpeed=Safe(FallSpeed,220,0,1000);
     PianoPressDepth=Safe(PianoPressDepth,10,0,25); PianoPressSeconds=Safe(PianoPressSeconds,0.36f,0.15f,1);
+    InitialCalculusEveryNthTooth=FMath::Clamp(InitialCalculusEveryNthTooth,0,28);
+    InitialCalculusPatchCount=FMath::Clamp(InitialCalculusPatchCount,1,6);
 }
 AMCArenaTooth::AMCArenaTooth()
 {
@@ -45,6 +48,7 @@ AMCArenaTooth::AMCArenaTooth()
     GrimeRelief=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("GrimeClumps")); GrimeRelief->SetupAttachment(Visual);
     GrimeRelief->SetCollisionEnabled(ECollisionEnabled::NoCollision); GrimeRelief->SetCastShadow(false);
     GrimeRelief->SetCanEverAffectNavigation(false);
+    Calculus=CreateDefaultSubobject<UMCToothCalculusComponent>(TEXT("DentalCalculus"));
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Art/Meshes/SM_ToothProp"));
     if (Mesh.Succeeded()) { Visual->SetStaticMesh(Mesh.Object); Appearance.Mesh=Mesh.Object; }
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("ToothIdentity")); Label->SetupAttachment(Body);
@@ -67,6 +71,7 @@ void AMCArenaTooth::Initialize(int32 Id,const FMCArenaToothSettings& Defaults)
     if (!HasAuthority()) return;
     Settings=Defaults; Settings.Sanitize(); State.ToothId=Id; State.Health=Settings.MaxHealth;
     Status->Initialize(Settings.MaxHealth);
+    if (HasActorBegunPlay()) SeedInitialCalculus();
 }
 void AMCArenaTooth::BeginPlay()
 {
@@ -74,6 +79,7 @@ void AMCArenaTooth::BeginPlay()
     Body->OnComponentHit.AddDynamic(this,&AMCArenaTooth::OnBodyHit);
     Body->SetMassOverrideInKg(NAME_None,14,true);
     ApplyAppearance();
+    SeedInitialCalculus();
     // A new/late-joining client should not replay an old note from its initial snapshot.
     PlayedPianoSerial=PianoState.Serial;
 }
@@ -160,6 +166,14 @@ void AMCArenaTooth::ApplyAppearance()
         Material->SetVectorParameterValue(TEXT("GrimeSize"),FLinearColor(Bounds.BoxExtent*2));
         Material->SetVectorParameterValue(TEXT("GrimeScale"),FLinearColor(MeshBaseScale));
     }
+    if (Calculus) Calculus->RebuildForSurface();
+}
+void AMCArenaTooth::SeedInitialCalculus()
+{
+    if (!HasAuthority() || bInitialCalculusSeeded || State.ToothId<=0 || !Calculus || !Appearance.Mesh) return;
+    bInitialCalculusSeeded=true;
+    if (Settings.InitialCalculusEveryNthTooth>0 && State.ToothId%Settings.InitialCalculusEveryNthTooth==0)
+        Calculus->GrowCalculus(State.ToothId*941+137,Settings.InitialCalculusPatchCount);
 }
 bool AMCArenaTooth::ReceiveArenaHit(float Damage,FVector Direction)
 {

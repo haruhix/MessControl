@@ -21,6 +21,9 @@ class MESSCONTROL_API UMCEquipmentProfile : public UPrimaryDataAsset
 public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") TSoftObjectPtr<UStaticMesh> PickaxeMesh;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") FTransform PickaxeTransform;
+    // Current artist pick: handle along +X, striking point along +Z.
+    // A PickaxeTip socket takes priority when a replacement mesh supplies one.
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") FVector PickaxeContactTip=FVector(59.53f,0,33.45f);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") TSoftObjectPtr<UStaticMesh> KnifeMesh;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") FTransform KnifeTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") TSoftObjectPtr<UStaticMesh> SprayMesh;
@@ -72,6 +75,8 @@ public:
     // context so a hidden tool cannot displace traversal or grip contacts.
     bool ShouldPresentTool() const;
     FVector ConstrainPickaxeGrip(const FTransform& WristWorld) const;
+    bool CalculusHandGoal(FTransform& HandWorld,float& Blend) const;
+    FVector PickaxeContactTip() const;
     FString ToolName() const;
 private:
     double Now() const;
@@ -85,6 +90,7 @@ private:
     bool bPresentedUpgrade=false;
     bool bPresentedFallback=false;
     void RefreshMesh();
+    FVector LocalPickaxeContactTip() const;
     AMCMouthSurface* FindSprayTarget() const;
     class AMCFirePatch* FindFireTarget() const;
 };

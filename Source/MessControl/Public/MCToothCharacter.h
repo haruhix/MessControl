@@ -132,6 +132,14 @@ public:
     UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") float GetStaminaNormalized() const;
     UFUNCTION(BlueprintPure, Category="Locomotion|Stamina") bool IsStaminaExhausted() const;
     bool FindPlayerBrushContact(const AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
+    float GetToolSwingElapsed() const;
+    bool GetCalculusSwingContact(FVector& Point,FVector& Normal) const;
+    bool WantsCalculusFacing(FVector& Direction) const;
+    // A pickaxe swing owns one patch until recovery; the contact follows the
+    // visible enamel, independently of skeletal evaluation on the server.
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Action|Calculus") TObjectPtr<AMCArenaTooth> CalculusTarget;
+    UPROPERTY(Replicated) FVector_NetQuantize10 CalculusContactLocal=FVector::ZeroVector;
+    UPROPERTY(Replicated) FVector_NetQuantizeNormal CalculusNormalLocal=FVector::UpVector;
     FName RigBone(FName BoneRole) const;
     FTransform StandingMeshTransform() const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera") TObjectPtr<USpringArmComponent> CameraBoom;
@@ -214,10 +222,11 @@ private:
     TArray<TWeakObjectPtr<AActor>> OrderJumpIgnoredActors;
     void FindWork(float DeltaSeconds);
     UFUNCTION(Server,Reliable) void ServerSwingBrush();
-    UFUNCTION(NetMulticast,Reliable) void MulticastSwing();
+    UFUNCTION(NetMulticast,Reliable) void MulticastSwing(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal);
     UFUNCTION(NetMulticast,Unreliable) void MulticastHitSound(FVector Location);
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit);
     void ResolveSwing();
+    AMCArenaTooth* FindCalculusTarget(FVector& Point,FVector& Normal) const;
     UPROPERTY() TObjectPtr<UInputMappingContext> InputMap;
     UPROPERTY() TWeakObjectPtr<UEnhancedInputLocalPlayerSubsystem> AppliedInputSubsystem;
     UPROPERTY() TObjectPtr<UInputAction> ForwardAction;
@@ -241,7 +250,7 @@ private:
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> BagMaterial;
     UPROPERTY() TObjectPtr<AMCToothCharacter> PracticeTooth;
     float NextSwingTime=0.f;
-    float SwingStartedAt=-10.f;
+    UPROPERTY(Replicated) double SwingStartedAt=-100;
     float SwingContactEndsAt=0.f;
     float LastEnvironmentHit=-10.f;
     FTimerHandle SwingTimer;

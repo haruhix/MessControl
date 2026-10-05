@@ -11,6 +11,8 @@
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/GameStateBase.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
@@ -146,6 +148,44 @@ FVector UMCInventoryComponent::ConstrainPickaxeGrip(const FTransform& WristWorld
     }
     return Correction.GetClampedToMaxSize(260);
 }
+bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend) const
+{
+    Blend=0;
+    FVector Point,Normal;
+    if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe
+        || !Hero->GetCalculusSwingContact(Point,Normal)) return false;
+    const float T=Hero->GetToolSwingElapsed();
+    const float Contact=SwingContactTime();
+    const float WindEnd=FMath::Max(.1f,Contact-.14f);
+    const float RecoveryEnd=SwingDuration()-.1f;
+    Blend=FMath::SmoothStep(0.f,.18f,T)*(1-FMath::SmoothStep(Contact+.14f,RecoveryEnd,T));
+    if(Blend<.001f) return false;
+    FVector Tangent=FVector::VectorPlaneProject(FVector::UpVector,Normal).GetSafeNormal();
+    if(Tangent.IsNearlyZero()) Tangent=FVector::VectorPlaneProject(Hero->GetActorForwardVector(),Normal).GetSafeNormal();
+    if(Tangent.IsNearlyZero()) return false;
+    const FVector Side=FVector::CrossProduct(Tangent,-Normal).GetSafeNormal();
+    const float Wind=1-FMath::SmoothStep(WindEnd,Contact,T);
+    const float Recoil=T>Contact?FMath::Sin(FMath::Clamp((T-Contact)/.14f,0.f,1.f)*PI):0.f;
+    const FQuat Rotation=(FQuat(Side,FMath::DegreesToRadians(45.f*Wind-7.f*Recoil))
+        *FRotationMatrix::MakeFromXZ(Tangent,-Normal).ToQuat()).GetNormalized();
+    const FTransform InHand=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
+    const FVector Scale=InHand.GetScale3D()*Hero->GetMesh()->GetComponentScale();
+    const FVector Tip=LocalPickaxeContactTip();
+    // The sharp point, rather than the wrist or mesh origin, reaches the
+    // replicated patch exactly at the authoritative contact time.
+    const FVector SharpPoint=Point+Normal*(45.f*Wind+8.f*Recoil)+Tangent*(35.f*Wind+4.f*Recoil);
+    const FTransform PickWorld(Rotation,SharpPoint-Rotation.RotateVector(Tip*Scale),Scale);
+    HandWorld=InHand.Inverse()*PickWorld;
+    return !HandWorld.ContainsNaN();
+}
+FVector UMCInventoryComponent::LocalPickaxeContactTip() const
+{
+    return Tool && Tool->DoesSocketExist(TEXT("PickaxeTip"))
+        ?Tool->GetSocketTransform(TEXT("PickaxeTip"),RTS_Component).GetLocation()
+        :Settings?Settings->PickaxeContactTip:FVector(59.53f,0,33.45f);
+}
+FVector UMCInventoryComponent::PickaxeContactTip() const
+{ return Tool?Tool->GetComponentTransform().TransformPosition(LocalPickaxeContactTip()):FVector::ZeroVector; }
 AMCMouthSurface* UMCInventoryComponent::FindSprayTarget() const
 {
     if(!ShouldPresentTool() || !Hero->CanWork() || Hero->bInCoffee || Selected!=EMCToolSlot::Spray) return nullptr;

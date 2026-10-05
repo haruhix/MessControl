@@ -680,10 +680,18 @@ public:
             const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r"))),Arm=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));
             if(Hand>=0 && Arm>=0) {
                 const FTransform MeshWorld=Tooth->GetMesh()->GetComponentTransform();
-                const FVector Correction=Tooth->Inventory->ConstrainPickaxeGrip(CS[Hand]*MeshWorld);
                 const int32 Parent=Ref.GetParentIndex(Arm);
-                const FTransform ParentWorld=Parent<0?MeshWorld:CS[Parent]*MeshWorld;
-                Pose[Arm].AddToTranslation(ParentWorld.InverseTransformVector(Correction));
+                FTransform AimedHand; float AimBlend=0;
+                if(Tooth->Inventory->CalculusHandGoal(AimedHand,AimBlend) && Ref.GetParentIndex(Hand)==Arm) {
+                    FTransform Blended;Blended.Blend(CS[Hand],AimedHand.GetRelativeTransform(MeshWorld),AimBlend);
+                    const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;
+                    Pose[Arm]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
+                    Pose[Hand]=Ref.GetRefBonePose()[Hand];
+                } else {
+                    const FVector Correction=Tooth->Inventory->ConstrainPickaxeGrip(CS[Hand]*MeshWorld);
+                    const FTransform ParentWorld=Parent<0?MeshWorld:CS[Parent]*MeshWorld;
+                    Pose[Arm].AddToTranslation(ParentWorld.InverseTransformVector(Correction));
+                }
             }
         }
         // Brace both compact mittens against the uvula while the body stays in

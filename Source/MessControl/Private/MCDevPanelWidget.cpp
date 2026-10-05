@@ -147,6 +147,8 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Давление — применить DA_Tongue"),TEXT("Вернуть настройки основного DA без перезапуска Play. Если Default Pressure Preset назначен, используется он. Ассеты не перезаписываются."),EMCDevAction::TonguePressureReload);
     AddAction(Actions,TEXT("Давление — очистить следы"),TEXT("Сбросить историю продавливания. Текущие объекты продолжат давить на язык."),EMCDevAction::TonguePressureClear);
     AddAction(Actions,TEXT("Кофейный налёт + щётки"),TEXT("Покрывает зубы, игроков и поверхность налётом. Четыре контакта по 0,5 секунды."),EMCDevAction::CoffeeDirt);
+    AddAction(Actions,TEXT("Зубной камень — восстановить"),TEXT("Три приросших участка на доступном зубе. Ставит рядом и выбирает кирку: удерживай ЛКМ, чтобы выбивать камень в месте контакта."),EMCDevAction::CalculusPractice);
+    AddAction(Actions,TEXT("Зубной камень — убрать тестовый"),TEXT("Убирает только камень, восстановленный кнопкой F3."),EMCDevAction::CalculusClear);
     AddAction(Actions,TEXT("Плавание — кофе на 10 минут"),TEXT("Наполняет рот выше языка. После наполнения уровень держится 10 минут без потока из струи и слива. WASD — плавать."),EMCDevAction::SwimCoffee);
     AddAction(Actions,TEXT("Сбросить щётки с неба"),TEXT("По одной щётке на игрока. Подобрать E, выбросить Q за передний край."),EMCDevAction::DropBrushes);
     AddAction(Actions,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);

@@ -15,6 +15,8 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCArenaTooth.h"
+#include "MCToothCalculusComponent.h"
+#include "MCInventoryComponent.h"
 #include "MCTongue.h"
 #include "MCFirePatch.h"
 #include "MCMouthSurface.h"
@@ -32,6 +34,43 @@
 namespace
 {
 #if !UE_BUILD_SHIPPING
+    bool PlaceForCalculus(UWorld* World,AMCToothCharacter* Hero,AMCArenaTooth* Tooth)
+    {
+        AMCTongue* Tongue=nullptr;
+        for (TActorIterator<AMCTongue> It(World);It;++It) { Tongue=*It; break; }
+        if (!Tongue || !Tooth->Calculus || !Tooth->Calculus->HasCalculus()) return false;
+        const FTransform Original=Hero->GetActorTransform();
+        const FVector Inward=(Tongue->Surface->Bounds.Origin-Tooth->GetActorLocation()).GetSafeNormal2D();
+        const FVector Side=FVector::CrossProduct(Inward,FVector::UpVector);
+        const FVector Extent=Tooth->Visual->Bounds.BoxExtent;
+        const float Radius=FMath::Abs(Inward.X)*Extent.X+FMath::Abs(Inward.Y)*Extent.Y;
+        FVector Approach=Tooth->GetActorLocation()+Inward*Radius;
+        FHitResult Face;
+        FCollisionQueryParams Surface(SCENE_QUERY_STAT(MCCalculusPracticeSurface),true,Hero);
+        FVector Probe=Tooth->GetActorLocation();
+        Probe.Z=Hero->GetActorLocation().Z+20;
+        if (Tooth->BrushSurface->LineTraceComponent(Face,Probe+Inward*600,Probe-Inward*250,Surface)) Approach=Face.ImpactPoint;
+        FCollisionQueryParams Room(SCENE_QUERY_STAT(MCCalculusPracticeRoom),false,Hero);
+        FVector Contact,Normal;
+        for (float Gap:{75.f,90.f,110.f,130.f,150.f}) for (int32 Offset:{0,-1,1,-2,2,-3,3,-4,4,-5,5})
+        {
+            FVector Position=Approach+Inward*Gap+Side*(Offset*22.f);
+            FHitResult Floor;
+            if (!Tongue->SurfacePoint(Position,Floor) || Floor.ImpactNormal.Z<.65f) continue;
+            Position.Z=Floor.ImpactPoint.Z+Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3;
+            if (World->OverlapBlockingTestByProfile(Position,FQuat::Identity,Hero->GetCapsuleComponent()->GetCollisionProfileName(),
+                Hero->GetCapsuleComponent()->GetCollisionShape(),Room)) continue;
+            Hero->SetActorLocationAndRotation(Position,(-Inward).Rotation(),false,nullptr,ETeleportType::TeleportPhysics);
+            if (!Tooth->Calculus->FindContact(Hero,Contact,Normal)) continue;
+            Hero->GetCharacterMovement()->StopMovementImmediately();
+            Hero->SetActorRotation(FRotator(0,(Contact-Position).Rotation().Yaw,0));
+            Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+            Hero->ForceNetUpdate(); return true;
+        }
+        Hero->SetActorTransform(Original,false,nullptr,ETeleportType::TeleportPhysics);
+        return false;
+    }
+
     AMCBossCharacter* FindDevBoss(UWorld* World)
     {
         for (TActorIterator<AMCBossCharacter> It(World);It;++It)
@@ -132,6 +171,35 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
 #if !UE_BUILD_SHIPPING
     auto* GS=GetGameState<AMCGameState>();
     if (!GS) return FText::FromString(TEXT("Мир ещё не готов."));
+    if (Action==EMCDevAction::CalculusClear)
+    {
+        for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) if (It->ActorHasTag(TEXT("MC_CalculusPractice")))
+        { if (It->Calculus) It->Calculus->ClearCalculus(); It->Tags.Remove(TEXT("MC_CalculusPractice")); }
+        return FText::FromString(TEXT("Тестовый зубной камень убран."));
+    }
+    if (Action==EMCDevAction::CalculusPractice)
+    {
+        auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
+        if (!Hero || !Hero->Status->IsAlive() || !Hero->Inventory)
+            return FText::FromString(TEXT("Нужен живой игрок хоста."));
+        AMCArenaTooth* Tooth=nullptr;
+        double Nearest=DBL_MAX;
+        for (AMCArenaTooth* Candidate:GS->ArenaTeeth) if (IsValid(Candidate) && Candidate->IsAvailable() && Candidate->Calculus)
+        {
+            const double Distance=FVector::DistSquared2D(Hero->GetActorLocation(),Candidate->GetActorLocation());
+            if (Distance<Nearest) { Nearest=Distance; Tooth=Candidate; }
+        }
+        if (!Tooth) return FText::FromString(TEXT("На карте нет доступного декоративного зуба."));
+        Hero->CancelGameplayInput(); Hero->DropFood();
+        Tooth->Calculus->GrowCalculus(Tooth->State.ToothId+1,3);
+        Tooth->Tags.AddUnique(TEXT("MC_CalculusPractice"));
+        GS->bDevManualEvents=true; GS->PhaseEndsAt=0; GS->ForceNetUpdate();
+        const bool Placed=PlaceForCalculus(GetWorld(),Hero,Tooth);
+        Hero->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
+        return FText::FromString(Placed?
+            TEXT("Три участка камня восстановлены. Кирка выбрана: F3 — закрыть, удерживай ЛКМ. Сколы изменяют форму в точке удара; эмаль сохраняется."):
+            TEXT("Камень восстановлен на ближайшем зубе, кирка выбрана. Нет свободной позиции для переноса: подойди к нему со стороны языка и удерживай ЛКМ."));
+    }
     if (Action==EMCDevAction::RewardChest)
     {
         if (!IsValid(RoguelikeDirector)) return FText::FromString(TEXT("Система наград ещё не готова."));
