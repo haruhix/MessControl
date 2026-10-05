@@ -13,6 +13,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "PhysicsEngine/BodyInstance.h"
 #include "GameFramework/GameStateBase.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
@@ -158,23 +159,77 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
     const float T=Hero->GetToolSwingElapsed();
     const float Contact=SwingContactTime();
     const float WindEnd=FMath::Max(.1f,Contact-.14f);
-    const float RecoveryEnd=SwingDuration()-.1f;
-    Blend=FMath::SmoothStep(0.f,.18f,T)*(1-FMath::SmoothStep(Contact+.14f,RecoveryEnd,T));
-    if(Blend<.001f) return false;
+    const float RecoilEnd=Contact+.10f,RecoveryEnd=SwingDuration()-.17f;
+    Blend=1;
+    FVector Right=FVector::CrossProduct(FVector::UpVector,-Normal).GetSafeNormal();
+    if(FVector::DotProduct(Right,Hero->GetActorRightVector())<0) Right=-Right;
+    // Keep the handle upright beside the crown, with the head across the
+    // surface. Pointing both blades along the normal put the back blade in
+    // the player; a steep forward tilt instead buried the hand in enamel.
     FVector Tangent=FVector::VectorPlaneProject(FVector::UpVector,Normal).GetSafeNormal();
     if(Tangent.IsNearlyZero()) Tangent=FVector::VectorPlaneProject(Hero->GetActorForwardVector(),Normal).GetSafeNormal();
     if(Tangent.IsNearlyZero()) return false;
-    const FVector Side=FVector::CrossProduct(Tangent,-Normal).GetSafeNormal();
-    const float Wind=1-FMath::SmoothStep(WindEnd,Contact,T);
-    const float Recoil=T>Contact?FMath::Sin(FMath::Clamp((T-Contact)/.14f,0.f,1.f)*PI):0.f;
-    const FQuat Rotation=(FQuat(Side,FMath::DegreesToRadians(45.f*Wind-7.f*Recoil))
-        *FRotationMatrix::MakeFromXZ(Tangent,-Normal).ToQuat()).GetNormalized();
+    const FVector HeadAxis=(-Normal*.38f-Right*.925f).GetSafeNormal();
+    const FVector Side=FVector::CrossProduct(Tangent,HeadAxis).GetSafeNormal();
+    const FQuat ContactRotation=FRotationMatrix::MakeFromXZ(Tangent,HeadAxis).ToQuat();
+    // One complete chisel stroke: raise away from enamel, accelerate into the
+    // locked sharp-point contact, rebound, then return to a nearby ready pose.
+    // The diagonal strike also directs the opposite blade beside the player.
+    const FVector2D Ready(20,35),Wind(55,55),Recoil(8,8);
+    FVector2D Offset; float Pitch;
+    if(T<WindEnd) {
+        const float A=FMath::SmoothStep(0.f,WindEnd,T);
+        Offset=FMath::Lerp(Ready,Wind,A); Pitch=FMath::Lerp(-8.f,-30.f,A);
+    } else if(T<Contact) {
+        const float A=FMath::SmoothStep(WindEnd,Contact,T);
+        Offset=FMath::Lerp(Wind,FVector2D::ZeroVector,A); Pitch=FMath::Lerp(-30.f,0.f,A);
+    } else if(T<RecoilEnd) {
+        const float A=FMath::SmoothStep(Contact,RecoilEnd,T);
+        Offset=Recoil*A; Pitch=-5.f*A;
+    } else {
+        const float A=FMath::SmoothStep(RecoilEnd,RecoveryEnd,T);
+        Offset=FMath::Lerp(Recoil,Ready,A); Pitch=FMath::Lerp(-5.f,-8.f,A);
+    }
+    FQuat Rotation=(FQuat(Side,FMath::DegreesToRadians(Pitch))
+        *ContactRotation).GetNormalized();
     const FTransform InHand=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
     const FVector Scale=InHand.GetScale3D()*Hero->GetMesh()->GetComponentScale();
     const FVector Tip=LocalPickaxeContactTip();
     // The sharp point, rather than the wrist or mesh origin, reaches the
     // replicated patch exactly at the authoritative contact time.
-    const FVector SharpPoint=Point+Normal*(45.f*Wind+8.f*Recoil)+Tangent*(35.f*Wind+4.f*Recoil);
+    const FVector SharpPoint=Point+Normal*Offset.X+Right*Offset.Y+Tangent*(Offset.Y*.35f);
+    if(const auto* Body=Hero->GetMesh()->GetBodyInstance(Hero->RigBone(TEXT("body")))) {
+        const FBox BodyBounds=Body->GetBodyBounds();
+        const auto Bounds=Tool->GetStaticMesh()->GetBounds();
+        const float Padding=FMath::Max(4.f,float(Bounds.BoxExtent.Y*FMath::Abs(Scale.Y)+2));
+        const FBox Nearby=BodyBounds.ExpandBy(Padding);
+        const auto Probe=FCollisionShape::MakeSphere(Padding);
+        auto Penetrations=[&](const FQuat& R) {
+            int32 Count=0;
+            for(int32 I=0;I<5;++I) {
+                const float A=I/4.f;
+                const FVector Samples[]={FVector(FMath::Lerp(float(Bounds.Origin.X-Bounds.BoxExtent.X),float(Tip.X),A),0,0),
+                    FVector(Tip.X,0,FMath::Lerp(float(Bounds.Origin.Z-Bounds.BoxExtent.Z),float(Bounds.Origin.Z+Bounds.BoxExtent.Z),A))};
+                for(const FVector& Sample:Samples) {
+                    const FVector P=SharpPoint+R.RotateVector((Sample-Tip)*Scale);
+                    // Clearance must not trade player penetration for a hand
+                    // inside the tooth. Small tip overlap is the actual strike.
+                    if(FVector::DotProduct(P-Point,Normal)<-3) return MAX_int32;
+                    if(Nearby.IsInside(P) && Body->OverlapTest(P,FQuat::Identity,Probe)) ++Count;
+                }
+            }
+            return Count;
+        };
+        int32 Best=Penetrations(Rotation);
+        // Bounded local queries against the crown only. Rotate around the
+        // sharp point so clearance never changes the authoritative contact.
+        for(int32 I=1;Best>0 && I<=3;++I) {
+            const FQuat Candidate=(FQuat(Side,FMath::DegreesToRadians(Pitch-10.f*I))
+                *ContactRotation).GetNormalized();
+            const int32 Count=Penetrations(Candidate);
+            if(Count<Best) { Best=Count; Rotation=Candidate; }
+        }
+    }
     const FTransform PickWorld(Rotation,SharpPoint-Rotation.RotateVector(Tip*Scale),Scale);
     HandWorld=InHand.Inverse()*PickWorld;
     return !HandWorld.ContainsNaN();

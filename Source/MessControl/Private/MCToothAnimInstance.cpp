@@ -52,6 +52,8 @@ public:
     bool WallPlanted[4]={false,false,false,false};
     double NextWallDiagnostic=0;
     float SprayPoseAlpha=0;
+    float CalculusPoseAlpha=0;
+    FTransform LastCalculusHand=FTransform::Identity;
     float DashPoseProgress=-1;
 private:
     // Не активное, но будет использовано в будущем в других механиках.
@@ -610,14 +612,32 @@ public:
         Rotate(TEXT("arm_l"),FRotator(-FMath::Sin(G-.25f)*24*Speed-Tooth->AnimationInertia.X*8,0,-10-Tooth->AnimationSlip*18));
         // Chopping tools move the wrist through an overhead arc below.
         const bool WideSwing=Tooth->Inventory && (Tooth->Inventory->Selected==EMCToolSlot::Pickaxe || Tooth->Inventory->Selected==EMCToolSlot::Knife) && Tooth->Inventory->ShouldPresentTool();
+        FTransform CalculusHand; float CalculusBlend=0;
+        const bool CalculusAllowed=WideSwing && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct();
+        const bool CalculusContact=CalculusAllowed
+            && Tooth->Inventory->CalculusHandGoal(CalculusHand,CalculusBlend);
+        if(CalculusContact) LastCalculusHand=CalculusHand.GetRelativeTransform(Tooth->GetActorTransform());
+        CalculusPoseAlpha=CalculusAllowed?FMath::FInterpConstantTo(CalculusPoseAlpha,CalculusContact?1.f:0.f,Dt,CalculusContact?6.25f:3.33f):0.f;
+        CalculusHand=LastCalculusHand*Tooth->GetActorTransform(); CalculusBlend=CalculusPoseAlpha;
+        // Hold the ready pose across repeated swings. Only losing the aimed
+        // cycle fades to the normal grip, rather than dropping it every hit.
+        const bool AimedCalculus=CalculusAllowed && (CalculusContact || CalculusBlend>.001f);
         Rotate(TEXT("arm_r"),FRotator(FMath::Clamp((WideSwing?0:Tooth->AnimationBrushAngle)+FMath::Sin(G-.25f)*18*Speed-Tooth->AnimationInertia.X*8,-60.f,65.f),0,10+Tooth->AnimationSlip*18));
-        Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(Tooth->AnimationBrushAngle*(WideSwing?1.f:.3f),WideSwing?-115.f:-35.f,WideSwing?115.f:35.f),0,0));
+        Rotate(TEXT("hand_r"),FRotator(FMath::Clamp((AimedCalculus?-12.f*A.Exaggeration:Tooth->AnimationBrushAngle)*(WideSwing?1.f:.3f),WideSwing?-115.f:-35.f,WideSwing?115.f:35.f),0,0));
         // The current character has compact floating mittens. Move the wrist branch
         // through a visible overhead arc while preserving palm/finger proportions.
-        if(WideSwing && !Tooth->AnimationToolOffset.IsNearlyZero()) {
+        if(WideSwing && !AimedCalculus && !Tooth->AnimationToolOffset.IsNearlyZero()) {
             Translate(TEXT("forearm_r"),Tooth->GetMesh()->GetComponentTransform().InverseTransformVectorNoScale(Tooth->AnimationToolOffset));
             Rotate(TEXT("body"),FRotator(Tooth->AnimationToolOffset.X*.10f,0,-Tooth->AnimationToolOffset.Z*.04f));
             Rotate(TEXT("arm_l"),FRotator(-Tooth->AnimationToolOffset.Z*.22f,0,-Tooth->AnimationToolOffset.Z*.10f));
+        }
+        if(AimedCalculus) {
+            const float T=Tooth->GetToolSwingElapsed(),Contact=Tooth->Inventory->SwingContactTime();
+            const float WindEnd=FMath::Max(.1f,Contact-.14f);
+            const float Wind=FMath::SmoothStep(0.f,WindEnd,T)*(1-FMath::SmoothStep(WindEnd,Contact,T));
+            const float Impact=FMath::SmoothStep(WindEnd,Contact,T)*(1-FMath::SmoothStep(Contact,Contact+.10f,T));
+            Rotate(TEXT("body"),FRotator((-6*Wind+4*Impact)*CalculusBlend,0,-2*Wind*CalculusBlend));
+            Rotate(TEXT("arm_l"),FRotator((-12*Wind+6*Impact)*CalculusBlend,0,-4*Wind*CalculusBlend));
         }
         // Blend a readable dog-paddle over locomotion; contact IK still owns a held hand.
         if (Tooth->AnimationSwim>.001f)
@@ -681,9 +701,8 @@ public:
             if(Hand>=0 && Arm>=0) {
                 const FTransform MeshWorld=Tooth->GetMesh()->GetComponentTransform();
                 const int32 Parent=Ref.GetParentIndex(Arm);
-                FTransform AimedHand; float AimBlend=0;
-                if(Tooth->Inventory->CalculusHandGoal(AimedHand,AimBlend) && Ref.GetParentIndex(Hand)==Arm) {
-                    FTransform Blended;Blended.Blend(CS[Hand],AimedHand.GetRelativeTransform(MeshWorld),AimBlend);
+                if(AimedCalculus && CalculusBlend>.001f && Ref.GetParentIndex(Hand)==Arm) {
+                    FTransform Blended;Blended.Blend(CS[Hand],CalculusHand.GetRelativeTransform(MeshWorld),CalculusBlend);
                     const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;
                     Pose[Arm]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
                     Pose[Hand]=Ref.GetRefBonePose()[Hand];

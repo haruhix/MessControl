@@ -1,0 +1,39 @@
+{
+  "recording": {
+    "case": "CalculusGripReview",
+    "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+    "frames": 206,
+    "seconds": 8.549,
+    "sample_fps": 23.98,
+    "caption": "CalculusGripReview",
+    "encodedUtc": "2026-10-05T10:59:53.856859+09:00",
+    "videoSha256": "fb1163f8d817da3866d7cdd1640bdfe9c54866f7dfca6951175bfe4d3b9ceca3"
+  },
+  "editorBuild": "MessControlEditor Win64 Development: Succeeded",
+  "validation": {
+    "expectedHealth": 100,
+    "toothHealth": 100,
+    "heldHits": 31,
+    "clickHits": 1,
+    "passed": true,
+    "limitation": "Tip error is the closest sampled frame, not an assertion for every strike.",
+    "brushAndKnifeGuard": true,
+    "scenario": "CalculusGripFixed",
+    "tipSamples": 43,
+    "heldSwings": 31,
+    "remainingPieces": 0,
+    "clickSwings": 1,
+    "closestSampledTipErrorCm": 0.05
+  },
+  "shortCapture": {
+    "purpose": "Visual review only; full gameplay validation ran separately on the same Editor module.",
+    "nativeExitLimitSeconds": 40,
+    "gameTimeDilation": 0.25,
+    "playback": "Encoded at game timestamps, normal animation speed"
+  },
+  "sourceHashes": {
+    "inventory": "CC08A0440366BA5FDC9DCAED6640B60610F23A91165E5DBC1230891EBD8A1277",
+    "animation": "E65F23B8F74E56EAAE550FD513CC11C2833E3C7596328342F1D7E909A3E45297"
+  },
+  "assetIndex": "1196 saved snapshots current; build_current=true; no export errors"
+}
