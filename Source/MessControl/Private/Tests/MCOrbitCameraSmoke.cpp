@@ -2,8 +2,12 @@
 #include "MCToothCharacter.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
+#include "MCArenaTooth.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
+#include "Materials/MaterialInterface.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GenericPlatform/GenericPlatformInputDeviceMapper.h"
@@ -18,7 +22,8 @@
 void MCTickOrbitCameraValidation(UWorld* World)
 {
     struct FRun { TWeakObjectPtr<UWorld> World; float Age=0,At=0,LastAxis=0,Travel=0,PreviousYaw=0,StoppedYaw=0,InitialPitch=0,ZoomBefore=0,MenuDistance=0;
-        int32 Stage=0,Samples=0,Retracted=0; bool Invalid=false; FRotator Body; };
+        int32 Stage=0,Samples=0,Retracted=0; bool Invalid=false; FRotator Body;
+        TWeakObjectPtr<AMCArenaTooth> Tooth; TWeakObjectPtr<UStaticMeshComponent> EndpointWall; };
     static FRun R; if(R.World.Get()!=World) { R=FRun(); R.World=World; }
     R.Age+=World->GetDeltaSeconds();
     auto* PC=Cast<AMCPlayerController>(World->GetFirstPlayerController());
@@ -32,7 +37,7 @@ void MCTickOrbitCameraValidation(UWorld* World)
     };
     auto Advance=[&](int32 Stage) { R.Stage=Stage; R.At=R.Age; };
     auto Finish=[&](bool Pass) {
-        UE_LOG(LogTemp,Display,TEXT("MC_ORBIT_%s inputYawTravel=%.1f collisionSamples=%d retracted=%d attacks=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),R.Travel,R.Samples,R.Retracted,H->ValidatedSwingCount);
+        UE_LOG(LogTemp,Display,TEXT("MC_ORBIT_%s inputYawTravel=%.1f collisionSamples=%d retracted=%d attacks=%d meshGuard=%d wallVolume=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),R.Travel,R.Samples,R.Retracted,H->ValidatedSwingCount,R.Tooth.IsValid(),R.EndpointWall.IsValid());
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     };
     if (R.Stage==0) {
@@ -78,7 +83,39 @@ void MCTickOrbitCameraValidation(UWorld* World)
     } else if (R.Stage==7 && R.Age-R.At>.05f) {
         Key(EKeys::RightMouseButton,IE_Released,0); Advance(8);
     } else if (R.Stage==8 && R.Age-R.At>.2f) {
-        Finish(!R.Invalid && R.Travel>330 && R.Samples>50 && R.Retracted>0 && H->ValidatedSwingCount==1); return;
+        R.Invalid|=R.Travel<=330 || R.Samples<=50 || R.Retracted==0 || H->ValidatedSwingCount!=1;
+        H->SetActorLocation(FVector(0,0,2000)); H->bMouthCameraInitialized=false;
+        H->CameraOrbitYaw=0; H->CameraOrbitPitch=-30; H->CameraOrbitDistance=900;
+        const FVector Pivot=H->GetActorLocation()+FVector(0,0,30),Ray=-FRotator(-30,0,0).Vector();
+        auto* Tooth=World->SpawnActor<AMCArenaTooth>(Pivot+Ray*450,Ray.Rotation());
+        // The camera must see actual enamel even where the physics proxy has no shape.
+        Tooth->Body->SetCollisionEnabled(ECollisionEnabled::NoCollision); Tooth->SetActorTickEnabled(false);
+        R.Tooth=Tooth; Advance(9);
+    } else if (R.Stage==9 && R.Age-R.At>1.f) {
+        const FVector Eye=H->Camera->GetComponentLocation(),Pivot=H->GetActorLocation()+FVector(0,0,30);
+        FHitResult Touch;
+        const bool Penetrated=R.Tooth->BrushSurface->SweepComponent(Touch,Eye,Eye+FVector(0,0,.1),FQuat::Identity,FCollisionShape::MakeSphere(18),true);
+        const float Distance=float(FVector::Distance(Pivot,Eye));
+        R.Invalid|=Penetrated || Distance>=450 || !H->CameraBoom->IsCollisionFixApplied();
+        UE_LOG(LogTemp,Display,TEXT("MC_ORBIT_MESH_GUARD distance=%.1f penetrated=%d"),Distance,Penetrated);
+        R.Tooth->SetActorLocation(FVector(0,2000,2000));
+        auto* Wall=World->SpawnActor<AActor>(); auto* Mesh=NewObject<UStaticMeshComponent>(Wall); Wall->SetRootComponent(Mesh);
+        Mesh->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")));
+        Mesh->SetMaterial(0,LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/Arena/MI_Roof_0.MI_Roof_0")));
+        Mesh->SetCollisionProfileName(TEXT("BlockAll")); Mesh->RegisterComponent();
+        const FVector Ray=-FRotator(-30,0,0).Vector();
+        Wall->SetActorLocationAndRotation(Pivot+Ray*900,Ray.Rotation()); Wall->SetActorScale3D(FVector(.7,7,7));
+        H->bCameraWallReveal=true; R.EndpointWall=Mesh; Advance(10);
+    } else if (R.Stage==10 && R.Age-R.At>1.2f) {
+        const FVector Eye=H->Camera->GetComponentLocation(); FHitResult Touch;
+        const bool Penetrated=R.EndpointWall->SweepComponent(Touch,Eye,Eye+FVector(0,0,.1),FQuat::Identity,FCollisionShape::MakeSphere(18),true);
+        R.Invalid|=Penetrated || R.EndpointWall->GetCollisionResponseToChannel(ECC_Camera)!=ECR_Ignore;
+        UE_LOG(LogTemp,Display,TEXT("MC_ORBIT_WALL_VOLUME penetrated=%d cameraResponse=%d"),Penetrated,R.EndpointWall->GetCollisionResponseToChannel(ECC_Camera));
+        if(FParse::Param(FCommandLine::Get(),TEXT("MCOrbitCameraCapture")))
+            FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("OrbitCameraMeshGuard.png"),true,false);
+        Advance(11);
+    } else if (R.Stage==11 && R.Age-R.At>.2f) {
+        Finish(!R.Invalid); return;
     }
     if(R.Age>25) Finish(false);
 }

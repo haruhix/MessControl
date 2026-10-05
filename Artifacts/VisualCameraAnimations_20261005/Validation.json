@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-05",
+  "engine": "5.8.1",
+  "editor_target_build": "Succeeded",
+  "windows_cook_or_package": false,
+  "calculus": {
+    "result": "MC_CALCULUS_PASS",
+    "pieces": 39,
+    "triangles": 2808,
+    "swings": 31,
+    "hits": 31,
+    "remaining_pieces": 0,
+    "tooth_health": 100,
+    "closest_pickaxe_tip_error_cm": 0.04,
+    "material_texture_samples": 3
+  },
+  "camera": {
+    "result": "MC_ORBIT_PASS",
+    "yaw_travel_degrees": 453.6,
+    "collision_samples": 150,
+    "enamel_mesh_penetration": false,
+    "revealed_wall_penetration": false
+  },
+  "animations": {
+    "result": "MC_CHARACTER2_PREVIEW_COMPLETE",
+    "ids": ["laugh1", "laugh2", "point", "dance3", "dance4", "dance5", "happy_jump", "punch"],
+    "visual_review": "Eight real gameplay screenshots reviewed; limbs retain proportions and tools hide during body gestures.",
+    "network_scope": "Existing replicated emote state retained; this preview used a single local player."
+  }
+}

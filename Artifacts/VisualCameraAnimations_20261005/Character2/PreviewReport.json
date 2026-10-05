@@ -1,0 +1,66 @@
+[
+  {
+    "requested_id": "laugh1",
+    "emotion": "<MCEmotion.HAPPY: 1>",
+    "sample_seconds": 0.6666693985462189,
+    "left_hand": "<Struct 'Vector' (0x00000200F1DBFD00) {x: -706.830552, y: 196.357712, z: -10.642821}>",
+    "right_hand": "<Struct 'Vector' (0x00000200F1DBFD00) {x: -744.557256, y: 288.418991, z: -11.362666}>",
+    "screenshot": "E:\\DEVGAME\\MessControl\\Saved\\Character2Preview\\01_laugh1.png"
+  },
+  {
+    "requested_id": "laugh2",
+    "emotion": "<MCEmotion.HAPPY: 1>",
+    "sample_seconds": 0.8000044003129005,
+    "left_hand": "<Struct 'Vector' (0x00000200F1DBDB90) {x: -708.836016, y: 196.943490, z: -6.970982}>",
+    "right_hand": "<Struct 'Vector' (0x00000200F1DBDB90) {x: -744.481637, y: 288.481805, z: -8.939500}>",
+    "screenshot": "E:\\DEVGAME\\MessControl\\Saved\\Character2Preview\\02_laugh2.png"
+  },
+  {
+    "requested_id": "point",
+    "emotion": "<MCEmotion.NEUTRAL: 0>",
+    "sample_seconds": 0.6000026986002922,
+    "left_hand": "<Struct 'Vector' (0x00000200F1DBDAF0) {x: -753.557069, y: 197.585587, z: -12.051142}>",
+    "right_hand": "<Struct 'Vector' (0x00000200F1DBDAF0) {x: -681.664783, y: 269.149910, z: -6.502907}>",
+    "screenshot": "E:\\DEVGAME\\MessControl\\Saved\\Character2Preview\\03_point.png"
+  },
+  {
+    "requested_id": "dance3",
+    "emotion": "<MCEmotion.HAPPY: 1>",
+    "sample_seconds": 0.40000220015645027,
+    "left_hand": "<Struct 'Vector' (0x00000200F1DE09C0) {x: -693.823298, y: 187.643283, z: -6.272740}>",
+    "right_hand": "<Struct 'Vector' (0x00000200F1DE09C0) {x: -731.208334, y: 266.264319, z: 11.574091}>",
+    "screenshot": "E:\\DEVGAME\\MessControl\\Saved\\Character2Preview\\04_dance3.png"
+  },
+  {
+    "requested_id": "dance4",
+    "emotion": "<MCEmotion.HAPPY: 1>",
+    "sample_seconds": 0.3666686974465847,
+    "left_hand": "<Struct 'Vector' (0x00000200F1DE28B0) {x: -697.707027, y: 200.758793, z: -0.610731}>",
+    "right_hand": "<Struct 'Vector' (0x00000200F1DE28B0) {x: -705.197263, y: 264.972757, z: -16.471073}>",
+    "screenshot": "E:\\DEVGAME\\MessControl\\Saved\\Character2Preview\\05_dance4.png"
+  },
+  {
+    "requested_id": "dance5",
+    "emotion": "<MCEmotion.HAPPY: 1>",
+    "sample_seconds": 0.5666697025299072,
+    "left_hand": "<Struct 'Vector' (0x00000200F1DE29A0) {x: -718.078073, y: 180.566962, z: -0.728601}>",
+    "right_hand": "<Struct 'Vector' (0x00000200F1DE29A0) {x: -722.081724, y: 285.780458, z: -24.842862}>",
+    "screenshot": "E:\\DEVGAME\\MessControl\\Saved\\Character2Preview\\06_dance5.png"
+  },
+  {
+    "requested_id": "happy_jump",
+    "emotion": "<MCEmotion.HAPPY: 1>",
+    "sample_seconds": 0.6000028029084206,
+    "left_hand": "<Struct 'Vector' (0x00000200F1E3E950) {x: -736.876172, y: 182.138080, z: 40.544498}>",
+    "right_hand": "<Struct 'Vector' (0x00000200F1E3E950) {x: -737.662426, y: 294.540228, z: 80.173403}>",
+    "screenshot": "E:\\DEVGAME\\MessControl\\Saved\\Character2Preview\\07_happy_jump.png"
+  },
+  {
+    "requested_id": "punch",
+    "emotion": "<MCEmotion.EFFORT: 6>",
+    "sample_seconds": 0.30000120028853416,
+    "left_hand": "<Struct 'Vector' (0x00000200F1E3E950) {x: -763.143632, y: 201.248448, z: -9.931889}>",
+    "right_hand": "<Struct 'Vector' (0x00000200F1E3E950) {x: -679.062096, y: 273.807100, z: -8.422281}>",
+    "screenshot": "E:\\DEVGAME\\MessControl\\Saved\\Character2Preview\\08_punch.png"
+  }
+]

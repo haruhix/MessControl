@@ -18,7 +18,7 @@
 
 namespace MCCalculus
 {
-    constexpr int32 PiecesPerDeposit=13,MaxDeposits=6,MaxShards=16,RimCount=8;
+    constexpr int32 PiecesPerDeposit=13,MaxDeposits=6,MaxShards=16,RimCount=12;
     constexpr uint8 FullStage=3;
     FVector WorldNormal(const FTransform& Transform,FVector Normal)
     {
@@ -38,8 +38,31 @@ namespace MCCalculus
     {
         return FMath::Lerp(FLinearColor(.57f,.43f,.19f),FLinearColor(.92f,.82f,.57f),Variation);
     }
-    // Flat faces make every removed corner readable without pixel noise or extra material passes.
-    void Triangle(FVector A,FVector B,FVector C,FVector Outward,FLinearColor Color,
+    struct FSurfaceMapping
+    {
+        FVector Origin=FVector::ZeroVector,Scale=FVector::OneVector;
+        FVector Side=FVector::ForwardVector,Up=FVector::RightVector,Normal=FVector::UpVector;
+        FVector2D Offset=FVector2D::ZeroVector;
+        float Radius=0,Depth=0;
+        bool bSmooth=false;
+        FVector2D UVFor(FVector Point) const
+        {
+            const FVector Cm=(Point-Origin)*Scale;
+            return FVector2D(FVector::DotProduct(Cm,Side),FVector::DotProduct(Cm,Up))/20.+Offset;
+        }
+        FVector NormalFor(FVector Point,FVector FaceNormal) const
+        {
+            if(!bSmooth || Radius<=0 || Depth<=0) return FaceNormal;
+            const FVector Cm=(Point-Origin)*Scale;
+            // One ellipsoid field across duplicated triangle vertices softly
+            // joins the old mineral's planes; exposed fracture faces stay flat.
+            const float X=FVector::DotProduct(Cm,Side)/FMath::Square(Radius);
+            const float Y=FVector::DotProduct(Cm,Up)/FMath::Square(Radius*.84f);
+            const float Z=FMath::Max(Depth*.06f,float(FVector::DotProduct(Cm,Normal))-Depth*.12f)/FMath::Square(Depth*.88f);
+            return ((Side*X+Up*Y+Normal*Z)*Scale).GetSafeNormal(.001f,FaceNormal);
+        }
+    };
+    void Triangle(FVector A,FVector B,FVector C,FVector Outward,FLinearColor Color,const FSurfaceMapping& Mapping,
         TArray<FVector>& Vertices,TArray<int32>& Indices,TArray<FVector>& Normals,
         TArray<FVector2D>& UV,TArray<FLinearColor>& Colors,TArray<FProcMeshTangent>& Tangents)
     {
@@ -51,10 +74,21 @@ namespace MCCalculus
         // for lighting and reverse only the indices, otherwise the crust's
         // front shell is culled and only its recessed rear cap is visible.
         Vertices.Append({A,B,C}); Indices.Append({Base,Base+2,Base+1});
-        Normals.Append({N,N,N}); UV.Append({FVector2D(0,0),FVector2D(1,0),FVector2D(.5,1)});
+        const FVector NA=Color.A>.5f?N:Mapping.NormalFor(A,N);
+        const FVector NB=Color.A>.5f?N:Mapping.NormalFor(B,N);
+        const FVector NC=Color.A>.5f?N:Mapping.NormalFor(C,N);
+        Normals.Append({NA,NB,NC}); UV.Append({Mapping.UVFor(A),Mapping.UVFor(B),Mapping.UVFor(C)});
         Colors.Append({Color,Color,Color});
-        const FProcMeshTangent Tangent((B-A).GetSafeNormal(),false);
-        Tangents.Append({Tangent,Tangent,Tangent});
+        // Match the texture's centimetre U axis rather than the arbitrary
+        // first edge of each triangle, including the peer's nonuniform scale.
+        const FVector U=Mapping.Side/Mapping.Scale;
+        auto TangentFor=[&](FVector Normal)
+        {
+            const FVector X=FVector::VectorPlaneProject(U,Normal).GetSafeNormal(.001f,(B-A).GetSafeNormal());
+            const bool Flip=FVector::DotProduct(FVector::CrossProduct(Normal,X),Mapping.Up/Mapping.Scale)<0;
+            return FProcMeshTangent(X,Flip);
+        };
+        Tangents.Append({TangentFor(NA),TangentFor(NB),TangentFor(NC)});
     }
 }
 
@@ -232,9 +266,11 @@ bool UMCToothCalculusComponent::BuildSurfacePieces()
         for(int32 Piece=0;Piece<MCCalculus::PiecesPerDeposit;++Piece)
         {
             const int32 Ring=Piece==0?0:Piece<=6?1:2;
-            const float Angle=Piece==0?0.f:(Piece-1-(Ring==2?6:0))*TWO_PI/6.f+(Ring==2?PI/6.f:0.f);
-            const FVector2D Offset=FVector2D(FMath::Cos(Angle),FMath::Sin(Angle))*(Ring==0?0.f:Ring==1?.34f:.66f)
-                +FVector2D(Random.FRandRange(-.065f,.065f),Random.FRandRange(-.065f,.065f));
+            const float Angle=(Piece==0?0.f:(Piece-1-(Ring==2?6:0))*TWO_PI/6.f+(Ring==2?PI/6.f:0.f))
+                +Random.FRandRange(-.22f,.22f);
+            const float Distance=Ring==0?0.f:Ring==1?Random.FRandRange(.28f,.39f):Random.FRandRange(.57f,.72f);
+            const FVector2D Offset=FVector2D(FMath::Cos(Angle),FMath::Sin(Angle))*Distance
+                +FVector2D(Random.FRandRange(-.075f,.075f),Random.FRandRange(-.075f,.075f));
             const FVector Plane=FVector(Anchor.Center)+(Side*(Offset.X*Anchor.Width)+Up*(Offset.Y*Anchor.Height))/GrowthScale;
             FHitResult CenterHit;
             const FVector WorldPlane=T.TransformPosition(Plane);
@@ -245,8 +281,8 @@ bool UMCToothCalculusComponent::BuildSurfacePieces()
             const FVector PieceNormal=MCCalculus::WorldNormal(T,P.Normal);
             P.Up=T.InverseTransformVectorNoScale(FVector::VectorPlaneProject(T.TransformVectorNoScale(Up),PieceNormal).GetSafeNormal());
             P.Side=T.InverseTransformVectorNoScale(FVector::CrossProduct(T.TransformVectorNoScale(P.Up),PieceNormal).GetSafeNormal());
-            P.Radius=Random.FRandRange(.27f,.35f)*Anchor.Width;
-            P.Depth=Random.FRandRange(12.f,22.f);
+            P.Radius=Random.FRandRange(.30f,.39f)*Anchor.Width;
+            P.Depth=Random.FRandRange(12.f,18.f);
             P.Variation=Random.FRandRange(.35f,.96f);
             for(int32 V=0;V<MCCalculus::RimCount;++V)
             {
@@ -283,15 +319,21 @@ void UMCToothCalculusComponent::BuildDepositMesh()
         const FVector Peak=P.Center+NormalOffset*Depth
             +(P.Side*(P.Radius*.15f*FMath::Sin(I*2.17f+P.Variation*8))
                 +P.Up*(P.Radius*.13f*FMath::Cos(I*1.91f+P.Variation*9)))/Scale;
-        const FLinearColor Color=MCCalculus::StoneColor(P.Variation);
-        const FLinearColor Fracture=FMath::Lerp(Color,FLinearColor(.98f,.91f,.72f),Stage<3?.65f:0.f);
+        FLinearColor Color=MCCalculus::StoneColor(P.Variation); Color.A=0;
+        FLinearColor Fracture=FMath::Lerp(Color,FLinearColor(.98f,.91f,.72f),.65f); Fracture.A=1;
+        MCCalculus::FSurfaceMapping Mapping;
+        Mapping.Origin=P.Center; Mapping.Scale=Scale; Mapping.Side=P.Side; Mapping.Up=P.Up;
+        Mapping.Normal=(P.Normal/Scale).GetSafeNormal(); Mapping.Radius=P.Radius*Radius; Mapping.Depth=Depth;
+        const uint32 TextureSeed=uint32(State.Seed)*196613u+uint32(I)*31469u;
+        Mapping.Offset=FVector2D(float(TextureSeed&1023u)/257.f,float((TextureSeed>>10)&1023u)/263.f);
+        Mapping.bSmooth=true;
         for(int32 V=0;V<P.Rim.Num();++V)
         {
             const int32 Next=(V+1)%P.Rim.Num();
             // A chipped stage removes a seeded side of the piece, exposing a new uneven cross-section.
             auto Chip=[&](int32 Corner)
             {
-                return (Stage<3 && (Corner+I)%8<3)?(Stage==2?.7f:.35f):1.f;
+                return (Stage<3 && (Corner+I)%MCCalculus::RimCount<4)?(Stage==2?.7f:.35f):1.f;
             };
             auto Rim=[&](int32 Corner)
             {
@@ -299,21 +341,32 @@ void UMCToothCalculusComponent::BuildDepositMesh()
             };
             auto Shoulder=[&](int32 Corner)
             {
-                const float Grain=.5f+.5f*FMath::Sin(Corner*4.13f+I*2.37f+P.Variation*11);
-                const float Width=.64f+Grain*.14f,Height=.56f+Grain*.2f;
+                const float Grain=.5f+.5f*FMath::Sin(Corner*.86f+I*2.37f+P.Variation*11);
+                const float Width=.77f+Grain*.10f,Height=.39f+Grain*.14f;
                 return P.Center+(P.Rim[Corner]-P.Center)*(Radius*Width*Chip(Corner))
-                    +NormalOffset*(Depth*Height*((Stage<3 && (Corner+I)%8<3)?(.45f+.55f*Fraction):1.f));
+                    +NormalOffset*(Depth*Height*((Stage<3 && (Corner+I)%MCCalculus::RimCount<4)?(.45f+.55f*Fraction):1.f));
             };
-            const FVector A=Rim(V),B=Rim(Next),C=Shoulder(Next),D=Shoulder(V);
-            const FLinearColor FaceColor=(Stage<3 && (V+I)%8<3)?Fracture:Color;
-            // A thick irregular shoulder breaks up each lobe's silhouette;
-            // the top is offset and the base remains embedded in real enamel.
+            auto Crown=[&](int32 Corner)
+            {
+                const float Grain=.5f+.5f*FMath::Sin(Corner*.79f+I*1.63f+P.Variation*9);
+                const float Width=.35f+Grain*.14f,Height=.83f+Grain*.10f;
+                return P.Center+(P.Rim[Corner]-P.Center)*(Radius*Width*Chip(Corner))
+                    +NormalOffset*(Depth*Height*((Stage<3 && (Corner+I)%MCCalculus::RimCount<4)?(.55f+.45f*Fraction):1.f));
+            };
+            const FVector A=Rim(V),B=Rim(Next),C=Shoulder(Next),D=Shoulder(V),E=Crown(Next),F=Crown(V);
+            const FLinearColor FaceColor=(Stage<3 && (V+I)%MCCalculus::RimCount<4)?Fracture:Color;
+            // Two irregular bevel rings form a mineral crust with broad soft
+            // old surfaces, while a newly cut sector exposes angular facets.
             const FVector SideNormal=(A+B+C+D)*.25f-P.Center;
-            MCCalculus::Triangle(A,B,C,SideNormal,FaceColor,Vertices,Indices,Normals,UV,Colors,Tangents);
-            MCCalculus::Triangle(A,C,D,SideNormal,FaceColor,Vertices,Indices,Normals,UV,Colors,Tangents);
-            MCCalculus::Triangle(Peak,D,C,P.Normal,FaceColor,Vertices,Indices,Normals,UV,Colors,Tangents);
+            MCCalculus::Triangle(A,B,C,SideNormal,FaceColor,Mapping,Vertices,Indices,Normals,UV,Colors,Tangents);
+            MCCalculus::Triangle(A,C,D,SideNormal,FaceColor,Mapping,Vertices,Indices,Normals,UV,Colors,Tangents);
+            const FVector UpperNormal=(C+D+E+F)*.25f-P.Center;
+            MCCalculus::Triangle(D,C,E,UpperNormal,FaceColor,Mapping,Vertices,Indices,Normals,UV,Colors,Tangents);
+            MCCalculus::Triangle(D,E,F,UpperNormal,FaceColor,Mapping,Vertices,Indices,Normals,UV,Colors,Tangents);
+            MCCalculus::Triangle(Peak,F,E,P.Normal,FaceColor,Mapping,Vertices,Indices,Normals,UV,Colors,Tangents);
             // The rear cap is tucked into enamel, closing the rock without an extra transparent coating.
-            MCCalculus::Triangle(P.Center-NormalOffset*.4f,B,A,-P.Normal,Color*.83f,Vertices,Indices,Normals,UV,Colors,Tangents);
+            MCCalculus::FSurfaceMapping Rear=Mapping; Rear.bSmooth=false;
+            MCCalculus::Triangle(P.Center-NormalOffset*.4f,B,A,-P.Normal,Color*.83f,Rear,Vertices,Indices,Normals,UV,Colors,Tangents);
         }
     }
     if(Indices.IsEmpty()) Deposits->ClearAllMeshSections();
@@ -442,7 +495,7 @@ void UMCToothCalculusComponent::EmitShards(FVector Point,FVector Normal,int32 Se
         Shard.Rotation=FRotator(Random.FRandRange(-180.f,180.f),Random.FRandRange(-180.f,180.f),Random.FRandRange(-180.f,180.f));
         Shard.Spin=FRotator(Random.FRandRange(-500.f,500.f),Random.FRandRange(-500.f,500.f),Random.FRandRange(-500.f,500.f));
         Shard.Size=Random.FRandRange(2.f,5.f); Shard.Lifetime=Random.FRandRange(.55f,.8f);
-        Shard.Color=MCCalculus::StoneColor(Random.FRandRange(.4f,.95f));
+        Shard.Color=MCCalculus::StoneColor(Random.FRandRange(.4f,.95f)); Shard.Color.A=1;
         Shards.Add(Shard);
     }
     UpdateShardMesh(); SetComponentTickEnabled(true);
@@ -459,12 +512,16 @@ void UMCToothCalculusComponent::UpdateShardMesh()
     for(const FShard& S:Shards)
     {
         const float Fade=1-FMath::SmoothStep(S.Lifetime-.18f,S.Lifetime,S.Age);
+        MCCalculus::FSurfaceMapping Mapping;
+        Mapping.Origin=S.Point;
+        Mapping.Side=S.Rotation.RotateVector(FVector::ForwardVector);
+        Mapping.Up=S.Rotation.RotateVector(FVector::RightVector);
         FVector Points[4];
         for(int32 I=0;I<4;++I) Points[I]=S.Point+S.Rotation.RotateVector(Corners[I]*S.Size*Fade);
         for(const auto& F:Faces)
         {
             const FVector Outside=(Points[F[0]]+Points[F[1]]+Points[F[2]])/3-S.Point;
-            MCCalculus::Triangle(Points[F[0]],Points[F[1]],Points[F[2]],Outside,S.Color,Vertices,Indices,Normals,UV,Colors,Tangents);
+            MCCalculus::Triangle(Points[F[0]],Points[F[1]],Points[F[2]],Outside,S.Color,Mapping,Vertices,Indices,Normals,UV,Colors,Tangents);
         }
     }
     Debris->CreateMeshSection_LinearColor(0,Vertices,Indices,Normals,UV,Colors,Tangents,false);

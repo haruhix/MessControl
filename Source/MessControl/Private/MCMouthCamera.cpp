@@ -2,6 +2,7 @@
 #include "MCGameState.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
+#include "MCOrbitSpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Components/BoxComponent.h"
@@ -59,6 +60,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
                 ?PC->PlayerCameraManager->PendingViewTarget.Target.Get():PC->GetViewTarget();
             if(Destination==this) {Viewer=PC;break;}
         }
+    if (auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) Arm->SetSurfaceProbeActive(Viewer!=nullptr);
     if(!Viewer) { ClearCameraWallReveal(); return; }
     const FVector P=GetActorLocation();
     float Suction=0;

@@ -96,6 +96,7 @@ FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 bool UMCInventoryComponent::ShouldPresentTool() const
 {
     if(!Hero || !Hero->Status->IsAlive() || Hero->HeldFood || Hero->FoodCollection->bCollecting || Hero->IsYawning() || Hero->OrderJumpTarget || Hero->SwallowedBy) return false;
+    if(Hero->Expression && Hero->Expression->BodyAlpha()>.001f) return false;
     const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
     return (!Move || (!Move->IsSwimming() && !Move->IsClimbing()))
         && Hero->AnimationOrderPress<.05f && Hero->AnimationOrderFlight<.05f

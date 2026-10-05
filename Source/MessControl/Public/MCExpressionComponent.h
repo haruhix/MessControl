@@ -24,6 +24,8 @@ struct FMCEmoteEntry
     UPROPERTY(EditAnywhere,BlueprintReadWrite) FName EyeMorph;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bFaceOnly=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bHoldFinalPose=false;
+    // Short authored dance cycles repeat for Duration instead of ending mid-gesture.
+    UPROPERTY(EditAnywhere,BlueprintReadWrite) bool bLooping=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="0.5",ClampMax="10")) float Duration=3;
     float Length() const;
 };
@@ -61,6 +63,8 @@ public:
     /** Transient reaction derived locally from the replicated food inhale; never changes an emote. */
     UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float FoodSuctionReaction=0;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Emotes") void ServerPlayEmote(FName Id);
+    // Authority-owned reward feedback uses the same replicated cosmetic state.
+    void PlayChestCelebration();
     bool CanPlay(const FMCEmoteEntry& Entry) const;
     const FMCEmoteEntry* ActiveEntry() const;
     float EmoteAlpha() const;

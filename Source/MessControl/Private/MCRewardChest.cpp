@@ -9,6 +9,7 @@
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCExpressionComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -181,6 +182,7 @@ void AMCRewardChest::Tick(float Dt)
         LidPivot->SetRelativeRotation(FRotator(105.f*(Alpha*Alpha*(3-2*Alpha)),0,0));
         if(HasAuthority() && Alpha>=1) {
             SetStage(EMCRewardChestStage::Open);
+            if(IsValid(OpeningPlayer) && OpeningPlayer->Expression) OpeningPlayer->Expression->PlayChestCelebration();
             if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
                 PC->ClientShowPerkChoices(this,LootIDs,Polarity);
         }

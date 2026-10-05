@@ -1,4 +1,5 @@
 #include "MCToothCharacter.h"
+#include "MCOrbitSpringArmComponent.h"
 #include "Components/MeshComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -24,6 +25,7 @@ namespace
 void AMCToothCharacter::ClearCameraWallReveal()
 {
     for (const auto& Entry:CameraRevealWalls) if (auto* Wall=Entry.Key.Get()) {
+        if (auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) Arm->SetRevealedWall(Wall,false);
         Wall->SetCustomPrimitiveDataFloat(SettingsDataIndex,0);
         Wall->SetCollisionResponseToChannel(ECC_Camera,Entry.Value.CameraResponse);
     }
@@ -46,6 +48,7 @@ void AMCToothCharacter::UpdateCameraWallReveal(float Dt,const FVector& Eye,const
                 auto& State=CameraRevealWalls.Add(Wall); State.CameraResponse=Wall->GetCollisionResponseToChannel(ECC_Camera);
                 // Only this local world's camera channel changes; pawn/physics collision remains authored.
                 Wall->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+                if (auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) Arm->SetRevealedWall(Wall,true);
             }
         }
     }
@@ -55,6 +58,7 @@ void AMCToothCharacter::UpdateCameraWallReveal(float Dt,const FVector& Eye,const
         auto* Wall=It.Key().Get();
         if (!Wall) { It.RemoveCurrent(); continue; }
         if (!CanReveal(Wall)) {
+            if (auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) Arm->SetRevealedWall(Wall,false);
             Wall->SetCustomPrimitiveDataFloat(SettingsDataIndex,0);
             Wall->SetCollisionResponseToChannel(ECC_Camera,It.Value().CameraResponse);
             It.RemoveCurrent(); continue;

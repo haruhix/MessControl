@@ -1,0 +1,249 @@
+{
+  "nodes": [
+    {
+      "id_alias": "macro",
+      "resource_url": "pkg:///clouds_2?dependency=1583199897",
+      "parameters": {
+        "scale": {
+          "value": 4,
+          "type": "int"
+        },
+        "disorder": 0.6
+      },
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "id_alias": "grain",
+      "resource_url": "pkg:///clouds_2?dependency=1583199897",
+      "parameters": {
+        "scale": {
+          "value": 32,
+          "type": "int"
+        },
+        "disorder": 0.8
+      },
+      "position": [
+        0,
+        280
+      ]
+    },
+    {
+      "id_alias": "pores",
+      "resource_url": "pkg:///cells_2?dependency=1583203108",
+      "parameters": {
+        "scale": {
+          "value": 56,
+          "type": "int"
+        },
+        "edge_width": 0.6,
+        "invert": true,
+        "disorder": 0.65
+      },
+      "position": [
+        0,
+        560
+      ]
+    },
+    {
+      "id_alias": "height",
+      "definition_id": "sbs::compositing::blend",
+      "parameters": {
+        "opacitymult": 0.25
+      },
+      "position": [
+        300,
+        280
+      ]
+    },
+    {
+      "id_alias": "normal",
+      "definition_id": "sbs::compositing::normal",
+      "parameters": {
+        "intensity": 2,
+        "inversedy": true
+      },
+      "position": [
+        600,
+        280
+      ]
+    },
+    {
+      "id_alias": "rough",
+      "definition_id": "sbs::compositing::levels",
+      "parameters": {
+        "leveloutlow": {
+          "value": [
+            0.48,
+            0.48,
+            0.48,
+            1
+          ],
+          "type": "float4"
+        },
+        "levelouthigh": {
+          "value": [
+            0.8,
+            0.8,
+            0.8,
+            1
+          ],
+          "type": "float4"
+        }
+      },
+      "position": [
+        600,
+        560
+      ]
+    },
+    {
+      "id_alias": "aged",
+      "definition_id": "sbs::compositing::uniform",
+      "parameters": {
+        "outputcolor": {
+          "value": [
+            0.61,
+            0.46,
+            0.23,
+            1
+          ],
+          "type": "float4"
+        }
+      },
+      "position": [
+        300,
+        -280
+      ]
+    },
+    {
+      "id_alias": "chalk",
+      "definition_id": "sbs::compositing::uniform",
+      "parameters": {
+        "outputcolor": {
+          "value": [
+            0.9,
+            0.8,
+            0.55,
+            1
+          ],
+          "type": "float4"
+        }
+      },
+      "position": [
+        300,
+        -140
+      ]
+    },
+    {
+      "id_alias": "color",
+      "definition_id": "sbs::compositing::blend",
+      "position": [
+        600,
+        0
+      ]
+    },
+    {
+      "id_alias": "out_color",
+      "definition_id": "sbs::compositing::output",
+      "usage": "baseColor",
+      "label": "BaseColor",
+      "position": [
+        900,
+        0
+      ]
+    },
+    {
+      "id_alias": "out_normal",
+      "definition_id": "sbs::compositing::output",
+      "usage": "normal",
+      "label": "Normal",
+      "position": [
+        900,
+        280
+      ]
+    },
+    {
+      "id_alias": "out_rough",
+      "definition_id": "sbs::compositing::output",
+      "usage": "roughness",
+      "label": "Roughness",
+      "position": [
+        900,
+        560
+      ]
+    },
+    {
+      "id_alias": "out_height",
+      "definition_id": "sbs::compositing::output",
+      "usage": "height",
+      "label": "Height",
+      "position": [
+        900,
+        800
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "from": "pores",
+      "from_output": "output",
+      "to": "height",
+      "to_input": "source"
+    },
+    {
+      "from": "grain",
+      "from_output": "output",
+      "to": "height",
+      "to_input": "destination"
+    },
+    {
+      "from": "height",
+      "to": "normal",
+      "to_input": "input1"
+    },
+    {
+      "from": "grain",
+      "from_output": "output",
+      "to": "rough",
+      "to_input": "input1"
+    },
+    {
+      "from": "chalk",
+      "to": "color",
+      "to_input": "source"
+    },
+    {
+      "from": "aged",
+      "to": "color",
+      "to_input": "destination"
+    },
+    {
+      "from": "macro",
+      "from_output": "output",
+      "to": "color",
+      "to_input": "opacity"
+    },
+    {
+      "from": "color",
+      "to": "out_color",
+      "to_input": "inputNodeOutput"
+    },
+    {
+      "from": "normal",
+      "to": "out_normal",
+      "to_input": "inputNodeOutput"
+    },
+    {
+      "from": "rough",
+      "to": "out_rough",
+      "to_input": "inputNodeOutput"
+    },
+    {
+      "from": "height",
+      "to": "out_height",
+      "to_input": "inputNodeOutput"
+    }
+  ]
+}

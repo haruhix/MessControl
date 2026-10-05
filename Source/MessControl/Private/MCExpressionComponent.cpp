@@ -13,7 +13,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "Net/UnrealNetwork.h"
 
-float FMCEmoteEntry::Length() const { return Animation && !bHoldFinalPose?Animation->GetPlayLength():FMath::Clamp(Duration,.5f,10.f); }
+float FMCEmoteEntry::Length() const { return Animation && !bHoldFinalPose && !bLooping?Animation->GetPlayLength():FMath::Clamp(Duration,.5f,10.f); }
 UMCExpressionComponent::UMCExpressionComponent()
 {
     SetIsReplicatedByDefault(true); PrimaryComponentTick.bCanEverTick=true;
@@ -37,6 +37,7 @@ bool UMCExpressionComponent::CanPlay(const FMCEmoteEntry& Entry) const
     if (!Tooth || !Tooth->ToothPhysics->CanAct() || !Tooth->Status->IsAlive()) return false;
     if (Now()-Tooth->Status->State.DamageAt<.65) return false;
     return !Entry.Animation || Entry.bFaceOnly || (!Tooth->bHandling && !Tooth->bBrushing && !Tooth->HeldFood && !Tooth->ClingTooth
+        && !Tooth->IsPrimaryHeld() && !Tooth->IsYawning() && !Tooth->bInCoffee
         && Tooth->GetVelocity().Size2D()<25 && Tooth->GetCharacterMovement()->IsMovingOnGround());
 }
 void UMCExpressionComponent::ServerPlayEmote_Implementation(FName Id)
@@ -45,6 +46,14 @@ void UMCExpressionComponent::ServerPlayEmote_Implementation(FName Id)
     const auto* Entry=Library->Entries.FindByPredicate([&](const FMCEmoteEntry& E){return E.Id==Id;});
     if (!Entry || !CanPlay(*Entry) || (!State.Id.IsNone() && EmoteAlpha()>.01f)) return;
     State.Id=Id; State.StartedAt=Now(); State.StoppedAt=-1; ++State.Serial; NextEmoteAt=Now()+.4;
+    Tooth->ForceNetUpdate();
+}
+void UMCExpressionComponent::PlayChestCelebration()
+{
+    if(!Tooth || !Tooth->HasAuthority() || !Library) return;
+    const auto* Entry=Library->Entries.FindByPredicate([](const FMCEmoteEntry& E){return E.Id==TEXT("happy_jump");});
+    if(!Entry || !Entry->Animation || !CanPlay(*Entry)) return;
+    State.Id=Entry->Id; State.StartedAt=Now(); State.StoppedAt=-1; ++State.Serial; NextEmoteAt=Now()+.4;
     Tooth->ForceNetUpdate();
 }
 float UMCExpressionComponent::EmoteAlpha() const
@@ -174,7 +183,9 @@ void UMCExpressionComponent::BuildBodyPose(TArray<FTransform>& Pose,const FRefer
     if (!Entry || Alpha<.001f || !Tooth->ToothPhysics->CanAct()) return;
     const auto* Skeleton=Entry->Animation->GetSkeleton(); if (!Skeleton) return;
     const double SampleNow=State.StoppedAt>=0?FMath::Min(Now(),State.StoppedAt):Now();
-    const double Time=FMath::Clamp(SampleNow-State.StartedAt,0.,double(Entry->Animation->GetPlayLength()));
+    const double Elapsed=FMath::Max(0.,SampleNow-State.StartedAt);
+    const double ClipLength=Entry->Animation->GetPlayLength();
+    const double Time=Entry->bLooping && ClipLength>SMALL_NUMBER?FMath::Fmod(Elapsed,ClipLength):FMath::Min(Elapsed,ClipLength);
     FAnimExtractContext Context(Time,false);
     for (int32 I=0;I<Pose.Num();++I)
     {

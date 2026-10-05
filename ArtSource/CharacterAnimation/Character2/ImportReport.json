@@ -1,0 +1,136 @@
+{
+  "source": "C:\\Users\\user\\Downloads\\Telegram Desktop\\Character2.blend",
+  "source_sha256": "64eb9f4e2f0d61f9d3cc87162f3d77607cc2af803359290c7bb75f05ee2c6daf",
+  "fps": 24.0,
+  "target_bones": 107,
+  "clips": [
+    {
+      "name": "laugh1",
+      "frames": [
+        1,
+        48
+      ],
+      "source_frames": [
+        1,
+        48
+      ],
+      "max_motion_cm": 53.376168803298015,
+      "max_endpoint_error_cm": 2.3379613250982785e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Character2\\A_Teeth_Laugh1.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Character2/A_Teeth_Laugh1.A_Teeth_Laugh1",
+      "seconds": 1.9583333730697632
+    },
+    {
+      "name": "laugh2",
+      "frames": [
+        1,
+        47
+      ],
+      "source_frames": [
+        1,
+        47
+      ],
+      "max_motion_cm": 53.968919640005666,
+      "max_endpoint_error_cm": 1.9380952294255805e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Character2\\A_Teeth_Laugh2.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Character2/A_Teeth_Laugh2.A_Teeth_Laugh2",
+      "seconds": 1.9166666269302368
+    },
+    {
+      "name": "point",
+      "frames": [
+        1,
+        49
+      ],
+      "source_frames": [
+        1,
+        1
+      ],
+      "max_motion_cm": 85.07062827465155,
+      "max_endpoint_error_cm": 1.2361031910720559e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Character2\\A_Teeth_Point.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Character2/A_Teeth_Point.A_Teeth_Point",
+      "seconds": 2.0
+    },
+    {
+      "name": "dance3",
+      "frames": [
+        1,
+        24
+      ],
+      "source_frames": [
+        1,
+        24
+      ],
+      "max_motion_cm": 70.05163440962296,
+      "max_endpoint_error_cm": 2.442598051999225e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Character2\\A_Teeth_Dance3.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Character2/A_Teeth_Dance3.A_Teeth_Dance3",
+      "seconds": 0.9583333134651184
+    },
+    {
+      "name": "dance4",
+      "frames": [
+        1,
+        16
+      ],
+      "source_frames": [
+        1,
+        16
+      ],
+      "max_motion_cm": 81.42208039457878,
+      "max_endpoint_error_cm": 2.2967518956741897e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Character2\\A_Teeth_Dance4.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Character2/A_Teeth_Dance4.A_Teeth_Dance4",
+      "seconds": 0.625
+    },
+    {
+      "name": "dance5",
+      "frames": [
+        1,
+        20
+      ],
+      "source_frames": [
+        1,
+        20
+      ],
+      "max_motion_cm": 41.679630022804794,
+      "max_endpoint_error_cm": 2.4128914331712292e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Character2\\A_Teeth_Dance5.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Character2/A_Teeth_Dance5.A_Teeth_Dance5",
+      "seconds": 0.7916666865348816
+    },
+    {
+      "name": "happy_jump",
+      "frames": [
+        1,
+        31
+      ],
+      "source_frames": [
+        1,
+        31
+      ],
+      "max_motion_cm": 124.46571907645786,
+      "max_endpoint_error_cm": 3.729098281100684e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Character2\\A_Teeth_Happy_Jump.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Character2/A_Teeth_Happy_Jump.A_Teeth_Happy_Jump",
+      "seconds": 1.25
+    },
+    {
+      "name": "punch",
+      "frames": [
+        1,
+        14
+      ],
+      "source_frames": [
+        1,
+        14
+      ],
+      "max_motion_cm": 104.11149372187492,
+      "max_endpoint_error_cm": 1.7993891014207083e-05,
+      "file": "E:\\DEVGAME\\MessControl\\ArtSource\\CharacterAnimation\\Character2\\A_Teeth_Punch.fbx",
+      "asset": "/Game/Gameplay/Character/Animations/Character2/A_Teeth_Punch.A_Teeth_Punch",
+      "seconds": 0.5416666865348816
+    }
+  ]
+}
