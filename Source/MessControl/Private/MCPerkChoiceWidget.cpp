@@ -8,7 +8,6 @@
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
-#include "Components/ProgressBar.h"
 #include "Components/ScaleBox.h"
 #include "Components/ScaleBoxSlot.h"
 #include "Components/SizeBox.h"
@@ -79,54 +78,14 @@ void UMCPerkChoiceWidget::NativeOnInitialized()
     Cards = WidgetTree->ConstructWidget<UHorizontalBox>();
     Main->AddChildToVerticalBox(Cards)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
 
-    Opening = WidgetTree->ConstructWidget<UVerticalBox>();
-    auto* OpeningSlot = Main->AddChildToVerticalBox(Opening);
-    OpeningSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    OpeningSlot->SetHorizontalAlignment(HAlign_Center);
-    OpeningSlot->SetVerticalAlignment(VAlign_Center);
-    auto* OpeningSymbol = MCPerkCardPrivate::Label(WidgetTree, FText::FromString(TEXT("◇")), 86, MCPerkCardPrivate::Mint);
-    Opening->AddChildToVerticalBox(OpeningSymbol)->SetPadding(FMargin(0, 0, 0, 24));
-    auto* ProgressSize = WidgetTree->ConstructWidget<USizeBox>();
-    ProgressSize->SetWidthOverride(520);
-    ProgressSize->SetHeightOverride(14);
-    OpeningProgress = WidgetTree->ConstructWidget<UProgressBar>();
-    OpeningProgress->SetFillColorAndOpacity(MCPerkCardPrivate::Mint);
-    ProgressSize->SetContent(OpeningProgress);
-    Opening->AddChildToVerticalBox(ProgressSize);
-    OpeningTime = MCPerkCardPrivate::Label(WidgetTree, FText::GetEmpty(), 16, MCPerkCardPrivate::Muted);
-    Opening->AddChildToVerticalBox(OpeningTime)->SetPadding(FMargin(0, 16, 0, 0));
     Hint = MCPerkCardPrivate::Label(WidgetTree, FText::GetEmpty(), 14, MCPerkCardPrivate::Muted);
     Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(0, 22, 0, 0));
-}
-
-void UMCPerkChoiceWidget::ShowOpening(double ServerEndsAt)
-{
-    bShowingChoices = false;
-    bSelectionPending = false;
-    OpeningEndsAt = ServerEndsAt;
-    Cards->SetVisibility(ESlateVisibility::Collapsed);
-    Opening->SetVisibility(ESlateVisibility::Visible);
-    Title->SetText(FText::FromString(TEXT("Вскрытие щёткой…")));
-    Subtitle->SetText(FText::FromString(TEXT("Открываем замок")));
-    Hint->SetText(FText::GetEmpty());
-    OpeningProgress->SetPercent(0);
-    OpeningTime->SetText(FText::GetEmpty());
-}
-
-void UMCPerkChoiceWidget::UpdateOpeningProgress(double ServerNow)
-{
-    if (bShowingChoices) return;
-    const float Remaining = FMath::Max(0., OpeningEndsAt - ServerNow);
-    OpeningProgress->SetPercent(FMath::Clamp(1.f - Remaining / 5.f, 0.f, 1.f));
-    OpeningTime->SetText(Remaining > 0 ? FText::FromString(FString::Printf(TEXT("Осталось %.1f с"), Remaining))
-        : FText::FromString(TEXT("Замок открыт…")));
 }
 
 void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity Polarity)
 {
     bShowingChoices = true;
     bSelectionPending = false;
-    Opening->SetVisibility(ESlateVisibility::Collapsed);
     Cards->SetVisibility(ESlateVisibility::Visible);
     Cards->ClearChildren();
     Buttons.Reset();

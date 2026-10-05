@@ -92,7 +92,12 @@ void UMCGazeComponent::SelectTarget()
     auto Candidate=[&](AActor* Actor,FVector P,EMCGazeInterest Kind)
     {
         if (!IsValid(Actor) || Actor==Tooth || Actor->IsHidden() || !CanSee(Actor,P)) return;
-        const float Value=int32(Kind)*100+30*(1-FVector::Distance(EyePosition(),P)/Settings.Radius)+(Actor==Target.Actor?8:0);
+        const float Distance=FVector::Distance(EyePosition(),P);
+        const auto* Player=Kind==EMCGazeInterest::Player?Cast<AMCToothCharacter>(Actor):nullptr;
+        // A nearby dirty face attracts a glance during ordinary arena play.
+        // Work contacts and immediate dangers retain their higher attention score.
+        const float Social=Player && Distance<250?130*FMath::Clamp(Player->Status->CoffeeAmount()*4,0.f,1.f):0.f;
+        const float Value=int32(Kind)*100+Social+30*(1-Distance/Settings.Radius)+(Actor==Target.Actor?8:0);
         if (Value>Score) { Best=Actor; Point=P; Interest=Kind; Score=Value; }
     };
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
@@ -209,7 +214,8 @@ void UMCGazeComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
     const FVector Aim=Tooth->GetMesh()->GetComponentTransform().InverseTransformPosition(TargetPoint());
     const float Closure=FMath::Max(Blink,Tooth->Expression?Tooth->Expression->Squint():0.f);
     // Authored facial morphs already supply the emotional squint.
-    const bool MorphBlink=Tooth->Expression && Tooth->Expression->ApplyMorphBlink(Blink);
+    const bool MorphBlink=Tooth->Expression && Tooth->Expression->ApplyMorphBlink(
+        FMath::Max(Blink,Tooth->Expression->SocialEyeClosure()));
     for (int32 Side=0;Side<2;++Side)
     {
         const int32 Eye=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("eye_l"):TEXT("eye_r"))); if (Eye==INDEX_NONE) continue;

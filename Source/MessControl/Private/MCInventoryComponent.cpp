@@ -8,11 +8,13 @@
 #include "MCGripComponent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCExpressionComponent.h"
+#include "MCRewardChest.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "Engine/StaticMeshSocket.h"
 #include "PhysicsEngine/BodyInstance.h"
 #include "GameFramework/GameStateBase.h"
 #include "EngineUtils.h"
@@ -31,6 +33,8 @@ void UMCInventoryComponent::BeginPlay()
 {
     Super::BeginPlay(); Hero=Cast<AMCToothCharacter>(GetOwner()); Settings=Profile.LoadSynchronous();
     if(!Settings) Settings=NewObject<UMCEquipmentProfile>(this);
+    // Socket data also belongs to authority-only servers without a visual Tool.
+    if(!Settings->SprayMesh.IsNull()) Settings->SprayMesh.LoadSynchronous();
     if(!Hero || GetNetMode()==NM_DedicatedServer) return;
     auto Part=[&](const TCHAR* Name) {
         auto* Mesh=NewObject<UStaticMeshComponent>(Hero,Name); Mesh->SetupAttachment(Hero->BrushPivot);
@@ -97,6 +101,8 @@ FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 bool UMCInventoryComponent::ShouldPresentTool() const
 {
     if(!Hero || !Hero->Status->IsAlive() || Hero->HeldFood || Hero->FoodCollection->bCollecting || Hero->IsYawning() || Hero->OrderJumpTarget || Hero->SwallowedBy) return false;
+    if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
+        || Hero->RewardInteraction->Stage==EMCRewardChestStage::Opening)) return false;
     if(Hero->Expression && Hero->Expression->BodyAlpha()>.001f) return false;
     const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
     return (!Move || (!Move->IsSwimming() && !Move->IsClimbing()))
@@ -278,6 +284,41 @@ AMCFirePatch* UMCInventoryComponent::FindFireTarget() const
 }
 FVector UMCInventoryComponent::SprayAim() const
 {return FireTarget?FireTarget->GetActorLocation()+FVector(0,0,20):HealingTarget?HealingTarget->GetActorLocation()+FVector(0,0,10):Hero?Hero->GetActorLocation()+Hero->GetActorForwardVector()*180:FVector::ZeroVector;}
+FVector UMCInventoryComponent::SprayOrigin() const
+{
+    if(!Hero) return FVector::ZeroVector;
+    FVector Local(34,0,31);
+    if(const auto* Mesh=Settings?Settings->SprayMesh.Get():nullptr)
+        if(const auto* Socket=Mesh->FindSocket(TEXT("SprayNozzle")))
+            Local=Settings->SprayTransform.TransformPosition(Socket->RelativeLocation);
+    return Hero->BrushPivot->GetComponentTransform().TransformPosition(Local);
+}
+FVector UMCInventoryComponent::SprayDirection() const
+{
+    return HealingTarget || FireTarget?(SprayAim()-SprayOrigin()).GetSafeNormal():Hero?Hero->GetActorForwardVector():FVector::ForwardVector;
+}
+void UMCInventoryComponent::ReactPlayersToSpray()
+{
+    if(!Hero || !Hero->HasAuthority() || Selected!=EMCToolSlot::Spray || !Hero->IsPrimaryHeld()
+        || !Hero->CanWork() || Hero->bInCoffee || !ShouldPresentTool() || Now()<NextSocialSprayAt) return;
+    NextSocialSprayAt=Now()+.1;
+    const FVector Origin=SprayOrigin(),Direction=SprayDirection();
+    const float Reach=FMath::Max(10.f,Settings?Settings->SprayReach:235.f);
+    const float Spread=FMath::Tan(FMath::DegreesToRadians(18.f));
+    // A short nozzle cone and one sight query per candidate; no physical hit,
+    // damage, care tick or network RPC per particle is needed for this reaction.
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
+        auto* Other=*It;
+        if(Other==Hero || !Other->Status->IsAlive() || !Other->Expression || Other->SwallowedBy) continue;
+        const FVector Point=Other->GetActorLocation()+FVector(0,0,20),Delta=Point-Origin;
+        const float Along=FVector::DotProduct(Delta,Direction);
+        if(Along<=0 || Along>Reach || (Delta-Direction*Along).SizeSquared()>FMath::Square(24+Along*Spread)) continue;
+        FCollisionQueryParams Q(SCENE_QUERY_STAT(MCSocialSpray),false,Hero); Q.AddIgnoredActor(Other);
+        FHitResult Hit;
+        if(GetWorld()->LineTraceSingleByChannel(Hit,Origin,Point,ECC_Visibility,Q)) continue;
+        Other->Expression->ReceiveSpray(Hero);
+    }
+}
 FString UMCInventoryComponent::ToolName() const
 {
     switch(Selected) {
@@ -328,6 +369,7 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
             if(Now()-LastSprayAt>.8 && Hero->SoundPalette) Hero->SoundPalette->Play(this,TEXT("Brush"),Target->GetActorLocation());
             LastSprayAt=Now(); SprayReadyAt=0;
         }
+        ReactPlayersToSpray();
     }
     if(!Hero || !Tool) return;
     if(Presented!=Selected || bPresentedUpgrade!=bWaterJetUnlocked) RefreshMesh();
@@ -335,12 +377,11 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
     const bool Custom=Tool->GetStaticMesh()!=nullptr;
     Tool->SetVisibility(Visible && Custom); Detail->SetVisibility(Visible && Custom && bPresentedFallback && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Spray));
     if(Selected!=EMCToolSlot::Brush || Custom) Hero->Brush->SetVisibility(false);
+    if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
+        || Hero->RewardInteraction->Stage==EMCRewardChestStage::Opening)) Hero->Brush->SetVisibility(true);
     if(SprayMist) {
         const bool Emit=Visible && Selected==EMCToolSlot::Spray && Hero->CanWork() && (HealingTarget || FireTarget || Hero->IsPrimaryHeld());
-        const FVector Nozzle=Tool->DoesSocketExist(TEXT("SprayNozzle"))?Tool->GetSocketLocation(TEXT("SprayNozzle"))
-            :Hero->BrushPivot->GetComponentTransform().TransformPosition(FVector(34,0,31));
-        const FVector Aim=(HealingTarget || FireTarget)?SprayAim():Nozzle+Hero->GetActorForwardVector()*180;
-        if(Emit) SprayMist->SetWorldLocationAndRotation(Nozzle,FRotationMatrix::MakeFromZ((Aim-Nozzle).GetSafeNormal()).Rotator());
+        if(Emit) SprayMist->SetWorldLocationAndRotation(SprayOrigin(),FRotationMatrix::MakeFromZ(SprayDirection()).Rotator());
         if(Emit!=bSprayEmitting) {if(Emit) SprayMist->Activate(true);else SprayMist->Deactivate();bSprayEmitting=Emit;}
     }
 }

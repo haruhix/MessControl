@@ -5,6 +5,9 @@
 #include "MCGripComponent.h"
 #include "MCFoodActor.h"
 #include "MCThroat.h"
+#include "MCGazeComponent.h"
+#include "MCRewardChest.h"
+#include "MCFoodCollectionComponent.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "Engine/SkeletalMesh.h"
@@ -68,6 +71,22 @@ float UMCExpressionComponent::BodyAlpha() const
 {
     const auto* E=ActiveEntry(); return E && E->Animation && !E->bFaceOnly?EmoteAlpha():0;
 }
+bool UMCExpressionComponent::CanReactSocially() const
+{
+    return Tooth && Tooth->Status->IsAlive() && !Tooth->SwallowedBy && !Tooth->IsYawning()
+        && !(Tooth->RewardInteraction && (Tooth->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
+            || Tooth->RewardInteraction->Stage==EMCRewardChestStage::Opening));
+}
+void UMCExpressionComponent::ReceiveSpray(AMCToothCharacter* Source)
+{
+    if(!Tooth || !Tooth->HasAuthority() || !IsValid(Source) || Source==Tooth || !Source->Status->IsAlive()
+        || !Tooth->Status->IsAlive()) return;
+    const double Time=Now();
+    const bool NewContact=SprayState.Source!=Source || Time-SprayState.ContactAt>.5;
+    if(!NewContact && Time-SprayState.ContactAt<.18) return;
+    if(NewContact) SprayState.StartedAt=Time;
+    SprayState.Source=Source; SprayState.ContactAt=Time; Tooth->ForceNetUpdate();
+}
 void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction)
 {
     Super::TickComponent(Dt,Type,TickFunction);
@@ -79,6 +98,15 @@ void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorCompon
     FoodSuctionReaction=FMath::Lerp(FoodSuctionReaction,Suction,1-FMath::Exp(-Rate*FMath::Max(0.f,Dt)));
     if (FoodSuctionReaction<.0001f) FoodSuctionReaction=0;
     FoodSuctionFlinch=1-FMath::SmoothStep(.15f,.5f,float(Now()-FoodSuctionReactionAt));
+    const bool Social=CanReactSocially();
+    const auto* Other=Social && Tooth->Gaze && Tooth->Gaze->Target.Interest==EMCGazeInterest::Player
+        ?Cast<AMCToothCharacter>(Tooth->Gaze->Target.Actor):nullptr;
+    const float Dirt=Other && Other!=Tooth && Other->Status->IsAlive()?Other->Status->CoffeeAmount():0.f;
+    const float Disgust=FMath::Clamp(Dirt,0.f,1.f);
+    SocialDisgust=FMath::Lerp(SocialDisgust,Disgust,1-FMath::Exp(-6.f*FMath::Max(0.f,Dt)));
+    const float Spray=Social?1-FMath::SmoothStep(.3f,1.05f,float(Now()-SprayState.ContactAt)):0.f;
+    SprayReaction=FMath::Lerp(SprayReaction,Spray,1-FMath::Exp(-14.f*FMath::Max(0.f,Dt)));
+    SprayFlinch=1-FMath::SmoothStep(.15f,.55f,float(Now()-SprayState.StartedAt));
     if (Now()-VoiceAt>.25) { Voice=0; VoiceViseme=MCViseme::Rest; }
     if (Tooth && Tooth->HasAuthority() && State.StoppedAt<0)
         if (const auto* Entry=ActiveEntry(); Entry && !CanPlay(*Entry)) { State.StoppedAt=Now(); Tooth->ForceNetUpdate(); }
@@ -137,14 +165,16 @@ bool UMCExpressionComponent::UpdateMouthShapes(float Dt,float EmotionStrength,bo
     const bool Consonant=VoiceViseme==MCViseme::Closed || VoiceViseme==MCViseme::LipBite || uint8(VoiceViseme)>=uint8(MCViseme::L);
     const float SpeechWeight=Fresh?(Consonant?1.f:Voice):0.f;
     const float Suction=!bPain?FoodSuctionReaction*.82f:0.f;
-    const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-SpeechWeight)*(1-Suction);
+    const float Social=!bPain?FMath::Max(SocialDisgust*.38f,SprayReaction*.68f)*(1-Suction):0.f;
+    const float MoodWeight=FMath::Clamp(EmotionStrength,0.f,1.f)*(1-SpeechWeight)*(1-Suction-Social);
     const float Alpha=1-FMath::Exp(-18.f*FMath::Max(0.f,Dt));
     // These are complete poses, so convex blending preserves the shared mouth contour.
     // A common smoothing factor preserves sum(weights) <= 1 during every transition.
     for (FName Name:MouthShapes())
     {
         const float Reaction=Name==TEXT("Mouth_Surprise")?FoodSuctionFlinch:Name==TEXT("Mouth_Effort")?1-FoodSuctionFlinch:0.f;
-        const float Target=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)+Reaction*Suction*(1-SpeechWeight);
+        const float Target=(Name==Speech?SpeechWeight:0.f)+(Name==Mood?MoodWeight:0.f)
+            +(Reaction*Suction+(Name==TEXT("Mouth_Angry")?Social:0.f))*(1-SpeechWeight);
         float& Weight=MouthWeights.FindOrAdd(Name); Weight=FMath::Lerp(Weight,Target,Alpha);
         if (Weight<.0001f) Weight=0;
         if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Name)) Mesh->SetMorphTarget(Name,Weight);
@@ -198,6 +228,43 @@ void UMCExpressionComponent::BuildBodyPose(TArray<FTransform>& Pose,const FRefer
         FTransform Blended; Blended.Blend(Pose[I],Sample,Alpha); Pose[I]=Blended;
     }
 }
+void UMCExpressionComponent::BuildSocialPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const
+{
+    if(!CanReactSocially() || !Tooth->ToothPhysics->CanAct() || Tooth->AnimationClimb>.01f || Tooth->AnimationSwim>.01f
+        || Tooth->OrderJumpTarget || Tooth->AnimationOrderPress>.01f || Tooth->AnimationOrderFlight>.01f) return;
+    const float Reaction=SprayReaction*(.65f+.35f*SprayFlinch);
+    if(Reaction<.001f) return;
+    const bool HandsBusy=Tooth->HeldFood || Tooth->bHandling || Tooth->bBrushing || Tooth->IsPrimaryHeld()
+        || Tooth->FoodCollection->bCollecting || Tooth->Grip->Blend()>.01f || BodyAlpha()>.01f;
+    // Only free hands and an idle body flinch; ongoing work retains its contacts.
+    if(HandsBusy) return;
+    TArray<FTransform> RestCS; RestCS.SetNum(Pose.Num());
+    for(int32 I=0;I<Pose.Num();++I) RestCS[I]=Ref.GetParentIndex(I)<0?Ref.GetRefBonePose()[I]
+        :Ref.GetRefBonePose()[I]*RestCS[Ref.GetParentIndex(I)];
+    const FQuat Facing=Tooth->StandingMeshTransform().GetRotation();
+    const float Side=SprayState.Source && FVector::DotProduct(SprayState.Source->GetActorLocation()-Tooth->GetActorLocation(),Tooth->GetActorRightVector())<0?1.f:-1.f;
+    auto Rotate=[&](FName Role,FRotator Delta) {
+        const int32 Bone=Ref.FindBoneIndex(Tooth->RigBone(Role)); if(Bone<0) return;
+        const int32 Parent=Ref.GetParentIndex(Bone);
+        const FQuat Basis=Parent<0?FQuat::Identity:RestCS[Parent].GetRotation();
+        const FQuat MeshDelta=Facing.Inverse()*Delta.Quaternion()*Facing;
+        Pose[Bone].SetRotation((Basis.Inverse()*MeshDelta*Basis*Pose[Bone].GetRotation()).GetNormalized());
+    };
+    Rotate(TEXT("body"),FRotator(-5*Reaction,0,Side*2*Reaction));
+    Rotate(TEXT("gaze_head"),FRotator(-4*Reaction,Side*8*Reaction,Side*3*Reaction));
+    if(Tooth->Grip->HandOccupied(true)) return;
+    const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_l")));
+    const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_l")));
+    const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+    if(Hand<0 || Lower<0 || Body<0 || Ref.GetParentIndex(Hand)!=Lower) return;
+    TArray<FTransform> CS; CS.SetNum(Pose.Num());
+    for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
+    FTransform Goal=CS[Hand];
+    Goal.SetLocation(FMath::Lerp(Goal.GetLocation(),CS[Body].GetLocation()+Facing.Inverse().RotateVector(FVector(30,-38,22)),Reaction));
+    const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Goal;
+    const int32 Parent=Ref.GetParentIndex(Lower);
+    Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]); Pose[Hand]=Ref.GetRefBonePose()[Hand];
+}
 void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt)
 {
     if (!Tooth) return;
@@ -245,6 +312,12 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         Tilt=FMath::Lerp(Tilt,.8f*(1-FoodSuctionFlinch),Suction);
         Squ=FMath::Lerp(Squ,.15f*(1-FoodSuctionFlinch),Suction);
         Rnd=FMath::Lerp(Rnd,.4f*FoodSuctionFlinch,Suction);
+    }
+    const float Social=FMath::Max(SocialDisgust*.45f,SprayReaction*.85f)*(1-Pain)*(1-Suction);
+    if(Social>.001f) {
+        J=FMath::Lerp(J,0.f,Social); Sml=FMath::Lerp(Sml,-.35f,Social);
+        Tilt=FMath::Lerp(Tilt,.8f,Social); B=FMath::Lerp(B,.08f,Social);
+        Squ=FMath::Max(Squ,SocialEyeClosure()*(1-Pain));
     }
     if (Pain<.1f && Voice>0)
     {
@@ -295,12 +368,13 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     {
         const float Sign=Side==TEXT("l")?1.f:-1.f;
         if (!MorphMouth) Offset(FName(*(TEXT("c_lips_smile_")+Side)),FVector(Sign*(Smile*3.f-Round*1.6f),0,Smile*3.5f));
-        if (!AuthoredFace || YawnStrain || Suction>.001f)
+        if (!AuthoredFace || YawnStrain || Suction>.001f || Social>.001f)
         {
-            const float BrowAlpha=AuthoredFace && !YawnStrain?Suction:1.f;
+            const float BrowAlpha=AuthoredFace && !YawnStrain?FMath::Max(Suction,Social):1.f;
             Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Brows*1.7f*(1-ArtistAlpha)*BrowAlpha));
             Offset(FName(*(TEXT("c_eyebrow_01_")+Side)),FVector(0,0,-BrowTilt*2.5f*(1-ArtistAlpha)*BrowAlpha));
             Offset(FName(*(TEXT("c_eyebrow_03_")+Side)),FVector(0,0,BrowTilt*1.2f*(1-ArtistAlpha)*BrowAlpha));
+            Offset(FName(*(TEXT("c_eyebrow_full_")+Side)),FVector(0,0,Sign*.7f*SocialDisgust*(1-Pain)));
         }
         // The cheek controls are optional on alternative rigs. Tiny inward pulls
         // sell the pressure without a permanent morph or exaggerated deformation.
@@ -310,4 +384,5 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
 void UMCExpressionComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCExpressionComponent,State);
+    DOREPLIFETIME(UMCExpressionComponent,SprayState);
 }

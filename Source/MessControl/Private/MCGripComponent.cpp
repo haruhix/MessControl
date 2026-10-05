@@ -4,6 +4,7 @@
 #include "MCToothMovementComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCExpressionComponent.h"
+#include "MCRewardChest.h"
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCFoodActor.h"
@@ -557,8 +558,22 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     const float TaskAge=Now()-Tooth->TaskSuccessAt;
     const bool TaskCheer=TaskAge>=0 && TaskAge<1.15f && !Tooth->bBrushing && !Tooth->bHandling
         && !Tooth->IsYawning() && (!Tooth->FoodCollection || !Tooth->FoodCollection->bCollecting);
-    const bool PreciseLeft=Emote || Swimming || ToolSwing || TaskCheer || Tooth->IsYawning() || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
-    const bool PreciseRight=PreciseLeft || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());
+    const auto* Chest=Tooth->RewardInteraction.Get();
+    const bool Lockpicking=IsValid(Chest) && Chest->GetOpener()==Tooth && Tooth->ToothPhysics->CanAct()
+        && (Chest->Stage==EMCRewardChestStage::Lockpicking || Chest->Stage==EMCRewardChestStage::Opening);
+    const bool SprayDefence=Tooth->Expression && Tooth->Expression->SprayReaction>.02f
+        && Tooth->Expression->BodyAlpha()<=.01f && Tooth->ToothPhysics->CanAct() && Tooth->Status->IsAlive()
+        && !Tooth->SwallowedBy && !Tooth->IsYawning() && !Lockpicking
+        && !Tooth->HeldFood && !Tooth->bHandling && !Tooth->bBrushing && !Tooth->IsPrimaryHeld()
+        && (!Tooth->FoodCollection || !Tooth->FoodCollection->bCollecting) && Blend()<=.01f && !HandOccupied(true)
+        && !Tooth->OrderJumpTarget && Tooth->AnimationOrderPress<=.01f && Tooth->AnimationOrderFlight<=.01f
+        && Tooth->AnimationClimb<=.01f && Tooth->AnimationSwim<=.01f;
+    // Animated lock contact owns both visible wrists. SetGripArms already
+    // settles the hidden limbs for .18s before easing physics back on release.
+    const bool PreciseBoth=Lockpicking || Emote || Swimming || ToolSwing || TaskCheer || Tooth->IsYawning()
+        || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
+    const bool PreciseLeft=PreciseBoth || SprayDefence;
+    const bool PreciseRight=PreciseBoth || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());
     Tooth->ToothPhysics->SetGripArms(HandAlpha[0]>.001f || PreciseLeft,HandAlpha[1]>.001f || PreciseRight,
         Settings.bActiveObjectGrip && !GrabbedPlayer && HandAlpha[0]>.001f && !PreciseLeft,
         Settings.bActiveObjectGrip && !GrabbedPlayer && HandAlpha[1]>.001f && !PreciseRight);

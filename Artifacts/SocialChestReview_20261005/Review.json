@@ -1,0 +1,21 @@
+{
+  "source": "UnrealEditor-Cmd real rendered gameplay; no packaged Windows game build",
+  "nativeBuild": "MessControlEditor Win64 Development: Succeeded",
+  "renderReview": "MC_ROGUE_PASS",
+  "contactSample": {
+    "brushHandleDistanceToLockCm": 1.25,
+    "visible": true,
+    "stageAgeSeconds": 1.51
+  },
+  "social": {
+    "dirtyPlayerGazePeak": 1.0,
+    "sprayReactionPeak": 1.0,
+    "recovered": 0.0,
+    "healthBeforeAndAfter": [
+      100,
+      100
+    ]
+  },
+  "network": "Server-authoritative state reviewed in source; remote clients/dedicated runtime not tested",
+  "baseCommit": "d70285344f41f7c6ec9b02ae85ebf9e05f90c69c"
+}

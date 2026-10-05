@@ -46,6 +46,15 @@ struct FMCEmoteState
     UPROPERTY() uint16 Serial=0;
 };
 
+USTRUCT()
+struct FMCSprayReactionState
+{
+    GENERATED_BODY()
+    UPROPERTY() TObjectPtr<AMCToothCharacter> Source;
+    UPROPERTY() double StartedAt=-100;
+    UPROPERTY() double ContactAt=-100;
+};
+
 /** Cosmetic state only. Gameplay never depends on an emote or speech envelope. */
 UCLASS(ClassGroup=(MessControl),meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCExpressionComponent : public UActorComponent
@@ -62,6 +71,11 @@ public:
     UPROPERTY(BlueprintReadOnly,Category="Face") EMCEmotion CurrentEmotion=EMCEmotion::Neutral;
     /** Transient reaction derived locally from the replicated food inhale; never changes an emote. */
     UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float FoodSuctionReaction=0;
+    UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float SocialDisgust=0;
+    UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float SprayReaction=0;
+    // Authority records actual spray contact; peers derive the cosmetic envelope.
+    UPROPERTY(Replicated) FMCSprayReactionState SprayState;
+    void ReceiveSpray(AMCToothCharacter* Source);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Emotes") void ServerPlayEmote(FName Id);
     // Authority-owned reward feedback uses the same replicated cosmetic state.
     void PlayChestCelebration();
@@ -70,9 +84,11 @@ public:
     float EmoteAlpha() const;
     float BodyAlpha() const;
     void BuildBodyPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const;
+    void BuildSocialPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref) const;
     void BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
     bool ApplyMorphBlink(float Closure);
     float Squint() const { return EyeSquint; }
+    float SocialEyeClosure() const { return FMath::Max(SocialDisgust*.13f,SprayReaction*.82f); }
     // Call on the avatar whose voice is being played locally. Timeout returns the mouth to rest.
     // Envelope-only VOIP can use Open; a later lip-sync provider supplies actual visemes.
     UFUNCTION(BlueprintCallable,Category="Speech") void SetSpeechInput(float Envelope,MCViseme Viseme=MCViseme::Open);
@@ -85,6 +101,8 @@ private:
     double VoiceAt=-100,NextEmoteAt=0;
     double FoodSuctionReactionAt=-100;
     float FoodSuctionFlinch=0;
+    float SprayFlinch=0;
+    bool CanReactSocially() const;
     float Voice=0,EyeSquint=0,Jaw=0,Smile=0,Brows=0,BrowTilt=0,Round=0,LipClosure=0;
     MCViseme VoiceViseme=MCViseme::Rest;
     TMap<FName,float> MouthWeights;

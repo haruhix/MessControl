@@ -10,9 +10,17 @@
 #include "MCRoguelikeDirector.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCInventoryComponent.h"
+#include "MCExpressionComponent.h"
+#include "MCGazeComponent.h"
+#include "MCFoodActor.h"
+#include "MCGameState.h"
+#include "MCDayDirector.h"
+#include "MCTongue.h"
 #include "Camera/CameraActor.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -35,6 +43,7 @@ void AMCRoguelikePreview::BeginPlay()
     Destroy();
 #else
     if (!HasAuthority()) { Destroy(); return; }
+    bChestSocialReview=FParse::Param(FCommandLine::Get(),TEXT("MCChestSocialReview"));
     FParse::Value(FCommandLine::Get(),TEXT("MCExpectedPlayers="),ExpectedPlayers);
     ExpectedPlayers=FMath::Clamp(ExpectedPlayers,1,8);
     StartedAt=StageStartedAt=GetWorld()->GetTimeSeconds();
@@ -64,10 +73,12 @@ void AMCRoguelikePreview::Photograph(const TCHAR* Filename,FVector Focus)
     if (!Camera) Camera=GetWorld()->SpawnActor<ACameraActor>();
     if (!Camera) return;
     FVector Eye=Focus+FVector(500,-850,550);
-    if(Stage<=3 && IsValid(Chest)) Eye=Focus-Chest->GetActorRightVector()*750+Chest->GetActorForwardVector()*250+FVector(0,0,470);
+    if(bChestSocialReview && Stage>=10) Eye=Focus+SocialForward*330+SocialRight*220+FVector(0,0,70);
+    else if(bChestSocialReview && Stage<=3 && IsValid(Chest)) Eye=Focus+Chest->GetActorForwardVector()*390-Chest->GetActorRightVector()*380+FVector(0,0,210);
+    else if(Stage<=3 && IsValid(Chest)) Eye=Focus-Chest->GetActorRightVector()*750+Chest->GetActorForwardVector()*250+FVector(0,0,470);
     else if(IsValid(Boss)) Eye=Focus+Boss->GetActorForwardVector()*750-Boss->GetActorRightVector()*300+FVector(0,0,420);
     Camera->SetActorLocationAndRotation(Eye,(Focus-Eye).Rotation());
-    Camera->GetCameraComponent()->SetFieldOfView(60.f);
+    Camera->GetCameraComponent()->SetFieldOfView(bChestSocialReview?46.f:60.f);
     PC->SetViewTarget(Camera);
     FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("RogueReview")/Filename,true,false);
 }
@@ -79,6 +90,109 @@ void AMCRoguelikePreview::Finish(bool Passed,const FString& Detail)
     GetWorldTimerManager().ClearTimer(StepTimer);
     UE_LOG(LogTemp,Display,TEXT("MC_ROGUE_%s %s"),Passed?TEXT("PASS"):TEXT("FAIL"),*Detail);
     FPlatformMisc::RequestExitWithStatus(false,Passed?0:1);
+}
+
+bool AMCRoguelikePreview::BeginSocialReview()
+{
+    if (!IsValid(Chest) || !IsValid(Hero)) return false;
+    auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
+    if (Mode)
+    {
+        Mode->SetActorTickEnabled(false);
+        if (Mode->DayDirector) Mode->DayDirector->SetActorTickEnabled(false);
+    }
+    if (auto* State=GetWorld()->GetGameState<AMCGameState>())
+    {
+        State->Phase=EMCShiftPhase::Working;
+        State->PhaseEndsAt=0;
+        State->bDevManualEvents=true;
+    }
+    for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->Dispose();
+    AMCTongue* Tongue=nullptr;
+    for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { Tongue=*It; break; }
+    if (!Tongue) return false;
+    SocialForward=Chest->GetActorForwardVector(); SocialRight=Chest->GetActorRightVector();
+    const FVector Center=Chest->GetLockpickContact().GetLocation()+SocialForward*500;
+    FHitResult ObserverFloor,PartnerFloor;
+    if (!Tongue->SurfacePoint(Center-SocialRight*90,ObserverFloor)
+        || !Tongue->SurfacePoint(Center+SocialRight*90,PartnerFloor)
+        || !PlacePlayer(ObserverFloor.ImpactPoint)) return false;
+    const FVector PartnerLocation=PartnerFloor.ImpactPoint+FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3);
+    FActorSpawnParameters Spawn;
+    Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+    SocialPartner=GetWorld()->SpawnActor<AMCToothCharacter>(Hero->GetClass(),PartnerLocation,FRotator::ZeroRotator,Spawn);
+    if (!SocialPartner || !SocialPartner->Expression || !SocialPartner->Inventory || !Hero->Expression || !Hero->Gaze) return false;
+    SocialPartner->Tags.Add(TEXT("MC_SocialReview"));
+    Hero->CancelGameplayInput(); SocialPartner->CancelGameplayInput();
+    Hero->SetActorRotation((SocialPartner->GetActorLocation()-Hero->GetActorLocation()).GetSafeNormal2D().Rotation());
+    SocialPartner->SetActorRotation((Hero->GetActorLocation()-SocialPartner->GetActorLocation()).GetSafeNormal2D().Rotation());
+    Hero->Status->ApplyCoffee(0); SocialPartner->Status->ApplyCoffee(0);
+    HeroHealthBefore=Hero->Status->State.Health; PartnerHealthBefore=SocialPartner->Status->State.Health;
+    Stage=10; StageStartedAt=GetWorld()->GetTimeSeconds(); bSocialPhotographed=false;
+    UE_LOG(LogTemp,Display,TEXT("MC_SOCIAL_REVIEW paired distance=%.1fcm observer_hp=%.0f sender_hp=%.0f"),
+        FVector::Dist(Hero->GetActorLocation(),SocialPartner->GetActorLocation()),HeroHealthBefore,PartnerHealthBefore);
+    Photograph(TEXT("SocialClean.png"),(Hero->GetActorLocation()+SocialPartner->GetActorLocation())*.5+FVector(0,0,30));
+    return true;
+}
+
+void AMCRoguelikePreview::StepSocialReview(double Now)
+{
+    if (!IsValid(SocialPartner) || !SocialPartner->Status->IsAlive() || !Hero->Expression
+        || !FMath::IsNearlyEqual(Hero->Status->State.Health,HeroHealthBefore)
+        || !FMath::IsNearlyEqual(SocialPartner->Status->State.Health,PartnerHealthBefore))
+    { Finish(false,TEXT("Social review lost an avatar or changed health during a cosmetic reaction.")); return; }
+    const double Age=Now-StageStartedAt;
+    const FVector Focus=(Hero->GetActorLocation()+SocialPartner->GetActorLocation())*.5+FVector(0,0,30);
+    if (Stage==10 && Age>=1.4)
+    {
+        SocialPartner->Status->ApplyCoffee(1);
+        Stage=11; StageStartedAt=Now; bSocialPhotographed=false;
+        UE_LOG(LogTemp,Display,TEXT("MC_SOCIAL_REVIEW dirty partner; production gaze chooses its target."));
+    }
+    else if (Stage==11)
+    {
+        PeakDisgust=FMath::Max(PeakDisgust,Hero->Expression->SocialDisgust);
+        if (!bSocialPhotographed && Age>=1.6)
+        { bSocialPhotographed=true; Photograph(TEXT("SocialDisgust.png"),Focus); }
+        if (Age>=2.4)
+        {
+            if (Hero->Gaze->Target.Actor!=SocialPartner || PeakDisgust<.1f)
+            { Finish(false,FString::Printf(TEXT("Dirty avatar was not noticed through production gaze: target=%s disgust=%.3f"),*GetNameSafe(Hero->Gaze->Target.Actor),PeakDisgust)); return; }
+            // Aim slightly left of the receiver's center: the actual can/nozzle
+            // is held on the sender's right, rather than on the capsule axis.
+            FRotator SprayFacing=(Hero->GetActorLocation()-SocialPartner->GetActorLocation()).GetSafeNormal2D().Rotation();
+            SprayFacing.Yaw-=9.5f;
+            SocialPartner->SetActorRotation(SprayFacing);
+            SocialPartner->Inventory->ServerSelect(EMCToolSlot::Spray);
+            SocialPartner->ServerSetPrimary(true);
+            Stage=12; StageStartedAt=Now; bSocialPhotographed=false;
+            UE_LOG(LogTemp,Display,TEXT("MC_SOCIAL_REVIEW spray held through production input and cone/LOS selection."));
+        }
+    }
+    else if (Stage==12)
+    {
+        PeakSprayReaction=FMath::Max(PeakSprayReaction,Hero->Expression->SprayReaction);
+        if (!bSocialPhotographed && Age>=1.2)
+        { bSocialPhotographed=true; Photograph(TEXT("SocialSpray.png"),Focus); }
+        if (Age>=3.)
+        {
+            SocialPartner->ServerSetPrimary(false);
+            Stage=13; StageStartedAt=Now; bSocialPhotographed=false;
+            UE_LOG(LogTemp,Display,TEXT("MC_SOCIAL_REVIEW spray released; receiver reaction peak=%.3f"),PeakSprayReaction);
+        }
+    }
+    else if (Stage==13)
+    {
+        if (!bSocialPhotographed && Age>=1.7)
+        { bSocialPhotographed=true; Photograph(TEXT("SocialRecovered.png"),Focus); }
+        if (Age>=2.4)
+        {
+            const float Recovered=Hero->Expression->SprayReaction;
+            Finish(PeakSprayReaction>.2f && Recovered<.08f,
+                FString::Printf(TEXT("chest opening without modal -> three cards -> one choice; natural dirty-player gaze %.3f; production held spray %.3f -> recovered %.3f; HP %.0f/%.0f unchanged. Solo rendered review, network replication not verified."),
+                    PeakDisgust,PeakSprayReaction,Recovered,HeroHealthBefore,PartnerHealthBefore));
+        }
+    }
 }
 
 void AMCRoguelikePreview::Step()
@@ -122,20 +236,24 @@ void AMCRoguelikePreview::Step()
     }
     if (!IsValid(Hero) || !IsValid(Perks) || !Hero->Status->IsAlive())
     { Finish(false,TEXT("Demonstration player died or disappeared before completion.")); return; }
+    if (bChestSocialReview && Stage>=10) { StepSocialReview(Now); return; }
     if (Stage==1)
     {
         if (Mode->RoguelikeDirector->RewardsSpawned<=BeforeSpawned) return;
         if (!Chest) for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It)
             if (!It->bPlacedReward && It->GetOwner()==Mode->RoguelikeDirector) { Chest=*It; break; }
         if (!IsValid(Chest) || Chest->Stage!=EMCRewardChestStage::Landed) return;
-        const FVector Approach=Chest->GetActorTransform().TransformPosition(FVector(0,-Chest->OpenRadius*.8f,0));
+        FVector Approach=Chest->GetLockpickContact().GetLocation()+Chest->GetActorForwardVector()*140;
+        Approach.Z=Chest->LandingPoint.Z;
         if (!PlacePlayer(Approach)) { Finish(false,TEXT("Safe chest approach teleport failed.")); return; }
+        Hero->SetActorRotation((-Chest->GetActorForwardVector()).Rotation());
         // Exercise the production E interaction RPC instead of bypassing lockpicking.
         Hero->ServerBeginRewardOpening(Chest);
         const auto* PC=Cast<AMCPlayerController>(Hero->GetController());
         if (Chest->Stage!=EMCRewardChestStage::Lockpicking || Chest->OpeningPlayer!=Hero
-            || Hero->RewardInteraction!=Chest || !PC || !PC->IsRewardMenuOpen())
-        { Finish(false,TEXT("Production E interaction did not reserve the chest and show lockpicking HUD.")); return; }
+            || Hero->RewardInteraction!=Chest || !PC || !PC->IsRewardInteractionActive()
+            || PC->IsRewardMenuOpen() || PC->bShowMouseCursor || !PC->IsMoveInputIgnored())
+        { Finish(false,TEXT("Production E interaction did not reserve the chest and begin opening without a modal.")); return; }
         Photograph(TEXT("Chest.png"),Chest->LandingPoint+FVector(0,0,60));
         Stage=2; StageStartedAt=Now; return;
     }
@@ -144,7 +262,17 @@ void AMCRoguelikePreview::Step()
         if (!IsValid(Chest)) { Finish(false,TEXT("Chest disappeared before opening.")); return; }
         if (Chest->Stage==EMCRewardChestStage::Lockpicking && !bOpeningPhotographed && Now-StageStartedAt>=1.5)
         {
+            const auto* PC=Cast<AMCPlayerController>(Hero->GetController());
+            if (!PC || PC->IsRewardMenuOpen() || PC->bShowMouseCursor || !PC->IsMoveInputIgnored())
+            { Finish(false,TEXT("Opening unexpectedly displayed a modal or released the movement guard.")); return; }
             bOpeningPhotographed=true;
+            if(Hero->Brush) {
+                const FVector Tip=Hero->Brush->DoesSocketExist(TEXT("LockpickTip"))
+                    ?Hero->Brush->GetSocketLocation(TEXT("LockpickTip"))
+                    :Hero->Brush->GetComponentTransform().TransformPosition(FVector(-17.64037,0,1.485929));
+                UE_LOG(LogTemp,Display,TEXT("MC_CHEST_CONTACT tip_error=%.2fcm visible=%d stage_age=%.2fs"),
+                    FVector::Dist(Tip,Chest->GetLockpickContact().GetLocation()),Hero->Brush->IsVisible(),Now-Chest->StageStartedAt);
+            }
             Photograph(TEXT("ChestOpening.png"),Chest->LandingPoint+FVector(0,0,60));
         }
         if (Chest->Stage!=EMCRewardChestStage::Open) return;
@@ -181,6 +309,11 @@ void AMCRoguelikePreview::Step()
         { Finish(false,TEXT("Card RPC granted an incorrect stack count or accepted a duplicate.")); return; }
         if (Chest->ClaimedMask!=7 || Chest->Stage!=EMCRewardChestStage::Exhausted || PC->IsRewardMenuOpen() || Hero->RewardInteraction)
         { Finish(false,TEXT("Selection did not consume siblings and restore gameplay input.")); return; }
+        if (bChestSocialReview)
+        {
+            if (!BeginSocialReview()) Finish(false,TEXT("No safe tongue staging point for the social reaction review."));
+            return;
+        }
         const FText SpawnResult=Mode->ExecuteDevAction(PC,EMCDevAction::BossPractice);
         for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
             if (It->ActorHasTag(TEXT("MC_DevBoss"))) { Boss=*It; break; }
@@ -241,6 +374,6 @@ void AMCRoguelikePreview::Step()
     }
     if (Stage==7 && Now-StageStartedAt>=.4)
     {
-        Finish(true,TEXT("no ordinary-map boss; objective->safe falling chest->E/five-second opening HUD->three distinct same-polarity cards->one owning-controller choice/no pickups/no duplicate; explicit F3 dormant spawn/AI; boss damage/target/nav chase/telegraph/impact/death. Network replication not verified by this solo demonstration."));
+        Finish(true,TEXT("no ordinary-map boss; objective->safe falling chest->E/five-second opening without a modal->three distinct same-polarity cards->one owning-controller choice/no pickups/no duplicate; explicit F3 dormant spawn/AI; boss damage/target/nav chase/telegraph/impact/death. Network replication not verified by this solo demonstration."));
     }
 }

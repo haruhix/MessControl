@@ -51,6 +51,7 @@ public:
     UFUNCTION(Client, Reliable) void ClientClosePerkChoices(AMCRewardChest* Chest);
     UFUNCTION(BlueprintCallable, Category="Rewards") void ChooseRewardPerk(int32 ChoiceIndex);
     UFUNCTION(BlueprintPure, Category="Rewards") bool IsRewardMenuOpen() const;
+    bool IsRewardInteractionActive() const;
     UFUNCTION(Client, Reliable) void ClientPlayBossIntro(AMCBossCharacter* Boss);
     UFUNCTION(BlueprintPure, Category="Boss") bool IsBossIntroPlaying() const;
     void SetBossIntroGuard(AMCBossCharacter* Boss);
@@ -74,6 +75,7 @@ private:
     bool bBossIntroPlaying=false;
     ESlateVisibility PreviousPrototypeVisibility=ESlateVisibility::Visible;
     bool PrepareRewardUI(AMCRewardChest* Chest);
+    bool PrepareRewardInteraction(AMCRewardChest* Chest);
     void CloseRewardUI(bool bRestoreInput=true);
     void CheckRewardUI();
     TWeakObjectPtr<AMCRewardChest> ActiveRewardChest;

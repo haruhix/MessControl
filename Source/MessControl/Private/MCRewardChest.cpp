@@ -13,6 +13,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/DataTable.h"
 #include "Engine/World.h"
@@ -108,6 +109,28 @@ FVector AMCRewardChest::GetPlacementHalfExtent() const
     return FVector(Radius,Radius,Height*.5);
 }
 
+FTransform AMCRewardChest::GetLockpickContact() const
+{
+    if(Body->DoesSocketExist(TEXT("Lockpick"))) return Body->GetSocketTransform(TEXT("Lockpick"));
+    // Center of the actual ring aperture in SM_Chest_Bot, before ModelScale.
+    const FVector Point=Body->GetComponentTransform().TransformPosition(FVector(147.810,0,68.042));
+    return FTransform(Body->GetComponentQuat(),Point);
+}
+
+bool AMCRewardChest::CanReachLockpick(const AMCToothCharacter* Player) const
+{
+    if(!IsValid(Player)) return false;
+    const FTransform Contact=GetLockpickContact();
+    const FVector Delta=Player->GetActorLocation()-Contact.GetLocation();
+    const FVector Front=Contact.GetUnitAxis(EAxis::X).GetSafeNormal2D();
+    const float Radius=FMath::Clamp(OpenRadius,100.f,260.f);
+    // A broad front sector keeps E forgiving while preventing an arm reaching
+    // through the chest from behind. No navigation or player teleport is used.
+    return Delta.SizeSquared2D()<=FMath::Square(Radius)
+        && FVector::DotProduct(Delta.GetSafeNormal2D(),Front)>=.25f
+        && FVector::DotProduct(Delta,Front)>=Player->GetCapsuleComponent()->GetScaledCapsuleRadius()+8;
+}
+
 void AMCRewardChest::OnConstruction(const FTransform& Transform)
 {
     Super::OnConstruction(Transform); ConfigureGeometry();
@@ -153,7 +176,7 @@ void AMCRewardChest::RefreshPresentation()
     Approach->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Telegraph->SetVisibility(bRewardInitialized && (Stage==EMCRewardChestStage::Telegraph || Stage==EMCRewardChestStage::Falling));
     Telegraph->SetWorldLocation(LandingPoint+FVector(0,0,2));
-    const bool Animated=bRewardInitialized && (Stage==EMCRewardChestStage::Telegraph || Stage==EMCRewardChestStage::Falling || Stage==EMCRewardChestStage::Opening);
+    const bool Animated=bRewardInitialized && (Stage==EMCRewardChestStage::Telegraph || Stage==EMCRewardChestStage::Falling || Stage==EMCRewardChestStage::Lockpicking || Stage==EMCRewardChestStage::Opening);
     SetActorTickEnabled(Animated);
     if(bRewardInitialized && !Animated) {
         SetActorLocation(LandingPoint);
@@ -171,6 +194,11 @@ void AMCRewardChest::Tick(float Dt)
 {
     Super::Tick(Dt); if(!bRewardInitialized) return;
     const double Age=FMath::Max(0.,ServerNow()-StageStartedAt);
+    if(HasAuthority() && Stage==EMCRewardChestStage::Lockpicking && IsValid(OpeningPlayer)) {
+        const FVector Facing=(GetLockpickContact().GetLocation()-OpeningPlayer->GetActorLocation()).GetSafeNormal2D();
+        if(!Facing.IsNearlyZero()) OpeningPlayer->SetActorRotation(FMath::RInterpTo(
+            OpeningPlayer->GetActorRotation(),FRotator(0,Facing.Rotation().Yaw,0),Dt,8.f));
+    }
     if(Stage==EMCRewardChestStage::Telegraph) {
         SetActorLocation(FallStart);
         if(HasAuthority() && Age>=FMath::Max(.1f,TelegraphSeconds)) SetStage(EMCRewardChestStage::Falling);
@@ -239,7 +267,7 @@ void AMCRewardChest::PollApproach()
 bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
 {
     if(!HasAuthority() || Stage!=EMCRewardChestStage::Landed || !IsLivingPlayer(Player)
-        || !Player->CanWork() || !IsValid(DropZone) || !Body->GetStaticMesh() || !Lid->GetStaticMesh()
+        || !Player->CanWork() || !CanReachLockpick(Player) || !IsValid(DropZone) || !Body->GetStaticMesh() || !Lid->GetStaticMesh()
         || FVector::DistSquared(Player->GetActorLocation(),GetActorLocation())>FMath::Square(FMath::Clamp(OpenRadius,100.f,800.f))) return false;
     auto* PS=Player->GetPlayerState<AMCPlayerState>();
     auto* PC=Cast<AMCPlayerController>(Player->GetController());

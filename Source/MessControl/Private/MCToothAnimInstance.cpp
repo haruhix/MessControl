@@ -7,6 +7,7 @@
 #include "MCFoodCollectionComponent.h"
 #include "MCBrushContactComponent.h"
 #include "MCExpressionComponent.h"
+#include "MCRewardChest.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -54,6 +55,10 @@ public:
     float SprayPoseAlpha=0;
     float CalculusPoseAlpha=0;
     FTransform LastCalculusHand=FTransform::Identity;
+    float LockpickPoseAlpha=0;
+    FTransform LastLockpickHand=FTransform::Identity;
+    FVector LastLockpickBrace=FVector::ZeroVector;
+    float LockpickEffort=0;
     float DashPoseProgress=-1;
 private:
     // Не активное, но будет использовано в будущем в других механиках.
@@ -320,6 +325,93 @@ public:
         const int32 Parent=Ref.GetParentIndex(Lower);
         Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
         Pose[Hand]=Ref.GetRefBonePose()[Hand];
+    }
+    void ChestLockpickPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        const auto* Chest=Tooth->RewardInteraction.Get();
+        const bool Active=IsValid(Chest) && Chest->GetOpener()==Tooth
+            && (Chest->Stage==EMCRewardChestStage::Lockpicking || Chest->Stage==EMCRewardChestStage::Opening)
+            && Tooth->ToothPhysics->CanAct() && Chest->Body && Chest->Body->GetStaticMesh()
+            && Tooth->Brush && Tooth->Brush->GetStaticMesh();
+        if(Active) {
+            const auto* GS=Tooth->GetWorld()->GetGameState();
+            const double Now=GS?GS->GetServerWorldTimeSeconds():Tooth->GetWorld()->GetTimeSeconds();
+            const float Age=FMath::Max(0.f,float(Now-Chest->StageStartedAt));
+            const bool Picking=Chest->Stage==EMCRewardChestStage::Lockpicking;
+            const float Phase=Picking?FMath::Clamp(Age/FMath::Clamp(Chest->LockpickingSeconds,.1f,60.f),0.f,1.f):1.f;
+            LockpickPoseAlpha=Picking?FMath::SmoothStep(0.f,.35f,Age)
+                :1-FMath::SmoothStep(0.f,FMath::Max(.1f,Chest->OpeningSeconds),Age);
+            const float Insert=FMath::SmoothStep(.10f,.24f,Phase);
+            const float Withdraw=FMath::SmoothStep(.87f,1.f,Phase);
+            const float Work=FMath::SmoothStep(.25f,.31f,Phase)*(1-FMath::SmoothStep(.76f,.87f,Phase));
+            const float Turn=FMath::SmoothStep(.77f,.85f,Phase)*(1-FMath::SmoothStep(.88f,.96f,Phase));
+            const float Twist=(FMath::Sin(Phase*55)*17+FMath::Sin(Phase*130)*3)*Work+42*Turn;
+            const FTransform Contact=Chest->GetLockpickContact();
+            const FVector Front=Contact.GetUnitAxis(EAxis::X),Up=Contact.GetUnitAxis(EAxis::Z);
+            // A diagonal grip keeps the long brush head beside the player's
+            // crown, matching the handle-first contact in the Blender study.
+            const FVector Outward=(Front-Contact.GetUnitAxis(EAxis::Y)*.75f).GetSafeNormal();
+            const FQuat Rotation=(FQuat(Outward,FMath::DegreesToRadians(Twist))
+                *FRotationMatrix::MakeFromXZ(Outward,Up).ToQuat()).GetNormalized();
+            // Insert the thin handle end, not the bristles. Both the artist's
+            // brush attachment and mesh scale participate in the contact solve.
+            const FVector Tip=Tooth->Brush->DoesSocketExist(TEXT("LockpickTip"))
+                ?Tooth->Brush->GetSocketTransform(TEXT("LockpickTip"),RTS_Component).GetLocation()
+                :FVector(-17.64037,0,1.485929);
+            const FTransform InHand=Tooth->Brush->GetRelativeTransform()*Tooth->BrushPivot->GetRelativeTransform();
+            const FVector Scale=InHand.GetScale3D()*Tooth->GetMesh()->GetComponentScale();
+            const FVector Touch=Contact.GetLocation()+Outward*(15*(1-Insert)-1.2f*Insert+18*Withdraw)
+                +Up*(.5f*FMath::Sin(Phase*70)*Work);
+            const FTransform BrushWorld(Rotation,Touch-Rotation.RotateVector(Tip*Scale),Scale);
+            const FTransform HandWorld=InHand.Inverse()*BrushWorld;
+            if(HandWorld.ContainsNaN()) {LockpickPoseAlpha=0;return;}
+            LastLockpickHand=HandWorld.GetRelativeTransform(Tooth->GetActorTransform());
+            const FBox Bounds=Chest->Body->GetStaticMesh()->GetBoundingBox();
+            const FVector Brace=Chest->Body->GetComponentTransform().TransformPosition(
+                FVector(Bounds.Max.X+5,Bounds.GetCenter().Y+Bounds.GetExtent().Y*.62f,Bounds.Max.Z-8));
+            LastLockpickBrace=Tooth->GetActorTransform().InverseTransformPosition(Brace);
+            LockpickEffort=(1-Withdraw)*(1+.1f*FMath::Sin(Phase*55)*Work);
+        } else {
+            // Cancellation releases the held contact instead of snapping the
+            // two mittens home on a replication boundary.
+            LockpickPoseAlpha=Tooth->ToothPhysics->CanAct()
+                ?FMath::FInterpConstantTo(LockpickPoseAlpha,0.f,Dt,5.f):0.f;
+        }
+        if(LockpickPoseAlpha<.001f) return;
+        const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        TArray<FTransform> ReferenceCS;ReferenceCS.SetNum(Pose.Num());
+        for(int32 I=0;I<Pose.Num();++I) ReferenceCS[I]=Ref.GetParentIndex(I)<0
+            ?Ref.GetRefBonePose()[I]:Ref.GetRefBonePose()[I]*ReferenceCS[Ref.GetParentIndex(I)];
+        auto Rotate=[&](FName Role,FRotator Delta) {
+            const int32 Bone=Ref.FindBoneIndex(Tooth->RigBone(Role));if(Bone<0) return;
+            const int32 Parent=Ref.GetParentIndex(Bone);
+            const FQuat Basis=Parent<0?FQuat::Identity:ReferenceCS[Parent].GetRotation();
+            const FQuat Facing=Tooth->StandingMeshTransform().GetRotation();
+            const FQuat MeshDelta=Facing.Inverse()*Delta.Quaternion()*Facing;
+            Pose[Bone].SetRotation((Basis.Inverse()*MeshDelta*Basis*Pose[Bone].GetRotation()).GetNormalized());
+        };
+        const float Effort=LockpickEffort*LockpickPoseAlpha;
+        Rotate(TEXT("body"),FRotator(4*Effort,0,0));
+        Rotate(TEXT("gaze_head"),FRotator(8*Effort,0,0));
+        Rotate(TEXT("arm_l"),FRotator(-18*Effort,0,-5*Effort));
+        Rotate(TEXT("arm_r"),FRotator(-15*Effort,0,5*Effort));
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        auto Rebuild=[&](){for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];};
+        Rebuild();
+        for(int32 Side=0;Side<2;++Side) {
+            const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+            const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
+            if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
+            FTransform Goal=CS[Hand];
+            if(Side==1) Goal=(LastLockpickHand*Tooth->GetActorTransform()).GetRelativeTransform(World);
+            else Goal.SetLocation(World.InverseTransformPosition(Tooth->GetActorTransform().TransformPosition(LastLockpickBrace)));
+            FTransform Blended;Blended.Blend(CS[Hand],Goal,LockpickPoseAlpha);
+            // Preserve the authored compact mitten and its finger proportions.
+            const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;
+            const int32 Parent=Ref.GetParentIndex(Lower);
+            Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
+            Pose[Hand]=Ref.GetRefBonePose()[Hand];Rebuild();
+        }
     }
     void TraversalContacts(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
     {
@@ -739,6 +831,8 @@ public:
             }
         }
         DashLungePose(Tooth,Ref);
+        ChestLockpickPose(Tooth,Ref,Dt);
+        if (Tooth->Expression) Tooth->Expression->BuildSocialPose(Pose,Ref);
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->SubmitAnimationTargets(Pose,Ref,Dt);
         if (Tooth->Expression) Tooth->Expression->BuildFacePose(Pose,Ref,Dt);
         if (Tooth->Gaze) Tooth->Gaze->BuildPose(Pose,Ref,Dt);

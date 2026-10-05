@@ -47,7 +47,7 @@ void AMCPlayerController::SetupInputComponent()
 }
 void AMCPlayerController::ShowScoreboard()
 {
-    if (!IsLocalController() || IsRewardMenuOpen() || bBossIntroPlaying) return;
+    if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying) return;
     if (!ScoreboardWidget)
     {
         ScoreboardWidget=CreateWidget<UMCScoreboardWidget>(this,UMCScoreboardWidget::StaticClass());
@@ -136,7 +136,7 @@ void AMCPlayerController::ServerSetPlayerColor_Implementation(FLinearColor Color
 void AMCPlayerController::ToggleDevPanel()
 {
 #if !UE_BUILD_SHIPPING
-    if (!IsLocalController() || IsRewardMenuOpen() || bBossIntroPlaying) return;
+    if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying) return;
     if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     if (!DevPanel)
     {
@@ -167,7 +167,7 @@ void AMCPlayerController::RequestDevAction(EMCDevAction Action,int32 StepIndex)
 }
 void AMCPlayerController::ToggleEmotes()
 {
-    if (!IsLocalController() || IsRewardMenuOpen() || bBossIntroPlaying) return;
+    if (!IsLocalController() || IsRewardInteractionActive() || bBossIntroPlaying) return;
     if (!EmoteWidget)
     {
         EmoteWidget=CreateWidget<UMCEmoteWidget>(this,UMCEmoteWidget::StaticClass());
@@ -179,8 +179,8 @@ void AMCPlayerController::ToggleEmotes()
     EmoteWidget->SetVisibility(Open?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     if (Open) EmoteWidget->Refresh(); UpdateInputMode();
 }
-void AMCPlayerController::ToggleTuning() { if (IsRewardMenuOpen() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
-void AMCPlayerController::ToggleConnection() { if (IsRewardMenuOpen() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleTuning() { if (IsRewardInteractionActive() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleTuning(); UpdateInputMode(); } }
+void AMCPlayerController::ToggleConnection() { if (IsRewardInteractionActive() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
 void AMCPlayerController::UpdateInputMode()
 {
     if (bBossIntroPlaying)
@@ -192,12 +192,13 @@ void AMCPlayerController::UpdateInputMode()
         return;
     }
     const bool bReward=IsRewardMenuOpen();
+    const bool bOpening=IsRewardInteractionActive() && !bReward;
     const bool bDev=DevPanel && DevPanel->IsVisible();
     const bool bEmote=EmoteWidget && EmoteWidget->IsVisible();
     const bool bPanel = bReward || bEmote || bDev || (PrototypeWidget && PrototypeWidget->IsPanelOpen());
     bShowMouseCursor = bPanel;
     if (auto* Tooth = Cast<AMCToothCharacter>(GetPawn())) Tooth->bPreviewAnimation = PrototypeWidget && PrototypeWidget->IsTuningOpen();
-    ResetIgnoreMoveInput(); SetIgnoreMoveInput(bPanel);
+    ResetIgnoreMoveInput(); SetIgnoreMoveInput(bPanel || bOpening);
     ResetIgnoreLookInput(); SetIgnoreLookInput(bPanel);
     if (bReward || bDev || bEmote)
     {
@@ -213,13 +214,15 @@ bool AMCPlayerController::IsRewardMenuOpen() const
     return PerkChoiceWidget && PerkChoiceWidget->IsInViewport() && PerkChoiceWidget->IsVisible();
 }
 
-bool AMCPlayerController::PrepareRewardUI(AMCRewardChest* Chest)
+bool AMCPlayerController::IsRewardInteractionActive() const
+{
+    return ActiveRewardChest.IsValid() && RewardPawn.Get()==GetPawn();
+}
+
+bool AMCPlayerController::PrepareRewardInteraction(AMCRewardChest* Chest)
 {
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     if (!IsLocalController() || !IsValid(Chest) || !Hero || !Hero->Status || !Hero->Status->IsAlive()) return false;
-    if (!PerkChoiceWidget)
-        PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCPerkChoiceWidget::StaticClass());
-    if (!PerkChoiceWidget) return false;
     ActiveRewardChest=Chest;
     RewardPawn=Hero;
     RewardShownAt=GetWorld()->GetTimeSeconds();
@@ -228,18 +231,29 @@ bool AMCPlayerController::PrepareRewardUI(AMCRewardChest* Chest)
     if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
     if (PrototypeWidget) PrototypeWidget->ClosePanels();
     HideScoreboard();
+    Hero->CancelGameplayInput();
+    GetWorldTimerManager().SetTimer(RewardUITimer,this,&AMCPlayerController::CheckRewardUI,.1f,true);
+    return true;
+}
+
+bool AMCPlayerController::PrepareRewardUI(AMCRewardChest* Chest)
+{
+    if (!PrepareRewardInteraction(Chest)) return false;
+    if (!PerkChoiceWidget)
+        PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCPerkChoiceWidget::StaticClass());
+    if (!PerkChoiceWidget) { CloseRewardUI(); return false; }
     if (!PerkChoiceWidget->IsInViewport()) PerkChoiceWidget->AddToViewport(30);
     PerkChoiceWidget->SetVisibility(ESlateVisibility::Visible);
-    GetWorldTimerManager().SetTimer(RewardUITimer,this,&AMCPlayerController::CheckRewardUI,.1f,true);
     return true;
 }
 
 void AMCPlayerController::ClientShowRewardOpening_Implementation(AMCRewardChest* Chest,double ServerEndsAt)
 {
-    if (!FMath::IsFinite(ServerEndsAt) || !PrepareRewardUI(Chest)) return;
-    PerkChoiceWidget->ShowOpening(ServerEndsAt);
+    if (!FMath::IsFinite(ServerEndsAt) || !PrepareRewardInteraction(Chest)) return;
+    // Lockpicking is presented by the character animation in the world. The modal
+    // is created only after the server has opened the lid and sends three cards.
+    if (PerkChoiceWidget) PerkChoiceWidget->RemoveFromParent();
     UpdateInputMode();
-    PerkChoiceWidget->SetUserFocus(this);
     CheckRewardUI();
 }
 
@@ -284,15 +298,13 @@ void AMCPlayerController::CheckRewardUI()
 {
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     auto* Chest=ActiveRewardChest.Get();
-    if (!IsRewardMenuOpen() || !IsValid(Chest) || !Hero || Hero!=RewardPawn.Get() || !Hero->Status || !Hero->Status->IsAlive()
+    if (!IsRewardInteractionActive() || !IsValid(Chest) || !Hero || Hero!=RewardPawn.Get() || !Hero->Status || !Hero->Status->IsAlive()
         || Chest->Stage==EMCRewardChestStage::Exhausted)
     { CloseRewardUI(); return; }
     // The explicit close RPC handles restart; this also covers loss of actor relevance or a cancelled interaction.
     if (GetWorld()->GetTimeSeconds()-RewardShownAt>2. && Chest->Stage!=EMCRewardChestStage::Lockpicking
         && Chest->Stage!=EMCRewardChestStage::Opening && Chest->Stage!=EMCRewardChestStage::Open)
     { CloseRewardUI(); return; }
-    const auto* State=GetWorld()->GetGameState();
-    PerkChoiceWidget->UpdateOpeningProgress(State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds());
 }
 
 void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
@@ -317,7 +329,7 @@ void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void AMCPlayerController::ClientPlayBossIntro_Implementation(AMCBossCharacter* Boss)
 {
-    if (!IsLocalController() || IsRewardMenuOpen() || !IsValid(Boss)) return;
+    if (!IsLocalController() || IsRewardInteractionActive() || !IsValid(Boss)) return;
     if (IsValid(BossIntro)) BossIntro->CancelIntro();
     FActorSpawnParameters Spawn; Spawn.Owner=this;
     BossIntro=GetWorld()->SpawnActor<AMCBossIntro>(AMCBossIntro::StaticClass(),FTransform::Identity,Spawn);

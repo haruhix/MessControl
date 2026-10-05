@@ -86,6 +86,7 @@ private:
     UPROPERTY() TObjectPtr<UStaticMeshComponent> Detail;
     UPROPERTY() TObjectPtr<UNiagaraComponent> SprayMist;
     bool bSprayEmitting=false;
+    double NextSocialSprayAt=0;
     EMCToolSlot Presented=EMCToolSlot::Brush;
     bool bPresentedUpgrade=false;
     bool bPresentedFallback=false;
@@ -93,4 +94,7 @@ private:
     FVector LocalPickaxeContactTip() const;
     AMCMouthSurface* FindSprayTarget() const;
     class AMCFirePatch* FindFireTarget() const;
+    FVector SprayOrigin() const;
+    FVector SprayDirection() const;
+    void ReactPlayersToSpray();
 };

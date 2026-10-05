@@ -36,6 +36,9 @@ public:
     void InitializeReward(FVector Landing,FVector Start,int32 Seed,UDataTable* Table,
         EMCRewardSelectionPolicy Policy,AMCRewardDropZone* Zone);
     FVector GetPlacementHalfExtent() const;
+    /** X points out of the keyhole; author a Lockpick socket on replacement meshes. */
+    FTransform GetLockpickContact() const;
+    bool CanReachLockpick(const AMCToothCharacter* Player) const;
     static bool HasValidLoot(UDataTable* Table,const UMCPerkComponent* Recipient=nullptr);
     bool BeginLockpicking(AMCToothCharacter* Player);
     bool TryChooseCard(AMCToothCharacter* Player,int32 Index);
