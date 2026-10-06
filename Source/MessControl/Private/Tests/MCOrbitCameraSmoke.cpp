@@ -18,11 +18,11 @@
 #include "Misc/Parse.h"
 #include "Misc/Paths.h"
 
-// Exercise free MouseX/MouseY look, wheel zoom and the separate RMB attack in a running game.
+// Exercise free MouseX/MouseY look, wheel zoom, F attack and independent RMB brace input.
 void MCTickOrbitCameraValidation(UWorld* World)
 {
     struct FRun { TWeakObjectPtr<UWorld> World; float Age=0,At=0,LastAxis=0,Travel=0,PreviousYaw=0,StoppedYaw=0,InitialPitch=0,ZoomBefore=0,MenuDistance=0;
-        int32 Stage=0,Samples=0,Retracted=0; bool Invalid=false; FRotator Body;
+        int32 Stage=0,Samples=0,Retracted=0,AttacksBeforeBrace=0; bool Invalid=false,BraceDidNotAttack=false; FRotator Body;
         TWeakObjectPtr<AMCArenaTooth> Tooth; TWeakObjectPtr<UStaticMeshComponent> EndpointWall; };
     static FRun R; if(R.World.Get()!=World) { R=FRun(); R.World=World; }
     R.Age+=World->GetDeltaSeconds();
@@ -37,7 +37,7 @@ void MCTickOrbitCameraValidation(UWorld* World)
     };
     auto Advance=[&](int32 Stage) { R.Stage=Stage; R.At=R.Age; };
     auto Finish=[&](bool Pass) {
-        UE_LOG(LogTemp,Display,TEXT("MC_ORBIT_%s inputYawTravel=%.1f collisionSamples=%d retracted=%d attacks=%d meshGuard=%d wallVolume=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),R.Travel,R.Samples,R.Retracted,H->ValidatedSwingCount,R.Tooth.IsValid(),R.EndpointWall.IsValid());
+        UE_LOG(LogTemp,Display,TEXT("MC_ORBIT_%s inputYawTravel=%.1f collisionSamples=%d retracted=%d attacks=%d rmbDidNotAttack=%d meshGuard=%d wallVolume=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),R.Travel,R.Samples,R.Retracted,H->ValidatedSwingCount,R.BraceDidNotAttack,R.Tooth.IsValid(),R.EndpointWall.IsValid());
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);
     };
     if (R.Stage==0) {
@@ -79,9 +79,9 @@ void MCTickOrbitCameraValidation(UWorld* World)
         R.Invalid|=!FMath::IsNearlyEqual(H->CameraOrbitYaw,R.StoppedYaw,.1f) || !FMath::IsNearlyEqual(H->CameraOrbitDistance,R.MenuDistance,.1f);
         PC->ToggleConnection(); Advance(6);
     } else if (R.Stage==6 && R.Age-R.At>.2f) {
-        Key(EKeys::RightMouseButton,IE_Pressed,1); Advance(7);
+        Key(EKeys::F,IE_Pressed,1); Advance(7);
     } else if (R.Stage==7 && R.Age-R.At>.05f) {
-        Key(EKeys::RightMouseButton,IE_Released,0); Advance(8);
+        Key(EKeys::F,IE_Released,0); Advance(8);
     } else if (R.Stage==8 && R.Age-R.At>.2f) {
         R.Invalid|=R.Travel<=330 || R.Samples<=50 || R.Retracted==0 || H->ValidatedSwingCount!=1;
         H->SetActorLocation(FVector(0,0,2000)); H->bMouthCameraInitialized=false;
@@ -115,6 +115,13 @@ void MCTickOrbitCameraValidation(UWorld* World)
             FScreenshotRequest::RequestScreenshot(FPaths::ProjectSavedDir()/TEXT("OrbitCameraMeshGuard.png"),true,false);
         Advance(11);
     } else if (R.Stage==11 && R.Age-R.At>.2f) {
+        R.AttacksBeforeBrace=H->ValidatedSwingCount;
+        Key(EKeys::RightMouseButton,IE_Pressed,1); Advance(12);
+    } else if (R.Stage==12 && R.Age-R.At>.1f) {
+        Key(EKeys::RightMouseButton,IE_Released,0); Advance(13);
+    } else if (R.Stage==13 && R.Age-R.At>.2f) {
+        R.BraceDidNotAttack=H->ValidatedSwingCount==R.AttacksBeforeBrace;
+        R.Invalid|=!R.BraceDidNotAttack;
         Finish(!R.Invalid); return;
     }
     if(R.Age>25) Finish(false);

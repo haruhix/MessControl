@@ -1,5 +1,6 @@
 #include "MCPrototypeWidget.h"
 #include "MCToothCharacter.h"
+#include "MCGripComponent.h"
 #include "MCGameplayHUD.h"
 #include "MCThroat.h"
 #include "MCPlayerController.h"
@@ -87,7 +88,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     ContactBar->SetWidgetStyle(ProgressStyle); HealthBar->SetWidgetStyle(ProgressStyle);
     UBorder* FooterBorder; auto* Footer = Panel(FVector2D(0,-22),FVector2D(1080,75),FAnchors(0.5f,1),FVector2D(0.5f,1),FooterBorder);
     ControlsPanel=FooterBorder; SetPlayerOverlayVisible(bPlayerOverlayVisible);
-    AddText(Footer,TEXT("WASD MOVE   SHIFT TAP: DASH / HOLD: RUN   SPACE HOP   LMB INTERACT   Q THROW   MOUSE LOOK   WHEEL ZOOM   RMB BONK"),15,Cream);
+    AddText(Footer,TEXT("WASD MOVE   SHIFT DASH / RUN   SPACE HOP   LMB INTERACT   RMB HOLD ON   F BONK   Q THROW   MOUSE LOOK"),15,Cream);
 #if !UE_BUILD_SHIPPING
     AddText(Footer,TEXT("T  EMOTES      C / R-STICK  SELF CARE      F1  TOOTH LAB      F2  FRIENDS      F3  DEV EVENTS"),12,Mint);
 #else
@@ -131,7 +132,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     Button(PhysicsBox,TEXT("LOOSEN ALL LIVING TEETH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::LooseClicked);
     Button(PhysicsBox,TEXT("DROP STUCK FOOD AHEAD"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DropFoodClicked);
     Button(PhysicsBox,TEXT("DIE / TEST RESPAWN COST"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::RespawnClicked);
-    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then RMB to bonk. Move the mouse to orbit; use the wheel to zoom."),12,Cream);
+    AddText(PhysicsBox,TEXT("Host changes apply to teeth already in this room. Spawn a practice tooth, close F1, then F to bonk. Hold RMB near food, players or walls. Mouse: orbit; wheel: zoom."),12,Cream);
     Button(PhysicsBox,TEXT("SPAWN PRACTICE TOOTH"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::DummyClicked);
     Button(PhysicsBox,TEXT("TEST FALL"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::FallClicked);
     Button(PhysicsBox,TEXT("GET UP WHEN CLEAR"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::GetUpClicked);
@@ -144,7 +145,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     }
     Button(PhysicsBox,TEXT("SAVE LOCAL PRESETS"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::SaveClicked);
     AddText(PhysicsBox,TEXT("ARENA TEETH / HOST"),21,Mint);
-    AddText(PhysicsBox,TEXT("Session preview. Permanent defaults: DA_ArenaTooth. Close F1 and tap RMB on a numbered tooth to damage it."),12,Cream);
+    AddText(PhysicsBox,TEXT("Session preview. Permanent defaults: DA_ArenaTooth. Close F1 and tap F on a numbered tooth to damage it."),12,Cream);
     Button(PhysicsBox,TEXT("PREVIEW COFFEE ON ARENA"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ArenaCoffeeClicked);
     Button(PhysicsBox,TEXT("CLEAR COFFEE PREVIEW"))->OnClicked.AddDynamic(this,&UMCPrototypeWidget::ArenaCleanClicked);
     const float ArenaMin[]={0,0,0.2f}, ArenaMax[]={0.4f,25,3};
@@ -212,12 +213,16 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>(); if (!State || !DayLabel) return;
     const bool bWorking = State->Phase == EMCShiftPhase::Working;
     const bool bWon = State->Phase == EMCShiftPhase::Won; const bool bLost = State->Phase == EMCShiftPhase::Lost;
+    const AMCCoffeeFlood* ActiveFlood=nullptr;
+    for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) if(It->IsActive()) { ActiveFlood=*It; break; }
     if (const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());CarePanel && CarePanel->IsVisible() && Hero)
     {
         PlayerStatusLabel->SetText(FText::FromString(Hero->Status->Summary()));
         FString Hint=Hero->bSelfCare?TEXT("SELF CARE: hold LMB to clean / heal. C returns to others."):TEXT("Hold LMB near a target: pick up, clean or heal. C: self care.");
-        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hit. Mouse: camera. Wheel: zoom. Q: throw.");
-        if (Hero->bInCoffee) Hint=Hero->ClingTooth?TEXT("CLINGING | keep LMB held. Release LMB to let go."):TEXT("COFFEE | WASD: paddle. Hold LMB near arena teeth to cling.");
+        if (State->bPhysicalBrushes && !Hero->HasBrush()) Hint=TEXT("LMB: pick up a brush or food. RMB: hold on. F: hit. Mouse: camera. Wheel: zoom. Q: throw.");
+        if (Hero->bInCoffee) Hint=Hero->ClingTooth?TEXT("ДЕРЖИ ЛКМ — удерживаться. Отпусти ЛКМ — отпустить зуб."):
+            ActiveFlood && ActiveFlood->bRiverFlood?TEXT("ПОТОП | WASD + Shift — бежать. ПКМ у еды, стены или игрока — держаться."):
+            TEXT("COFFEE | WASD: paddle. Hold LMB near arena teeth to cling.");
         float Progress=Hero->ContactProgress;
         if (!Hero->Status->IsAlive()) Hint=State->AvailableArenaTeeth()>0?FString::Printf(TEXT("DOWN | RESPAWN %.1fs | consumes one numbered arena tooth"),FMath::Max(0.,Hero->RespawnAt-State->GetServerWorldTimeSeconds())):TEXT("DOWN | NO RESERVE TEETH LEFT");
         else if (IsValid(Hero->HeldFood))
@@ -235,6 +240,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
                 Progress=1-FMath::Clamp(float(State->GetServerWorldTimeSeconds()-It->PhaseStartedAt)/It->AnticipationSeconds,0.f,1.f);
             }
         }
+        if(Hero->Grip && Hero->Grip->IsBracing()) Hint=FString::Printf(TEXT("ПКМ — ДЕРЖАТЬСЯ | НАГРУЗКА %.0f КГ | ОТПУСТИ ПКМ — ОТПУСТИТЬ"),Hero->Grip->TotalChainMass());
         if(Hero->SwallowedBy) Hint=TEXT("WRONG INGREDIENT!  HOLD ON...");
         ContactLabel->SetText(FText::FromString(Hint)); ContactBar->SetPercent(Progress);
     }
@@ -260,13 +266,16 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
             TaskLabel->SetText(FText::FromString(FString::Printf(TEXT("%s %02d    |    %d / %d PLAYERS"),Step.Step==EMCDayStep::CoffeeWaves?TEXT("CYCLES LEFT"):TEXT("OBJECTS LEFT"),State->TasksLeft,State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
             TimeLabel->SetText(FText::FromString(Step.Seconds>0?FString::Printf(TEXT("EVENT %02ds | DAY ELAPSED %03ds"),Seconds,FMath::FloorToInt(State->GetServerWorldTimeSeconds()-State->DayStartedAt)):TEXT("NO EVENT TIMER | TAKE YOUR TIME")));
             if (Step.Step==EMCDayStep::CoffeeWaves)
-                for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
+            {
+                EventLabel->SetText(FText::FromString(TEXT("КОФЕ / ЦУНАМИ")));
+                InstructionLabel->SetText(FText::FromString(TEXT("Волна сносит к глотке и смывает мелкие кусочки еды. WASD + Shift — бежать. ПКМ у стены, еды или игрока — держаться.")));
+                if (ActiveFlood && !ActiveFlood->bRiverFlood)
                 {
-                    const auto Phase=It->GetPhase();
+                    const auto Phase=ActiveFlood->GetPhase();
                     EventLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Holding?TEXT("КОФЕ / ПЛАВАНИЕ"):Phase==EMCCoffeePhase::Filling?TEXT("COFFEE / FILLING"):Phase==EMCCoffeePhase::Draining?TEXT("COFFEE / DRAINING TO THROAT"):TEXT("COFFEE / DRAINED")));
                     InstructionLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Holding?TEXT("WASD — плавать. F3 → убрать кофе — закончить тест."):Phase==EMCCoffeePhase::Draining?TEXT("Current pulls towards the throat! Hold LMB at an arena tooth; WASD: paddle."):Phase==EMCCoffeePhase::Filling?TEXT("Dodge the jet and outward wave. Hold LMB near an arena tooth to cling."):TEXT("Water is gone. F3: replay the event or test cleanup.")));
-                    break;
                 }
+            }
         }
         if (State->bDayOneComplete)
         {

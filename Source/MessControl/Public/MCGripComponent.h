@@ -6,6 +6,7 @@
 #include "MCGripComponent.generated.h"
 class AMCToothCharacter;
 class AMCFoodActor;
+class UPrimitiveComponent;
 struct FReferenceSkeleton;
 
 UENUM(BlueprintType)
@@ -72,6 +73,34 @@ struct FMCGripFrame
     UPROPERTY() int32 Serial=0;
 };
 
+/** A held RMB contact. The server chooses the surface; no client supplied actor is trusted. */
+USTRUCT(BlueprintType)
+struct FMCBraceAnchor
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) TObjectPtr<AActor> Target;
+    UPROPERTY() TObjectPtr<UPrimitiveComponent> Component;
+    UPROPERTY() FName BoneName;
+    UPROPERTY() FVector_NetQuantize10 LocalPoint=FVector::ZeroVector;
+    UPROPERTY() FVector_NetQuantizeNormal LocalNormal=FVector::ForwardVector;
+    UPROPERTY() float RestLength=0;
+    UPROPERTY() bool bFixed=false;
+    UPROPERTY(BlueprintReadOnly) bool bHeld=false;
+    UPROPERTY() uint16 RequestId=0;
+};
+
+/** Contact geometry and forces are saved alongside each predicted CMC move. */
+struct FMCBraceMovementState
+{
+    FVector Acceleration=FVector::ZeroVector;
+    FVector Anchor=FVector::ZeroVector;
+    FVector AnchorVelocity=FVector::ZeroVector;
+    float RestLength=0,LoadMass=0,IncomingMass=0,SelfMass=8;
+    bool bTether=false,bWorldAnchored=false;
+    bool Equals(const FMCBraceMovementState& Other) const;
+    FVector ConstrainVelocity(FVector Velocity,FVector Position,float Dt) const;
+};
+
 /** Replicated contact anchors; arm IK is evaluated locally from those same anchors. */
 UCLASS(ClassGroup=(MessControl),meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCGripComponent : public UActorComponent
@@ -80,6 +109,7 @@ class MESSCONTROL_API UMCGripComponent : public UActorComponent
 public:
     UMCGripComponent();
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* TickFunction) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Grip") TSoftObjectPtr<UMCGripProfile> Profile;
@@ -89,6 +119,20 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Grip") TObjectPtr<AMCToothCharacter> GrabbedPlayer;
     UPROPERTY(Replicated) FVector_NetQuantize10 PlayerAnchor;
     UPROPERTY(Replicated) double PlayerGrabAt=0;
+    UPROPERTY(ReplicatedUsing=OnRep_Brace,BlueprintReadOnly,Category="Grip|Brace") FMCBraceAnchor Brace;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Grip|Brace") float IncomingBraceMass=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Grip|Brace") float SupportedBraceMass=8;
+    UFUNCTION(BlueprintCallable,Category="Grip|Brace") void SetBraceHeld(bool Held);
+    UFUNCTION(BlueprintCallable,Category="Grip|Brace") void ReleaseBrace();
+    UFUNCTION(BlueprintPure,Category="Grip|Brace") bool IsBracing() const;
+    UFUNCTION(BlueprintPure,Category="Grip|Brace") bool IsWorldAnchored() const;
+    UFUNCTION(BlueprintPure,Category="Grip|Brace") AActor* BraceTarget() const;
+    UFUNCTION(BlueprintPure,Category="Grip|Brace") FVector BracePoint() const;
+    UFUNCTION(BlueprintPure,Category="Grip|Brace") float TotalChainMass() const;
+    UFUNCTION(BlueprintPure,Category="Grip|Brace") float IncomingChainMass() const;
+    static float AttachedMassFor(const AActor* Target);
+    bool WouldCreateBraceCycle(const AMCToothCharacter* Player) const;
+    FMCBraceMovementState CaptureBraceMovement() const;
     bool BeginGrip(AMCFoodActor* Food);
     void EndGrip(AMCFoodActor* Food=nullptr);
     bool BeginPlayerGrip(AMCToothCharacter* Player);
@@ -123,6 +167,23 @@ public:
     static bool UsesHand(EMCGripPose Pose,bool Left);
 private:
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
+    UPROPERTY(Transient) FMCBraceAnchor PredictedBrace;
+    uint16 LocalBraceRequestId=0;
+    bool bLocalBraceHeld=false;
+    float NextBraceAttemptAt=0;
+    const FMCBraceAnchor& EffectiveBrace() const;
+    bool CanBrace() const;
+    bool FindBraceContact(FMCBraceAnchor& Out) const;
+    bool ValidateBraceContact(const FMCBraceAnchor& Contact) const;
+    void TickBrace(float Dt);
+    void ClearBraceContact(bool KeepHeld);
+    float OwnBraceMass() const;
+    float ChainMass(TSet<const AMCToothCharacter*>& Visited) const;
+    FVector BraceForce() const;
+    FVector BraceNormal() const;
+    FVector BraceTargetVelocity() const;
+    UFUNCTION(Server,Reliable) void ServerSetBraceHeld(bool Held,uint16 RequestId);
+    UFUNCTION() void OnRep_Brace();
     struct FArm
     {
         int32 Upper=INDEX_NONE,Lower=INDEX_NONE,Hand=INDEX_NONE;

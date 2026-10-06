@@ -110,6 +110,7 @@ public:
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") FVector GetDashDirection() const;
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashDuration() const;
     UFUNCTION(BlueprintCallable,Category="Locomotion|Dash") void SetSprintInputHeld(bool Held);
+    UFUNCTION(BlueprintCallable,Category="Grip") void SetBraceInputHeld(bool Held);
     // Controller-facing input shares the same contact and timing rules as player input.
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetPrimaryInputHeld(bool Held);
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetHandleInputHeld(bool Held);
@@ -212,6 +213,7 @@ private:
     void UpdateLocomotion(float Dt);
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void StartPrimary(); void StopPrimary();
+    void StartBrace(); void StopBrace();
     bool bSharedPrimaryInputHeld=false,bSharedHandleInputHeld=false,bSharedJumpInputHeld=false;
     UFUNCTION(Server,Reliable) void ServerToggleFoodCollection();
     void SelectBrush(); void SelectPickaxe(); void SelectKnife(); void SelectSpray();
@@ -247,6 +249,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> ConnectionAction;
     UPROPERTY() TObjectPtr<UInputAction> RestartAction;
     UPROPERTY() TObjectPtr<UInputAction> SwingAction;
+    UPROPERTY() TObjectPtr<UInputAction> BraceAction;
     UPROPERTY() TObjectPtr<UInputAction> OrbitXAction;
     UPROPERTY() TObjectPtr<UInputAction> OrbitYAction;
     UPROPERTY() TObjectPtr<UInputAction> ZoomAction;

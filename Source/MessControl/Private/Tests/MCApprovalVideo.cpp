@@ -240,7 +240,7 @@ void MCTickApprovalValidation(UWorld* World)
             auto* Plan=DuplicateObject<UMCDayPlan>(GS->DayPlan,World);
             // Start adds the tongue's highest bound; keep this fixture's water 120 cm above its approach.
             Plan->FloodHeight=float(Sole.Z+120-Tongue->Surface->Bounds.GetBox().Max.Z);
-            R.Coffee=World->SpawnActor<AMCCoffeeFlood>();R.Coffee->Start(Plan);
+            R.Coffee=World->SpawnActor<AMCCoffeeFlood>();R.Coffee->Start(Plan,0.f,true);
             R.Coffee->WaterSettings.DryHeight=float(Sole.Z-40);R.Coffee->WaterSettings.FillSeconds=15;R.Coffee->WaterSettings.DrainSeconds=10;
             R.Coffee->WaterSettings.RippleHeight=3;R.Coffee->WaterSettings.FrontHeight=0;R.Coffee->Flow=0;R.Coffee->WaterSettings.DrainAcceleration=0;
             R.Coffee->HalfSize=R.Coffee->HalfSize.ComponentMax(FVector(1400,1000,220));R.Coffee->Seconds=25;R.Coffee->StartedAt=Now-10;

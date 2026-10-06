@@ -78,6 +78,22 @@ void AMCFoodActor::Initialize(bool bJam,FVector ExtractionDirection)
     bJamOnLanding=bJam; PullDirection=ExtractionDirection.GetSafeNormal2D();
     if (PullDirection.IsNearlyZero()) PullDirection=FVector(0,1,0);
 }
+void AMCFoodActor::MarkRiverSwept(float EscapeZ)
+{
+    if (!HasAuthority() || IsDisposed() || !FMath::IsFinite(EscapeZ)) return;
+    if (!bRiverSwept) { bRiverSwept=true; RiverEscapeZ=EscapeZ; ForceNetUpdate(); }
+    else RiverEscapeZ=FMath::Min(RiverEscapeZ,EscapeZ);
+}
+float AMCFoodActor::OutOfArenaZ() const
+{
+    if (!EscapeTongue.IsValid())
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+            if (!It->CurrentVertices().IsEmpty()) { EscapeTongue=*It; break; }
+    // Imported tongues can sit hundreds of centimetres below world zero. A
+    // resting ingredient on that real floor has not fallen out of the arena.
+    const float FloorCutoff=EscapeTongue.IsValid()?float(EscapeTongue->Surface->Bounds.GetBox().Min.Z-250.f):-250.f;
+    return bRiverSwept?FMath::Min(RiverEscapeZ,FloorCutoff):FloorCutoff;
+}
 void AMCFoodActor::OnRep_ReplicatedMovement()
 {
     if (HasAuthority()) return;
@@ -415,14 +431,18 @@ void AMCFoodActor::Tick(float Dt)
         // An escaped item returns to the arena, never counts as successfully disposed.
         // A placed brush bin owns the horizontal exit. A fixed X cutoff would
         // delete tools inside an artist arena whose front edge moved.
-        if (bBrushTool && GetActorLocation().Z < -250) { Dispose(); return; }
-        if (GetActorLocation().Z<-250)
+        const float EscapeZ=OutOfArenaZ();
+        if (bBrushTool && GetActorLocation().Z<EscapeZ) { Dispose(); return; }
+        // The river leaves swept pieces where they settle. If a piece actually
+        // falls out below the arena, remove it instead of respawning it upstream.
+        if (bRiverSwept && GetActorLocation().Z<EscapeZ) { Dispose(); return; }
+        if (!bRiverSwept && GetActorLocation().Z<EscapeZ)
         { for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]); SetActorLocation(FVector(0,0,Settings.DropHeight),false,nullptr,ETeleportType::TeleportPhysics); Body->SetPhysicsLinearVelocity(FVector::ZeroVector); }
         PrePhysicsVelocity=Body->GetPhysicsLinearVelocity();
     }
     if(GetNetMode()==NM_DedicatedServer) return;
     FString Caption=Phase==EMCFoodPhase::Stuck?FString::Printf(TEXT("LMB + MOVE TO CENTRE\nPULL %.0f%% | %d GRIPS"),PullProgress*100,Holders.Num()):Phase==EMCFoodPhase::Carried?TEXT("RELEASE LMB: DROP | Q: THROW"):TEXT("HOLD LMB: PICK UP / DRAG");
-    if (!UsesLegacyGrip()) Caption=Phase==EMCFoodPhase::Stuck?TEXT("RMB: FREE / CUT FOOD"):StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):TEXT("LMB: COLLECT STACK | RMB: CUT");
+    if (!UsesLegacyGrip()) Caption=Phase==EMCFoodPhase::Stuck?TEXT("F: FREE / CUT FOOD"):StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):TEXT("LMB: COLLECT STACK | F: CUT");
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("SPOILED"):FoodData.Kind==EMCFoodKind::Spicy?*FString::Printf(TEXT("%.1fs %s"),FuseRemaining(),bFusePaused?TEXT("PAUSED"):TEXT("THROW INTO THROAT")):FoodData.Kind==EMCFoodKind::ForeignObject?TEXT("FOREIGN OBJECT"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
     if (bBrushTool) Caption=TEXT("LMB: PICK UP BRUSH\nQ: THROW OVERBOARD");
     if(FoodData.Kind==EMCFoodKind::Spicy) {
@@ -445,6 +465,7 @@ void AMCFoodActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     DOREPLIFETIME(AMCFoodActor,PullProgress); DOREPLIFETIME(AMCFoodActor,PullDirection); DOREPLIFETIME(AMCFoodActor,Holders);
     DOREPLIFETIME(AMCFoodActor,ItemMesh); DOREPLIFETIME(AMCFoodActor,FoodData); DOREPLIFETIME(AMCFoodActor,ItemName); DOREPLIFETIME(AMCFoodActor,Health);
     DOREPLIFETIME(AMCFoodActor,bFragment); DOREPLIFETIME(AMCFoodActor,bBrushTool); DOREPLIFETIME(AMCFoodActor,bSpoiled); DOREPLIFETIME(AMCFoodActor,SpoilAt);
+    DOREPLIFETIME(AMCFoodActor,bRiverSwept);
     DOREPLIFETIME(AMCFoodActor,Batch); DOREPLIFETIME(AMCFoodActor,EquippedBy); DOREPLIFETIME(AMCFoodActor,StuckTooth);
     DOREPLIFETIME(AMCFoodActor,AbsorbStartedAt); DOREPLIFETIME(AMCFoodActor,bAbsorbed); DOREPLIFETIME(AMCFoodActor,AbsorbedUlcer);
     DOREPLIFETIME(AMCFoodActor,AbsorptionTongue); DOREPLIFETIME(AMCFoodActor,AbsorptionAnchor);
@@ -749,6 +770,7 @@ void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream&
 {
     if (!HasAuthority()) return;
     FoodData=Row; FoodData.Sanitize(); ItemName=Name; bFragment=Fragment;
+    bRiverSwept=false; RiverEscapeZ=-250;
     if (bFragment) { FoodData.Mass/=FoodData.Fragments; FoodData.Health=25; }
     Health=FoodData.Health; Settings.Mass=FoodData.Mass;
     const auto& Choices=bFragment?FoodData.FragmentMeshes:FoodData.WholeMeshes;
@@ -806,6 +828,7 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction)
         auto* Part=GetWorld()->SpawnActorDeferred<AMCFoodActor>(StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if (!Part) continue;
         Part->ConfigureItem(ItemName,FoodData,Random,true); Part->Batch=Batch; Part->SpoilAt=SpoilAt; Part->bSpoiled=bSpoiled;
+        Part->bRiverSwept=bRiverSwept; Part->RiverEscapeZ=RiverEscapeZ;
         if (AMCTutorialDirector::IsTutorialTarget(this)) { Part->SetOwner(GetOwner()); Part->Tags.AddUnique(TEXT("MCTutorial")); }
         UGameplayStatics::FinishSpawningActor(Part,T); Part->Body->SetPhysicsLinearVelocity(Offset*3);
     }

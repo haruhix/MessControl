@@ -222,6 +222,7 @@ void AMCToothCharacter::BuildInput()
     HandleAction = Action(EInputActionValueType::Boolean); PanelAction = Action(EInputActionValueType::Boolean);
     ConnectionAction = Action(EInputActionValueType::Boolean); RestartAction = Action(EInputActionValueType::Boolean);
     SwingAction=Action(EInputActionValueType::Boolean);
+    BraceAction=Action(EInputActionValueType::Boolean);
     OrbitXAction=Action(EInputActionValueType::Axis1D); OrbitYAction=Action(EInputActionValueType::Axis1D);
     ZoomAction=Action(EInputActionValueType::Axis1D);
     SelfCareAction=Action(EInputActionValueType::Boolean);
@@ -230,7 +231,8 @@ void AMCToothCharacter::BuildInput()
     InputMap->MapKey(SprintAction,EKeys::LeftShift); InputMap->MapKey(SprintAction,EKeys::Gamepad_LeftThumbstick);
     InputMap->MapKey(ThrowAction,EKeys::Q); InputMap->MapKey(ThrowAction,EKeys::Gamepad_FaceButton_Top);
     InputMap->MapKey(SelfCareAction,EKeys::C); InputMap->MapKey(SelfCareAction,EKeys::Gamepad_RightThumbstick);
-    InputMap->MapKey(SwingAction,EKeys::RightMouseButton); InputMap->MapKey(SwingAction,EKeys::Gamepad_LeftShoulder);
+    InputMap->MapKey(SwingAction,EKeys::F); InputMap->MapKey(SwingAction,EKeys::Gamepad_LeftTrigger);
+    InputMap->MapKey(BraceAction,EKeys::RightMouseButton); InputMap->MapKey(BraceAction,EKeys::Gamepad_LeftShoulder);
     InputMap->MapKey(OrbitXAction,EKeys::MouseX); InputMap->MapKey(OrbitYAction,EKeys::MouseY);
     InputMap->MapKey(ZoomAction,EKeys::MouseWheelAxis);
     InputMap->MapKey(ForwardAction, EKeys::W);
@@ -281,6 +283,9 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(ConnectionAction, ETriggerEvent::Started, this, &AMCToothCharacter::ToggleConnection);
     Input->BindAction(RestartAction, ETriggerEvent::Started, this, &AMCToothCharacter::RestartRun);
     Input->BindAction(SwingAction,ETriggerEvent::Started,this,&AMCToothCharacter::SwingBrush);
+    Input->BindAction(BraceAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartBrace);
+    Input->BindAction(BraceAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopBrace);
+    Input->BindAction(BraceAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopBrace);
     Input->BindAction(OrbitXAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitMouseX);
     Input->BindAction(OrbitYAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitMouseY);
     Input->BindAction(ZoomAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::CameraMouseWheel);
@@ -431,6 +436,7 @@ void AMCToothCharacter::ServerToggleFoodCollection_Implementation()
         || (!FoodCollection->bCollecting && !FoodCollection->HasCandidate())) return;
     CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false);
     bPrimaryHeld=false; bBrushing=false; bHandling=false; DropFood(); ResetContact();
+    Grip->ReleaseBrace();
     FoodCollection->Toggle(); ForceNetUpdate();
 }
 void AMCToothCharacter::SelectBrush() { Inventory->ServerSelect(EMCToolSlot::Brush); }
@@ -472,8 +478,20 @@ void AMCToothCharacter::SetSelfCareInput(bool Enabled)
     if ((!HasAuthority() && !IsLocallyControlled()) || bSelfCare==Enabled || !CanWork()) return;
     ToggleSelfCare();
 }
+void AMCToothCharacter::SetBraceInputHeld(bool Held) { if(Held) StartBrace(); else StopBrace(); }
+void AMCToothCharacter::StartBrace()
+{
+    if(!Status->IsAlive()) { if(auto* PC=Cast<AMCPlayerController>(Controller)) PC->PreviousSpectator(); return; }
+    if(!CanWork()) return;
+    if(const auto* PC=Cast<APlayerController>(Controller); PC && PC->IsMoveInputIgnored()) return;
+    StopPrimary(); StopHandle(); FoodCollection->Stop();
+    CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
+    Grip->SetBraceHeld(true);
+}
+void AMCToothCharacter::StopBrace() { Grip->SetBraceHeld(false); }
 void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
+    if(bActive) Grip->ReleaseBrace();
     if(bActive && CanWork() && !bInCoffee && !bSelfCare && Inventory->IsCleaningTool() && (FoodCollection->bCollecting || FoodCollection->HasCandidate())) {
         bPrimaryHeld=false;bBrushing=false;bHandling=false;DropFood();ResetContact();FoodCollection->Toggle();ForceNetUpdate();return;
     }
@@ -554,16 +572,18 @@ void AMCToothCharacter::ResolvePrimaryAction()
 void AMCToothCharacter::CancelGameplayInput()
 {
     bSharedPrimaryInputHeld=false; bSharedHandleInputHeld=false; bSharedJumpInputHeld=false;
+    StopBrace();
     FoodCollection->Stop();
     CancelSprintInput();CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
     StopPrimary(); StopBrush(); StopHandle(); StopJump(); LocalPaddle=FVector2D::ZeroVector; ServerPaddle(LocalPaddle);
     GetCharacterMovement()->StopMovementImmediately();
 }
-void AMCToothCharacter::TogglePanel() { StopPrimary(); StopBrush(); StopHandle(); if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->ToggleTuning(); }
-void AMCToothCharacter::ToggleConnection() { StopPrimary(); StopBrush(); StopHandle(); if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->ToggleConnection(); }
+void AMCToothCharacter::TogglePanel() { StopBrace(); StopPrimary(); StopBrush(); StopHandle(); if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->ToggleTuning(); }
+void AMCToothCharacter::ToggleConnection() { StopBrace(); StopPrimary(); StopBrush(); StopHandle(); if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->ToggleConnection(); }
 void AMCToothCharacter::RestartRun() { if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->RequestRestart(); }
 void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActive)
 {
+    if(bActive) Grip->ReleaseBrace();
     if(!bBrush) CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(bActive);
     if (!bBrush) { bWantsCling=bPrimaryHeld && Status->IsAlive(); if (!bActive) ClingTooth=nullptr; }
     if (bActive && (!CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-0.3f)) return;
@@ -758,6 +778,7 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
 {
     const float Now=GetWorld()->GetTimeSeconds();
     if (!CanWork() || Now<NextSwingTime) return;
+    Grip->ReleaseBrace();
     if(Inventory->Selected==EMCToolSlot::Spray) { Inventory->ServerSpray(); return; }
     FVector Point=FVector::ZeroVector,Normal=FVector::UpVector;
     CalculusTarget=Inventory->Selected==EMCToolSlot::Pickaxe?FindCalculusTarget(Point,Normal):nullptr;
@@ -1117,6 +1138,7 @@ bool AMCToothCharacter::FindPlayerBrushContact(const AMCToothCharacter* Worker,F
 void AMCToothCharacter::StatusChanged()
 {
     if (!HasAuthority() || Status->IsAlive() || bDeathReported) return;
+    Grip->ReleaseBrace();
     bDeathReported=true; bBrushing=false; bHandling=false; DropFood(); ResetContact();
     ClingTooth=nullptr; bWantsCling=false;
     ToothPhysics->EnterDeath();
@@ -1137,6 +1159,7 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
     ClearCameraWallReveal();
+    Grip->ReleaseBrace();
     DropFood();
     if (AppliedInputSubsystem.IsValid() && InputMap) AppliedInputSubsystem->RemoveMappingContext(InputMap);
     Super::EndPlay(Reason);
@@ -1149,6 +1172,7 @@ void AMCToothCharacter::ThrowItem() { ServerThrowItem(); }
 void AMCToothCharacter::ServerThrowItem_Implementation()
 {
     if (!CanWork()) return;
+    Grip->ReleaseBrace();
     if(FoodCollection->bCollecting || !FoodCollection->Pieces.IsEmpty()) {FoodCollection->Stop(true);return;}
     if (Grip->GrabbedPlayer) Grip->ThrowPlayer();
     else if (HeldFood)

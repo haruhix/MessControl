@@ -90,6 +90,7 @@ namespace
 {
     const FName DashSourceName(TEXT("MCTapDash"));
     const FName SuctionSourceName(TEXT("MCThroatAmbientSuction"));
+    const FName RiverSourceName(TEXT("MCRiverCurrent"));
     bool SourceRunning(const TSharedPtr<FRootMotionSource>& Source)
     {
         return Source.IsValid() && !Source->Status.HasFlag(ERootMotionSourceStatusFlags::Finished)
@@ -110,12 +111,15 @@ namespace
         FMCStaminaPredictionState StaminaBefore,StaminaAfter;
         bool SprintRequested=false,DashCharged=false;
         FVector Suction=FVector::ZeroVector;
-        virtual void Clear() override { Super::Clear(); Sprint=Climb=Dash=false;DashCooldown=0;Suction=FVector::ZeroVector;StaminaBefore=StaminaAfter={};SprintRequested=DashCharged=false; }
+        FVector River=FVector::ZeroVector;
+        FMCBraceMovementState BraceState;
+        virtual void Clear() override { Super::Clear(); Sprint=Climb=Dash=false;DashCooldown=0;Suction=River=FVector::ZeroVector;BraceState={};StaminaBefore=StaminaAfter={};SprintRequested=DashCharged=false; }
         virtual uint8 GetCompressedFlags() const override { return Super::GetCompressedFlags() | (Sprint?FLAG_Custom_0:0) | (Climb?FLAG_Custom_1:0) | (Dash?FLAG_Custom_2:0); }
         virtual bool CanCombineWith(const FSavedMovePtr& Move,ACharacter* Hero,float MaxDelta) const override
         {
             const auto* Other=static_cast<const FMCStrideMove*>(Move.Get());
-            return !Dash && !Other->Dash && Sprint==Other->Sprint && Climb==Other->Climb && Suction.Equals(Other->Suction,.1)
+            return !Dash && !Other->Dash && Sprint==Other->Sprint && Climb==Other->Climb && Suction.Equals(Other->Suction,.1) && River.Equals(Other->River,.1)
+                && BraceState.Equals(Other->BraceState)
                 && StaminaBefore.Exhausted==Other->StaminaBefore.Exhausted
                 && Super::CanCombineWith(Move,Hero,MaxDelta);
         }
@@ -126,7 +130,9 @@ namespace
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             Sprint=M->WantsToSprint();Climb=M->WantsClimb();Dash=M->WantsDash();DashCooldown=M->GetDashCooldownRemaining();
             StaminaBefore=M->GetStaminaPrediction();
+            BraceState=M->CaptureBraceForMove();
             Suction=M->CaptureSuctionForMove();
+            River=M->CaptureRiverForMove();
             if(Dash) bForceNoCombine=true;
         }
         virtual void PrepMoveFor(ACharacter* Hero) override
@@ -134,6 +140,8 @@ namespace
             Super::PrepMoveFor(Hero);
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             M->SetSprinting(Sprint);M->SetWantsClimb(Climb);M->SetWantsDash(Dash);M->RestoreDashPrediction(DashCooldown);M->RestoreSuctionForMove(Suction);
+            M->RestoreRiverForMove(River);
+            M->RestoreBraceForMove(BraceState);
             if (!M->IsReplayingAuthoritativeStamina()) M->RestoreStaminaPrediction(StaminaBefore);
             else StaminaBefore=M->GetStaminaPrediction();
             M->RestoreReplayDashCharge(DashCharged);
@@ -232,8 +240,9 @@ bool UMCToothMovementComponent::CanSprint() const { return CanSprintAction() && 
 bool UMCToothMovementComponent::CanDashAction() const
 {
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    const float Incoming=bHasBraceSample?BraceMovement.IncomingMass:Hero && Hero->Grip?Hero->Grip->IncomingChainMass():0;
     return Hero && Hero->CanWork() && !Hero->ClingTooth && !Hero->OrderJumpTarget && !Hero->bBrushing && !HasHeavyGrip()
-        && !bWantsToClimb && !IsSwimming() && !IsClimbing() && (IsMovingOnGround() || IsFalling());
+        && Incoming<=.1f && !Hero->Grip->IsBracing() && !bWantsToClimb && !IsSwimming() && !IsClimbing() && (IsMovingOnGround() || IsFalling());
 }
 bool UMCToothMovementComponent::CanDash() const
 {
@@ -296,6 +305,8 @@ FVector UMCToothMovementComponent::CaptureSuctionForMove()
 {
     float Strength=0;FVector Sample=FVector::ZeroVector;
     if(CharacterOwner) AMCThroat::FindAmbientSuctionAt(GetWorld(),CharacterOwner->GetActorLocation(),Strength,Sample);
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(Hero && Hero->Grip && Hero->Grip->IsWorldAnchored()) Sample=FVector::ZeroVector;
     PendingSuction=Sample;bHasSuctionSample=true;
     return Sample;
 }
@@ -317,11 +328,18 @@ void UMCToothMovementComponent::UpdateAmbientSuction()
 {
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     const bool Eligible=Hero && Hero->CanWork() && !Hero->ClingTooth && !Hero->OrderJumpTarget
+        && !BraceMovement.bWorldAnchored
         && (IsMovingOnGround() || IsFalling() || IsSwimming());
     if(!bHasSuctionSample) CaptureSuctionForMove();
     const FVector Sample=Eligible?PendingSuction:FVector::ZeroVector;bHasSuctionSample=false;
     auto Current=GetRootMotionSource(SuctionSourceName);
-    if(Sample.IsNearlyZero()) { RemoveRootMotionSource(SuctionSourceName);return; }
+    if(Sample.IsNearlyZero()) {
+        if(Current.IsValid() && BraceMovement.bWorldAnchored) {
+            Current->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::SetVelocity;
+            Current->FinishVelocityParams.SetVelocity=FVector(0,0,Velocity.Z);
+        }
+        RemoveRootMotionSource(SuctionSourceName);return;
+    }
     if(SourceRunning(Current)) {
         static_cast<FMCLocomotionRootMotionSource*>(Current.Get())->Force=Sample;
         return;
@@ -330,6 +348,77 @@ void UMCToothMovementComponent::UpdateAmbientSuction()
     Source->InstanceName=SuctionSourceName;Source->Priority=100;Source->AccumulateMode=ERootMotionAccumulateMode::Additive;
     Source->Duration=-1;Source->Force=Sample;
     ApplyRootMotionSource(Source);
+}
+FVector UMCToothMovementComponent::CaptureRiverForMove()
+{
+    FVector Sample=FVector::ZeroVector;
+    if(CharacterOwner) {
+        // Even the breaking crest keeps ordinary movement: probe at the feet
+        // without entering swimming. Additive current survives ground braking.
+        const FVector Sole=CharacterOwner->GetActorLocation()-FVector(0,0,CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-10.f);
+        for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
+            if(It->bRiverFlood && It->Contains(Sole)) Sample+=It->FlowAtPosition(Sole,CharacterOwner)/2.4f;
+    }
+    Sample.Z=0;
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(Hero && Hero->Grip)
+    {
+        if(Hero->Grip->IsWorldAnchored()) Sample=FVector::ZeroVector;
+        else Sample/=FMath::Sqrt(1+Hero->Grip->IncomingChainMass()/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass));
+    }
+    // Preserve the tsunami's bulk and crest speeds. This only bounds malformed
+    // or stacked fields; the previous walking-speed cap erased the wave impact.
+    PendingRiver=Sample.ContainsNaN()?FVector::ZeroVector:Sample.GetClampedToMaxSize(1500.f);bHasRiverSample=true;
+    return PendingRiver;
+}
+void UMCToothMovementComponent::RestoreRiverForMove(FVector Sample)
+{
+    PendingRiver=Sample;bHasRiverSample=true;
+    const auto Source=GetRootMotionSource(RiverSourceName);
+    if(!SourceRunning(Source)) return;
+    auto* Current=static_cast<FMCLocomotionRootMotionSource*>(Source.Get());
+    const float OldMagnitude=float(Current->Force.Size());
+    const float Multiplier=OldMagnitude>UE_SMALL_NUMBER?float(Current->RootMotionParams.GetRootMotionTransform().GetTranslation().Size())/OldMagnitude:1.f;
+    Current->Force=Sample;
+    if(Current->Status.HasFlag(ERootMotionSourceStatusFlags::Prepared)) Current->RootMotionParams.Set(FTransform(Sample*Multiplier));
+}
+void UMCToothMovementComponent::UpdateRiverCurrent()
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    const bool Eligible=Hero && Hero->ToothPhysics && Hero->ToothPhysics->CanAct() && !Hero->SwallowedBy
+        && !Hero->ClingTooth && !Hero->OrderJumpTarget && !BraceMovement.bWorldAnchored && !IsClimbing() && (IsMovingOnGround() || IsFalling());
+    if(!bHasRiverSample) CaptureRiverForMove();
+    const FVector Sample=Eligible?PendingRiver:FVector::ZeroVector;bHasRiverSample=false;
+    const auto Current=GetRootMotionSource(RiverSourceName);
+    if(Sample.IsNearlyZero()) {
+        // Removed additive sources otherwise carry their last current into CMC's
+        // pre-additive velocity, even after a newly acquired wall stops the body.
+        if(Current.IsValid() && BraceMovement.bWorldAnchored) {
+            Current->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::SetVelocity;
+            Current->FinishVelocityParams.SetVelocity=FVector(0,0,Velocity.Z);
+        }
+        RemoveRootMotionSource(RiverSourceName);return;
+    }
+    if(SourceRunning(Current)) {
+        static_cast<FMCLocomotionRootMotionSource*>(Current.Get())->Force=Sample;
+        return;
+    }
+    auto Source=MakeShared<FMCLocomotionRootMotionSource>();
+    Source->InstanceName=RiverSourceName;Source->Priority=110;Source->AccumulateMode=ERootMotionAccumulateMode::Additive;
+    Source->Duration=-1;Source->Force=Sample;
+    Source->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
+    Source->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::MaintainLastRootMotionVelocity;
+    ApplyRootMotionSource(Source);
+}
+FMCBraceMovementState UMCToothMovementComponent::CaptureBraceForMove()
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    BraceMovement=Hero && Hero->Grip?Hero->Grip->CaptureBraceMovement():FMCBraceMovementState();
+    bHasBraceSample=true; return BraceMovement;
+}
+void UMCToothMovementComponent::RestoreBraceForMove(const FMCBraceMovementState& State)
+{
+    BraceMovement=State; bHasBraceSample=true;
 }
 float UMCToothMovementComponent::Traction() const { return GroundSurface==EMCGroundSurface::Slippery?.32f:1.f; }
 FVector UMCToothMovementComponent::Intent() const
@@ -346,14 +435,16 @@ float UMCToothMovementComponent::GetMaxSpeed() const
     float Speed=bWantsToSprint && CanSprint()?SprintSpeed:WalkSpeed;
     if (Hero->HeldFood && HasHeavyGrip()) Speed=FMath::Min(Speed,Hero->HeldFood->DragSpeed());
     if (Hero->Grip->GrabbedPlayer) Speed=FMath::Min(Speed,220.f);
-    Speed/=FMath::Sqrt(1+Hero->Grip->LoadMass()/35.f);
+    const float Load=bHasBraceSample?BraceMovement.LoadMass:Hero->Grip->LoadMass();
+    const float Incoming=bHasBraceSample?BraceMovement.IncomingMass:Hero->Grip->IncomingChainMass();
+    Speed/=FMath::Sqrt(1+Load/35.f)*FMath::Sqrt(1+Incoming/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass)*.75f);
     return Speed*(IsMovingOnGround() && GroundSurface==EMCGroundSurface::Sticky?.58f:1.f);
 }
 float UMCToothMovementComponent::GetMaxAcceleration() const
 {
     if (!IsMovingOnGround()) return Super::GetMaxAcceleration();
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
-    const float Load=Hero && Hero->Grip?Hero->Grip->LoadMass():0;
+    const float Load=bHasBraceSample?BraceMovement.LoadMass:Hero && Hero->Grip?Hero->Grip->LoadMass():0;
     return GroundAcceleration*Traction()*(GroundSurface==EMCGroundSurface::Sticky?.72f:1.f)/(1+Load/22.f);
 }
 float UMCToothMovementComponent::GetMaxBrakingDeceleration() const
@@ -406,7 +497,7 @@ AMCCoffeeFlood* UMCToothMovementComponent::DeepWaterAt(FVector P,bool Continuing
     const float Half=CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
     for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
     {
-        if (!It->Contains(P)) continue;
+        if (It->bRiverFlood || !It->Contains(P)) continue;
         const float Surface=It->SurfaceHeightAt(P);
         if (Surface-(P.Z-Half)<Half*(Continuing?.45f:.95f)) continue;
         FHitResult Floor; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCSwimDepth),false,CharacterOwner);
@@ -423,19 +514,19 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
     if(CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy) return;
     auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if (!Hero || !Hero->ToothPhysics || !Hero->ToothPhysics->CanAct() || Hero->SwallowedBy) {
-        CancelDash();UpdateAmbientSuction();return;
+        CancelDash();UpdateAmbientSuction();UpdateRiverCurrent();return;
     }
     if(IsDashing() && !CanDashAction()) CancelDash();
     ClimbCooldown=FMath::Max(0.f,ClimbCooldown-Dt);
     // E takes ownership from the older coffee anchor. A swimmer must be able
     // to pull onto the wall rather than become pinned at their water position.
     if(bWantsToClimb && Hero->ClingTooth) {Hero->ClingTooth=nullptr;if(Hero->HasAuthority()) Hero->ForceNetUpdate();}
-    const bool Free=Hero->CanWork() && !Hero->HeldFood && !Hero->Grip->GrabbedPlayer && !Hero->OrderJumpTarget && !Hero->ClingTooth;
+    const bool Free=Hero->CanWork() && !Hero->HeldFood && !Hero->Grip->GrabbedPlayer && !Hero->Grip->IsBracing() && !Hero->OrderJumpTarget && !Hero->ClingTooth;
     if(IsClimbing() && (!bWantsToClimb || !Free)) SetMovementMode(MOVE_Falling);
     if(bWantsToClimb && Free && ClimbCooldown<=0 && !IsClimbing()) {
         FHitResult Wall; if(FindClimbWall(Wall)) { ClimbNormal=Wall.ImpactNormal; Velocity=FVector::ZeroVector; SetMovementMode(MOVE_Custom,1); }
     }
-    if(IsClimbing()) { CancelDash();UpdateAmbientSuction();bSprintActive=false; MovementIntent=Acceleration.GetSafeNormal(); return; }
+    if(IsClimbing()) { CancelDash();UpdateAmbientSuction();UpdateRiverCurrent();bSprintActive=false; MovementIntent=Acceleration.GetSafeNormal(); return; }
     RefreshGroundSurface();
     bSprintActive=bWantsToSprint && CanSprint();
     MovementIntent=Acceleration.GetSafeNormal2D();
@@ -453,6 +544,7 @@ void UMCToothMovementComponent::PerformMovement(float Dt)
 {
     bStaminaSprintRequested=false; bStaminaDashCharged=false;
     if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy) {
+        if(!bHasBraceSample) CaptureBraceForMove();
         DashCooldownRemaining=FMath::Max(0.f,DashCooldownRemaining-Dt);
         if(bWantsDash) {
             bWantsDash=false;
@@ -470,8 +562,10 @@ void UMCToothMovementComponent::PerformMovement(float Dt)
         // Super caches whether sources exist before its state-before-movement
         // hook, so create first to prepare and apply them on this very move.
         UpdateAmbientSuction();
+        UpdateRiverCurrent();
     }
     Super::PerformMovement(Dt);
+    bHasBraceSample=false;
 }
 void UMCToothMovementComponent::TickCharacterPose(float Dt)
 {
@@ -493,7 +587,14 @@ void UMCToothMovementComponent::CalcVelocity(float Dt,float Friction,bool bFluid
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         if (It->Grip && It->Grip->GrabbedPlayer==Hero) A+=It->Grip->PlayerPullAcceleration();
     Velocity+=FVector(A.X,A.Y,0).GetClampedToMaxSize(1500)*Dt;
+    Velocity+=BraceMovement.Acceleration*Dt;
     Velocity=Hero->Grip->ConstrainGripVelocity(Velocity,Dt);
+}
+void UMCToothMovementComponent::ApplyRootMotionToVelocity(float Dt)
+{
+    Super::ApplyRootMotionToVelocity(Dt);
+    if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy)
+        Velocity=BraceMovement.ConstrainVelocity(Velocity,UpdatedComponent->GetComponentLocation(),Dt);
 }
 void UMCToothMovementComponent::PhysSwimming(float Dt,int32 Iterations)
 {

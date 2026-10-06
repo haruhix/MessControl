@@ -5,6 +5,7 @@
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
+#include "MCGripComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCFoodActor.h"
@@ -12,6 +13,7 @@
 #include "MCMouthSurface.h"
 #include "MCArenaTooth.h"
 #include "MCThroat.h"
+#include "MCCoffeeFlood.h"
 #include "GameFramework/PlayerState.h"
 #include "EngineUtils.h"
 #include "Rendering/DrawElements.h"
@@ -37,7 +39,7 @@ FString StepName(EMCDayStep Step)
     case EMCDayStep::DiscardBrushes:return TEXT("ЩЁТКИ ЗА БОРТ");
     case EMCDayStep::BreakfastRain:return TEXT("ЗАВТРАК ПАДАЕТ");
     case EMCDayStep::BreakfastCleanup:return TEXT("УБРАТЬ ОСТАТКИ");
-    case EMCDayStep::CoffeeWaves:return TEXT("ГОРЯЧИЙ КОФЕ");
+    case EMCDayStep::CoffeeWaves:return TEXT("ЦУНАМИ");
     case EMCDayStep::CoffeeCleanup:return TEXT("СМЫТЬ КОФЕ");
     case EMCDayStep::ColdCola:return TEXT("ХОЛОДНАЯ КОЛА");
     case EMCDayStep::StuckFood:return TEXT("МЕЖДУ ЗУБАМИ");
@@ -157,6 +159,9 @@ void UMCGameplayHUD::RefreshState()
     const bool HasStep=GS->DayPlan && GS->DayPlan->Steps.IsValidIndex(GS->StepIndex);
     const bool Finished=GS->bDayOneComplete || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost;
     FString Title=HasStep?HUD::StepName(GS->DayPlan->Steps[GS->StepIndex].Step):GS->CurrentEvent?GS->CurrentEvent->Title.ToString():TEXT("СКОРО НАЧНЁМ");
+    const AMCCoffeeFlood* ActiveFlood=nullptr;
+    for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) if(It->IsActive()) { ActiveFlood=*It; break; }
+    if(ActiveFlood) Title=ActiveFlood->bRiverFlood?TEXT("ЦУНАМИ"):ActiveFlood->GetPhase()==EMCCoffeePhase::Holding?TEXT("КОФЕ · ПЛАВАНИЕ"):TEXT("old_flood");
     if(Finished) Title=GS->Phase==EMCShiftPhase::Lost?TEXT("РОТ НЕ СПАСЁН"):TEXT("ДЕНЬ ЗАВЕРШЁН");
     Text(TEXT("DayTitle"),FString::Printf(TEXT("ДЕНЬ %d"),FMath::Max(1,GS->Day))); Text(TEXT("EventTitle"),Title);
     const float Done=GS->TasksTotal>0?1-float(GS->TasksLeft)/GS->TasksTotal:0;
@@ -208,7 +213,7 @@ void UMCGameplayHUD::RefreshState()
         const int32 Index=HasStep?TimelineSteps[TimelineStart+I]:INDEX_NONE;
         const bool Past=HasStep && Index<GS->StepIndex,Current=!HasStep || Index==GS->StepIndex,Failed=Past && GS->PreviousStepFailed;
         Text(FName(N+TEXT("Label")),Past?Failed?TEXT("ПРОШЛО · НЕ ПОЛНОСТЬЮ"):TEXT("ВЫПОЛНЕНО"):Current?TEXT("СЕЙЧАС"):TEXT("ДАЛЕЕ"));
-        Text(FName(N+TEXT("Title")),HasStep?HUD::StepName(GS->DayPlan->Steps[Index].Step):Title);
+        Text(FName(N+TEXT("Title")),Current?Title:HasStep?HUD::StepName(GS->DayPlan->Steps[Index].Step):Title);
         Bar(FName(N+TEXT("Fill")),Past?1:Current?Finished?1:Progress:0);
         if(auto* B=Cast<UProgressBar>(Find(FName(N+TEXT("Fill"))))) B->SetFillColorAndOpacity(Failed?FLinearColor(.36f,.14f,.035f,.65f):FLinearColor(.04f,.24f,.24f,.66f));
         Color(FName(N+TEXT("Accent")),Current?HUD::Mint:Past?Failed?HUD::Amber:HUD::Muted:FLinearColor(.12f,.17f,.22f));
@@ -224,6 +229,7 @@ void UMCGameplayHUD::RefreshState()
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0);
         Text(TEXT("CooldownValue"),FString::Printf(TEXT("%.1f"),Cool)); Bar(TEXT("CooldownProgress"),1-Cool/Inv->CooldownSeconds());
         FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):TEXT("ЛКМ · ЧИСТИТЬ");
+        Hint+=TEXT("     ПКМ · ДЕРЖАТЬСЯ");
         if(Hero->FoodCollection->bCollecting)
         {
             bool HasWrong=false;
@@ -234,7 +240,9 @@ void UMCGameplayHUD::RefreshState()
         else if(Inv->IsCleaningTool() && Hero->FoodCollection->HasCandidate()) Hint=TEXT("КЛИК ЛКМ · СОБИРАТЬ СТОПКУ");
         if(Hero->IsYawning()) Hint=TEXT("ЗЕВАНИЕ · ДЕРЖИСЬ ЗА ЯЗЫК");
         if(Hero->HeldFood) Hint=Hero->HeldFood->IsWrongIngredient()?TEXT("МУСОР — В КРАСНУЮ · Q БРОСИТЬ"):TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
-        if(Hero->bInCoffee) Hint=TEXT("WASD · ПЛЫТЬ     ЛКМ · ЗАЦЕПИТЬСЯ");
+        if(Hero->bInCoffee) Hint=ActiveFlood && ActiveFlood->bRiverFlood?
+            TEXT("WASD + SHIFT · БЕЖАТЬ     ПКМ · ДЕРЖАТЬСЯ ЗА ОПОРУ"):
+            TEXT("WASD · ПЛЫТЬ     ЛКМ · ЗАЦЕПИТЬСЯ");
         if(const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement()); Move && Move->IsClimbing()) Hint=TEXT("WASD · ЛАЗАТЬ     E · ДЕРЖАТЬСЯ     SPACE · ОТПРЫГНУТЬ");
         for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
             if(It->CanOrderJump(Hero)) Hint=TEXT("SPACE · ПРЫГНУТЬ НА ЯЗЫЧОК");
@@ -245,6 +253,11 @@ void UMCGameplayHUD::RefreshState()
                 else if(It->ThroatPhase==EMCThroatPhase::Collecting) Hint=TEXT("ВНЕСИ СТОПКУ В ЗОНУ · ЕДА ОТПРАВИТСЯ САМА");
             }
         }
+        if(Hero->Grip && Hero->Grip->IsBracing())
+            Hint=FString::Printf(TEXT("ДЕРЖИ ПКМ · %s · НАГРУЗКА %.0f КГ"),
+                Cast<AMCToothCharacter>(Hero->Grip->BraceTarget())?TEXT("ТЯНЕШЬ ИГРОКА"):Hero->Grip->IsWorldAnchored()?TEXT("ОПОРА"):TEXT("ДЕРЖИШЬСЯ ЗА ЕДУ"),Hero->Grip->TotalChainMass());
+        else if(Hero->Grip && Hero->Grip->IncomingChainMass()>0)
+            Hint=FString::Printf(TEXT("ТЕБЯ ДЕРЖАТ · ДОПОЛНИТЕЛЬНЫЙ ВЕС %.0f КГ"),Hero->Grip->IncomingChainMass());
         if(const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());PC && PC->IsSpectating())
         {
             const auto* Target=PC->GetSpectatorTarget();

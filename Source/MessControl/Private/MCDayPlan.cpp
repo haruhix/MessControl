@@ -74,11 +74,11 @@ UMCDayPlan::UMCDayPlan()
     // Retain the saved step layout; the director skips this legacy objective.
     Add(EMCDayStep::DiscardBrushes,0,TEXT("PERMANENT TOOLS"),TEXT("All four tools stay in inventory. Slot 1 always contains your brush."));
     Add(EMCDayStep::BreakfastRain,2,TEXT("02 / BREAKFAST IS FALLING"),TEXT("Dodge the food! Broccoli, egg, bacon and carrot are chosen from the menu."));
-    Add(EMCDayStep::BreakfastCleanup,20,TEXT("BREAKFAST / CLEAN UP"),TEXT("RMB: cut food. LMB: collect a flat stack. Enter the THROAT zone to deliver automatically. Others can add food for 3 seconds, then a 2-second swallow begins."));
-    Add(EMCDayStep::CoffeeWaves,6,TEXT("COFFEE / POUR AND DRAIN"),TEXT("Dodge the jet. WASD: paddle. Hold LMB near an arena tooth: cling through the drain."));
+    Add(EMCDayStep::BreakfastCleanup,20,TEXT("BREAKFAST / CLEAN UP"),TEXT("Slot 3 + LMB / F: cut food. LMB: collect a flat stack. Enter the THROAT zone to deliver automatically. Others can add food for 3 seconds, then a 2-second swallow begins."));
+    Add(EMCDayStep::CoffeeWaves,6,TEXT("КОФЕ / ЦУНАМИ"),TEXT("Волна сносит к глотке и смывает мелкие кусочки еды. WASD + Shift — бежать. ПКМ у стены, еды или игрока — держаться."));
     Add(EMCDayStep::CoffeeCleanup,20,TEXT("COFFEE / BRUSH EVERYTHING"),TEXT("Slot 1: brush. Hold LMB: clean teeth and floor stains. C: clean yourself."));
     Add(EMCDayStep::ColdCola,45,TEXT("ХОЛОДНАЯ КОЛА"),TEXT("Скользко! Слот 2 + ЛКМ: разбей лёд. E у зуба: зацепиться, W/S: лазать, Space: отпрыгнуть."));
-    Add(EMCDayStep::StuckFood,35,TEXT("03 / BETWEEN THE TEETH"),TEXT("RMB: cut stuck food free. LMB: collect flat pieces. Enter the THROAT zone to deliver automatically. Add more food within 3 seconds before the 2-second swallow."));
+    Add(EMCDayStep::StuckFood,35,TEXT("03 / BETWEEN THE TEETH"),TEXT("Slot 3 + LMB / F: cut stuck food free. LMB: collect flat pieces. Enter the THROAT zone to deliver automatically. Add more food within 3 seconds before the 2-second swallow."));
 }
 void UMCDayPlan::Sanitize()
 {

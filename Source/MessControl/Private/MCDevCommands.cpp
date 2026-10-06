@@ -341,9 +341,10 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         RestartShift(); GS->Day=1;
         DayDirector=GetWorld()->SpawnActor<AMCDayDirector>();
         DayDirector->Start(Plan,StepIndex,true);
-        return FText::FromString(TEXT("Чистый тест: ")+Plan->Steps[StepIndex].Title.ToString()+TEXT(". F3 — вернуться в игру."));
+        const FString Title=Plan->Steps[StepIndex].Step==EMCDayStep::CoffeeWaves?TEXT("КОФЕ / РЕЧНОЙ ПОТОП"):Plan->Steps[StepIndex].Title.ToString();
+        return FText::FromString(TEXT("Чистый тест: ")+Title+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::SwimCoffee))
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::SwimCoffee) && Action!=EMCDevAction::OldFlood)
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -357,10 +358,15 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::OldFlood:
+        if (!IsValid(DayDirector->Flood)) DayDirector->Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>();
+        if (DayDirector->ColdCola) DayDirector->ColdCola->Stop();
+        if (DayDirector->Flood) DayDirector->Flood->Start(DayDirector->Settings,0.f,true);
+        return FText::FromString(TEXT("old_flood: прежнее наполнение и слив. WASD — плавать; удерживай ЛКМ у зуба, чтобы зацепиться."));
     case EMCDevAction::SwimCoffee:
         if (!IsValid(DayDirector->Flood)) DayDirector->Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>();
         if (DayDirector->ColdCola) DayDirector->ColdCola->Stop();
-        if (DayDirector->Flood) DayDirector->Flood->Start(DayDirector->Settings,600);
+        if (DayDirector->Flood) DayDirector->Flood->Start(DayDirector->Settings,600.f,true);
         return FText::FromString(TEXT("Кофе наполняет рот и держится 10 минут. WASD — плавать; F3 → убрать кофе — закончить тест."));
     case EMCDevAction::ColdCola:
         if(DayDirector->ColdCola) { DayDirector->ColdCola->Stop(); DayDirector->ColdCola->Destroy(); }

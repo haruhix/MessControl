@@ -100,6 +100,9 @@ public:
     bool HitFood(float Damage,FVector Direction);
     bool IsHardFood() const;
     void AttendFood();
+    /** A real river sweep preserves the new position even after the water leaves. */
+    void MarkRiverSwept(float EscapeZ);
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Food|Flood") bool bRiverSwept=false;
     void SetStackCarrier(AMCToothCharacter* Hero);
     /** A dropped stack settles without attacking players; deliberate throws remain dangerous. */
     void ProtectPlayersOnStackRelease(bool bThrown);
@@ -173,6 +176,9 @@ private:
     UFUNCTION() void OnRep_Item();
     UFUNCTION() void OnHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     bool bJamOnLanding=false;
+    float RiverEscapeZ=-250;
+    mutable TWeakObjectPtr<class AMCTongue> EscapeTongue;
+    float OutOfArenaZ() const;
     bool bLandingPending=false;
     float LastPullTime=0;
     float CarryBlockedSeconds=0;

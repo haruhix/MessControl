@@ -3,6 +3,50 @@
 
 void AMCCoffeeFlood::UpdatePour(float Time)
 {
+    if (bRiverFlood)
+    {
+        Jet->SetVisibility(false); Crown->SetVisibility(false);
+        const float Local=WaterSettings.CycleTime(Time);
+        const FVector Side=FVector::CrossProduct(FVector::UpVector,RiverDirection);
+        const float HalfWidth=FMath::Abs(Side.X)*HalfSize.X+FMath::Abs(Side.Y)*HalfSize.Y;
+        auto Noise=[](float N){return FMath::Frac(FMath::Abs(FMath::Sin(N*127.1f)*43758.5453f));};
+        TArray<FTransform> Spray; Spray.Reserve(72);
+        float LaunchFloorZ=InletFloorZ;
+        for (int32 I=0;I<72;++I)
+        {
+            // Nine independently pulsing breakers, rather than a regular row of
+            // droplets. Each burst shares its floor probe; all motion is local VFX.
+            const int32 Cluster=I/8;
+            const float Life=.8f+Noise(Cluster+11)*.3f, Offset=Noise(Cluster+91)*Life;
+            const float Age=FMath::Fmod(Local+Offset,Life);
+            const float Born=Local-Age, BornTime=FMath::Max(0.f,Time-Age);
+            const float Generation=FMath::FloorToFloat((Local+Offset)/Life);
+            const float Across=FMath::Lerp(-HalfWidth*.88f,HalfWidth*.88f,Noise(Cluster*4.7f+Generation*13.1f+37));
+            FVector Launch=RiverOrigin+Side*Across;
+            Launch+=RiverDirection*(RiverFrontAt(Launch,BornTime)-80.f);
+            if (I%8==0) LaunchFloorZ=RiverFloorAt(Launch);
+            Launch+=Side*(float(I%8)-3.5f)*16.f+RiverDirection*(Noise(I+7)*60.f-30.f);
+            Launch.Z=RiverHeightAt(Launch,BornTime,LaunchFloorZ)+22.f;
+            const float Forward=RiverSpeed*.62f+Noise(I+44)*230.f;
+            const float Lateral=(Noise(I+51)-.5f)*240.f, Up=350.f+Noise(I+27)*440.f;
+            const FVector Velocity=RiverDirection*Forward+Side*Lateral+FVector(0,0,Up-980.f*Age);
+            FVector P=Launch+(RiverDirection*Forward+Side*Lateral)*Age;
+            P.Z+=Up*Age-490.f*Age*Age;
+            const bool Inside=FMath::Abs(P.X-ArenaCenter.X)<HalfSize.X && FMath::Abs(P.Y-ArenaCenter.Y)<HalfSize.Y;
+            const bool Visible=Inside && Born>.35f && P.Z>LaunchFloorZ+RiverDepth;
+            const float Fade=FMath::Min(1.f,Age*16.f)*FMath::Min(1.f,(Life-Age)*8.f);
+            const float Size=Visible?(.14f+Noise(I+17)*.18f)*Fade:0;
+            const float Streak=FMath::Clamp(Velocity.Size()/400.f,1.4f,2.7f);
+            Spray.Emplace(Velocity.Rotation(),P,FVector(Size*Streak,Size,Size));
+        }
+        Drops->SetVisibility(bActive); Drops->BatchUpdateInstancesTransforms(0,Spray,true,true,true);
+        FVector Outlet=WaterSettings.DrainPoint; Outlet.Z=SurfaceHeightAt(Outlet)+4;
+        const float Outflow=RiverWeightAt(Outlet);
+        DrainRibbon->SetVisibility(Outflow>.05f); DrainRibbon->SetWorldLocationAndRotation(Outlet,RiverDirection.Rotation());
+        DrainRibbon->SetWorldScale3D(FVector(3.5f,WaterSettings.DrainRadius/100,1));
+        if (DrainMaterial) { DrainMaterial->SetScalarParameterValue(TEXT("WaterTime"),Time); DrainMaterial->SetScalarParameterValue(TEXT("Strength"),Outflow); }
+        return;
+    }
     const float Local=WaterSettings.CycleTime(Time), JetAlpha=WaterSettings.JetAmount(Time);
     const float DrainAlpha=WaterSettings.DrainAmount(Time);
     FVector Impact=WaterSettings.Inlet; Impact.Z=FMath::Max(InletFloorZ,SurfaceHeightAt(Impact))+2;

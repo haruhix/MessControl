@@ -4,11 +4,13 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "MCCoffeeProfile.h"
+#include "ProceduralMeshComponent.h"
 #include "MCCoffeeFlood.generated.h"
 class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
 class AMCToothCharacter;
 class UMCDayPlan;
+class AMCTongue;
 
 // Gameplay-critical surface: an uncached graphics pipeline may wait on first
 // draw, but must never hide the water while its physical volume is active.
@@ -29,6 +31,14 @@ protected:
 };
 
 UCLASS()
+class UMCRiverSurfaceComponent : public UProceduralMeshComponent
+{
+    GENERATED_BODY()
+protected:
+    virtual bool UsePSOPrecacheRenderProxyDelay() const override { return false; }
+};
+
+UCLASS()
 class MESSCONTROL_API AMCCoffeeFlood : public AActor
 {
     GENERATED_BODY()
@@ -37,16 +47,30 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
-    void Start(const UMCDayPlan* Plan,float SwimTestSeconds=0);
+    void Start(const UMCDayPlan* Plan,float SwimTestSeconds=0,bool bUseLegacyFlood=false);
     void Stop();
     bool Contains(FVector Position) const;
     float SurfaceHeightAt(FVector Position) const;
     float SurfaceVerticalSpeedAt(FVector Position) const;
     bool IsActive() const { return bActive; }
-    UFUNCTION(BlueprintPure) EMCCoffeePhase GetPhase() const { return bActive?WaterSettings.Phase(WaterTime()):EMCCoffeePhase::Inactive; }
+    UFUNCTION(BlueprintPure) EMCCoffeePhase GetPhase() const;
     float PhaseTime() const { return WaterSettings.CycleTime(WaterTime()); }
     FVector FlowAtPosition(FVector Position,const AActor* Ignore=nullptr) const;
+    /** Compact, already loose rigid bodies; scenery and oversized food stay in place. */
+    static bool IsRiverDebris(const UPrimitiveComponent* Body);
+    FVector RiverDebrisAcceleration(const UPrimitiveComponent* Body) const;
+    float RiverFrontDistance() const;
+    float RiverFrontAt(FVector Position,float Time) const;
+    float RiverWeightAt(FVector Position) const;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Surface;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UMCRiverSurfaceComponent> RiverSurface;
+    UPROPERTY(ReplicatedUsing=OnRep_Profile, BlueprintReadOnly) bool bRiverFlood=false;
+    UPROPERTY(Replicated) FVector RiverOrigin=FVector::ZeroVector;
+    UPROPERTY(Replicated) FVector RiverDirection=FVector::ForwardVector;
+    UPROPERTY(Replicated) float RiverLength=2100;
+    UPROPERTY(Replicated) float RiverWidth=1000;
+    UPROPERTY(Replicated) float RiverSpeed=1050;
+    UPROPERTY(Replicated) float RiverDepth=78;
     UPROPERTY(Replicated, BlueprintReadOnly) bool bActive=false;
     UPROPERTY(Replicated, BlueprintReadOnly) float Level=-40;
     UPROPERTY(Replicated, BlueprintReadOnly) int32 Wave=0;
@@ -72,11 +96,22 @@ private:
     float BaseHeight(float Time) const;
     void UpdateSurface();
     void UpdatePour(float Time);
+    void UpdateRiverSurface(float Time);
+    AMCTongue* FindRiverTongue() const;
+    float RiverFloorAt(FVector Position) const;
+    float RiverHeightAt(FVector Position,float Time,float FloorZ) const;
     bool IsFlowBlocked(FVector Position,const AActor* Ignore) const;
+    void UpdateRiverDebris();
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> JetMaterial;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> CrownMaterial;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> DrainMaterial;
     TSet<TWeakObjectPtr<AMCToothCharacter>> HitThisWave;
     TSet<TWeakObjectPtr<AActor>> FoodHitThisWave;
+    mutable TWeakObjectPtr<AMCTongue> RiverTongue;
+    TArray<FVector> RiverVertices,RiverNormals;
+    TArray<FVector2D> RiverUVs;
+    TArray<FColor> RiverColors;
+    TArray<FProcMeshTangent> RiverTangents;
+    int32 RiverMeshVertexCount=0;
 };

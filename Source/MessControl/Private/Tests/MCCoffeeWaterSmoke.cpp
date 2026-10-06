@@ -64,6 +64,7 @@ void UMCValidationSubsystem::TickCoffeeWater(float Dt)
             const auto* Plan=Mode->FirstDayPlan.LoadSynchronous();
             const int32 Step=Plan->Steps.IndexOfByPredicate([](const FMCDayStepSettings& S){return S.Step==EMCDayStep::CoffeeWaves;});
             PC->RequestDevAction(EMCDevAction::StartStep,Step);
+            PC->RequestDevAction(EMCDevAction::OldFlood);
             DevStage=1;
         }
     }

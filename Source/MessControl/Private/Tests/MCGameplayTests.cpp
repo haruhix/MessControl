@@ -962,11 +962,128 @@ bool FMCUlcerAndFloodTest::RunTest(const FString& Parameters)
     Hero->GetCharacterMovement()->SetMovementMode(MOVE_Falling); Patch->Tick(.1f);
     TestFalse(TEXT("Passing over ulcer in the air does not count as stepping"),Patch->bDisturbed);
     Hero->SetActorLocation(FVector(0,0,95)); Patch->Tick(20); TestEqual(TEXT("Idle time never completes treatment"),Patch->Healing,.25f);
-    auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
+    auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan,0.f,true);
     Flood->StartedAt=Mouth.World->GetTimeSeconds()-3.8; Flood->Tick(.05f);
     TestTrue(TEXT("Rising coffee reaches the hero"),Hero->bInCoffee && Flood->Contains(Hero->GetActorLocation()));
     Hero->ServerPaddle(FVector2D(100,100)); TestTrue(TEXT("Server clamps swimming input"),Hero->PaddleInput.Size()<=1.001);
     Flood->Stop(); TestFalse(TEXT("Draining releases water control state"),Hero->bInCoffee);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCRiverFloodTest,"MessControl.DayOne.RiverFlood",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCRiverFloodTest::RunTest(const FString&)
+{
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
+    Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(6000,6000,10)); Box->SetCollisionProfileName(TEXT("BlockAll"));
+    Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
+    // Rotate the actual mouth outlet so a hard-coded arena axis cannot pass.
+    AMCFoodDisposal* Outlet=nullptr;
+    for(TActorIterator<AMCFoodDisposal> It(Mouth.World);It;++It) if(!It->bBrushBin) { Outlet=*It; break; }
+    if(!Outlet) Outlet=Mouth.World->SpawnActor<AMCFoodDisposal>();
+    if(!TestNotNull(TEXT("Mouth outlet fixture"),Outlet)) return false;
+    Outlet->SetActorLocation(FVector(1800,1200,0)); Outlet->SetActorEnableCollision(false); Outlet->SetActorTickEnabled(false);
+    for(AMCArenaTooth* Tooth:Mouth.State->ArenaTeeth) if(IsValid(Tooth)) { Tooth->SetActorEnableCollision(false); Tooth->SetActorTickEnabled(false); }
+    Mouth.State->ArenaTeeth.Empty();
+    auto* Plan=NewObject<UMCDayPlan>(); Plan->ArenaHalfSize=FVector(1500,1500,220);
+    auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
+    TestTrue(TEXT("Ordinary coffee starts the finite river event"),Flood->IsActive() && Flood->bRiverFlood && FMath::IsFinite(Flood->Seconds));
+    const FVector ToMouth=(Flood->WaterSettings.DrainPoint-Flood->ArenaCenter).GetSafeNormal2D();
+    TestTrue(TEXT("The source is outside the side opposite the placed mouth outlet"),
+        FVector::DotProduct((Flood->RiverOrigin-Flood->ArenaCenter).GetSafeNormal2D(),ToMouth)<-.99
+        && (FMath::Abs(Flood->RiverOrigin.X-Flood->ArenaCenter.X)>Flood->HalfSize.X || FMath::Abs(Flood->RiverOrigin.Y-Flood->ArenaCenter.Y)>Flood->HalfSize.Y));
+    TestTrue(TEXT("The wave travels towards the placed mouth outlet"),FVector::DotProduct(Flood->RiverDirection,ToMouth)>.99);
+    const float Age=Flood->WaterSettings.FillSeconds*.7f;
+    auto PinWave=[&]() { Flood->StartedAt=Mouth.World->GetTimeSeconds()-Age; };
+    PinWave(); Flood->Tick(1.f/60);
+    const float Front=Flood->RiverFrontDistance();
+    const FVector Direction=Flood->RiverDirection,Side=FVector::CrossProduct(FVector::UpVector,Direction);
+    auto FeetAt=[&](float Along,float Across=0.f) {
+        FVector P=Flood->RiverOrigin+Direction*Along+Side*Across; P.Z=Flood->InletFloorZ+10; return P;
+    };
+    const FVector WetFeet=FeetAt(Front-Flood->RiverWidth*.5f),DryAhead=FeetAt(Front+350),DryBehind=FeetAt(Front-Flood->RiverWidth-350);
+    const FVector CrestFeet=FeetAt(Flood->RiverFrontAt(FeetAt(Front-80),Age)-80);
+    TestTrue(TEXT("The body of the wave wets the floor"),Flood->Contains(WetFeet));
+    TestFalse(TEXT("The floor ahead of the front remains dry"),Flood->Contains(DryAhead));
+    TestFalse(TEXT("The floor behind the passing wave becomes dry"),Flood->Contains(DryBehind));
+    TestTrue(TEXT("The leading front crosses the full arena width instead of expanding radially"),
+        Flood->Contains(FeetAt(Front-170,-900)) && Flood->Contains(FeetAt(Front-170,900))
+        && !Flood->Contains(FeetAt(Front+350,-900)) && !Flood->Contains(FeetAt(Front+350,900)));
+    const FVector Current=Flood->FlowAtPosition(WetFeet);
+    TestTrue(TEXT("The tsunami body carries players towards the mouth faster than sprint speed"),Current.Size2D()/2.4f>=700.f
+        && FVector::DotProduct(Current.GetSafeNormal2D(),(Flood->WaterSettings.DrainPoint-WetFeet).GetSafeNormal2D())>.9);
+    TestTrue(TEXT("The breaking crest hits harder than the following current"),Flood->FlowAtPosition(CrestFeet).Size2D()/2.4f>=1100.f
+        && Flood->FlowAtPosition(CrestFeet).Size2D()>Current.Size2D()*1.35f);
+    TestTrue(TEXT("The visible breaking crest rises at least a metre above the following water"),
+        Flood->SurfaceHeightAt(CrestFeet)>Flood->SurfaceHeightAt(WetFeet)+100.f);
+    float LowestFront=BIG_NUMBER,HighestFront=-BIG_NUMBER;
+    for(float Across:{-1000.f,-500.f,0.f,500.f,1000.f})
+    {
+        const float LocalFront=Flood->RiverFrontAt(FeetAt(Front-350.f,Across),Age);
+        LowestFront=FMath::Min(LowestFront,LocalFront); HighestFront=FMath::Max(HighestFront,LocalFront);
+    }
+    TestTrue(TEXT("The tsunami front breaks unevenly across the arena instead of remaining a straight edge"),HighestFront-LowestFront>40.f);
+    TestTrue(TEXT("Dry floor and airborne points receive no river force"),Flood->FlowAtPosition(DryAhead).IsNearlyZero()
+        && Flood->FlowAtPosition(DryBehind).IsNearlyZero() && Flood->FlowAtPosition(WetFeet+FVector(0,0,1200)).IsNearlyZero());
+
+    auto RunnerAt=[&](FVector Feet) {
+        auto* Hero=Mouth.Worker(); const float Half=Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+        Hero->SetActorLocation(Feet+FVector(0,0,Half-8));
+        auto* Move=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+        Move->bRunPhysicsWithNoController=true; Move->SetMovementMode(MOVE_Walking); return Hero;
+    };
+    auto* Idle=RunnerAt(WetFeet-Side*300); auto* Runner=RunnerAt(WetFeet+Side*300);
+    auto* Anchor=RunnerAt(WetFeet+Side*600); auto* Dry=RunnerAt(DryAhead-Side*600);
+    auto* Sheltered=RunnerAt(WetFeet-Side*600); auto* Lateral=RunnerAt(WetFeet);
+    auto* CrestRunner=RunnerAt(CrestFeet);
+    auto* IdleMove=CastChecked<UMCToothMovementComponent>(Idle->GetCharacterMovement());
+    auto* RunMove=CastChecked<UMCToothMovementComponent>(Runner->GetCharacterMovement());
+    auto* AnchorMove=CastChecked<UMCToothMovementComponent>(Anchor->GetCharacterMovement());
+    auto* DryMove=CastChecked<UMCToothMovementComponent>(Dry->GetCharacterMovement());
+    auto* ShelterMove=CastChecked<UMCToothMovementComponent>(Sheltered->GetCharacterMovement());
+    auto* LateralMove=CastChecked<UMCToothMovementComponent>(Lateral->GetCharacterMovement());
+    auto* CrestMove=CastChecked<UMCToothMovementComponent>(CrestRunner->GetCharacterMovement());
+    TestNull(TEXT("River depth never forces swimming"),RunMove->DeepWaterAt(Runner->GetActorLocation()));
+    TestTrue(TEXT("Movement samples current at the feet"),!RunMove->CaptureRiverForMove().IsNearlyZero() && DryMove->CaptureRiverForMove().IsNearlyZero());
+    TestTrue(TEXT("Predicted movement preserves the powerful current instead of capping it to walking speed"),RunMove->CaptureRiverForMove().Size2D()>=700.f);
+    TestTrue(TEXT("The predicted crest burst stays stronger than upstream sprinting without entering swimming"),
+        CrestMove->CaptureRiverForMove().Size2D()>=1100.f && !CrestMove->DeepWaterAt(CrestRunner->GetActorLocation()));
+    auto* Shelter=Mouth.World->SpawnActor<AActor>(); auto* ShelterBox=NewObject<UBoxComponent>(Shelter);
+    Shelter->SetRootComponent(ShelterBox); ShelterBox->SetBoxExtent(FVector(50,90,120)); ShelterBox->SetCollisionProfileName(TEXT("BlockAll"));
+    ShelterBox->RegisterComponent(); Shelter->SetActorLocation(WetFeet-Side*600-Direction*120+FVector(0,0,100));
+    Shelter->SetActorRotation(Direction.Rotation());
+    TestTrue(TEXT("Solid upstream cover blocks the tsunami current at the player's feet"),ShelterMove->CaptureRiverForMove().IsNearlyZero());
+    auto* Tooth=Mouth.World->SpawnActor<AMCArenaTooth>(); Tooth->Initialize(99,FMCArenaToothSettings());
+    Tooth->Body->SetSimulatePhysics(false); Tooth->Body->SetBoxExtent(FVector(35,35,80));
+    Tooth->SetActorLocation(WetFeet+Side*710+FVector(0,0,70)); Tooth->SetActorTickEnabled(false); Mouth.State->ArenaTeeth.Add(Tooth);
+    Anchor->SetActorRotation(Side.Rotation());
+    PinWave(); Flood->Tick(1.f/60); Anchor->Grip->SetBraceHeld(true);
+    const FVector IdleStart=Idle->GetActorLocation(),RunStart=Runner->GetActorLocation(),AnchorStart=Anchor->GetActorLocation();
+    const FVector ShelterStart=Sheltered->GetActorLocation(),LateralStart=Lateral->GetActorLocation();
+    RunMove->SetSprinting(true); LateralMove->SetSprinting(true);
+    for(int32 I=0;I<75;++I) { PinWave(); Runner->AddMovementInput(-Direction); Lateral->AddMovementInput(Side); Mouth.Step(1.f/60); }
+    const float Drift=FVector::DotProduct(Idle->GetActorLocation()-IdleStart,Direction);
+    const float Run=FVector::DotProduct(Runner->GetActorLocation()-RunStart,Direction);
+    TestTrue(*FString::Printf(TEXT("An idle grounded player is swept hundreds of centimetres downstream: %.1f cm"),Drift),Drift>450);
+    TestTrue(*FString::Printf(TEXT("Upstream sprinting slows the sweep but cannot overpower the tsunami: %.1f cm"),Run),Run>100 && Run<Drift-100);
+    TestTrue(TEXT("Lateral escape input stays responsive while the player is swept downstream"),
+        FVector::DotProduct(Lateral->GetActorLocation()-LateralStart,Side)>250 && LateralMove->IsMovingOnGround() && Lateral->ToothPhysics->CanAct());
+    TestTrue(TEXT("An idle player behind solid cover remains safely grounded"),
+        FVector::Dist2D(ShelterStart,Sheltered->GetActorLocation())<15 && ShelterMove->IsMovingOnGround() && Sheltered->ToothPhysics->CanAct());
+    TestTrue(TEXT("Players keep normal movement and control in the wave"),IdleMove->IsMovingOnGround() && RunMove->IsMovingOnGround()
+        && Idle->ToothPhysics->CanAct() && Runner->ToothPhysics->CanAct()
+        && Idle->ToothPhysics->KnockdownCount==0 && Runner->ToothPhysics->KnockdownCount==0);
+    TestTrue(TEXT("Holding RMB at a nearby tooth braces against the current"),Anchor->Grip->IsBracing() && Anchor->Grip->BraceTarget()==Tooth
+        && FVector::Dist2D(AnchorStart,Anchor->GetActorLocation())<15 && AnchorMove->IsMovingOnGround());
+    TestFalse(TEXT("A runner ahead of the wave stays out of coffee"),Dry->bInCoffee);
+    TestTrue(TEXT("The river is carried by a movement root source"),IdleMove->GetRootMotionSource(FName(TEXT("MCRiverCurrent"))).IsValid());
+    Flood->Stop(); Mouth.Step(.1f);
+    TestTrue(TEXT("Stopping releases river flags, tooth anchors and movement forces"),!Idle->bInCoffee && !Runner->bInCoffee && !Anchor->bInCoffee
+        && !Anchor->ClingTooth && !IdleMove->GetRootMotionSource(FName(TEXT("MCRiverCurrent"))).IsValid()
+        && !RunMove->GetRootMotionSource(FName(TEXT("MCRiverCurrent"))).IsValid() && Flood->FlowAtPosition(WetFeet).IsNearlyZero());
+    Anchor->Grip->SetBraceHeld(false); Flood->Start(Plan,0.f,true);
+    Flood->StartedAt=Mouth.World->GetTimeSeconds()-2; Flood->Tick(1.f/60);
+    TestTrue(TEXT("Explicit legacy mode retains the original swimming surface"),!Flood->bRiverFlood && Flood->Surface->IsVisible() && !Flood->RiverSurface->IsVisible());
+    Flood->Stop();
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDevEventsTest,"MessControl.Development.EventSandbox",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
@@ -1001,8 +1118,12 @@ bool FMCDevEventsTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Invalid step preserves current sandbox"),Mouth.Mode->DayDirector.Get(),Director);
     Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::StartStep,Index(EMCDayStep::CoffeeWaves));
     TestTrue(TEXT("Coffee selection uses real flood"),Mouth.Mode->DayDirector->Flood->IsActive());
+    TestTrue(TEXT("Coffee selection starts the river event"),Mouth.Mode->DayDirector->Flood->bRiverFlood);
+    Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::OldFlood);
+    TestTrue(TEXT("F3 old_flood preserves the original event"),Mouth.Mode->DayDirector->Flood->IsActive() && !Mouth.Mode->DayDirector->Flood->bRiverFlood);
     Mouth.Mode->ExecuteDevAction(PC,EMCDevAction::SwimCoffee);
     auto* SwimWater=Mouth.Mode->DayDirector->Flood.Get();
+    TestFalse(TEXT("The swimming test remains in legacy mode"),SwimWater->bRiverFlood);
     TestEqual(TEXT("F3 swimming holds a full flood for ten minutes"),SwimWater->WaterSettings.HoldSeconds,600.f);
     SwimWater->StartedAt=Mouth.World->GetTimeSeconds()-300; SwimWater->Tick(.1f);
     TestTrue(TEXT("The middle of the long test stays full without a jet or drain"),SwimWater->IsActive() && SwimWater->GetPhase()==EMCCoffeePhase::Holding
@@ -1071,7 +1192,7 @@ bool FMCCoffeeWaterTest::RunTest(const FString& Parameters)
     // Isolate unconscious buoyancy; the controlled-swimming test covers automatic recovery.
     A->ToothPhysics->Settings.RagdollSeconds=10; B->ToothPhysics->Settings.RagdollSeconds=10;
     auto* Plan=NewObject<UMCDayPlan>(); Plan->FlowAcceleration=0; Plan->FloodHeight=160; Plan->WaveCount=1;
-    auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
+    auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan,0.f,true);
     for (int32 I=0;I<180;++I)
     {
         // Hold a wave crest to isolate buoyancy/control from the rising/falling event envelope.
@@ -1112,7 +1233,7 @@ bool FMCCoffeePourDrainTest::RunTest(const FString& Parameters)
 
     FTestMouth Mouth; Mouth.State->Phase=EMCShiftPhase::Working;
     Mouth.Mode->DayDirector=Mouth.World->SpawnActor<AMCDayDirector>();
-    auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan);
+    auto* Plan=NewObject<UMCDayPlan>(); auto* Flood=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Flood->Start(Plan,0.f,true);
     TestEqual(TEXT("Event duration comes from water profile"),Flood->Seconds,6.f);
     TestNotNull(TEXT("Pour mesh ready"),Flood->Jet->GetStaticMesh().Get());
     TestNotNull(TEXT("Impact crown ready"),Flood->Crown->GetStaticMesh().Get());
@@ -1504,7 +1625,7 @@ bool FMCSurfaceSwimTest::RunTest(const FString&)
     FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
     auto* Floor=Mouth.World->SpawnActor<AActor>();auto* Box=NewObject<UBoxComponent>(Floor);
     Floor->SetRootComponent(Box);Box->SetBoxExtent(FVector(2000,2000,10));Box->SetCollisionProfileName(TEXT("BlockAll"));Box->RegisterComponent();Floor->SetActorLocation(FVector(0,0,-10));
-    auto* Water=Mouth.World->SpawnActor<AMCCoffeeFlood>();Water->bActive=true;Water->Height=200;Water->Seconds=1000;Water->HalfSize=FVector(1900,1900,500);
+    auto* Water=Mouth.World->SpawnActor<AMCCoffeeFlood>();Water->bRiverFlood=false;Water->bActive=true;Water->Height=200;Water->Seconds=1000;Water->HalfSize=FVector(1900,1900,500);
     Water->WaterSettings=FMCCoffeeWaterSettings();Water->WaterSettings.FillSeconds=15;Water->WaterSettings.DrainSeconds=10;Water->WaterSettings.RippleHeight=0;Water->WaterSettings.DrainPoint=FVector(1500,0,0);
     auto* H=Mouth.Worker();H->SetActorLocation(FVector(-300,0,180));auto* Move=CastChecked<UMCToothMovementComponent>(H->GetCharacterMovement());Move->bRunPhysicsWithNoController=true;Move->SetMovementMode(MOVE_Falling);
     auto Step=[&](float Seconds,FVector Input=FVector::ZeroVector)
@@ -2098,7 +2219,7 @@ bool FMCThroatCameraTest::RunTest(const FString&)
     Hero->UpdateMouthCamera(.1f); Hero->CameraBoom->TickComponent(.1f,LEVELTICK_All,nullptr);
     TestTrue(TEXT("Camera stays in the mouth while the player travels down the throat"),Hero->Camera->GetComponentLocation().Equals(Eye,.1f));
     TestTrue(TEXT("Camera aim and focus also stay fixed"),Hero->Camera->GetComponentRotation().Equals(Rotation,.1f) && Hero->MouthCameraFocus==Focus);
-    auto* Water=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Water->bActive=true; Water->Seconds=1000; Water->WaterSettings.HoldSeconds=600; Water->StartedAt=Mouth.World->GetTimeSeconds()-100;
+    auto* Water=Mouth.World->SpawnActor<AMCCoffeeFlood>(); Water->bRiverFlood=false; Water->bActive=true; Water->Seconds=1000; Water->WaterSettings.HoldSeconds=600; Water->StartedAt=Mouth.World->GetTimeSeconds()-100;
     Hero->GetCharacterMovement()->TickComponent(.1f,LEVELTICK_All,nullptr); Hero->Tick(.1f); Water->Tick(.1f);
     TestTrue(TEXT("Captured player stays alive with movement suspended even in coffee"),Hero->Status->IsAlive() && Hero->GetCharacterMovement()->MovementMode==MOVE_None && !Hero->bInCoffee);
     const FVector Exit(-600,0,150),Impulse(-570,0,420);

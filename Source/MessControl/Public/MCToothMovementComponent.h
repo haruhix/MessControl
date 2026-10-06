@@ -4,6 +4,7 @@
 #include "GameFramework/CharacterMovementReplication.h"
 #include "MCLocomotionSurface.h"
 #include "Engine/NetSerialization.h"
+#include "MCGripComponent.h"
 #include "MCToothMovementComponent.generated.h"
 class AMCCoffeeFlood;
 
@@ -38,7 +39,7 @@ template<> struct TStructOpsTypeTraits<FMCLocomotionRootMotionSource> : public T
     enum { WithNetSerializer=true,WithCopy=true };
 };
 
-/** Predicted sprint, press dash and ambient wind, plus ground response and surface swimming. */
+/** Predicted sprint, press dash, wind and river current, plus ground response and surface swimming. */
 UCLASS()
 class MESSCONTROL_API UMCToothMovementComponent : public UCharacterMovementComponent
 {
@@ -99,6 +100,10 @@ public:
     void RestoreDashPrediction(float Cooldown) { DashCooldownRemaining=Cooldown; }
     FVector CaptureSuctionForMove();
     void RestoreSuctionForMove(FVector Sample);
+    FVector CaptureRiverForMove();
+    void RestoreRiverForMove(FVector Sample);
+    FMCBraceMovementState CaptureBraceForMove();
+    void RestoreBraceForMove(const FMCBraceMovementState& State);
     bool HasHeavyGrip() const;
     float Traction() const;
     FVector Intent() const;
@@ -106,6 +111,7 @@ public:
     AMCCoffeeFlood* DeepWaterAt(FVector Position,bool Continuing=false) const;
     virtual void UpdateCharacterStateBeforeMovement(float Dt) override;
     virtual void CalcVelocity(float Dt,float Friction,bool bFluid,float BrakingDeceleration) override;
+    virtual void ApplyRootMotionToVelocity(float Dt) override;
     virtual void TickCharacterPose(float Dt) override;
     virtual void PhysSwimming(float Dt,int32 Iterations) override;
     virtual void PhysCustom(float Dt,int32 Iterations) override;
@@ -128,6 +134,10 @@ private:
     bool bWantsDash=false;
     bool bHasSuctionSample=false;
     FVector PendingSuction=FVector::ZeroVector;
+    bool bHasRiverSample=false;
+    FVector PendingRiver=FVector::ZeroVector;
+    FMCBraceMovementState BraceMovement;
+    bool bHasBraceSample=false;
     float DashCooldownRemaining=0;
     mutable double DashPresentationStartedAt=-100;
     double LastPresentedDashStartedAt=-100;
@@ -135,6 +145,7 @@ private:
     bool CanDashAction() const;
     void StartDash();
     void UpdateAmbientSuction();
+    void UpdateRiverCurrent();
     float ClimbCooldown=0;
     bool FindClimbWall(FHitResult& Hit) const;
     bool TryMantle();

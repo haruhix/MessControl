@@ -354,7 +354,7 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
     case EMCTutorialStage::FoodCut:
         Title=LOCTEXT("CutTitle","02 · МЯГКАЯ ЕДА");
         FairyLine=LOCTEXT("CutFairy","Мягкую порцию сначала разделяем ножом. Попробуй на своей еде.");
-        Instruction=LOCTEXT("CutHint","3 — нож; ЛКМ или ПКМ — удар по еде. Раздели свою порцию на кусочки."); break;
+        Instruction=LOCTEXT("CutHint","3 — нож; ЛКМ или F — удар по еде. Раздели свою порцию на кусочки."); break;
     case EMCTutorialStage::FreshSort:
         Title=LOCTEXT("FreshTitle","03 · СВЕЖЕЕ — В ГЛОТКУ");
         FairyLine=LOCTEXT("FreshFairy","Съедобное отправляем назад. Собери свой кусочек и доставь его в глотку — затем дождись глотания.");
@@ -375,20 +375,20 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
         StageEndsAt=Now()+20; TeamTasksLeft=CountTutorialFood(); TeamTasksTotal=TeamTasksLeft; break;
     case EMCTutorialStage::CoffeeWarning:
         Title=LOCTEXT("CoffeeWarningTitle","06 · ОСТОРОЖНО, КОФЕ!");
-        FairyLine=LOCTEXT("CoffeeWarningFairy","Сейчас четыре короткие волны. Подплывай к зубу и держи ЛКМ, чтобы удержаться на нём.");
-        Instruction=LOCTEXT("CoffeeWarningHint","WASD — подгребать; держи ЛКМ рядом с зубом в кофе — удерживаться. Ошибаться безопасно."); StageEndsAt=Now()+6; break;
+        FairyLine=LOCTEXT("CoffeeWarningFairy","Сейчас придёт цунами снаружи рта! Уходи в сторону, прячься за зубом или удерживайся за него.");
+        Instruction=LOCTEXT("CoffeeWarningHint","WASD + Shift — бежать; держи ПКМ рядом со стеной, зубом или едой — удерживаться. Ошибаться безопасно."); StageEndsAt=Now()+6; break;
     case EMCTutorialStage::CoffeeWaves:
-        Title=LOCTEXT("CoffeeTitle","КОФЕ · ЧЕТЫРЕ ВОЛНЫ");
-        FairyLine=LOCTEXT("CoffeeFairy","Держись! После последнего слива переключимся на щётку.");
-        Instruction=LOCTEXT("CoffeeHint","WASD — плавание. ЛКМ у зуба — зацеп. Четыре волны без штрафов.");
+        Title=LOCTEXT("CoffeeTitle","КОФЕ · ЦУНАМИ");
+        FairyLine=LOCTEXT("CoffeeFairy","Держись или убегай из потока! Когда вода уйдёт, переключимся на щётку.");
+        Instruction=LOCTEXT("CoffeeHint","WASD + Shift — бежать. ПКМ у стены, зуба или еды — удержаться. Переживи потоп без штрафов.");
         Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>();
         if (Flood)
         {
             SpawnedActors.Add(Flood); Flood->Start(Settings);
             // Start already copied/remapped the authored profile. Change only this flood's replicated runtime settings.
-            Flood->WaterSettings.FillSeconds=2; Flood->WaterSettings.DrainSeconds=1;
-            Flood->WaterSettings.HoldSeconds=0; Flood->WaterSettings.Cycles=4;
-            Flood->Waves=4; Flood->Seconds=12; Flood->ForceNetUpdate(); StageEndsAt=Now()+12;
+            Flood->WaterSettings.Cycles=2;
+            Flood->Waves=2; Flood->Seconds=Flood->WaterSettings.CycleSeconds()*2;
+            Flood->ForceNetUpdate(); StageEndsAt=Now()+Flood->Seconds;
         }
         else StageEndsAt=Now()+1;
         break;
@@ -399,7 +399,7 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
     case EMCTutorialStage::Calculus:
         Title=LOCTEXT("CalculusTitle","08 · ЗУБНОЙ КАМЕНЬ");
         FairyLine=LOCTEXT("CalculusFairy","Это камень — щёткой такой не взять. Разбей свой нарост киркой.");
-        Instruction=LOCTEXT("CalculusHint","2 — кирка. Подойди к своему подсвеченному зубу; ЛКМ или ПКМ — удар. Удали нарост полностью."); break;
+        Instruction=LOCTEXT("CalculusHint","2 — кирка. Подойди к своему подсвеченному зубу; ЛКМ или F — удар. Удали нарост полностью."); break;
     case EMCTutorialStage::FoamParty:
         Title=LOCTEXT("PartyTitle","09 · ПЕННАЯ ВЕЧЕРИНКА");
         FairyLine=LOCTEXT("PartyFairy","Стажировка пройдена! Чистить умеете, еду доставлять умеете, мусор отличаете. Немного пены за ваш счёт!");

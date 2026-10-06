@@ -143,7 +143,7 @@ void MCTickClimbNetworkValidation(UWorld* World)
         auto* Plan=DuplicateObject<UMCDayPlan>(GS->DayPlan,World);
         if(!Plan) {R.Invalid=true;return;}
         Plan->FloodHeight=float(Floor.ImpactPoint.Z+120);
-        R.Water=World->SpawnActor<AMCCoffeeFlood>();R.Water->Start(Plan);
+        R.Water=World->SpawnActor<AMCCoffeeFlood>();R.Water->Start(Plan,0.f,true);
         R.Water->HalfSize=FVector(1900,1400,500);R.Water->WaterSettings.DryHeight=float(Floor.ImpactPoint.Z-40);
         R.Water->WaterSettings.FillSeconds=15;R.Water->WaterSettings.DrainSeconds=10;R.Water->Seconds=25;
         R.Water->WaterSettings.RippleHeight=3;R.Water->WaterSettings.FrontHeight=0;R.Water->Flow=0;R.Water->WaterSettings.DrainAcceleration=0;
