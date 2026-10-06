@@ -183,7 +183,7 @@ bool UMCGripComponent::ValidateBraceContact(const FMCBraceAnchor& Contact) const
     const auto* Food=Cast<AMCFoodActor>(Contact.Target);
     if (Player)
     {
-        if (!Player->Status->IsAlive() || Player->SwallowedBy || WouldCreateBraceCycle(Player)) return false;
+        if (!Player->Status->IsAlive() || Player->SwallowedBy || Player->MimicCaptor || WouldCreateBraceCycle(Player)) return false;
     }
     if (Food)
     {
@@ -848,7 +848,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         const FVector Center=(ContactPoint(true)+ContactPoint(false))*.5;
         const FVector Goal=Tooth->GetActorLocation()+(Center-Tooth->GetActorLocation()).GetSafeNormal2D()*75;
         FCollisionQueryParams Q(SCENE_QUERY_STAT(MCPlayerGrip),false,Tooth); Q.AddIgnoredActor(P); FHitResult Wall;
-        if (!Tooth->bHandling || !Tooth->CanWork() || !P->Status->IsAlive() || FVector::Dist(Center,Goal)>120
+        if (!Tooth->bHandling || !Tooth->CanWork() || !P->Status->IsAlive() || P->MimicCaptor || FVector::Dist(Center,Goal)>120
             || GetWorld()->LineTraceSingleByChannel(Wall,Tooth->GetActorLocation(),Center,ECC_WorldStatic,Q)) ReleasePlayer();
         else if (Now()-PlayerGrabAt>Settings.ReachSeconds)
         {
@@ -920,7 +920,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
 bool UMCGripComponent::BeginPlayerGrip(AMCToothCharacter* Player)
 {
     if (!Tooth || !Tooth->HasAuthority() || !Tooth->CanWork() || IsBracing() || !IsValid(Player) || Player==Tooth || Frame.Food || GrabbedPlayer
-        || !Player->Status->IsAlive() || FVector::Dist(Tooth->GetActorLocation(),Player->ToothPhysics->PhysicalLocation())>135) return false;
+        || !Player->Status->IsAlive() || Player->MimicCaptor || FVector::Dist(Tooth->GetActorLocation(),Player->ToothPhysics->PhysicalLocation())>135) return false;
     FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCPlayerGrab),false,Tooth); Q.AddIgnoredActor(Player);
     if (GetWorld()->LineTraceSingleByChannel(Hit,Tooth->GetActorLocation(),Player->ToothPhysics->PhysicalLocation(),ECC_WorldStatic,Q)) return false;
     GrabbedPlayer=Player; PlayerGrabAt=Now();

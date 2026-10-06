@@ -242,6 +242,7 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
         }
         if(Hero->Grip && Hero->Grip->IsBracing()) Hint=FString::Printf(TEXT("ПКМ — ДЕРЖАТЬСЯ | НАГРУЗКА %.0f КГ | ОТПУСТИ ПКМ — ОТПУСТИТЬ"),Hero->Grip->TotalChainMass());
         if(Hero->SwallowedBy) Hint=TEXT("WRONG INGREDIENT!  HOLD ON...");
+        if(Hero->MimicCaptor) Hint=TEXT("INSIDE A MIMIC!  A TEAMMATE MUST HOLD E AT THE CHEST");
         ContactLabel->SetText(FText::FromString(Hint)); ContactBar->SetPercent(Progress);
     }
     // These legacy labels belong to separate borders. Skip formatting only while both are collapsed.

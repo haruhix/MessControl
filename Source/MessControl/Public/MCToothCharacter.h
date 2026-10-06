@@ -87,6 +87,13 @@ public:
     bool CanWork() const;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCRewardChest> RewardInteraction;
     UFUNCTION(Server,Reliable) void ServerBeginRewardOpening(AMCRewardChest* Chest);
+    UPROPERTY(ReplicatedUsing=OnRep_MimicCapture,BlueprintReadOnly,Category="Rewards|Mimic") TObjectPtr<AMCRewardChest> MimicCaptor;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Mimic") TObjectPtr<AMCRewardChest> MimicRescueTarget;
+    UFUNCTION(BlueprintPure,Category="Rewards|Mimic") bool IsMimicCaptured() const;
+    void BeginMimicCapture(AMCRewardChest* Chest);
+    void EndMimicCapture(FVector ReleaseLocation);
+    UFUNCTION(Server,Reliable) void ServerSetMimicRescueHeld(AMCRewardChest* Chest,bool Held);
+    UFUNCTION(BlueprintPure,Category="Camera") FVector GetCameraFocusLocation() const;
     bool IsPrimaryHeld() const { return bPrimaryHeld; }
     UPROPERTY(ReplicatedUsing=OnRep_ThroatCapture,BlueprintReadOnly,Category="Throat") TObjectPtr<class AMCThroat> SwallowedBy;
     UPROPERTY(Replicated) FVector ThroatCaptureStart=FVector::ZeroVector;
@@ -226,6 +233,18 @@ private:
     UFUNCTION() void OnRep_BagColor();
     UFUNCTION() void OnRep_Yawn();
     UFUNCTION() void OnRep_ThroatCapture();
+    UFUNCTION() void OnRep_MimicCapture();
+    void UpdateMimicCapture(float Dt);
+    void StopMimicRescue();
+    UPROPERTY(Replicated) FVector_NetQuantize10 MimicCaptureStart=FVector::ZeroVector;
+    UPROPERTY(Replicated) FVector_NetQuantize10 MimicReleaseLocation=FVector::ZeroVector;
+    TWeakObjectPtr<AMCRewardChest> MimicTickPrerequisite;
+    bool bMimicCaptured=false,bMimicRescueInputHeld=false;
+    FTransform MimicRestoreMeshTransform=FTransform::Identity;
+    ECollisionEnabled::Type MimicRestoreCapsuleCollision=ECollisionEnabled::QueryAndPhysics;
+    bool bMimicRestoreMeshVisible=true,bMimicRestoreNameVisible=true,bMimicRestoreNameHidden=false;
+    FRotator MimicCameraRotation=FRotator(-30,0,0);
+    float MimicCameraDistance=1000.f;
     float OrderJumpAirControl=.05f;
     bool bThroatCaptured=false;
     TWeakObjectPtr<class AMCThroat> ThroatTickPrerequisite;

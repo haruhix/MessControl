@@ -83,7 +83,7 @@ void AMCHazardWave::Tick(float Dt)
         for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         {
             auto* Hero=*It;
-            if(!Hero->Status->IsAlive() || Hero->SwallowedBy || HitActors.Contains(Hero)) continue;
+            if(!Hero->Status->IsAlive() || Hero->SwallowedBy || Hero->MimicCaptor || HitActors.Contains(Hero)) continue;
             const FVector P=Hero->ToothPhysics->PhysicalLocation();
             const float Distance=FVector::Dist2D(P,GetActorLocation());
             const float Before=PreviousDistances.FindRef(Hero); const bool Had=PreviousDistances.Contains(Hero);

@@ -349,8 +349,8 @@ void AMCCoffeeFlood::Tick(float Dt)
             auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
             const FVector WaterProbe=bRiverFlood && Hero->ToothPhysics->GetBodyState()!=EMCBodyState::Ragdoll?
                 P-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-10.f):P;
-            Hero->bInCoffee=!Hero->SwallowedBy && Contains(WaterProbe) && Hero->Status->IsAlive();
-            if (Hero->SwallowedBy || !Hero->Status->IsAlive() || FMath::Abs(P.X-ArenaCenter.X)>HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>HalfSize.Y) { Hero->ClingTooth=nullptr; continue; }
+            Hero->bInCoffee=!Hero->SwallowedBy && !Hero->MimicCaptor && Contains(WaterProbe) && Hero->Status->IsAlive();
+            if (Hero->SwallowedBy || Hero->MimicCaptor || !Hero->Status->IsAlive() || FMath::Abs(P.X-ArenaCenter.X)>HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>HalfSize.Y) { Hero->ClingTooth=nullptr; continue; }
             const auto* Move=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             // The old LMB anchor can still brace in water. E belongs to the
             // predicted climbing movement, including its swim-to-wall transfer.

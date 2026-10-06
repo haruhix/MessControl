@@ -9,6 +9,7 @@ class UDataTable;
 class UBoxComponent;
 class USceneComponent;
 class UStaticMeshComponent;
+class UInstancedStaticMeshComponent;
 class USphereComponent;
 class AMCRewardDropZone;
 class AMCPerkPickup;
@@ -19,7 +20,7 @@ UENUM(BlueprintType)
 enum class EMCRewardSelectionPolicy : uint8 { ChooseOne, CollectAll };
 
 UENUM(BlueprintType)
-enum class EMCRewardChestStage : uint8 { Telegraph, Falling, Landed, Lockpicking, Opening, Open, Exhausted };
+enum class EMCRewardChestStage : uint8 { Telegraph, Falling, Landed, Lockpicking, Opening, Open, Exhausted, MimicSwallowing, MimicOccupied };
 
 /** Server-owned rewards, deterministic presentation, no rigid-body simulation. */
 UCLASS()
@@ -43,6 +44,16 @@ public:
     bool BeginLockpicking(AMCToothCharacter* Player);
     bool TryChooseCard(AMCToothCharacter* Player,int32 Index);
     AMCToothCharacter* GetOpener() const { return OpeningPlayer; }
+    UFUNCTION(BlueprintPure,Category="Rewards|Mimic") AMCToothCharacter* GetCapturedPlayer() const { return CaptivePlayer; }
+    UFUNCTION(BlueprintPure,Category="Rewards|Mimic") bool IsMimicActive() const;
+    bool IsHoldingCaptive() const;
+    UFUNCTION(BlueprintPure,Category="Rewards|Mimic") FVector GetMimicCaptureLocation() const;
+    UFUNCTION(BlueprintPure,Category="Rewards|Mimic") float GetMimicSwallowAlpha() const;
+    UFUNCTION(BlueprintPure,Category="Rewards|Mimic") float RescueProgress() const;
+    UFUNCTION(BlueprintPure,Category="Rewards|Mimic") bool CanRescue(const AMCToothCharacter* Player) const;
+    bool BeginRescue(AMCToothCharacter* Player);
+    void EndRescue(AMCToothCharacter* Player);
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards|Mimic") void ForceMimicForTest(bool Enabled=true);
     /** Compatibility for saved references; world pickup collection is no longer used. */
     bool TryClaim(AMCPerkPickup* Pickup,AMCToothCharacter* Player);
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards") void ResetPlacedReward();
@@ -52,6 +63,9 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USceneComponent> LidPivot;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Lid;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Telegraph;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> MimicMouth;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UInstancedStaticMeshComponent> MimicLowerTeeth;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UInstancedStaticMeshComponent> MimicUpperTeeth;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USphereComponent> Approach;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.05",ClampMax="2")) float ModelScale=.35f;
     /** Lid seating adjustment in mesh units, applied before ModelScale. */
@@ -61,6 +75,9 @@ public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1")) float OpeningSeconds=.7f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1",ClampMax="60")) float LockpickingSeconds=5.f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="100")) float OpenRadius=320.f;
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards|Mimic",meta=(ClampMin="0",ClampMax="1")) float MimicChance=.2f;
+    UPROPERTY(EditDefaultsOnly,Replicated,BlueprintReadOnly,Category="Rewards|Mimic",meta=(ClampMin="0.1",ClampMax="5")) float MimicSwallowSeconds=.8f;
+    UPROPERTY(EditDefaultsOnly,Replicated,BlueprintReadOnly,Category="Rewards|Mimic",meta=(ClampMin="0.1",ClampMax="30")) float RescueSeconds=3.f;
     UPROPERTY(meta=(DeprecatedProperty,DeprecationMessage="Rewards are selected using HUD cards.")) TSubclassOf<AMCPerkPickup> PickupClass;
     UPROPERTY(EditInstanceOnly,BlueprintReadOnly,Category="Rewards") bool bPlacedReward=false;
     UPROPERTY(EditInstanceOnly,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCRewardDropZone> PlacedDropZone;
@@ -74,9 +91,15 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") EMCPerkPolarity Polarity=EMCPerkPolarity::Positive;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") uint8 ClaimedMask=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCToothCharacter> OpeningPlayer;
+    UPROPERTY(ReplicatedUsing=RefreshPresentation,BlueprintReadOnly,Category="Rewards|Mimic") bool bMimic=false;
+    UPROPERTY(ReplicatedUsing=RefreshPresentation,BlueprintReadOnly,Category="Rewards|Mimic") TObjectPtr<AMCToothCharacter> CaptivePlayer;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Mimic") TObjectPtr<AMCToothCharacter> RescuePlayer;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Mimic") double RescueStartedAt=0;
 private:
     UFUNCTION() void RefreshPresentation();
     void ConfigureGeometry();
+    void CacheRewardEffectsVisibility();
+    void UpdateRewardEffectsVisibility(bool Suppressed);
     void PollApproach();
     void ReleaseOpener();
     void CancelOpening();
@@ -85,6 +108,11 @@ private:
     bool HasClearLanding() const;
     void SetStage(EMCRewardChestStage Next);
     void FinishReward(bool bRequeue);
+    void RollMimic();
+    void CaptureOpener();
+    void ReleaseCaptive(bool FindClearFloor=true);
+    void UpdateMimicPresentation(float Age);
+    FVector FindMimicReleaseLocation(const AMCToothCharacter* Player) const;
     double ServerNow() const;
     UPROPERTY() TObjectPtr<UDataTable> RewardTable;
     UPROPERTY() TObjectPtr<AMCRewardDropZone> DropZone;
@@ -93,4 +121,9 @@ private:
     int32 RollSeed=0;
     bool bClaimInProgress=false;
     bool bReported=false;
+    int8 MimicTestOverride=-1;
+    UPROPERTY(Replicated) FVector CapturedEntryLocation=FVector::ZeroVector;
+    FVector BodyRestLocation=FVector::ZeroVector,LidRestLocation=FVector::ZeroVector;
+    FVector BodyRestScale=FVector::OneVector;
+    TMap<TWeakObjectPtr<USceneComponent>,bool> RewardEffectsVisibility;
 };

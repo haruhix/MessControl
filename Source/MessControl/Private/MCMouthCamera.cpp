@@ -2,6 +2,7 @@
 #include "MCGameState.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
+#include "MCRewardChest.h"
 #include "MCOrbitSpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/PlayerCameraManager.h"
@@ -12,6 +13,12 @@
 #include "GameFramework/SpringArmComponent.h"
 
 namespace { const FVector OrbitPivotOffset(0,0,30); }
+
+FVector AMCToothCharacter::GetCameraFocusLocation() const
+{
+    if(IsValid(MimicCaptor)) return MimicCaptor->GetMimicCaptureLocation()+FVector(0,0,20);
+    return (bMouthCameraHeld?FVector(ThroatCaptureStart):GetActorLocation())+OrbitPivotOffset;
+}
 
 void AMCToothCharacter::InitializeCameraOrbit()
 {
@@ -60,7 +67,10 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
                 ?PC->PlayerCameraManager->PendingViewTarget.Target.Get():PC->GetViewTarget();
             if(Destination==this) {Viewer=PC;break;}
         }
-    if (auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) Arm->SetSurfaceProbeActive(Viewer!=nullptr);
+    if (auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) {
+        Arm->SetSurfaceProbeActive(Viewer!=nullptr);
+        Arm->SetIgnoredViewActor(Viewer?MimicCaptor.Get():nullptr);
+    }
     if(!Viewer) { ClearCameraWallReveal(); return; }
     const FVector P=GetActorLocation();
     float Suction=0;
@@ -71,6 +81,26 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     // A gentle lens pulse makes the whole room's intake readable while keeping
     // the player's chosen aim and the collision sweep steady.
     Camera->FieldOfView=FMath::Clamp(FollowFOV,45.f,95.f)+Suction*(2.4f+.35f*FMath::Sin(float(Now*10)));
+    if(IsValid(MimicCaptor)) {
+        const FVector Focus=GetCameraFocusLocation();
+        const float Blend=1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt));
+        const FRotator Wanted=bManualCameraOrbit?FRotator(CameraOrbitPitch,CameraOrbitYaw,0):MimicCameraRotation;
+        const FRotator View=FMath::RInterpTo(Camera->GetComponentRotation(),Wanted,Dt,FollowSpeed);
+        const float Distance=bManualCameraOrbit?CameraOrbitDistance:MimicCameraDistance;
+        MouthCameraEye=Focus-View.Vector()*FMath::Clamp(Distance,400.f,1600.f);
+        MouthCameraFocus=Focus-OrbitPivotOffset;
+        CameraOrbitViewRotation=View; CameraOrbitViewDistance=FMath::Lerp(CameraOrbitViewDistance,Distance,Blend);
+        CameraBoom->bEnableCameraLag=false; CameraBoom->bDoCollisionTest=true; CameraBoom->ProbeChannel=ECC_Camera;
+        // The pawn travels into the box; its camera sweep remains based at the
+        // chest and ignores only that captor, retaining other world obstacles.
+        CameraBoom->TargetOffset=Focus-P;
+        CameraBoom->SetWorldRotation(View); CameraBoom->TargetArmLength=FVector::Dist(Focus,MouthCameraEye);
+        Camera->SetWorldRotation(View);
+        Camera->AspectRatio=16.f/9.f; Camera->bOverrideAspectRatioAxisConstraint=true;
+        Camera->SetAspectRatioAxisConstraint(AspectRatio_MaintainYFOV);
+        bMouthCameraInitialized=true;
+        UpdateCameraWallReveal(Dt,MouthCameraEye,Focus); return;
+    }
     if(bMouthCameraHeld && bMouthCameraInitialized) {
         if (bManualCameraOrbit) {
             const FVector PreviousRoot=CameraBoom->GetUnfixedCameraPosition()+CameraBoom->GetComponentRotation().Vector()*CameraBoom->TargetArmLength-CameraBoom->TargetOffset;

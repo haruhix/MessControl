@@ -298,8 +298,8 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(ForwardAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveRight);
 }
-void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false), LocalPaddle.X); }
-void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
+void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=IsMimicCaptured()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false), LocalPaddle.X); }
+void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=IsMimicCaptured()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
 void AMCToothCharacter::OrbitMouseX(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(Value.Get<float>(),0)); }
 void AMCToothCharacter::OrbitMouseY(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(0,Value.Get<float>())); }
 void AMCToothCharacter::CameraMouseWheel(const FInputActionValue& Value) { ZoomCamera(Value.Get<float>()); }
@@ -371,6 +371,87 @@ void AMCToothCharacter::OnRep_ThroatCapture()
     GetCapsuleComponent()->SetCollisionEnabled(SwallowedBy?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
     if(!SwallowedBy) GetCharacterMovement()->AirControl=OrderJumpAirControl;
 }
+bool AMCToothCharacter::IsMimicCaptured() const { return IsValid(MimicCaptor) || bMimicCaptured; }
+void AMCToothCharacter::BeginMimicCapture(AMCRewardChest* Chest)
+{
+    if(!HasAuthority() || !IsValid(Chest) || Chest->GetWorld()!=GetWorld() || !Status->IsAlive() || SwallowedBy || MimicCaptor) return;
+    CancelGameplayInput(); ClearOrderJump(); DropFood(); FoodCollection->Stop(); ResetContact();
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(*It!=this && It->Grip) {
+        if(It->Grip->BraceTarget()==this) It->Grip->ReleaseBrace();
+        if(It->Grip->GrabbedPlayer==this) It->Grip->ReleasePlayer();
+    }
+    YawnEndsAt=0; YawnTongue=nullptr; OnRep_Yawn();
+    RewardInteraction=nullptr; bBrushing=false; bHandling=false; bPrimaryHeld=false; bSelfCare=false;
+    bWantsCling=false; ClingTooth=nullptr; bInCoffee=false; PaddleInput=FVector2D::ZeroVector; SwimIntent=FVector::ZeroVector;
+    MimicCaptureStart=GetActorLocation(); MimicReleaseLocation=MimicCaptureStart;
+    MimicCaptor=Chest; OnRep_MimicCapture(); ForceNetUpdate();
+}
+void AMCToothCharacter::EndMimicCapture(FVector ReleaseLocation)
+{
+    if(!HasAuthority() || (!MimicCaptor && !bMimicCaptured)) return;
+    MimicReleaseLocation=ReleaseLocation.ContainsNaN()?FVector(MimicCaptureStart):ReleaseLocation;
+    MimicCaptor=nullptr; OnRep_MimicCapture(); ForceNetUpdate();
+}
+void AMCToothCharacter::OnRep_MimicCapture()
+{
+    if(IsValid(MimicCaptor)) {
+        if(!bMimicCaptured) {
+            MimicRestoreMeshTransform=StandingMeshTransform();
+            MimicRestoreCapsuleCollision=ToothPhysics->GetBodyState()==EMCBodyState::Standing
+                ?GetCapsuleComponent()->GetCollisionEnabled():ECollisionEnabled::QueryAndPhysics;
+            bMimicRestoreMeshVisible=GetMesh()->IsVisible(); bMimicRestoreNameVisible=PlayerNameLabel->IsVisible();
+            bMimicRestoreNameHidden=PlayerNameLabel->bHiddenInGame;
+            MimicCameraRotation=Camera->GetComponentRotation();
+            MimicCameraDistance=FMath::Clamp(float(FVector::Dist(Camera->GetComponentLocation(),GetActorLocation()+FVector(0,0,30))),400.f,1600.f);
+            bMimicCaptured=true;
+            if(HasAuthority() || IsLocallyControlled()) CancelGameplayInput();
+            ConsumeMovementInputVector();
+            ToothPhysics->SetThroatCaptured(true);
+        }
+        if(MimicTickPrerequisite.Get()!=MimicCaptor) {
+            if(MimicTickPrerequisite.IsValid()) RemoveTickPrerequisiteActor(MimicTickPrerequisite.Get());
+            MimicTickPrerequisite=MimicCaptor; AddTickPrerequisiteActor(MimicCaptor);
+        }
+        bMouthCameraHeld=false;
+        GetCharacterMovement()->StopMovementImmediately(); GetCharacterMovement()->SetMovementMode(MOVE_None);
+        GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Brush->SetVisibility(false); PlayerNameLabel->SetHiddenInGame(true);
+    } else if(bMimicCaptured) {
+        if(MimicTickPrerequisite.IsValid()) RemoveTickPrerequisiteActor(MimicTickPrerequisite.Get());
+        MimicTickPrerequisite.Reset(); bMimicCaptured=false;
+        SetActorLocation(MimicReleaseLocation,false,nullptr,ETeleportType::TeleportPhysics);
+        ToothPhysics->SetThroatCaptured(false);
+        GetMesh()->SetRelativeTransform(MimicRestoreMeshTransform);
+        GetMesh()->SetVisibility(bMimicRestoreMeshVisible);
+        PlayerNameLabel->SetVisibility(bMimicRestoreNameVisible);
+        PlayerNameLabel->SetHiddenInGame(bMimicRestoreNameHidden);
+        GetCapsuleComponent()->SetCollisionEnabled(MimicRestoreCapsuleCollision);
+        GetCharacterMovement()->StopMovementImmediately(); GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+        bMouthCameraHeld=false; bMouthCameraInitialized=false;
+        if(auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) Arm->SetIgnoredViewActor(nullptr);
+    }
+}
+void AMCToothCharacter::UpdateMimicCapture(float)
+{
+    if(!IsValid(MimicCaptor)) {
+        if(bMimicCaptured) {
+            if(HasAuthority()) EndMimicCapture(MimicReleaseLocation);
+            else { MimicCaptor=nullptr; OnRep_MimicCapture(); }
+        }
+        return;
+    }
+    if(!bMimicCaptured) OnRep_MimicCapture();
+    const float Alpha=MimicCaptor->GetMimicSwallowAlpha();
+    const float Pull=FMath::SmoothStep(0.f,1.f,Alpha);
+    FVector P=FMath::Lerp(FVector(MimicCaptureStart),MimicCaptor->GetMimicCaptureLocation(),Pull);
+    P.Z+=FMath::Sin(Pull*PI)*45;
+    SetActorLocation(P,false,nullptr,ETeleportType::TeleportPhysics);
+    const float Shrink=FMath::Lerp(1.f,.06f,FMath::SmoothStep(.25f,.95f,Alpha));
+    FTransform Pose=MimicRestoreMeshTransform; Pose.SetScale3D(Pose.GetScale3D()*Shrink); Pose.SetLocation(Pose.GetLocation()*Shrink);
+    GetMesh()->SetRelativeTransform(Pose);
+    GetMesh()->SetVisibility(bMimicRestoreMeshVisible && Alpha<.94f);
+    GetCharacterMovement()->StopMovementImmediately(); GetCharacterMovement()->SetMovementMode(MOVE_None);
+}
 void AMCToothCharacter::StopJump() { StopJumping(); }
 void AMCToothCharacter::SetSprintInputHeld(bool Held) { if(Held) StartSprint(); else StopSprint(); }
 void AMCToothCharacter::StartSprint()
@@ -403,6 +484,18 @@ void AMCToothCharacter::StopBrush() { ServerSetWorking(true,false); }
 void AMCToothCharacter::StartHandle()
 {
     if(!CanWork()) return;
+    if(const auto* PC=Cast<APlayerController>(Controller);PC && PC->IsMoveInputIgnored()) return;
+    AMCRewardChest* Rescue=nullptr; double RescueDistance=TNumericLimits<double>::Max();
+    for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if(It->CanRescue(this)) {
+        const double Distance=FVector::DistSquared(GetActorLocation(),It->GetActorLocation());
+        if(Distance<RescueDistance) {Rescue=*It;RescueDistance=Distance;}
+    }
+    if(Rescue) {
+        StopBrace(); StopPrimary(); StopBrush(); FoodCollection->Stop();
+        auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
+        Move->SetWantsClimb(false); Move->CancelDash();
+        bMimicRescueInputHeld=true; ServerSetMimicRescueHeld(Rescue,true); return;
+    }
     AMCRewardChest* Nearby=nullptr;
     double Nearest=TNumericLimits<double>::Max();
     for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) {
@@ -424,9 +517,28 @@ void AMCToothCharacter::ServerBeginRewardOpening_Implementation(AMCRewardChest* 
 {
     if(IsValid(Chest) && Chest->GetWorld()==GetWorld()) Chest->BeginLockpicking(this);
 }
-void AMCToothCharacter::StopHandle() { CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false); ServerSetWorking(false,false); }
+void AMCToothCharacter::ServerSetMimicRescueHeld_Implementation(AMCRewardChest* Chest,bool Held)
+{
+    if(!Held) {
+        if(IsValid(MimicRescueTarget)) MimicRescueTarget->EndRescue(this);
+        MimicRescueTarget=nullptr; ForceNetUpdate(); return;
+    }
+    if(!IsValid(Chest) || Chest->GetWorld()!=GetWorld() || !CanWork() || !Chest->CanRescue(this)) return;
+    if(MimicRescueTarget && MimicRescueTarget!=Chest) MimicRescueTarget->EndRescue(this);
+    Grip->ReleaseBrace(); DropFood(); FoodCollection->Stop(); bBrushing=false; bHandling=false; bPrimaryHeld=false; bSelfCare=false; ResetContact();
+    auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); Move->SetWantsClimb(false); Move->CancelDash();
+    if(Chest->BeginRescue(this)) {MimicRescueTarget=Chest;ForceNetUpdate();}
+}
+void AMCToothCharacter::StopMimicRescue()
+{
+    if(!bMimicRescueInputHeld && !MimicRescueTarget) return;
+    bMimicRescueInputHeld=false;
+    if(HasAuthority() || IsLocallyControlled()) ServerSetMimicRescueHeld(nullptr,false);
+}
+void AMCToothCharacter::StopHandle() { StopMimicRescue(); CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false); ServerSetWorking(false,false); }
 void AMCToothCharacter::StartPrimary()
 {
+    if(IsMimicCaptured()) return;
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
     ServerSetPrimary(true);
 }
@@ -491,6 +603,7 @@ void AMCToothCharacter::StartBrace()
 void AMCToothCharacter::StopBrace() { Grip->SetBraceHeld(false); }
 void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
+    if(bActive && IsMimicCaptured()) return;
     if(bActive) Grip->ReleaseBrace();
     if(bActive && CanWork() && !bInCoffee && !bSelfCare && Inventory->IsCleaningTool() && (FoodCollection->bCollecting || FoodCollection->HasCandidate())) {
         bPrimaryHeld=false;bBrushing=false;bHandling=false;DropFood();ResetContact();FoodCollection->Toggle();ForceNetUpdate();return;
@@ -583,6 +696,7 @@ void AMCToothCharacter::ToggleConnection() { StopBrace(); StopPrimary(); StopBru
 void AMCToothCharacter::RestartRun() { if (auto* PC = Cast<AMCPlayerController>(Controller)) PC->RequestRestart(); }
 void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActive)
 {
+    if(bActive && IsMimicCaptured()) return;
     if(bActive) Grip->ReleaseBrace();
     if(!bBrush) CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(bActive);
     if (!bBrush) { bWantsCling=bPrimaryHeld && Status->IsAlive(); if (!bActive) ClingTooth=nullptr; }
@@ -630,6 +744,11 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    UpdateMimicCapture(DeltaSeconds);
+    if(HasAuthority() && MimicRescueTarget && (!IsValid(MimicRescueTarget) || MimicRescueTarget->RescuePlayer!=this || !MimicRescueTarget->CanRescue(this))) {
+        if(IsValid(MimicRescueTarget)) MimicRescueTarget->EndRescue(this);
+        MimicRescueTarget=nullptr; ForceNetUpdate();
+    }
     if(IsLocallyControlled() && bSprintInputHeld) {
         if(!CanWork()) CancelSprintInput();
         else CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(true);
@@ -667,7 +786,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     {
         if (GetWorld()->GetTimeSeconds()-LastPaddleAt>.3) PaddleInput=FVector2D::ZeroVector;
         FindWork(FMath::Min(DeltaSeconds,0.1f));
-        if (!SwallowedBy && Status->IsAlive() && GetActorLocation().Z < -300) Status->Damage(Status->State.MaxHealth);
+        if (!SwallowedBy && !IsMimicCaptured() && Status->IsAlive() && GetActorLocation().Z < -300) Status->Damage(Status->State.MaxHealth);
     }
     if (IsLocallyControlled() && IsPlayerControlled() && bInCoffee)
     { PaddleSendElapsed+=DeltaSeconds; if (PaddleSendElapsed>=.05f) { ServerPaddle(WorldPaddleInput()); PaddleSendElapsed=0; } }
@@ -682,7 +801,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float GroundSpeed=GetVelocity().Size2D();
     AnimationBrake=FMath::FInterpTo(AnimationBrake,FMath::Clamp((PreviousAnimationSpeed-GroundSpeed)/FMath::Max(DeltaSeconds,.001f)/1600.f,0.f,1.f),DeltaSeconds,9.f);
     PreviousAnimationSpeed=GroundSpeed;
-    Brush->SetVisibility(HasBrush() && Inventory->ShouldPresentTool() && !HeldFood && AnimationClimb<.05f && AnimationSwim<.05f && !OrderJumpTarget && AnimationOrderPress<.05f && AnimationOrderFlight<.05f
+    Brush->SetVisibility(!IsMimicCaptured() && HasBrush() && Inventory->ShouldPresentTool() && !HeldFood && AnimationClimb<.05f && AnimationSwim<.05f && !OrderJumpTarget && AnimationOrderPress<.05f && AnimationOrderFlight<.05f
         && (!Grip || Grip->Blend()<.05f) && (!Expression || Expression->BodyAlpha()<.01f));
     if (StatusMaterial)
     {
@@ -1015,6 +1134,8 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCToothCharacter,ThroatCaptureStart);
     DOREPLIFETIME(AMCToothCharacter,TaskSuccessAt); DOREPLIFETIME(AMCToothCharacter,TaskFailureAt);
     DOREPLIFETIME(AMCToothCharacter,RewardInteraction);
+    DOREPLIFETIME(AMCToothCharacter,MimicCaptor); DOREPLIFETIME(AMCToothCharacter,MimicRescueTarget);
+    DOREPLIFETIME(AMCToothCharacter,MimicCaptureStart); DOREPLIFETIME(AMCToothCharacter,MimicReleaseLocation);
     DOREPLIFETIME(AMCToothCharacter,YawnEndsAt);DOREPLIFETIME(AMCToothCharacter,YawnTongue);DOREPLIFETIME(AMCToothCharacter,YawnAnchor);DOREPLIFETIME(AMCToothCharacter,YawnStartedAt);DOREPLIFETIME(AMCToothCharacter,YawnPullDirection);
 }
 
@@ -1022,7 +1143,7 @@ bool AMCToothCharacter::CanWork() const
 {
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const auto* Player=Cast<AMCPlayerController>(GetController());
-    return (!Player || !Player->IsBossIntroPlaying()) && !IsValid(RewardInteraction) && !IsYawning() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
+    return (!Player || !Player->IsBossIntroPlaying()) && !IsValid(RewardInteraction) && !IsMimicCaptured() && !IsYawning() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
 }
 void AMCToothCharacter::ToggleSelfCare() { ServerToggleSelfCare(); }
 void AMCToothCharacter::ServerToggleSelfCare_Implementation()
@@ -1138,6 +1259,8 @@ bool AMCToothCharacter::FindPlayerBrushContact(const AMCToothCharacter* Worker,F
 void AMCToothCharacter::StatusChanged()
 {
     if (!HasAuthority() || Status->IsAlive() || bDeathReported) return;
+    StopMimicRescue();
+    if(IsMimicCaptured()) EndMimicCapture(MimicCaptureStart);
     Grip->ReleaseBrace();
     bDeathReported=true; bBrushing=false; bHandling=false; DropFood(); ResetContact();
     ClingTooth=nullptr; bWantsCling=false;
@@ -1158,6 +1281,9 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 }
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
+    StopMimicRescue();
+    if(HasAuthority() && IsMimicCaptured()) EndMimicCapture(MimicCaptureStart);
+    if(MimicTickPrerequisite.IsValid()) RemoveTickPrerequisiteActor(MimicTickPrerequisite.Get());
     ClearCameraWallReveal();
     Grip->ReleaseBrace();
     DropFood();
@@ -1184,6 +1310,6 @@ void AMCToothCharacter::ServerThrowItem_Implementation()
 }
 void AMCToothCharacter::ServerPaddle_Implementation(FVector2D Direction)
 {
-    if (!bInCoffee || !Status->IsAlive() || Direction.ContainsNaN()) return;
+    if (!bInCoffee || IsMimicCaptured() || !Status->IsAlive() || Direction.ContainsNaN()) return;
     PaddleInput=Direction.GetClampedToMaxSize(1); LastPaddleAt=GetWorld()->GetTimeSeconds();
 }

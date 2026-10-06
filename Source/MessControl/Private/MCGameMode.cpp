@@ -212,7 +212,10 @@ void AMCGameMode::RestartShift()
         if (!RoguelikeDirector) RoguelikeDirector=GetWorld()->SpawnActor<AMCRoguelikeDirector>();
     }
     if (IsValid(RoguelikeDirector)) RoguelikeDirector->ResetRewards();
-    for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if (It->bPlacedReward) It->ResetPlacedReward();
+    for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It) {
+        if (It->ActorHasTag(TEXT("MC_DevMimic"))) It->Destroy();
+        else if (It->bPlacedReward) It->ResetPlacedReward();
+    }
     for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
         if (It->ActorHasTag(TEXT("MC_DevBoss"))) It->Destroy();
         else It->ResetForRun();

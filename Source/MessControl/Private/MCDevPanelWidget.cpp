@@ -149,7 +149,9 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Active Ragdoll — мягкий (основной)"),TEXT("Основной профиль при старте и возрождении: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Применить ко всем текущим игрокам."),EMCDevAction::ActiveRagdoll,1);
     AddAction(Actions,TEXT("Active Ragdoll — упругий"),TEXT("Сравни более сильные мышцы при поворотах, прыжках и ударах. Точные контакты сохраняются."),EMCDevAction::ActiveRagdoll,2);
     AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Сравнение для отладки без перезапуска. Новые игроки и возрождения используют основной мягкий профиль."),EMCDevAction::ActiveRagdoll,0);
-    AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. Нажми E рядом с сундуком: 5 секунд вскрытия, затем выбор одной из трёх карточек."),EMCDevAction::RewardChest);
+    AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. E — вскрыть: обычный сундук даёт карточки, мимик может проглотить открывателя."),EMCDevAction::RewardChest);
+    AddAction(Actions,TEXT("Мимик — создать сундук [100%]"),TEXT("Гарантированный мимик в ближайшей свободной зоне. E — вскрыть; товарищ удерживает E рядом, чтобы вытащить пленника. Камера пленника смотрит на сундук со стороны."),EMCDevAction::MimicChest);
+    AddAction(Actions,TEXT("Мимик — убрать / освободить"),TEXT("Удаляет тестового мимика и возвращает игроку движение и обычную камеру. Работает и в одиночном тесте."),EMCDevAction::MimicRemove);
     AddText(Actions,TEXT("Босс · фаза 1"),19)->SetColorAndOpacity(FSlateColor(DevMint));
     AddAction(Actions,TEXT("Босс — создать Zombie для теста"),TEXT("Спавн рядом на свободном Boss NavMesh. AI выключен, обычная игра босса не создаёт."),EMCDevAction::BossPractice);
     AddAction(Actions,TEXT("Босс — интро / рёв [5 секунд]"),TEXT("Перемещает тестового Zombie в свободный центр языка. Sequencer-камера, рёв и кинополосы; управление вернётся через 5 секунд. Бой затем включается отдельно."),EMCDevAction::BossIntro);

@@ -13,6 +13,8 @@ class MESSCONTROL_API UMCOrbitSpringArmComponent : public USpringArmComponent
     GENERATED_BODY()
 public:
     void SetSurfaceProbeActive(bool bActive) { bSurfaceProbeActive=bActive; }
+    void SetIgnoredViewActor(AActor* Actor) { IgnoredViewActor=Actor; }
+    AActor* GetIgnoredViewActor() const { return IgnoredViewActor.Get(); }
     // The wall aperture may bypass a view-ray obstruction, but never the camera's own volume.
     void SetRevealedWall(UMeshComponent* Wall, bool bReveal);
 protected:
@@ -24,5 +26,6 @@ private:
     bool bSurfaceProbeActive=false;
     TArray<TWeakObjectPtr<UPrimitiveComponent>> DetailedSurfaces;
     TArray<TWeakObjectPtr<UMeshComponent>> RevealedWalls;
+    TWeakObjectPtr<AActor> IgnoredViewActor;
     void RefreshDetailedSurfaces();
 };

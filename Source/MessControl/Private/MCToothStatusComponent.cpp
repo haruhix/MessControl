@@ -78,6 +78,7 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction)
 {
     if (const auto* Game=GetWorld()->GetGameState<AMCGameState>(); Game && (Game->bTutorialActive || Game->bLobbyWaiting)) return false;
     if (!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0 || Direction.ContainsNaN()) return false;
+    if (const auto* Hero=Cast<AMCToothCharacter>(GetOwner()); Hero && Hero->MimicCaptor) return false;
     LastDamageDirection=Direction.GetSafeNormal(); State.Health=FMath::Max(0.f,State.Health-Amount);
     const auto* GS=GetWorld()->GetGameState();
     State.DamageAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();

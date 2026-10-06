@@ -21,7 +21,7 @@ bool AMCToothCharacter::IsYawning() const
 }
 void AMCToothCharacter::BeginYawn(AMCTongue* Tongue,float Seconds)
 {
-    if(!HasAuthority() || !Tongue || !Status->IsAlive() || SwallowedBy) return;
+    if(!HasAuthority() || !Tongue || !Status->IsAlive() || SwallowedBy || MimicCaptor) return;
     CancelGameplayInput();DropFood();bBrushing=false;bHandling=false;ResetContact();
     YawnTongue=nullptr;
     FHitResult Hit;
@@ -59,7 +59,7 @@ void AMCToothCharacter::OnRep_Yawn()
         for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(!It->IsDisposed()) GetCapsuleComponent()->IgnoreActorWhenMoving(*It,true);
         if(YawnTongue) GetCharacterMovement()->SetMovementMode(MOVE_None);
     } else {
-        if(GetCharacterMovement()->MovementMode==MOVE_None && !SwallowedBy) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
+        if(GetCharacterMovement()->MovementMode==MOVE_None && !SwallowedBy && !MimicCaptor) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
         for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(It->StackCarrier!=this && !It->Holders.Contains(this)) GetCapsuleComponent()->IgnoreActorWhenMoving(*It,false);
     }
 }

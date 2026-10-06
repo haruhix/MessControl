@@ -115,7 +115,7 @@ void UMCToothPhysicsComponent::BeginPlay()
         if(!Self->Muscles->GetControlNamesInSet(TEXT("Limbs")).IsEmpty() &&
             Self->Muscles->GetControlData(Self->JointTargets[0].Control,Probe)) return;
         CreateMuscleControls();
-        if(Self->LocalState==EMCBodyState::Standing && !Self->Tooth->SwallowedBy) {
+        if(Self->LocalState==EMCBodyState::Standing && !Self->Tooth->SwallowedBy && !Self->Tooth->MimicCaptor) {
             Self->Tooth->GetMesh()->SetAllBodiesBelowSimulatePhysics(Self->Tooth->RigBone(TEXT("body")),true,true);
         }
         Self->OnRep_ActiveRagdollMode();
@@ -138,7 +138,7 @@ void UMCToothPhysicsComponent::SetMuscles(bool bEnable)
 }
 void UMCToothPhysicsComponent::ConfigureStandingBody()
 {
-    if(!Tooth || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) return;
+    if(!Tooth || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy || Tooth->MimicCaptor) return;
     // The reference leaves the pelvis kinematic: locomotion supplies the stable
     // root, while muscles drive the simulated limbs. Full-body falls stay physical.
     const bool Active=UsesActiveMuscles();
@@ -173,7 +173,7 @@ void UMCToothPhysicsComponent::OnRep_Settings()
         Balance.AngularStrength=5; Balance.AngularDampingRatio=.65f;
         Muscles->SetControlData(BalanceControl,Balance);
         ConfigureStandingBody();
-        SetMuscles(LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy);
+        SetMuscles(LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy && !Tooth->MimicCaptor);
         for(int32 I=0;I<2;++I) {
             const bool Physical=I==0?bPhysicalGripLeft:bPhysicalGripRight;
             const bool Occupied=I==0?bGripLeft:bGripRight;
@@ -184,7 +184,7 @@ void UMCToothPhysicsComponent::OnRep_Settings()
                 Grip.bUseSkeletalAnimation=false;
                 Muscles->SetControlDatasInSet(Role,Grip);
             }
-            Muscles->SetControlsInSetEnabled(Role,LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy && (!Occupied || Physical));
+            Muscles->SetControlsInSetEnabled(Role,LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy && !Tooth->MimicCaptor && (!Occupied || Physical));
         }
         ConfigureGripConstraints();
     }
@@ -219,7 +219,7 @@ void UMCToothPhysicsComponent::OnRep_ActiveRagdollMode()
 }
 void UMCToothPhysicsComponent::SubmitAnimationTargets(const TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt)
 {
-    if(!Tooth || !Muscles || !UsesActiveMuscles() || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) return;
+    if(!Tooth || !Muscles || !UsesActiveMuscles() || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy || Tooth->MimicCaptor) return;
     TArray<FTransform> CS; CS.SetNum(Pose.Num());
     for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
     auto GripTarget=[&](FName Name,const FTransform& Parent,const FTransform& Child) {
@@ -255,7 +255,7 @@ void UMCToothPhysicsComponent::ConfigureGripConstraints()
     if(!Tooth) return;
     for(const auto& Saved:GripJoints) if(auto* Joint=Tooth->GetMesh()->FindConstraintInstance(Saved.Name)) {
         Joint->CopyProfilePropertiesFrom(Saved.Profile);
-        const bool Active=LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy
+        const bool Active=LocalState==EMCBodyState::Standing && !Tooth->SwallowedBy && !Tooth->MimicCaptor
             && (Saved.Role==TEXT("arm_l")?bPhysicalGripLeft:bPhysicalGripRight);
         if(Active) {
             // The artist's compact floating hands need bounded extension for
@@ -309,7 +309,7 @@ void UMCToothPhysicsComponent::EnterRagdoll()
 }
 void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocation)
 {
-    if (!Tooth || !Tooth->HasAuthority() || LocalState==EMCBodyState::Recovering || ServerTime()<RecoveryInvulnerableUntil) return;
+    if (!Tooth || !Tooth->HasAuthority() || Tooth->IsMimicCaptured() || LocalState==EMCBodyState::Recovering || ServerTime()<RecoveryInvulnerableUntil) return;
     if (VelocityChange.ContainsNaN() || HitLocation.ContainsNaN()) return;
     VelocityChange=VelocityChange.GetClampedToMaxSize(1400.f);
     if(!VelocityChange.IsNearlyZero()) Tooth->FoodCollection->Spill(VelocityChange*.45f);
@@ -445,7 +445,7 @@ void UMCToothPhysicsComponent::EnterStanding()
 }
 void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLeft,bool PhysicalRight)
 {
-    if (!Tooth || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy) { bGripLeft=bGripRight=bPhysicalGripLeft=bPhysicalGripRight=false; return; }
+    if (!Tooth || LocalState!=EMCBodyState::Standing || Tooth->SwallowedBy || Tooth->MimicCaptor) { bGripLeft=bGripRight=bPhysicalGripLeft=bPhysicalGripRight=false; return; }
     PhysicalLeft&=Left; PhysicalRight&=Right;
     bool* Requested[]={&PhysicalLeft,&PhysicalRight}; const bool Occupied[]={Left,Right};
     for(int32 I=0;I<2;++I) {
@@ -529,7 +529,7 @@ void UMCToothPhysicsComponent::BuildPresentationPose(TArray<FTransform>& Pose) c
 }
 void UMCToothPhysicsComponent::OnRep_Frame()
 {
-    if (!Tooth || Tooth->SwallowedBy) return;
+    if (!Tooth || Tooth->SwallowedBy || Tooth->MimicCaptor) return;
     if (LocalState!=Frame.State)
     {
         LocalState=Frame.State;
@@ -544,7 +544,7 @@ void UMCToothPhysicsComponent::OnRep_Frame()
 }
 void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction)
 {
-    Super::TickComponent(Dt,TickType,ThisTickFunction); if (!Tooth || Tooth->SwallowedBy) return;
+    Super::TickComponent(Dt,TickType,ThisTickFunction); if (!Tooth || Tooth->SwallowedBy || Tooth->MimicCaptor) return;
     if (LocalState==EMCBodyState::Ragdoll)
     {
         if (Tooth->HasAuthority())
@@ -579,7 +579,7 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
 }
 bool UMCToothPhysicsComponent::CanAct() const
 {
-    return LocalState==EMCBodyState::Standing && (!Tooth || Tooth->Status->IsAlive());
+    return LocalState==EMCBodyState::Standing && (!Tooth || (!Tooth->IsMimicCaptured() && Tooth->Status->IsAlive()));
 }
 void UMCToothPhysicsComponent::SetThroatCaptured(bool Captured)
 {

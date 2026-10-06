@@ -14,6 +14,7 @@
 #include "MCArenaTooth.h"
 #include "MCThroat.h"
 #include "MCCoffeeFlood.h"
+#include "MCRewardChest.h"
 #include "GameFramework/PlayerState.h"
 #include "EngineUtils.h"
 #include "Rendering/DrawElements.h"
@@ -194,7 +195,7 @@ void UMCGameplayHUD::RefreshState()
         Color(FName(N+TEXT("Frame")),Dead?PlayerTint.Desaturate(.8f)*.6f:PlayerTint);
         if(auto* Icon=Cast<UMCHUDIcon>(Find(FName(N+TEXT("Face"))))) {
             const bool Host=State && State->bSessionHost;
-            const bool Sad=Tooth && (Now-Tooth->TaskFailureAt<2.5 || Tooth->Status->State.Health<Tooth->Status->State.MaxHealth*.35f);
+            const bool Sad=Tooth && (Tooth->MimicCaptor || Now-Tooth->TaskFailureAt<2.5 || Tooth->Status->State.Health<Tooth->Status->State.MaxHealth*.35f);
             const bool Happy=Tooth && Now-Tooth->TaskSuccessAt<2 && !Sad;
             if(!Icon->Tint.Equals(PlayerTint) || Icon->bHost!=Host || Icon->bDead!=Dead || Icon->bSad!=Sad || Icon->bHappy!=Happy) {
                 Icon->Tint=PlayerTint;Icon->bHost=Host;Icon->bDead=Dead;Icon->bSad=Sad;Icon->bHappy=Happy;
@@ -268,7 +269,31 @@ void UMCGameplayHUD::RefreshState()
                 Respawn>0?*FString::Printf(TEXT(" · ВОЗРОЖДЕНИЕ %.0f С"),FMath::CeilToFloat(Respawn)):TEXT(""));
         }
         else if(!Hero->Status->IsAlive()) Hint=GS->AvailableArenaTeeth()>0?FString::Printf(TEXT("ВОЗРОЖДЕНИЕ ЧЕРЕЗ %.0f С"),FMath::Max(0.,Hero->RespawnAt-Now)):TEXT("НЕТ ЗАПАСНЫХ ЗУБОВ");
-        Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Hero->ContactProgress>0); Bar(TEXT("ContactProgress"),Hero->ContactProgress);
+        float Contact=Hero->ContactProgress;
+        if (const auto* Mimic=Hero->MimicCaptor.Get(); IsValid(Mimic))
+        {
+            Hint=TEXT("ТЕБЯ ПРОГЛОТИЛ МИМИК · ТОВАРИЩ ДОЛЖЕН УДЕРЖИВАТЬ E У СУНДУКА");
+            Contact=Mimic->RescueProgress();
+        }
+        else if (Hero->Status->IsAlive())
+        {
+            const AMCRewardChest* Nearest=nullptr;
+            double Distance=DBL_MAX;
+            for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if (It->CanRescue(Hero))
+            {
+                const double Candidate=FVector::DistSquared(Hero->GetActorLocation(),It->GetActorLocation());
+                if (Candidate<Distance) { Nearest=*It; Distance=Candidate; }
+            }
+            if (Nearest)
+            {
+                const auto* Captive=Nearest->GetCapturedPlayer();
+                const auto* Player=Captive?Captive->GetPlayerState():nullptr;
+                const FString Name=Player?Player->GetPlayerName():TEXT("товарища");
+                Hint=FString::Printf(TEXT("УДЕРЖИВАЙ E · ВЫТАЩИТЬ %s ИЗ МИМИКА"),*Name);
+                Contact=Nearest->RescueProgress();
+            }
+        }
+        Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
     }
     Show(TEXT("ResultsPanel"),Finished); Text(TEXT("ResultTitle"),Title);
     Text(TEXT("ResultDetail"),FString::Printf(TEXT("Незавершённых событий: %d   ·   R — новый забег"),GS->FailedEvents));

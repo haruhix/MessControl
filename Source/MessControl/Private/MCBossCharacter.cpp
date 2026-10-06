@@ -227,7 +227,7 @@ void AMCBossCharacter::UpdatePhase()
 bool AMCBossCharacter::IsLivingPlayer(const AMCToothCharacter* Target)
 {
     return IsValid(Target) && AMCGameMode::IsGameplayParticipant(Target->GetController())
-        && IsValid(Target->Status) && Target->Status->IsAlive() && !Target->SwallowedBy;
+        && IsValid(Target->Status) && Target->Status->IsAlive() && !Target->SwallowedBy && !Target->MimicCaptor;
 }
 
 bool AMCBossCharacter::CanSeePlayer(const AMCToothCharacter* Target) const

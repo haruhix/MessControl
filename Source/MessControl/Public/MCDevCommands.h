@@ -12,7 +12,7 @@ enum class EMCDevAction : uint8
     SpicyPepper, VomitMeal, ColdCola, SwimCoffee, ActiveRagdoll, Yawn, Fire, RewardChest, BossPractice,
     BossAI, BossStop, BossAnimation, BossRemove, BossIntro, CalculusPractice, CalculusClear,
     BossPhase3Spawn, BossPhase3Animation, BossPhase3Activate, BossPhase3Deactivate, BossPhase3Remove,
-    OldFlood, BotsStart, BotsStop, BotsReport
+    OldFlood, BotsStart, BotsStop, BotsReport, MimicChest, MimicRemove
 };
 
 // Reuse the existing typed dev-command argument for the 4 counts x 3 skills x 2 modes.

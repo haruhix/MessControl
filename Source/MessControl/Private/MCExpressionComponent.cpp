@@ -73,7 +73,7 @@ float UMCExpressionComponent::BodyAlpha() const
 }
 bool UMCExpressionComponent::CanReactSocially() const
 {
-    return Tooth && Tooth->Status->IsAlive() && !Tooth->SwallowedBy && !Tooth->IsYawning()
+    return Tooth && Tooth->Status->IsAlive() && !Tooth->SwallowedBy && !Tooth->MimicCaptor && !Tooth->IsYawning()
         && !(Tooth->RewardInteraction && (Tooth->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
             || Tooth->RewardInteraction->Stage==EMCRewardChestStage::Opening));
 }
@@ -91,7 +91,7 @@ void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorCompon
 {
     Super::TickComponent(Dt,Type,TickFunction);
     float Suction=0; FVector Pull;
-    if (Tooth && Tooth->Status->IsAlive() && !Tooth->SwallowedBy)
+    if (Tooth && Tooth->Status->IsAlive() && !Tooth->SwallowedBy && !Tooth->MimicCaptor)
         AMCThroat::FindAmbientSuctionAt(GetWorld(),Tooth->GetActorLocation(),Suction,Pull);
     if (Suction>.01f && FoodSuctionReaction<.01f) FoodSuctionReactionAt=Now();
     const float Rate=Suction>FoodSuctionReaction?14.f:7.f;

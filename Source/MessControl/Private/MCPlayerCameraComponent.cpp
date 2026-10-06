@@ -19,7 +19,7 @@ void UMCPlayerCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& 
     Super::GetCameraView(DeltaTime,DesiredView);
     const auto* Hero=Cast<AMCToothCharacter>(GetOwner());
     if (!Hero || !bAutoFocusPlayer || PostProcessBlendWeight<=0.f || !PostProcessSettings.bOverride_DepthOfFieldFocalDistance) return;
-    const FVector Focus=(Hero->bMouthCameraHeld?Hero->ThroatCaptureStart:Hero->GetActorLocation())+FVector(0,0,30);
+    const FVector Focus=Hero->GetCameraFocusLocation();
     // Use the final view after the spring arm's collision correction, and focus
     // on the avatar's depth plane even when the follow camera frames it off-center.
     const float Distance=FMath::Max(10.f,float(FVector::DotProduct(Focus-DesiredView.Location,DesiredView.Rotation.Vector())));

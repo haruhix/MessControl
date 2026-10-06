@@ -224,7 +224,7 @@ void AMCPlayerController::UpdateInputMode()
         FInputModeUIOnly Mode; Mode.SetWidgetToFocus(bReward?PerkChoiceWidget->TakeWidget():(bEmote?EmoteWidget->TakeWidget():DevPanel->TakeWidget())); SetInputMode(Mode);
     }
     else if (bPanel) {
-        if(auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->SetBraceInputHeld(false);
+        if(auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
         FInputModeGameAndUI Mode; Mode.SetWidgetToFocus(PrototypeWidget->TakeWidget()); Mode.SetHideCursorDuringCapture(false); SetInputMode(Mode);
     }
     else SetInputMode(FInputModeGameOnly());

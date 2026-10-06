@@ -103,7 +103,7 @@ FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 }
 bool UMCInventoryComponent::ShouldPresentTool() const
 {
-    if(!Hero || !Hero->Status->IsAlive() || Hero->HeldFood || Hero->FoodCollection->bCollecting || Hero->IsYawning() || Hero->OrderJumpTarget || Hero->SwallowedBy) return false;
+    if(!Hero || !Hero->Status->IsAlive() || Hero->HeldFood || Hero->FoodCollection->bCollecting || Hero->IsYawning() || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor) return false;
     if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
         || Hero->RewardInteraction->Stage==EMCRewardChestStage::Opening)) return false;
     if(Hero->Expression && Hero->Expression->BodyAlpha()>.001f) return false;
@@ -313,7 +313,7 @@ void UMCInventoryComponent::ReactPlayersToSpray()
     // damage, care tick or network RPC per particle is needed for this reaction.
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
         auto* Other=*It;
-        if(Other==Hero || !Other->Status->IsAlive() || !Other->Expression || Other->SwallowedBy) continue;
+        if(Other==Hero || !Other->Status->IsAlive() || !Other->Expression || Other->SwallowedBy || Other->MimicCaptor) continue;
         const FVector Point=Other->GetActorLocation()+FVector(0,0,20),Delta=Point-Origin;
         const float Along=FVector::DotProduct(Delta,Direction);
         if(Along<=0 || Along>Reach || (Delta-Direction*Along).SizeSquared()>FMath::Square(24+Along*Spread)) continue;

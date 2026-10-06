@@ -5,6 +5,8 @@
 #include "MCGameState.h"
 #include "MCPlaytestSession.h"
 #include "MCRoguelikeDirector.h"
+#include "MCRewardChest.h"
+#include "MCRewardDropZone.h"
 #include "MCBossCharacter.h"
 #include "MCBossProfile.h"
 #include "MCDayDirector.h"
@@ -252,6 +254,52 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         if (!IsValid(RoguelikeDirector)) return FText::FromString(TEXT("Система наград ещё не готова."));
         RoguelikeDirector->NotifyTaskCompleted();
         return FText::FromString(TEXT("Награда поставлена в очередь: сундук выберет свободную зону с наименьшим числом игроков."));
+    }
+    if (Action==EMCDevAction::MimicRemove)
+    {
+        for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It)
+            if (It->ActorHasTag(TEXT("MC_DevMimic"))) It->Destroy();
+        return FText::FromString(TEXT("Тестовый мимик убран, проглоченный игрок освобождён."));
+    }
+    if (Action==EMCDevAction::MimicChest)
+    {
+        if (GS->bLobbyWaiting || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost)
+            return FText::FromString(TEXT("Для теста мимика начни игру или нажми «Обычный день 1 — полный перезапуск»."));
+        auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
+        if (!Hero || !Hero->Status->IsAlive() || Hero->MimicCaptor)
+            return FText::FromString(TEXT("Нужен свободный живой игрок хоста. Для освобождения нажми «Мимик — убрать / освободить»."));
+        for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It)
+            if (It->ActorHasTag(TEXT("MC_DevMimic")))
+                return FText::FromString(TEXT("Тестовый мимик уже есть. Убери его перед новым тестом."));
+        UClass* ChestClass=IsValid(RoguelikeDirector)?RoguelikeDirector->ChestClass.Get():nullptr;
+        if (!ChestClass) ChestClass=LoadClass<AMCRewardChest>(nullptr,TEXT("/Game/Gameplay/Roguelike/BP_RewardChest.BP_RewardChest_C"));
+        if (!ChestClass) ChestClass=AMCRewardChest::StaticClass();
+        const auto* Defaults=ChestClass->GetDefaultObject<AMCRewardChest>();
+        const FVector Extent=Defaults->GetPlacementHalfExtent();
+        FRandomStream MimicRandom(FMath::Rand());
+        AMCRewardDropZone* BestZone=nullptr;
+        FVector Landing=FVector::ZeroVector,Normal=FVector::UpVector;
+        double BestDistance=DBL_MAX;
+        TArray<AActor*> Ignored;
+        for (TActorIterator<AMCRewardDropZone> It(GetWorld());It;++It)
+            if (It->bAllowRewardDrops) for (int32 I=0;I<32;++I)
+            {
+                FVector Point,FloorNormal;
+                if (!It->FindLanding(MimicRandom,Extent,450.f,Ignored,Point,FloorNormal)) continue;
+                const double Distance=FVector::DistSquared2D(Hero->GetActorLocation(),Point);
+                if (Distance<BestDistance) { BestDistance=Distance; BestZone=*It; Landing=Point; Normal=FloorNormal; }
+            }
+        if (!BestZone) return FText::FromString(TEXT("Нет свободного места для сундука в разрешённых зонах языка."));
+        const FVector Facing=(Hero->GetActorLocation()-Landing).GetSafeNormal2D();
+        const FTransform Pose(FRotationMatrix::MakeFromXZ(Facing.IsNearlyZero()?FVector::ForwardVector:Facing,Normal).ToQuat(),Landing);
+        auto* Chest=GetWorld()->SpawnActorDeferred<AMCRewardChest>(ChestClass,Pose,Requester,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        if (!Chest) return FText::FromString(TEXT("Не удалось создать мимика."));
+        Chest->Tags.AddUnique(TEXT("MC_DevMimic"));
+        Chest->ForceMimicForTest();
+        Chest->InitializeReward(Landing,Landing+FVector(0,0,450),int32(MimicRandom.GetUnsignedInt()),Defaults->PerkTable.LoadSynchronous(),EMCRewardSelectionPolicy::ChooseOne,BestZone);
+        Chest->FinishSpawning(Pose);
+        GS->bDevManualEvents=true; GS->PhaseEndsAt=0; GS->ForceNetUpdate();
+        return FText::FromString(TEXT("Гарантированный мимик падает в ближайшую свободную зону. E — вскрыть; после захвата товарищу нужно удерживать E рядом. F3 → убрать — освободить и сбросить тест."));
     }
     if (Action==EMCDevAction::BossPhase3Remove)
     {

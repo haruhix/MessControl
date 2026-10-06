@@ -42,6 +42,13 @@ FVector UMCOrbitSpringArmComponent::BlendLocations(const FVector& Desired,const 
     const FVector Origin=GetComponentLocation()+TargetOffset;
     FVector Safe=bBlocked?Hit:Desired;
     const float Radius=FMath::Max(1.f,ProbeSize);
+    if (bDoCollisionTest && IgnoredViewActor.IsValid() && GetWorld()) {
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCMimicCamera),false,GetOwner());
+        Query.AddIgnoredActor(IgnoredViewActor.Get());
+        FHitResult Obstacle;
+        Safe=GetWorld()->SweepSingleByChannel(Obstacle,Origin,Desired,FQuat::Identity,ProbeChannel,
+            FCollisionShape::MakeSphere(Radius),Query)?Obstacle.Location:Desired;
+    }
     if (bDoCollisionTest && bSurfaceProbeActive && GetWorld()) {
         RefreshDetailedSurfaces();
         const FVector Direction=(Desired-Origin).GetSafeNormal();

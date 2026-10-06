@@ -20,6 +20,18 @@ The authority validates the reserved living pawn, distance, matching perk table,
 
 Dynamic chests disappear after selection. A map chest with `bPlacedReward=true` starts landed, uses its own `PerkTable` and `PlacedDropZone`, and remains exhausted after use. `ResetPlacedReward()` closes its HUD, releases the player, clears the claim/roll state, restores its authored landing pose and reseeds from the new `RunSeed`. `RestartShift` initializes that seed before resetting the director, placed chest and player perks. An unclaimed dynamically destroyed reward is requeued.
 
+## Mimic chests
+
+Reward chests roll `MimicChance` once on the authority, using a separate seeded random stream from the perk roll. The default chance is 20%; set it to zero for ordinary chests. A mimic looks like the same closed reward chest. Completing the usual E lockpicking opens its lid and pulls the opener into the chest instead of showing reward cards.
+
+The captive stays alive inside until another player holds **E** within reach of the chest for `RescueSeconds` (three seconds by default). Releasing E, moving away, opening a menu or losing the rescuer cancels that attempt. The captive cannot walk, attack or hold objects. Other players see the chest rocking, squashing and bumping its lid as the captive struggles inside; the HUD shows the rescue progress. Revealing the mimic replaces the reward glow with a dark mouth and ivory teeth. Cancelling the opening or resetting the chest restores the authored glow switches.
+
+The captive's camera follows the mimic from outside, retaining mouse orbit and zoom. Camera collision ignores the mimic while still checking the surrounding arena. Rescue, chest removal and run reset restore the character's normal camera, size, collision and movement. Mimic state, captive, rescue owner and server timestamps replicate; clients do not decide capture or rescue.
+
+**F3 → Мимик — создать сундук [100%]** drops a guaranteed mimic in the nearest available reward zone. Close F3, walk to its lock and press E. **F3 → Мимик — убрать / освободить** removes the test chest and frees its captive, including in a solo test. Restarting the ordinary day also clears the test mimic. The usual reward-chest action keeps its configured random chance.
+
+Validation: the editor target and reward/player Blueprints compile successfully. All eight `MessControl.Rewards.Mimic` automation tests pass, including ordinary card rewards, held rescue cancellation, reset/destruction/run-end cleanup, glow restoration and a camera sweep that still blocks other geometry. A two-player listen-server PIE pass uses queued Enhanced Input on the owning client to open the mimic, then verifies replicated capture, captive action blocking, interrupted teammate rescue and full release with restored movement, collision, mesh and camera.
+
 The editable five-second hero/brush animation is staged in `ArtSource/ChestLockpick/ChestLockpick_Approval.blend`. It uses the real chest lock and the end of the brush handle. It awaits the requested visual approval before being imported or played in the game. The runtime currently has the interaction, opening progress, lid and cards.
 
 ## Data and effect extension

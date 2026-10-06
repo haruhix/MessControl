@@ -68,7 +68,7 @@ void AMCRoguelikeDirector::TrySpawnReward()
     bool Eligible=false;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
         auto* PS=It->GetPlayerState<AMCPlayerState>();
-        if(!It->Status || !It->Status->IsAlive() || It->SwallowedBy || !PS || PS->GetPawn()!=*It) continue;
+        if(!It->Status || !It->Status->IsAlive() || It->SwallowedBy || It->MimicCaptor || !PS || PS->GetPawn()!=*It) continue;
         Players.Add(*It);
         Eligible|=PS->Perks && PS->Perks->GetPerkTable()==LoadedTable && AMCRewardChest::HasValidLoot(LoadedTable,PS->Perks);
     }
