@@ -44,6 +44,11 @@ public:
     void UpdateObjectives();
     void ProcessRespawns();
     UFUNCTION(BlueprintCallable, Category="Shift") void RestartShift();
+    /** Start a fresh diagnostic run with the same event seed used by the bot decisions. */
+    void RestartShiftForPlaytest(int32 Seed);
+    /** Human players and allied test controllers count alike; spectators do not. */
+    int32 GetGameplayParticipantCount() const;
+    static bool IsGameplayParticipant(const AController* Controller);
     void StartLobby(APlayerController* Requester);
     void FinishTutorial();
     bool CanUseDevPanel(const APlayerController* Requester) const;
@@ -61,6 +66,7 @@ public:
 private:
     bool bTutorialRequested=false;
     bool bLobbyRequested=false;
+    TOptional<int32> NextPlaytestSeed;
     void StartDay();
     void FinishDay(bool bTimedOut);
     void ClearTasks();

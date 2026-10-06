@@ -84,10 +84,11 @@ bool UMCBrushContactComponent::IsWorkReady() const
     // Mirrors the hand's 3/second approach without depending on animation evaluation.
     return Now-ContactAt<.3 && ApproachStartedAt>=0 && Now-ApproachStartedAt>=1.0/3.0;
 }
-FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool* Reachable,const AActor* Surface,const FTransform* FacingWorld) const
+FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool* Reachable,const AActor* Surface,const FTransform* FacingWorld,const FVector* PawnOrigin) const
 {
     if(Reachable) *Reachable=false;
     const FTransform World=FacingWorld?*FacingWorld:Hero->GetMesh()->GetComponentTransform();
+    const FVector Origin=PawnOrigin?*PawnOrigin:Hero->GetActorLocation();
     const FVector Facing=World.TransformVectorNoScale(Hero->GetMesh()->GetComponentTransform().InverseTransformVectorNoScale(Hero->GetActorForwardVector()));
     // The authored brush runs along +X, with bristles pointing down -Z.
     const FVector Up=FVector::VectorPlaneProject(FVector::UpVector,Normal).GetSafeNormal();
@@ -100,11 +101,11 @@ FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool*
     FVector HandleHome=World.TransformPosition(Rest.GetLocation());
     // The resting wrist is low; aiming toward it puts a low stain's handle
     // inside the raised gum. Keep the working handle near the upper chest.
-    HandleHome.Z=FMath::Max(HandleHome.Z,Hero->GetActorLocation().Z+60);
+    HandleHome.Z=FMath::Max(HandleHome.Z,Origin.Z+60);
     const FVector LengthAxis=FVector::VectorPlaneProject(Point-HandleHome,Normal).GetSafeNormal(.001,Side);
     // On the tongue, keep the handle behind the bristles. World up has no
     // tangent on a horizontal surface, so use the character's facing instead.
-    FVector FloorAxis=FVector::VectorPlaneProject((Point-Hero->GetActorLocation()).GetSafeNormal2D(),Normal).GetSafeNormal();
+    FVector FloorAxis=FVector::VectorPlaneProject((Point-Origin).GetSafeNormal2D(),Normal).GetSafeNormal();
     if(FloorAxis.IsNearlyZero()) FloorAxis=FVector::VectorPlaneProject(Facing,Normal).GetSafeNormal();
     const float FloorBlend=FMath::SmoothStep(.55f,.9f,float(Normal.Z));
     FVector Axis=FMath::Lerp(LengthAxis,FloorAxis,FloorBlend).GetSafeNormal();
@@ -183,6 +184,31 @@ bool UMCBrushContactComponent::CanReachAfterFacing(FVector Point,FVector Normal,
     const FVector Offset=HandGoal(Point,Normal,&Reachable,Surface,&World).GetLocation()-World.TransformPosition(Rest.GetLocation());
     return ((!Cast<AMCArenaTooth>(Surface?Surface:Target.Get()) && !Cast<AMCToothCharacter>(Surface?Surface:Target.Get())) || Reachable)
         && !Offset.ContainsNaN() && Offset.Equals(ClampHandOffset(Offset),.01f);
+}
+bool UMCBrushContactComponent::CanReachFromPose(FVector PawnCenter,FRotator Facing,FVector Point,FVector Normal,const AActor* Surface) const
+{
+    if(!Hero || !Hero->GetMesh()->GetSkeletalMeshAsset() || !IsValid(Surface)
+        || PawnCenter.ContainsNaN() || Facing.ContainsNaN() || Point.ContainsNaN() || Normal.ContainsNaN()) return false;
+    Normal=Normal.GetSafeNormal();
+    const FVector OffsetToPoint=Point-PawnCenter;
+    const FVector Direction=OffsetToPoint.GetSafeNormal2D();
+    if(Normal.IsNearlyZero() || Direction.IsNearlyZero() || OffsetToPoint.Size2D()>SurfaceReach
+        || FVector::DotProduct(Normal,(-OffsetToPoint).GetSafeNormal())<.05f
+        || FVector::DotProduct(Direction,Facing.Vector().GetSafeNormal2D())<-.05f) return false;
+    FTransform World=Hero->GetMesh()->GetComponentTransform();
+    const FQuat Turn=Facing.Quaternion()*Hero->GetActorQuat().Inverse();
+    World.SetLocation(PawnCenter+Turn.RotateVector(World.GetLocation()-Hero->GetActorLocation()));
+    World.SetRotation((Turn*World.GetRotation()).GetNormalized());
+    const auto& Ref=Hero->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+    FTransform Rest=FTransform::Identity;
+    for(int32 I=Ref.FindBoneIndex(Hero->RigBone(TEXT("hand_r")));I>=0;I=Ref.GetParentIndex(I)) Rest=Rest*Ref.GetRefBonePose()[I];
+    bool Reachable=false;
+    const FVector Offset=HandGoal(Point,Normal,&Reachable,Surface,&World,&PawnCenter).GetLocation()-World.TransformPosition(Rest.GetLocation());
+    if(!Reachable || Offset.ContainsNaN() || !Offset.Equals(ClampHandOffset(Offset),.01f)) return false;
+    FHitResult Block;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCBrushPoseOcclusion),false,Hero);
+    Query.AddIgnoredActor(Surface);
+    return !GetWorld()->LineTraceSingleByChannel(Block,PawnCenter+FVector(0,0,40),Point-Normal*2,ECC_Visibility,Query);
 }
 bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
 {

@@ -3,6 +3,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCPlaytestSession.h"
 #include "MCRoguelikeDirector.h"
 #include "MCBossCharacter.h"
 #include "MCBossProfile.h"
@@ -177,6 +178,46 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
 #if !UE_BUILD_SHIPPING
     auto* GS=GetGameState<AMCGameState>();
     if (!GS) return FText::FromString(TEXT("Мир ещё не готов."));
+    AMCPlaytestSession* BotSession=AMCPlaytestSession::Find(GetWorld());
+    if (Action==EMCDevAction::BotsStart)
+    {
+        if (StepIndex<0 || StepIndex>=24) return FText::FromString(TEXT("Выбери 1–4 бота, уровень и режим теста."));
+        if (BotSession && BotSession->IsActive()) return FText::FromString(TEXT("Боты уже играют. Сначала нажми «Остановить ботов»."));
+        if (GS->bLobbyWaiting || GS->bTutorialActive || GS->bDevManualEvents)
+            return FText::FromString(TEXT("Для ботов нужен обычный день: заверши обучение / лобби или нажми «Обычный день 1 — полный перезапуск»."));
+        const int32 Count=StepIndex%4+1;
+        const auto Skill=static_cast<EMCPlaytestBotSkill>((StepIndex/4)%3);
+        const bool bObserve=StepIndex>=12;
+        const int32 Cap=FMath::Clamp(GS->RunSettings.MaxPlayers,1,4);
+        const int32 Humans=GetGameplayParticipantCount();
+        if (Count+(bObserve?0:Humans)>Cap)
+            return FText::FromString(FString::Printf(TEXT("В команде максимум %d: игроков %d, запрошено ботов %d. Уменьши число или выбери наблюдение."),Cap,bObserve?0:Humans,Count));
+        if (!BotSession) BotSession=GetWorld()->SpawnActor<AMCPlaytestSession>();
+        FString Error;
+        if (!BotSession || !BotSession->StartSession(Count,Skill,bObserve,GS->RunSeed,Error))
+        {
+            if (BotSession && !BotSession->IsActive()) BotSession->Destroy();
+            return FText::FromString(TEXT("Боты не запущены: ")+Error);
+        }
+        return FText::FromString(FString::Printf(TEXT("Новый обычный день: %d бота, %s. Seed %d. F3 — %s. CSV сохраняется автоматически."),
+            Count,Skill==EMCPlaytestBotSkill::Novice?TEXT("новички"):Skill==EMCPlaytestBotSkill::Skilled?TEXT("опытные"):TEXT("обычные"),
+            GS->RunSeed,bObserve?TEXT("наблюдать"):TEXT("играть вместе")));
+    }
+    if (Action==EMCDevAction::BotsStop)
+    {
+        if (!BotSession || !BotSession->IsActive()) return FText::FromString(TEXT("Активного теста с ботами нет."));
+        const FString Csv=BotSession->GetReportPath();
+        BotSession->StopSession();
+        return FText::FromString(TEXT("Боты остановлены, игроки возвращены, обычный день перезапущен. CSV: ")+Csv);
+    }
+    if (Action==EMCDevAction::BotsReport)
+    {
+        if (!BotSession || !BotSession->IsActive()) return FText::FromString(TEXT("Сначала запусти ботов."));
+        BotSession->PrintReport();
+        return FText::FromString(TEXT("Текущий срез сохранён. Детали — Output Log, CSV: ")+BotSession->GetReportPath());
+    }
+    if (BotSession && BotSession->IsActive())
+        return FText::FromString(TEXT("Во время теста ботов ручные события отключены. Сначала нажми «Остановить ботов»."));
     if (Action==EMCDevAction::CalculusClear)
     {
         for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) if (It->ActorHasTag(TEXT("MC_CalculusPractice")))

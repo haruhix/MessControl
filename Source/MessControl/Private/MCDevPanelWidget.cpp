@@ -4,6 +4,7 @@
 #include "MCPrototypeWidget.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCPlaytestSession.h"
 #include "MCFoodActor.h"
 #include "MCMouthSurface.h"
 #include "MCCoffeeFlood.h"
@@ -19,6 +20,7 @@
 #include "Components/TextBlock.h"
 #include "Components/ScrollBox.h"
 #include "Components/CheckBox.h"
+#include "Components/ComboBoxString.h"
 #include "Styling/CoreStyle.h"
 #include "EngineUtils.h"
 
@@ -67,6 +69,44 @@ void UMCDevPanelWidget::NativeOnInitialized()
     PlayerOverlayCheck->SetToolTipText(FText::FromString(TEXT("Нижние плашки HP, взаимодействия и клавиш. Только на моём экране.")));
     PlayerOverlayCheck->OnCheckStateChanged.AddDynamic(this,&UMCDevPanelWidget::PlayerOverlayChanged);
     Main->AddChildToVerticalBox(PlayerOverlayCheck)->SetPadding(FMargin(0,2,0,12));
+    AddText(Main,TEXT("AI-БОТЫ / ПРОВЕРКА ТЕМПА И СЛОЖНОСТИ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
+    AddText(Main,TEXT("Запуск начинает новый обычный день с текущим seed. До 4 участников: игроки + боты. Наблюдение убирает тела игроков; остановка возвращает их и перезапускает день."),12);
+    auto* BotOptions=WidgetTree->ConstructWidget<UHorizontalBox>();
+    Main->AddChildToVerticalBox(BotOptions)->SetPadding(FMargin(0,2,0,4));
+    auto BotField=[&](const TCHAR* Title,const TArray<FString>& Options,int32 Selected)
+    {
+        auto* Box=WidgetTree->ConstructWidget<UVerticalBox>();
+        auto* Slot=BotOptions->AddChildToHorizontalBox(Box); Slot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); Slot->SetPadding(FMargin(0,0,12,0));
+        AddText(Box,Title,12);
+        auto* Choice=WidgetTree->ConstructWidget<UComboBoxString>();
+        for (const FString& Option:Options) Choice->AddOption(Option);
+        Choice->SetSelectedIndex(Selected);
+        Box->AddChildToVerticalBox(Choice);
+        return Choice;
+    };
+    BotCount=BotField(TEXT("Число ботов"),{TEXT("1"),TEXT("2"),TEXT("3"),TEXT("4")},2);
+    BotSkill=BotField(TEXT("Уровень решений"),{TEXT("Новички / novice"),TEXT("Обычные / regular"),TEXT("Опытные / skilled")},1);
+    BotMode=BotField(TEXT("Режим"),{TEXT("Играть с ботами / coop"),TEXT("Наблюдать за ботами / observe")},0);
+    BotSkill->SetToolTipText(FText::FromString(TEXT("Меняется скорость реакции и выбора задач. Здоровье, урон, движение и ресурсы остаются обычными. Поведение пока не откалибровано по людям.")));
+    auto* BotButtons=WidgetTree->ConstructWidget<UHorizontalBox>();
+    Main->AddChildToVerticalBox(BotButtons)->SetPadding(FMargin(0,3,0,2));
+    auto BotButton=[&](const TCHAR* Text,const TCHAR* Hint)
+    {
+        auto* Button=WidgetTree->ConstructWidget<UButton>();
+        Button->SetBackgroundColor(FLinearColor(.055f,.22f,.22f)); Button->SetToolTipText(FText::FromString(Hint));
+        auto* Label=WidgetTree->ConstructWidget<UTextBlock>(); Label->SetText(FText::FromString(Text));
+        Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14)); Label->SetColorAndOpacity(FSlateColor(DevMint));
+        auto* Content=CastChecked<UButtonSlot>(Button->AddChild(Label)); Content->SetPadding(FMargin(10,7));
+        auto* Slot=BotButtons->AddChildToHorizontalBox(Button); Slot->SetSize(FSlateChildSize(ESlateSizeRule::Fill)); Slot->SetPadding(FMargin(0,0,12,0));
+        return Button;
+    };
+    StartBotsButton=BotButton(TEXT("ЗАПУСТИТЬ БОТОВ"),TEXT("Сброс текущего дня и запуск новой обычной игры. В ручном тесте сначала верни обычный день кнопкой ниже."));
+    StopBotsButton=BotButton(TEXT("ОСТАНОВИТЬ БОТОВ"),TEXT("Сохранить CSV, удалить ботов, вернуть управление игрокам и начать обычный день заново."));
+    ReportBotsButton=BotButton(TEXT("СОХРАНИТЬ СРЕЗ / CSV"),TEXT("Сохранить текущие задачи, смерти, простои, работу, движение, контакты и ошибки пути. Путь появится внизу и в Output Log."));
+    StartBotsButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::StartBotsClicked);
+    StopBotsButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::StopBotsClicked);
+    ReportBotsButton->OnClicked.AddDynamic(this,&UMCDevPanelWidget::ReportBotsClicked);
+    BotsStatus=AddText(Main,TEXT(""),12);
     auto* Columns=WidgetTree->ConstructWidget<UHorizontalBox>();
     Main->AddChildToVerticalBox(Columns)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
     auto Column=[&](const TCHAR* Title,const TCHAR* Hint)
@@ -172,6 +212,13 @@ void UMCDevPanelWidget::PlayerOverlayChanged(bool Checked)
     if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()); PC && PC->PrototypeWidget)
         PC->PrototypeWidget->SetPlayerOverlayVisible(Checked);
 }
+void UMCDevPanelWidget::StartBotsClicked()
+{
+    if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()); PC && BotCount && BotSkill && BotMode)
+        PC->RequestDevAction(EMCDevAction::BotsStart,MCDevBotSetup(BotCount->GetSelectedIndex()+1,BotSkill->GetSelectedIndex(),BotMode->GetSelectedIndex()==1));
+}
+void UMCDevPanelWidget::StopBotsClicked() { if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RequestDevAction(EMCDevAction::BotsStop); }
+void UMCDevPanelWidget::ReportBotsClicked() { if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RequestDevAction(EMCDevAction::BotsReport); }
 void UMCDevPanelWidget::SetFeedback(const FText& Text) { if (Feedback) Feedback->SetText(Text); }
 void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
@@ -182,6 +229,16 @@ void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
     for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (It->bUlcer) ++Ulcers;
     for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) Water|=It->bActive;
     const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());
+    const auto* BotSession=AMCPlaytestSession::Find(GetWorld());
+    const bool BotsActive=BotSession && BotSession->IsActive();
+    const bool CanControl=PC && PC->CanUseDevPanel();
+    if (StartBotsButton) StartBotsButton->SetIsEnabled(CanControl && !BotsActive && !GS->bLobbyWaiting && !GS->bTutorialActive && !GS->bDevManualEvents);
+    if (StopBotsButton) StopBotsButton->SetIsEnabled(CanControl && BotsActive);
+    if (ReportBotsButton) ReportBotsButton->SetIsEnabled(CanControl && BotsActive);
+    if (Steps) Steps->SetIsEnabled(!BotsActive);
+    if (Actions) Actions->SetIsEnabled(!BotsActive);
+    if (BotsStatus) BotsStatus->SetText(FText::FromString(FString::Printf(TEXT("%s  |  Seed %d  |  прототип, без калибровки по людям"),
+        BotsActive?TEXT("БОТЫ ИГРАЮТ — ручные события заблокированы"):GS->bDevManualEvents?TEXT("Для ботов сначала верни обычный день"):TEXT("Боты не запущены"),GS->RunSeed)));
     FString Summary=FString::Printf(TEXT("%s  |  %s\nРот %.0f HP  /  зубы %d/%d  /  еда %d  /  язвы %d  /  кофе %s"),
         PC && PC->CanUseDevPanel()?TEXT("ХОСТ"):TEXT("КЛИЕНТ: только просмотр"),GS->bDevManualEvents?TEXT("РУЧНОЙ ТЕСТ — без дедлайна"):TEXT("ОБЫЧНЫЙ ДЕНЬ"),
         GS->MouthHealth,GS->AvailableArenaTeeth(),GS->ArenaTeeth.Num(),Food,Ulcers,Water?TEXT("активен"):TEXT("нет"));

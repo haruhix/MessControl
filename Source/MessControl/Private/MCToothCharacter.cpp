@@ -446,6 +446,32 @@ void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
     if(Success) AMCReactionVFX::Spawn(GetWorld(),Point.IsNearlyZero()?GetActorLocation()+FVector(0,0,90):Point+FVector(0,0,110),EMCReactionEffect::Stars,2.5f,155);
 }
 void AMCToothCharacter::StopPrimary() { ServerSetPrimary(false); }
+void AMCToothCharacter::SetPrimaryInputHeld(bool Held)
+{
+    if ((!HasAuthority() && !IsLocallyControlled()) || (Held && !CanWork())) return;
+    // Swimming/cling uses the ordinary RPC even while work is unavailable.
+    // A release must also clear that actual action state after leaving water.
+    if (bSharedPrimaryInputHeld==Held && (Held || !bPrimaryHeld)) return;
+    bSharedPrimaryInputHeld=Held;
+    if(Held) StartPrimary(); else StopPrimary();
+}
+void AMCToothCharacter::SetHandleInputHeld(bool Held)
+{
+    if ((!HasAuthority() && !IsLocallyControlled()) || (Held && !CanWork()) || bSharedHandleInputHeld==Held) return;
+    bSharedHandleInputHeld=Held;
+    if(Held) StartHandle(); else StopHandle();
+}
+void AMCToothCharacter::SetJumpInputHeld(bool Held)
+{
+    if ((!HasAuthority() && !IsLocallyControlled()) || (Held && !CanWork()) || bSharedJumpInputHeld==Held) return;
+    bSharedJumpInputHeld=Held;
+    if(Held) StartJump(); else StopJump();
+}
+void AMCToothCharacter::SetSelfCareInput(bool Enabled)
+{
+    if ((!HasAuthority() && !IsLocallyControlled()) || bSelfCare==Enabled || !CanWork()) return;
+    ToggleSelfCare();
+}
 void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
     if(bActive && CanWork() && !bInCoffee && !bSelfCare && Inventory->IsCleaningTool() && (FoodCollection->bCollecting || FoodCollection->HasCandidate())) {
@@ -527,6 +553,7 @@ void AMCToothCharacter::ResolvePrimaryAction()
 }
 void AMCToothCharacter::CancelGameplayInput()
 {
+    bSharedPrimaryInputHeld=false; bSharedHandleInputHeld=false; bSharedJumpInputHeld=false;
     FoodCollection->Stop();
     CancelSprintInput();CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->CancelDash();
     StopPrimary(); StopBrush(); StopHandle(); StopJump(); LocalPaddle=FVector2D::ZeroVector; ServerPaddle(LocalPaddle);
@@ -622,7 +649,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
         FindWork(FMath::Min(DeltaSeconds,0.1f));
         if (!SwallowedBy && Status->IsAlive() && GetActorLocation().Z < -300) Status->Damage(Status->State.MaxHealth);
     }
-    if (IsLocallyControlled() && bInCoffee)
+    if (IsLocallyControlled() && IsPlayerControlled() && bInCoffee)
     { PaddleSendElapsed+=DeltaSeconds; if (PaddleSendElapsed>=.05f) { ServerPaddle(WorldPaddleInput()); PaddleSendElapsed=0; } }
     const bool Swimming=GetCharacterMovement()->IsSwimming();
     const FVector StrokeIntent=GetCharacterMovement()->GetCurrentAcceleration().GetClampedToMaxSize(GetCharacterMovement()->GetMaxAcceleration())/FMath::Max(1.f,GetCharacterMovement()->GetMaxAcceleration());

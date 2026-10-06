@@ -22,6 +22,8 @@ public:
     void Release();
     bool CanReach(FVector Point,FVector Normal,const AActor* Surface=nullptr) const;
     bool CanReachAfterFacing(FVector Point,FVector Normal,const AActor* Surface=nullptr) const;
+    // Preview the ordinary wrist geometry without moving the pawn or publishing a contact.
+    bool CanReachFromPose(FVector PawnCenter,FRotator Facing,FVector Point,FVector Normal,const AActor* Surface) const;
     bool CanAcquireSurface(const AActor* Surface) const;
     bool CanBrushToward(FVector Point) const;
     bool WantsFacing(FVector& Direction) const;
@@ -48,7 +50,7 @@ public:
     UPROPERTY(Replicated) double ContactAt=-100;
     UPROPERTY(Replicated) double ApproachStartedAt=-100;
 private:
-    FTransform HandGoal(FVector Point,FVector Normal,bool* Reachable=nullptr,const AActor* Surface=nullptr,const FTransform* FacingWorld=nullptr) const;
+    FTransform HandGoal(FVector Point,FVector Normal,bool* Reachable=nullptr,const AActor* Surface=nullptr,const FTransform* FacingWorld=nullptr,const FVector* PawnOrigin=nullptr) const;
     FTransform SurfaceTransform() const;
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
     TWeakObjectPtr<class AMCTongue> Tongue;

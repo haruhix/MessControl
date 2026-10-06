@@ -31,6 +31,8 @@
 #include "MCTaskActor.h"
 #include "MCToothCharacter.h"
 #include "MCPlayerController.h"
+#include "MCPlaytestBotController.h"
+#include "MCPlaytestSession.h"
 #include "MCTutorialDirector.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerState.h"
@@ -90,7 +92,9 @@ void AMCGameMode::PreLogin(const FString& Options, const FString& Address, const
     Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
     const AMCGameState* State = GetGameState<AMCGameState>();
     const int32 Limit = State ? State->RunSettings.MaxPlayers : FMCRunSettings().MaxPlayers;
-    if (ErrorMessage.IsEmpty() && GetNumPlayers() >= Limit)
+    if (ErrorMessage.IsEmpty() && AMCPlaytestSession::Find(GetWorld()) && AMCPlaytestSession::Find(GetWorld())->IsActive())
+        ErrorMessage=TEXT("A diagnostic playtest is active. Stop it with MC.Bots.Stop before joining.");
+    if (ErrorMessage.IsEmpty() && GetGameplayParticipantCount() >= Limit)
         ErrorMessage = FString::Printf(TEXT("This mouth is full (%d players)."), Limit);
 }
 void AMCGameMode::ClearTasks()
@@ -128,6 +132,11 @@ void AMCGameMode::NotifyObjectiveCompleted(FName CompletionId)
 }
 void AMCGameMode::RestartShift()
 {
+    if (AMCPlaytestSession* Session=AMCPlaytestSession::Find(GetWorld()); Session && Session->IsActive())
+    {
+        UE_LOG(LogTemp,Display,TEXT("MC_BOTS RestartShift blocked during a playtest. Use MC.Bots.Stop before restarting."));
+        return;
+    }
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State) return;
     if (IsValid(TutorialDirector)) { TutorialDirector->OnTutorialFinished.RemoveAll(this); TutorialDirector->Stop(); TutorialDirector->Destroy(); }
@@ -152,7 +161,7 @@ void AMCGameMode::RestartShift()
         auto* PC=It->Get(); if (!PC) continue;
         if (auto* Player=PC->GetPlayerState<AMCPlayerState>()) Player->ResetMatchScore();
         if (APawn* Pawn=PC->GetPawn()) { PC->UnPossess(); Pawn->Destroy(); }
-        RestartPlayer(PC);
+        if (IsGameplayParticipant(PC)) RestartPlayer(PC);
     }
     if (!IsValid(Throat))
     {
@@ -195,6 +204,7 @@ void AMCGameMode::RestartShift()
     // ?Seed=123 gives reproducible challenge selection for playtesting.
     const FString SeedOption = UGameplayStatics::ParseOption(OptionsString, TEXT("Seed"));
     if (!SeedOption.IsEmpty()) State->RunSeed = FCString::Atoi(*SeedOption);
+    if (NextPlaytestSeed.IsSet()) { State->RunSeed=NextPlaytestSeed.GetValue(); NextPlaytestSeed.Reset(); }
     Random.Initialize(State->RunSeed); PreviousEvent = INDEX_NONE;
     if (!IsValid(RoguelikeDirector))
     {
@@ -216,6 +226,13 @@ void AMCGameMode::RestartShift()
     }
     State->StepStartedAt=State->GetServerWorldTimeSeconds(); State->PreviousStepFailed=false;
     State->ForceNetUpdate();
+}
+void AMCGameMode::RestartShiftForPlaytest(int32 Seed)
+{
+    if (!HasAuthority()) return;
+    if (const AMCPlaytestSession* Session=AMCPlaytestSession::Find(GetWorld()); Session && Session->IsActive()) return;
+    NextPlaytestSeed=Seed;
+    RestartShift();
 }
 void AMCGameMode::Tick(float DeltaSeconds)
 {
@@ -245,12 +262,12 @@ void AMCGameMode::Tick(float DeltaSeconds)
     if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
     ProcessRespawns();
     if (State->bDayOneComplete) return;
-    if (State->MouthHealth<=0 || (GetNumPlayers()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0))
+    if (State->MouthHealth<=0 || (GetGameplayParticipantCount()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0))
     { State->Phase=EMCShiftPhase::Lost; State->ForceNetUpdate(); return; }
     if (State->Phase==EMCShiftPhase::Working && IsValid(DayDirector)) return;
     if (State->Phase==EMCShiftPhase::Working) UpdateObjectives();
     if (State->Phase==EMCShiftPhase::Intermission && State->Day>=State->RunSettings.DaysToSurvive)
-    { if (GetNumPlayers()==0 || HasLivingPlayers()) { State->Phase=EMCShiftPhase::Won; State->ForceNetUpdate(); } return; }
+    { if (GetGameplayParticipantCount()==0 || HasLivingPlayers()) { State->Phase=EMCShiftPhase::Won; State->ForceNetUpdate(); } return; }
     if (State->SecondsLeft() > 0.f) return;
     if (State->Phase == EMCShiftPhase::Intermission) StartDay();
     else if (State->Phase == EMCShiftPhase::Working) FinishDay(true);
@@ -296,7 +313,7 @@ void AMCGameMode::StartDay()
     State->CurrentEvent = Event; State->Phase = EMCShiftPhase::Working;
     State->StepStartedAt=State->GetServerWorldTimeSeconds();
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + FMath::Max(25.f, Event->Duration - (State->Day-1)*4.f);
-    const int32 Count = FMath::Clamp(Event->BaseTaskCount + (State->Day-1)/2 + FMath::Max(0, GetNumPlayers()-1), 1, 16);
+    const int32 Count = FMath::Clamp(Event->BaseTaskCount + (State->Day-1)/2 + FMath::Max(0, GetGameplayParticipantCount()-1), 1, 16);
     Objectives.Empty();
     auto AddObjective=[&](AActor* Target) { FMCEventObjective O; O.Target=Target; O.Kind=Event->Kind; Objectives.Add(O); };
     if (Event->Kind==EMCTaskKind::Coffee)
@@ -349,7 +366,7 @@ void AMCGameMode::FinishDay(bool bTimedOut)
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->Status->IsAlive()) It->NotifyTaskFeedback(!bTimedOut);
     // Unfinished coffee, damage and food persist into the following day.
     State->TasksLeft = 0;
-    State->Phase = State->MouthHealth <= 0 ? EMCShiftPhase::Lost : State->Day >= State->RunSettings.DaysToSurvive && (GetNumPlayers()==0 || HasLivingPlayers()) ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
+    State->Phase = State->MouthHealth <= 0 ? EMCShiftPhase::Lost : State->Day >= State->RunSettings.DaysToSurvive && (GetGameplayParticipantCount()==0 || HasLivingPlayers()) ? EMCShiftPhase::Won : EMCShiftPhase::Intermission;
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 7.;
     State->StepStartedAt=State->GetServerWorldTimeSeconds();
     State->ForceNetUpdate();
@@ -381,15 +398,29 @@ void AMCGameMode::UpdateObjectives()
 }
 bool AMCGameMode::HasLivingPlayers() const
 {
-    for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
-        if (const auto* PC=It->Get()) if (const auto* Hero=Cast<AMCToothCharacter>(PC->GetPawn())) if (Hero->Status->IsAlive()) return true;
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+        if (IsGameplayParticipant(It->GetController()) && IsValid(It->Status) && It->Status->IsAlive()) return true;
     return false;
+}
+bool AMCGameMode::IsGameplayParticipant(const AController* Controller)
+{
+    if (!IsValid(Controller) || Controller->IsActorBeingDestroyed()) return false;
+    if (!Cast<APlayerController>(Controller) && !Cast<AMCPlaytestBotController>(Controller)) return false;
+    const APlayerState* Identity=Controller->GetPlayerState<APlayerState>();
+    return Identity && !Identity->IsSpectator() && !Identity->IsOnlyASpectator();
+}
+int32 AMCGameMode::GetGameplayParticipantCount() const
+{
+    int32 Count=0;
+    for (TActorIterator<AController> It(GetWorld());It;++It) if (IsGameplayParticipant(*It)) ++Count;
+    return Count;
 }
 void AMCGameMode::PlayerDied(AMCToothCharacter* Hero)
 {
     auto* GS=GetGameState<AMCGameState>();
     if (!IsValid(Hero) || !Hero->GetController() || !GS || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost) return;
     if (PendingRespawns.Contains(Hero)) return;
+    if (AMCPlaytestSession* Session=AMCPlaytestSession::Find(GetWorld())) Session->RecordDeath(Hero);
     Hero->RespawnAt=GS->GetServerWorldTimeSeconds()+FMath::Max(.1f,RespawnDelay);
     PendingRespawns.Add(Hero); Hero->ForceNetUpdate();
 }

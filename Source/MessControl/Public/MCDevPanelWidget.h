@@ -8,6 +8,7 @@ class AMCPlayerController;
 class UTextBlock;
 class UVerticalBox;
 class UCheckBox;
+class UComboBoxString;
 
 // Each button carries a typed action; no console strings or arbitrary commands.
 UCLASS()
@@ -39,6 +40,16 @@ private:
     void AddAction(UVerticalBox* Box,const FString& Text,const FString& Hint,EMCDevAction Action,int32 Step=INDEX_NONE);
     UFUNCTION() void CloseClicked();
     UFUNCTION() void PlayerOverlayChanged(bool Checked);
+    UFUNCTION() void StartBotsClicked();
+    UFUNCTION() void StopBotsClicked();
+    UFUNCTION() void ReportBotsClicked();
+    UPROPERTY() TObjectPtr<UComboBoxString> BotCount;
+    UPROPERTY() TObjectPtr<UComboBoxString> BotSkill;
+    UPROPERTY() TObjectPtr<UComboBoxString> BotMode;
+    UPROPERTY() TObjectPtr<UButton> StartBotsButton;
+    UPROPERTY() TObjectPtr<UButton> StopBotsButton;
+    UPROPERTY() TObjectPtr<UButton> ReportBotsButton;
+    UPROPERTY() TObjectPtr<UTextBlock> BotsStatus;
     UPROPERTY() TObjectPtr<UCheckBox> PlayerOverlayCheck;
     UPROPERTY() TObjectPtr<UVerticalBox> Steps;
     UPROPERTY() TObjectPtr<UVerticalBox> Actions;

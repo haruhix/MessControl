@@ -99,6 +99,8 @@ public:
     void ResetGrime();
     bool BrushGrime(class AMCToothCharacter* Worker,float Seconds);
     bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred=INDEX_NONE);
+    // Remaining surface geometry for planning; never advances cleaning or selects a worker contact.
+    void GetDirtyContactSamples(TArray<FVector>& Points,TArray<FVector>& Normals);
     float RemainingGrime() const;
     UPROPERTY(ReplicatedUsing=OnRep_Grime,BlueprintReadOnly,Category="Care") TArray<uint8> GrimeMask;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Care") bool bShowCareLabel=false;

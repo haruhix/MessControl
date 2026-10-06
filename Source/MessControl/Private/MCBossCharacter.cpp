@@ -3,6 +3,8 @@
 #include "MCBossFaceComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCGameMode.h"
+#include "EngineUtils.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Components/CapsuleComponent.h"
@@ -224,7 +226,7 @@ void AMCBossCharacter::UpdatePhase()
 
 bool AMCBossCharacter::IsLivingPlayer(const AMCToothCharacter* Target)
 {
-    return IsValid(Target) && IsValid(Cast<APlayerController>(Target->GetController()))
+    return IsValid(Target) && AMCGameMode::IsGameplayParticipant(Target->GetController())
         && IsValid(Target->Status) && Target->Status->IsAlive() && !Target->SwallowedBy;
 }
 
@@ -293,11 +295,10 @@ void AMCBossCharacter::ImpactAttack()
 void AMCBossCharacter::ExecuteAttack_Implementation(const FMCBossAttackDefinition& Attack,AMCToothCharacter* Target)
 {
     if (!HasAuthority() || !IsBossAlive() || Runtime.State!=EMCBossState::Attacking) return;
-    // A single impact damages each eligible player once; no actor scan, collision tick or persistent damage volume.
-    for (auto It=GetWorld()->GetPlayerControllerIterator();It;++It)
+    // A single impact damages each eligible human or allied test bot once.
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
-        const auto* PC=It->Get();
-        auto* Player=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
+        auto* Player=*It;
         if (IsPlayerInAttack(Player,Attack,Runtime.AttackForward)) Player->Status->Damage(Attack.Damage,Runtime.AttackForward);
     }
 }

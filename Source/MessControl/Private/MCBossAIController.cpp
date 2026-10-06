@@ -1,6 +1,7 @@
 #include "MCBossAIController.h"
 #include "MCBossCharacter.h"
 #include "MCToothCharacter.h"
+#include "EngineUtils.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Navigation/PathFollowingComponent.h"
@@ -64,10 +65,9 @@ AMCToothCharacter* AMCBossAIController::FindVisiblePlayer() const
     const auto* Profile=Boss->GetResolvedProfile();
     float BestDistance=FMath::Square(Profile?SafeSetting(Profile->SightRadius,2500.f,1.f,100000.f):2500.f);
     AMCToothCharacter* Best=nullptr;
-    for (auto It=GetWorld()->GetPlayerControllerIterator();It;++It)
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
-        const auto* PC=It->Get();
-        auto* Player=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
+        auto* Player=*It;
         if (!AMCBossCharacter::IsLivingPlayer(Player)) continue;
         const float Distance=FVector::DistSquared(Boss->GetActorLocation(),Player->GetActorLocation());
         if (Distance<BestDistance && Boss->CanSeePlayer(Player)) { Best=Player; BestDistance=Distance; }

@@ -244,6 +244,19 @@ float AMCArenaTooth::RemainingGrime() const
     for(const auto& S:GrimeSamples) { Total+=S.Weight; Left+=S.Weight*FMath::Clamp((FMCSurfaceWipe::Sample(GrimeMask,S.UV)-.25f)/.75f,0.f,1.f); }
     return Total>0?Left/Total:1.f;
 }
+void AMCArenaTooth::GetDirtyContactSamples(TArray<FVector>& Points,TArray<FVector>& Normals)
+{
+    Points.Reset(); Normals.Reset();
+    if(!IsAvailable() || !Status->NeedsCare(true)) return;
+    if(!bGrimeReliefBuilt) BuildGrimeRelief();
+    const FTransform Transform=Visual->GetComponentTransform();
+    Points.Reserve(GrimeSamples.Num()); Normals.Reserve(GrimeSamples.Num());
+    for(const auto& Sample:GrimeSamples) {
+        if(FMCSurfaceWipe::Sample(GrimeMask,Sample.UV)<=.25f) continue;
+        Points.Add(Transform.TransformPosition(Sample.Point));
+        Normals.Add(Transform.TransformVectorNoScale(Sample.Normal).GetSafeNormal());
+    }
+}
 bool AMCArenaTooth::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred)
 {
     if(!IsAvailable() || !Status->NeedsCare(true) || !IsValid(Worker) || !Worker->BrushContact->CanAcquireSurface(this)) return false;
