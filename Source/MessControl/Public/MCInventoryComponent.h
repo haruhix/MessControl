@@ -69,6 +69,8 @@ public:
     float SpraySecondsLeft() const;
     float SwingDuration() const;
     float SwingContactTime() const;
+    // Converts elapsed server seconds to the authored swing timeline.
+    static float SwingPlayRate(EMCToolSlot Slot);
     static float SwingAngle(EMCToolSlot Slot,float Elapsed);
     static FVector SwingOffset(EMCToolSlot Slot,float Elapsed);
     // Mesh visibility, hand presentation and collision correction share this

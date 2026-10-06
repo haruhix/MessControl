@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "scope": "owned PIE gameplay fixtures",
+  "checks": {
+    "walking": {
+      "peak_speed": 1000.0,
+      "travel_cm": 2365.4922840772215
+    },
+    "knife": {
+      "health_before": 500.0,
+      "health_after": 425.0,
+      "damage": 75.0
+    },
+    "pickaxe": {
+      "health_before": 500.0,
+      "health_after": 420.0,
+      "damage": 80.0
+    },
+    "brush": {
+      "coffee_before": 4,
+      "coffee_after": 2,
+      "max_contact_progress": 0.6059777736663818,
+      "fixture_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_2",
+      "approach_candidates_tried": 1
+    }
+  },
+  "gameplay_event_counts": {
+    "Brush": 6,
+    "KnifeHit": 3,
+    "KnifeSwing": 3,
+    "PickaxeHit": 2,
+    "PickaxeSwing": 2,
+    "Step": 25
+  },
+  "log_path": "E:\\DEVGAME\\MessControl\\Saved\\AudioReviewEditorV2.log",
+  "missing_gameplay_events": []
+}

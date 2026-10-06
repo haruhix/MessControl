@@ -18,6 +18,7 @@
 #include "PhysicsEngine/SkeletalBodySetup.h"
 #include "Net/UnrealNetwork.h"
 #include "Misc/ConfigCacheIni.h"
+#include "TimerManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 UMCToothPhysicsComponent::UMCToothPhysicsComponent()
@@ -33,63 +34,93 @@ void UMCToothPhysicsComponent::BeginPlay()
     // Recovery changes attachment, component space and the presentation pose.
     // Publish all three before the mesh evaluates, never one frame apart.
     Tooth->GetMesh()->AddTickPrerequisiteComponent(this);
-    if (Tooth->HasAuthority()) { Settings=Profile?Profile->Settings:FMCPhysicsSettings(); Settings.Sanitize(); }
-    Muscles=Tooth->FindComponentByClass<UPhysicsControlComponent>();
-    FPhysicsControlData Data;
-    Data.AngularStrength=Settings.MuscleStrength; Data.AngularDampingRatio=Settings.Damping;
-    Data.bDisableCollision=true; Data.bOnlyControlChildObject=true;
-    if (Muscles && Tooth->GetMesh()->GetPhysicsAsset())
-    {
-        for (const FName Role:{FName("arm_l"),FName("arm_r"),FName("leg_l"),FName("leg_r")})
-        {
-            const auto Controls=Muscles->CreateControlsFromSkeletalMeshBelow(Tooth->GetMesh(),Tooth->RigBone(Role),true,EPhysicsControlType::ParentSpace,Data,Role);
-            FPhysicsControlNames Names;
-            Muscles->AddControlsToSet(Names,Controls,TEXT("Limbs")); Muscles->AddControlsToSet(Names,Controls,Role);
-            // Record the same physical hierarchy used by the creation helper.
-            // Active mode receives the unblended pose, never the previous Chaos output.
-            const auto& Skeleton=Tooth->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
-            const auto* Asset=Tooth->GetMesh()->GetPhysicsAsset(); int32 ControlIndex=0;
-            Tooth->GetMesh()->ForEachBodyBelow(Tooth->RigBone(Role),true,false,[&](const FBodyInstance* Body) {
-                const int32 Child=Skeleton.FindBoneIndex(Asset->SkeletalBodySetups[Body->InstanceBodyIndex]->BoneName);
-                if(Child<0) return;
-                int32 Parent=Skeleton.GetParentIndex(Child);
-                while(Parent>=0 && Asset->FindBodyIndex(Skeleton.GetBoneName(Parent))==INDEX_NONE) Parent=Skeleton.GetParentIndex(Parent);
-                if(Parent>=0 && Controls.IsValidIndex(ControlIndex)) JointTargets.Add({Controls[ControlIndex++],Role,Parent,Child});
-                if((Role==TEXT("arm_l") || Role==TEXT("arm_r")))
-                    if(auto* Joint=Tooth->GetMesh()->FindConstraintInstance(Skeleton.GetBoneName(Child)))
-                        GripJoints.Add({Joint->JointName,Role,Joint->ProfileInstance});
-            });
-        }
-        // Dedicated palm servos keep contact with a moving prop while the elbow
-        // motors retain a procedural bend. Both act on real simulated bodies.
-        FPhysicsControlData Palm; Palm.bUseSkeletalAnimation=false; Palm.bDisableCollision=true; Palm.bOnlyControlChildObject=true;
-        Palm.LinearStrength=24; Palm.LinearDampingRatio=1.1f; Palm.MaxForce=14000;
-        Palm.AngularStrength=22; Palm.AngularDampingRatio=1; Palm.MaxTorque=350000;
-        for(int32 I=0;I<2;++I) {
-            HandControls[I]=Muscles->CreateControl(Tooth->GetMesh(),Tooth->RigBone(TEXT("body")),Tooth->GetMesh(),
-                Tooth->RigBone(I==0?TEXT("hand_l"):TEXT("hand_r")),Palm,FPhysicsControlTarget(),TEXT("GripPalms"));
-            Muscles->SetControlEnabled(HandControls[I],false);
-        }
-        // Newly spawned actors can be created after the mesh tick this frame. Prime the cache
-        // before the first control update so targets never read an empty skeleton buffer.
-        Tooth->GetMesh()->RefreshBoneTransforms(); Muscles->UpdateTargetCaches(0.f);
-        FPhysicsControlData Balance;
-        Balance.LinearStrength=12; Balance.LinearDampingRatio=.9f;
-        Balance.AngularStrength=5; Balance.AngularDampingRatio=.65f;
-        Balance.bUseSkeletalAnimation=false; Balance.bDisableCollision=true;
-        Balance.bOnlyControlChildObject=true;
-        const auto& Ref=Tooth->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
-        FTransform BodyRest=FTransform::Identity;
-        for (int32 B=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));B>=0;B=Ref.GetParentIndex(B)) BodyRest=BodyRest*Ref.GetRefBonePose()[B];
-        BodyRest=BodyRest*Tooth->StandingMeshTransform();
-        BalanceRest=BodyRest;
-        FPhysicsControlTarget BalanceTarget; BalanceTarget.TargetPosition=BodyRest.GetLocation();
-        BalanceTarget.TargetOrientation=BodyRest.Rotator(); BalanceTarget.bApplyControlPointToTarget=true;
-        BalanceControl=Muscles->CreateControl(Tooth->GetCapsuleComponent(),NAME_None,Tooth->GetMesh(),
-            Tooth->RigBone(TEXT("body")),Balance,BalanceTarget,TEXT("Balance"));
+    if (Tooth->HasAuthority()) {
+        // Fresh players, respawns and saved Blueprint instances use the chosen profile.
+        ActiveRagdollMode=EMCActiveRagdollMode::Soft;
+        Settings=Profile?Profile->Settings:FMCPhysicsSettings(); Settings.Sanitize();
     }
+    Muscles=Tooth->FindComponentByClass<UPhysicsControlComponent>();
+    const auto CreateMuscleControls=[this]()
+    {
+        JointTargets.Reset(); HandControls[0]=NAME_None; HandControls[1]=NAME_None; BalanceControl=NAME_None;
+        FPhysicsControlData Data;
+        Data.AngularStrength=Settings.MuscleStrength; Data.AngularDampingRatio=Settings.Damping;
+        Data.bDisableCollision=true; Data.bOnlyControlChildObject=true;
+        if (Muscles && Tooth->GetMesh()->GetPhysicsAsset())
+        {
+            for (const FName Role:{FName("arm_l"),FName("arm_r"),FName("leg_l"),FName("leg_r")})
+            {
+                const auto Controls=Muscles->CreateControlsFromSkeletalMeshBelow(Tooth->GetMesh(),Tooth->RigBone(Role),true,EPhysicsControlType::ParentSpace,Data,Role);
+                FPhysicsControlNames Names;
+                Muscles->AddControlsToSet(Names,Controls,TEXT("Limbs")); Muscles->AddControlsToSet(Names,Controls,Role);
+                // Record the same physical hierarchy used by the creation helper.
+                // Active mode receives the unblended pose, never the previous Chaos output.
+                const auto& Skeleton=Tooth->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+                const auto* Asset=Tooth->GetMesh()->GetPhysicsAsset(); int32 ControlIndex=0;
+                Tooth->GetMesh()->ForEachBodyBelow(Tooth->RigBone(Role),true,false,[&](const FBodyInstance* Body) {
+                    const int32 Child=Skeleton.FindBoneIndex(Asset->SkeletalBodySetups[Body->InstanceBodyIndex]->BoneName);
+                    if(Child<0) return;
+                    int32 Parent=Skeleton.GetParentIndex(Child);
+                    while(Parent>=0 && Asset->FindBodyIndex(Skeleton.GetBoneName(Parent))==INDEX_NONE) Parent=Skeleton.GetParentIndex(Parent);
+                    if(Parent>=0 && Controls.IsValidIndex(ControlIndex)) JointTargets.Add({Controls[ControlIndex++],Role,Parent,Child});
+                    if((Role==TEXT("arm_l") || Role==TEXT("arm_r")))
+                        if(auto* Joint=Tooth->GetMesh()->FindConstraintInstance(Skeleton.GetBoneName(Child)))
+                            if(!GripJoints.ContainsByPredicate([&](const FGripJoint& Saved) { return Saved.Name==Joint->JointName && Saved.Role==Role; }))
+                                GripJoints.Add({Joint->JointName,Role,Joint->ProfileInstance});
+                });
+            }
+            // Dedicated palm servos keep contact with a moving prop while the elbow
+            // motors retain a procedural bend. Both act on real simulated bodies.
+            FPhysicsControlData Palm; Palm.bUseSkeletalAnimation=false; Palm.bDisableCollision=true; Palm.bOnlyControlChildObject=true;
+            Palm.LinearStrength=24; Palm.LinearDampingRatio=1.1f; Palm.MaxForce=14000;
+            Palm.AngularStrength=22; Palm.AngularDampingRatio=1; Palm.MaxTorque=350000;
+            for(int32 I=0;I<2;++I) {
+                HandControls[I]=Muscles->CreateControl(Tooth->GetMesh(),Tooth->RigBone(TEXT("body")),Tooth->GetMesh(),
+                    Tooth->RigBone(I==0?TEXT("hand_l"):TEXT("hand_r")),Palm,FPhysicsControlTarget(),TEXT("GripPalms"));
+                Muscles->SetControlEnabled(HandControls[I],false);
+            }
+            // Newly spawned actors can be created after the mesh tick this frame. Prime the cache
+            // before the first control update so targets never read an empty skeleton buffer.
+            Tooth->GetMesh()->RefreshBoneTransforms(); Muscles->UpdateTargetCaches(0.f);
+            FPhysicsControlData Balance;
+            Balance.LinearStrength=12; Balance.LinearDampingRatio=.9f;
+            Balance.AngularStrength=5; Balance.AngularDampingRatio=.65f;
+            Balance.bUseSkeletalAnimation=false; Balance.bDisableCollision=true;
+            Balance.bOnlyControlChildObject=true;
+            const auto& Ref=Tooth->GetMesh()->GetSkeletalMeshAsset()->GetRefSkeleton();
+            FTransform BodyRest=FTransform::Identity;
+            for (int32 B=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));B>=0;B=Ref.GetParentIndex(B)) BodyRest=BodyRest*Ref.GetRefBonePose()[B];
+            BodyRest=BodyRest*Tooth->StandingMeshTransform();
+            BalanceRest=BodyRest;
+            FPhysicsControlTarget BalanceTarget; BalanceTarget.TargetPosition=BodyRest.GetLocation();
+            BalanceTarget.TargetOrientation=BodyRest.Rotator(); BalanceTarget.bApplyControlPointToTarget=true;
+            BalanceControl=Muscles->CreateControl(Tooth->GetCapsuleComponent(),NAME_None,Tooth->GetMesh(),
+                Tooth->RigBone(TEXT("body")),Balance,BalanceTarget,TEXT("Balance"));
+        }
+    };
+    CreateMuscleControls();
     OnRep_Settings(); EnterStanding();
     if (!Tooth->HasAuthority() && Frame.State!=EMCBodyState::Standing) OnRep_Frame();
+    // Initial world loading can recreate physics after the listen host's pawn
+    // begins play. PhysicsControl then discards its records; rebind once after
+    // startup without resetting movement, grips or the replicated body state.
+    const TWeakObjectPtr<UMCToothPhysicsComponent> WeakThis(this);
+    GetWorld()->GetTimerManager().SetTimerForNextTick([WeakThis,CreateMuscleControls]()
+    {
+        auto* Self=WeakThis.Get();
+        if(!Self || !Self->HasBegunPlay() || !IsValid(Self->Tooth) || Self->Tooth->IsActorBeingDestroyed() ||
+            !IsValid(Self->Muscles) || !Self->Muscles->IsRegistered() || !Self->Tooth->GetMesh()->IsRegistered() ||
+            Self->JointTargets.IsEmpty()) return;
+        FPhysicsControlData Probe;
+        if(!Self->Muscles->GetControlNamesInSet(TEXT("Limbs")).IsEmpty() &&
+            Self->Muscles->GetControlData(Self->JointTargets[0].Control,Probe)) return;
+        CreateMuscleControls();
+        if(Self->LocalState==EMCBodyState::Standing && !Self->Tooth->SwallowedBy) {
+            Self->Tooth->GetMesh()->SetAllBodiesBelowSimulatePhysics(Self->Tooth->RigBone(TEXT("body")),true,true);
+        }
+        Self->OnRep_ActiveRagdollMode();
+        UE_LOG(LogTemp,Display,TEXT("Tooth muscle controls rebound after startup: %s"),*Self->Tooth->GetName());
+    });
 }
 float UMCToothPhysicsComponent::ServerTime() const
 {

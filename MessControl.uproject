@@ -17,6 +17,10 @@
 	],
 	"Plugins": [
 		{
+			"Name": "Metasound",
+			"Enabled": true
+		},
+		{
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true
 		},

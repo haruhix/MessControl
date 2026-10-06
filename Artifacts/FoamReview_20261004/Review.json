@@ -1,0 +1,20 @@
+{
+  "freshSourceFrames": 327,
+  "height": 900,
+  "sourceBaseCommit": "8b7c453",
+  "fps": 30,
+  "assetRefresh": "1163/1163 current; build_current=true; no export errors",
+  "peakParticles": 45,
+  "windowsPackage": "Canceled at user request; separate task only",
+  "beforeNote": "Previous cleaning recording uses wider camera framing",
+  "video": "After.mp4",
+  "editorSolo": "PASS",
+  "editorCapture": "FAIL: pre-existing free hand maxStep60 2.681cm exceeds 1.5cm",
+  "durationSeconds": 13.966016,
+  "engine": "5.8.1",
+  "before": "Before.mp4",
+  "unit": "MessControl.VFX.SavedParticleMeshSlots PASS",
+  "width": 1280,
+  "releasedParticles": 0,
+  "finalSourceCommit": "12f62a594a2f2f7d3f327b054c6214408da21569"
+}

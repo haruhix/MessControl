@@ -24,6 +24,7 @@ struct FSurfaceVertex
     FVector Weights;
     float Alpha=0;
     float Lift=2;
+    FVector2D UV=FVector2D::ZeroVector;
 };
 
 struct FSurfaceOverlay
@@ -46,13 +47,15 @@ struct FSurfaceCache
     bool Refresh(const AMCTongue* Tongue);
     void ClipQuad(FSurfaceOverlay& Out,const FVector& A,const FVector& B,const FVector& C,const FVector& D,
         float Alpha,float OtherAlpha=-1,float Lift=2) const;
+    void ClipTexturedQuad(FSurfaceOverlay& Out,const FVector& A,const FVector& B,const FVector& C,const FVector& D,
+        const FVector& Origin,const FVector& AxisX,const FVector& AxisY,float UnitsPerUV,float Lift) const;
     void AddRim(FSurfaceOverlay& Out,const TArray<FVector>& Outer,const TArray<FVector>& Inner) const;
     void Positions(const FSurfaceOverlay& Overlay,const FTransform& Destination,TArray<FVector>& Out) const;
 
     FSurfaceOverlay Floor,Arrows;
     TArray<FVector> FloorOuter,FloorInner;
     float FloorOpacity=-1;
-    bool bReady=false;
+    bool bReady=false,bPositionsChanged=false;
 private:
     struct FFace
     {
@@ -70,6 +73,7 @@ private:
     TWeakObjectPtr<UStaticMesh> SourceMesh;
     FTransform SourceTransform;
     int32 SourceVertexCount=0,SourceIndexCount=0;
+    uint64 SourceRevision=0;
     TArray<FFace> Faces;
     TMap<FIntPoint,TArray<int32>> Cells;
     TArray<FBoundary> Boundary;

@@ -104,9 +104,9 @@ void UMCDevPanelWidget::RefreshActions()
         AddAction(Steps,Step.Title.ToString(),Step.Instruction.ToString(),EMCDevAction::StartStep,I);
     }
     AddAction(Steps,TEXT("Обычный день 1 — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычные таймеры и переходы."),EMCDevAction::RestartDay);
-    AddAction(Actions,TEXT("Active Ragdoll — мягкий"),TEXT("Как в ролике: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Для всех текущих игроков."),EMCDevAction::ActiveRagdoll,1);
+    AddAction(Actions,TEXT("Active Ragdoll — мягкий (основной)"),TEXT("Основной профиль при старте и возрождении: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Применить ко всем текущим игрокам."),EMCDevAction::ActiveRagdoll,1);
     AddAction(Actions,TEXT("Active Ragdoll — упругий"),TEXT("Сравни более сильные мышцы при поворотах, прыжках и ударах. Точные контакты сохраняются."),EMCDevAction::ActiveRagdoll,2);
-    AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Возвращает текущую систему анимаций без перезапуска. Эксперимент по умолчанию выключен."),EMCDevAction::ActiveRagdoll,0);
+    AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Сравнение для отладки без перезапуска. Новые игроки и возрождения используют основной мягкий профиль."),EMCDevAction::ActiveRagdoll,0);
     AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. Нажми E рядом с сундуком: 5 секунд вскрытия, затем выбор одной из трёх карточек."),EMCDevAction::RewardChest);
     AddText(Actions,TEXT("Босс · фаза 1"),19)->SetColorAndOpacity(FSlateColor(DevMint));
     AddAction(Actions,TEXT("Босс — создать Zombie для теста"),TEXT("Спавн рядом на свободном Boss NavMesh. AI выключен, обычная игра босса не создаёт."),EMCDevAction::BossPractice);

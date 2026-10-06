@@ -118,9 +118,9 @@ namespace
         }
         void Step(float Seconds)
         { for (int32 I=0;I<FMath::CeilToInt(Seconds*60);++I) { ++GFrameCounter; World->Tick(LEVELTICK_All,1.f/60); } }
-        AMCToothCharacter* Worker()
+        AMCToothCharacter* Worker(FVector Location=FVector(0,0,98))
         {
-            auto* Tooth=World->SpawnActor<AMCToothCharacter>(FVector(0,0,98),FRotator::ZeroRotator);
+            auto* Tooth=World->SpawnActor<AMCToothCharacter>(Location,FRotator::ZeroRotator);
             Tooth->GetCharacterMovement()->DisableMovement(); return Tooth;
         }
     };
@@ -456,7 +456,10 @@ bool FMCActiveRagdollTest::RunTest(const FString& Parameters)
     if(!TestNotNull(TEXT("Physics controls"),Motors)) return false;
     auto Weight=[&](FName Role) { const auto* B=Mesh->GetBodyInstance(H->RigBone(Role)); return B?B->PhysicsBlendWeight:-1.f; };
     Mouth.Step(.8f);
-    TestEqual(TEXT("Experiment defaults off"),Physics->GetActiveRagdollMode(),EMCActiveRagdollMode::Off);
+    TestEqual(TEXT("Fresh player starts with the chosen soft profile"),Physics->GetActiveRagdollMode(),EMCActiveRagdollMode::Soft);
+    TestTrue(TEXT("Default soft limbs are physical under a kinematic root"),!Mesh->IsSimulatingPhysics(H->RigBone(TEXT("body"))) && Weight(TEXT("body"))==0 && Weight(TEXT("foot_l"))>.99f);
+    Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Off);
+    Mouth.Step(1.f); // Let the presentation blend settle before comparing the old profile.
     TestTrue(TEXT("Original leg presentation retained"),FMath::IsNearlyEqual(Weight(TEXT("foot_l")),.05f,.005f));
     TestFalse(TEXT("Unknown mode rejected"),Physics->SetActiveRagdollMode(static_cast<EMCActiveRagdollMode>(255)));
     TestTrue(TEXT("Soft comparison enabled"),Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Soft));
@@ -487,6 +490,8 @@ bool FMCActiveRagdollTest::RunTest(const FString& Parameters)
     Mouth.Step(1.f); // Real grip update releases the synthetic contact and settles the limb.
     TestTrue(TEXT("Released physical hand returns smoothly under stable root"),Weight(TEXT("body"))==0 && Weight(TEXT("hand_r"))>.99f);
     Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Firm);
+    auto* Fresh=Mouth.Worker(); Fresh->SetActorLocation(FVector(10000,0,98));
+    TestEqual(TEXT("Later spawns start soft independently of a dev comparison"),Fresh->ToothPhysics->GetActiveRagdollMode(),EMCActiveRagdollMode::Soft);
     FPhysicsControlData Firm; Motors->GetControlData(Motors->GetControlNamesInSet(TEXT("arm_l"))[0],Firm);
     TestTrue(TEXT("Firm comparison has stronger muscles"),Firm.AngularStrength>Soft.AngularStrength);
     Physics->ApplyHit(FVector(350,0,250),H->GetActorLocation());
@@ -496,7 +501,9 @@ bool FMCActiveRagdollTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("Changing comparison cannot freeze a fallen body"),Mesh->IsSimulatingPhysics(H->RigBone(TEXT("body"))));
     Physics->SetThroatCaptured(true);
     TestFalse(TEXT("Gulp still owns the complete physical body"),Mesh->IsSimulatingPhysics(H->RigBone(TEXT("body"))));
-    Physics->SetThroatCaptured(false); Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Off); Mouth.Step(1.f);
+    Physics->SetThroatCaptured(false); Mouth.Step(1.f);
+    TestEqual(TEXT("Returning to standing preserves the soft profile"),Physics->GetActiveRagdollMode(),EMCActiveRagdollMode::Soft);
+    Physics->SetActiveRagdollMode(EMCActiveRagdollMode::Off); Mouth.Step(1.f);
     TestTrue(TEXT("Returning to the original mode preserves the mesh attachment"),Mesh->GetAttachParent()==H->GetCapsuleComponent());
     TestTrue(TEXT("Original presentation restored without restart"),FMath::IsNearlyEqual(Weight(TEXT("body")),.25f,.002f) && FMath::IsNearlyEqual(Weight(TEXT("foot_l")),.05f,.002f));
     Motors->GetControlData(Motors->GetControlNamesInSet(TEXT("arm_l"))[0],Firm);
@@ -641,6 +648,8 @@ bool FMCRespawnTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("Different task kinds have different rewards"),Player->Points,34);
     Mouth.State->ArenaTeeth[0]->ReceiveArenaHit(100,FVector::ForwardVector);
     auto* Source=Mouth.State->ArenaTeeth[1].Get(); Source->SetCoffee(1); Source->ReceiveArenaHit(25,FVector::ForwardVector);
+    A->ToothPhysics->SetActiveRagdollMode(EMCActiveRagdollMode::Firm);
+    B->ToothPhysics->SetActiveRagdollMode(EMCActiveRagdollMode::Off);
     A->Status->Damage(100); B->Status->Damage(100);
     TestTrue(TEXT("Death schedules the requested five-second wait"),FMath::IsNearlyEqual(A->RespawnAt-Mouth.State->GetServerWorldTimeSeconds(),5.,.01));
     Mouth.Mode->ProcessRespawns(); TestTrue(TEXT("Pawn stays dead until the delay expires"),PC1->GetPawn()==A);
@@ -649,6 +658,8 @@ bool FMCRespawnTest::RunTest(const FString& Parameters)
     auto* NewA=Cast<AMCToothCharacter>(PC1->GetPawn()); auto* NewB=Cast<AMCToothCharacter>(PC2->GetPawn());
     TestTrue(TEXT("Both controllers receive new heroes"),NewA!=A && NewB!=B && NewA && NewB);
     if (NewA==A || NewB==B || !NewA || !NewB) return false;
+    TestEqual(TEXT("Respawn restores the chosen soft profile after firm comparison"),NewA->ToothPhysics->GetActiveRagdollMode(),EMCActiveRagdollMode::Soft);
+    TestEqual(TEXT("Respawn restores the chosen soft profile after original comparison"),NewB->ToothPhysics->GetActiveRagdollMode(),EMCActiveRagdollMode::Soft);
     TestEqual(TEXT("Destroyed reserve is skipped"),NewA->RespawnSourceId,2);
     TestEqual(TEXT("Second death consumes another tooth"),NewB->RespawnSourceId,3);
     TestEqual(TEXT("Seven reserves minus two respawns"),Mouth.State->AvailableArenaTeeth(),5);
@@ -2126,7 +2137,7 @@ bool FMCHeavyFoodDragTest::RunTest(const FString&)
         auto* Food=Mouth.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
         FMCFoodRow Row=*Menu; Row.Kind=EMCFoodKind::ForeignObject; Row.WholeMeshes.Reset(); Row.Mass=12; Row.SpoilSeconds=300; Row.WholeMeshes.Add(Mesh);
         FRandomStream Random(1); Food->ConfigureItem(Name,Row,Random); Food->FinishSpawning(T);
-        auto* H=Mouth.Worker(); H->SetActorLocation(FVector(-Food->Body->GetUnscaledBoxExtent().X-40,0,61)); H->SetActorRotation(FRotator::ZeroRotator);
+        auto* H=Mouth.Worker(FVector(-Food->Body->GetUnscaledBoxExtent().X-40,0,61)); H->SetActorRotation(FRotator::ZeroRotator);
         H->GetCharacterMovement()->bRunPhysicsWithNoController=true; H->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
         Mouth.Step(1);
         // Walk up to the food as a player would; the capsule determines the closest legal approach.

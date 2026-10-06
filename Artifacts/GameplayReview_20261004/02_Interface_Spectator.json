@@ -1,0 +1,12 @@
+{
+  "frames": 103,
+  "firstGameTime": 0.930411,
+  "lastGameTime": 18.013884,
+  "duration": 17.166667,
+  "sampleFPS": 5.97,
+  "capture": "Unreal game render target",
+  "caption": "Сетевой интерфейс: очки, цвета, Tab, T, Help, смерть и возрождение",
+  "sha256": "1d572c750bcb11d94a18a5e4a53429ed0c5d6ea01fe89b6d63b94c5b3349fabb",
+  "size": 1736449,
+  "sourceFrames": "E:\\DEVGAME\\MessControl\\Saved\\Builds\\GameplayVideo_20261004\\Windows\\MessControl\\Saved\\ApprovalFrames\\ReviewUIClient_20261004"
+}

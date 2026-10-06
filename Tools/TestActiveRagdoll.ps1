@@ -1,4 +1,4 @@
-param([string]$EngineRoot='E:\UE\UE_5.8',[switch]$Solo,[switch]$Review,[int]$PacketLagMs=75,[int]$PacketLoss=2)
+param([string]$EngineRoot='E:\UE\UE_5.8',[switch]$Solo,[switch]$Review,[switch]$SoftOnly,[int]$PacketLagMs=75,[int]$PacketLoss=2,[int]$ExpectedPingMs=0)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 $taskExe=Join-Path $EngineRoot 'Engine\Binaries\Win64\UnrealEditor-Cmd.exe'
@@ -21,8 +21,12 @@ try {
         $taskMap=if($Solo){'/Game/Maps/L_Mouth?Seed=41'}elseif($taskIndex -eq 0){'/Game/Maps/L_Mouth?listen?Seed=41'}else{'127.0.0.1:7777'}
         $taskLog=Join-Path $taskFolder "Run$taskIndex.log"
         if(Test-Path -LiteralPath $taskLog){Remove-Item -LiteralPath $taskLog}
-        $taskArgs=@("`"$taskProject`"",$taskMap,'-game','-MCLegacyDays','-MCActiveRagdollTest',"-MCExpectedPlayers=$taskCount",'-nullrhi','-unattended','-nosound','-nosplash','-nop4','"-ExecCmds=t.MaxFPS 60,t.IdleWhenNotForeground 0"',"`"-abslog=$taskLog`"")
+        $taskArgs=@("`"$taskProject`"",$taskMap,'-game','-nosteam','-MCLegacyDays','-MCActiveRagdollTest',"-MCExpectedPlayers=$taskCount",'-nullrhi','-unattended','-nosound','-nosplash','-nop4','"-ExecCmds=t.MaxFPS 60,t.IdleWhenNotForeground 0"',"`"-abslog=$taskLog`"")
         if(-not $Solo){$taskArgs+=@("-PktLag=$PacketLagMs","-PktLoss=$PacketLoss")}
+        if($SoftOnly) {
+            $taskArgs+='-MCActiveRagdollSoftOnly'
+            if(-not $Solo){$taskArgs+="-MCExpectedPingMs=$(if($ExpectedPingMs -gt 0){$ExpectedPingMs}else{$PacketLagMs*2})"}
+        }
         if($Review -and $taskIndex -eq 0) {
             $taskArgs=@($taskArgs | Where-Object {$_ -ne '-nullrhi' -and $_ -notlike '*ExecCmds=*'})
             $taskArgs+=@('-MCActiveRagdollCapture','-MCVideo=ActiveRagdoll','-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages','"-ExecCmds=t.MaxFPS 60,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 2,sg.ReflectionQuality 2,sg.ShadowQuality 2,r.ScreenPercentage 100,Trace.Disable Screenshot"')

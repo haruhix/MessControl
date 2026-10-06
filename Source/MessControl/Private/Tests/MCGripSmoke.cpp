@@ -242,9 +242,10 @@ void UMCValidationSubsystem::TickGrip(float Dt)
     if (T>20 && (DevSeen&8192) && Heroes[1]->ToothPhysics->CanAct()) {
         auto* Hero=Heroes[1]; auto* Motors=Hero->FindComponentByClass<UPhysicsControlComponent>(); FPhysicsControlData Data;
         const auto Names=Motors?Motors->GetControlNamesInSet(TEXT("arm_l")):TArray<FName>();
-        if(!Names.IsEmpty() && Motors->GetControlData(Names[0],Data) && Data.bUseSkeletalAnimation
+        if(!Names.IsEmpty() && Motors->GetControlData(Names[0],Data) && !Data.bUseSkeletalAnimation
+            && Hero->ToothPhysics->GetActiveRagdollMode()==EMCActiveRagdollMode::Soft
             && !Hero->ToothPhysics->IsPhysicalObjectGrip(true) && !Hero->ToothPhysics->IsPhysicalObjectGrip(false)
-            && Hero->GetMesh()->IsSimulatingPhysics(Hero->RigBone(TEXT("body")))) DevSeen|=16384;
+            && !Hero->GetMesh()->IsSimulatingPhysics(Hero->RigBone(TEXT("body")))) DevSeen|=16384;
     }
     for (auto* Hero:Heroes) bTongueInvalid|=Hero->GetActorLocation().ContainsNaN() || Hero->GetActorLocation().Z<-250;
     if (Capture && T>=0 && T<22)

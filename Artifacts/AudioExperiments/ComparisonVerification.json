@@ -1,0 +1,239 @@
+{
+  "status": "passed",
+  "scope": "owned PIE comparison routing and cancellation",
+  "audio_output_recorded": false,
+  "log_path": "E:\\DEVGAME\\MessControl\\Saved\\AudioReviewEditorV2.log",
+  "original_mode": 1,
+  "checks": {
+    "status": {
+      "mode_unchanged": 1,
+      "sources": {
+        "Step": {
+          "path": "/Game/Audio/Experiments/MS_Step.MS_Step",
+          "class": "MetaSoundSource"
+        },
+        "KnifeSwing": {
+          "path": "/Game/Audio/Experiments/MS_KnifeSwing.MS_KnifeSwing",
+          "class": "MetaSoundSource"
+        },
+        "KnifeHit": {
+          "path": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit",
+          "class": "MetaSoundSource"
+        },
+        "PickaxeSwing": {
+          "path": "/Game/Audio/Experiments/MS_PickaxeSwing.MS_PickaxeSwing",
+          "class": "MetaSoundSource"
+        },
+        "PickaxeHit": {
+          "path": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit",
+          "class": "MetaSoundSource"
+        },
+        "Brush": {
+          "path": "/Game/Audio/Experiments/MS_Brush.MS_Brush",
+          "class": "MetaSoundSource"
+        }
+      }
+    },
+    "knife": {
+      "mode_before_after": [
+        0,
+        0
+      ],
+      "phases": [
+        {
+          "event": "KnifeHit",
+          "phase": "old",
+          "sample": 1,
+          "path": "/Game/Audio/S_Hit.S_Hit",
+          "class": "SoundWave",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 0.6,
+          "pitch": 1.0
+        },
+        {
+          "event": "KnifeHit",
+          "phase": "old",
+          "sample": 2,
+          "path": "/Game/Audio/S_Hit.S_Hit",
+          "class": "SoundWave",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 0.6,
+          "pitch": 1.0
+        },
+        {
+          "event": "KnifeHit",
+          "phase": "new",
+          "sample": 1,
+          "path": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit",
+          "class": "MetaSoundSource",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 1.0,
+          "pitch": 1.0
+        },
+        {
+          "event": "KnifeHit",
+          "phase": "new",
+          "sample": 2,
+          "path": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit",
+          "class": "MetaSoundSource",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 1.0,
+          "pitch": 1.0
+        }
+      ]
+    },
+    "pickaxe": {
+      "mode_before_after": [
+        1,
+        1
+      ],
+      "phases": [
+        {
+          "event": "PickaxeHit",
+          "phase": "old",
+          "sample": 1,
+          "path": "/Game/Audio/S_Hit.S_Hit",
+          "class": "SoundWave",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 0.6,
+          "pitch": 1.0
+        },
+        {
+          "event": "PickaxeHit",
+          "phase": "old",
+          "sample": 2,
+          "path": "/Game/Audio/S_Hit.S_Hit",
+          "class": "SoundWave",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 0.6,
+          "pitch": 1.0
+        },
+        {
+          "event": "PickaxeHit",
+          "phase": "new",
+          "sample": 1,
+          "path": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit",
+          "class": "MetaSoundSource",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 1.0,
+          "pitch": 1.0
+        },
+        {
+          "event": "PickaxeHit",
+          "phase": "new",
+          "sample": 2,
+          "path": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit",
+          "class": "MetaSoundSource",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 1.0,
+          "pitch": 1.0
+        }
+      ]
+    },
+    "soft_reference_swap": {
+      "replacement": {
+        "event": "KnifeHit",
+        "path": "/Game/Audio/Experiments/MS_Brush.MS_Brush",
+        "class": "MetaSoundSource",
+        "intensity": 0.65,
+        "speed": 0.5,
+        "owner": "BP_PlayerCharacter_C_1",
+        "net": 0
+      },
+      "restored": {
+        "event": "KnifeHit",
+        "path": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit",
+        "class": "MetaSoundSource",
+        "intensity": 0.65,
+        "speed": 0.5,
+        "owner": "BP_PlayerCharacter_C_1",
+        "net": 0
+      }
+    },
+    "repeat_cancels_previous": {
+      "phases": [
+        {
+          "event": "KnifeHit",
+          "phase": "old",
+          "sample": 1,
+          "path": "/Game/Audio/S_Hit.S_Hit",
+          "class": "SoundWave",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 0.6,
+          "pitch": 1.0
+        },
+        {
+          "event": "PickaxeHit",
+          "phase": "old",
+          "sample": 1,
+          "path": "/Game/Audio/S_Hit.S_Hit",
+          "class": "SoundWave",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 0.6,
+          "pitch": 1.0
+        },
+        {
+          "event": "PickaxeHit",
+          "phase": "old",
+          "sample": 2,
+          "path": "/Game/Audio/S_Hit.S_Hit",
+          "class": "SoundWave",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 0.6,
+          "pitch": 1.0
+        },
+        {
+          "event": "PickaxeHit",
+          "phase": "new",
+          "sample": 1,
+          "path": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit",
+          "class": "MetaSoundSource",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 1.0,
+          "pitch": 1.0
+        },
+        {
+          "event": "PickaxeHit",
+          "phase": "new",
+          "sample": 2,
+          "path": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit",
+          "class": "MetaSoundSource",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 1.0,
+          "pitch": 1.0
+        }
+      ]
+    },
+    "endplay_cancels_previous": {
+      "phases": [
+        {
+          "event": "KnifeHit",
+          "phase": "old",
+          "sample": 1,
+          "path": "/Game/Audio/S_Hit.S_Hit",
+          "class": "SoundWave",
+          "intensity": 0.65,
+          "speed": 0.5,
+          "volume": 0.6,
+          "pitch": 1.0
+        }
+      ],
+      "pie_ended": true,
+      "no_further_slots_after_seconds": 4.3
+    }
+  },
+  "mode_restored_to": 1
+}

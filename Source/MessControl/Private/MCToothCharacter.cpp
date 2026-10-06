@@ -30,6 +30,7 @@
 #include "MCFoodCollectionComponent.h"
 #include "MCReactionVFX.h"
 #include "MCExpressionComponent.h"
+#include "MCExperimentalAudioComponent.h"
 #include "PhysicsControlComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
@@ -86,6 +87,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     FoodCollection=CreateDefaultSubobject<UMCFoodCollectionComponent>(TEXT("FoodCollection"));
     Expression=CreateDefaultSubobject<UMCExpressionComponent>(TEXT("Expression"));
     Inventory=CreateDefaultSubobject<UMCInventoryComponent>(TEXT("Inventory"));
+    ExperimentalAudio=CreateDefaultSubobject<UMCExperimentalAudioComponent>(TEXT("ExperimentalAudio"));
     BrushPivot = CreateDefaultSubobject<USceneComponent>(TEXT("BrushPivot"));
     BrushPivot->SetupAttachment(GetMesh(),TEXT("hand_r"));
     Brush = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MiniBrush"));
@@ -646,6 +648,7 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const auto& A = AnimationSettings;
     const float Time = GetWorld()->GetTimeSeconds();
     const float PreviewTime = FMath::Fmod(Time,8.f);
+    const float PreviousAudioGait=Gait;
     UpdateLocomotion(DeltaSeconds);
     const float Speed=AnimationSpeed;
     LandingImpulse = FMath::FInterpTo(LandingImpulse,0.f,DeltaSeconds,11.f);
@@ -670,14 +673,54 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float AttackAngle=UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
     const float Swing = AttackTime<Inventory->SwingDuration()?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
     const bool ChoppingTool=Inventory->Selected==EMCToolSlot::Pickaxe || Inventory->Selected==EMCToolSlot::Knife;
-    BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,ChoppingTool?25.f:18.f-12.f*A.FollowThrough);
+    BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,ChoppingTool?25.f*UMCInventoryComponent::SwingPlayRate(Inventory->Selected):18.f-12.f*A.FollowThrough);
     AnimationGait=Gait; AnimationBrushAngle=BrushAngle*A.Exaggeration;
     const float PoseEase=1-FMath::Exp(-16.f*DeltaSeconds);
     AnimationBob=FMath::Lerp(AnimationBob,Bob*(1-.85f*GripBlend),PoseEase);
     AnimationPitch=FMath::Lerp(AnimationPitch,(Pitch+(Status->IsLoose()?FMath::Sin(Time*7)*7:0))*(1-GripBlend),PoseEase);
-    SoundAccumulator += DeltaSeconds;
-    if (ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
-    { SoundAccumulator = 0; SoundPalette->Play(this,bBrushing ? TEXT("Brush") : bHandling ? TEXT("Pull") : TEXT("Step"),GetActorLocation()); }
+    if(!UMCExperimentalAudioComponent::IsEnabled())
+    {
+        SoundAccumulator += DeltaSeconds;
+        if (ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
+        { SoundAccumulator = 0; SoundPalette->Play(this,bBrushing ? TEXT("Brush") : bHandling ? TEXT("Pull") : TEXT("Step"),GetActorLocation()); }
+        BrushSoundAccumulator=0;
+        FootstepSoundCooldown=0;
+    }
+    else
+    {
+        if(!bHandling) SoundAccumulator=0;
+        FootstepSoundCooldown=FMath::Max(0.f,FootstepSoundCooldown-DeltaSeconds);
+        const bool CanHearActions=GetNetMode()!=NM_DedicatedServer && ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation;
+        const bool FootPlanted=FMath::FloorToInt(PreviousAudioGait/PI)!=FMath::FloorToInt(Gait/PI);
+        if(CanHearActions && GetCharacterMovement()->IsMovingOnGround() && GroundSpeed>15.f && Speed>.05f && FootPlanted && FootstepSoundCooldown<=0)
+        {
+            const float Pace=FMath::Clamp(GroundSpeed/FMath::Max(1.f,CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->WalkSpeed*1.5f),0.f,1.f);
+            if(!ExperimentalAudio->Play(TEXT("Step"),GetActorLocation(),FMath::Lerp(.35f,.8f,Pace),Pace) && SoundPalette)
+                SoundPalette->Play(this,TEXT("Step"),GetActorLocation());
+            FootstepSoundCooldown=.13f;
+        }
+        // Match the contact that actually cleans; rendered wrist placement is for foam.
+        const bool BrushTouching=CanHearActions && bBrushing && HasBrush() && BrushContact && BrushContact->IsWorkReady();
+        if(BrushTouching)
+        {
+            BrushSoundAccumulator+=DeltaSeconds;
+            const float StrokeSeconds=.28f/FMath::Clamp(AnimationSettings.Tempo,.5f,2.f);
+            if(BrushSoundAccumulator>=StrokeSeconds)
+            {
+                BrushSoundAccumulator=FMath::Fmod(BrushSoundAccumulator,StrokeSeconds);
+                const float BrushPace=FMath::Clamp((AnimationSettings.Tempo-.5f)/1.5f,0.f,1.f);
+                if(!ExperimentalAudio->Play(TEXT("Brush"),BrushContact->ContactPoint(),.65f,BrushPace) && SoundPalette)
+                    SoundPalette->Play(this,TEXT("Brush"),BrushContact->ContactPoint());
+            }
+        }
+        else BrushSoundAccumulator=0;
+        // Pull remains in the existing palette during this focused experiment.
+        if(CanHearActions && bHandling && SoundPalette)
+        {
+            SoundAccumulator+=DeltaSeconds;
+            if(SoundAccumulator>.28f) { SoundAccumulator=0; SoundPalette->Play(this,TEXT("Pull"),GetActorLocation()); }
+        }
+    }
 }
 void AMCToothCharacter::SwingBrush()
 {
@@ -698,17 +741,24 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
     SwingStartedAt=GS?GS->GetServerWorldTimeSeconds():Now;
     NextSwingTime=Now+Inventory->SwingDuration(); ++ValidatedSwingCount;
     bBrushing=false; bHandling=false; DropFood(); ForceNetUpdate();
-    MulticastSwing(SwingStartedAt,CalculusTarget,CalculusContactLocal,CalculusNormalLocal);
+    MulticastSwing(SwingStartedAt,CalculusTarget,CalculusContactLocal,CalculusNormalLocal,uint8(Inventory->Selected));
     ResetContact();
     SwingContactEndsAt=Now+Inventory->SwingContactTime()+.12f;
     GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,Inventory->SwingContactTime(),false);
 }
-void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal)
+void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot)
 {
     SwingStartedAt=StartedAt; CalculusTarget=AimTooth; CalculusContactLocal=LocalPoint; CalculusNormalLocal=LocalNormal;
-    if (SoundPalette) SoundPalette->Play(this,TEXT("Whoosh"),GetActorLocation());
+    const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeSwing")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeSwing")):NAME_None;
+    if((Event.IsNone() || !ExperimentalAudio->Play(Event,GetActorLocation(),.65f,.5f)) && SoundPalette)
+        SoundPalette->Play(this,TEXT("Whoosh"),GetActorLocation());
 }
-void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location) { if (SoundPalette) SoundPalette->Play(this,TEXT("Hit"),Location); }
+void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 ToolSlot,float Intensity)
+{
+    const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):NAME_None;
+    if((Event.IsNone() || !ExperimentalAudio->Play(Event,Location,Intensity,.5f)) && SoundPalette)
+        SoundPalette->Play(this,TEXT("Hit"),Location);
+}
 float AMCToothCharacter::GetToolSwingElapsed() const
 {
     const auto* GS=GetWorld()?GetWorld()->GetGameState():nullptr;
@@ -759,6 +809,8 @@ AMCArenaTooth* AMCToothCharacter::FindCalculusTarget(FVector& Point,FVector& Nor
 void AMCToothCharacter::ResolveSwing()
 {
     if (!HasAuthority() || !CanWork() || Inventory->Selected==EMCToolSlot::Spray) return;
+    const uint8 AudioTool=uint8(Inventory->Selected);
+    const float HitIntensity=FMath::Clamp(Inventory->Damage()/60.f,.25f,1.f);
     if(Inventory->Selected==EMCToolSlot::Pickaxe) {
         // An aimed swing never falls through to the tooth or a player if
         // another worker already broke its patch during the wind-up.
@@ -767,7 +819,7 @@ void AMCToothCharacter::ResolveSwing()
             if(GetCalculusSwingContact(Point,Normal) && CalculusTarget->Calculus
                 && CalculusTarget->Calculus->FindContact(this,EligiblePoint,EligibleNormal)
                 && CalculusTarget->Calculus->ApplyPickaxeHit(this,Point,Normal,Inventory->Damage())) {
-                ++ConfirmedHitCount; MulticastHitSound(Point);
+                ++ConfirmedHitCount; MulticastHitSound(Point,AudioTool,HitIntensity);
                 if(!CalculusTarget->Calculus->HasCalculus())
                 {
                     NotifyTaskFeedback(true,Point);
@@ -781,7 +833,7 @@ void AMCToothCharacter::ResolveSwing()
             const FVector D=It->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();
             if(!It->bBroken && D.SizeSquared()<Distance && FVector::DotProduct(D.GetSafeNormal2D(),GetActorForwardVector())>.25f && CanContact(*It)) { BestIce=*It; Distance=D.SizeSquared(); }
         }
-        if(BestIce && BestIce->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestIce->GetActorLocation()); if(BestIce->bBroken) NotifyTaskFeedback(true,BestIce->GetActorLocation()); return; }
+        if(BestIce && BestIce->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestIce->GetActorLocation(),AudioTool,HitIntensity); if(BestIce->bBroken) NotifyTaskFeedback(true,BestIce->GetActorLocation()); return; }
     }
     AMCFoodActor* FoodTarget=nullptr; float FoodDistance=FMath::Square(180.f);
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
@@ -797,7 +849,7 @@ void AMCToothCharacter::ResolveSwing()
     {
         if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector()))
         {
-            ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation());
+            ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation(),AudioTool,HitIntensity);
             if (FoodTarget->IsDisposed()) if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(this,EMCTutorialAction::FoodCut,FoodTarget);
         }
         return;
@@ -829,7 +881,7 @@ void AMCToothCharacter::ResolveSwing()
     if (BossTarget)
     {
         if (BossTarget->ReceiveBossDamage(Inventory->Damage(),this)>0.f)
-        { ++ConfirmedHitCount; MulticastHitSound(BossTarget->GetMeleeTargetPoint(GetActorLocation())); }
+        { ++ConfirmedHitCount; MulticastHitSound(BossTarget->GetMeleeTargetPoint(GetActorLocation()),AudioTool,HitIntensity); }
         return;
     }
     if(Inventory->IsCleaningTool()) for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
@@ -843,7 +895,7 @@ void AMCToothCharacter::ResolveSwing()
     if (ArenaTarget)
     {
         if (ArenaTarget->ReceiveArenaHit(ArenaTarget->Settings.BrushHitDamage,ArenaTarget->GetActorLocation()-GetActorLocation()))
-        { ++ConfirmedHitCount; MulticastHitSound(ArenaTarget->GetActorLocation()); }
+        { ++ConfirmedHitCount; MulticastHitSound(ArenaTarget->GetActorLocation(),AudioTool,HitIntensity); }
         return;
     }
     if (!Target) {
@@ -858,7 +910,7 @@ void AMCToothCharacter::ResolveSwing()
     FVector Direction=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(); if (Direction.IsNearlyZero()) Direction=GetActorForwardVector();
     Target->ToothPhysics->ApplyHit(Direction*ToothPhysics->Settings.Knockback+FVector(0,0,ToothPhysics->Settings.Lift),Target->GetActorLocation()+FVector(0,0,15));
     Target->Status->Damage(Inventory->IsCleaningTool()?25.f:Inventory->Damage(),Direction);
-    MulticastHitSound(Target->GetActorLocation());
+    MulticastHitSound(Target->GetActorLocation(),AudioTool,HitIntensity);
 }
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {

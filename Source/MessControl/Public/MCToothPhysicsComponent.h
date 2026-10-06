@@ -8,7 +8,7 @@ class AMCToothCharacter;
 class UPhysicsControlComponent;
 struct FReferenceSkeleton;
 
-/** Server Chaos simulation; clients interpolate the compact skeleton, including the owning client. */
+/** Local active limbs; full knockdown uses server Chaos and replicated skeleton poses. */
 UCLASS(ClassGroup=(MessControl), meta=(BlueprintSpawnableComponent))
 class MESSCONTROL_API UMCToothPhysicsComponent : public UActorComponent
 {
@@ -53,7 +53,7 @@ private:
     UFUNCTION() void OnRep_Frame();
     UFUNCTION() void OnRep_Settings();
     UFUNCTION() void OnRep_ActiveRagdollMode();
-    UPROPERTY(ReplicatedUsing=OnRep_ActiveRagdollMode) EMCActiveRagdollMode ActiveRagdollMode=EMCActiveRagdollMode::Off;
+    UPROPERTY(ReplicatedUsing=OnRep_ActiveRagdollMode) EMCActiveRagdollMode ActiveRagdollMode=EMCActiveRagdollMode::Soft;
     UPROPERTY() TObjectPtr<AMCToothCharacter> Tooth;
     UPROPERTY() TObjectPtr<UPhysicsControlComponent> Muscles;
     UPROPERTY(ReplicatedUsing=OnRep_Frame) FMCRagdollFrame Frame;

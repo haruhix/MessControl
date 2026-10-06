@@ -1,0 +1,12 @@
+{
+  "frames": 202,
+  "firstGameTime": 4.001615,
+  "lastGameTime": 14.002275,
+  "duration": 10.066016,
+  "sampleFPS": 20.1,
+  "capture": "Unreal game render target",
+  "caption": "Игрок чистит игрока: процедурный контакт щётки и снятие загрязнения",
+  "sha256": "681d50fb464ccf8b4f78dbec4bfe69d5b785bba2d028affa9d7ea3b62c14fd12",
+  "size": 1696965,
+  "sourceFrames": "E:\\DEVGAME\\MessControl\\Saved\\Builds\\GameplayVideo_20261004\\Windows\\MessControl\\Saved\\ApprovalFrames\\ReviewPlayerCare_20261004"
+}

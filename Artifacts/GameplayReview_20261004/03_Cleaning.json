@@ -1,0 +1,11 @@
+{
+  "file": "E:\\DEVGAME\\MessControl\\Artifacts\\GameplayReview_20261004\\03_Cleaning.mp4",
+  "seconds": 27.533008,
+  "bytes": 5556989,
+  "inputs": [
+    "Artifacts/GameplayReview_20261004/Player_Cleaning.mp4",
+    "Artifacts/GameplayReview_20261004/Tooth_Cleaning.mp4",
+    "Artifacts/GameplayReview_20261004/Tongue_Cleaning.mp4"
+  ],
+  "sha256": "158f46df85df9001d130adce399087042ecc5cee47f30c4428a93ea27695cdff"
+}

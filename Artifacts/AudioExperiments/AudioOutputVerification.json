@@ -1,0 +1,75 @@
+{
+  "status": "passed",
+  "combined": {
+    "path": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\MetaSound_AB.wav",
+    "channels": 2,
+    "sample_rate": 48000,
+    "duration_seconds": 24.106666666666666,
+    "peak": 0.072998046875
+  },
+  "voices": 36,
+  "voice_min": 0.10899999999674037,
+  "voice_max": 0.375,
+  "clips": [
+    {
+      "event": "Step",
+      "duration": 4.0,
+      "peak": 0.06781005859375,
+      "clipped_samples": 0,
+      "legacy_rms": 0.0011043271207867356,
+      "low_rms": 0.0032960620003605204,
+      "high_rms": 0.0088324180409298,
+      "high_low_ratio": 2.679688076244839
+    },
+    {
+      "event": "KnifeSwing",
+      "duration": 4.0,
+      "peak": 0.05291748046875,
+      "clipped_samples": 0,
+      "legacy_rms": 0.004044597065744523,
+      "low_rms": 0.0018034940082543348,
+      "high_rms": 0.005761129371353515,
+      "high_low_ratio": 3.194426676765017
+    },
+    {
+      "event": "KnifeHit",
+      "duration": 4.0,
+      "peak": 0.0701904296875,
+      "clipped_samples": 0,
+      "legacy_rms": 0.009183895762571911,
+      "low_rms": 0.0034628290569896363,
+      "high_rms": 0.009561647821018395,
+      "high_low_ratio": 2.7612243237125558
+    },
+    {
+      "event": "PickaxeSwing",
+      "duration": 4.0,
+      "peak": 0.0450439453125,
+      "clipped_samples": 0,
+      "legacy_rms": 0.004044597065744523,
+      "low_rms": 0.0014945006910623234,
+      "high_rms": 0.005084006286334633,
+      "high_low_ratio": 3.4018092575927894
+    },
+    {
+      "event": "PickaxeHit",
+      "duration": 4.0,
+      "peak": 0.072998046875,
+      "clipped_samples": 0,
+      "legacy_rms": 0.009183895762571911,
+      "low_rms": 0.003999059025948066,
+      "high_rms": 0.010872855574998846,
+      "high_low_ratio": 2.7188534863951386
+    },
+    {
+      "event": "Brush",
+      "duration": 4.0,
+      "peak": 0.032989501953125,
+      "clipped_samples": 0,
+      "legacy_rms": 0.001449242494517995,
+      "low_rms": 0.0007952695831230908,
+      "high_rms": 0.0028021863816743483,
+      "high_low_ratio": 3.5235679084693845
+    }
+  ]
+}

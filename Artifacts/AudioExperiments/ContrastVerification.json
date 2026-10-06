@@ -1,0 +1,204 @@
+{
+  "status": "passed",
+  "scope": "level-matched previews derived from real UE mixer capture",
+  "raw_capture": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\MetaSound_Contrast.wav",
+  "raw_capture_sha256": "a19534b2846d094fa69b7683489354b740bc9f1a7f1a162381b9aae4e8965f20",
+  "source_report": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\MetaSound_Contrast.json",
+  "sample_rate": 48000,
+  "channels": 2,
+  "pcm_bits": 16,
+  "sequence": "old twice at .25/.95 seconds, new default twice at 2.15/2.85 seconds",
+  "new_inputs": {
+    "Intensity": 0.65,
+    "Speed": 0.5
+  },
+  "rms_matching": {
+    "old_window_seconds": [
+      0.2,
+      1.65
+    ],
+    "new_window_seconds": [
+      2.1,
+      3.55
+    ],
+    "equal_window_duration_seconds": 1.45,
+    "gain_applied_only_to_new_block_seconds": [
+      2,
+      4
+    ],
+    "global_normalization": false
+  },
+  "voice_completion": {
+    "completed": 8,
+    "expected": 8,
+    "minimum_seconds": 0.20300000000861473,
+    "maximum_seconds": 0.3600000000005821,
+    "checks": [
+      {
+        "event": "KnifeHit",
+        "mode": "legacy",
+        "stopped_after_seconds": 0.20300000000861473
+      },
+      {
+        "event": "KnifeHit",
+        "mode": "legacy",
+        "stopped_after_seconds": 0.21899999999732245
+      },
+      {
+        "event": "KnifeHit",
+        "mode": "new",
+        "stopped_after_seconds": 0.25
+      },
+      {
+        "event": "KnifeHit",
+        "mode": "new",
+        "stopped_after_seconds": 0.25
+      },
+      {
+        "event": "PickaxeHit",
+        "mode": "legacy",
+        "stopped_after_seconds": 0.21899999999732245
+      },
+      {
+        "event": "PickaxeHit",
+        "mode": "legacy",
+        "stopped_after_seconds": 0.23399999999674037
+      },
+      {
+        "event": "PickaxeHit",
+        "mode": "new",
+        "stopped_after_seconds": 0.3600000000005821
+      },
+      {
+        "event": "PickaxeHit",
+        "mode": "new",
+        "stopped_after_seconds": 0.3600000000005821
+      }
+    ]
+  },
+  "clips": [
+    {
+      "event": "KnifeHit",
+      "path": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\Compare_KnifeHit.wav",
+      "sha256": "17e079ca54cbebbb2b32348323b7d6722e135d63c8438a9e2e8423c679df91aa",
+      "duration_seconds": 4.0,
+      "source_old_asset": "/Game/Audio/S_Hit.S_Hit",
+      "source_new_asset": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit",
+      "old_block_pcm_unchanged": true,
+      "new_gain_linear": 1.3916005206084772,
+      "new_gain_db": 2.870291650969874,
+      "old_rms": 0.007626810305295135,
+      "new_raw_rms": 0.0054806032279725745,
+      "new_matched_rms": 0.007626805485742336,
+      "rms_difference_db_after_quantization": -5.488810560926525e-06,
+      "clipped_samples": 0,
+      "peak_pcm_fraction": 0.094451904296875,
+      "old_spectrum": {
+        "energy_centroid_hz": 251.8576612088338,
+        "energy_rolloff95_hz": 126.3427734375,
+        "energy_below_500_hz_percent": 97.07866701363692,
+        "energy_bands_percent": {
+          "0_500_hz": 97.07866701363692,
+          "500_1000_hz": 0.1786416140820905,
+          "1000_4000_hz": 0.9086363255344868,
+          "4000_24001_hz": 1.8340550467465029
+        },
+        "highest_power_bins_hz": [
+          83.8623046875,
+          85.3271484375,
+          82.3974609375,
+          86.7919921875,
+          80.9326171875,
+          89.35546875
+        ]
+      },
+      "new_default_spectrum": {
+        "energy_centroid_hz": 4333.021455009453,
+        "energy_rolloff95_hz": 11050.4150390625,
+        "energy_below_500_hz_percent": 14.809997814394144,
+        "energy_bands_percent": {
+          "0_500_hz": 14.809997814394144,
+          "500_1000_hz": 16.38463650273231,
+          "1000_4000_hz": 18.335646779475272,
+          "4000_24001_hz": 50.46971890339825
+        },
+        "highest_power_bins_hz": [
+          821.044921875,
+          830.9326171875,
+          829.4677734375,
+          822.509765625,
+          840.8203125,
+          839.35546875
+        ]
+      },
+      "old_new_max_normalized_cross_correlation": 0.014802816943967456,
+      "contrast_check": {
+        "spectral_centroid_ratio_to_legacy": 17.204247169660743,
+        "spectrum_distinct": true
+      }
+    },
+    {
+      "event": "PickaxeHit",
+      "path": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\Compare_PickaxeHit.wav",
+      "sha256": "3cf9e4f71f53adcbcfc82b886135f81f385ff7aa31b2ece5bd29a8593b02ce0d",
+      "duration_seconds": 4.0,
+      "source_old_asset": "/Game/Audio/S_Hit.S_Hit",
+      "source_new_asset": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit",
+      "old_block_pcm_unchanged": true,
+      "new_gain_linear": 0.7989285730255157,
+      "new_gain_db": -1.9498409275499364,
+      "old_rms": 0.007626810305295135,
+      "new_raw_rms": 0.009546298083209942,
+      "new_matched_rms": 0.007626830230876621,
+      "rms_difference_db_after_quantization": 2.2692471524387646e-05,
+      "clipped_samples": 0,
+      "peak_pcm_fraction": 0.052734375,
+      "old_spectrum": {
+        "energy_centroid_hz": 251.8576612088338,
+        "energy_rolloff95_hz": 126.3427734375,
+        "energy_below_500_hz_percent": 97.07866701363693,
+        "energy_bands_percent": {
+          "0_500_hz": 97.07866701363693,
+          "500_1000_hz": 0.1786416140820905,
+          "1000_4000_hz": 0.9086363255344868,
+          "4000_24001_hz": 1.8340550467465029
+        },
+        "highest_power_bins_hz": [
+          83.8623046875,
+          85.3271484375,
+          82.3974609375,
+          86.7919921875,
+          80.9326171875,
+          89.35546875
+        ]
+      },
+      "new_default_spectrum": {
+        "energy_centroid_hz": 2106.6611490603896,
+        "energy_rolloff95_hz": 3557.0068359375,
+        "energy_below_500_hz_percent": 1.0011267447273427e-05,
+        "energy_bands_percent": {
+          "0_500_hz": 1.0011267447273427e-05,
+          "500_1000_hz": 0.00017298416923880152,
+          "1000_4000_hz": 97.65523516155469,
+          "4000_24001_hz": 2.3445818430085854
+        },
+        "highest_power_bins_hz": [
+          1408.447265625,
+          1409.912109375,
+          1406.982421875,
+          1412.4755859375,
+          1411.0107421875,
+          1411.376953125
+        ]
+      },
+      "old_new_max_normalized_cross_correlation": 0.0057673091112855485,
+      "contrast_check": {
+        "legacy_below_500_hz_percent": 97.07866701363693,
+        "new_below_500_hz_percent": 1.0011267447273427e-05,
+        "low_thud_removed": true
+      }
+    }
+  ],
+  "raw_files_preserved": true,
+  "spectral_method": "FFT power of the equally long comparison windows; percentages are signal energy, not perceived loudness. Uniform matching gain preserves spectral ratios."
+}

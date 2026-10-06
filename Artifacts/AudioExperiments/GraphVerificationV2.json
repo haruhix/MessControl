@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "sources": [
+    {
+      "event": "Step",
+      "path": "/Game/Audio/Experiments/MS_Step.MS_Step",
+      "version": "SampleFree.v2",
+      "nodes": 34,
+      "nodes_with_editor_positions": 34,
+      "contains_wave_player": false
+    },
+    {
+      "event": "KnifeSwing",
+      "path": "/Game/Audio/Experiments/MS_KnifeSwing.MS_KnifeSwing",
+      "version": "SampleFree.v2",
+      "nodes": 25,
+      "nodes_with_editor_positions": 25,
+      "contains_wave_player": false
+    },
+    {
+      "event": "KnifeHit",
+      "path": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit",
+      "version": "SampleFree.v2",
+      "nodes": 40,
+      "nodes_with_editor_positions": 40,
+      "contains_wave_player": false
+    },
+    {
+      "event": "PickaxeSwing",
+      "path": "/Game/Audio/Experiments/MS_PickaxeSwing.MS_PickaxeSwing",
+      "version": "SampleFree.v2",
+      "nodes": 25,
+      "nodes_with_editor_positions": 25,
+      "contains_wave_player": false
+    },
+    {
+      "event": "PickaxeHit",
+      "path": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit",
+      "version": "SampleFree.v2",
+      "nodes": 45,
+      "nodes_with_editor_positions": 45,
+      "contains_wave_player": false
+    },
+    {
+      "event": "Brush",
+      "path": "/Game/Audio/Experiments/MS_Brush.MS_Brush",
+      "version": "SampleFree.v2",
+      "nodes": 29,
+      "nodes_with_editor_positions": 29,
+      "contains_wave_player": false
+    }
+  ]
+}

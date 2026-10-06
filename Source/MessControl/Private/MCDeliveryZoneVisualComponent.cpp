@@ -33,13 +33,14 @@ struct FMesh
     void Surface(const FSurfaceCache& Cache,const FSurfaceOverlay& Overlay,const FTransform& Transform)
     {
         Cache.Positions(Overlay,Transform,Positions);Triangles=Overlay.Indices;Colors.Reserve(Overlay.Vertices.Num());
-        for(const auto& V:Overlay.Vertices) Colors.Add(FLinearColor(1,1,1,V.Alpha));
+        UV.Reserve(Overlay.Vertices.Num());
+        for(const auto& V:Overlay.Vertices) {Colors.Add(FLinearColor(1,1,1,V.Alpha));UV.Add(V.UV);}
     }
     void Apply(UProceduralMeshComponent* Mesh)
     {
         auto* Existing=Mesh->GetProcMeshSection(0);
         bool Same=Existing && Existing->ProcVertexBuffer.Num()==Positions.Num() && Existing->ProcIndexBuffer.Num()==Triangles.Num();
-        // Moving clipped strokes can change connectivity without changing the counts.
+        // Layout changes can change connectivity without changing the counts.
         if(Same) for(int32 I=0;I<Triangles.Num();++I) if(Existing->ProcIndexBuffer[I]!=uint32(Triangles[I])) {Same=false;break;}
         if(Same) Mesh->UpdateMeshSection_LinearColor(0,Positions,Normals,UV,Colors,Tangents,false);
         else Mesh->CreateMeshSection_LinearColor(0,Positions,Triangles,Normals,UV,Colors,Tangents,false,false);
@@ -73,6 +74,8 @@ void UMCDeliveryZoneVisualComponent::BeginPlay()
     if(auto* Throat=Cast<AMCThroat>(Zone.Get())) SurfaceCache->DepthGuard.Bind(Throat->AuthoredMouth);
     Floor=MakeMesh(TEXT("DeliveryFloorGuide"));Arrows=MakeMesh(TEXT("DeliveryArrowGuide"));Arrows->TranslucencySortPriority=4;
     FloorMID=UMaterialInstanceDynamic::Create(GuideMaterial,this);ArrowMID=UMaterialInstanceDynamic::Create(GuideMaterial,this);
+    FloorMID->SetScalarParameterValue(TEXT("ArrowMaskEnabled"),0);
+    ArrowMID->SetScalarParameterValue(TEXT("ArrowMaskEnabled"),1);
     Floor->SetMaterial(0,FloorMID);Arrows->SetMaterial(0,ArrowMID);
     Caption=NewObject<UWidgetComponent>(GetOwner(),TEXT("DeliveryCaption"));Caption->SetupAttachment(GetOwner()->GetRootComponent());
     Caption->SetCollisionEnabled(ECollisionEnabled::NoCollision);Caption->SetCastShadow(false);
@@ -80,7 +83,7 @@ void UMCDeliveryZoneVisualComponent::BeginPlay()
     Caption->SetDrawSize(FVector2D(280,56));Caption->SetDrawAtDesiredSize(true);Caption->SetPivot(FVector2D(.5,.5));
     Caption->SetGenerateOverlapEvents(false);Caption->SetCanEverAffectNavigation(false);
     GetOwner()->AddInstanceComponent(Caption);Caption->RegisterComponent();Caption->InitWidget();
-    Zone->Label->SetVisibility(false);Rebuild(0,true);
+    Zone->Label->SetVisibility(false);Rebuild();
 }
 
 void UMCDeliveryZoneVisualComponent::TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction)
@@ -90,6 +93,7 @@ void UMCDeliveryZoneVisualComponent::TickComponent(float Dt,ELevelTick TickType,
     FloorMID->SetVectorParameterValue(TEXT("ZoneColor"),Zone->bBrushBin?FLinearColor(1,.11f,.08f):FLinearColor(.06f,1,.40f));
     ArrowMID->SetVectorParameterValue(TEXT("ZoneColor"),Zone->bBrushBin?FLinearColor(1,.20f,.20f):FLinearColor(.06f,1,.50f));
     ArrowMID->SetScalarParameterValue(TEXT("GlowStrength"),2.6f+.35f*FMath::Sin(Time*2*PI/FMath::Max(.5f,ArrowPeriod)));
+    ArrowMID->SetScalarParameterValue(TEXT("ArrowCycle"),FMath::Frac(Time/FMath::Max(.5f,ArrowPeriod)));
     const bool Yawning=Tongue.IsValid() && Tongue->IsYawnActive();Floor->SetVisibility(!Yawning);Arrows->SetVisibility(!Yawning);
     const auto* Viewer=GetWorld()->GetFirstPlayerController();
     const bool CloseView=Viewer && Viewer->PlayerCameraManager
@@ -99,23 +103,27 @@ void UMCDeliveryZoneVisualComponent::TickComponent(float Dt,ELevelTick TickType,
     if(const auto* Throat=Cast<AMCThroat>(Zone.Get())) {Wrong=Throat->ThroatPhase==EMCThroatPhase::Spasm || Throat->ThroatPhase==EMCThroatPhase::Vomiting;Throat->ZoneRing->SetVisibility(false);}
     if(auto* Widget=Cast<UMCDeliveryZoneCaptionWidget>(Caption->GetUserWidgetObject())) Widget->SetDeliveryCaption(Zone->bBrushBin,Wrong);
     if(Yawning) return;
-    RebuildElapsed+=Dt;const bool RefreshArrows=RebuildElapsed>=1.f/30.f;
-    if(RefreshArrows) RebuildElapsed=FMath::Fmod(RebuildElapsed,1.f/30.f);
-    // Floor positions follow every tongue update; only moving arrow footprints are throttled.
-    Rebuild(Time,RefreshArrows);
+    // Fixed footprints follow the tongue; the material animates the chevrons.
+    Rebuild();
 }
 
-void UMCDeliveryZoneVisualComponent::Rebuild(float Time,bool bRefreshArrows)
+void UMCDeliveryZoneVisualComponent::Rebuild()
 {
     FTransform Geometry;FVector Extent;bool Circular=false;Zone->GetDeliveryZoneGeometry(Geometry,Extent,Circular);
     const FTransform MeshTransform=Floor->GetComponentTransform();
     TArray<FVector> Outer,Inner;const bool HasCap=Zone->GetDeliveryZoneOutline(Outer,Inner) && Outer.Num()>1 && Outer.Num()==Inner.Num();
+    const FVector Direction=Zone->GetDeliveryDirection(),Side=FVector::CrossProduct(FVector::UpVector,Direction);
+    bool NewArrows=!bGuidesBuilt || HasCap!=bCachedCap || Direction!=CachedDirection;
+    const bool GeometryChanged=!bGuidesBuilt || !Geometry.Equals(CachedGeometry) || Extent!=CachedExtent || Circular!=bCachedCircular;
     bool SurfaceChanged=false,Native=false;
     if(Tongue.IsValid()) {SurfaceChanged=SurfaceCache->Refresh(Tongue.Get());Native=SurfaceCache->bReady && HasCap;}
     if(Tongue.IsValid() && !Native) {Floor->SetVisibility(false);Arrows->SetVisibility(false);return;}
+    const bool UpdatePositions=!bGuidesBuilt || !MeshTransform.Equals(CachedMeshTransform) || SurfaceCache->bPositionsChanged;
     if(Native)
     {
-        const bool NewFloor=SurfaceChanged || Outer!=SurfaceCache->FloorOuter || Inner!=SurfaceCache->FloorInner || FillOpacity!=SurfaceCache->FloorOpacity;
+        const bool OutlineChanged=Outer!=SurfaceCache->FloorOuter || Inner!=SurfaceCache->FloorInner;
+        NewArrows|=SurfaceChanged || OutlineChanged;
+        const bool NewFloor=SurfaceChanged || OutlineChanged || FillOpacity!=SurfaceCache->FloorOpacity;
         if(NewFloor)
         {
             SurfaceCache->Floor.Reset();SurfaceCache->FloorOuter=Outer;SurfaceCache->FloorInner=Inner;SurfaceCache->FloorOpacity=FillOpacity;
@@ -130,16 +138,16 @@ void UMCDeliveryZoneVisualComponent::Rebuild(float Time,bool bRefreshArrows)
             SurfaceCache->AddRim(SurfaceCache->Floor,Outer,Inner);
             MCDeliveryGuide::FMesh Fill;Fill.Surface(*SurfaceCache,SurfaceCache->Floor,MeshTransform);Fill.Apply(Floor);
         }
-        else
+        else if(UpdatePositions)
         {
             TArray<FVector> Positions;SurfaceCache->Positions(SurfaceCache->Floor,MeshTransform,Positions);
             Floor->UpdateMeshSection_LinearColor(0,Positions,{}, {}, {}, {},false);
         }
-        bRefreshArrows|=NewFloor;
     }
     else
     {
         // A replacement map with no native tongue retains its flat authored guide.
+        NewArrows|=GeometryChanged;
         MCDeliveryGuide::FMesh Fill;
         for(int32 Row=0;Row<16;++Row)
         {
@@ -151,45 +159,32 @@ void UMCDeliveryZoneVisualComponent::Rebuild(float Time,bool bRefreshArrows)
         }
         Fill.Apply(Floor);
     }
-    if(bRefreshArrows)
+    if(NewArrows)
     {
         MCDeliveryGuide::FMesh ArrowMesh;MCDeliveryGuide::FSurfaceOverlay Strokes;
-        const FVector Direction=Zone->GetDeliveryDirection(),Side=FVector::CrossProduct(FVector::UpVector,Direction);
-        const float Cycle=FMath::Frac(Time/FMath::Max(.5f,ArrowPeriod));
-        auto Quad=[&](const FVector& A,const FVector& B,const FVector& C,const FVector& D,float Alpha,float Other=-1.f)
-        {
-            if(Native) SurfaceCache->ClipQuad(Strokes,A,B,C,D,Alpha,Other,6);
-            else ArrowMesh.Quad(MeshTransform.InverseTransformPosition(A+FVector(0,0,12)),MeshTransform.InverseTransformPosition(B+FVector(0,0,12)),
-                MeshTransform.InverseTransformPosition(C+FVector(0,0,12)),MeshTransform.InverseTransformPosition(D+FVector(0,0,12)),Alpha,Other);
-        };
+        constexpr float Scale=2.4f;
+        // Both chevrons, including their halo and the entire +/-45 cm sweep,
+        // share one fixed patch per row. Clip against native faces only here.
+        const float Travel=HasCap?45.f:0.f;
+        const FVector2D Corners[]={FVector2D(-177.6f-Travel,-108),FVector2D(69.6f+Travel,-108),
+            FVector2D(69.6f+Travel,108),FVector2D(-177.6f-Travel,108)};
+        ArrowMID->SetScalarParameterValue(TEXT("ArrowTravelDistance"),Travel*2);
         for(int32 Row=0;Row<5;++Row)
         {
             FVector Center;
             if(HasCap)
             {
                 const float Sample=FMath::Lerp(.12f,.88f,Row/4.f)*(Outer.Num()-1);const int32 Index=FMath::Min(FMath::FloorToInt(Sample),Outer.Num()-2);const float T=Sample-Index;
-                Center=FMath::Lerp(FMath::Lerp(Inner[Index],Inner[Index+1],T),FMath::Lerp(Outer[Index],Outer[Index+1],T),.63f)+Direction*FMath::Lerp(-45.f,45.f,Cycle);
+                Center=FMath::Lerp(FMath::Lerp(Inner[Index],Inner[Index+1],T),FMath::Lerp(Outer[Index],Outer[Index+1],T),.63f);
             }
             else Center=Geometry.TransformPosition(FVector(0,FMath::Lerp(-Extent.Y*.78f,Extent.Y*.78f,Row/4.f),0));
-            for(int32 Pair=0;Pair<2;++Pair)
+            FVector P[4];for(int32 I=0;I<4;++I) P[I]=Center+Direction*Corners[I].X+Side*Corners[I].Y;
+            if(Native) SurfaceCache->ClipTexturedQuad(Strokes,P[0],P[1],P[2],P[3],Center,Direction,Side,Scale,6);
+            else
             {
-                const FVector Chevron=Center-Direction*Pair*96.f;constexpr float Scale=2.4f,Radius=7.f,HaloRadius=12.f;
-                auto P=[&](FVector2D XY){return Chevron+(Direction*XY.X+Side*XY.Y)*Scale;};
-                auto Arm=[&](FVector2D A,FVector2D B)
-                {
-                    const FVector2D Axis=(B-A).GetSafeNormal(),Normal(-Axis.Y,Axis.X),Across=Normal*Radius,Halo=Normal*HaloRadius;
-                    Quad(P(A+Across),P(B+Across),P(B-Across),P(A-Across),.96f);
-                    Quad(P(A+Halo),P(A+Across),P(B+Across),P(B+Halo),0,.32f);
-                    Quad(P(A-Halo),P(A-Across),P(B-Across),P(B-Halo),0,.32f);
-                };
-                const FVector2D Ends[]={FVector2D(-22,-33),FVector2D(17,0),FVector2D(-22,33)};Arm(Ends[0],Ends[1]);Arm(Ends[1],Ends[2]);
-                for(const FVector2D End:Ends) for(int32 Segment=0;Segment<8;++Segment)
-                {
-                    auto Offset=[&](float Angle,float R){return (Direction*FMath::Cos(Angle)+Side*FMath::Sin(Angle))*(Scale*R);};
-                    const FVector CenterPoint=P(End);const float A=Segment*PI/4,B=(Segment+1)*PI/4;
-                    Quad(CenterPoint,CenterPoint+Offset(A,Radius),CenterPoint+Offset(B,Radius),CenterPoint,.96f);
-                    Quad(CenterPoint+Offset(A,Radius),CenterPoint+Offset(A,HaloRadius),CenterPoint+Offset(B,HaloRadius),CenterPoint+Offset(B,Radius),.32f,0);
-                }
+                ArrowMesh.Quad(MeshTransform.InverseTransformPosition(P[0]+FVector(0,0,12)),MeshTransform.InverseTransformPosition(P[1]+FVector(0,0,12)),
+                    MeshTransform.InverseTransformPosition(P[2]+FVector(0,0,12)),MeshTransform.InverseTransformPosition(P[3]+FVector(0,0,12)),1);
+                for(const auto& Corner:Corners) ArrowMesh.UV.Add(Corner/Scale);
             }
         }
         if(Native)
@@ -199,14 +194,18 @@ void UMCDeliveryZoneVisualComponent::Rebuild(float Time,bool bRefreshArrows)
         }
         ArrowMesh.Apply(Arrows);
     }
-    else if(Native)
+    else if(Native && UpdatePositions)
     {
         TArray<FVector> Positions;SurfaceCache->Positions(SurfaceCache->Arrows,MeshTransform,Positions);
         Arrows->UpdateMeshSection_LinearColor(0,Positions,{}, {}, {}, {},false);
     }
-    FVector LabelPoint=HasCap?FMath::Lerp(Inner[Inner.Num()/2],Outer[Outer.Num()/2],.35f):Geometry.GetLocation();FHitResult Hit;
-    if(Tongue.IsValid() && Tongue->SurfacePoint(LabelPoint,Hit)) LabelPoint=Hit.ImpactPoint;
-    Caption->SetWorldLocation(LabelPoint+FVector(0,0,110));
+    if(UpdatePositions || GeometryChanged || NewArrows)
+    {
+        FVector LabelPoint=HasCap?FMath::Lerp(Inner[Inner.Num()/2],Outer[Outer.Num()/2],.35f):Geometry.GetLocation();FHitResult Hit;
+        if(Tongue.IsValid() && Tongue->SurfacePoint(LabelPoint,Hit)) LabelPoint=Hit.ImpactPoint;
+        Caption->SetWorldLocation(LabelPoint+FVector(0,0,110));
+    }
+    bGuidesBuilt=true;CachedGeometry=Geometry;CachedMeshTransform=MeshTransform;CachedExtent=Extent;CachedDirection=Direction;bCachedCircular=Circular;bCachedCap=HasCap;
 }
 
 void UMCDeliveryZoneVisualComponent::EndPlay(const EEndPlayReason::Type Reason)

@@ -56,7 +56,7 @@ void MCTickCalculusValidation(UWorld* World)
         TWeakObjectPtr<AMCArenaTooth> Tooth;
         TWeakObjectPtr<UMCMotionRecorder> Recorder;
         TWeakObjectPtr<ACameraActor> Camera;
-        double At=0,CompletedAt=-1,GrownWarmupAt=-1;
+        double At=0,CompletedAt=-1,GrownWarmupAt=-1,ChiselStartedAt=-1;
         float Age=0,ChiselHealth=0,MinTipError=MAX_flt;
         int32 Stage=-1,InitialPieces=0,InitialTriangles=0,ChiselSwings=0,ChiselHits=0,ClickSwings=0,ClickHits=0,TipSamples=0;
         uint32 InitialGeometry=0;
@@ -179,7 +179,11 @@ void MCTickCalculusValidation(UWorld* World)
             Stage(3,EMCToolSlot::Pickaxe); return;
         }
     }
-    else if (T>.3 && !R.Pressed) { Hero->ServerSetPrimary(true); R.Pressed=true; }
+    else if (T>.3 && !R.Pressed)
+    {
+        R.ChiselStartedAt=World->GetTimeSeconds();
+        Hero->ServerSetPrimary(true); R.Pressed=true;
+    }
     if (FMath::Abs(Hero->GetToolSwingElapsed()-Hero->Inventory->SwingContactTime())<.1f
         && Hero->GetCalculusSwingContact(Contact,Normal))
     {
@@ -200,6 +204,8 @@ void MCTickCalculusValidation(UWorld* World)
     if (!Calculus->HasCalculus() && R.CompletedAt<0)
     {
         Hero->ServerSetPrimary(false); R.CompletedAt=World->GetTimeSeconds();
+        UE_LOG(LogTemp,Display,TEXT("MC_CALCULUS_CLEARED seconds=%.3f swings=%d hits=%d"),
+            R.CompletedAt-R.ChiselStartedAt,Hero->ValidatedSwingCount-R.ChiselSwings,Hero->ConfirmedHitCount-R.ChiselHits);
         Shot(TEXT("03_Cleared"));
     }
     else if (R.CompletedAt<0 && !ShotRequested) MCTickApprovalRecorder(World);

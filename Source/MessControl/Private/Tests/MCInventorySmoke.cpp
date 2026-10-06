@@ -156,12 +156,12 @@ void MCTickInventoryValidation(UWorld* World)
         if(R.Stage==6) { H->Status->Damage(10000); H->RespawnAt=GS->GetServerWorldTimeSeconds()+20; }
     }
     const float Since=R.Age-R.StageAt;
-    if(R.Stage==1 && Since<1.05f) R.HandTravel=FMath::Max(R.HandTravel,float(FVector::Distance(R.HandStart,H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))))));
+    if(R.Stage==1 && Since<H->Inventory->SwingDuration()) R.HandTravel=FMath::Max(R.HandTravel,float(FVector::Distance(R.HandStart,H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))))));
     if(R.Stage==2 && Since<H->Inventory->SwingDuration()) {
         const float Height=H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r"))).Z-R.HandStart.Z;
         R.HandLift=FMath::Max(R.HandLift,Height); R.HandDrop=FMath::Min(R.HandDrop,Height);
     }
-    const float CaptureAt=R.Stage==1?.30f:R.Stage==2?.20f:1.1f;
+    const float CaptureAt=R.Stage==1?.30f/UMCInventoryComponent::SwingPlayRate(EMCToolSlot::Pickaxe):R.Stage==2?.20f:1.1f;
     if(R.Stage==3 && Since>.8f && !R.SprayPoseChecked) {
         const FVector Face=(H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("eye_l")))+H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("eye_r"))))*.5;
         const FVector Delta=H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_r")))-Face;

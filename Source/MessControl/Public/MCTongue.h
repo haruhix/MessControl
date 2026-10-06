@@ -57,6 +57,8 @@ public:
     // Used by validation to compare the rendered triangle with collision.
     const TArray<FVector>& CurrentVertices() const { return Positions; }
     const TArray<int32>& TriangleIndices() const { return Indices; }
+    // Local version of CurrentVertices, advanced after each surface write.
+    uint64 SurfaceRevision() const { return SurfaceGeometryRevision; }
     int32 PlayerPushes=0,FoodPushes=0;
 private:
     struct FFoodSupport
@@ -116,6 +118,7 @@ private:
     float SampleOffset(const FDeformationSample& Sample,float Time,float IdleAngle,float Envelope,float YawnHeight,float& Red,TConstArrayView<FMCTongueMotionState> Pulses) const;
     friend class FMCTongueCachedDeformationTest;
     void Deform(float Time);
+    uint64 SurfaceGeometryRevision=0;
     TArray<FVector> Rest,RestNormals,Positions,Normals;
     TArray<float> AnchorWeights;
     TArray<FVector> AnchorGradients;

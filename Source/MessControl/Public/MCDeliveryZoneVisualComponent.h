@@ -26,7 +26,7 @@ public:
     UPROPERTY(EditAnywhere,Category="Delivery|Guide",meta=(ClampMin="0.5")) float ArrowPeriod=1.4f;
     UPROPERTY(EditAnywhere,Category="Delivery|Guide",meta=(ClampMin="0",ClampMax="1")) float FillOpacity=.26f;
 private:
-    void Rebuild(float Time,bool bRefreshArrows);
+    void Rebuild();
     UProceduralMeshComponent* MakeMesh(FName Name);
     TWeakObjectPtr<AMCFoodDisposal> Zone;
     TWeakObjectPtr<AMCTongue> Tongue;
@@ -36,5 +36,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> FloorMID;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ArrowMID;
     TSharedPtr<MCDeliveryGuide::FSurfaceCache> SurfaceCache;
-    float RebuildElapsed=0;
+    FTransform CachedGeometry,CachedMeshTransform;
+    FVector CachedExtent=FVector::ZeroVector,CachedDirection=FVector::ZeroVector;
+    bool bGuidesBuilt=false,bCachedCircular=false,bCachedCap=false;
 };

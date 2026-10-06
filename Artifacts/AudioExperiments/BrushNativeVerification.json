@@ -1,0 +1,14 @@
+{
+  "scope": "final-build real game MCBrushTest",
+  "audio_route_status": "passed",
+  "brush_events": 5,
+  "intensity": 0.65,
+  "speed": 0.333,
+  "fixture_capsule_free": true,
+  "changed_grime_cells": 29,
+  "visual_contacts": 129,
+  "native_test_status": "failed",
+  "native_test_failure": "Work hand motion maxStep60 15.897 cm exceeds 10 cm threshold",
+  "log": "E:/DEVGAME/MessControl/Saved/MetaSoundBrushGame.log",
+  "build_utc": "2026-10-05T03:23:30.161493+00:00"
+}

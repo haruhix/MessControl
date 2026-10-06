@@ -1,0 +1,12 @@
+{
+  "frames": 363,
+  "firstGameTime": 4.000661,
+  "lastGameTime": 34.427733,
+  "duration": 30.533333,
+  "sampleFPS": 11.9,
+  "capture": "Unreal game render target",
+  "caption": "Кола: заморозка языка, скольжение и разрушение льда в Windows-билде",
+  "sha256": "58dc989e7f429b98877ac5bd4728b39b5c6a32161f671e6255f87dc6ca46d0e5",
+  "size": 5827812,
+  "sourceFrames": "E:\\DEVGAME\\MessControl\\Saved\\Builds\\Gameplay_20261004\\Windows\\MessControl\\Saved\\ApprovalFrames\\ReviewCola_20261004"
+}

@@ -1,4 +1,4 @@
-param([string]$EngineRoot=$env:UE_ROOT,[switch]$HideThroatArt)
+param([string]$EngineRoot=$env:UE_ROOT,[switch]$HideThroatArt,[ValidateRange(0,240)][int]$MaxFPS=30)
 $ErrorActionPreference='Stop'
 $taskRoot=Split-Path -Parent $PSScriptRoot
 if(-not $EngineRoot) {
@@ -20,7 +20,7 @@ if($HideThroatArt) {
 if(Test-Path -LiteralPath $taskLog) {Remove-Item -LiteralPath $taskLog}
 $taskArgs=@("`"$taskProject`"",'/Game/Maps/L_Mouth?Seed=41','-game','-nosteam','-MCFoodZonesCloseup','-unattended','-nosound','-nosplash','-nop4',"`"-abslog=$taskLog`"",
     '-RenderOffscreen','-windowed','-ForceRes','-ResX=1280','-ResY=720','-NoScreenMessages',
-    '-ExecCmds="t.MaxFPS 30,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,sg.PostProcessQuality 1,r.ScreenPercentage 100"')
+    "-ExecCmds=`"t.MaxFPS $MaxFPS,t.IdleWhenNotForeground 0,sg.GlobalIlluminationQuality 1,sg.ReflectionQuality 1,sg.ShadowQuality 1,sg.PostProcessQuality 1,r.ScreenPercentage 100`"")
 if($HideThroatArt) {$taskArgs+='-MCFoodZonesHideThroatArt'}
 $taskProcess=$null
 try {

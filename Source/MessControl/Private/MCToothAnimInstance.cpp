@@ -709,7 +709,8 @@ public:
         const bool CalculusContact=CalculusAllowed
             && Tooth->Inventory->CalculusHandGoal(CalculusHand,CalculusBlend);
         if(CalculusContact) LastCalculusHand=CalculusHand.GetRelativeTransform(Tooth->GetActorTransform());
-        CalculusPoseAlpha=CalculusAllowed?FMath::FInterpConstantTo(CalculusPoseAlpha,CalculusContact?1.f:0.f,Dt,CalculusContact?6.25f:3.33f):0.f;
+        const float PickaxePlayRate=UMCInventoryComponent::SwingPlayRate(EMCToolSlot::Pickaxe);
+        CalculusPoseAlpha=CalculusAllowed?FMath::FInterpConstantTo(CalculusPoseAlpha,CalculusContact?1.f:0.f,Dt,(CalculusContact?6.25f:3.33f)*PickaxePlayRate):0.f;
         CalculusHand=LastCalculusHand*Tooth->GetActorTransform(); CalculusBlend=CalculusPoseAlpha;
         // Hold the ready pose across repeated swings. Only losing the aimed
         // cycle fades to the normal grip, rather than dropping it every hit.
@@ -724,7 +725,7 @@ public:
             Rotate(TEXT("arm_l"),FRotator(-Tooth->AnimationToolOffset.Z*.22f,0,-Tooth->AnimationToolOffset.Z*.10f));
         }
         if(AimedCalculus) {
-            const float T=Tooth->GetToolSwingElapsed(),Contact=Tooth->Inventory->SwingContactTime();
+            const float T=Tooth->GetToolSwingElapsed()*PickaxePlayRate,Contact=Tooth->Inventory->SwingContactTime()*PickaxePlayRate;
             const float WindEnd=FMath::Max(.1f,Contact-.14f);
             const float Wind=FMath::SmoothStep(0.f,WindEnd,T)*(1-FMath::SmoothStep(WindEnd,Contact,T));
             const float Impact=FMath::SmoothStep(WindEnd,Contact,T)*(1-FMath::SmoothStep(Contact,Contact+.10f,T));

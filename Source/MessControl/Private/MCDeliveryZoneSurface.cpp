@@ -61,11 +61,14 @@ void FReceiverDepthGuard::Restore()
 bool FSurfaceCache::Refresh(const AMCTongue* Tongue)
 {
     if(!Tongue || !Tongue->Surface || Tongue->CurrentVertices().IsEmpty() || Tongue->TriangleIndices().IsEmpty())
-    {bReady=false;return false;}
+    {bReady=false;bPositionsChanged=false;return false;}
     const auto& Vertices=Tongue->CurrentVertices();const auto& Indices=Tongue->TriangleIndices();
     const FTransform Transform=Tongue->Surface->GetComponentTransform();
     const bool Changed=!bReady || SourceMesh.Get()!=Tongue->SourceMesh || !SourceTransform.Equals(Transform)
         || SourceVertexCount!=Vertices.Num() || SourceIndexCount!=Indices.Num();
+    bPositionsChanged=Changed || SourceRevision!=Tongue->SurfaceRevision();
+    if(!bPositionsChanged) return false;
+    SourceRevision=Tongue->SurfaceRevision();
     WorldVertices.SetNumUninitialized(Vertices.Num());
     for(int32 I=0;I<Vertices.Num();++I) WorldVertices[I]=Transform.TransformPosition(Vertices[I]);
     if(!Changed) return false;
@@ -174,6 +177,19 @@ void FSurfaceCache::ClipQuad(FSurfaceOverlay& Out,const FVector& A,const FVector
     const FFootprintVertex Second[]={{XY(A),Alpha},{XY(C),Other},{XY(D),Alpha}};
     Clip(Out,MakeArrayView(First),Lift);
     Clip(Out,MakeArrayView(Second),Lift);
+}
+
+void FSurfaceCache::ClipTexturedQuad(FSurfaceOverlay& Out,const FVector& A,const FVector& B,const FVector& C,const FVector& D,
+    const FVector& Origin,const FVector& AxisX,const FVector& AxisY,float UnitsPerUV,float Lift) const
+{
+    const int32 First=Out.Vertices.Num();
+    ClipQuad(Out,A,B,C,D,1,-1,Lift);
+    for(int32 I=First;I<Out.Vertices.Num();++I)
+    {
+        auto& V=Out.Vertices[I];
+        const FVector P=WorldVertices[V.Source.X]*V.Weights.X+WorldVertices[V.Source.Y]*V.Weights.Y+WorldVertices[V.Source.Z]*V.Weights.Z-Origin;
+        V.UV=FVector2D(FVector::DotProduct(P,AxisX),FVector::DotProduct(P,AxisY))/UnitsPerUV;
+    }
 }
 
 void FSurfaceCache::AddRim(FSurfaceOverlay& Out,const TArray<FVector>& Outer,const TArray<FVector>& Inner) const

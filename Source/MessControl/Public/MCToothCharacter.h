@@ -14,6 +14,7 @@ class UMCToothStatusComponent;
 class UMCGazeComponent;
 class UMCGripComponent;
 class UMCExpressionComponent;
+class UMCExperimentalAudioComponent;
 class AMCFoodActor;
 class AMCArenaTooth;
 class AMCRewardChest;
@@ -164,6 +165,7 @@ public:
     TWeakObjectPtr<AActor> MouthCameraBounds;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TObjectPtr<UMCAnimationProfile> AnimationProfile;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") TObjectPtr<UMCSoundPalette> SoundPalette;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Audio") TObjectPtr<UMCExperimentalAudioComponent> ExperimentalAudio;
     UPROPERTY(BlueprintReadWrite, Category="Animation") FMCAnimationSettings AnimationSettings;
     UPROPERTY(BlueprintReadWrite, Category="Animation") bool bPreviewAnimation = false;
     UPROPERTY(ReplicatedUsing=OnRep_Working, BlueprintReadOnly, Category="Action") bool bBrushing = false;
@@ -222,8 +224,8 @@ private:
     TArray<TWeakObjectPtr<AActor>> OrderJumpIgnoredActors;
     void FindWork(float DeltaSeconds);
     UFUNCTION(Server,Reliable) void ServerSwingBrush();
-    UFUNCTION(NetMulticast,Reliable) void MulticastSwing(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal);
-    UFUNCTION(NetMulticast,Unreliable) void MulticastHitSound(FVector Location);
+    UFUNCTION(NetMulticast,Reliable) void MulticastSwing(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot);
+    UFUNCTION(NetMulticast,Unreliable) void MulticastHitSound(FVector Location,uint8 ToolSlot,float Intensity);
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit);
     void ResolveSwing();
     AMCArenaTooth* FindCalculusTarget(FVector& Point,FVector& Normal) const;
@@ -258,6 +260,8 @@ private:
     float LandingImpulse = 0.f;
     float WorkStartedAt = -10.f;
     float SoundAccumulator = 0.f;
+    float BrushSoundAccumulator=0.f;
+    float FootstepSoundCooldown=0.f;
     float BrushAngle = 0.f;
     bool bLoadedLocalTuning = false;
     bool bDeathReported=false;

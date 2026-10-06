@@ -68,10 +68,12 @@ bool UMCInventoryComponent::CanBreak(const AMCFoodActor* Food) const
 }
 float UMCInventoryComponent::Damage() const
 { return FMath::Max(1.f,Selected==EMCToolSlot::Pickaxe?(Settings?Settings->PickaxeDamage:40.f):(Settings?Settings->KnifeDamage:25.f)); }
-float UMCInventoryComponent::SwingDuration() const { return Selected==EMCToolSlot::Pickaxe?1.05f:Selected==EMCToolSlot::Knife?.70f:.85f; }
-float UMCInventoryComponent::SwingContactTime() const { return Selected==EMCToolSlot::Pickaxe?.38f:Selected==EMCToolSlot::Knife?.28f:.16f; }
+float UMCInventoryComponent::SwingPlayRate(EMCToolSlot Slot) { return Slot==EMCToolSlot::Pickaxe?1.05f/.65f:1.f; }
+float UMCInventoryComponent::SwingDuration() const { return (Selected==EMCToolSlot::Pickaxe?1.05f:Selected==EMCToolSlot::Knife?.70f:.85f)/SwingPlayRate(Selected); }
+float UMCInventoryComponent::SwingContactTime() const { return (Selected==EMCToolSlot::Pickaxe?.38f:Selected==EMCToolSlot::Knife?.28f:.16f)/SwingPlayRate(Selected); }
 float UMCInventoryComponent::SwingAngle(EMCToolSlot Slot,float T)
 {
+    T*=SwingPlayRate(Slot);
     const bool Chop=Slot==EMCToolSlot::Knife;
     const float Wind=Slot==EMCToolSlot::Pickaxe?.30f:Chop?.20f:.11f;
     const float Hit=Slot==EMCToolSlot::Pickaxe?.44f:Chop?.34f:.22f;
@@ -84,6 +86,7 @@ float UMCInventoryComponent::SwingAngle(EMCToolSlot Slot,float T)
 }
 FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 {
+    T*=SwingPlayRate(Slot);
     if(Slot==EMCToolSlot::Knife) {
         if(T<0 || T>=.64f) return FVector::ZeroVector;
         const FVector Wind(-40,10,105),Contact(70,-8,25),Follow(55,-10,-38);
@@ -162,10 +165,11 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
     FVector Point,Normal;
     if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe
         || !Hero->GetCalculusSwingContact(Point,Normal)) return false;
-    const float T=Hero->GetToolSwingElapsed();
-    const float Contact=SwingContactTime();
+    const float PlayRate=SwingPlayRate(Selected);
+    const float T=Hero->GetToolSwingElapsed()*PlayRate;
+    const float Contact=SwingContactTime()*PlayRate;
     const float WindEnd=FMath::Max(.1f,Contact-.14f);
-    const float RecoilEnd=Contact+.10f,RecoveryEnd=SwingDuration()-.17f;
+    const float RecoilEnd=Contact+.10f,RecoveryEnd=SwingDuration()*PlayRate-.17f;
     Blend=1;
     FVector Right=FVector::CrossProduct(FVector::UpVector,-Normal).GetSafeNormal();
     if(FVector::DotProduct(Right,Hero->GetActorRightVector())<0) Right=-Right;

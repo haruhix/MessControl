@@ -1,0 +1,666 @@
+{
+  "status": "passed",
+  "scope": "real UE mixer asset playback",
+  "quick_probe": false,
+  "sequence": "legacy x2, MetaSound low x2, MetaSound high x2 per section",
+  "sections": [
+    {
+      "event": "Step",
+      "start_seconds": 0.0,
+      "end_seconds": 4.0,
+      "legacy_asset": "/Game/Audio/S_Step.S_Step",
+      "metasound_asset": "/Game/Audio/Experiments/MS_Step.MS_Step",
+      "legacy_window": [
+        0.25,
+        1.25
+      ],
+      "low_window": [
+        1.45,
+        2.45
+      ],
+      "high_window": [
+        2.65,
+        3.65
+      ],
+      "legacy_rms": 0.0011043271207867356,
+      "low_rms": 0.0032960620003605204,
+      "high_rms": 0.0088324180409298,
+      "wav": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\AB_Step.wav"
+    },
+    {
+      "event": "KnifeSwing",
+      "start_seconds": 4.0,
+      "end_seconds": 8.0,
+      "legacy_asset": "/Game/Audio/S_Whoosh.S_Whoosh",
+      "metasound_asset": "/Game/Audio/Experiments/MS_KnifeSwing.MS_KnifeSwing",
+      "legacy_window": [
+        4.25,
+        5.25
+      ],
+      "low_window": [
+        5.45,
+        6.45
+      ],
+      "high_window": [
+        6.65,
+        7.65
+      ],
+      "legacy_rms": 0.004044597065744523,
+      "low_rms": 0.0018034940082543348,
+      "high_rms": 0.005761129371353515,
+      "wav": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\AB_KnifeSwing.wav"
+    },
+    {
+      "event": "KnifeHit",
+      "start_seconds": 8.0,
+      "end_seconds": 12.0,
+      "legacy_asset": "/Game/Audio/S_Hit.S_Hit",
+      "metasound_asset": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit",
+      "legacy_window": [
+        8.25,
+        9.25
+      ],
+      "low_window": [
+        9.45,
+        10.45
+      ],
+      "high_window": [
+        10.65,
+        11.65
+      ],
+      "legacy_rms": 0.009183895762571911,
+      "low_rms": 0.0034628290569896363,
+      "high_rms": 0.009561647821018395,
+      "wav": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\AB_KnifeHit.wav"
+    },
+    {
+      "event": "PickaxeSwing",
+      "start_seconds": 12.0,
+      "end_seconds": 16.0,
+      "legacy_asset": "/Game/Audio/S_Whoosh.S_Whoosh",
+      "metasound_asset": "/Game/Audio/Experiments/MS_PickaxeSwing.MS_PickaxeSwing",
+      "legacy_window": [
+        12.25,
+        13.25
+      ],
+      "low_window": [
+        13.45,
+        14.45
+      ],
+      "high_window": [
+        14.65,
+        15.65
+      ],
+      "legacy_rms": 0.004044597065744523,
+      "low_rms": 0.0014945006910623234,
+      "high_rms": 0.005084006286334633,
+      "wav": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\AB_PickaxeSwing.wav"
+    },
+    {
+      "event": "PickaxeHit",
+      "start_seconds": 16.0,
+      "end_seconds": 20.0,
+      "legacy_asset": "/Game/Audio/S_Hit.S_Hit",
+      "metasound_asset": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit",
+      "legacy_window": [
+        16.25,
+        17.25
+      ],
+      "low_window": [
+        17.45,
+        18.45
+      ],
+      "high_window": [
+        18.65,
+        19.65
+      ],
+      "legacy_rms": 0.009183895762571911,
+      "low_rms": 0.003999059025948066,
+      "high_rms": 0.010872855574998846,
+      "wav": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\AB_PickaxeHit.wav"
+    },
+    {
+      "event": "Brush",
+      "start_seconds": 20.0,
+      "end_seconds": 24.0,
+      "legacy_asset": "/Game/Audio/S_Brush.S_Brush",
+      "metasound_asset": "/Game/Audio/Experiments/MS_Brush.MS_Brush",
+      "legacy_window": [
+        20.25,
+        21.25
+      ],
+      "low_window": [
+        21.45,
+        22.45
+      ],
+      "high_window": [
+        22.65,
+        23.65
+      ],
+      "legacy_rms": 0.001449242494517995,
+      "low_rms": 0.0007952695831230908,
+      "high_rms": 0.0028021863816743483,
+      "wav": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\AB_Brush.wav"
+    }
+  ],
+  "events": [
+    {
+      "event": "Step",
+      "mode": "legacy",
+      "planned_seconds": 0.25,
+      "actual_seconds": 0.25,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Step.S_Step"
+    },
+    {
+      "event": "Step",
+      "mode": "legacy",
+      "planned_seconds": 0.75,
+      "actual_seconds": 0.75,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Step.S_Step"
+    },
+    {
+      "event": "Step",
+      "mode": "low",
+      "planned_seconds": 1.45,
+      "actual_seconds": 1.4530000000013388,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_Step.MS_Step"
+    },
+    {
+      "event": "Step",
+      "mode": "low",
+      "planned_seconds": 1.95,
+      "actual_seconds": 1.9530000000013388,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_Step.MS_Step"
+    },
+    {
+      "event": "Step",
+      "mode": "high",
+      "planned_seconds": 2.65,
+      "actual_seconds": 2.6560000000026776,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_Step.MS_Step"
+    },
+    {
+      "event": "Step",
+      "mode": "high",
+      "planned_seconds": 3.15,
+      "actual_seconds": 3.1560000000026776,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_Step.MS_Step"
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "legacy",
+      "planned_seconds": 4.25,
+      "actual_seconds": 4.25,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Whoosh.S_Whoosh"
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "legacy",
+      "planned_seconds": 4.75,
+      "actual_seconds": 4.75,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Whoosh.S_Whoosh"
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "low",
+      "planned_seconds": 5.45,
+      "actual_seconds": 5.453000000001339,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_KnifeSwing.MS_KnifeSwing"
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "low",
+      "planned_seconds": 5.95,
+      "actual_seconds": 5.953000000001339,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_KnifeSwing.MS_KnifeSwing"
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "high",
+      "planned_seconds": 6.65,
+      "actual_seconds": 6.6560000000026776,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_KnifeSwing.MS_KnifeSwing"
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "high",
+      "planned_seconds": 7.15,
+      "actual_seconds": 7.1560000000026776,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_KnifeSwing.MS_KnifeSwing"
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "legacy",
+      "planned_seconds": 8.25,
+      "actual_seconds": 8.25,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Hit.S_Hit"
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "legacy",
+      "planned_seconds": 8.75,
+      "actual_seconds": 8.75,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Hit.S_Hit"
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "low",
+      "planned_seconds": 9.45,
+      "actual_seconds": 9.453000000001339,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit"
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "low",
+      "planned_seconds": 9.95,
+      "actual_seconds": 9.953000000001339,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit"
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "high",
+      "planned_seconds": 10.65,
+      "actual_seconds": 10.656000000002678,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit"
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "high",
+      "planned_seconds": 11.15,
+      "actual_seconds": 11.156000000002678,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_KnifeHit.MS_KnifeHit"
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "legacy",
+      "planned_seconds": 12.25,
+      "actual_seconds": 12.25,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Whoosh.S_Whoosh"
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "legacy",
+      "planned_seconds": 12.75,
+      "actual_seconds": 12.75,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Whoosh.S_Whoosh"
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "low",
+      "planned_seconds": 13.45,
+      "actual_seconds": 13.453000000001339,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_PickaxeSwing.MS_PickaxeSwing"
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "low",
+      "planned_seconds": 13.95,
+      "actual_seconds": 13.953000000001339,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_PickaxeSwing.MS_PickaxeSwing"
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "high",
+      "planned_seconds": 14.65,
+      "actual_seconds": 14.656000000002678,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_PickaxeSwing.MS_PickaxeSwing"
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "high",
+      "planned_seconds": 15.15,
+      "actual_seconds": 15.156000000002678,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_PickaxeSwing.MS_PickaxeSwing"
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "legacy",
+      "planned_seconds": 16.25,
+      "actual_seconds": 16.25,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Hit.S_Hit"
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "legacy",
+      "planned_seconds": 16.75,
+      "actual_seconds": 16.75,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Hit.S_Hit"
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "low",
+      "planned_seconds": 17.45,
+      "actual_seconds": 17.45300000000134,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit"
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "low",
+      "planned_seconds": 17.95,
+      "actual_seconds": 17.95300000000134,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit"
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "high",
+      "planned_seconds": 18.65,
+      "actual_seconds": 18.656000000002678,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit"
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "high",
+      "planned_seconds": 19.15,
+      "actual_seconds": 19.156000000002678,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_PickaxeHit.MS_PickaxeHit"
+    },
+    {
+      "event": "Brush",
+      "mode": "legacy",
+      "planned_seconds": 20.25,
+      "actual_seconds": 20.25,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Brush.S_Brush"
+    },
+    {
+      "event": "Brush",
+      "mode": "legacy",
+      "planned_seconds": 20.75,
+      "actual_seconds": 20.75,
+      "intensity": 0.0,
+      "speed": 0.0,
+      "asset": "/Game/Audio/S_Brush.S_Brush"
+    },
+    {
+      "event": "Brush",
+      "mode": "low",
+      "planned_seconds": 21.45,
+      "actual_seconds": 21.45300000000134,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_Brush.MS_Brush"
+    },
+    {
+      "event": "Brush",
+      "mode": "low",
+      "planned_seconds": 21.95,
+      "actual_seconds": 21.95300000000134,
+      "intensity": 0.25,
+      "speed": 0.15,
+      "asset": "/Game/Audio/Experiments/MS_Brush.MS_Brush"
+    },
+    {
+      "event": "Brush",
+      "mode": "high",
+      "planned_seconds": 22.65,
+      "actual_seconds": 22.656000000002678,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_Brush.MS_Brush"
+    },
+    {
+      "event": "Brush",
+      "mode": "high",
+      "planned_seconds": 23.15,
+      "actual_seconds": 23.156000000002678,
+      "intensity": 0.95,
+      "speed": 0.9,
+      "asset": "/Game/Audio/Experiments/MS_Brush.MS_Brush"
+    }
+  ],
+  "voice_checks": [
+    {
+      "event": "Step",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.10899999999674037
+    },
+    {
+      "event": "Step",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.10899999999674037
+    },
+    {
+      "event": "Step",
+      "mode": "low",
+      "stopped_after_seconds": 0.18699999999807915
+    },
+    {
+      "event": "Step",
+      "mode": "low",
+      "stopped_after_seconds": 0.20300000000133878
+    },
+    {
+      "event": "Step",
+      "mode": "high",
+      "stopped_after_seconds": 0.18699999999807915
+    },
+    {
+      "event": "Step",
+      "mode": "high",
+      "stopped_after_seconds": 0.20299999999406282
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.23399999999674037
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.25
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "low",
+      "stopped_after_seconds": 0.2809999999954016
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "low",
+      "stopped_after_seconds": 0.2649999999994179
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "high",
+      "stopped_after_seconds": 0.2649999999994179
+    },
+    {
+      "event": "KnifeSwing",
+      "mode": "high",
+      "stopped_after_seconds": 0.25
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.2180000000007567
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.20300000000133878
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "low",
+      "stopped_after_seconds": 0.2969999999986612
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "low",
+      "stopped_after_seconds": 0.31199999999807915
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "high",
+      "stopped_after_seconds": 0.2969999999986612
+    },
+    {
+      "event": "KnifeHit",
+      "mode": "high",
+      "stopped_after_seconds": 0.2969999999986612
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.23399999999674037
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.25
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "low",
+      "stopped_after_seconds": 0.2649999999994179
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "low",
+      "stopped_after_seconds": 0.2809999999954016
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "high",
+      "stopped_after_seconds": 0.2969999999986612
+    },
+    {
+      "event": "PickaxeSwing",
+      "mode": "high",
+      "stopped_after_seconds": 0.2809999999954016
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.23399999999674037
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.2180000000007567
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "low",
+      "stopped_after_seconds": 0.35899999999674037
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "low",
+      "stopped_after_seconds": 0.375
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "high",
+      "stopped_after_seconds": 0.35899999999674037
+    },
+    {
+      "event": "PickaxeHit",
+      "mode": "high",
+      "stopped_after_seconds": 0.35899999999674037
+    },
+    {
+      "event": "Brush",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.18699999999807915
+    },
+    {
+      "event": "Brush",
+      "mode": "legacy",
+      "stopped_after_seconds": 0.20300000000133878
+    },
+    {
+      "event": "Brush",
+      "mode": "low",
+      "stopped_after_seconds": 0.25
+    },
+    {
+      "event": "Brush",
+      "mode": "low",
+      "stopped_after_seconds": 0.25
+    },
+    {
+      "event": "Brush",
+      "mode": "high",
+      "stopped_after_seconds": 0.2649999999994179
+    },
+    {
+      "event": "Brush",
+      "mode": "high",
+      "stopped_after_seconds": 0.25
+    }
+  ],
+  "baseline_note": "Knife and pickaxe use the existing shared Whoosh/Hit palette entries.",
+  "submix": "/Engine/Transient.SoundSubmix_5",
+  "audio_focus": "au.DisableAppVolume 1; EnableGameSound true (restored afterwards). Legacy au.SoloAudio was unrecognized; future script uses au.Debug.SoloAudio.",
+  "stopped_owned_actor_audio": 0,
+  "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+  "wav": {
+    "path": "E:\\DEVGAME\\MessControl\\Artifacts\\AudioExperiments\\MetaSound_AB.wav",
+    "channels": 2,
+    "sample_rate": 48000,
+    "duration_seconds": 24.106666666666666,
+    "peak": 0.072998046875
+  }
+}

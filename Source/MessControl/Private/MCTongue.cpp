@@ -65,6 +65,7 @@ void AMCTongue::RebuildSurface()
     BuildPressureGrid();
     Surface->ClearAllMeshSections();
     Surface->CreateMeshSection(0,Positions,Indices,Normals,UV,Colors,Tangents,true);
+    ++SurfaceGeometryRevision;
     RefreshPressureMaterial();
 }
 void AMCTongue::BeginPlay()
@@ -289,6 +290,7 @@ void AMCTongue::Deform(float Time)
         Colors[I]=FColor(FMath::RoundToInt(FMath::Clamp(Red,0.f,1.f)*255),FMath::RoundToInt(Mask*255),FMath::RoundToInt(Rim*255),255);
     }
     Surface->UpdateMeshSection(0,Positions,Normals,UV,Colors,Tangents);
+    ++SurfaceGeometryRevision;
 }
 bool AMCTongue::SurfacePoint(FVector P,FHitResult& Hit) const
 {
