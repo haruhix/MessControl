@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "initial_hero_health": 100.0,
+  "initial_boss_health": 600.0,
+  "movement_cm": 289.22407922393575,
+  "saw_walk": true,
+  "saw_new_hit": true,
+  "saw_telegraph": true,
+  "received_damage": true,
+  "hero_health": 76.0,
+  "attack_id": "PunchRight",
+  "target_is_hero": true,
+  "attack_serial": 1,
+  "detail": "F3 activation: navigated with ARP walk, telegraphed ARP hit, dealt and received authoritative damage."
+}

@@ -1,0 +1,83 @@
+{
+  "passed": true,
+  "player_radius": 34.0,
+  "contact_distance": 132.0,
+  "cases": [
+    {
+      "name": "front_contact",
+      "damage": 24.0,
+      "expected": 24,
+      "passed": true,
+      "began_attack": true,
+      "elapsed": 0.6666668057441711,
+      "attack_serial": 8
+    },
+    {
+      "name": "side_contact",
+      "damage": 24.0,
+      "expected": 24,
+      "passed": true,
+      "began_attack": true,
+      "elapsed": 0.6666668951511383,
+      "attack_serial": 9
+    },
+    {
+      "name": "rear_contact",
+      "damage": 24.0,
+      "expected": 24,
+      "passed": true,
+      "began_attack": true,
+      "elapsed": 0.6666669845581055,
+      "attack_serial": 10
+    },
+    {
+      "name": "same_xy_different_height",
+      "damage": 24.0,
+      "expected": 24,
+      "passed": true,
+      "began_attack": true,
+      "elapsed": 0.6666668951511383,
+      "attack_serial": 11
+    },
+    {
+      "name": "distant_rear",
+      "damage": 0.0,
+      "expected": 0,
+      "passed": true,
+      "began_attack": true,
+      "elapsed": 0.6666669845581055,
+      "attack_serial": 12
+    },
+    {
+      "name": "outside_reach",
+      "damage": 0.0,
+      "expected": 0,
+      "passed": true,
+      "began_attack": true,
+      "elapsed": 0.6666668057441711,
+      "attack_serial": 13
+    },
+    {
+      "name": "wall_contact",
+      "damage": 0.0,
+      "expected": 0,
+      "passed": true,
+      "began_attack": true,
+      "elapsed": 0.4300728999078274,
+      "attack_serial": 1
+    }
+  ],
+  "wall_info": {
+    "transform": "<Struct 'Transform' (0x00000193564FA3D0) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: -1154.000000, y: -80.000000, z: 11.767570}, scale3d: {x: 0.050000, y: 2.000000, z: 3.000000}}>",
+    "profile": "BlockAll",
+    "collision_enabled": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+    "mesh": "<Object '/Engine/BasicShapes/Cube.Cube' (0x00000192E7B6C000) Class 'StaticMesh'>",
+    "origin": "<Struct 'Vector' (0x0000019356555140) {x: -1220.000000, y: -80.000000, z: 11.767570}>",
+    "player_position": "<Struct 'Vector' (0x00000193564EC790) {x: -1088.000000, y: -80.000000, z: -33.232430}>",
+    "eye_start": "<Struct 'Vector' (0x00000193520DD690) {x: -1220.000000, y: -80.000000, z: 75.767570}>",
+    "eye_end": "<Struct 'Vector' (0x00000193564FCCE0) {x: -1088.000000, y: -80.000000, z: 30.767570}>",
+    "simple_component_trace": "(<Struct 'Vector' (0x00000193564EC650) {x: -1156.499998, y: -80.000000, z: 54.119842}>, <Struct 'Vector' (0x00000193564EC790) {x: -1.000000, y: 0.000000, z: 0.000000}>, Name(\"None\"), <Struct 'HitResult' (0x0000019351969600) {}>)",
+    "complex_component_trace": "(<Struct 'Vector' (0x00000193564EC650) {x: -1156.499998, y: -80.000000, z: 54.119842}>, <Struct 'Vector' (0x00000193564EC790) {x: -1.000000, y: 0.000000, z: 0.000000}>, Name(\"None\"), <Struct 'HitResult' (0x0000019351969880) {}>)"
+  },
+  "error": null
+}

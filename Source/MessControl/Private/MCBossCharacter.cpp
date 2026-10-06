@@ -1,4 +1,5 @@
 #include "MCBossCharacter.h"
+#include "MCBossAnimInstance.h"
 #include "MCBossAIController.h"
 #include "MCBossFaceComponent.h"
 #include "MCToothCharacter.h"
@@ -88,7 +89,16 @@ void AMCBossCharacter::OnRep_Profile()
             if (auto* BossMesh=ResolvedProfile->SkeletalMesh.LoadSynchronous()) GetMesh()->SetSkeletalMeshAsset(BossMesh);
         if (!ResolvedProfile->AnimationClass.IsNull())
             if (auto* AnimClass=ResolvedProfile->AnimationClass.LoadSynchronous()) GetMesh()->SetAnimInstanceClass(AnimClass);
+        if (ResolvedProfile->AnimationClass.IsNull() && ResolvedProfile->AnimationBlendSeconds>0.f)
+            GetMesh()->SetAnimInstanceClass(UMCBossAnimInstance::StaticClass());
         GetMesh()->SetRelativeTransform(ResolvedProfile->MeshTransform);
+        const auto* DefaultBody=GetClass()->GetDefaultObject<AMCBossCharacter>()->BodyHitbox.Get();
+        const float BodyScale=FMath::IsFinite(ResolvedProfile->BodyHitboxScale)?FMath::Clamp(ResolvedProfile->BodyHitboxScale,.1f,4.f):1.f;
+        FTransform BodyTransform=DefaultBody->GetRelativeTransform();
+        BodyTransform.AddToTranslation(BodyTransform.GetRotation().GetAxisZ()
+            *DefaultBody->GetUnscaledCapsuleHalfHeight()*BodyTransform.GetScale3D().Z*(BodyScale-1.f));
+        BodyTransform.SetScale3D(BodyTransform.GetScale3D()*BodyScale);
+        BodyHitbox->SetRelativeTransform(BodyTransform);
         LoadedAnimations.Reset();
         auto KeepClip=[this](const TSoftObjectPtr<UAnimSequence>& Reference)
         {
@@ -243,9 +253,25 @@ bool AMCBossCharacter::IsPlayerInAttack(const AMCToothCharacter* Target,const FM
 {
     if (!IsLivingPlayer(Target)) return false;
     const FVector Offset=Target->GetActorLocation()-GetActorLocation();
-    return Offset.SizeSquared2D()<=FMath::Square(Attack.Range) && FMath::Abs(Offset.Z)<=Attack.VerticalReach
-        && (Offset.IsNearlyZero() || FVector::DotProduct(Forward.GetSafeNormal2D(),Offset.GetSafeNormal2D())>=FMath::Cos(FMath::DegreesToRadians(Attack.HalfAngleDegrees)))
-        && CanSeePlayer(Target);
+    const UCapsuleComponent* PlayerCapsule=Target->GetCapsuleComponent();
+    const float PlayerRadius=PlayerCapsule->GetScaledCapsuleRadius();
+    const float PlayerHalfHeight=PlayerCapsule->GetScaledCapsuleHalfHeight();
+    const float Distance=Offset.Size2D();
+    if (Distance>Attack.Range+PlayerRadius || FMath::Abs(Offset.Z)>Attack.VerticalReach+PlayerHalfHeight) return false;
+
+    // Contact with the torso has no angular blind spot. The locked frontal cone
+    // still lets a player dodge a strike at normal melee distances.
+    const FVector BodyOffset=Target->GetActorLocation()-BodyHitbox->GetComponentLocation();
+    const float BodyRadius=BodyHitbox->GetScaledCapsuleRadius();
+    const float VerticalGap=FMath::Max(0.f,float(FMath::Abs(BodyOffset.Z))
+        -FMath::Max(0.f,BodyHitbox->GetScaledCapsuleHalfHeight()-BodyRadius)
+        -FMath::Max(0.f,PlayerHalfHeight-PlayerRadius));
+    const bool bTouchingBody=BodyOffset.SizeSquared2D()+FMath::Square(VerticalGap)<=FMath::Square(BodyRadius+PlayerRadius+2.f);
+    const float CapsuleAngle=Distance>PlayerRadius?FMath::RadiansToDegrees(FMath::Asin(PlayerRadius/Distance)):90.f;
+    const float HalfAngle=FMath::Min(180.f,Attack.HalfAngleDegrees+CapsuleAngle);
+    const bool bInCone=Distance<=KINDA_SMALL_NUMBER
+        || FVector::DotProduct(Forward.GetSafeNormal2D(),Offset.GetSafeNormal2D())>=FMath::Cos(FMath::DegreesToRadians(HalfAngle));
+    return (bTouchingBody || bInCone) && CanSeePlayer(Target);
 }
 
 bool AMCBossCharacter::IsAttackReady(const FMCBossAttackDefinition& Attack) const
@@ -269,15 +295,16 @@ bool AMCBossCharacter::BeginAttack(FName AttackId,AMCToothCharacter* Target)
     GetCharacterMovement()->StopMovementImmediately();
     Runtime.Target=Target;
     Runtime.AttackId=AttackId;
-    Runtime.AttackStartedAt=ServerNow();
+    Runtime.AttackStartedAt=ServerNow()+PendingAttack.StartDelaySeconds;
     ++Runtime.AttackSerial;
     Runtime.AttackForward=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D();
     if (Runtime.AttackForward.IsNearlyZero()) Runtime.AttackForward=GetActorForwardVector();
     SetActorRotation(Runtime.AttackForward.Rotation());
     if (auto* Brain=Cast<AMCBossAIController>(GetController())) Brain->SetControlRotation(Runtime.AttackForward.Rotation());
-    NextAttackAt.Add(AttackId,ServerNow()+PendingAttack.WindupSeconds+PendingAttack.ActiveSeconds+PendingAttack.RecoverySeconds+PendingAttack.CooldownSeconds);
-    ChangeState(EMCBossState::Telegraph,PendingAttack.WindupSeconds);
-    GetWorldTimerManager().SetTimer(AttackTimer,this,&AMCBossCharacter::ImpactAttack,PendingAttack.WindupSeconds,false);
+    NextAttackAt.Add(AttackId,Runtime.AttackStartedAt+PendingAttack.WindupSeconds+PendingAttack.ActiveSeconds+PendingAttack.RecoverySeconds+PendingAttack.CooldownSeconds);
+    const float TelegraphSeconds=PendingAttack.StartDelaySeconds+PendingAttack.WindupSeconds;
+    ChangeState(EMCBossState::Telegraph,TelegraphSeconds);
+    GetWorldTimerManager().SetTimer(AttackTimer,this,&AMCBossCharacter::ImpactAttack,TelegraphSeconds,false);
     return true;
 }
 
@@ -413,18 +440,29 @@ void AMCBossCharacter::UpdateAnimationPresentation()
     double StartedAt=Runtime.StateStartedAt;
     float Rate=1.f;
     bool bLoop=false;
+    bool bAttackClip=false;
     if (Runtime.AnimationPreview!=EMCBossAnimationPreview::None)
     {
         Clip=PreviewSequence(Runtime.AnimationPreview);
         StartedAt=Runtime.PreviewStartedAt;
         bLoop=Runtime.AnimationPreview==EMCBossAnimationPreview::Idle || Runtime.AnimationPreview==EMCBossAnimationPreview::Walk;
+        bAttackClip=Runtime.AnimationPreview==EMCBossAnimationPreview::PunchLeft
+            || Runtime.AnimationPreview==EMCBossAnimationPreview::PunchRight || Runtime.AnimationPreview==EMCBossAnimationPreview::Kick;
     }
     else if (Runtime.State==EMCBossState::Dead) Clip=ResolvedProfile->DeathAnimation.Get();
     else if (Runtime.State==EMCBossState::Telegraph || Runtime.State==EMCBossState::Attacking || Runtime.State==EMCBossState::Recovering)
     {
         for (const auto& Attack:ResolvedProfile->Attacks) if (Attack.AttackId==Runtime.AttackId)
         {
+            if (Now<Runtime.AttackStartedAt)
+            {
+                Clip=ResolvedProfile->IdleAnimation.Get();
+                bLoop=true;
+                StartedAt=Clip==CurrentAnimation?CurrentAnimationStartedAt:Runtime.StateStartedAt;
+                break;
+            }
             Clip=Attack.Animation.Get();
+            bAttackClip=true;
             // The complete clip retains its phase through Telegraph -> Attacking -> Recovering.
             StartedAt=Runtime.AttackStartedAt;
             if (Clip) Rate=Clip->GetPlayLength()/FMath::Max(.15f,Attack.WindupSeconds+Attack.ActiveSeconds+Attack.RecoverySeconds);
@@ -449,7 +487,12 @@ void AMCBossCharacter::UpdateAnimationPresentation()
     {
         CurrentAnimation=Clip;
         CurrentAnimationStartedAt=StartedAt;
-        GetMesh()->PlayAnimation(Clip,bLoop);
+        if (!Cast<UMCBossAnimInstance>(GetMesh()->GetAnimInstance())) GetMesh()->PlayAnimation(Clip,bLoop);
+    }
+    if (auto* Instance=Cast<UMCBossAnimInstance>(GetMesh()->GetAnimInstance()))
+    {
+        Instance->PresentSequence(Clip,StartedAt,Now,Rate,bLoop,ResolvedProfile->AnimationBlendSeconds,bAttackClip,Runtime.State==EMCBossState::Dead);
+        return;
     }
     if (UAnimSingleNodeInstance* Instance=GetMesh()->GetSingleNodeInstance())
     {

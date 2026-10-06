@@ -25,6 +25,7 @@ struct FMCBossRuntimeState
     UPROPERTY(BlueprintReadOnly) double StateStartedAt=0;
     UPROPERTY(BlueprintReadOnly) double StateEndsAt=0;
     UPROPERTY(BlueprintReadOnly) FVector AttackForward=FVector::ForwardVector;
+    /** Strike clip start; may be in the future during the configured pre-attack pause. */
     UPROPERTY(BlueprintReadOnly) double AttackStartedAt=0;
     UPROPERTY(BlueprintReadOnly) double HurtStartedAt=-1000;
     UPROPERTY(BlueprintReadOnly) EMCBossAnimationPreview AnimationPreview=EMCBossAnimationPreview::None;

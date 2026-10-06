@@ -1,0 +1,61 @@
+{
+  "spawn_result": "None",
+  "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_BossPhase3_C_0",
+  "mesh": "/Game/Gameplay/Boss/Phase3/Rig/SK_BossPhase3_ARP.SK_BossPhase3_ARP",
+  "bones": 104,
+  "camera": {
+    "location": {
+      "x": -640.025969156824,
+      "y": -19.986230242696365,
+      "z": 115.170872536486
+    },
+    "rotation": {
+      "pitch": -7.802392394257674,
+      "yaw": -159.22774531795417,
+      "roll": -1.6744756718281668e-07
+    }
+  },
+  "clips": [
+    {
+      "name": "Idle",
+      "assigned_asset": "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_ARP_Idle.AN_BossPhase3_ARP_Idle",
+      "sample_count": 1,
+      "motion_cm": {
+        "foot_l": 0.0,
+        "foot_r": 0.0,
+        "hand_l": 0.0,
+        "hand_r": 0.0
+      },
+      "damage_suppressed": true
+    },
+    {
+      "name": "Walk",
+      "assigned_asset": "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_ARP_Walk.AN_BossPhase3_ARP_Walk",
+      "sample_count": 6,
+      "motion_cm": {
+        "foot_l": 73.8235020079348,
+        "foot_r": 98.25353078779281,
+        "hand_l": 198.05311279764848,
+        "hand_r": 175.15094861032912
+      },
+      "damage_suppressed": true
+    },
+    {
+      "name": "Hit",
+      "assigned_asset": "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_ARP_Hit.AN_BossPhase3_ARP_Hit",
+      "sample_count": 5,
+      "motion_cm": {
+        "foot_l": 164.00905295250107,
+        "foot_r": 54.505431141336715,
+        "hand_l": 332.1548282445383,
+        "hand_r": 211.15257543043728
+      },
+      "damage_suppressed": true
+    }
+  ],
+  "mesh_transform": "<Struct 'Transform' (0x000001F8914FEF10) {rotation: {x: -0.000000, y: 0.000000, z: -0.707107, w: 0.707107}, translation: {x: 0.000000, y: 0.000000, z: -110.000000}, scale3d: {x: 0.384200, y: 0.384200, z: 0.384200}}>",
+  "mesh_bounds": "(<Struct 'Vector' (0x000001F89157B4E0) {x: -1171.651410, y: -239.765909, z: 29.502744}>, <Struct 'Vector' (0x000001F718D79280) {x: 191.625441, y: 342.553793, z: 180.000000}>)",
+  "actor_displacement_cm": 2.1757683753967285,
+  "error": null,
+  "passed": true
+}

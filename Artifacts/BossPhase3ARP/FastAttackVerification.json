@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "initial_hero_health": 76.0,
+  "initial_boss_health": 600.0,
+  "movement_cm": 168.2151435124206,
+  "saw_walk": true,
+  "saw_new_hit": true,
+  "saw_telegraph": true,
+  "received_damage": true,
+  "attack_starts": [
+    {
+      "serial": 15,
+      "time": 32.71801923215389
+    },
+    {
+      "serial": 16,
+      "time": 34.31756033375859
+    }
+  ],
+  "inside_reach_at": 32.71801923215389,
+  "hero_health": 28.0,
+  "attack_id": "PunchRight",
+  "target_is_hero": true,
+  "attack_start_delay_seconds": 0.0,
+  "attack_serial": 16,
+  "attack_interval_seconds": 1.5995411016047,
+  "detail": "F3 AI starts the trimmed hit on reaching melee range and repeats without the old cooldown."
+}

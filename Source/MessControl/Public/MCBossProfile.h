@@ -33,6 +33,8 @@ struct FMCBossAttackDefinition
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack", meta=(ClampMin="1")) float Range=250.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack", meta=(ClampMin="1")) float VerticalReach=160.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack", meta=(ClampMin="1",ClampMax="180")) float HalfAngleDegrees=60.f;
+    /** Idle pause before the strike clip begins; WindupSeconds remains the clip's authored impact time. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0",Units="s")) float StartDelaySeconds=0.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0.05")) float WindupSeconds=.8f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0.05")) float ActiveSeconds=.15f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0.05")) float RecoverySeconds=.7f;
@@ -70,6 +72,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat") TArray<FMCBossPhaseDefinition> Phases;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<USkeletalMesh> SkeletalMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftClassPtr<UAnimInstance> AnimationClass;
+    /** Full-body crossfade duration for native playback. Zero retains immediate sequence switches. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation", meta=(ClampMin="0",Units="s")) float AnimationBlendSeconds=0.f;
     /** Native sequence playback is used when AnimationClass is empty. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> IdleAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> WalkAnimation;
@@ -78,4 +82,6 @@ public:
     /** Five-second in-place scream used by the encounter intro and the explicit F3 preview. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> RoarAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") FTransform MeshTransform=FTransform::Identity;
+    /** Scale the torso hit volume about its lower tip, retaining the Blueprint's authored shape. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Collision", meta=(ClampMin="0.1")) float BodyHitboxScale=1.f;
 };

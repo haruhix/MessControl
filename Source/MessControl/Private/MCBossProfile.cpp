@@ -10,6 +10,7 @@ void FMCBossAttackDefinition::Sanitize()
     Range=Safe(Range,250.f,1.f,10000.f);
     VerticalReach=Safe(VerticalReach,160.f,1.f,10000.f);
     HalfAngleDegrees=Safe(HalfAngleDegrees,60.f,1.f,180.f);
+    StartDelaySeconds=Safe(StartDelaySeconds,0.f,0.f,60.f);
     WindupSeconds=Safe(WindupSeconds,.8f,.05f,60.f);
     ActiveSeconds=Safe(ActiveSeconds,.15f,.05f,60.f);
     RecoverySeconds=Safe(RecoverySeconds,.7f,.05f,60.f);
