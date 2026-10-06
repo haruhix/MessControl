@@ -36,6 +36,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> FloorMID;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> ArrowMID;
     TSharedPtr<MCDeliveryGuide::FSurfaceCache> SurfaceCache;
+    TArray<FVector> FloorPositions,ArrowPositions;
     FTransform CachedGeometry,CachedMeshTransform;
     FVector CachedExtent=FVector::ZeroVector,CachedDirection=FVector::ZeroVector;
     bool bGuidesBuilt=false,bCachedCircular=false,bCachedCap=false;

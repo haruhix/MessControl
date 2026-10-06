@@ -32,6 +32,8 @@ struct FSurfaceOverlay
     TArray<FSurfaceVertex> Vertices;
     TArray<int32> Indices;
     void Reset() { Vertices.Reset();Indices.Reset(); }
+    /** Merge only identical surface bindings and attributes; indexed triangles retain their original order. */
+    int32 Compact();
 };
 
 struct FFootprintVertex
@@ -77,6 +79,6 @@ private:
     TArray<FFace> Faces;
     TMap<FIntPoint,TArray<int32>> Cells;
     TArray<FBoundary> Boundary;
-    TArray<FVector> WorldVertices;
+    TConstArrayView<FVector> WorldVertices;
 };
 }

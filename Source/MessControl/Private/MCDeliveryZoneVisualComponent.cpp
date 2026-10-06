@@ -136,12 +136,13 @@ void UMCDeliveryZoneVisualComponent::Rebuild()
                     FillOpacity*FMath::Pow(1-T0,1.5f),FillOpacity*FMath::Pow(1-T1,1.5f));
             }
             SurfaceCache->AddRim(SurfaceCache->Floor,Outer,Inner);
+            SurfaceCache->Floor.Compact();
             MCDeliveryGuide::FMesh Fill;Fill.Surface(*SurfaceCache,SurfaceCache->Floor,MeshTransform);Fill.Apply(Floor);
         }
         else if(UpdatePositions)
         {
-            TArray<FVector> Positions;SurfaceCache->Positions(SurfaceCache->Floor,MeshTransform,Positions);
-            Floor->UpdateMeshSection_LinearColor(0,Positions,{}, {}, {}, {},false);
+            SurfaceCache->Positions(SurfaceCache->Floor,MeshTransform,FloorPositions);
+            Floor->UpdateMeshSection_LinearColor(0,FloorPositions,{}, {}, {}, {},false);
         }
     }
     else
@@ -190,14 +191,15 @@ void UMCDeliveryZoneVisualComponent::Rebuild()
         if(Native)
         {
             SurfaceCache->Arrows=MoveTemp(Strokes);
+            SurfaceCache->Arrows.Compact();
             ArrowMesh.Surface(*SurfaceCache,SurfaceCache->Arrows,MeshTransform);
         }
         ArrowMesh.Apply(Arrows);
     }
     else if(Native && UpdatePositions)
     {
-        TArray<FVector> Positions;SurfaceCache->Positions(SurfaceCache->Arrows,MeshTransform,Positions);
-        Arrows->UpdateMeshSection_LinearColor(0,Positions,{}, {}, {}, {},false);
+        SurfaceCache->Positions(SurfaceCache->Arrows,MeshTransform,ArrowPositions);
+        Arrows->UpdateMeshSection_LinearColor(0,ArrowPositions,{}, {}, {}, {},false);
     }
     if(UpdatePositions || GeometryChanged || NewArrows)
     {

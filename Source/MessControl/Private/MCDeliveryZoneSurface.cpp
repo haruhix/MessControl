@@ -11,6 +11,39 @@ namespace
 {
 int32 DepthGuardOwners=0,PreviousDepthMode=0;
 bool bChangedDepthMode=false;
+TAutoConsoleVariable<int32> CVarDeliveryCompactVertices(
+    TEXT("mc.DeliveryCompactVertices"),1,
+    TEXT("Merge only bit-identical delivery overlay vertices; 0 retains the original vertex layout."));
+
+struct FSurfaceVertexKey
+{
+    uint64 Fields[10];
+
+    template<typename T> static uint64 Bits(const T& Value)
+    {
+        static_assert(sizeof(T)<=sizeof(uint64));
+        uint64 Result=0;
+        FMemory::Memcpy(&Result,&Value,sizeof(T));
+        return Result;
+    }
+
+    explicit FSurfaceVertexKey(const FSurfaceVertex& Vertex)
+        : Fields{uint64(uint32(Vertex.Source.X)),uint64(uint32(Vertex.Source.Y)),uint64(uint32(Vertex.Source.Z)),
+            Bits(Vertex.Weights.X),Bits(Vertex.Weights.Y),Bits(Vertex.Weights.Z),
+            Bits(Vertex.Alpha),Bits(Vertex.Lift),Bits(Vertex.UV.X),Bits(Vertex.UV.Y)}
+    {}
+
+    bool operator==(const FSurfaceVertexKey& Other) const
+    { return FMemory::Memcmp(Fields,Other.Fields,sizeof(Fields))==0; }
+
+    friend uint32 GetTypeHash(const FSurfaceVertexKey& Key)
+    {
+        uint32 Hash=0;
+        for(uint64 Field:Key.Fields) Hash=HashCombineFast(Hash,::GetTypeHash(Field));
+        return Hash;
+    }
+};
+
 double Cross(FVector2D A,FVector2D B) {return A.X*B.Y-A.Y*B.X;}
 FVector2D XY(FVector P) {return FVector2D(P.X,P.Y);}
 bool CapDepth(FVector2D P,const TArray<FVector>& Outer,const TArray<FVector>& Inner,double& T)
@@ -25,6 +58,42 @@ bool CapDepth(FVector2D P,const TArray<FVector>& Outer,const TArray<FVector>& In
     }
     return false;
 }
+}
+
+int32 FSurfaceOverlay::Compact()
+{
+    const int32 Before=Vertices.Num();
+    const bool Enabled=CVarDeliveryCompactVertices.GetValueOnGameThread()!=0;
+    if(!Enabled || Before==0 || Indices.IsEmpty())
+    {
+        UE_LOG(LogTemp,Display,TEXT("MC_DELIVERY_COMPACT enabled=%d vertices_before=%d vertices_after=%d triangles=%d"),
+            Enabled,Before,Before,Indices.Num()/3);
+        return 0;
+    }
+    // Refuse malformed input without partially changing its index stream.
+    for(int32 Index:Indices) if(!Vertices.IsValidIndex(Index)) return 0;
+
+    TMap<FSurfaceVertexKey,int32> Seen;Seen.Reserve(Before);
+    TArray<FSurfaceVertex> Unique;Unique.Reserve(Before);
+    TArray<int32> Remap;Remap.SetNumUninitialized(Before);
+    for(int32 I=0;I<Before;++I)
+    {
+        const FSurfaceVertexKey Key(Vertices[I]);
+        if(const int32* Existing=Seen.Find(Key)) Remap[I]=*Existing;
+        else
+        {
+            const int32 Index=Unique.Add(Vertices[I]);
+            Seen.Add(Key,Index);Remap[I]=Index;
+        }
+    }
+    if(Unique.Num()!=Before)
+    {
+        for(int32& Index:Indices) Index=Remap[Index];
+        Vertices=MoveTemp(Unique);
+    }
+    UE_LOG(LogTemp,Display,TEXT("MC_DELIVERY_COMPACT enabled=1 vertices_before=%d vertices_after=%d triangles=%d"),
+        Before,Vertices.Num(),Indices.Num()/3);
+    return Before-Vertices.Num();
 }
 
 void FReceiverDepthGuard::Bind(UPrimitiveComponent* Component)
@@ -69,8 +138,8 @@ bool FSurfaceCache::Refresh(const AMCTongue* Tongue)
     bPositionsChanged=Changed || SourceRevision!=Tongue->SurfaceRevision();
     if(!bPositionsChanged) return false;
     SourceRevision=Tongue->SurfaceRevision();
-    WorldVertices.SetNumUninitialized(Vertices.Num());
-    for(int32 I=0;I<Vertices.Num();++I) WorldVertices[I]=Transform.TransformPosition(Vertices[I]);
+    // Both local guides consume the same immutable snapshot in their game-thread tick.
+    WorldVertices=MakeArrayView(Tongue->CurrentWorldVertices());
     if(!Changed) return false;
 
     Faces.Reset();Cells.Reset();Boundary.Reset();Floor.Reset();Arrows.Reset();FloorOuter.Reset();FloorInner.Reset();

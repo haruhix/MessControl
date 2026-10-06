@@ -211,7 +211,8 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
     }
     AMCGameState* State = GetWorld()->GetGameState<AMCGameState>(); if (!State || !DayLabel) return;
     const bool bWorking = State->Phase == EMCShiftPhase::Working;
-    if (const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn()))
+    const bool bWon = State->Phase == EMCShiftPhase::Won; const bool bLost = State->Phase == EMCShiftPhase::Lost;
+    if (const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());CarePanel && CarePanel->IsVisible() && Hero)
     {
         PlayerStatusLabel->SetText(FText::FromString(Hero->Status->Summary()));
         FString Hint=Hero->bSelfCare?TEXT("SELF CARE: hold LMB to clean / heal. C returns to others."):TEXT("Hold LMB near a target: pick up, clean or heal. C: self care.");
@@ -237,37 +238,44 @@ void UMCPrototypeWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds
         if(Hero->SwallowedBy) Hint=TEXT("WRONG INGREDIENT!  HOLD ON...");
         ContactLabel->SetText(FText::FromString(Hint)); ContactBar->SetPercent(Progress);
     }
-    ArenaLabel->SetText(FText::FromString(FString::Printf(TEXT("ARENA TEETH  %d / %d"),State->AvailableArenaTeeth(),State->ArenaTeeth.Num())));
-    const bool bWon = State->Phase == EMCShiftPhase::Won; const bool bLost = State->Phase == EMCShiftPhase::Lost;
-    DayLabel->SetText(FText::FromString(FString::Printf(TEXT("DAY %02d / %02d"),FMath::Max(1,State->Day),State->RunSettings.DaysToSurvive)));
-    EventLabel->SetText(bWon ? FText::FromString(TEXT("ALL SMILES. YOU MADE IT!")) : bLost ? FText::FromString(TEXT("THIS MOUTH NEEDS A BREAK")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Title : FText::FromString(TEXT("TAKE A BREATHER")));
-    for (TActorIterator<AMCCoreScenario> It(GetWorld());It;++It) { EventLabel->SetText(FText::FromString(It->Caption())); break; }
-    InstructionLabel->SetText((bWon || bLost) ? FText::FromString(TEXT("Host: press R to start another shift.")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Instruction : FText::FromString(TEXT("Get ready. Something messy is coming.")));
-    TaskLabel->SetText(FText::FromString(bWorking ? FString::Printf(TEXT("%02d / %02d JOBS DONE    |    %d / %d TEETH"),State->TasksTotal-State->TasksLeft,State->TasksTotal,State->PlayerArray.Num(),State->RunSettings.MaxPlayers) : FString::Printf(TEXT("%d / %d TEETH ON DUTY"),State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
-    HealthLabel->SetText(FText::FromString(FString::Printf(TEXT("MOUTH HEALTH / %03d"),FMath::RoundToInt(State->MouthHealth)))); HealthBar->SetPercent(State->MouthHealth/FMath::Max(1.f,State->RunSettings.MaxMouthHealth));
-    const int32 Seconds = FMath::CeilToInt(State->SecondsLeft());
-    TimeLabel->SetText(FText::FromString((bWon || bLost) ? FString(TEXT("SHIFT COMPLETE")) : bWorking ? FString::Printf(TEXT("%02d SECONDS LEFT"),Seconds) : FString::Printf(TEXT("NEXT SHIFT IN %02d"),Seconds)));
-    if (bWorking && State->DayPlan && State->DayPlan->Steps.IsValidIndex(State->StepIndex))
-    {
-        const auto& Step=State->DayPlan->Steps[State->StepIndex]; EventLabel->SetText(Step.Title); InstructionLabel->SetText(Step.Instruction);
-        TaskLabel->SetText(FText::FromString(FString::Printf(TEXT("%s %02d    |    %d / %d PLAYERS"),Step.Step==EMCDayStep::CoffeeWaves?TEXT("CYCLES LEFT"):TEXT("OBJECTS LEFT"),State->TasksLeft,State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
-        TimeLabel->SetText(FText::FromString(Step.Seconds>0?FString::Printf(TEXT("EVENT %02ds | DAY ELAPSED %03ds"),Seconds,FMath::FloorToInt(State->GetServerWorldTimeSeconds()-State->DayStartedAt)):TEXT("NO EVENT TIMER | TAKE YOUR TIME")));
-        if (Step.Step==EMCDayStep::CoffeeWaves)
-            for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
-            {
-                const auto Phase=It->GetPhase();
-                EventLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Holding?TEXT("КОФЕ / ПЛАВАНИЕ"):Phase==EMCCoffeePhase::Filling?TEXT("COFFEE / FILLING"):Phase==EMCCoffeePhase::Draining?TEXT("COFFEE / DRAINING TO THROAT"):TEXT("COFFEE / DRAINED")));
-                InstructionLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Holding?TEXT("WASD — плавать. F3 → убрать кофе — закончить тест."):Phase==EMCCoffeePhase::Draining?TEXT("Current pulls towards the throat! Hold LMB at an arena tooth; WASD: paddle."):Phase==EMCCoffeePhase::Filling?TEXT("Dodge the jet and outward wave. Hold LMB near an arena tooth to cling."):TEXT("Water is gone. F3: replay the event or test cleanup.")));
-                break;
-            }
+    // These legacy labels belong to separate borders. Skip formatting only while both are collapsed.
+    const auto PanelVisible=[](const UWidget* Label) {
+        const auto* Content=Label?Label->GetParent():nullptr;
+        const auto* Panel=Content?Content->GetParent():nullptr;
+        return !Panel || Panel->IsVisible();
+    };
+    if(PanelVisible(DayLabel) || PanelVisible(HealthLabel)) {
+        ArenaLabel->SetText(FText::FromString(FString::Printf(TEXT("ARENA TEETH  %d / %d"),State->AvailableArenaTeeth(),State->ArenaTeeth.Num())));
+        DayLabel->SetText(FText::FromString(FString::Printf(TEXT("DAY %02d / %02d"),FMath::Max(1,State->Day),State->RunSettings.DaysToSurvive)));
+        EventLabel->SetText(bWon ? FText::FromString(TEXT("ALL SMILES. YOU MADE IT!")) : bLost ? FText::FromString(TEXT("THIS MOUTH NEEDS A BREAK")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Title : FText::FromString(TEXT("TAKE A BREATHER")));
+        for (TActorIterator<AMCCoreScenario> It(GetWorld());It;++It) { EventLabel->SetText(FText::FromString(It->Caption())); break; }
+        InstructionLabel->SetText((bWon || bLost) ? FText::FromString(TEXT("Host: press R to start another shift.")) : bWorking && State->CurrentEvent ? State->CurrentEvent->Instruction : FText::FromString(TEXT("Get ready. Something messy is coming.")));
+        TaskLabel->SetText(FText::FromString(bWorking ? FString::Printf(TEXT("%02d / %02d JOBS DONE    |    %d / %d TEETH"),State->TasksTotal-State->TasksLeft,State->TasksTotal,State->PlayerArray.Num(),State->RunSettings.MaxPlayers) : FString::Printf(TEXT("%d / %d TEETH ON DUTY"),State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
+        HealthLabel->SetText(FText::FromString(FString::Printf(TEXT("MOUTH HEALTH / %03d"),FMath::RoundToInt(State->MouthHealth)))); HealthBar->SetPercent(State->MouthHealth/FMath::Max(1.f,State->RunSettings.MaxMouthHealth));
+        const int32 Seconds = FMath::CeilToInt(State->SecondsLeft());
+        TimeLabel->SetText(FText::FromString((bWon || bLost) ? FString(TEXT("SHIFT COMPLETE")) : bWorking ? FString::Printf(TEXT("%02d SECONDS LEFT"),Seconds) : FString::Printf(TEXT("NEXT SHIFT IN %02d"),Seconds)));
+        if (bWorking && State->DayPlan && State->DayPlan->Steps.IsValidIndex(State->StepIndex))
+        {
+            const auto& Step=State->DayPlan->Steps[State->StepIndex]; EventLabel->SetText(Step.Title); InstructionLabel->SetText(Step.Instruction);
+            TaskLabel->SetText(FText::FromString(FString::Printf(TEXT("%s %02d    |    %d / %d PLAYERS"),Step.Step==EMCDayStep::CoffeeWaves?TEXT("CYCLES LEFT"):TEXT("OBJECTS LEFT"),State->TasksLeft,State->PlayerArray.Num(),State->RunSettings.MaxPlayers)));
+            TimeLabel->SetText(FText::FromString(Step.Seconds>0?FString::Printf(TEXT("EVENT %02ds | DAY ELAPSED %03ds"),Seconds,FMath::FloorToInt(State->GetServerWorldTimeSeconds()-State->DayStartedAt)):TEXT("NO EVENT TIMER | TAKE YOUR TIME")));
+            if (Step.Step==EMCDayStep::CoffeeWaves)
+                for (TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
+                {
+                    const auto Phase=It->GetPhase();
+                    EventLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Holding?TEXT("КОФЕ / ПЛАВАНИЕ"):Phase==EMCCoffeePhase::Filling?TEXT("COFFEE / FILLING"):Phase==EMCCoffeePhase::Draining?TEXT("COFFEE / DRAINING TO THROAT"):TEXT("COFFEE / DRAINED")));
+                    InstructionLabel->SetText(FText::FromString(Phase==EMCCoffeePhase::Holding?TEXT("WASD — плавать. F3 → убрать кофе — закончить тест."):Phase==EMCCoffeePhase::Draining?TEXT("Current pulls towards the throat! Hold LMB at an arena tooth; WASD: paddle."):Phase==EMCCoffeePhase::Filling?TEXT("Dodge the jet and outward wave. Hold LMB near an arena tooth to cling."):TEXT("Water is gone. F3: replay the event or test cleanup.")));
+                    break;
+                }
+        }
+        if (State->bDayOneComplete)
+        {
+            EventLabel->SetText(FText::FromString(TEXT("DAY 01 COMPLETE")));
+            InstructionLabel->SetText(FText::FromString(TEXT("First three events finished. Foam party is next in development. Host: R to replay.")));
+            TimeLabel->SetText(FText::FromString(FString::Printf(TEXT("%d EVENTS FAILED"),State->FailedEvents)));
+        }
+        if (State->bDevManualEvents) TimeLabel->SetText(FText::FromString(TEXT("DEV TEST | F3 | NO AUTO ADVANCE")));
     }
-    if (State->bDayOneComplete)
-    {
-        EventLabel->SetText(FText::FromString(TEXT("DAY 01 COMPLETE")));
-        InstructionLabel->SetText(FText::FromString(TEXT("First three events finished. Foam party is next in development. Host: R to replay.")));
-        TimeLabel->SetText(FText::FromString(FString::Printf(TEXT("%d EVENTS FAILED"),State->FailedEvents)));
-    }
-    if (State->bDevManualEvents) TimeLabel->SetText(FText::FromString(TEXT("DEV TEST | F3 | NO AUTO ADVANCE")));
     if (LastDay != State->Day || LastPhase != static_cast<int32>(State->Phase))
     {
         if (auto* Tooth = Cast<AMCToothCharacter>(GetOwningPlayerPawn()))

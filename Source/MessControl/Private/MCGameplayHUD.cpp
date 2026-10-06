@@ -24,6 +24,7 @@
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Styling/CoreStyle.h"
 #include "GameFramework/GameStateBase.h"
+#include "Widgets/SWidget.h"
 
 // Unity builds combine this file with the prototype widgets and mouth renderer.
 namespace MCGameplayHUDPrivate
@@ -128,7 +129,11 @@ void UMCGameplayHUD::NativeConstruct()
     Super::NativeConstruct();
     Widgets.Reset();
     TArray<UWidget*> All; WidgetTree->GetAllWidgets(All);
-    for(auto* Widget:All) Widgets.Add(Widget->GetFName(),Widget);
+    for(auto* Widget:All) {
+        Widgets.Add(Widget->GetFName(),Widget);
+        // Tooth portraits bob in paint; cache their surrounding layout without freezing the animation.
+        if(auto* Icon=Cast<UMCHUDIcon>(Widget);Icon && Icon->bTooth) Icon->ForceVolatile(true);
+    }
     RefreshState();
 }
 UWidget* UMCGameplayHUD::Find(FName Name) const
@@ -183,9 +188,13 @@ void UMCGameplayHUD::RefreshState()
         const FLinearColor PlayerTint=State?State->PlayerColor:Tooth?Tooth->GetPlayerColor():HUD::White;
         Color(FName(N+TEXT("Frame")),Dead?PlayerTint.Desaturate(.8f)*.6f:PlayerTint);
         if(auto* Icon=Cast<UMCHUDIcon>(Find(FName(N+TEXT("Face"))))) {
-            Icon->Tint=PlayerTint;Icon->bHost=State && State->bSessionHost;
-            Icon->bDead=Dead; Icon->bSad=Tooth && (Now-Tooth->TaskFailureAt<2.5 || Tooth->Status->State.Health<Tooth->Status->State.MaxHealth*.35f);
-            Icon->bHappy=Tooth && Now-Tooth->TaskSuccessAt<2 && !Icon->bSad; Icon->InvalidateLayoutAndVolatility();
+            const bool Host=State && State->bSessionHost;
+            const bool Sad=Tooth && (Now-Tooth->TaskFailureAt<2.5 || Tooth->Status->State.Health<Tooth->Status->State.MaxHealth*.35f);
+            const bool Happy=Tooth && Now-Tooth->TaskSuccessAt<2 && !Sad;
+            if(!Icon->Tint.Equals(PlayerTint) || Icon->bHost!=Host || Icon->bDead!=Dead || Icon->bSad!=Sad || Icon->bHappy!=Happy) {
+                Icon->Tint=PlayerTint;Icon->bHost=Host;Icon->bDead=Dead;Icon->bSad=Sad;Icon->bHappy=Happy;
+                if(const auto Cached=Icon->GetCachedWidget()) Cached->Invalidate(EInvalidateWidgetReason::Paint);
+            }
         }
         Bar(FName(N+TEXT("Health")),Tooth?Tooth->Status->State.Health/FMath::Max(1.f,Tooth->Status->State.MaxHealth):0);
     }

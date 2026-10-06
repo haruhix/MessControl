@@ -48,6 +48,8 @@ void UMCStaminaWidget::Refresh()
     const FLinearColor PlayerColor=Hero->GetPlayerColor();
     if(bHasSample && FMath::IsNearlyEqual(Current,NewCurrent,.01f)
         && FMath::IsNearlyEqual(Maximum,NewMaximum,.01f) && bExhausted==Exhausted && LastColor.Equals(PlayerColor)) return;
+    const int32 DisplayCurrent=FMath::RoundToInt(NewCurrent),DisplayMaximum=FMath::RoundToInt(NewMaximum);
+    const bool TextChanged=!bHasSample || FMath::RoundToInt(Current)!=DisplayCurrent || FMath::RoundToInt(Maximum)!=DisplayMaximum;
     Current=NewCurrent; Maximum=NewMaximum; Normalized=NewNormalized; bExhausted=Exhausted; bHasSample=true;
     LastColor=PlayerColor;
     if(StaminaProgress)
@@ -55,6 +57,6 @@ void UMCStaminaWidget::Refresh()
         StaminaProgress->SetPercent(Normalized);
         StaminaProgress->SetFillColorAndOpacity(Normalized<.2f?FLinearColor(1,.64f,.23f):PlayerColor);
     }
-    if(StaminaValue) StaminaValue->SetText(FText::FromString(FString::Printf(TEXT("ВЫНОСЛИВОСТЬ  %d / %d"),FMath::RoundToInt(Current),FMath::RoundToInt(Maximum))));
+    if(StaminaValue && TextChanged) StaminaValue->SetText(FText::FromString(FString::Printf(TEXT("ВЫНОСЛИВОСТЬ  %d / %d"),DisplayCurrent,DisplayMaximum)));
     OnStaminaChanged(Current,Maximum,Normalized,bExhausted);
 }

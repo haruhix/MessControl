@@ -6,7 +6,7 @@
 #include "MCTongue.generated.h"
 
 /** One vertex buffer drives both the visible tongue and its Chaos triangle surface.
- * Fixed topology: UpdateMeshSection refits collision, never cooks a new mesh per tick.
+ * Fixed topology keeps the rendered vertices and Chaos collision in sync.
  */
 UCLASS()
 class MESSCONTROL_API AMCTongue : public AActor
@@ -56,11 +56,16 @@ public:
     float ServerTime() const;
     // Used by validation to compare the rendered triangle with collision.
     const TArray<FVector>& CurrentVertices() const { return Positions; }
+    // Game-thread snapshot shared by floor guides; valid until the next surface/transform change.
+    const TArray<FVector>& CurrentWorldVertices() const;
     const TArray<int32>& TriangleIndices() const { return Indices; }
     // Local version of CurrentVertices, advanced after each surface write.
     uint64 SurfaceRevision() const { return SurfaceGeometryRevision; }
     int32 PlayerPushes=0,FoodPushes=0;
 private:
+    mutable TArray<FVector> WorldVertexCache;
+    mutable FTransform WorldVertexTransform;
+    mutable uint64 WorldVertexRevision=MAX_uint64;
     struct FFoodSupport
     {
         FVector Point=FVector::ZeroVector;

@@ -13,7 +13,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "EngineUtils.h"
+#include "Async/ParallelFor.h"
+#include "HAL/IConsoleManager.h"
 #include "ProfilingDebugging/CpuProfilerTrace.h"
+
+namespace
+{
+TAutoConsoleVariable<int32> CVarMCTongueParallelVertices(
+    TEXT("mc.TongueParallelVertices"),1,
+    TEXT("Calculate tongue vertices in parallel (0=single thread, 1=parallel)."));
+}
 
 AMCTongue::AMCTongue()
 {
@@ -253,6 +262,7 @@ float AMCTongue::SampleOffset(const FDeformationSample& Sample,float Time,float 
 }
 void AMCTongue::Deform(float Time)
 {
+    check(IsInGameThread());
     TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_DeformAndCollision);
     TArray<FMCTongueMotionState,TInlineAllocator<6>> Pulses;
     for(TActorIterator<AMCHazardWave> It(GetWorld());It;++It)
@@ -266,31 +276,79 @@ void AMCTongue::Deform(float Time)
     const float YawnHeight=YawnStartedAt>=0 && Time>=YawnStartedAt && Time<YawnStartedAt+YawnDuration
         ?45*FMath::Sin(PI*(Time-YawnStartedAt)/FMath::Max(1.f,YawnDuration)):0;
     const float ScaleZ=FMath::Abs(GetActorScale3D().Z);
-    for (int32 I=0;I<Rest.Num();++I)
     {
-        const FVector P=Rest[I]; float Red=0,Dummy=0;
-        const FDeformationSample* Samples=&DeformationSamples[I*7];
-        auto OffsetAt=[&](int32 J,float& R) { return SampleOffset(Samples[J],Time,IdleAngle,Envelope,YawnHeight,R,Pulses); };
-        const float PhysicalHeight=OffsetAt(0,Red),Height=PhysicalHeight-IndentDepth[I],Anchor=AnchorWeights[I];
-        // Events and weight share this buffer with Chaos. Never add a second
-        // material-only displacement: it leaves feet/food above the visible dent.
-        Positions[I]=P+FVector(0,0,Height*Anchor); Red*=Anchor;
-        // Transform artist normals/tangents with the displacement gradient; keep UV seam smoothing.
-        const float Dx=((OffsetAt(1,Dummy)-OffsetAt(2,Dummy))*.5f-IndentGradient[I].X)*Anchor+Height*AnchorGradients[I].X;
-        const float Dy=((OffsetAt(3,Dummy)-OffsetAt(4,Dummy))*.5f-IndentGradient[I].Y)*Anchor+Height*AnchorGradients[I].Y;
-        const float Dz=((OffsetAt(5,Dummy)-OffsetAt(6,Dummy))*.5f-IndentGradient[I].Z)*Anchor+Height*AnchorGradients[I].Z;
-        const FVector N=RestNormals[I],T=RestTangents[I].TangentX;
-        const float Nz=N.Z/FMath::Max(.5f,1+Dz);
-        Normals[I]=FVector(N.X-Dx*Nz,N.Y-Dy*Nz,Nz).GetSafeNormal();
-        Tangents[I]=FProcMeshTangent((T+FVector(0,0,Dx*T.X+Dy*T.Y+Dz*T.Z)).GetSafeNormal(),RestTangents[I].bFlipTangentY);
-        // One pressure field drives geometry, physics and material masks. No UV1 displacement.
-        const float Depth=IndentDepth[I]*Anchor*ScaleZ;
-        const float Mask=FMath::Clamp(Depth/FMath::Max(1.f,PressureSettings.MaxDepth),0.f,1.f);
-        const float Rim=FMath::Clamp(float((IndentGradient[I]*Anchor+IndentDepth[I]*AnchorGradients[I]).Size2D())*4,0.f,1.f);
-        Colors[I]=FColor(FMath::RoundToInt(FMath::Clamp(Red,0.f,1.f)*255),FMath::RoundToInt(Mask*255),FMath::RoundToInt(Rim*255),255);
+        TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_VertexMath);
+        // Gather all actor state on the game thread. Workers only read these
+        // value snapshots/views and write their own index in fixed-size arrays.
+        const FMCTongueMotionState MotionSnapshot=Motion;
+        const FTransform MotionTransform=DeformationTransform;
+        const float IdleHeight=Settings.IdleHeight,MaxDepth=PressureSettings.MaxDepth;
+        const TConstArrayView<FMCTongueMotionState> PulseSamples=Pulses;
+        const TConstArrayView<FDeformationSample> SampleData=DeformationSamples;
+        const TConstArrayView<FVector> RestVertices=Rest,RestVertexNormals=RestNormals,Gradients=IndentGradient,AnchorSlopes=AnchorGradients;
+        const TConstArrayView<FProcMeshTangent> RestVertexTangents=RestTangents;
+        const TConstArrayView<float> Depths=IndentDepth,Anchors=AnchorWeights;
+        const TArrayView<FVector> OutputPositions=Positions,OutputNormals=Normals;
+        const TArrayView<FProcMeshTangent> OutputTangents=Tangents;
+        const TArrayView<FColor> OutputColors=Colors;
+        const auto OffsetSample=[MotionSnapshot,MotionTransform,IdleHeight,PulseSamples,Time,IdleAngle,Envelope,YawnHeight](const FDeformationSample& Sample,float& Red)
+        {
+            const auto& S=MotionSnapshot.Settings;
+            const float Amount=MotionSnapshot.Serial>0?Sample.MotionMask*(S.IsWave()?S.Band(Sample.Distance,Time-MotionSnapshot.StartedAt):Envelope):0;
+            Red=FMath::Max(0.f,Amount)*S.Redness;
+            float Height=Sample.SurfaceMask*IdleHeight*FMath::Sin(IdleAngle+Sample.IdlePhase)+S.Height*Amount;
+            Height+=Sample.SurfaceMask*YawnHeight;
+            for(const auto& Pulse:PulseSamples)
+            {
+                const float Distance=MotionTransform.TransformVector(Sample.Point-Pulse.Origin).Size2D();
+                const float PulseAmount=Sample.PulseWeight*Pulse.Settings.Band(Distance,Time-Pulse.StartedAt);
+                Height+=Pulse.Settings.Height*PulseAmount;
+                Red=FMath::Max(Red,FMath::Max(0.f,PulseAmount)*Pulse.Settings.Redness);
+            }
+            return Height;
+        };
+        const auto VertexMath=[RestVertices,RestVertexNormals,RestVertexTangents,SampleData,Depths,Gradients,Anchors,AnchorSlopes,
+            OutputPositions,OutputNormals,OutputTangents,OutputColors,OffsetSample,ScaleZ,MaxDepth](int32 I)
+        {
+            const FVector P=RestVertices[I]; float Red=0,Dummy=0;
+            const FDeformationSample* Samples=&SampleData[I*7];
+            auto OffsetAt=[&](int32 J,float& R) { return OffsetSample(Samples[J],R); };
+            const float PhysicalHeight=OffsetAt(0,Red),Height=PhysicalHeight-Depths[I],Anchor=Anchors[I];
+            // Events and weight share this buffer with Chaos. Never add a second
+            // material-only displacement: it leaves feet/food above the visible dent.
+            OutputPositions[I]=P+FVector(0,0,Height*Anchor); Red*=Anchor;
+            // Transform artist normals/tangents with the displacement gradient; keep UV seam smoothing.
+            const float Dx=((OffsetAt(1,Dummy)-OffsetAt(2,Dummy))*.5f-Gradients[I].X)*Anchor+Height*AnchorSlopes[I].X;
+            const float Dy=((OffsetAt(3,Dummy)-OffsetAt(4,Dummy))*.5f-Gradients[I].Y)*Anchor+Height*AnchorSlopes[I].Y;
+            const float Dz=((OffsetAt(5,Dummy)-OffsetAt(6,Dummy))*.5f-Gradients[I].Z)*Anchor+Height*AnchorSlopes[I].Z;
+            const FVector N=RestVertexNormals[I],T=RestVertexTangents[I].TangentX;
+            const float Nz=N.Z/FMath::Max(.5f,1+Dz);
+            OutputNormals[I]=FVector(N.X-Dx*Nz,N.Y-Dy*Nz,Nz).GetSafeNormal();
+            OutputTangents[I]=FProcMeshTangent((T+FVector(0,0,Dx*T.X+Dy*T.Y+Dz*T.Z)).GetSafeNormal(),RestVertexTangents[I].bFlipTangentY);
+            // One pressure field drives geometry, physics and material masks. No UV1 displacement.
+            const float Depth=Depths[I]*Anchor*ScaleZ;
+            const float Mask=FMath::Clamp(Depth/FMath::Max(1.f,MaxDepth),0.f,1.f);
+            const float Rim=FMath::Clamp(float((Gradients[I]*Anchor+Depths[I]*AnchorSlopes[I]).Size2D())*4,0.f,1.f);
+            OutputColors[I]=FColor(FMath::RoundToInt(FMath::Clamp(Red,0.f,1.f)*255),FMath::RoundToInt(Mask*255),FMath::RoundToInt(Rim*255),255);
+        };
+        const EParallelForFlags Flags=CVarMCTongueParallelVertices.GetValueOnGameThread()!=0?EParallelForFlags::None:EParallelForFlags::ForceSingleThread;
+        ParallelFor(TEXT("MCTongue_VertexBatch"),RestVertices.Num(),512,VertexMath,Flags);
     }
     Surface->UpdateMeshSection(0,Positions,Normals,UV,Colors,Tangents);
     ++SurfaceGeometryRevision;
+}
+const TArray<FVector>& AMCTongue::CurrentWorldVertices() const
+{
+    const FTransform Transform=Surface->GetComponentTransform();
+    if(WorldVertexRevision!=SurfaceGeometryRevision || WorldVertexCache.Num()!=Positions.Num()
+        || !WorldVertexTransform.Equals(Transform,0))
+    {
+        TRACE_CPUPROFILER_EVENT_SCOPE(MCTongue_WorldVertexSnapshot);
+        WorldVertexCache.SetNumUninitialized(Positions.Num());
+        for(int32 I=0;I<Positions.Num();++I) WorldVertexCache[I]=Transform.TransformPosition(Positions[I]);
+        WorldVertexTransform=Transform;WorldVertexRevision=SurfaceGeometryRevision;
+    }
+    return WorldVertexCache;
 }
 bool AMCTongue::SurfacePoint(FVector P,FHitResult& Hit) const
 {
