@@ -27,3 +27,28 @@ F3 provides individual animation buttons. These reset health, stop the AI, disab
 `Tools/Blender/build_zombie_animations.py` exports the owned clips and `ArtSource/ZombieBossAnimations/ZombieBossAnimations.blend`: all seven actions plus a consecutive NLA review timeline and impact markers. It preserves the original ZombieBoss blend and the artist source. `Tools/Unreal/import_zombie_animations.py` imports sequences against `SK_ZombieBoss_Skeleton`, verifies their durations and configures the profile's three hand/kick attacks. It creates no level actor. Attack VFX, production AnimBP/blending, encounter pacing, bespoke abilities and boss loot remain future encounter work.
 
 The combined chest/HUD solo Editor-runtime pass succeeded: no normal-map boss, explicit F3 dormant spawn with damage/movement disabled, separate F3 AI activation, authoritative damage, living-player targeting, actual navigation, telegraph/impact and stopped behavior after death. The clips were rendered in Blender and imported against the own skeleton; the previous profile's accidental Pitch90 was migrated to explicit Yaw−90 and visually checked. Review captures are in `Artifacts/ChestBossReview_20261004`. Multiplayer validation and game packaging are outside this pass.
+
+## Third boss phase
+
+Colleague commit `bfe90a7` supplies `/Game/FromBlender6/SK_Boss_stady3`, its one-root-bone skeleton and Guardian material. The existing Zombie remains phase 1; phase 2 is not connected. The third variant is `/Game/Gameplay/Boss/Phase3/BP_BossPhase3` with its own `DA_BossPhase3`, `SK_BossPhase3`, 22-bone skeleton and eight sequences. The derived mesh preserves the original topology/UVs, gains separate limb/face weights, and is uniformly normalized to 240 cm tall. Original colleague mesh/skeleton packages are retained. Its source actor remains an editor reference in L_Mouth, hidden and collision-free in gameplay.
+
+F3 → **Босс · фаза 3** provides dormant spawn, eight isolated animation buttons, explicit AI activation, reset/stop and removal. Phase 1 and phase 3 can coexist; variant-specific actions select only their own tagged actor. Both retain `MC_DevBoss` for normal run cleanup. No encounter transition or automatic phase-3 spawn is installed. Health-threshold `Runtime.Phase` remains an internal profile mechanic, distinct from the model's third-phase designation.
+
+| Third-phase clip | Duration | Impact |
+|---|---:|---:|
+| Idle | 2.4 s, loop | — |
+| Walk | 1.8 s, loop | — |
+| PunchLeft | 1.6 s | 0.85 s |
+| PunchRight | 1.7 s | 0.95 s |
+| Kick | 2.0 s | 1.12 s |
+| Hurt | 0.8 s | — |
+| Death | 3.0 s | — |
+| Roar | 5.0 s | — |
+
+Authoring: `Tools/Blender/build_boss_phase3_animations.py` and editable `ArtSource/BossPhase3/BossPhase3Animations.blend`. Package import: `Tools/Unreal/import_boss_phase3.py`. Native timestamp-driven presentation and server-owned combat are reused; root motion is disabled. The derived mesh uses Guardian `MI_Boss`; navigation retains the existing Boss capsule dimensions.
+
+The legacy FBX animation importer strips Blender's Armature ancestor scale from the static root track. The import script removes only that nonmoving track, so playback inherits the own skeleton's reference root scale; all child tracks remain. Core package redirects preserve existing reward references after the colleague's chest mesh relocation to `/Game/FromBlender`.
+
+`Tools/CaptureBossPhase3.ps1` runs the opt-in `-MCRoguelikePreview -MCBossPhase3Review` in Unreal, exercises the same owning-controller F3 actions, verifies independent phase-1 assets/state, all eight skeleton-compatible moving poses, playback timestamps, full-body camera and separate activation/stop/removal. It records real offscreen game frames and encodes the animation reel to `Artifacts/Approval/BossPhase3.mp4`; validation is written alongside it. This is a solo presentation/integration check, not a multiplayer latency test.
+
+2026-10-06: Development Editor build and the complete solo review passed. Eight clips moved their evaluated bones and retained zero measured playback timing error; phase-1 defaults/state and observer health stayed unchanged. The reel contains 520 rendered frames over about 25 seconds. Saved-default inspection also confirmed both relocated reward meshes resolve through the package redirects.

@@ -48,11 +48,25 @@ labels={
 'Grip':'Grab / carry / push / pull | procedural hand contact and body weight reactions',
 'Throat':'Living throat, breathing morphs, uvula and atomic swallowing batch',
 'Materials':'Painter tissue maps, saliva sheen and subsurface shading | gum, palate, throat and uvula',
-'Pickaxe':'Wide pickaxe swings on the tongue and next to an actual tooth | hand and tool surface constraint'}
+'Pickaxe':'Wide pickaxe swings on the tongue and next to an actual tooth | hand and tool surface constraint',
+'BossPhase3':'Босс · фаза 3 | анимации в Unreal · управление через F3'}
 (folder/'caption.txt').write_text(labels.get(scenario,name),encoding='utf-8')
 caption=str(folder/'caption.txt').replace('\\','/').replace(':','\\:')
 font='C\\:/Windows/Fonts/arial.ttf'
 vf=f"fps=30,drawbox=x=0:y=ih-52:w=iw:h=52:color=black@0.62:t=fill,drawtext=fontfile='{font}':textfile='{caption}':fontcolor=white:fontsize=17:x=20:y=h-36"
+if name=='BossPhase3':
+    validation=(out/'BossPhase3_Validation.txt').read_text(encoding='utf-8-sig')
+    events=re.findall(r'MC_BOSS_PHASE3_CLIP index=(\d+) name=(\w+) start=([\d.]+) length=([\d.]+) hold=([\d.]+)',validation)
+    clip_labels={'Idle':'Ожидание / дыхание','Walk':'Ходьба','PunchLeft':'Удар левой рукой',
+                 'PunchRight':'Удар правой рукой','Kick':'Пинок','Hurt':'Получение урона',
+                 'Death':'Падение / смерть','Roar':'Рёв'}
+    if len(events)!=8: raise RuntimeError('Phase 3 video requires all eight validated clip timestamps')
+    for index,clip,start,length,hold in events:
+        label_file=folder/f'clip_{index}.txt'
+        label_file.write_text(f'{index}/8 · {clip_labels[clip]}',encoding='utf-8')
+        label_path=str(label_file).replace('\\','/').replace(':','\\:')
+        begin=max(0,float(start)-rows[0][1]); end=begin+float(hold)
+        vf+=f",drawtext=fontfile='{font}':textfile='{label_path}':fontcolor=white:fontsize=24:x=(w-tw)/2:y=112:box=1:boxcolor=black@0.65:boxborderw=10:enable='between(t,{begin:.6f},{end:.6f})'"
 subprocess.run(['C:/ffmpeg/ffmpeg.exe','-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',str(folder/'frames.ffconcat'),'-vf',vf,'-c:v','libx264','-threads','2','-crf','19','-pix_fmt','yuv420p','-movflags','+faststart',str(out/(name+'.mp4'))],check=True)
 duration=rows[-1][1]-rows[0][1]
 subprocess.run(['C:/ffmpeg/ffmpeg.exe','-hide_banner','-loglevel','error','-y','-ss',str(min(duration/2,8)),'-i',str(out/(name+'.mp4')),'-frames:v','1','-update','1',str(out/(name+'.png'))],check=True)

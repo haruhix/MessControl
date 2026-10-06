@@ -10,5 +10,6 @@ enum class EMCDevAction : uint8
     GazePractice, TongueMotion, TongueWeight, TongueWeightToggle, GripPractice,
     TonguePressurePreset, TonguePressureReload, TonguePressureClear, LocomotionGround,
     SpicyPepper, VomitMeal, ColdCola, SwimCoffee, ActiveRagdoll, Yawn, Fire, RewardChest, BossPractice,
-    BossAI, BossStop, BossAnimation, BossRemove, BossIntro, CalculusPractice, CalculusClear
+    BossAI, BossStop, BossAnimation, BossRemove, BossIntro, CalculusPractice, CalculusClear,
+    BossPhase3Spawn, BossPhase3Animation, BossPhase3Activate, BossPhase3Deactivate, BossPhase3Remove
 };

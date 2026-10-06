@@ -21,6 +21,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimSequence.h"
+#include "Animation/AnimSingleNodeInstance.h"
+#include "Engine/SkeletalMesh.h"
+#include "Animation/Skeleton.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -33,6 +38,9 @@
 #include "NavigationSystem.h"
 #include "TimerManager.h"
 #include "UnrealClient.h"
+#if WITH_EDITOR
+#include "ShaderCompiler.h"
+#endif
 
 AMCRoguelikePreview::AMCRoguelikePreview() { PrimaryActorTick.bCanEverTick=false; }
 
@@ -44,12 +52,13 @@ void AMCRoguelikePreview::BeginPlay()
 #else
     if (!HasAuthority()) { Destroy(); return; }
     bChestSocialReview=FParse::Param(FCommandLine::Get(),TEXT("MCChestSocialReview"));
+    bBossPhase3Review=FParse::Param(FCommandLine::Get(),TEXT("MCBossPhase3Review"));
     FParse::Value(FCommandLine::Get(),TEXT("MCExpectedPlayers="),ExpectedPlayers);
     ExpectedPlayers=FMath::Clamp(ExpectedPlayers,1,8);
     StartedAt=StageStartedAt=GetWorld()->GetTimeSeconds();
     IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("RogueReview")),true);
     GetWorldTimerManager().SetTimer(StepTimer,this,&AMCRoguelikePreview::Step,.1f,true);
-    UE_LOG(LogTemp,Display,TEXT("MC_ROGUE_PREVIEW Started; expected players=%d"),ExpectedPlayers);
+    UE_LOG(LogTemp,Display,TEXT("MC_ROGUE_PREVIEW Started; expected players=%d boss_phase3_review=%d"),ExpectedPlayers,bBossPhase3Review);
 #endif
 }
 
@@ -70,6 +79,19 @@ void AMCRoguelikePreview::Photograph(const TCHAR* Filename,FVector Focus)
 {
     auto* PC=Hero?Cast<APlayerController>(Hero->GetController()):nullptr;
     if (!PC || GetNetMode()==NM_DedicatedServer) return;
+    if (bBossPhase3Review)
+    {
+        // Retain the fixed, bounds-derived camera for every clip. The timed
+        // recorder owns screenshot requests when a video is being captured.
+        FString VideoName;
+        if (!FParse::Value(FCommandLine::Get(),TEXT("MCVideo="),VideoName))
+        {
+            const FString Folder=FPaths::ProjectSavedDir()/TEXT("RogueReview/BossPhase3");
+            IFileManager::Get().MakeDirectory(*Folder,true);
+            FScreenshotRequest::RequestScreenshot(Folder/Filename,true,false);
+        }
+        return;
+    }
     if (!Camera) Camera=GetWorld()->SpawnActor<ACameraActor>();
     if (!Camera) return;
     FVector Eye=Focus+FVector(500,-850,550);
@@ -89,6 +111,7 @@ void AMCRoguelikePreview::Finish(bool Passed,const FString& Detail)
     bFinished=true;
     GetWorldTimerManager().ClearTimer(StepTimer);
     UE_LOG(LogTemp,Display,TEXT("MC_ROGUE_%s %s"),Passed?TEXT("PASS"):TEXT("FAIL"),*Detail);
+    if (bBossPhase3Review) UE_LOG(LogTemp,Display,TEXT("MC_BOSS_PHASE3_%s %s"),Passed?TEXT("PASS"):TEXT("FAIL"),*Detail);
     FPlatformMisc::RequestExitWithStatus(false,Passed?0:1);
 }
 
@@ -195,9 +218,302 @@ void AMCRoguelikePreview::StepSocialReview(double Now)
     }
 }
 
+bool AMCRoguelikePreview::SetBossPhase3Camera()
+{
+    auto* PC=Hero?Cast<AMCPlayerController>(Hero->GetController()):nullptr;
+    USkeletalMeshComponent* Mesh=Boss?Boss->GetMesh():nullptr;
+    if (!PC || !Mesh || !Mesh->GetSkeletalMeshAsset()) return false;
+    const FBoxSphereBounds Bounds=Mesh->GetSkeletalMeshAsset()->GetBounds().TransformBy(Mesh->GetComponentTransform());
+    if (Bounds.Origin.ContainsNaN() || Bounds.BoxExtent.ContainsNaN()
+        || !FMath::IsFinite(Bounds.SphereRadius) || Bounds.SphereRadius<20.f || Bounds.SphereRadius>2000.f) return false;
+    constexpr float FieldOfView=52.f,Aspect=16.f/9.f;
+    const float VerticalHalfAngle=FMath::Atan(FMath::Tan(FMath::DegreesToRadians(FieldOfView*.5f))/Aspect);
+    // A sphere around the full authored mesh, with room for hands, kicking and
+    // the death pose, stays inside the narrower vertical field of view.
+    const float Distance=Bounds.SphereRadius/FMath::Sin(VerticalHalfAngle)*1.22f;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCBossPhase3ReviewCamera),false,Boss);
+    Query.AddIgnoredActor(Hero);
+    for (float Angle:{-25.f,25.f,-45.f,45.f,0.f})
+    {
+        const FVector Direction=(Boss->GetActorForwardVector().RotateAngleAxis(Angle,FVector::UpVector)+FVector(0,0,.18f)).GetSafeNormal();
+        const FVector Eye=Bounds.Origin+Direction*Distance;
+        bool Clear=true;
+        for (float Height:{-.65f,0.f,.65f})
+        {
+            FHitResult Hit;
+            if (GetWorld()->LineTraceSingleByChannel(Hit,Eye,Bounds.Origin+FVector(0,0,Bounds.BoxExtent.Z*Height),ECC_Visibility,Query))
+            { Clear=false; break; }
+        }
+        if (!Clear) continue;
+        if (!Camera) Camera=GetWorld()->SpawnActor<ACameraActor>();
+        if (!Camera) return false;
+        Camera->SetActorLocationAndRotation(Eye,(Bounds.Origin-Eye).Rotation());
+        Camera->GetCameraComponent()->SetFieldOfView(FieldOfView);
+        Camera->GetCameraComponent()->SetAspectRatio(Aspect);
+        PC->SetViewTarget(Camera);
+        UE_LOG(LogTemp,Display,TEXT("MC_BOSS_PHASE3_CAMERA center=%s extent=%s radius=%.2f distance=%.2f eye=%s fov=%.1f"),
+            *Bounds.Origin.ToString(),*Bounds.BoxExtent.ToString(),Bounds.SphereRadius,Distance,*Eye.ToString(),FieldOfView);
+        return true;
+    }
+    return false;
+}
+
+void AMCRoguelikePreview::RestoreBossPhase3View()
+{
+    auto* PC=Hero?Cast<AMCPlayerController>(Hero->GetController()):nullptr;
+    if (!PC) return;
+    PC->bAutoManageActiveCameraTarget=false;
+    PC->ResetIgnoreMoveInput(); PC->SetIgnoreMoveInput(true);
+    PC->ResetIgnoreLookInput(); PC->SetIgnoreLookInput(true);
+    if (IsValid(Camera)) PC->SetViewTarget(Camera);
+}
+
+void AMCRoguelikePreview::RequestBossPhase3Action(EMCDevAction Action,int32 Index)
+{
+    if (auto* PC=Hero?Cast<AMCPlayerController>(Hero->GetController()):nullptr)
+    {
+        PC->RequestDevAction(Action,Index);
+        // The normal F3 path updates input mode and can reset the controller
+        // guards. This opt-in review owns its camera/guards after that call.
+        RestoreBossPhase3View();
+    }
+}
+
+bool AMCRoguelikePreview::BeginBossPhase3Clip(int32 Index,double Now)
+{
+    auto* PC=Hero?Cast<AMCPlayerController>(Hero->GetController()):nullptr;
+    if (!PC || !IsValid(Boss) || !Phase3Clips.IsValidIndex(Index-1) || !Phase3Clips[Index-1]) return false;
+    const int32 PreviousSerial=Boss->Runtime.PreviewSerial;
+    RequestBossPhase3Action(EMCDevAction::BossPhase3Animation,Index);
+    const auto Preview=static_cast<EMCBossAnimationPreview>(Index);
+    if (Boss->Runtime.AnimationPreview!=Preview || Boss->Runtime.PreviewSerial!=PreviousSerial+1
+        || Boss->Runtime.State!=EMCBossState::Dormant || !FMath::IsFinite(Boss->Runtime.PreviewStartedAt)) return false;
+    const UAnimSingleNodeInstance* Instance=Boss->GetMesh()->GetSingleNodeInstance();
+    // Native playback is verified after the mesh has evaluated its next frame.
+    if (!Instance) return false;
+    Phase3ClipIndex=Index;
+    Phase3PreviewSerial=Boss->Runtime.PreviewSerial;
+    Phase3PreviewStartedAt=Boss->Runtime.PreviewStartedAt;
+    Phase3ClipOrigin=Boss->GetActorLocation();
+    Phase3ClipDuration=FMath::Max(Phase3Clips[Index-1]->GetPlayLength()+.5f,Index<=2?3.f:1.f);
+    Phase3PoseSamples=0; Phase3PeakBoneMotion=0;
+    Phase3FirstBonePositions.Reset(); bPhase3Photographed=false;
+    StageStartedAt=Now;
+    const TCHAR* Names[]={TEXT("Idle"),TEXT("Walk"),TEXT("PunchLeft"),TEXT("PunchRight"),TEXT("Kick"),TEXT("Hurt"),TEXT("Death"),TEXT("Roar")};
+    UE_LOG(LogTemp,Display,TEXT("MC_BOSS_PHASE3_CLIP index=%d name=%s start=%.6f length=%.3f hold=%.3f serial=%d stamp=%.6f asset=%s"),
+        Index,Names[Index-1],Now-StartedAt,Phase3Clips[Index-1]->GetPlayLength(),Phase3ClipDuration,
+        Phase3PreviewSerial,Phase3PreviewStartedAt,*Phase3Clips[Index-1]->GetPathName());
+    return true;
+}
+
+void AMCRoguelikePreview::StepBossPhase3Review(double Now)
+{
+    if (Now-StartedAt>100.) { Finish(false,FString::Printf(TEXT("Phase 3 review timed out stage=%d clip=%d."),Stage,Phase3ClipIndex)); return; }
+    auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
+    auto* State=GetWorld()->GetGameState<AMCGameState>();
+    if (!Mode || !State) return;
+    if (Stage==0)
+    {
+        auto* PC=Cast<AMCPlayerController>(GetWorld()->GetFirstPlayerController());
+        Hero=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
+        if (Now-StartedAt<3. || !AMCBossCharacter::IsLivingPlayer(Hero) || !PC || !PC->CanUseDevPanel()) return;
+#if WITH_EDITOR
+        if (GShaderCompilingManager && GShaderCompilingManager->IsCompiling()) return;
+#endif
+        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+        { Finish(false,TEXT("Normal map spawned a boss before the explicit F3 phase 3 review.")); return; }
+        Mode->SetActorTickEnabled(false);
+        if (Mode->DayDirector) Mode->DayDirector->SetActorTickEnabled(false);
+        State->Phase=EMCShiftPhase::Working; State->PhaseEndsAt=0; State->bDevManualEvents=true;
+        for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) It->Dispose();
+        Hero->CancelGameplayInput();
+        // Stage on the actual tongue/nav surface so the two isolated F3 spawns
+        // can choose different collision-free points in the same arena.
+        auto* Nav=UNavigationSystemV1::GetCurrent(GetWorld());
+        const ANavigationData* HeroNav=Nav?Nav->GetNavDataForProps(Hero->GetNavAgentPropertiesRef(),Hero->GetActorLocation()):nullptr;
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        {
+            FHitResult Floor; FNavLocation Point;
+            if (HeroNav && It->SurfacePoint(It->Surface->Bounds.Origin,Floor)
+                && Nav->ProjectPointToNavigation(Floor.ImpactPoint,Point,FVector(200,200,250),HeroNav)) PlacePlayer(Point.Location);
+            break;
+        }
+        HeroHealthBefore=Hero->Status->State.Health;
+        RequestBossPhase3Action(EMCDevAction::BossPractice);
+        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+            if (It->ActorHasTag(TEXT("MC_DevBoss")) && !It->ActorHasTag(TEXT("MC_DevBossPhase3"))) { PhaseOneBoss=*It; break; }
+        if (!IsValid(PhaseOneBoss) || !PhaseOneBoss->GetResolvedProfile() || !PhaseOneBoss->GetMesh()->GetSkeletalMeshAsset()
+            || PhaseOneBoss->Runtime.State!=EMCBossState::Dormant || PhaseOneBoss->Runtime.AnimationPreview!=EMCBossAnimationPreview::Idle)
+        { Finish(false,TEXT("Existing phase 1 F3 action failed to create its dormant idle boss.")); return; }
+        PhaseOneTransform=PhaseOneBoss->GetActorTransform();
+        PhaseOneHealth=PhaseOneBoss->Runtime.Health; PhaseOnePreviewSerial=PhaseOneBoss->Runtime.PreviewSerial;
+        PhaseOneProfilePath=PhaseOneBoss->GetResolvedProfile()->GetPathName();
+        PhaseOneMeshPath=PhaseOneBoss->GetMesh()->GetSkeletalMeshAsset()->GetPathName();
+        PhaseOneSkeletonPath=GetPathNameSafe(PhaseOneBoss->GetMesh()->GetSkeletalMeshAsset()->GetSkeleton());
+        RequestBossPhase3Action(EMCDevAction::BossPhase3Spawn);
+        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+            if (It->ActorHasTag(TEXT("MC_DevBoss")) && It->ActorHasTag(TEXT("MC_DevBossPhase3"))) { Boss=*It; break; }
+        const UMCBossProfile* Profile=Boss?Boss->GetResolvedProfile():nullptr;
+        USkeletalMesh* Mesh=Boss?Boss->GetMesh()->GetSkeletalMeshAsset():nullptr;
+        if (!IsValid(Boss) || Boss==PhaseOneBoss || !Profile || !Mesh || !Mesh->GetSkeleton()
+            || Boss->GetClass()->GetPathName()!=TEXT("/Game/Gameplay/Boss/Phase3/BP_BossPhase3.BP_BossPhase3_C")
+            || Profile->GetPathName()==PhaseOneProfilePath || Mesh->GetPathName()==PhaseOneMeshPath
+            || Mesh->GetSkeleton()->GetPathName()==PhaseOneSkeletonPath || !Profile->AnimationClass.IsNull()
+            || Boss->Runtime.State!=EMCBossState::Dormant || Boss->Runtime.AnimationPreview!=EMCBossAnimationPreview::Idle)
+        { Finish(false,TEXT("Phase 3 F3 spawn lacks an isolated class/profile/mesh/skeleton and dormant native idle playback.")); return; }
+        Phase3Clips={Profile->IdleAnimation.Get(),Profile->WalkAnimation.Get(),nullptr,nullptr,nullptr,
+            Profile->HurtAnimation.Get(),Profile->DeathAnimation.Get(),Profile->RoarAnimation.Get()};
+        for (const auto& Attack:Profile->Attacks)
+        {
+            const int32 Index=Attack.AttackId==TEXT("PunchLeft")?2:Attack.AttackId==TEXT("PunchRight")?3:Attack.AttackId==TEXT("Kick")?4:INDEX_NONE;
+            if (Index==INDEX_NONE) continue;
+            if (Phase3Clips[Index] || !FMath::IsFinite(Attack.WindupSeconds) || !FMath::IsFinite(Attack.ActiveSeconds)
+                || !FMath::IsFinite(Attack.RecoverySeconds) || !FMath::IsFinite(Attack.CooldownSeconds)
+                || Attack.WindupSeconds<.05f || Attack.ActiveSeconds<.05f || Attack.RecoverySeconds<.05f
+                || Attack.CooldownSeconds<0.f || Attack.WindupSeconds+Attack.ActiveSeconds+Attack.RecoverySeconds>20.f)
+            { Finish(false,TEXT("Phase 3 attack slot is duplicated or has invalid timing.")); return; }
+            Phase3Clips[Index]=Attack.Animation.Get();
+        }
+        for (int32 I=0;I<Phase3Clips.Num();++I)
+        {
+            const UAnimSequence* Clip=Phase3Clips[I];
+            if (!Clip || Clip->GetSkeleton()!=Mesh->GetSkeleton() || !FMath::IsFinite(Clip->GetPlayLength())
+                || Clip->GetPlayLength()<.25f || Clip->GetPlayLength()>12.f)
+            { Finish(false,FString::Printf(TEXT("Phase 3 clip %d is missing, uses another skeleton, or has invalid duration."),I+1)); return; }
+        }
+        BossStarted=Boss->GetActorLocation();
+        const float Health=Boss->Runtime.Health;
+        if (Boss->ReceiveBossDamage(10.f,Hero)!=0.f || !FMath::IsNearlyEqual(Boss->Runtime.Health,Health))
+        { Finish(false,TEXT("Dormant phase 3 preview accepted combat damage.")); return; }
+        if (!SetBossPhase3Camera()) { Finish(false,TEXT("No unobstructed full-body camera could be derived from the phase 3 mesh bounds.")); return; }
+        RestoreBossPhase3View();
+        Hero->GetCharacterMovement()->StopMovementImmediately(); Hero->GetCharacterMovement()->DisableMovement();
+        Hero->SetActorHiddenInGame(true);
+        UE_LOG(LogTemp,Display,TEXT("MC_BOSS_PHASE3_ISOLATION phase1_profile=%s phase1_mesh=%s phase1_skeleton=%s phase3_profile=%s phase3_mesh=%s phase3_skeleton=%s"),
+            *PhaseOneProfilePath,*PhaseOneMeshPath,*PhaseOneSkeletonPath,*Profile->GetPathName(),*Mesh->GetPathName(),*Mesh->GetSkeleton()->GetPathName());
+        Stage=1; StageStartedAt=Now; return;
+    }
+    if (!IsValid(Hero) || !Hero->Status || !Hero->Status->IsAlive() || !FMath::IsNearlyEqual(Hero->Status->State.Health,HeroHealthBefore))
+    { Finish(false,TEXT("Review player disappeared or took damage.")); return; }
+    auto* PC=Cast<AMCPlayerController>(Hero->GetController());
+    if (!PC) { Finish(false,TEXT("Review lost its F3 controller.")); return; }
+    RestoreBossPhase3View();
+    if (Stage<=4 && !IsValid(Boss)) { Finish(false,TEXT("Phase 3 boss disappeared before F3 removal.")); return; }
+    const double Age=Now-StageStartedAt;
+    if (Stage==1 && Age>=.8)
+    {
+        if (Boss->Runtime.State!=EMCBossState::Dormant || !Boss->GetVelocity().IsNearlyZero()
+            || FVector::Dist(BossStarted,Boss->GetActorLocation())>.1f)
+        { Finish(false,TEXT("Phase 3 dormant idle enabled movement or AI.")); return; }
+        RequestBossPhase3Action(EMCDevAction::BossPhase3Animation,2);
+        if (Boss->Runtime.AnimationPreview!=EMCBossAnimationPreview::Walk)
+        { Finish(false,TEXT("Phase 3 F3 animation command selected the wrong boss.")); return; }
+        RequestBossPhase3Action(EMCDevAction::BossPhase3Deactivate);
+        if (!IsValid(PhaseOneBoss) || !PhaseOneBoss->GetResolvedProfile() || !PhaseOneBoss->GetMesh()->GetSkeletalMeshAsset()
+            || PhaseOneBoss->GetResolvedProfile()->GetPathName()!=PhaseOneProfilePath
+            || PhaseOneBoss->GetMesh()->GetSkeletalMeshAsset()->GetPathName()!=PhaseOneMeshPath
+            || !PhaseOneBoss->GetActorTransform().Equals(PhaseOneTransform,.1f) || !FMath::IsNearlyEqual(PhaseOneBoss->Runtime.Health,PhaseOneHealth)
+            || PhaseOneBoss->Runtime.PreviewSerial!=PhaseOnePreviewSerial || PhaseOneBoss->Runtime.State!=EMCBossState::Dormant
+            || PhaseOneBoss->Runtime.AnimationPreview!=EMCBossAnimationPreview::Idle
+            || Boss->Runtime.State!=EMCBossState::Dormant || Boss->Runtime.AnimationPreview!=EMCBossAnimationPreview::Idle)
+        { Finish(false,TEXT("Phase 3 spawn/animation/deactivate changed phase 1 or failed to restore phase 3 idle.")); return; }
+        RequestBossPhase3Action(EMCDevAction::BossRemove);
+        if (IsValid(PhaseOneBoss) && !PhaseOneBoss->IsActorBeingDestroyed())
+        { Finish(false,TEXT("Phase 1 F3 removal did not remove phase 1.")); return; }
+        if (!IsValid(Boss) || Boss->IsActorBeingDestroyed()) { Finish(false,TEXT("Phase 1 F3 removal also removed phase 3.")); return; }
+        UE_LOG(LogTemp,Display,TEXT("MC_BOSS_PHASE3_CHECK PASS isolated F3 spawn/animation/deactivate/removal; phase 1 unchanged."));
+        Stage=2;
+        if (!BeginBossPhase3Clip(1,Now)) Finish(false,TEXT("F3 idle could not start through the owning player controller."));
+        return;
+    }
+    if (Stage==2)
+    {
+        UAnimSequence* Clip=Phase3Clips[Phase3ClipIndex-1];
+        USkeletalMeshComponent* Mesh=Boss->GetMesh();
+        UAnimSingleNodeInstance* Instance=Mesh->GetSingleNodeInstance();
+        if (Boss->Runtime.State!=EMCBossState::Dormant || Boss->Runtime.AnimationPreview!=static_cast<EMCBossAnimationPreview>(Phase3ClipIndex)
+            || Boss->Runtime.PreviewSerial!=Phase3PreviewSerial || Boss->Runtime.PreviewStartedAt!=Phase3PreviewStartedAt
+            || !FMath::IsNearlyEqual(Boss->Runtime.Health,Boss->Runtime.MaxHealth) || !Boss->GetVelocity().IsNearlyZero()
+            || FVector::Dist(Phase3ClipOrigin,Boss->GetActorLocation())>.1f || !Instance || Instance->GetCurrentAsset()!=Clip)
+        {
+            Finish(false,FString::Printf(TEXT("F3 clip invariant: clip=%d state=%d preview=%d serial=%d/%d stamp=%.9f/%.9f health=%.3f/%.3f velocity=%s distance=%.5f instance=%s current=%s expected=%s actor=%s origin=%s view=%s camera=%s"),
+                Phase3ClipIndex,int32(Boss->Runtime.State),int32(Boss->Runtime.AnimationPreview),Boss->Runtime.PreviewSerial,Phase3PreviewSerial,
+                Boss->Runtime.PreviewStartedAt,Phase3PreviewStartedAt,Boss->Runtime.Health,Boss->Runtime.MaxHealth,*Boss->GetVelocity().ToString(),
+                FVector::Dist(Phase3ClipOrigin,Boss->GetActorLocation()),*GetNameSafe(Instance),*GetPathNameSafe(Instance?Instance->GetCurrentAsset():nullptr),
+                *GetPathNameSafe(Clip),*Boss->GetActorLocation().ToString(),*Phase3ClipOrigin.ToString(),*GetNameSafe(PC->GetViewTarget()),*GetNameSafe(Camera)));
+            return;
+        }
+        const bool Loop=Phase3ClipIndex<=2;
+        const double ServerNow=State->GetServerWorldTimeSeconds();
+        const float Elapsed=FMath::Max(0.f,float(ServerNow-Phase3PreviewStartedAt));
+        const float Expected=Loop?FMath::Fmod(Elapsed,Clip->GetPlayLength()):FMath::Min(Elapsed,Clip->GetPlayLength());
+        const float Actual=Instance->GetCurrentTime();
+        float TimingError=FMath::Abs(Expected-Actual);
+        if (Loop) TimingError=FMath::Min(TimingError,FMath::Abs(Clip->GetPlayLength()-TimingError));
+        if (!FMath::IsFinite(Actual) || Actual<0.f || Actual>Clip->GetPlayLength()+.01f || TimingError>.25f)
+        { Finish(false,FString::Printf(TEXT("Phase 3 clip %d did not follow its F3 timestamp: expected=%.3f actual=%.3f error=%.3f."),Phase3ClipIndex,Expected,Actual,TimingError)); return; }
+        const float TanH=FMath::Tan(FMath::DegreesToRadians(Camera->GetCameraComponent()->FieldOfView*.5f));
+        const float TanV=TanH/Camera->GetCameraComponent()->AspectRatio;
+        for (int32 Bone=0;Bone<Mesh->GetNumBones();++Bone)
+        {
+            const FTransform Transform=Mesh->GetBoneTransform(Bone);
+            const FVector Position=Transform.GetLocation();
+            const FVector View=Camera->GetActorQuat().UnrotateVector(Position-Camera->GetActorLocation());
+            if (Transform.ContainsNaN() || View.X<=0.f || FMath::Abs(View.Y/(View.X*TanH))>.94f || FMath::Abs(View.Z/(View.X*TanV))>.91f)
+            { Finish(false,FString::Printf(TEXT("Phase 3 clip %d has an invalid/offscreen bone %s; position=%s view=%s."),Phase3ClipIndex,*Mesh->GetBoneName(Bone).ToString(),*Position.ToString(),*View.ToString())); return; }
+            if (Phase3PoseSamples==0) Phase3FirstBonePositions.Add(Position);
+            else Phase3PeakBoneMotion=FMath::Max(Phase3PeakBoneMotion,float(FVector::Dist(Position,Phase3FirstBonePositions[Bone])));
+        }
+        ++Phase3PoseSamples;
+        if (!bPhase3Photographed && Age>=FMath::Min(Clip->GetPlayLength()*.55f,2.f))
+        {
+            bPhase3Photographed=true;
+            const TCHAR* ClipNames[]={TEXT("Idle"),TEXT("Walk"),TEXT("PunchLeft"),TEXT("PunchRight"),TEXT("Kick"),TEXT("Hurt"),TEXT("Death"),TEXT("Roar")};
+            Photograph(*FString::Printf(TEXT("Clip%02d_%s.png"),Phase3ClipIndex,ClipNames[Phase3ClipIndex-1]),Boss->GetActorLocation());
+        }
+        if (Age>=Phase3ClipDuration)
+        {
+            if (Phase3PoseSamples<3 || Phase3PeakBoneMotion<.05f)
+            { Finish(false,FString::Printf(TEXT("Phase 3 clip %d remained static (%d samples, motion %.4fcm)."),Phase3ClipIndex,Phase3PoseSamples,Phase3PeakBoneMotion)); return; }
+            UE_LOG(LogTemp,Display,TEXT("MC_BOSS_PHASE3_CHECK PASS clip=%d samples=%d bone_motion=%.2fcm timing_error=%.3fs whole_pose_visible=1"),
+                Phase3ClipIndex,Phase3PoseSamples,Phase3PeakBoneMotion,TimingError);
+            if (Phase3ClipIndex<8)
+            { if (!BeginBossPhase3Clip(Phase3ClipIndex+1,Now)) Finish(false,TEXT("Next phase 3 clip did not start through F3.")); return; }
+            RequestBossPhase3Action(EMCDevAction::BossPhase3Deactivate);
+            RequestBossPhase3Action(EMCDevAction::BossPhase3Activate);
+            if (Boss->Runtime.State==EMCBossState::Dormant || Boss->Runtime.AnimationPreview!=EMCBossAnimationPreview::None || !Boss->GetController())
+            { Finish(false,TEXT("Explicit phase 3 F3 AI activation failed.")); return; }
+            UE_LOG(LogTemp,Display,TEXT("MC_BOSS_PHASE3_CHECK PASS explicit AI activation state=%d preview=%d."),int32(Boss->Runtime.State),int32(Boss->Runtime.AnimationPreview));
+            // Stop in the same review step: activation is tested without allowing
+            // an attack timer to damage the observer during an animation reel.
+            RequestBossPhase3Action(EMCDevAction::BossPhase3Deactivate);
+            if (Boss->Runtime.State!=EMCBossState::Dormant || Boss->Runtime.AnimationPreview!=EMCBossAnimationPreview::Idle
+                || !FMath::IsNearlyEqual(Boss->Runtime.Health,Boss->Runtime.MaxHealth))
+            { Finish(false,TEXT("Explicit phase 3 F3 deactivation failed to restore dormant idle.")); return; }
+            Stage=3; StageStartedAt=Now; return;
+        }
+    }
+    if (Stage==3 && Age>=1.)
+    {
+        if (Boss->Runtime.State!=EMCBossState::Dormant || !Boss->GetVelocity().IsNearlyZero())
+        { Finish(false,TEXT("Deactivated phase 3 resumed its AI or movement.")); return; }
+        RequestBossPhase3Action(EMCDevAction::BossPhase3Remove);
+        if (IsValid(Boss) && !Boss->IsActorBeingDestroyed()) { Finish(false,TEXT("Phase 3 F3 removal failed.")); return; }
+        UE_LOG(LogTemp,Display,TEXT("MC_BOSS_PHASE3_CHECK PASS explicit AI activate/deactivate/remove; observer health=%.0f unchanged."),HeroHealthBefore);
+        Stage=5; StageStartedAt=Now; return;
+    }
+    if (Stage==5 && Age>=.2)
+    {
+        for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+            if (!It->IsActorBeingDestroyed()) { Finish(false,TEXT("A test boss remained after isolated F3 removal.")); return; }
+        Finish(true,TEXT("Phase 1 unchanged and separately removed; phase 3 owns its class/profile/mesh/skeleton and eight finite clips; actual F3 stamps drive evaluated moving poses, all bones fit the fixed full-body camera; previews dormant and damage-free; explicit AI activate/deactivate/remove passed. Solo review; network replication not exercised."));
+    }
+}
+
 void AMCRoguelikePreview::Step()
 {
     const double Now=GetWorld()->GetTimeSeconds();
+    if (bBossPhase3Review) { StepBossPhase3Review(Now); return; }
     if (Now-StartedAt>60.)
     {
         Finish(false,FString::Printf(TEXT("Timeout stage=%d chest=%d boss=%d chase=%d target=%d telegraph=%d attack=%d"),

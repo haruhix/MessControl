@@ -1,0 +1,220 @@
+{
+  "source_sha256": "b0c58a2a31cc01cd88ae5fbd9c580832947ee6079d0afad02ef609cdf19f4529",
+  "source_bones": 1,
+  "source_vertices": 4662,
+  "derived_bones": 22,
+  "derived_height_cm": 240,
+  "derived_width_cm": 456.7381544094022,
+  "forward_axis": "-Y",
+  "up_axis": "+Z",
+  "units": "Blender meters / FBX centimeters",
+  "uniform_normalization": 0.38419987937755395,
+  "ground_offset_source_units": 3.1233742237091064,
+  "root_translation_cm": [
+    0,
+    0,
+    0
+  ],
+  "mesh_file": "SK_BossPhase3.fbx",
+  "original_source_preserved": true,
+  "bone_hierarchy": [
+    {
+      "name": "root",
+      "parent": null,
+      "head_cm": [
+        0.0,
+        0.0,
+        9e-06
+      ]
+    },
+    {
+      "name": "pelvis",
+      "parent": "root",
+      "head_cm": [
+        0.0,
+        9.604998,
+        68.133011
+      ]
+    },
+    {
+      "name": "spine",
+      "parent": "pelvis",
+      "head_cm": [
+        0.0,
+        7.683998,
+        98.869003
+      ]
+    },
+    {
+      "name": "chest",
+      "parent": "spine",
+      "head_cm": [
+        0.0,
+        5.762998,
+        143.051987
+      ]
+    },
+    {
+      "name": "head",
+      "parent": "chest",
+      "head_cm": [
+        0.0,
+        3.841998,
+        179.550964
+      ]
+    },
+    {
+      "name": "jaw",
+      "parent": "head",
+      "head_cm": [
+        0.0,
+        -49.945988,
+        157.651581
+      ]
+    },
+    {
+      "name": "brow_l",
+      "parent": "head",
+      "head_cm": [
+        23.051992,
+        -78.376785,
+        189.924377
+      ]
+    },
+    {
+      "name": "brow_r",
+      "parent": "head",
+      "head_cm": [
+        -23.051992,
+        -78.376785,
+        189.924377
+      ]
+    },
+    {
+      "name": "clavicle_l",
+      "parent": "chest",
+      "head_cm": [
+        32.65699,
+        7.683998,
+        179.550964
+      ]
+    },
+    {
+      "name": "upperarm_l",
+      "parent": "clavicle_l",
+      "head_cm": [
+        86.444962,
+        11.525996,
+        183.39296
+      ]
+    },
+    {
+      "name": "forearm_l",
+      "parent": "upperarm_l",
+      "head_cm": [
+        140.232941,
+        11.525997,
+        129.60498
+      ]
+    },
+    {
+      "name": "hand_l",
+      "parent": "forearm_l",
+      "head_cm": [
+        178.652924,
+        5.762999,
+        93.105995
+      ]
+    },
+    {
+      "name": "clavicle_r",
+      "parent": "chest",
+      "head_cm": [
+        -32.65699,
+        7.683998,
+        179.550964
+      ]
+    },
+    {
+      "name": "upperarm_r",
+      "parent": "clavicle_r",
+      "head_cm": [
+        -86.444962,
+        11.525996,
+        183.39296
+      ]
+    },
+    {
+      "name": "forearm_r",
+      "parent": "upperarm_r",
+      "head_cm": [
+        -140.232941,
+        11.525997,
+        129.60498
+      ]
+    },
+    {
+      "name": "hand_r",
+      "parent": "forearm_r",
+      "head_cm": [
+        -178.652924,
+        5.762999,
+        93.105995
+      ]
+    },
+    {
+      "name": "thigh_l",
+      "parent": "pelvis",
+      "head_cm": [
+        33.809589,
+        9.604997,
+        71.975014
+      ]
+    },
+    {
+      "name": "calf_l",
+      "parent": "thigh_l",
+      "head_cm": [
+        34.577988,
+        9.604997,
+        34.707611
+      ]
+    },
+    {
+      "name": "foot_l",
+      "parent": "calf_l",
+      "head_cm": [
+        34.577988,
+        5.762997,
+        6.661025
+      ]
+    },
+    {
+      "name": "thigh_r",
+      "parent": "pelvis",
+      "head_cm": [
+        -33.809589,
+        9.604997,
+        71.975014
+      ]
+    },
+    {
+      "name": "calf_r",
+      "parent": "thigh_r",
+      "head_cm": [
+        -34.577988,
+        9.604997,
+        34.707611
+      ]
+    },
+    {
+      "name": "foot_r",
+      "parent": "calf_r",
+      "head_cm": [
+        -34.577988,
+        5.762997,
+        6.661025
+      ]
+    }
+  ]
+}

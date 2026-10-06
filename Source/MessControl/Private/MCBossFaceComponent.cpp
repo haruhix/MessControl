@@ -9,7 +9,7 @@
 namespace
 {
     enum EBossFaceChannel : int32 { EyesBlink, EyesSquint, BrowAngry, MouthPain, MouthRoar, MouthAngry, MouthSurprise };
-    float SafeSetting(float Value, float Default, float Min, float Max)
+    float SafeFaceSetting(float Value, float Default, float Min, float Max)
     {
         return FMath::IsFinite(Value)?FMath::Clamp(Value,Min,Max):Default;
     }
@@ -72,7 +72,7 @@ double UMCBossFaceComponent::ServerNow() const
 void UMCBossFaceComponent::PlayRoarExpression(double ServerStartedAt, float Duration)
 {
     RoarStartedAt=FMath::IsFinite(ServerStartedAt)?ServerStartedAt:ServerNow();
-    RoarSeconds=SafeSetting(Duration,5.f,.1f,15.f);
+    RoarSeconds=SafeFaceSetting(Duration,5.f,.1f,15.f);
 }
 
 void UMCBossFaceComponent::ClearRoarExpression()
@@ -107,7 +107,7 @@ void UMCBossFaceComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
         || State.AnimationPreview==EMCBossAnimationPreview::PunchLeft || State.AnimationPreview==EMCBossAnimationPreview::PunchRight
         || State.AnimationPreview==EMCBossAnimationPreview::Kick;
     const bool bCombat=State.State!=EMCBossState::Dormant && State.State!=EMCBossState::Dead;
-    const float ReactionLength=SafeSetting(HitReactionSeconds,.55f,.1f,2.f);
+    const float ReactionLength=SafeFaceSetting(HitReactionSeconds,.55f,.1f,2.f);
     Pain=bDead?0.f:ReactionEnvelope(Now-State.HurtStartedAt,ReactionLength);
     if (!bDead && State.AnimationPreview==EMCBossAnimationPreview::Hurt)
         Pain=FMath::Max(Pain,ReactionEnvelope(PreviewAge,ReactionLength));
@@ -128,15 +128,15 @@ void UMCBossFaceComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
             *(1.f-FMath::SmoothStep(RoarLength-.55f,RoarLength,float(RoarAge)));
         Roar=Envelope*(.9f+.1f*FMath::Sin(float(RoarAge)*13.f))*(1.f-Pain);
     }
-    Anger=bDead?.12f:FMath::Max(Roar*.95f,(bCombat || bAttack)?SafeSetting(CombatAnger,.78f,0.f,1.f):.12f);
+    Anger=bDead?.12f:FMath::Max(Roar*.95f,(bCombat || bAttack)?SafeFaceSetting(CombatAnger,.78f,0.f,1.f):.12f);
     Anger=FMath::Lerp(Anger,.95f,Pain);
 
-    const float BlinkDuration=SafeSetting(BlinkSeconds,.16f,.05f,.5f);
+    const float BlinkDuration=SafeFaceSetting(BlinkSeconds,.16f,.05f,.5f);
     if (!bDead && Now>=NextBlinkAt)
     {
         BlinkStartedAt=Now;
-        const float Minimum=SafeSetting(MinBlinkInterval,2.4f,1.f,10.f);
-        const float Maximum=FMath::Max(Minimum,SafeSetting(MaxBlinkInterval,4.8f,1.f,12.f));
+        const float Minimum=SafeFaceSetting(MinBlinkInterval,2.4f,1.f,10.f);
+        const float Maximum=FMath::Max(Minimum,SafeFaceSetting(MaxBlinkInterval,4.8f,1.f,12.f));
         NextBlinkAt=Now+BlinkRandom.FRandRange(Minimum,Maximum);
     }
     const double BlinkAge=Now-BlinkStartedAt;
@@ -147,7 +147,7 @@ void UMCBossFaceComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
     const float MouthRoarWeight=Roar*.96f;
     // The mouth shapes are complete authored poses. Convex blending avoids applying two jaw openings together.
     const float MouthAngryWeight=bDead?0.f:Anger*(bAttack?.65f:.38f)*(1.f-MouthPainWeight)*(1.f-MouthRoarWeight);
-    const float Smoothing=1.f-FMath::Exp(-SafeSetting(ResponseSpeed,20.f,1.f,60.f)*Dt);
+    const float Smoothing=1.f-FMath::Exp(-SafeFaceSetting(ResponseSpeed,20.f,1.f,60.f)*Dt);
     ApplyChannel(EyesBlink,Blink,Smoothing);
     ApplyChannel(EyesSquint,Squint*(1.f-Blink),Smoothing);
     ApplyChannel(BrowAngry,Anger,Smoothing);

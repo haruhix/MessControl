@@ -1,0 +1,47 @@
+{
+  "case": "BossPhase3",
+  "source": "Unreal FScreenshotRequest offscreen game render; encoded from game timestamps",
+  "frames": 520,
+  "seconds": 24.958,
+  "sample_fps": 20.8,
+  "caption": "\u0411\u043e\u0441\u0441 \u00b7 \u0444\u0430\u0437\u0430 3 | \u0430\u043d\u0438\u043c\u0430\u0446\u0438\u0438 \u0432 Unreal \u00b7 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435 \u0447\u0435\u0440\u0435\u0437 F3",
+  "encodedUtc": "2026-10-06T00:58:42.484844+00:00",
+  "videoSha256": "3df377dddc506e970c3d8160056db1369e3fc17aa25de8cc5373ac25d4c56b79",
+  "captureFingerprint": {
+    "schemaVersion": 1,
+    "case": "BossPhase3",
+    "startedUtc": "2026-10-06T00:54:28.6987503Z",
+    "completedUtc": "2026-10-06T00:56:45.9550537Z",
+    "captureMode": "Unreal offscreen game render target",
+    "editorDll": {
+      "path": "Binaries/Win64/UnrealEditor-MessControl.dll",
+      "sha256": "c8c8f0c80d48d484db1948e9f834be52a5ed0789b4baafa42782a0d64ceb1ba5"
+    },
+    "render": {
+      "width": 1280,
+      "height": 720,
+      "maxFPS": 30,
+      "sampleFPS": 30,
+      "timeScale": 0.25
+    },
+    "review": {
+      "flag": "MCBossPhase3Review",
+      "clips": [
+        "Idle",
+        "Walk",
+        "PunchLeft",
+        "PunchRight",
+        "Kick",
+        "Hurt",
+        "Death",
+        "Roar"
+      ],
+      "phase1Isolation": true
+    },
+    "validation": {
+      "result": "PASS",
+      "sha256": "eabd66b19ff36f8a839343c01bba4553d44995e237fcff0e1e2d7e5e3321e112"
+    }
+  },
+  "fingerprintValidationMatches": true
+}

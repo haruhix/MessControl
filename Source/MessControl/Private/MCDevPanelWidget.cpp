@@ -108,6 +108,7 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Active Ragdoll — упругий"),TEXT("Сравни более сильные мышцы при поворотах, прыжках и ударах. Точные контакты сохраняются."),EMCDevAction::ActiveRagdoll,2);
     AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Возвращает текущую систему анимаций без перезапуска. Эксперимент по умолчанию выключен."),EMCDevAction::ActiveRagdoll,0);
     AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. Нажми E рядом с сундуком: 5 секунд вскрытия, затем выбор одной из трёх карточек."),EMCDevAction::RewardChest);
+    AddText(Actions,TEXT("Босс · фаза 1"),19)->SetColorAndOpacity(FSlateColor(DevMint));
     AddAction(Actions,TEXT("Босс — создать Zombie для теста"),TEXT("Спавн рядом на свободном Boss NavMesh. AI выключен, обычная игра босса не создаёт."),EMCDevAction::BossPractice);
     AddAction(Actions,TEXT("Босс — интро / рёв [5 секунд]"),TEXT("Перемещает тестового Zombie в свободный центр языка. Sequencer-камера, рёв и кинополосы; управление вернётся через 5 секунд. Бой затем включается отдельно."),EMCDevAction::BossIntro);
     AddAction(Actions,TEXT("Босс — включить AI и бой"),TEXT("Создаёт тестового Zombie, если его нет. Преследование, удары руками и пинок с уроном."),EMCDevAction::BossAI);
@@ -116,6 +117,15 @@ void UMCDevPanelWidget::RefreshActions()
     for (int32 I=0;I<UE_ARRAY_COUNT(BossClips);++I)
         AddAction(Actions,FString(TEXT("Босс — анимация: "))+BossClips[I],TEXT("Изолированный просмотр bone clip. AI и игровой урон выключены; повторное нажатие начинает заново."),EMCDevAction::BossAnimation,I+1);
     AddAction(Actions,TEXT("Босс — убрать тестового Zombie"),TEXT("Удаляет только объект, созданный кнопками F3."),EMCDevAction::BossRemove);
+    AddText(Actions,TEXT("Босс · фаза 3"),19)->SetColorAndOpacity(FSlateColor(DevMint));
+    AddAction(Actions,TEXT("Фаза 3 — создать для просмотра"),TEXT("Спавн рядом на свободном Boss NavMesh. Начинает с idle; AI и урон выключены."),EMCDevAction::BossPhase3Spawn);
+    const TCHAR* Phase3BossClips[]={TEXT("Idle / дыхание"),TEXT("Ходьба"),TEXT("Удар левой рукой"),TEXT("Удар правой рукой"),TEXT("Пинок"),TEXT("Получение урона"),TEXT("Падение / смерть"),TEXT("Рёв")};
+    for (int32 I=0;I<UE_ARRAY_COUNT(Phase3BossClips);++I)
+        AddAction(Actions,FString(TEXT("Фаза 3 — анимация: "))+Phase3BossClips[I],TEXT("Изолированный просмотр анимации фазы 3. AI и урон выключены; повторное нажатие начинает заново."),EMCDevAction::BossPhase3Animation,I+1);
+    AddAction(Actions,TEXT("Фаза 3 — восстановить и включить AI"),TEXT("Восстановить здоровье и запустить AI и бой. Создаёт тестового босса фазы 3, если его нет."),EMCDevAction::BossPhase3Activate);
+    AddAction(Actions,TEXT("Фаза 3 — остановить AI / восстановить"),TEXT("Выключить бой, восстановить здоровье и вернуть idle."),EMCDevAction::BossPhase3Deactivate);
+    AddAction(Actions,TEXT("Фаза 3 — убрать тестового босса"),TEXT("Удаляет только тестового босса фазы 3, созданного кнопками F3."),EMCDevAction::BossPhase3Remove);
+    AddText(Actions,TEXT("Другие механики"),19)->SetColorAndOpacity(FSlateColor(DevMint));
     AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
     AddAction(Actions,TEXT("Перец — таймер и красная волна"),TEXT("Настоящий предмет из таблицы. Проглоти до детонации; от волны можно перепрыгнуть."),EMCDevAction::SpicyPepper);
     AddAction(Actions,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);

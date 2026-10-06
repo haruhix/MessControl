@@ -1,0 +1,83 @@
+{
+  "checks": [
+    {
+      "name": "AN_BossPhase3_Idle",
+      "root_location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "loop_pose_max_delta": 8.116762700235787e-18
+    },
+    {
+      "name": "AN_BossPhase3_Walk",
+      "root_location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "loop_pose_max_delta": 1.2824470905040457e-17
+    },
+    {
+      "name": "AN_BossPhase3_PunchLeft",
+      "root_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "AN_BossPhase3_PunchRight",
+      "root_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "AN_BossPhase3_Kick",
+      "root_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "AN_BossPhase3_Hurt",
+      "root_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "AN_BossPhase3_Roar",
+      "root_location": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "name": "AN_BossPhase3_Death",
+      "root_location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "death_final_hold_max_delta": 0.0
+    }
+  ],
+  "fbx_roundtrip": {
+    "bones": 22,
+    "vertices": 4662,
+    "height_cm": 240,
+    "uv_layers": [
+      "DiffuseUV",
+      "LightMapUV"
+    ],
+    "morph_targets": [
+      "Open_Mouth"
+    ]
+  }
+}

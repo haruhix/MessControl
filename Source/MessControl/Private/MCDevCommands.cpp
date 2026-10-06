@@ -71,19 +71,24 @@ namespace
         return false;
     }
 
-    AMCBossCharacter* FindDevBoss(UWorld* World)
+    enum class EDevBossVariant : uint8 { Phase1, Phase3 };
+
+    AMCBossCharacter* FindDevBoss(UWorld* World,EDevBossVariant Variant=EDevBossVariant::Phase1)
     {
         for (TActorIterator<AMCBossCharacter> It(World);It;++It)
-            if (It->ActorHasTag(TEXT("MC_DevBoss")) && !It->IsActorBeingDestroyed()) return *It;
+            if (It->ActorHasTag(TEXT("MC_DevBoss")) && !It->IsActorBeingDestroyed()
+                && It->ActorHasTag(TEXT("MC_DevBossPhase3"))==(Variant==EDevBossVariant::Phase3)) return *It;
         return nullptr;
     }
 
-    AMCBossCharacter* SpawnDevBoss(UWorld* World,APlayerController* Requester)
+    AMCBossCharacter* SpawnDevBoss(UWorld* World,APlayerController* Requester,EDevBossVariant Variant=EDevBossVariant::Phase1)
     {
-        if (AMCBossCharacter* Existing=FindDevBoss(World)) return Existing;
+        if (AMCBossCharacter* Existing=FindDevBoss(World,Variant)) return Existing;
         const AMCToothCharacter* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
         if (!AMCBossCharacter::IsLivingPlayer(Hero)) return nullptr;
-        UClass* BossClass=LoadClass<AMCBossCharacter>(nullptr,TEXT("/Game/Gameplay/Boss/BP_ZombieBoss.BP_ZombieBoss_C"));
+        UClass* BossClass=LoadClass<AMCBossCharacter>(nullptr,Variant==EDevBossVariant::Phase3?
+            TEXT("/Game/Gameplay/Boss/Phase3/BP_BossPhase3.BP_BossPhase3_C"):
+            TEXT("/Game/Gameplay/Boss/BP_ZombieBoss.BP_ZombieBoss_C"));
         const AMCBossCharacter* Defaults=BossClass?BossClass->GetDefaultObject<AMCBossCharacter>():nullptr;
         UNavigationSystemV1* Nav=FNavigationSystem::GetCurrent<UNavigationSystemV1>(World);
         if (!Defaults || !Nav) return nullptr;
@@ -113,7 +118,8 @@ namespace
             AMCBossCharacter* Boss=World->SpawnActor<AMCBossCharacter>(BossClass,Position,FRotator(0,Facing.Yaw,0),Spawn);
             if (Boss)
             {
-                Boss->Tags.Add(TEXT("MC_DevBoss"));
+                Boss->Tags.AddUnique(TEXT("MC_DevBoss"));
+                if (Variant==EDevBossVariant::Phase3) Boss->Tags.AddUnique(TEXT("MC_DevBossPhase3"));
                 Boss->PreviewAnimation(EMCBossAnimationPreview::Idle);
                 return Boss;
             }
@@ -205,6 +211,33 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         if (!IsValid(RoguelikeDirector)) return FText::FromString(TEXT("Система наград ещё не готова."));
         RoguelikeDirector->NotifyTaskCompleted();
         return FText::FromString(TEXT("Награда поставлена в очередь: сундук выберет свободную зону с наименьшим числом игроков."));
+    }
+    if (Action==EMCDevAction::BossPhase3Remove)
+    {
+        if (AMCBossCharacter* Boss=FindDevBoss(GetWorld(),EDevBossVariant::Phase3)) Boss->Destroy();
+        return FText::FromString(TEXT("Тестовый босс фазы 3 убран."));
+    }
+    if (Action==EMCDevAction::BossPhase3Spawn || Action==EMCDevAction::BossPhase3Animation
+        || Action==EMCDevAction::BossPhase3Activate || Action==EMCDevAction::BossPhase3Deactivate)
+    {
+        if (Action==EMCDevAction::BossPhase3Animation && (StepIndex<1 || StepIndex>8))
+            return FText::FromString(TEXT("Неизвестная анимация босса фазы 3."));
+        AMCBossCharacter* Boss=SpawnDevBoss(GetWorld(),Requester,EDevBossVariant::Phase3);
+        if (!Boss) return FText::FromString(TEXT("Для фазы 3 нужно свободное место на Boss NavMesh рядом с живым игроком."));
+        if (Action==EMCDevAction::BossPhase3Activate)
+        {
+            Boss->ResetForRun(); Boss->ActivateBoss();
+            return FText::FromString(TEXT("Фаза 3: здоровье восстановлено, AI и бой включены."));
+        }
+        if (Action==EMCDevAction::BossPhase3Deactivate)
+        {
+            Boss->ResetForRun(); Boss->DeactivateBoss();
+        }
+        const auto Clip=Action==EMCDevAction::BossPhase3Animation?static_cast<EMCBossAnimationPreview>(StepIndex):EMCBossAnimationPreview::Idle;
+        if (!Boss->PreviewAnimation(Clip)) return FText::FromString(TEXT("Клип пока не назначен в DA_BossPhase3."));
+        return FText::FromString(Action==EMCDevAction::BossPhase3Spawn?TEXT("Фаза 3 создана для просмотра. AI и урон выключены."):
+            Action==EMCDevAction::BossPhase3Deactivate?TEXT("Фаза 3: AI остановлен, здоровье восстановлено, играет idle."):
+            TEXT("Фаза 3: показ выбранной анимации без AI и игрового урона. F3 — закрыть панель."));
     }
     if (Action==EMCDevAction::BossRemove)
     {

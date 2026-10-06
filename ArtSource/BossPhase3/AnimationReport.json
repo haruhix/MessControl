@@ -1,0 +1,332 @@
+{
+  "source_sha256": "b0c58a2a31cc01cd88ae5fbd9c580832947ee6079d0afad02ef609cdf19f4529",
+  "source_bones": 1,
+  "source_vertices": 4662,
+  "derived_bones": 22,
+  "derived_height_cm": 240,
+  "derived_width_cm": 456.7381544094022,
+  "forward_axis": "-Y",
+  "up_axis": "+Z",
+  "units": "Blender meters / FBX centimeters",
+  "uniform_normalization": 0.38419987937755395,
+  "ground_offset_source_units": 3.1233742237091064,
+  "root_translation_cm": [
+    0,
+    0,
+    0
+  ],
+  "mesh_file": "SK_BossPhase3.fbx",
+  "original_source_preserved": true,
+  "bone_hierarchy": [
+    {
+      "name": "root",
+      "parent": null,
+      "head_cm": [
+        0.0,
+        0.0,
+        9e-06
+      ]
+    },
+    {
+      "name": "pelvis",
+      "parent": "root",
+      "head_cm": [
+        0.0,
+        9.604998,
+        68.133011
+      ]
+    },
+    {
+      "name": "spine",
+      "parent": "pelvis",
+      "head_cm": [
+        0.0,
+        7.683998,
+        98.869003
+      ]
+    },
+    {
+      "name": "chest",
+      "parent": "spine",
+      "head_cm": [
+        0.0,
+        5.762998,
+        143.051987
+      ]
+    },
+    {
+      "name": "head",
+      "parent": "chest",
+      "head_cm": [
+        0.0,
+        3.841998,
+        179.550964
+      ]
+    },
+    {
+      "name": "jaw",
+      "parent": "head",
+      "head_cm": [
+        0.0,
+        -49.945988,
+        157.651581
+      ]
+    },
+    {
+      "name": "brow_l",
+      "parent": "head",
+      "head_cm": [
+        23.051992,
+        -78.376785,
+        189.924377
+      ]
+    },
+    {
+      "name": "brow_r",
+      "parent": "head",
+      "head_cm": [
+        -23.051992,
+        -78.376785,
+        189.924377
+      ]
+    },
+    {
+      "name": "clavicle_l",
+      "parent": "chest",
+      "head_cm": [
+        32.65699,
+        7.683998,
+        179.550964
+      ]
+    },
+    {
+      "name": "upperarm_l",
+      "parent": "clavicle_l",
+      "head_cm": [
+        86.444962,
+        11.525996,
+        183.39296
+      ]
+    },
+    {
+      "name": "forearm_l",
+      "parent": "upperarm_l",
+      "head_cm": [
+        140.232941,
+        11.525997,
+        129.60498
+      ]
+    },
+    {
+      "name": "hand_l",
+      "parent": "forearm_l",
+      "head_cm": [
+        178.652924,
+        5.762999,
+        93.105995
+      ]
+    },
+    {
+      "name": "clavicle_r",
+      "parent": "chest",
+      "head_cm": [
+        -32.65699,
+        7.683998,
+        179.550964
+      ]
+    },
+    {
+      "name": "upperarm_r",
+      "parent": "clavicle_r",
+      "head_cm": [
+        -86.444962,
+        11.525996,
+        183.39296
+      ]
+    },
+    {
+      "name": "forearm_r",
+      "parent": "upperarm_r",
+      "head_cm": [
+        -140.232941,
+        11.525997,
+        129.60498
+      ]
+    },
+    {
+      "name": "hand_r",
+      "parent": "forearm_r",
+      "head_cm": [
+        -178.652924,
+        5.762999,
+        93.105995
+      ]
+    },
+    {
+      "name": "thigh_l",
+      "parent": "pelvis",
+      "head_cm": [
+        33.809589,
+        9.604997,
+        71.975014
+      ]
+    },
+    {
+      "name": "calf_l",
+      "parent": "thigh_l",
+      "head_cm": [
+        34.577988,
+        9.604997,
+        34.707611
+      ]
+    },
+    {
+      "name": "foot_l",
+      "parent": "calf_l",
+      "head_cm": [
+        34.577988,
+        5.762997,
+        6.661025
+      ]
+    },
+    {
+      "name": "thigh_r",
+      "parent": "pelvis",
+      "head_cm": [
+        -33.809589,
+        9.604997,
+        71.975014
+      ]
+    },
+    {
+      "name": "calf_r",
+      "parent": "thigh_r",
+      "head_cm": [
+        -34.577988,
+        9.604997,
+        34.707611
+      ]
+    },
+    {
+      "name": "foot_r",
+      "parent": "calf_r",
+      "head_cm": [
+        -34.577988,
+        5.762997,
+        6.661025
+      ]
+    }
+  ],
+  "clips": [
+    {
+      "name": "AN_BossPhase3_Idle",
+      "file": "AN_BossPhase3_Idle.fbx",
+      "frames": 73,
+      "fps": 30,
+      "duration_seconds": 2.4,
+      "impact_seconds": null,
+      "loop": true,
+      "root_motion": false,
+      "windup_end_seconds": null,
+      "recovery_begin_seconds": null,
+      "review_start_frame": 1
+    },
+    {
+      "name": "AN_BossPhase3_Walk",
+      "file": "AN_BossPhase3_Walk.fbx",
+      "frames": 55,
+      "fps": 30,
+      "duration_seconds": 1.8,
+      "impact_seconds": null,
+      "loop": true,
+      "root_motion": false,
+      "windup_end_seconds": null,
+      "recovery_begin_seconds": null,
+      "review_start_frame": 82
+    },
+    {
+      "name": "AN_BossPhase3_PunchLeft",
+      "file": "AN_BossPhase3_PunchLeft.fbx",
+      "frames": 49,
+      "fps": 30,
+      "duration_seconds": 1.6,
+      "impact_seconds": 0.85,
+      "loop": false,
+      "root_motion": false,
+      "windup_end_seconds": 0.6499999999999999,
+      "recovery_begin_seconds": 1.17,
+      "review_start_frame": 145
+    },
+    {
+      "name": "AN_BossPhase3_PunchRight",
+      "file": "AN_BossPhase3_PunchRight.fbx",
+      "frames": 52,
+      "fps": 30,
+      "duration_seconds": 1.7,
+      "impact_seconds": 0.95,
+      "loop": false,
+      "root_motion": false,
+      "windup_end_seconds": 0.75,
+      "recovery_begin_seconds": 1.27,
+      "review_start_frame": 202
+    },
+    {
+      "name": "AN_BossPhase3_Kick",
+      "file": "AN_BossPhase3_Kick.fbx",
+      "frames": 61,
+      "fps": 30,
+      "duration_seconds": 2.0,
+      "impact_seconds": 1.12,
+      "loop": false,
+      "root_motion": false,
+      "windup_end_seconds": 0.9200000000000002,
+      "recovery_begin_seconds": 1.4400000000000002,
+      "review_start_frame": 262
+    },
+    {
+      "name": "AN_BossPhase3_Hurt",
+      "file": "AN_BossPhase3_Hurt.fbx",
+      "frames": 25,
+      "fps": 30,
+      "duration_seconds": 0.8,
+      "impact_seconds": null,
+      "loop": false,
+      "root_motion": false,
+      "windup_end_seconds": null,
+      "recovery_begin_seconds": null,
+      "review_start_frame": 331
+    },
+    {
+      "name": "AN_BossPhase3_Roar",
+      "file": "AN_BossPhase3_Roar.fbx",
+      "frames": 151,
+      "fps": 30,
+      "duration_seconds": 5.0,
+      "impact_seconds": null,
+      "loop": false,
+      "root_motion": false,
+      "windup_end_seconds": null,
+      "recovery_begin_seconds": null,
+      "review_start_frame": 364
+    },
+    {
+      "name": "AN_BossPhase3_Death",
+      "file": "AN_BossPhase3_Death.fbx",
+      "frames": 91,
+      "fps": 30,
+      "duration_seconds": 3.0,
+      "impact_seconds": null,
+      "loop": false,
+      "root_motion": false,
+      "windup_end_seconds": null,
+      "recovery_begin_seconds": null,
+      "review_start_frame": 523
+    }
+  ],
+  "review_blend": "BossPhase3Animations.blend",
+  "review_timeline_frames": 614,
+  "root_motion": false,
+  "derived_reference_pose_unchanged": true,
+  "death_final_pose_hold_begin_seconds": 1.65,
+  "original_topology_and_uvs_preserved": true
+}
