@@ -16,6 +16,9 @@ class UMCPerkChoiceWidget;
 class UMCBossHealthWidget;
 class AMCBossCharacter;
 class AMCBossIntro;
+class UMCMainMenuWidget;
+class UMCTutorialWidget;
+class AMCTutorialDirector;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -33,6 +36,11 @@ public:
     void ToggleTuning();
     void ToggleConnection();
     void UpdateInputMode();
+    void TogglePauseMenu();
+    UFUNCTION(BlueprintCallable, Category="Front End") void ReturnToMainMenu();
+    UFUNCTION(Server, Reliable) void ServerStartLobby();
+    UFUNCTION(Server, Reliable) void ServerSetTutorialReady(bool bReady);
+    bool HasAcknowledgedGameplay() const { return bGameplayLoaded; }
     void ShowScoreboard();
     void HideScoreboard();
     void NextSpectator();
@@ -64,6 +72,19 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    void RefreshFrontEnd();
+    UFUNCTION(Server, Reliable) void ServerGameplayLoaded();
+    UFUNCTION(Server, Reliable) void ServerTutorialLoaded();
+    UPROPERTY(Transient) TObjectPtr<UMCMainMenuWidget> FrontEndWidget;
+    UPROPERTY(Transient) TObjectPtr<UMCTutorialWidget> TutorialWidget;
+    TWeakObjectPtr<AMCTutorialDirector> AcknowledgedTutorial;
+    double NextFrontEndCheck=0;
+    bool bGameplayLoaded=false;
+    bool bGameplayLoadAckSent=false;
+    bool bPauseMenuOpen=false;
+    bool bLobbyUIOpen=false;
+    bool bTutorialMenuInput=false;
+    bool bFrontEndHidPrototype=false;
     void RefreshBossHUD();
     UPROPERTY(Transient) TObjectPtr<AMCBossIntro> BossIntro;
     TWeakObjectPtr<AMCBossCharacter> HealthBoss;

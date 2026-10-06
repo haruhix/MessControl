@@ -4,6 +4,7 @@
 #include "MCMouthSurface.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "Engine/Engine.h"
@@ -63,10 +64,12 @@ bool FMCCoffeeContactTest::RunTest(const FString&)
     for (int32 I=0;I<240 && !Patch->IsClean();++I) { ++GFrameCounter; World->Tick(LEVELTICK_TimeOnly,.1f); A->AdvanceCare(.1f); B->AdvanceCare(.1f); }
     TestTrue(TEXT("Two stationary workers seek and clean the remaining visible dirt"),Patch->IsClean());
     TestTrue(TEXT("Completion follows actual visible coverage"),Patch->RemainingLiquid()<.025f);
-    Patch->Status->ApplyCoffee(); GS->bPhysicalBrushes=true;
+    Patch->Status->ApplyCoffee(); GS->bPhysicalBrushes=true; A->Inventory->ServerSelect(EMCToolSlot::Pickaxe); A->bBrushing=true;
     Patch->BrushLiquid(A,.1f);
-    TestEqual(TEXT("Missing brush cannot erase liquid"),FMCCoffeeWipe::Remaining(Patch->WipeMask),1.f);
-    GS->bPhysicalBrushes=false; Patch->bUlcer=true; Patch->BrushLiquid(A,.1f);
+    TestEqual(TEXT("A non-cleaning slot cannot erase liquid"),FMCCoffeeWipe::Remaining(Patch->WipeMask),1.f);
+    A->Inventory->ServerSelect(EMCToolSlot::Brush);
+    TestTrue(TEXT("Returning to slot one restores the brush without a physical pickup"),A->HasBrush());
+    A->bBrushing=true; Patch->bUlcer=true; Patch->BrushLiquid(A,.1f);
     TestEqual(TEXT("Ulcers are never wiped by the liquid path"),FMCCoffeeWipe::Remaining(Patch->WipeMask),1.f);
     World->EndPlay(EEndPlayReason::Quit); GEngine->DestroyWorldContext(World); World->DestroyWorld(false);
     return true;

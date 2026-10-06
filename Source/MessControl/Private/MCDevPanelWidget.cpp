@@ -100,7 +100,7 @@ void UMCDevPanelWidget::RefreshActions()
     if (!Plan) Plan=LoadObject<UMCDayPlan>(nullptr,TEXT("/Game/Data/DA_Day01.DA_Day01"));
     if (Plan) for (int32 I=0;I<Plan->Steps.Num();++I)
     {
-        const auto& Step=Plan->Steps[I]; if (Step.Step==EMCDayStep::Complete) continue;
+        const auto& Step=Plan->Steps[I]; if (Step.Step==EMCDayStep::Complete || Step.Step==EMCDayStep::DiscardBrushes) continue;
         AddAction(Steps,Step.Title.ToString(),Step.Instruction.ToString(),EMCDevAction::StartStep,I);
     }
     AddAction(Steps,TEXT("Обычный день 1 — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычные таймеры и переходы."),EMCDevAction::RestartDay);
@@ -156,11 +156,10 @@ void UMCDevPanelWidget::RefreshActions()
     }
     AddAction(Actions,TEXT("Давление — применить DA_Tongue"),TEXT("Вернуть настройки основного DA без перезапуска Play. Если Default Pressure Preset назначен, используется он. Ассеты не перезаписываются."),EMCDevAction::TonguePressureReload);
     AddAction(Actions,TEXT("Давление — очистить следы"),TEXT("Сбросить историю продавливания. Текущие объекты продолжат давить на язык."),EMCDevAction::TonguePressureClear);
-    AddAction(Actions,TEXT("Кофейный налёт + щётки"),TEXT("Покрывает зубы, игроков и поверхность налётом. Четыре контакта по 0,5 секунды."),EMCDevAction::CoffeeDirt);
+    AddAction(Actions,TEXT("Кофейный налёт"),TEXT("Покрывает зубы, игроков и поверхность налётом. Щётка доступна в слоте 1."),EMCDevAction::CoffeeDirt);
     AddAction(Actions,TEXT("Зубной камень — восстановить"),TEXT("Три приросших участка на доступном зубе. Ставит рядом и выбирает кирку: удерживай ЛКМ, чтобы выбивать камень в месте контакта."),EMCDevAction::CalculusPractice);
     AddAction(Actions,TEXT("Зубной камень — убрать тестовый"),TEXT("Убирает только камень, восстановленный кнопкой F3."),EMCDevAction::CalculusClear);
     AddAction(Actions,TEXT("Плавание — кофе на 10 минут"),TEXT("Наполняет рот выше языка. После наполнения уровень держится 10 минут без потока из струи и слива. WASD — плавать."),EMCDevAction::SwimCoffee);
-    AddAction(Actions,TEXT("Сбросить щётки с неба"),TEXT("По одной щётке на игрока. Подобрать E, выбросить Q за передний край."),EMCDevAction::DropBrushes);
     AddAction(Actions,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);
     AddAction(Actions,TEXT("Повредить моего игрока: −25 HP"),TEXT("Проверка материала, реакции на урон и лечения."),EMCDevAction::DamageSelf);
     AddAction(Actions,TEXT("Толчок / ragdoll моего игрока"),TEXT("Обычный физический удар. После падения персонаж встаёт штатно."),EMCDevAction::Ragdoll);

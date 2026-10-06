@@ -37,11 +37,11 @@ void AMCDayOneScenario::Move(int32 Slot,FVector P,FRotator R)
 void AMCDayOneScenario::Next()
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); ++Stage; StageAt=GS->GetServerWorldTimeSeconds();
-    GS->StepIndex=Stage<=2?0:Stage==3?1:Stage==6?4:3;
+    GS->StepIndex=Stage<=3?0:Stage==6?4:3;
     GS->PhaseEndsAt=Stage==6?StageAt+10:Stage<=3?0:StageAt+20;
     if (Stage==1)
     {
-        GS->Day=1; GS->bPhysicalBrushes=true; GS->DayPlan=LoadObject<UMCDayPlan>(nullptr,TEXT("/Game/Data/DA_Day01.DA_Day01"));
+        GS->Day=1; GS->bPhysicalBrushes=false; GS->DayPlan=LoadObject<UMCDayPlan>(nullptr,TEXT("/Game/Data/DA_Day01.DA_Day01"));
         GS->DayStartedAt=StageAt;
         GS->Phase=EMCShiftPhase::Working;
         // Suspend the legacy random-day scheduler while the bounded scenario drives real actions.
@@ -51,8 +51,7 @@ void AMCDayOneScenario::Next()
         if (!HasBin) { auto* Bin=GetWorld()->SpawnActor<AMCFoodDisposal>(FVector(-1110,0,140),FRotator::ZeroRotator); Bin->bBrushBin=true; }
         for (int32 I=0;I<4;++I)
         {
-            Move(I,FVector(-600+I*220,100,95)); const FTransform T(FVector(-520+I*220,100,280));
-            auto* Brush=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T); Brush->ConfigureBrush(); UGameplayStatics::FinishSpawningActor(Brush,T);
+            Move(I,FVector(-600+I*220,100,95));
         }
     }
     if (Stage==2)
@@ -113,10 +112,14 @@ void AMCDayOneScenario::Tick(float Dt)
             if (GS->PlayerArray.Num()==4 && Age>8 && Ready)
             { for (auto PS:GS->PlayerArray) if (auto* H=Cast<AMCToothCharacter>(PS->GetPawn())) Heroes.Add(H); if (Heroes.Num()==4) Next(); }
         }
-        if (Stage==1 && Elapsed>3) { bool All=true; for (auto H:Heroes) All &= H->EquippedBrush!=nullptr; if (All) Next(); }
+        if (Stage==1 && Elapsed>3) { bool All=true; for (auto H:Heroes) All &= H && H->HasBrush(); if (All) Next(); }
         else if (Stage==2 && Elapsed>4) { bool All=true; for (auto P:Patches) All &= P->IsClean(); if (All) Next(); }
         else if (Stage==3 && Elapsed>4 && !LiquidTest)
-        { int32 Left=0; for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (It->bBrushTool && !It->IsDisposed()) ++Left; if (!Left) Next(); }
+        {
+            bool All=true; for (auto H:Heroes) All &= H && H->HasBrush();
+            int32 Left=0; for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (It->bBrushTool && !It->IsDisposed()) ++Left;
+            if (All && !Left) Next();
+        }
         else if (Stage==4)
         {
             if (!Food->IsDisposed() && Heroes[0]->CanWork()) Move(0,Food->GetActorLocation()+FVector(-80,0,40));
@@ -142,7 +145,7 @@ void AMCDayOneScenario::Tick(float Dt)
         }
         else if (Stage==6 && Elapsed>11 && Flood && !Flood->IsActive()) Next();
         GS->TasksLeft=0;
-        if (Stage==1) for (auto Hero:Heroes) GS->TasksLeft+=Hero && !Hero->EquippedBrush;
+        if (Stage==1) for (auto Hero:Heroes) GS->TasksLeft+=Hero && !Hero->HasBrush();
         if (Stage==2) for (auto Patch:Patches) GS->TasksLeft+=Patch && !Patch->IsClean();
         if (Stage==3 || Stage==4) for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
             if (!It->IsDisposed() && (Stage==3?It->bBrushTool:!It->bBrushTool && It->Batch==44)) ++GS->TasksLeft;
@@ -156,7 +159,7 @@ void AMCDayOneScenario::Tick(float Dt)
         if (LocalStage!=Stage)
         {
             LocalStage=Stage; H->StopBrush(); H->StopHandle();
-            if (Stage==1) H->StartHandle();
+            if (Stage==1) H->Inventory->ServerSelect(EMCToolSlot::Brush);
             if (Stage==2) H->StartBrush();
             if (Stage==3) H->ThrowItem();
             if (Stage==4 && Food) H->Inventory->ServerSelect(Food->IsHardFood()?EMCToolSlot::Pickaxe:EMCToolSlot::Knife);
@@ -165,7 +168,7 @@ void AMCDayOneScenario::Tick(float Dt)
         if (Stage==4 && Slot==0 && Age>NextSwing) { H->SwingBrush(); NextSwing=Age+1; }
         if (Stage==6 && Slot==1 && H->bInCoffee) { H->LocalPaddle=FVector2D(-1,0); H->ServerPaddle(H->LocalPaddle); }
     }
-    if (Stage==1) for (auto Hero:Heroes) if (Hero && Hero->EquippedBrush) Seen|=1;
+    if (Stage==1) for (auto Hero:Heroes) if (Hero && Hero->HasBrush()) Seen|=1;
     if (Stage>=2) for (auto Patch:Patches) if (Patch && Patch->IsClean()) Seen|=2;
     if (Stage>=2) for (auto Patch:Patches)
         if (Patch && Patch->LiquidSeed>0 && Patch->WipeMask.Num()==FMCCoffeeWipe::Count && FMCCoffeeWipe::Remaining(Patch->WipeMask)<.98f) Seen|=256;

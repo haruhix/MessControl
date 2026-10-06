@@ -18,7 +18,7 @@ public:
     void Next(bool bFailed=false);
     int32 CountDirt() const;
     int32 CountFood(int32 Batch) const;
-    void DropBrushes();
+    void DropBrushes(); // Legacy developer action; permanent inventory tools are never spawned.
     AMCFoodActor* SpawnMenuFood(FVector Position,int32 Batch);
     void DirtyMouth(bool bCoffee);
     UPROPERTY() TObjectPtr<UMCDayPlan> Settings;

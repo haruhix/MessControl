@@ -4,6 +4,7 @@
 #include "EngineUtils.h"
 #include "MCArenaTooth.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
 #include "MCDayDirector.h"
@@ -56,7 +57,7 @@ void MCTickCareValidation(UWorld* World)
         AMCDayDirector* Director=nullptr;
         for (TActorIterator<AMCDayDirector> It(World);It;++It) { Director=*It; break; }
         if (!Director) return;
-        GS->bDevManualEvents=true; GS->PhaseEndsAt=0; GS->Phase=EMCShiftPhase::Working;
+        GS->bDevManualEvents=true; GS->bPhysicalBrushes=false; GS->PhaseEndsAt=0; GS->Phase=EMCShiftPhase::Working;
         GS->DayStartedAt=GS->GetServerWorldTimeSeconds()+100000; // Clients wait through asset/shader warmup.
         Director->SetActorTickEnabled(false);
         TArray<AMCToothCharacter*> Players;
@@ -79,8 +80,7 @@ void MCTickCareValidation(UWorld* World)
             FHitResult Floor; if (Tongue && Tongue->SurfacePoint(At,Floor)) At.Z=Floor.ImpactPoint.Z+Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3;
             Hero->GetCharacterMovement()->StopMovementImmediately(); Hero->GetCharacterMovement()->DisableMovement();
             Hero->SetActorLocationAndRotation(At,FRotator(0,-90,0),false,nullptr,ETeleportType::TeleportPhysics);
-            auto* Brush=World->SpawnActor<AMCFoodActor>(At+FVector(0,-40,0),FRotator::ZeroRotator);
-            Brush->ConfigureBrush(); Brush->TryGrab(Hero); Hero->ForceNetUpdate();
+            Hero->Inventory->ServerSelect(EMCToolSlot::Brush); Hero->ForceNetUpdate();
         }
         FVector UlcerPoint=P+FVector(130,390,0); FHitResult Floor;
         if (Tongue && Tongue->SurfacePoint(UlcerPoint,Floor)) UlcerPoint=Floor.ImpactPoint+Floor.ImpactNormal*5;

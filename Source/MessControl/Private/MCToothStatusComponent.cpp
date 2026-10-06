@@ -3,6 +3,8 @@
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCGameMode.h"
+#include "MCGameState.h"
+#include "MCTutorialDirector.h"
 #include "MCMouthSurface.h"
 #include "GameFramework/GameStateBase.h"
 #include "Net/UnrealNetwork.h"
@@ -74,6 +76,7 @@ void UMCToothStatusComponent::Loosen()
 }
 bool UMCToothStatusComponent::Damage(float Amount,FVector Direction)
 {
+    if (const auto* Game=GetWorld()->GetGameState<AMCGameState>(); Game && (Game->bTutorialActive || Game->bLobbyWaiting)) return false;
     if (!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0 || Direction.ContainsNaN()) return false;
     LastDamageDirection=Direction.GetSafeNormal(); State.Health=FMath::Max(0.f,State.Health-Amount);
     const auto* GS=GetWorld()->GetGameState();
@@ -97,7 +100,11 @@ bool UMCToothStatusComponent::CareContact(bool bBrush, AMCToothCharacter* Worker
     else { State.Health=FMath::Min(State.MaxHealth,State.Health+Settings.HealPerContact); State.RepairLeft=FMath::Max(0,State.RepairLeft-1); }
     Changed(true);
     if (!NeedsCare(bBrush) && IsValid(Worker))
+    {
+        if (bBrush) if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
+            Tutorial->NotifyAction(Worker,Cast<AMCMouthSurface>(GetOwner())?EMCTutorialAction::BrushTongue:EMCTutorialAction::BrushTooth,GetOwner());
         if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,bBrush?EMCScoreTask::Coffee:EMCScoreTask::Repair);
+    }
     return true;
 }
 FString UMCToothStatusComponent::Summary() const

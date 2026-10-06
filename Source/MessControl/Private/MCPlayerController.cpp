@@ -19,6 +19,9 @@
 #include "MCBossCharacter.h"
 #include "MCBossIntro.h"
 #include "MCBossHealthWidget.h"
+#include "MCMainMenuWidget.h"
+#include "MCTutorialWidget.h"
+#include "MCTutorialDirector.h"
 
 void AMCPlayerController::BeginPlay()
 {
@@ -37,6 +40,7 @@ void AMCPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
     InputComponent->BindKey(EKeys::T,IE_Pressed,this,&AMCPlayerController::ToggleEmotes);
+    InputComponent->BindKey(EKeys::Escape,IE_Pressed,this,&AMCPlayerController::TogglePauseMenu);
     InputComponent->BindKey(EKeys::Tab,IE_Pressed,this,&AMCPlayerController::ShowScoreboard);
     InputComponent->BindKey(EKeys::Tab,IE_Released,this,&AMCPlayerController::HideScoreboard);
     InputComponent->BindKey(EKeys::Right,IE_Pressed,this,&AMCPlayerController::NextSpectator);
@@ -62,6 +66,7 @@ void AMCPlayerController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     if (!IsLocalController()) return;
+    if (GetWorld()->GetTimeSeconds()>=NextFrontEndCheck) { NextFrontEndCheck=GetWorld()->GetTimeSeconds()+.1; RefreshFrontEnd(); }
     if (bBossIntroPlaying) return;
     // UI input mode can swallow the release event when a menu opens while Tab is held.
     if (ScoreboardWidget && ScoreboardWidget->IsVisible() && !IsInputKeyDown(EKeys::Tab)) HideScoreboard();
@@ -183,6 +188,19 @@ void AMCPlayerController::ToggleTuning() { if (IsRewardInteractionActive() || bB
 void AMCPlayerController::ToggleConnection() { if (IsRewardInteractionActive() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
 void AMCPlayerController::UpdateInputMode()
 {
+    if (bLobbyUIOpen || bPauseMenuOpen || bTutorialMenuInput)
+    {
+        bShowMouseCursor=true;
+        ResetIgnoreMoveInput(); SetIgnoreMoveInput(true);
+        ResetIgnoreLookInput(); SetIgnoreLookInput(true);
+        if (auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
+        FInputModeUIOnly Mode;
+        if ((bLobbyUIOpen || bPauseMenuOpen) && FrontEndWidget) Mode.SetWidgetToFocus(FrontEndWidget->TakeWidget());
+        else if (TutorialWidget) Mode.SetWidgetToFocus(TutorialWidget->TakeWidget());
+        SetInputMode(Mode);
+        if ((bLobbyUIOpen || bPauseMenuOpen) && FrontEndWidget) FrontEndWidget->FocusMenu();
+        return;
+    }
     if (bBossIntroPlaying)
     {
         bShowMouseCursor=false;
@@ -319,12 +337,91 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 
 void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    if (FrontEndWidget) FrontEndWidget->RemoveFromParent();
+    if (TutorialWidget) TutorialWidget->RemoveFromParent();
     GetWorldTimerManager().ClearTimer(BossHUDTimer);
     if (IsValid(BossIntro)) BossIntro->CancelIntro();
     BossIntro=nullptr;
     if (BossHealthWidget) BossHealthWidget->RemoveFromParent();
     CloseRewardUI(false);
     Super::EndPlay(EndPlayReason);
+}
+void AMCPlayerController::ServerGameplayLoaded_Implementation()
+{
+    if (GetPawn() && GetPlayerState<AMCPlayerState>()) bGameplayLoaded=true;
+}
+void AMCPlayerController::ServerTutorialLoaded_Implementation()
+{
+    if (!GetPawn()) return;
+    if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->SetLoaded(GetPlayerState<AMCPlayerState>());
+}
+void AMCPlayerController::ServerSetTutorialReady_Implementation(bool bReady)
+{
+    if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->SetReady(GetPlayerState<AMCPlayerState>(),bReady);
+}
+void AMCPlayerController::ServerStartLobby_Implementation()
+{
+    if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->StartLobby(this);
+}
+void AMCPlayerController::ReturnToMainMenu()
+{
+    if (!IsLocalController()) return;
+    if (GetNetMode()==NM_Standalone) UGameplayStatics::SetGamePaused(this,false);
+    if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->LeaveRoom();
+    else UGameplayStatics::OpenLevel(this,TEXT("/Game/Maps/L_MainMenu"));
+}
+void AMCPlayerController::TogglePauseMenu()
+{
+    if (!IsLocalController() || bLobbyUIOpen || IsRewardInteractionActive() || bBossIntroPlaying) return;
+    bPauseMenuOpen=!bPauseMenuOpen;
+    if (bPauseMenuOpen)
+    {
+        if (!FrontEndWidget) FrontEndWidget=CreateWidget<UMCMainMenuWidget>(this,UMCMainMenuWidget::StaticClass());
+        if (FrontEndWidget) { FrontEndWidget->ShowPause(); if (!FrontEndWidget->IsInViewport()) FrontEndWidget->AddToViewport(60); }
+        if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+        if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
+        if (PrototypeWidget) PrototypeWidget->ClosePanels();
+        HideScoreboard();
+    }
+    else if (FrontEndWidget) FrontEndWidget->RemoveFromParent();
+    UpdateInputMode();
+}
+void AMCPlayerController::RefreshFrontEnd()
+{
+    const auto* State=GetWorld()->GetGameState<AMCGameState>();
+    if (!State || !GetPawn() || !GetPlayerState<AMCPlayerState>()) return;
+    if (!bGameplayLoadAckSent) { ServerGameplayLoaded(); bGameplayLoadAckSent=true; }
+    if (State->bLobbyWaiting && !bLobbyUIOpen)
+    {
+        bLobbyUIOpen=true;
+        if (!FrontEndWidget) FrontEndWidget=CreateWidget<UMCMainMenuWidget>(this,UMCMainMenuWidget::StaticClass());
+        if (FrontEndWidget) { FrontEndWidget->ShowLobby(); FrontEndWidget->AddToViewport(60); }
+        UpdateInputMode();
+    }
+    else if (!State->bLobbyWaiting && bLobbyUIOpen)
+    {
+        bLobbyUIOpen=false;
+        if (FrontEndWidget) FrontEndWidget->RemoveFromParent();
+        UpdateInputMode();
+    }
+    const bool HideGameplay=State->bLobbyWaiting || State->bTutorialActive;
+    if (PrototypeWidget && HideGameplay) { PrototypeWidget->SetVisibility(ESlateVisibility::Collapsed); bFrontEndHidPrototype=true; }
+    else if (PrototypeWidget && bFrontEndHidPrototype) { PrototypeWidget->SetVisibility(ESlateVisibility::Visible); bFrontEndHidPrototype=false; }
+    if (State->bTutorialActive)
+    {
+        if (!TutorialWidget) { TutorialWidget=CreateWidget<UMCTutorialWidget>(this,UMCTutorialWidget::StaticClass()); if (TutorialWidget) TutorialWidget->AddToViewport(20); }
+        if (TutorialWidget) TutorialWidget->RefreshState();
+        auto* Director=AMCTutorialDirector::Find(GetWorld());
+        if (Director && AcknowledgedTutorial.Get()!=Director) { ServerTutorialLoaded(); AcknowledgedTutorial=Director; }
+        const bool NeedsInput=TutorialWidget && TutorialWidget->RequiresMenuInput();
+        if (NeedsInput!=bTutorialMenuInput) { bTutorialMenuInput=NeedsInput; UpdateInputMode(); if (NeedsInput && TutorialWidget->GetReadyFocusTarget()) TutorialWidget->GetReadyFocusTarget()->SetUserFocus(this); }
+    }
+    else
+    {
+        if (TutorialWidget) { TutorialWidget->RemoveFromParent(); TutorialWidget=nullptr; }
+        AcknowledgedTutorial.Reset();
+        if (bTutorialMenuInput) { bTutorialMenuInput=false; UpdateInputMode(); }
+    }
 }
 
 void AMCPlayerController::ClientPlayBossIntro_Implementation(AMCBossCharacter* Boss)

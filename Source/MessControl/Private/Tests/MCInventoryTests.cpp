@@ -7,6 +7,9 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCFoodActor.h"
+#include "MCDayDirector.h"
+#include "MCDayPlan.h"
+#include "MCRoguelikeDirector.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
 #include "Engine/Engine.h"
@@ -52,6 +55,59 @@ bool FMCInventoryRouting::RunTest(const FString&) {
     T.H->SwingBrush(); I->ServerSelect(EMCToolSlot::Spray); TestEqual(TEXT("Cannot swap the damage tool during a swing"),I->Selected,EMCToolSlot::Knife);
     TestTrue(TEXT("Pickaxe lifts overhead then swings down"),UMCInventoryComponent::SwingAngle(EMCToolSlot::Pickaxe,.30f)>100 && UMCInventoryComponent::SwingAngle(EMCToolSlot::Pickaxe,.44f)<-100);
     I->UnlockWaterJet(); TestTrue(TEXT("Upgrade is retained in slot one"),I->bWaterJetUnlocked);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCPermanentInventory,"MessControl.Inventory.PermanentToolsNeverDrop",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCPermanentInventory::RunTest(const FString&) {
+    FInventoryWorld T; auto* I=T.H->Inventory.Get();
+    TestEqual(TEXT("Every new player starts with the brush in slot one"),I->Selected,EMCToolSlot::Brush);
+    const EMCToolSlot Slots[]={EMCToolSlot::Brush,EMCToolSlot::Pickaxe,EMCToolSlot::Knife,EMCToolSlot::Spray};
+    for(const EMCToolSlot Slot:Slots) {
+        I->ServerSelect(Slot);
+        TestEqual(TEXT("Every default tool can be selected without a pickup or unlock"),I->Selected,Slot);
+        TestEqual(TEXT("Cleaning availability follows the selected slot"),T.H->HasBrush(),Slot==EMCToolSlot::Brush);
+    }
+    I->ServerSelect(EMCToolSlot::Brush);
+    T.GS->bPhysicalBrushes=true;
+    TestTrue(TEXT("Legacy physical-brush flags cannot remove the built-in brush"),T.H->HasBrush());
+    TestNull(TEXT("The built-in brush needs no equipped food actor"),T.H->EquippedBrush.Get());
+    auto* Legacy=T.W->SpawnActor<AMCFoodActor>(T.H->GetActorLocation()+FVector(68,0,0),FRotator::ZeroRotator);
+    Legacy->ConfigureBrush();
+    TestFalse(TEXT("Legacy loose brushes cannot replace the permanent tool"),Legacy->TryGrab(T.H));
+    T.H->ServerSetPrimary(true);
+    TestNull(TEXT("Primary work ignores a nearby legacy brush pickup"),T.H->EquippedBrush.Get());
+    T.H->ServerSetPrimary(false);Legacy->Destroy();
+    auto CountPhysicalBrushes=[&]() {
+        int32 Count=0;for(TActorIterator<AMCFoodActor> It(T.W);It;++It) if(It->bBrushTool && !It->IsDisposed()) ++Count;
+        return Count;
+    };
+    auto* Mode=T.W->GetAuthGameMode<AMCGameMode>();
+    if(!TestNotNull(TEXT("Production reward director is available"),Mode->RoguelikeDirector.Get())) return false;
+    const int32 RewardsBefore=Mode->RoguelikeDirector->PendingRewards+Mode->RoguelikeDirector->RewardsSpawned;
+    auto* Plan=NewObject<UMCDayPlan>();Plan->Steps.SetNum(3);
+    Plan->Steps[0].Step=EMCDayStep::BreakfastRain;Plan->Steps[1].Step=EMCDayStep::DiscardBrushes;Plan->Steps[2].Step=EMCDayStep::BreakfastRain;
+    auto* Director=T.W->SpawnActor<AMCDayDirector>();
+    Director->Start(Plan,0,false);Director->Next(false);
+    TestEqual(TEXT("Normal progression skips legacy discard and retains the following authored index"),T.GS->StepIndex,2);
+    TestEqual(TEXT("Skipping an obsolete objective awards no reward"),Mode->RoguelikeDirector->PendingRewards+Mode->RoguelikeDirector->RewardsSpawned,RewardsBefore);
+    Director->Start(Plan,1,true);
+    TestEqual(TEXT("Directly starting a legacy discard step also skips to its following authored index"),T.GS->StepIndex,2);
+    TestEqual(TEXT("Saved plan step count is preserved"),Director->Settings->Steps.Num(),3);
+    TestFalse(TEXT("Day flow disables the legacy physical-tools flag"),T.GS->bPhysicalBrushes);
+    Director->DropBrushes();
+    TestEqual(TEXT("Day start and the legacy developer action never spawn arena brushes"),CountPhysicalBrushes(),0);
+    TestEqual(TEXT("Direct start of an obsolete step awards no reward"),Mode->RoguelikeDirector->PendingRewards+Mode->RoguelikeDirector->RewardsSpawned,RewardsBefore);
+    T.H->ServerThrowItem();
+    TestTrue(TEXT("Q retains the selected permanent brush"),T.H->HasBrush() && I->Selected==EMCToolSlot::Brush);
+    TestEqual(TEXT("Q never creates an arena brush"),CountPhysicalBrushes(),0);
+    T.H->Status->Damage(T.H->Status->State.MaxHealth);
+    TestFalse(TEXT("The production death path ran"),T.H->Status->IsAlive());
+    TestEqual(TEXT("Death never drops an inventory tool on the arena"),CountPhysicalBrushes(),0);
+    TestEqual(TEXT("Death retains the brush slot on the dying character"),I->Selected,EMCToolSlot::Brush);
+    T.H->Destroy();
+    TestEqual(TEXT("Character teardown never drops an inventory tool"),CountPhysicalBrushes(),0);
+    auto* Respawn=T.W->SpawnActor<AMCToothCharacter>(FVector(-600,0,98),FRotator::ZeroRotator);
+    TestTrue(TEXT("A replacement player starts with a usable slot-one brush"),Respawn->HasBrush() && Respawn->Inventory->Selected==EMCToolSlot::Brush);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCInvisiblePickaxe,"MessControl.Inventory.HiddenPickaxePreservesHandContacts",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

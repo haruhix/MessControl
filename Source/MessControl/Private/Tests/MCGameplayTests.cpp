@@ -861,25 +861,25 @@ bool FMCLiquidSpawnFloorTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCBrushRoutingTest,"MessControl.DayOne.PhysicalBrushAndCorrectDisposal",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCBrushRoutingTest,"MessControl.DayOne.PermanentBrushAndLegacyDisposal",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCBrushRoutingTest::RunTest(const FString& Parameters)
 {
     FTestMouth Mouth; Mouth.State->bPhysicalBrushes=true; auto* Hero=Mouth.Worker();
     Hero->SetActorLocation(FVector(-80,0,95)); Hero->SetActorRotation(FRotator::ZeroRotator);
-    TestFalse(TEXT("No starting brush in inventory"),Hero->HasBrush());
+    TestTrue(TEXT("Slot one provides a starting brush even with a legacy physical-tools flag"),Hero->HasBrush());
     const FTransform T(FVector(0,0,95)); auto* Brush=Mouth.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
     Brush->ConfigureBrush(); UGameplayStatics::FinishSpawningActor(Brush,T);
-    TestTrue(TEXT("Physical brush can be picked up"),Brush->TryGrab(Hero));
-    TestTrue(TEXT("Inventory enables brushing"),Hero->HasBrush() && Brush->Phase==EMCFoodPhase::Equipped);
-    TestFalse(TEXT("Equipped brushes cannot be stolen"),Brush->TryGrab(Hero));
-    Hero->ServerThrowItem(); TestFalse(TEXT("Throw removes equipped brush"),Hero->HasBrush());
-    TestEqual(TEXT("Thrown brush returns to physics"),Brush->Phase,EMCFoodPhase::Free);
+    TestFalse(TEXT("Legacy brush pickups cannot replace the built-in tool"),Brush->TryGrab(Hero));
+    TestTrue(TEXT("The permanent brush remains usable without an equipped actor"),Hero->HasBrush() && !Hero->EquippedBrush);
+    Hero->ServerThrowItem(); TestTrue(TEXT("Q preserves the permanent brush"),Hero->HasBrush());
+    TestNull(TEXT("Q creates no physical equipment association"),Hero->EquippedBrush.Get());
     auto* Throat=Mouth.World->SpawnActor<AMCFoodDisposal>(FVector(500,0,100),FRotator::ZeroRotator);
     Brush->SetActorLocation(Throat->GetActorLocation()); Throat->Tick(.1f);
     TestFalse(TEXT("Throat refuses brushes"),Brush->IsDisposed());
     auto* Bin=Mouth.World->SpawnActor<AMCFoodDisposal>(FVector(-500,0,100),FRotator::ZeroRotator); Bin->bBrushBin=true;
     Brush->SetActorLocation(Bin->GetActorLocation()); Bin->Tick(.1f);
-    TestTrue(TEXT("Overboard bin accepts brushes"),Brush->IsDisposed());
+    TestTrue(TEXT("Overboard bin can clear a legacy loose brush"),Brush->IsDisposed());
+    TestTrue(TEXT("Disposing a legacy brush leaves the permanent tool available"),Hero->HasBrush());
     auto* Food=Mouth.World->SpawnActor<AMCFoodActor>(Bin->GetActorLocation(),FRotator::ZeroRotator); Food->Phase=EMCFoodPhase::Free; Bin->Tick(.1f);
     TestFalse(TEXT("Brush bin never completes food removal"),Food->IsDisposed());
     return true;

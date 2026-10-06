@@ -2,17 +2,20 @@
 #include "MCToothCharacter.h"
 #include "MCGameMode.h"
 #include "MCPlayerState.h"
+#include "MCTutorialDirector.h"
 #include "MCFoodBodyComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCDeliveryZoneVisualComponent.h"
 #include "MCReactionVFX.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "MCArenaTooth.h"
 #include "MCGameState.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
+#include "MCTongue.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/PlayerCameraManager.h"
 #include "GameFramework/PlayerController.h"
@@ -152,20 +155,13 @@ void AMCFoodActor::OnRep_Phase()
 }
 bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
 {
-    if (!HasAuthority() || !UsesLegacyGrip() || !IsValid(Hero) || IsDisposed() || Phase==EMCFoodPhase::Swallowing || Phase==EMCFoodPhase::Equipped || !Hero->CanWork() || (!bBrushTool && !Holders.Contains(Hero) && !Hero->Grip->CanAcquire(this))) return false;
+    if (!HasAuthority() || bBrushTool || !UsesLegacyGrip() || !IsValid(Hero) || IsDisposed() || Phase==EMCFoodPhase::Swallowing || Phase==EMCFoodPhase::Equipped || !Hero->CanWork() || (!Holders.Contains(Hero) && !Hero->Grip->CanAcquire(this))) return false;
     if (Holders.Contains(Hero)) return true;
     if (Phase==EMCFoodPhase::Carried) return false;
-    const FVector Offset=GetActorLocation()-Hero->GetActorLocation();
-    if (FVector::Dist(Visual->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation()),Hero->GetActorLocation())>Settings.GrabReach || (bBrushTool && FVector::DotProduct(Hero->GetActorForwardVector(),Offset.GetSafeNormal2D())<-.25f)) return false;
+    if (FVector::Dist(Visual->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation()),Hero->GetActorLocation())>Settings.GrabReach) return false;
     FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCFoodGrab),false,Hero); Params.AddIgnoredActor(this);
     const FVector GrabPoint=Phase==EMCFoodPhase::Absorbing?Visual->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation()):GetActorLocation();
     if (GetWorld()->LineTraceSingleByChannel(Hit,Hero->GetActorLocation(),GrabPoint,ECC_Visibility,Params)) return false;
-    if (bBrushTool)
-    {
-        if (Hero->EquippedBrush) return false;
-        EquippedBy=Hero; Hero->EquippedBrush=this; Phase=EMCFoodPhase::Equipped; OnRep_Phase();
-        Hero->ForceNetUpdate(); ForceNetUpdate(); return true;
-    }
     if (!Hero->Grip || !Hero->Grip->BeginGrip(this)) return false;
     Holders.Add(Hero); Hero->HeldFood=Hero->Grip->Frame.Food;
     LastHandledBy=Hero->GetPlayerState<AMCPlayerState>();
@@ -282,6 +278,8 @@ void AMCFoodActor::AwardDelivery()
 {
     if (!HasAuthority() || bDeliveryScored || bBrushTool || IsWrongIngredient()) return;
     bDeliveryScored=true;
+    if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
+        if (LastHandledBy) Tutorial->NotifyAction(Cast<AMCToothCharacter>(LastHandledBy->GetPawn()),EMCTutorialAction::FoodDelivered,this);
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
 }
 void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
@@ -459,16 +457,246 @@ AMCFoodDisposal::AMCFoodDisposal()
     Volume=CreateDefaultSubobject<UBoxComponent>(TEXT("ThroatVolume")); SetRootComponent(Volume);
     Volume->SetBoxExtent(FVector(105,290,180)); Volume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Label=CreateDefaultSubobject<UTextRenderComponent>(TEXT("ThroatLabel")); Label->SetupAttachment(Volume);
+    DeliveryZoneVisual=CreateDefaultSubobject<UMCDeliveryZoneVisualComponent>(TEXT("DeliveryZoneVisual"));
     Label->SetRelativeRotation(FRotator(0,180,0)); Label->SetHorizontalAlignment(EHTA_Center); Label->SetWorldSize(30);
     Label->SetText(FText::FromString(TEXT("FOOD >>> THROAT\nBRING FOOD HERE"))); Label->SetTextRenderColor(FColor(115,255,210));
+}
+void AMCFoodDisposal::GetDeliveryZoneGeometry(FTransform& OutTransform,FVector& OutHalfExtent,bool& bOutCircular) const
+{
+    OutTransform=Volume->GetComponentTransform();OutHalfExtent=Volume->GetUnscaledBoxExtent();bOutCircular=false;
+}
+bool AMCFoodDisposal::CacheDeliveryZoneOutline() const
+{
+    if(!DeliveryOutlineTongue.IsValid() && GetWorld())
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {DeliveryOutlineTongue=*It;break;}
+    const auto* Tongue=DeliveryOutlineTongue.Get();
+    // BeginPlay order can leave the tongue's native vertex buffers temporarily empty.
+    // Do not cache that result: the next query must see its completed surface.
+    if(!IsValid(Tongue) || !Tongue->Surface || Tongue->CurrentVertices().IsEmpty() || Tongue->TriangleIndices().IsEmpty()) return false;
+    FTransform Geometry;FVector Extent;bool Circular;
+    GetDeliveryZoneGeometry(Geometry,Extent,Circular);
+    const FTransform SurfaceTransform=Tongue->Surface->GetComponentTransform();
+    const auto& Vertices=Tongue->CurrentVertices();const auto& Indices=Tongue->TriangleIndices();
+    if(bDeliveryOutlineCached && DeliveryOutlineSource.Get()==Tongue->SourceMesh
+        && DeliveryOutlineSurfaceTransform.Equals(SurfaceTransform) && DeliveryOutlineZoneTransform.Equals(Geometry)
+        && DeliveryOutlineExtent.Equals(Extent) && DeliveryOutlineVertexCount==Vertices.Num() && DeliveryOutlineIndexCount==Indices.Num()
+        && bDeliveryOutlineBrush==bBrushBin && bDeliveryOutlineCircular==Circular) return DeliveryOutlineOuter.Num()>1;
+
+    DeliveryOutlineOuter.Reset();DeliveryOutlineInner.Reset();bDeliveryOutlineCached=false;
+    TArray<FVector> WorldVertices;WorldVertices.Reserve(Vertices.Num());FBox Bounds(ForceInit);
+    for(const FVector& Vertex:Vertices) {const FVector P=SurfaceTransform.TransformPosition(Vertex);WorldVertices.Add(P);Bounds+=P;}
+    constexpr int32 Sections=32;
+    const double Step=(Bounds.Max.Y-Bounds.Min.Y)/Sections;
+    if(Step<=KINDA_SMALL_NUMBER) return false;
+    TArray<double> Lower,Upper;Lower.Init(TNumericLimits<double>::Max(),Sections+1);Upper.Init(-TNumericLimits<double>::Max(),Sections+1);
+    // Intersect the actual authored triangles with horizontal XY scan lines.
+    // Tongue motion only changes vertex Z, so this silhouette is stable across peers.
+    for(int32 Triangle=0;Triangle+2<Indices.Num();Triangle+=3)
+    {
+        if(!WorldVertices.IsValidIndex(Indices[Triangle]) || !WorldVertices.IsValidIndex(Indices[Triangle+1]) || !WorldVertices.IsValidIndex(Indices[Triangle+2])) continue;
+        const FVector Points[]={WorldVertices[Indices[Triangle]],WorldVertices[Indices[Triangle+1]],WorldVertices[Indices[Triangle+2]]};
+        const double MinY=FMath::Min3(Points[0].Y,Points[1].Y,Points[2].Y),MaxY=FMath::Max3(Points[0].Y,Points[1].Y,Points[2].Y);
+        const int32 First=FMath::Clamp(FMath::FloorToInt((MinY-Bounds.Min.Y)/Step)-1,0,Sections);
+        const int32 Last=FMath::Clamp(FMath::CeilToInt((MaxY-Bounds.Min.Y)/Step)+1,0,Sections);
+        for(int32 Row=First;Row<=Last;++Row)
+        {
+            const double Y=Bounds.Min.Y+Row*Step;
+            for(int32 Edge=0;Edge<3;++Edge)
+            {
+                const FVector& A=Points[Edge];const FVector& B=Points[(Edge+1)%3];
+                const double DY=B.Y-A.Y;
+                if(FMath::Abs(DY)<=KINDA_SMALL_NUMBER)
+                {
+                    if(FMath::Abs(Y-A.Y)>KINDA_SMALL_NUMBER) continue;
+                    Lower[Row]=FMath::Min(Lower[Row],FMath::Min(A.X,B.X));Upper[Row]=FMath::Max(Upper[Row],FMath::Max(A.X,B.X));
+                }
+                else
+                {
+                    const double T=(Y-A.Y)/DY;if(T<0 || T>1) continue;
+                    const double X=FMath::Lerp(A.X,B.X,T);
+                    Lower[Row]=FMath::Min(Lower[Row],X);Upper[Row]=FMath::Max(Upper[Row],X);
+                }
+            }
+        }
+    }
+    TArray<int32> ValidRows;
+    for(int32 Row=0;Row<=Sections;++Row) if(Lower[Row]<=Upper[Row]) ValidRows.Add(Row);
+    if(ValidRows.Num()<2) return false;
+    const double TargetY=FMath::Clamp(Geometry.GetLocation().Y,Bounds.Min.Y+ValidRows[0]*Step,Bounds.Min.Y+ValidRows.Last()*Step);
+    double ReferenceOuter=bBrushBin?Lower[ValidRows[0]]:Upper[ValidRows[0]];
+    for(int32 I=1;I<ValidRows.Num();++I) if(TargetY<=Bounds.Min.Y+ValidRows[I]*Step)
+    {
+        const int32 Before=ValidRows[I-1],After=ValidRows[I];
+        const double Alpha=(TargetY-(Bounds.Min.Y+Before*Step))/((After-Before)*Step);
+        ReferenceOuter=FMath::Lerp(bBrushBin?Lower[Before]:Upper[Before],bBrushBin?Lower[After]:Upper[After],Alpha);break;
+    }
+    const double DesiredInnerX=Geometry.TransformPosition(FVector(bBrushBin?Extent.X:-Extent.X,0,0)).X;
+    const double ReferenceDepth=bBrushBin?DesiredInnerX-ReferenceOuter:ReferenceOuter-DesiredInnerX;
+    if(ReferenceDepth<=KINDA_SMALL_NUMBER) return false;
+    const double HalfHeight=(Bounds.Max.Y-Bounds.Min.Y)*.5,CenterY=(Bounds.Max.Y+Bounds.Min.Y)*.5;
+    const double ReferenceNorm=(TargetY-CenterY)/HalfHeight;
+    const double ReferenceFade=FMath::Pow(FMath::Max(.001,1-ReferenceNorm*ReferenceNorm),.6);
+    for(int32 Row:ValidRows)
+    {
+        const double Y=Bounds.Min.Y+Row*Step,Norm=(Y-CenterY)/HalfHeight;
+        const double Fade=FMath::Pow(FMath::Max(0.,1-Norm*Norm),.6);
+        // Both caps taper closed at the rim and leave a clear middle on narrow sections.
+        const double Depth=FMath::Min(ReferenceDepth*Fade/ReferenceFade,(Upper[Row]-Lower[Row])*.4);
+        const double OuterX=bBrushBin?Lower[Row]:Upper[Row],InnerX=OuterX+(bBrushBin?Depth:-Depth);
+        DeliveryOutlineOuter.Add(FVector(OuterX,Y,Geometry.GetLocation().Z));
+        DeliveryOutlineInner.Add(FVector(InnerX,Y,Geometry.GetLocation().Z));
+    }
+    DeliveryOutlineSource=Tongue->SourceMesh;DeliveryOutlineSurfaceTransform=SurfaceTransform;DeliveryOutlineZoneTransform=Geometry;
+    DeliveryOutlineExtent=Extent;DeliveryOutlineVertexCount=Vertices.Num();DeliveryOutlineIndexCount=Indices.Num();
+    bDeliveryOutlineBrush=bBrushBin;bDeliveryOutlineCircular=Circular;bDeliveryOutlineCached=true;
+    return true;
+}
+bool AMCFoodDisposal::GetDeliveryZoneOutline(TArray<FVector>& OutOuter,TArray<FVector>& OutInner) const
+{
+    if(!CacheDeliveryZoneOutline()) {OutOuter.Reset();OutInner.Reset();return false;}
+    OutOuter=DeliveryOutlineOuter;OutInner=DeliveryOutlineInner;return true;
+}
+bool AMCFoodDisposal::ContainsDeliveryCap(FVector Position,bool& bOutHasCap) const
+{
+    bOutHasCap=CacheDeliveryZoneOutline();if(!bOutHasCap) return false;
+    if(Position.Y<DeliveryOutlineOuter[0].Y || Position.Y>DeliveryOutlineOuter.Last().Y) return false;
+    for(int32 I=1;I<DeliveryOutlineOuter.Num();++I) if(Position.Y<=DeliveryOutlineOuter[I].Y)
+    {
+        const double Alpha=(Position.Y-DeliveryOutlineOuter[I-1].Y)/(DeliveryOutlineOuter[I].Y-DeliveryOutlineOuter[I-1].Y);
+        const double OuterX=FMath::Lerp(DeliveryOutlineOuter[I-1].X,DeliveryOutlineOuter[I].X,Alpha);
+        const double InnerX=FMath::Lerp(DeliveryOutlineInner[I-1].X,DeliveryOutlineInner[I].X,Alpha);
+        return Position.X>=FMath::Min(OuterX,InnerX) && Position.X<=FMath::Max(OuterX,InnerX);
+    }
+    return false;
+}
+bool AMCFoodDisposal::DeliverySurfaceFloorZ(FVector Position,double& OutFloorZ) const
+{
+    const auto* Tongue=DeliveryOutlineTongue.Get();FHitResult Hit;
+    if(!IsValid(Tongue) || !Tongue->SurfacePoint(Position,Hit)) return false;
+    OutFloorZ=Hit.ImpactPoint.Z;return true;
+}
+bool AMCFoodDisposal::ContainsDeliveryPosition(FVector Position) const
+{
+    if(Position.ContainsNaN()) return false;
+    const FVector Local=Volume->GetComponentTransform().InverseTransformPosition(Position);
+    const FVector Extent=Volume->GetUnscaledBoxExtent();
+    bool HasCap=false;const bool InCap=ContainsDeliveryCap(Position,HasCap);
+    if(HasCap)
+    {
+        if(!InCap) return false;
+        double FloorZ;return DeliverySurfaceFloorZ(Position,FloorZ) && Position.Z>=FloorZ-80 && Local.Z<=Extent.Z;
+    }
+    return FMath::Abs(Local.X)<=Extent.X && FMath::Abs(Local.Y)<=Extent.Y && FMath::Abs(Local.Z)<=Extent.Z;
+}
+FVector AMCFoodDisposal::GetDeliveryDirection() const
+{
+    FTransform Transform;FVector Extent;bool Circular;
+    GetDeliveryZoneGeometry(Transform,Extent,Circular);
+    return Transform.TransformVectorNoScale(bBrushBin?-FVector::ForwardVector:FVector::ForwardVector).GetSafeNormal2D();
+}
+bool AMCFoodDisposal::IsFoodInDeliveryZone(const AMCFoodActor* Food) const
+{
+    if(!IsValid(Food) || Food->GetWorld()!=GetWorld()) return false;
+    const auto InZone=[this](const AMCToothCharacter* Carrier) {
+        return IsValid(Carrier) && Carrier->CanWork() && ContainsDeliveryPosition(Carrier->GetActorLocation());
+    };
+    if(Food->StackCarrier) return InZone(Food->StackCarrier);
+    if(Food->EquippedBy) return InZone(Food->EquippedBy);
+    for(const auto& Holder:Food->Holders) if(InZone(Holder)) return true;
+    return ContainsDeliveryPosition(Food->GetActorLocation());
+}
+bool AMCFoodDisposal::CanAcceptDelivery(const AMCFoodActor* Food) const
+{
+    if(!HasAuthority() || !IsValid(Food) || Food->IsDisposed() || !IsFoodInDeliveryZone(Food)) return false;
+    // Keep the working brush equipped while cleaning inside the broad exit cap.
+    // A brush enters disposal only after the player's explicit Q throw/drop.
+    if(Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling && Food->Phase!=EMCFoodPhase::Carried) return false;
+    // The front exit now accepts the same rejected ingredients in normal play as in the lesson.
+    // Fresh ingredients stay available for delivery to the green throat zone.
+    return bBrushBin?(Food->bBrushTool || Food->IsWrongIngredient()):!Food->bBrushTool;
+}
+bool AMCFoodDisposal::AcceptDelivery(AMCFoodActor* Food)
+{
+    if(!CanAcceptDelivery(Food)) return false;
+    auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
+    if(!Worker) Worker=Food->StackCarrier?Food->StackCarrier.Get():Food->EquippedBy.Get();
+    // The throat's existing handoff removes just this layer from the collection.
+    // Setting StackCarrier to null alone leaves a disposed item in Pieces.
+    if(Food->StackCarrier && !Food->BeginSwallow()) return false;
+    Food->Dispose();
+    if(bBrushBin && AMCTutorialDirector::IsTutorialTarget(Food)) {
+        if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
+            Tutorial->NotifyAction(Worker,Food->bSpoiled?EMCTutorialAction::SpoiledDiscarded:EMCTutorialAction::TrashDiscarded,Food);
+    } else if(Worker) Worker->NotifyTaskFeedback(true,Food->GetActorLocation());
+    return true;
+}
+void AMCFoodDisposal::ReturnFreshFood(AMCFoodActor* Food)
+{
+    FVector ReturnPoint=Food->GetActorLocation();
+    if(CacheDeliveryZoneOutline())
+    {
+        const auto* Tongue=DeliveryOutlineTongue.Get();
+        const FVector FoodExtent=Food->Body->Bounds.BoxExtent;
+        const double FootprintMargin=FVector2D(FoodExtent.X,FoodExtent.Y).Size()+8;
+        const double InitialY=FMath::Clamp(ReturnPoint.Y,DeliveryOutlineInner[0].Y,DeliveryOutlineInner.Last().Y);
+        FTransform Geometry;FVector Extent;bool Circular;GetDeliveryZoneGeometry(Geometry,Extent,Circular);
+        const double CenterY=FMath::Clamp(Geometry.GetLocation().Y,DeliveryOutlineInner[0].Y,DeliveryOutlineInner.Last().Y);
+        bool FoundSupport=false;
+        // A cap closes to a point at its ends. Moving a large item a fixed X
+        // distance there can cross the entire tongue, so verify its full footprint.
+        for(int32 Step=0;Step<=8 && !FoundSupport;++Step)
+        {
+            const double Y=FMath::Lerp(InitialY,CenterY,Step/8.);
+            double InnerX=DeliveryOutlineInner.Last().X;
+            for(int32 I=1;I<DeliveryOutlineInner.Num();++I) if(Y<=DeliveryOutlineInner[I].Y)
+            {
+                const double Alpha=(Y-DeliveryOutlineInner[I-1].Y)/(DeliveryOutlineInner[I].Y-DeliveryOutlineInner[I-1].Y);
+                InnerX=FMath::Lerp(DeliveryOutlineInner[I-1].X,DeliveryOutlineInner[I].X,Alpha);break;
+            }
+            for(int32 Inward=0;Inward<=3 && !FoundSupport;++Inward)
+            {
+                const FVector Candidate(InnerX+FoodExtent.X+120+Inward*FootprintMargin*.25,Y,ReturnPoint.Z);
+                FHitResult Hit;
+                if(Tongue->InteriorSurfacePoint(Candidate,FootprintMargin,Hit))
+                {
+                    ReturnPoint=Candidate;ReturnPoint.Z=FMath::Max(ReturnPoint.Z,Hit.ImpactPoint.Z+FoodExtent.Z+5);
+                    FoundSupport=true;
+                }
+            }
+        }
+        // Preserve the current holding state if the authored surface cannot fit the item.
+        if(!FoundSupport) return;
+    }
+    else
+    {
+        const FVector Extent=Volume->GetUnscaledBoxExtent();
+        FVector Local=Volume->GetComponentTransform().InverseTransformPosition(ReturnPoint);
+        Local.X=Extent.X+Food->Body->Bounds.BoxExtent.X+120;Local.Y=FMath::Clamp(Local.Y,-Extent.Y,Extent.Y);
+        ReturnPoint=Volume->GetComponentTransform().TransformPosition(Local);
+    }
+    auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
+    if(Food->StackCarrier) {
+        if(!Food->BeginSwallow()) return;
+        Food->CancelSwallow();
+    }
+    for(int32 I=Food->Holders.Num()-1;I>=0;--I) Food->Release(Food->Holders[I]);
+    if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyIncorrectSort(Worker,Food);
+    else if(Worker) Worker->NotifyTaskFeedback(false,Food->GetActorLocation());
+    Food->SetActorLocation(ReturnPoint,false,nullptr,ETeleportType::TeleportPhysics);
+    Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);Food->ForceNetUpdate();
 }
 void AMCFoodDisposal::Tick(float Dt)
 {
     Super::Tick(Dt);
-    Label->SetText(FText::FromString(bBrushBin?TEXT("<<< BRUSHES OVERBOARD\nTHROW Q HERE"):TEXT("FOOD >>> THROAT\nNO BRUSHES")));
+    const bool TutorialActive=AMCTutorialDirector::IsSafeTutorial(GetWorld());
+    Label->SetText(FText::FromString(bBrushBin?TEXT("ВЫХОД\nМУСОР И ИСПОРЧЕННОЕ"):TEXT("ВХОД\nСВЕЖАЯ ЕДА")));
     if (bBrushBin && !bExitConfigured)
     {
         bExitConfigured=true;
+        // Match the visible lane inside the mouth, before the containment wall.
+        // Saved art may choose a larger footprint; runtime-created exits use the same minimum on peers.
+        const FVector Extent=Volume->GetUnscaledBoxExtent();
+        Volume->SetBoxExtent(FVector(FMath::Max(260.,Extent.X),FMath::Max(1000.,Extent.Y),FMath::Max(300.,Extent.Z)));
         // The blockout has an invisible front containment wall. Only tools pass it;
         // never disable collision on visible, authored mouth geometry or on the floor.
         FHitResult Hit; const FVector P=GetActorLocation();
@@ -479,7 +707,15 @@ void AMCFoodDisposal::Tick(float Dt)
     }
     if (!HasAuthority()) return;
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
-        if ((It->Phase==EMCFoodPhase::Free || It->Phase==EMCFoodPhase::Carried) && It->bBrushTool==bBrushBin && Volume->Bounds.GetBox().IsInside(It->GetActorLocation())) It->Dispose();
+    {
+        if(CanAcceptDelivery(*It)) {AcceptDelivery(*It);continue;}
+        if(bBrushBin && !It->bBrushTool && !It->IsWrongIngredient() && IsFoodInDeliveryZone(*It)
+            && (It->Phase==EMCFoodPhase::Free || It->Phase==EMCFoodPhase::Falling || It->Phase==EMCFoodPhase::Carried)
+            && (!It->StackCarrier || TutorialActive && AMCTutorialDirector::IsTutorialTarget(*It)))
+        {
+            ReturnFreshFood(*It);
+        }
+    }
 }
 void AMCFoodDisposal::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 { Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCFoodDisposal,bBrushBin); }
@@ -570,6 +806,7 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction)
         auto* Part=GetWorld()->SpawnActorDeferred<AMCFoodActor>(StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if (!Part) continue;
         Part->ConfigureItem(ItemName,FoodData,Random,true); Part->Batch=Batch; Part->SpoilAt=SpoilAt; Part->bSpoiled=bSpoiled;
+        if (AMCTutorialDirector::IsTutorialTarget(this)) { Part->SetOwner(GetOwner()); Part->Tags.AddUnique(TEXT("MCTutorial")); }
         UGameplayStatics::FinishSpawningActor(Part,T); Part->Body->SetPhysicsLinearVelocity(Offset*3);
     }
     Dispose(); return true;

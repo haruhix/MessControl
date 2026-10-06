@@ -12,6 +12,7 @@ class UMCArenaToothProfile;
 class AMCToothCharacter;
 class AMCFoodDisposal;
 class AMCDayDirector;
+class AMCTutorialDirector;
 
 USTRUCT()
 struct FMCEventObjective
@@ -43,6 +44,8 @@ public:
     void UpdateObjectives();
     void ProcessRespawns();
     UFUNCTION(BlueprintCallable, Category="Shift") void RestartShift();
+    void StartLobby(APlayerController* Requester);
+    void FinishTutorial();
     bool CanUseDevPanel(const APlayerController* Requester) const;
     FText ExecuteDevAction(APlayerController* Requester,EMCDevAction Action,int32 StepIndex=INDEX_NONE);
     UPROPERTY(EditDefaultsOnly, Category="Shift") TArray<TObjectPtr<UMCDayEvent>> EventPool;
@@ -53,8 +56,11 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<class UMCDayPlan> FirstDayPlan;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") bool bUseDayOnePlan=true;
     UPROPERTY() TObjectPtr<AMCDayDirector> DayDirector;
+    UPROPERTY() TObjectPtr<AMCTutorialDirector> TutorialDirector;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;
 private:
+    bool bTutorialRequested=false;
+    bool bLobbyRequested=false;
     void StartDay();
     void FinishDay(bool bTimedOut);
     void ClearTasks();

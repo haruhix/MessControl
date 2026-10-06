@@ -5,6 +5,8 @@
 #include "MCMouthSurface.h"
 #include "MCVomitBurst.h"
 #include "MCThroatVortex.h"
+#include "MCTutorialDirector.h"
+#include "MCPlayerState.h"
 #include "MCFoodCollectionComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -107,6 +109,7 @@ void AMCThroat::OnConstruction(const FTransform& Transform)
     Super::OnConstruction(Transform);
     GateSize.X=FMath::Max(100.f,GateSize.X); GateSize.Y=FMath::Max(100.f,GateSize.Y);
     ZoneRadius=FMath::Max(80.f,ZoneRadius); ZoneHeight=FMath::Max(40.f,ZoneHeight);
+    DeliveryStripHalfExtent.X=FMath::Max(80.,DeliveryStripHalfExtent.X);DeliveryStripHalfExtent.Y=FMath::Max(80.,DeliveryStripHalfExtent.Y);
     PressSeconds=FMath::Max(.1f,PressSeconds); AnticipationSeconds=FMath::Max(.1f,AnticipationSeconds);
     SwallowSeconds=FMath::Max(.5f,SwallowSeconds); RecoverySeconds=FMath::Max(.2f,RecoverySeconds);
     VomitSeconds=FMath::Max(2.f,VomitSeconds);
@@ -173,7 +176,34 @@ bool AMCThroat::ContainsFood(const AMCFoodActor* Food) const
     if (!IsValid(Food) || Food->bBrushTool || Food->IsDisposed() || Food->Phase==EMCFoodPhase::Stuck
         || Food->StackCarrier || Food->Phase==EMCFoodPhase::Equipped || Food->Phase==EMCFoodPhase::Swallowing || Food->Phase==EMCFoodPhase::Absorbing || !Food->Holders.IsEmpty()) return false;
     const FVector P=GetActorTransform().InverseTransformPosition(Food->GetActorLocation())-ZoneCenter;
-    return P.SizeSquared2D()<=FMath::Square(ZoneRadius) && P.Z>=-30 && P.Z<=ZoneHeight;
+    bool HasCap=false;const bool InCap=ContainsDeliveryCap(Food->GetActorLocation(),HasCap);
+    if(HasCap)
+    {
+        if(!InCap) return false;
+        double FloorZ;
+        return DeliverySurfaceFloorZ(Food->GetActorLocation(),FloorZ) && Food->GetActorLocation().Z>=FloorZ-30*FMath::Abs(GetActorScale3D().Z) && P.Z<=ZoneHeight;
+    }
+    return ContainsDeliveryPosition(Food->GetActorLocation()) && P.Z>=-30 && P.Z<=ZoneHeight;
+}
+void AMCThroat::GetDeliveryZoneGeometry(FTransform& OutTransform,FVector& OutHalfExtent,bool& bOutCircular) const
+{
+    OutTransform=GetActorTransform();OutTransform.SetLocation(GetActorTransform().TransformPosition(ZoneCenter));
+    OutHalfExtent=bUseDeliveryStrip?FVector(DeliveryStripHalfExtent.X,DeliveryStripHalfExtent.Y,ZoneHeight):FVector(ZoneRadius,ZoneRadius,ZoneHeight);
+    bOutCircular=!bUseDeliveryStrip;
+}
+bool AMCThroat::ContainsDeliveryPosition(FVector Position) const
+{
+    if(Position.ContainsNaN()) return false;
+    const FVector P=GetActorTransform().InverseTransformPosition(Position)-ZoneCenter;
+    bool HasCap=false;const bool InCap=ContainsDeliveryCap(Position,HasCap);
+    if(HasCap)
+    {
+        if(!InCap) return false;
+        double FloorZ;
+        return DeliverySurfaceFloorZ(Position,FloorZ) && Position.Z>=FloorZ-80*FMath::Abs(GetActorScale3D().Z) && P.Z<=FMath::Max(ZoneHeight,UvulaTop.Z-ZoneCenter.Z+160);
+    }
+    const bool InFootprint=HasCap?InCap:bUseDeliveryStrip?FMath::Abs(P.X)<=DeliveryStripHalfExtent.X && FMath::Abs(P.Y)<=DeliveryStripHalfExtent.Y:P.SizeSquared2D()<=FMath::Square(ZoneRadius);
+    return InFootprint && P.Z>=-80 && P.Z<=FMath::Max(ZoneHeight,UvulaTop.Z-ZoneCenter.Z+160);
 }
 bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
 {
@@ -184,7 +214,18 @@ bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
 }
 bool AMCThroat::AcceptDelivery(AMCFoodActor* Food)
 {
-    if(!CanAcceptDelivery(Food) || !Food->BeginSwallow()) return false;
+    if(!CanAcceptDelivery(Food)) return false;
+    if (AMCTutorialDirector::IsSafeTutorial(GetWorld()) && AMCTutorialDirector::IsTutorialTarget(Food) && Food->IsWrongIngredient())
+    {
+        auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
+        if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyIncorrectSort(Worker,Food);
+        if (auto* Carrier=Food->StackCarrier.Get()) Carrier->FoodCollection->Stop(false);
+        const float InwardEdge=bUseDeliveryStrip?DeliveryStripHalfExtent.X:ZoneRadius;
+        Food->SetActorLocation(GetActorTransform().TransformPosition(ZoneCenter+FVector(-InwardEdge-120,0,60)),false,nullptr,ETeleportType::TeleportPhysics);
+        Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
+        return false;
+    }
+    if(!Food->BeginSwallow()) return false;
     const int32 Slot=PendingMeal.Num()%6,Column=PendingMeal.Num()/6;
     if(Slot==0) PendingPileHeight=0;
     const float HalfHeight=Food->PrepareHorizontalStackPose(&Food->FoodData.Stack,Slot);
@@ -225,9 +266,8 @@ void AMCThroat::CollectLooseDeliveries()
 bool AMCThroat::ContainsPlayer(const AMCToothCharacter* Hero) const
 {
     if(!IsValid(Hero) || !Hero->Status->IsAlive()) return false;
-    const FVector P=GetActorTransform().InverseTransformPosition(Hero->GetActorLocation())-ZoneCenter;
     // A jumping carrier still counts as entering the delivery column.
-    return P.SizeSquared2D()<=FMath::Square(ZoneRadius) && P.Z>=-80 && P.Z<=FMath::Max(ZoneHeight,UvulaTop.Z-ZoneCenter.Z+160);
+    return ContainsDeliveryPosition(Hero->GetActorLocation());
 }
 bool AMCThroat::CanOrderJump(const AMCToothCharacter* Hero) const {return false;}
 bool AMCThroat::LaunchToUvula(AMCToothCharacter* Hero) {return false;}

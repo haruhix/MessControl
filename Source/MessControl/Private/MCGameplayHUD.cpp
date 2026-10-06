@@ -189,9 +189,14 @@ void UMCGameplayHUD::RefreshState()
         }
         Bar(FName(N+TEXT("Health")),Tooth?Tooth->Status->State.Health/FMath::Max(1.f,Tooth->Status->State.MaxHealth):0);
     }
+    TArray<int32,TInlineAllocator<16>> TimelineSteps;
+    if(HasStep) for(int32 I=0;I<GS->DayPlan->Steps.Num();++I)
+        if(GS->DayPlan->Steps[I].Step!=EMCDayStep::DiscardBrushes) TimelineSteps.Add(I);
+    const int32 TimelineStart=FMath::Max(0,TimelineSteps.IndexOfByKey(GS->StepIndex)-1);
     for(int32 I=0;I<3;++I) {
-        const FString N=FString::Printf(TEXT("Timeline%d"),I); const int32 Index=FMath::Max(0,GS->StepIndex-1)+I;
-        const bool Visible=HasStep?GS->DayPlan->Steps.IsValidIndex(Index):I==0; Show(FName(N),Visible); if(!Visible) continue;
+        const FString N=FString::Printf(TEXT("Timeline%d"),I);
+        const bool Visible=HasStep?TimelineSteps.IsValidIndex(TimelineStart+I):I==0; Show(FName(N),Visible); if(!Visible) continue;
+        const int32 Index=HasStep?TimelineSteps[TimelineStart+I]:INDEX_NONE;
         const bool Past=HasStep && Index<GS->StepIndex,Current=!HasStep || Index==GS->StepIndex,Failed=Past && GS->PreviousStepFailed;
         Text(FName(N+TEXT("Label")),Past?Failed?TEXT("ПРОШЛО · НЕ ПОЛНОСТЬЮ"):TEXT("ВЫПОЛНЕНО"):Current?TEXT("СЕЙЧАС"):TEXT("ДАЛЕЕ"));
         Text(FName(N+TEXT("Title")),HasStep?HUD::StepName(GS->DayPlan->Steps[Index].Step):Title);
@@ -209,11 +214,17 @@ void UMCGameplayHUD::RefreshState()
         }
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0);
         Text(TEXT("CooldownValue"),FString::Printf(TEXT("%.1f"),Cool)); Bar(TEXT("CooldownProgress"),1-Cool/Inv->CooldownSeconds());
-        FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):Hero->HasBrush()?TEXT("ЛКМ · ЧИСТИТЬ"):TEXT("E · ПОДОБРАТЬ ЩЁТКУ");
-        if(Hero->FoodCollection->bCollecting) Hint=FString::Printf(TEXT("СТОПКА %d/6 · НЕСИ В ЗОНУ ГЛОТКИ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num());
+        FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):TEXT("ЛКМ · ЧИСТИТЬ");
+        if(Hero->FoodCollection->bCollecting)
+        {
+            bool HasWrong=false;
+            for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece) && Piece->IsWrongIngredient()) { HasWrong=true; break; }
+            Hint=HasWrong?FString::Printf(TEXT("СТОПКА %d/6 · В КРАСНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num())
+                :FString::Printf(TEXT("СТОПКА %d/6 · В ЗЕЛЁНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num());
+        }
         else if(Inv->IsCleaningTool() && Hero->FoodCollection->HasCandidate()) Hint=TEXT("КЛИК ЛКМ · СОБИРАТЬ СТОПКУ");
         if(Hero->IsYawning()) Hint=TEXT("ЗЕВАНИЕ · ДЕРЖИСЬ ЗА ЯЗЫК");
-        if(Hero->HeldFood) Hint=TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
+        if(Hero->HeldFood) Hint=Hero->HeldFood->IsWrongIngredient()?TEXT("МУСОР — В КРАСНУЮ · Q БРОСИТЬ"):TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
         if(Hero->bInCoffee) Hint=TEXT("WASD · ПЛЫТЬ     ЛКМ · ЗАЦЕПИТЬСЯ");
         if(const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement()); Move && Move->IsClimbing()) Hint=TEXT("WASD · ЛАЗАТЬ     E · ДЕРЖАТЬСЯ     SPACE · ОТПРЫГНУТЬ");
         for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {

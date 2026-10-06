@@ -58,6 +58,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone") FVector ZoneCenter=FVector(-280,0,-40);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone",meta=(ClampMin="80")) float ZoneRadius=290;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone",meta=(ClampMin="40")) float ZoneHeight=240;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone") bool bUseDeliveryStrip=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Zone") FVector2D DeliveryStripHalfExtent=FVector2D(190,650);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.1")) float PressSeconds=.48f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="1")) float AnticipationSeconds=3.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="0.5")) float SwallowSeconds=2.f;
@@ -82,9 +84,11 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Timing",meta=(ClampMin="2")) float VomitSeconds=2.2f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Throat|Art") FVector VomitOrigin=FVector(-70,0,130);
     UFUNCTION(BlueprintPure,Category="Throat") bool ContainsFood(const AMCFoodActor* Food) const;
-    bool CanAcceptDelivery(const AMCFoodActor* Food) const;
+    virtual void GetDeliveryZoneGeometry(FTransform& OutTransform,FVector& OutHalfExtent,bool& bOutCircular) const override;
+    virtual bool ContainsDeliveryPosition(FVector Position) const override;
+    virtual bool CanAcceptDelivery(const AMCFoodActor* Food) const override;
     /** Authority reserves a loose ingredient or atomically transfers it from its carrier. */
-    bool AcceptDelivery(AMCFoodActor* Food);
+    virtual bool AcceptDelivery(AMCFoodActor* Food) override;
     UFUNCTION(BlueprintPure,Category="Throat") float OpenAmount() const;
     /** A point inside the visible artist aperture, above the tongue surface. */
     FVector VacuumInlet() const;

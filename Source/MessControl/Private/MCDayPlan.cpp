@@ -70,12 +70,13 @@ UMCDayPlan::UMCDayPlan()
     Menu=TSoftObjectPtr<UDataTable>(FSoftObjectPath(TEXT("/Game/Data/DT_BreakfastMenu.DT_BreakfastMenu")));
     auto Add=[&](EMCDayStep Step,float Seconds,const TCHAR* Title,const TCHAR* Hint)
     { FMCDayStepSettings S; S.Step=Step; S.Seconds=Seconds; S.Title=FText::FromString(Title); S.Instruction=FText::FromString(Hint); Steps.Add(S); };
-    Add(EMCDayStep::BrushLesson,0,TEXT("01 / LEARN TO BRUSH"),TEXT("LMB: pick up a falling brush. Hold LMB: clean teeth AND floor stains. No event timer."));
-    Add(EMCDayStep::DiscardBrushes,0,TEXT("PUT BRUSHES OVERBOARD"),TEXT("Carry brushes to the front tray (away from throat). Q: throw. Brushes never go down the throat."));
+    Add(EMCDayStep::BrushLesson,0,TEXT("01 / LEARN TO BRUSH"),TEXT("Slot 1: your permanent brush. Hold LMB: clean teeth AND floor stains. No event timer."));
+    // Retain the saved step layout; the director skips this legacy objective.
+    Add(EMCDayStep::DiscardBrushes,0,TEXT("PERMANENT TOOLS"),TEXT("All four tools stay in inventory. Slot 1 always contains your brush."));
     Add(EMCDayStep::BreakfastRain,2,TEXT("02 / BREAKFAST IS FALLING"),TEXT("Dodge the food! Broccoli, egg, bacon and carrot are chosen from the menu."));
     Add(EMCDayStep::BreakfastCleanup,20,TEXT("BREAKFAST / CLEAN UP"),TEXT("RMB: cut food. LMB: collect a flat stack. Enter the THROAT zone to deliver automatically. Others can add food for 3 seconds, then a 2-second swallow begins."));
     Add(EMCDayStep::CoffeeWaves,6,TEXT("COFFEE / POUR AND DRAIN"),TEXT("Dodge the jet. WASD: paddle. Hold LMB near an arena tooth: cling through the drain."));
-    Add(EMCDayStep::CoffeeCleanup,20,TEXT("COFFEE / BRUSH EVERYTHING"),TEXT("Fresh brushes fall in. LMB: pick up. LMB: teeth and floor. C: clean yourself."));
+    Add(EMCDayStep::CoffeeCleanup,20,TEXT("COFFEE / BRUSH EVERYTHING"),TEXT("Slot 1: brush. Hold LMB: clean teeth and floor stains. C: clean yourself."));
     Add(EMCDayStep::ColdCola,45,TEXT("ХОЛОДНАЯ КОЛА"),TEXT("Скользко! Слот 2 + ЛКМ: разбей лёд. E у зуба: зацепиться, W/S: лазать, Space: отпрыгнуть."));
     Add(EMCDayStep::StuckFood,35,TEXT("03 / BETWEEN THE TEETH"),TEXT("RMB: cut stuck food free. LMB: collect flat pieces. Enter the THROAT zone to deliver automatically. Add more food within 3 seconds before the 2-second swallow."));
 }

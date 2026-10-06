@@ -24,7 +24,7 @@ void AMCDayDirector::Start(UMCDayPlan* Plan,int32 InitialStep,bool bManual)
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if (!GS) return;
     Settings=DuplicateObject<UMCDayPlan>(Plan,this); Settings->Sanitize(); Random.Initialize(GS->RunSeed);
     GS->DayPlan=Plan; GS->StepIndex=InitialStep; GS->bDevManualEvents=bManual;
-    GS->DayStartedAt=GS->GetServerWorldTimeSeconds(); GS->bPhysicalBrushes=true; GS->CurrentEvent=nullptr;
+    GS->DayStartedAt=GS->GetServerWorldTimeSeconds(); GS->bPhysicalBrushes=false; GS->CurrentEvent=nullptr;
     GS->Phase=EMCShiftPhase::Working; GS->bDayOneComplete=false; GS->FailedEvents=0;
     AMCFoodDisposal* Bin=nullptr;
     for (TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It) if (It->bBrushBin) { Bin=*It; break; }
@@ -55,14 +55,7 @@ int32 AMCDayDirector::CountFood(int32 Batch) const
 }
 void AMCDayDirector::DropBrushes()
 {
-    auto* GS=GetWorld()->GetGameState<AMCGameState>();
-    const int32 Count=FMath::Max(1,GS->PlayerArray.Num());
-    for (int32 I=0;I<Count;++I)
-    {
-        const FTransform T(FVector(-700+I*110,-220+I*140,500+I*40));
-        auto* Brush=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T);
-        if (Brush) { Brush->ConfigureBrush(); UGameplayStatics::FinishSpawningActor(Brush,T); }
-    }
+    // Kept for legacy developer actions. Every player owns the brush in inventory slot one.
 }
 void AMCDayDirector::DirtyMouth(bool bCoffee)
 {
@@ -110,6 +103,10 @@ AMCFoodActor* AMCDayDirector::SpawnMenuFood(FVector Position,int32 Batch)
 void AMCDayDirector::EnterStep()
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    // Preserve saved plan indices while bypassing the obsolete physical-tool objective.
+    // Advancing here avoids awarding completion rewards for a step that is never played.
+    while (Settings->Steps.IsValidIndex(GS->StepIndex) && Settings->Steps[GS->StepIndex].Step==EMCDayStep::DiscardBrushes)
+        ++GS->StepIndex;
     if (!Settings->Steps.IsValidIndex(GS->StepIndex))
     {
         if (Flood) Flood->Stop();
@@ -118,11 +115,10 @@ void AMCDayDirector::EnterStep()
     const auto& Step=Settings->Steps[GS->StepIndex]; StepStartedAt=GS->GetServerWorldTimeSeconds();
     GS->StepStartedAt=StepStartedAt;
     GS->PhaseEndsAt=!GS->bDevManualEvents && Step.Seconds>0?StepStartedAt+Step.Seconds:0; GS->TasksTotal=0; GS->TasksLeft=0;
-    // A directly selected cleanup/discard step needs the objects normally left by its predecessor.
-    if (GS->bDevManualEvents && Step.Step==EMCDayStep::DiscardBrushes) DropBrushes();
+    // A directly selected cleanup step needs the food normally left by its predecessor.
     if (GS->bDevManualEvents && Step.Step==EMCDayStep::BreakfastCleanup)
         for (int32 I=0;I<Settings->BreakfastCount;++I) SpawnMenuFood(FVector(Random.FRandRange(-620,650),Random.FRandRange(-430,430),650),2);
-    if (Step.Step==EMCDayStep::BrushLesson) { DirtyMouth(false); DropBrushes(); }
+    if (Step.Step==EMCDayStep::BrushLesson) DirtyMouth(false);
     if (Step.Step==EMCDayStep::BreakfastRain) RainSpawned=0;
     if (Step.Step==EMCDayStep::CoffeeWaves && Flood)
     {
@@ -130,7 +126,7 @@ void AMCDayDirector::EnterStep()
         Settings->Steps[GS->StepIndex].Seconds=Flood->Seconds;
         GS->PhaseEndsAt=GS->bDevManualEvents?0:StepStartedAt+Flood->Seconds;
     }
-    if (Step.Step==EMCDayStep::CoffeeCleanup) { if (Flood) Flood->Stop(); DirtyMouth(true); DropBrushes(); }
+    if (Step.Step==EMCDayStep::CoffeeCleanup) { if (Flood) Flood->Stop(); DirtyMouth(true); }
     if (Step.Step==EMCDayStep::ColdCola) { ColdCola=GetWorld()->SpawnActor<AMCColdColaEvent>(); ColdCola->Start(Settings); }
     if (Step.Step==EMCDayStep::StuckFood)
     {
@@ -174,14 +170,6 @@ void AMCDayDirector::Tick(float Dt)
     {
     case EMCDayStep::BrushLesson: case EMCDayStep::CoffeeCleanup:
         Left=CountDirt();
-        if (Left>0)
-        {
-            bool BrushExists=false; for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (It->bBrushTool && !It->IsDisposed()) BrushExists=true;
-            if (!BrushExists) DropBrushes();
-        }
-        break;
-    case EMCDayStep::DiscardBrushes:
-        for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (It->bBrushTool && !It->IsDisposed()) ++Left;
         break;
     case EMCDayStep::BreakfastRain:
         while (RainSpawned<Settings->BreakfastCount && Elapsed>=double(RainSpawned)*FMath::Max(.1f,Step.Seconds)/Settings->BreakfastCount)

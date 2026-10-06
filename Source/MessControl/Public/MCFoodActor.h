@@ -92,6 +92,7 @@ public:
     void Release(AMCToothCharacter* Hero);
     void Dispose();
     void AwardDelivery();
+    class AMCPlayerState* GetLastHandledBy() const { return LastHandledBy.Get(); }
     bool BeginSwallow();
     void CancelSwallow();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
@@ -195,7 +196,7 @@ private:
     FString LastLabelCaption;
 };
 
-/** Replaceable level marker: ordinary food is disposed towards the throat. */
+/** Active delivery marker: food enters the throat, rejected ingredients and tools leave at the front. */
 UCLASS()
 class MESSCONTROL_API AMCFoodDisposal : public AActor
 {
@@ -205,8 +206,31 @@ public:
     virtual void Tick(float Dt) override;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UBoxComponent> Volume;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UTextRenderComponent> Label;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Delivery") TObjectPtr<class UMCDeliveryZoneVisualComponent> DeliveryZoneVisual;
     UPROPERTY(EditAnywhere, Replicated) bool bBrushBin=false;
+    /** Shared footprint for gameplay intake and the animated floor guide. */
+    virtual void GetDeliveryZoneGeometry(FTransform& OutTransform,FVector& OutHalfExtent,bool& bOutCircular) const;
+    /** Paired world-space rim and inner fade curves; false keeps the fixture's authored box/circle. */
+    bool GetDeliveryZoneOutline(TArray<FVector>& OutOuter,TArray<FVector>& OutInner) const;
+    virtual bool ContainsDeliveryPosition(FVector Position) const;
+    FVector GetDeliveryDirection() const;
+    virtual bool CanAcceptDelivery(const AMCFoodActor* Food) const;
+    virtual bool AcceptDelivery(AMCFoodActor* Food);
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
+protected:
+    bool ContainsDeliveryCap(FVector Position,bool& bOutHasCap) const;
+    bool DeliverySurfaceFloorZ(FVector Position,double& OutFloorZ) const;
 private:
+    bool CacheDeliveryZoneOutline() const;
+    mutable TWeakObjectPtr<class AMCTongue> DeliveryOutlineTongue;
+    mutable TWeakObjectPtr<UStaticMesh> DeliveryOutlineSource;
+    mutable FTransform DeliveryOutlineSurfaceTransform=FTransform::Identity;
+    mutable FTransform DeliveryOutlineZoneTransform=FTransform::Identity;
+    mutable FVector DeliveryOutlineExtent=FVector::ZeroVector;
+    mutable int32 DeliveryOutlineVertexCount=INDEX_NONE,DeliveryOutlineIndexCount=INDEX_NONE;
+    mutable bool bDeliveryOutlineBrush=false,bDeliveryOutlineCircular=false,bDeliveryOutlineCached=false;
+    mutable TArray<FVector> DeliveryOutlineOuter,DeliveryOutlineInner;
+    bool IsFoodInDeliveryZone(const AMCFoodActor* Food) const;
+    void ReturnFreshFood(AMCFoodActor* Food);
     bool bExitConfigured=false;
 };

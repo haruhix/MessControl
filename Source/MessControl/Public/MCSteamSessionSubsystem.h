@@ -22,14 +22,16 @@ public:
     const FString& GetStatus() const { return Status; }
     const TArray<FString>& GetRoomLabels() const { return RoomLabels; }
     int32 GetSearchRevision() const { return SearchRevision; }
-    void HostRoom();
+    void HostRoom(bool bWaitForLobby=false);
+    /** Close the online room (when present), then return this local player to the menu. */
+    void LeaveRoom();
     void FindRooms();
     void JoinRoom(int32 Index);
     void InviteFriends();
     void RefreshAvailability();
     static bool IsMessControlRoom(const FOnlineSessionSearchResult& Result);
 private:
-    enum class EOperation : uint8 { Idle, Creating, Finding, Joining, DestroyForHost, DestroyForJoin };
+    enum class EOperation : uint8 { Idle, Creating, Finding, Joining, DestroyForHost, DestroyForJoin, DestroyForMenu };
     IOnlineSessionPtr GetSessions();
     void SetStatus(const FString& Text, bool Failed=false);
     void CreateRoom();
@@ -39,6 +41,7 @@ private:
     void Found(bool Success);
     void Joined(FName Name, EOnJoinSessionCompleteResult::Type Result);
     void Destroyed(FName Name, bool Success);
+    void OpenMainMenu();
     void InviteAccepted(bool Success, int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& Result);
     void NetworkFailed(UWorld* World, class UNetDriver* Driver, ENetworkFailure::Type Type, const FString& Error);
     void TravelFailed(UWorld* World, ETravelFailure::Type Type, const FString& Error);
@@ -53,4 +56,6 @@ private:
     FString Status;
     int32 SearchRevision=0;
     bool bFailed=false;
+    bool bHostWaitsForLobby=false;
+    bool bReturnToMenuPending=false;
 };

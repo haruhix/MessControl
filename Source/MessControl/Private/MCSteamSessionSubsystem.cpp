@@ -104,10 +104,12 @@ bool UMCSteamSessionSubsystem::IsMessControlRoom(const FOnlineSessionSearchResul
     return Result.IsValid() && Result.Session.SessionSettings.Get(GameKey,Value) && Value==GameValue;
 }
 
-void UMCSteamSessionSubsystem::HostRoom()
+void UMCSteamSessionSubsystem::HostRoom(bool bWaitForLobby)
 {
     if (IsBusy()) return;
     if (!GetSessions()) { SetStatus(TEXT("Запусти Steam, войди в аккаунт и перезапусти игру."),true); return; }
+    bHostWaitsForLobby=bWaitForLobby;
+    bReturnToMenuPending=false;
     if (HasRoom()) DestroyFor(EOperation::DestroyForHost);
     else CreateRoom();
 }
@@ -139,10 +141,12 @@ void UMCSteamSessionSubsystem::Created(FName Name, bool Success)
     if (Name!=NAME_GameSession || Operation!=EOperation::Creating) return;
     Sessions->ClearOnCreateSessionCompleteDelegate_Handle(CreateHandle);
     Operation=EOperation::Idle;
+    if (bReturnToMenuPending) { LeaveRoom(); return; }
     if (!Success) { SetStatus(TEXT("Не удалось создать комнату. Проверь подключение Steam и попробуй снова."),true); return; }
     SetStatus(TEXT("Комната создана. Друг может найти её по твоему имени Steam или принять приглашение."));
     UE_LOG(LogTemp,Display,TEXT("MC_STEAM_ROOM_CREATED"));
-    UGameplayStatics::OpenLevel(GetGameInstance(),FName(TEXT("/Game/Maps/L_Mouth")),true,TEXT("listen"));
+    UGameplayStatics::OpenLevel(GetGameInstance(),FName(TEXT("/Game/Maps/L_Mouth")),true,
+        bHostWaitsForLobby?TEXT("listen?MCLobby=1"):TEXT("listen"));
 }
 
 void UMCSteamSessionSubsystem::FindRooms()
@@ -168,6 +172,7 @@ void UMCSteamSessionSubsystem::Found(bool Success)
     if (Operation!=EOperation::Finding) return;
     Sessions->ClearOnFindSessionsCompleteDelegate_Handle(FindHandle);
     Operation=EOperation::Idle;
+    if (bReturnToMenuPending) { LeaveRoom(); return; }
     if (Success && Search)
     {
         for (const auto& Result:Search->SearchResults)
@@ -214,6 +219,7 @@ void UMCSteamSessionSubsystem::Joined(FName Name, EOnJoinSessionCompleteResult::
     if (Name!=NAME_GameSession || Operation!=EOperation::Joining) return;
     Sessions->ClearOnJoinSessionCompleteDelegate_Handle(JoinHandle);
     Operation=EOperation::Idle;
+    if (bReturnToMenuPending) { LeaveRoom(); return; }
     FString Address;
     if (Result!=EOnJoinSessionCompleteResult::Success || !Sessions->GetResolvedConnectString(Name,Address))
     {
@@ -241,12 +247,35 @@ void UMCSteamSessionSubsystem::DestroyFor(EOperation Next)
 
 void UMCSteamSessionSubsystem::Destroyed(FName Name, bool Success)
 {
-    if (Name!=NAME_GameSession || (Operation!=EOperation::DestroyForHost && Operation!=EOperation::DestroyForJoin)) return;
+    if (Name!=NAME_GameSession || (Operation!=EOperation::DestroyForHost && Operation!=EOperation::DestroyForJoin
+        && Operation!=EOperation::DestroyForMenu)) return;
     Sessions->ClearOnDestroySessionCompleteDelegate_Handle(DestroyHandle);
     const EOperation Next=Operation; Operation=EOperation::Idle;
+    // Leaving remains possible after a failed online cleanup; a stale session is surfaced in the menu.
+    if (Next==EOperation::DestroyForMenu || bReturnToMenuPending)
+    {
+        SetStatus(Success?TEXT("Комната закрыта."):TEXT("Не удалось закрыть комнату Steam. Повтори выход из комнаты перед новым подключением."),!Success);
+        OpenMainMenu();
+        return;
+    }
     if (!Success) { SetStatus(TEXT("Не удалось выйти из комнаты. Перезапусти игру."),true); return; }
     if (Next==EOperation::DestroyForHost) CreateRoom();
     else BeginJoin(PendingJoin);
+}
+
+void UMCSteamSessionSubsystem::LeaveRoom()
+{
+    bReturnToMenuPending=true;
+    if (IsBusy()) { SetStatus(TEXT("Завершаем подключение и возвращаемся в меню…")); return; }
+    if (HasRoom()) DestroyFor(EOperation::DestroyForMenu);
+    else OpenMainMenu();
+}
+
+void UMCSteamSessionSubsystem::OpenMainMenu()
+{
+    bReturnToMenuPending=false;
+    Rooms.Empty(); RoomLabels.Empty(); Search.Reset(); ++SearchRevision;
+    UGameplayStatics::OpenLevel(GetGameInstance(),FName(TEXT("/Game/Maps/L_MainMenu")),true);
 }
 
 void UMCSteamSessionSubsystem::InviteAccepted(bool Success, int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& Result)
@@ -266,7 +295,7 @@ void UMCSteamSessionSubsystem::InviteFriends()
 void UMCSteamSessionSubsystem::NetworkFailed(UWorld* World, UNetDriver* Driver, ENetworkFailure::Type Type, const FString& Error)
 {
     if (!World || World->GetGameInstance()!=GetGameInstance() || !CanUseSteam()) return;
-    SetStatus(TEXT("Соединение потеряно. Хост мог выйти из игры. Открой F2, чтобы подключиться снова."),true);
+    SetStatus(TEXT("Соединение потеряно. Хост мог выйти из игры. Вернись в главное меню, чтобы подключиться снова."),true);
 }
 
 void UMCSteamSessionSubsystem::TravelFailed(UWorld* World, ETravelFailure::Type Type, const FString& Error)

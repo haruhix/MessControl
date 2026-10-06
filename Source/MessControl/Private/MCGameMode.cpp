@@ -31,6 +31,7 @@
 #include "MCTaskActor.h"
 #include "MCToothCharacter.h"
 #include "MCPlayerController.h"
+#include "MCTutorialDirector.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerState.h"
 #include "Kismet/GameplayStatics.h"
@@ -60,6 +61,8 @@ AMCGameMode::AMCGameMode()
 void AMCGameMode::BeginPlay()
 {
     Super::BeginPlay();
+    bTutorialRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCTutorial"));
+    bLobbyRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCLobby"));
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays"))) bUseDayOnePlan=false;
     EventPool.RemoveAll([](const TObjectPtr<UMCDayEvent>& Event) { return !IsValid(Event); });
     // Native fallbacks also make a blank test map playable before content generation.
@@ -114,17 +117,24 @@ void AMCGameMode::AwardTask(AMCToothCharacter* Worker, EMCScoreTask Kind)
 void AMCGameMode::AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Kind)
 {
     if (!HasAuthority() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()) return;
+    if (const auto* GS=GetGameState<AMCGameState>(); GS && (GS->bTutorialActive || GS->bLobbyWaiting)) return;
     Worker->AddPoints(ScoreRewards.ForTask(Kind));
 }
 void AMCGameMode::NotifyObjectiveCompleted(FName CompletionId)
 {
     if (!HasAuthority() || CompletionId.IsNone() || !IsValid(RoguelikeDirector)) return;
+    if (const auto* GS=GetGameState<AMCGameState>(); GS && (GS->bTutorialActive || GS->bLobbyWaiting)) return;
     RoguelikeDirector->NotifyTaskCompleted(CompletionId);
 }
 void AMCGameMode::RestartShift()
 {
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State) return;
+    if (IsValid(TutorialDirector)) { TutorialDirector->OnTutorialFinished.RemoveAll(this); TutorialDirector->Stop(); TutorialDirector->Destroy(); }
+    TutorialDirector=nullptr;
+    State->bTutorialActive=bTutorialRequested;
+    State->bLobbyWaiting=bLobbyRequested;
+    State->LobbyLoadedPlayers=0;
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { It->ResetPain(); It->ResetPressure(); It->ResetYawn(); }
     TArray<AActor*> OldDayActors;
@@ -198,6 +208,12 @@ void AMCGameMode::RestartShift()
         else It->ResetForRun();
     }
     State->PhaseEndsAt = State->GetServerWorldTimeSeconds() + 8.;
+    if (State->bTutorialActive)
+    {
+        State->Phase=EMCShiftPhase::Working;
+        State->PhaseEndsAt=0;
+        State->bPhysicalBrushes=false;
+    }
     State->StepStartedAt=State->GetServerWorldTimeSeconds(); State->PreviousStepFailed=false;
     State->ForceNetUpdate();
 }
@@ -205,6 +221,27 @@ void AMCGameMode::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     AMCGameState* State = GetGameState<AMCGameState>();
+    if (State && State->bLobbyWaiting)
+    {
+        int32 Loaded=0;
+        for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+            if (const auto* PC=Cast<AMCPlayerController>(It->Get()); PC && PC->HasAcknowledgedGameplay() && PC->GetPawn()) ++Loaded;
+        if (State->LobbyLoadedPlayers!=Loaded) { State->LobbyLoadedPlayers=Loaded; State->ForceNetUpdate(); }
+        return;
+    }
+    if (State && State->bTutorialActive)
+    {
+        if (!IsValid(TutorialDirector))
+        {
+            TutorialDirector=GetWorld()->SpawnActor<AMCTutorialDirector>();
+            if (TutorialDirector)
+            {
+                TutorialDirector->OnTutorialFinished.AddUObject(this,&AMCGameMode::FinishTutorial);
+                TutorialDirector->Start(FirstDayPlan.LoadSynchronous());
+            }
+        }
+        return;
+    }
     if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
     ProcessRespawns();
     if (State->bDayOneComplete) return;
@@ -217,6 +254,30 @@ void AMCGameMode::Tick(float DeltaSeconds)
     if (State->SecondsLeft() > 0.f) return;
     if (State->Phase == EMCShiftPhase::Intermission) StartDay();
     else if (State->Phase == EMCShiftPhase::Working) FinishDay(true);
+}
+void AMCGameMode::StartLobby(APlayerController* Requester)
+{
+    auto* State=GetGameState<AMCGameState>();
+    if (!State || !State->bLobbyWaiting || !Requester || !Requester->IsLocalController() || GetNetMode()==NM_DedicatedServer) return;
+    for (FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+    {
+        const auto* PC=Cast<AMCPlayerController>(It->Get());
+        if (!PC || !PC->HasAcknowledgedGameplay() || !PC->GetPawn()) return;
+    }
+    bLobbyRequested=false;
+    State->bLobbyWaiting=false;
+    State->PhaseEndsAt=State->GetServerWorldTimeSeconds();
+    State->ForceNetUpdate();
+    UE_LOG(LogTemp,Display,TEXT("MC_LOBBY_STARTED players=%d"),GetNumPlayers());
+}
+void AMCGameMode::FinishTutorial()
+{
+    if (!HasAuthority() || !IsValid(TutorialDirector)) return;
+    TutorialDirector->OnTutorialFinished.RemoveAll(this);
+    TutorialDirector->Stop();
+    bTutorialRequested=false;
+    RestartShift();
+    UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_FINISHED_NORMAL_LOOP"));
 }
 void AMCGameMode::StartDay()
 {

@@ -10,6 +10,9 @@ float AMCGameState::SecondsLeft() const { return FMath::Max(0., PhaseEndsAt - Ge
 void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(AMCGameState,bLobbyWaiting);
+    DOREPLIFETIME(AMCGameState,bTutorialActive);
+    DOREPLIFETIME(AMCGameState,LobbyLoadedPlayers);
     DOREPLIFETIME(AMCGameState, RunSettings);
     DOREPLIFETIME(AMCGameState,StepStartedAt); DOREPLIFETIME(AMCGameState,PreviousStepFailed);
     DOREPLIFETIME(AMCGameState, bDevManualEvents);
