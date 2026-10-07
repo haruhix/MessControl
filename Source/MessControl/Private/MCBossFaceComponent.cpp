@@ -8,7 +8,7 @@
 
 namespace
 {
-    enum EBossFaceChannel : int32 { EyesBlink, EyesSquint, BrowAngry, MouthPain, MouthRoar, MouthAngry, MouthSurprise };
+    enum EBossFaceChannel : int32 { EyesBlink, EyesSquint, BrowAngry, MouthPain, MouthRoar, MouthAngry, MouthSurprise, MouthExhale };
     float SafeFaceSetting(float Value, float Default, float Min, float Max)
     {
         return FMath::IsFinite(Value)?FMath::Clamp(Value,Min,Max):Default;
@@ -27,7 +27,7 @@ UMCBossFaceComponent::UMCBossFaceComponent()
     // Gameplay and timestamps already replicate on the owner. No cosmetic RPCs are needed.
     SetIsReplicatedByDefault(false);
     static const FName Names[]={TEXT("Eyes_Blink"),TEXT("Eyes_Squint"),TEXT("Brow_Angry"),TEXT("Mouth_Pain"),
-        TEXT("Mouth_Roar"),TEXT("Mouth_Angry"),TEXT("Mouth_Surprise")};
+        TEXT("Mouth_Roar"),TEXT("Mouth_Angry"),TEXT("Mouth_Surprise"),TEXT("Open_Mouth")};
     for (FName Name:Names)
     {
         FMorphChannel& Channel=Channels.AddDefaulted_GetRef();
@@ -105,7 +105,7 @@ void UMCBossFaceComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
     const bool bDead=State.State==EMCBossState::Dead || State.Health<=0.f || State.AnimationPreview==EMCBossAnimationPreview::Death;
     const bool bAttack=State.State==EMCBossState::Telegraph || State.State==EMCBossState::Attacking || State.State==EMCBossState::Recovering
         || State.AnimationPreview==EMCBossAnimationPreview::PunchLeft || State.AnimationPreview==EMCBossAnimationPreview::PunchRight
-        || State.AnimationPreview==EMCBossAnimationPreview::Kick;
+        || State.AnimationPreview==EMCBossAnimationPreview::Kick || State.AnimationPreview==EMCBossAnimationPreview::AreaAttack;
     const bool bCombat=State.State!=EMCBossState::Dormant && State.State!=EMCBossState::Dead;
     const float ReactionLength=SafeFaceSetting(HitReactionSeconds,.55f,.1f,2.f);
     Pain=bDead?0.f:ReactionEnvelope(Now-State.HurtStartedAt,ReactionLength);
@@ -155,6 +155,17 @@ void UMCBossFaceComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
     ApplyChannel(MouthRoar,MouthRoarWeight*(1.f-MouthPainWeight),Smoothing);
     ApplyChannel(MouthAngry,MouthAngryWeight,Smoothing);
     ApplyChannel(MouthSurprise,0.f,Smoothing);
+    float Exhale=0.f;
+    if(!bDead) if(const auto* Profile=Boss->GetResolvedProfile()) {
+        const FName Id=State.AnimationPreview==EMCBossAnimationPreview::AreaAttack?FName(TEXT("AreaAttack")):State.AttackId;
+        for(const auto& Attack:Profile->Attacks) if(Attack.AttackId==Id && Attack.bMouthClotAttack) {
+            const float Age=State.AnimationPreview==EMCBossAnimationPreview::AreaAttack?float(PreviewAge):float(Now-State.AttackStartedAt);
+            Exhale=FMath::SmoothStep(Attack.WindupSeconds-.22f,Attack.WindupSeconds+.06f,Age)
+                *(1.f-FMath::SmoothStep(Attack.WindupSeconds+Attack.ActiveSeconds-.12f,Attack.WindupSeconds+Attack.ActiveSeconds+.25f,Age));
+            break;
+        }
+    }
+    ApplyChannel(MouthExhale,Exhale,Smoothing);
 }
 
 void UMCBossFaceComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)

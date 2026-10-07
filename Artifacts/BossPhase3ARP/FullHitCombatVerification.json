@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "initial_hero_health": 100.0,
+  "initial_boss_health": 600.0,
+  "movement_cm": 184.96578896279917,
+  "saw_walk": true,
+  "saw_new_hit": true,
+  "saw_telegraph": true,
+  "received_damage": true,
+  "attack_starts": [
+    {
+      "serial": 1,
+      "time": 54.14898310601711
+    },
+    {
+      "serial": 2,
+      "time": 55.74253760650754
+    }
+  ],
+  "inside_reach_at": 54.054427806288004,
+  "min_attack_weight": 1.0,
+  "max_animation_time_error": 1.7881393432617188e-07,
+  "first_attack_max_position": 1.5666667222976685,
+  "hero_health": 52.0,
+  "attack_id": "PunchRight",
+  "target_is_hero": true,
+  "attack_start_delay_seconds": 0.09455529972910881,
+  "first_damage_age": 0.2032731994986534,
+  "attack_serial": 2,
+  "attack_interval_seconds": 1.593554500490427,
+  "detail": "The entire attack plays at full weight; 0.2s damage and fast repeats are preserved."
+}

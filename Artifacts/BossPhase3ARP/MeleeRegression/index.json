@@ -1,0 +1,44 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "297958314646D2577F1BEFBE4D51E855",
+			"instanceName": "VB-34696",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.06-19.08.28",
+	"succeeded": 1,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.080294802784919739,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "MeleeCapsuleContact",
+			"fullTestPath": "MessControl.Boss.MeleeCapsuleContact",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"297958314646D2577F1BEFBE4D51E855"
+			],
+			"duration": 0.080294802784919739,
+			"dateTime": "2026.10.06-19.08.28",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

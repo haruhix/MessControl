@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "attack_id": "AreaAttack",
+  "seconds": 6.633333206176758,
+  "start_delay": 0.5,
+  "waiting_samples": 11,
+  "min_attack_weight": 1.0,
+  "max_position": 6.633333206176758,
+  "damage_age": 1.6830147914588451,
+  "max_timing_error": 2.384185791015625e-07,
+  "final_health": 76.0,
+  "error": null
+}

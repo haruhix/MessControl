@@ -1,0 +1,108 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "37116127425A379034A8CDAE531B9A00",
+			"instanceName": "VB-31256",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.07-08.22.40",
+	"succeeded": 1,
+	"succeededWithWarnings": 1,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.13467420637607574,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "MeleeCapsuleContact",
+			"fullTestPath": "MessControl.Boss.MeleeCapsuleContact",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"37116127425A379034A8CDAE531B9A00"
+			],
+			"duration": 0.11659850180149078,
+			"dateTime": "2026.10.07-08.22.40",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MouthSalvo",
+			"fullTestPath": "MessControl.Boss.MouthSalvo",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"37116127425A379034A8CDAE531B9A00"
+			],
+			"duration": 0.018075700849294662,
+			"dateTime": "2026.10.07-08.22.40",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogSkinnedMeshComp: GetSocketInfoByName(c_jawbone_x): No SkeletalMesh for Component(CharacterMesh0) Actor(MCBossCharacter /Temp/Untitled_2.Untitled:PersistentLevel.MCBossCharacter_0)",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.07-08.22.40"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogSkinnedMeshComp: GetSocketInfoByName(c_jawbone_x): No SkeletalMesh for Component(CharacterMesh0) Actor(MCBossCharacter /Temp/Untitled_2.Untitled:PersistentLevel.MCBossCharacter_0)",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.07-08.22.40"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogSkinnedMeshComp: GetSocketInfoByName(c_jawbone_x): No SkeletalMesh for Component(CharacterMesh0) Actor(MCBossCharacter /Temp/Untitled_2.Untitled:PersistentLevel.MCBossCharacter_0)",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.07-08.22.40"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogSkinnedMeshComp: GetSocketInfoByName(c_jawbone_x): No SkeletalMesh for Component(CharacterMesh0) Actor(MCBossCharacter /Temp/Untitled_2.Untitled:PersistentLevel.MCBossCharacter_0)",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.07-08.22.40"
+				}
+			],
+			"warnings": 4,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

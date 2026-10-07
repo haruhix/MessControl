@@ -1,0 +1,55 @@
+{
+  "blueprint": "/Game/Gameplay/Boss/Phase3/BP_BossPhase3.BP_BossPhase3",
+  "profile": "/Game/Gameplay/Boss/Phase3/DA_BossPhase3.DA_BossPhase3",
+  "mesh": "/Game/Gameplay/Boss/Phase3/Rig/SK_BossPhase3_ARP.SK_BossPhase3_ARP",
+  "skeleton": "/Game/Gameplay/Boss/Phase3/Rig/SK_BossPhase3_ARP_Skeleton.SK_BossPhase3_ARP_Skeleton",
+  "scale": 0.48024988157371307,
+  "height_cm": 300.0,
+  "clips": [
+    "AN_BossPhase3_ARP_Walk",
+    "AN_BossPhase3_ARP_Hit",
+    "AN_BossPhase3_ARP_Idle"
+  ],
+  "attacks": [
+    {
+      "id": "PunchRight",
+      "windup": 0.20000000298023224,
+      "recovery": 1.2666667699813843,
+      "start_delay": 0.5
+    }
+  ],
+  "deleted_old_animations": [
+    "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_Death",
+    "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_Hurt",
+    "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_Idle",
+    "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_Kick",
+    "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_PunchLeft",
+    "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_PunchRight",
+    "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_Roar",
+    "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_Walk"
+  ],
+  "backup": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\BossPhase3ARP\\Before",
+  "backup_files": [
+    {
+      "file": "Gameplay\\Boss\\Phase3\\BP_BossPhase3.uasset",
+      "sha256": "f1448c7f7499704e6adc678b03c4f7168374ad10e02588bbd84010116055327b"
+    },
+    {
+      "file": "Gameplay\\Boss\\Phase3\\DA_BossPhase3.uasset",
+      "sha256": "cd95737ee391833d77bc7c72813f0d28c0b4e473185c4ec29d0dbbff6f7b6bab"
+    },
+    {
+      "file": "Gameplay\\Boss\\Phase3\\SK_BossPhase3.uasset",
+      "sha256": "63efb14369a833dbe4c99eef19c9f00fafb9aff14a0ad1cb35a4a11595bfbf3b"
+    },
+    {
+      "file": "Gameplay\\Boss\\Phase3\\SK_BossPhase3_Skeleton.uasset",
+      "sha256": "0bedd16619c0430ea9b4fa9a64331699bbb065a25b2e7b061a8c298005c466a6"
+    }
+  ],
+  "future_import": "Reuse this exact skeleton; append clips.json entries and run exporter/importer/connect.",
+  "animation_blend_seconds": 0.3,
+  "attack_playback": "Full weight from the first frame; blend out only after the clip completes.",
+  "body_hitbox_scale": 1.25,
+  "ground_offset": -109.83296797265623
+}

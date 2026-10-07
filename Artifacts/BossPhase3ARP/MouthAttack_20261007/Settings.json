@@ -1,0 +1,11 @@
+{
+  "clots": 28,
+  "emission_seconds": 2.2,
+  "clot_damage": 4,
+  "max_direct_damage_per_player": 24,
+  "max_active_boss_ulcers": 2,
+  "range_cm": 850,
+  "wind_max_drift_cm_s": 55,
+  "mixing_seconds": 0.30000001192092896,
+  "start_delay_seconds": 0.5
+}

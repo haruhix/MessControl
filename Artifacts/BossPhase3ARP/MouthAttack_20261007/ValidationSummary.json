@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "editor_build": "Development Editor succeeded",
+  "automation": [
+    "MeleeCapsuleContact",
+    "MouthSalvo"
+  ],
+  "solo_runtime_passed": true,
+  "two_player_network_passed": true,
+  "settings": {
+    "clots": 28,
+    "emission_seconds": 2.2,
+    "clot_damage": 4,
+    "max_direct_damage_per_player": 24,
+    "max_active_boss_ulcers": 2,
+    "range_cm": 850,
+    "wind_max_drift_cm_s": 55,
+    "mixing_seconds": 0.30000001192092896,
+    "start_delay_seconds": 0.5
+  },
+  "sha256": {
+    "Source/MessControl/Private/MCBossClot.cpp": "826ca2e7966bc85cddbdb195ba89931bb92363b438019e5b98b734299a799a52",
+    "Source/MessControl/Private/MCBossMouthAttackComponent.cpp": "7526e5262dc70106ba4e9bb33e29e9c01079a4bff1452ff40abae7157dde290f",
+    "Source/MessControl/Private/MCBossFaceComponent.cpp": "8dd912930a3ad0f13ff47f1c00a28746a323ae711a500b051021ee72674e4dde",
+    "Content/Gameplay/Boss/Phase3/DA_BossPhase3.uasset": "ed0eff4bd0de448de442f0d6a5b45e0e316bb36eaaea064ab7b5e7159fa05cd0",
+    "Content/Gameplay/Boss/Phase3/VFX/M_BossClot.uasset": "d60054e954590d08096941387336ce4e279b273312696aa5cc9a96f729ebd024"
+  }
+}

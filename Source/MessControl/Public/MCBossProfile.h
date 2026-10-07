@@ -12,7 +12,7 @@ class UAnimSequence;
 UENUM(BlueprintType)
 enum class EMCBossAnimationPreview : uint8
 {
-    None, Idle, Walk, PunchLeft, PunchRight, Kick, Hurt, Death, Roar
+    None, Idle, Walk, PunchLeft, PunchRight, Kick, Hurt, Death, Roar, AreaAttack
 };
 
 UENUM(BlueprintType)
@@ -33,6 +33,14 @@ struct FMCBossAttackDefinition
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack", meta=(ClampMin="1")) float Range=250.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack", meta=(ClampMin="1")) float VerticalReach=160.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Attack", meta=(ClampMin="1",ClampMax="180")) float HalfAngleDegrees=60.f;
+    /** Projectile saliva replaces the immediate melee/radial hit for this slot. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mouth attack") bool bMouthClotAttack=false;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mouth attack", meta=(ClampMin="1",ClampMax="64")) int32 ClotCount=28;
+    /** Per-clot damage; Damage above caps the total direct damage to each player per salvo. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mouth attack", meta=(ClampMin="0")) float ClotDamage=4.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Mouth attack", meta=(ClampMin="0")) float WindPushAcceleration=260.f;
+    /** Idle pause before the strike clip begins; WindupSeconds remains the clip's authored impact time. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0",Units="s")) float StartDelaySeconds=0.f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0.05")) float WindupSeconds=.8f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0.05")) float ActiveSeconds=.15f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timing", meta=(ClampMin="0.05")) float RecoverySeconds=.7f;
@@ -70,6 +78,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat") TArray<FMCBossPhaseDefinition> Phases;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<USkeletalMesh> SkeletalMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftClassPtr<UAnimInstance> AnimationClass;
+    /** Full-body crossfade duration for native playback. Zero retains immediate sequence switches. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation", meta=(ClampMin="0",Units="s")) float AnimationBlendSeconds=0.f;
     /** Native sequence playback is used when AnimationClass is empty. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> IdleAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> WalkAnimation;
@@ -78,4 +88,6 @@ public:
     /** Five-second in-place scream used by the encounter intro and the explicit F3 preview. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") TSoftObjectPtr<UAnimSequence> RoarAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Presentation") FTransform MeshTransform=FTransform::Identity;
+    /** Scale the torso hit volume about its lower tip, retaining the Blueprint's authored shape. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Collision", meta=(ClampMin="0.1")) float BodyHitboxScale=1.f;
 };

@@ -1,0 +1,445 @@
+{
+  "source_rig_signature": "26c8fe48e096da98df2d8100aae604312524bae10f6e639a5ea64f25d5be49b4",
+  "settings": {
+    "arp_export_rig_type": "UNIVERSAL",
+    "arp_engine_type": "UNREAL",
+    "arp_rename_for_ue": true,
+    "arp_export_twist": true,
+    "arp_full_facial": true,
+    "arp_ue_root_motion": false,
+    "arp_export_rig_name": "root",
+    "arp_units_x100": true,
+    "arp_global_scale": 1.0,
+    "arp_ge_sel_only": true,
+    "arp_export_tex": false,
+    "arp_ge_add_dummy_mesh": false,
+    "arp_ge_force_rest_pose_export": true,
+    "arp_bake_type": "ACTIONS",
+    "arp_bake_only_active": true,
+    "arp_bake_only_active_slot": true,
+    "arp_export_use_actlist": false,
+    "arp_export_separate_fbx": false,
+    "arp_simplify_fac": 0.0,
+    "arp_ge_bake_sample": 1.0,
+    "arp_export_triangulate": true
+  },
+  "hierarchy": [
+    {
+      "name": "root",
+      "parent": "None"
+    },
+    {
+      "name": "c_eye_target_x",
+      "parent": "root"
+    },
+    {
+      "name": "c_eye_target_l",
+      "parent": "c_eye_target_x"
+    },
+    {
+      "name": "c_eye_target_r",
+      "parent": "c_eye_target_x"
+    },
+    {
+      "name": "root_x",
+      "parent": "root"
+    },
+    {
+      "name": "neck_x",
+      "parent": "root_x"
+    },
+    {
+      "name": "head_x",
+      "parent": "neck_x"
+    },
+    {
+      "name": "c_eye_offset_l",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_eye_l",
+      "parent": "c_eye_offset_l"
+    },
+    {
+      "name": "c_eyelid_bot_l",
+      "parent": "c_eye_offset_l"
+    },
+    {
+      "name": "c_eyelid_bot_01_l",
+      "parent": "c_eyelid_bot_l"
+    },
+    {
+      "name": "c_eyelid_bot_02_l",
+      "parent": "c_eyelid_bot_l"
+    },
+    {
+      "name": "c_eyelid_bot_03_l",
+      "parent": "c_eyelid_bot_l"
+    },
+    {
+      "name": "c_eyelid_corner_01_l",
+      "parent": "c_eye_offset_l"
+    },
+    {
+      "name": "c_eyelid_corner_02_l",
+      "parent": "c_eye_offset_l"
+    },
+    {
+      "name": "c_eyelid_top_l",
+      "parent": "c_eye_offset_l"
+    },
+    {
+      "name": "c_eyelid_top_01_l",
+      "parent": "c_eyelid_top_l"
+    },
+    {
+      "name": "c_eyelid_top_02_l",
+      "parent": "c_eyelid_top_l"
+    },
+    {
+      "name": "c_eyelid_top_03_l",
+      "parent": "c_eyelid_top_l"
+    },
+    {
+      "name": "c_eye_offset_r",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_eye_r",
+      "parent": "c_eye_offset_r"
+    },
+    {
+      "name": "c_eyelid_bot_r",
+      "parent": "c_eye_offset_r"
+    },
+    {
+      "name": "c_eyelid_bot_01_r",
+      "parent": "c_eyelid_bot_r"
+    },
+    {
+      "name": "c_eyelid_bot_02_r",
+      "parent": "c_eyelid_bot_r"
+    },
+    {
+      "name": "c_eyelid_bot_03_r",
+      "parent": "c_eyelid_bot_r"
+    },
+    {
+      "name": "c_eyelid_corner_01_r",
+      "parent": "c_eye_offset_r"
+    },
+    {
+      "name": "c_eyelid_corner_02_r",
+      "parent": "c_eye_offset_r"
+    },
+    {
+      "name": "c_eyelid_top_r",
+      "parent": "c_eye_offset_r"
+    },
+    {
+      "name": "c_eyelid_top_01_r",
+      "parent": "c_eyelid_top_r"
+    },
+    {
+      "name": "c_eyelid_top_02_r",
+      "parent": "c_eyelid_top_r"
+    },
+    {
+      "name": "c_eyelid_top_03_r",
+      "parent": "c_eyelid_top_r"
+    },
+    {
+      "name": "c_eyebrow_full_l",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_eyebrow_01_l",
+      "parent": "c_eyebrow_full_l"
+    },
+    {
+      "name": "c_eyebrow_01_end_l",
+      "parent": "c_eyebrow_full_l"
+    },
+    {
+      "name": "c_eyebrow_02_l",
+      "parent": "c_eyebrow_full_l"
+    },
+    {
+      "name": "c_eyebrow_03_l",
+      "parent": "c_eyebrow_full_l"
+    },
+    {
+      "name": "c_eyebrow_full_r",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_eyebrow_01_r",
+      "parent": "c_eyebrow_full_r"
+    },
+    {
+      "name": "c_eyebrow_01_end_r",
+      "parent": "c_eyebrow_full_r"
+    },
+    {
+      "name": "c_eyebrow_02_r",
+      "parent": "c_eyebrow_full_r"
+    },
+    {
+      "name": "c_eyebrow_03_r",
+      "parent": "c_eyebrow_full_r"
+    },
+    {
+      "name": "c_jawbone_x",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_chin_01_x",
+      "parent": "c_jawbone_x"
+    },
+    {
+      "name": "c_chin_02_x",
+      "parent": "c_jawbone_x"
+    },
+    {
+      "name": "c_lips_bot_l",
+      "parent": "c_jawbone_x"
+    },
+    {
+      "name": "c_lips_bot_r",
+      "parent": "c_jawbone_x"
+    },
+    {
+      "name": "c_lips_bot_x",
+      "parent": "c_jawbone_x"
+    },
+    {
+      "name": "c_lips_bot_01_l",
+      "parent": "c_jawbone_x"
+    },
+    {
+      "name": "c_lips_bot_01_r",
+      "parent": "c_jawbone_x"
+    },
+    {
+      "name": "c_lips_smile_l",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_lips_corner_mini_l",
+      "parent": "c_lips_smile_l"
+    },
+    {
+      "name": "c_lips_smile_r",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_lips_corner_mini_r",
+      "parent": "c_lips_smile_r"
+    },
+    {
+      "name": "c_lips_top_l",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_lips_top_r",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_lips_top_x",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_lips_top_01_l",
+      "parent": "head_x"
+    },
+    {
+      "name": "c_lips_top_01_r",
+      "parent": "head_x"
+    },
+    {
+      "name": "shoulder_l",
+      "parent": "root_x"
+    },
+    {
+      "name": "arm_stretch_l",
+      "parent": "shoulder_l"
+    },
+    {
+      "name": "arm_twist_l",
+      "parent": "arm_stretch_l"
+    },
+    {
+      "name": "forearm_stretch_l",
+      "parent": "arm_stretch_l"
+    },
+    {
+      "name": "forearm_twist_l",
+      "parent": "forearm_stretch_l"
+    },
+    {
+      "name": "hand_l",
+      "parent": "forearm_stretch_l"
+    },
+    {
+      "name": "pinky1_base_l",
+      "parent": "hand_l"
+    },
+    {
+      "name": "pinky1_l",
+      "parent": "pinky1_base_l"
+    },
+    {
+      "name": "pinky2_l",
+      "parent": "pinky1_l"
+    },
+    {
+      "name": "pinky3_l",
+      "parent": "pinky2_l"
+    },
+    {
+      "name": "ring1_base_l",
+      "parent": "hand_l"
+    },
+    {
+      "name": "ring1_l",
+      "parent": "ring1_base_l"
+    },
+    {
+      "name": "ring2_l",
+      "parent": "ring1_l"
+    },
+    {
+      "name": "ring3_l",
+      "parent": "ring2_l"
+    },
+    {
+      "name": "thumb1_l",
+      "parent": "hand_l"
+    },
+    {
+      "name": "thumb2_l",
+      "parent": "thumb1_l"
+    },
+    {
+      "name": "thumb3_l",
+      "parent": "thumb2_l"
+    },
+    {
+      "name": "shoulder_r",
+      "parent": "root_x"
+    },
+    {
+      "name": "arm_stretch_r",
+      "parent": "shoulder_r"
+    },
+    {
+      "name": "arm_twist_r",
+      "parent": "arm_stretch_r"
+    },
+    {
+      "name": "forearm_stretch_r",
+      "parent": "arm_stretch_r"
+    },
+    {
+      "name": "forearm_twist_r",
+      "parent": "forearm_stretch_r"
+    },
+    {
+      "name": "hand_r",
+      "parent": "forearm_stretch_r"
+    },
+    {
+      "name": "pinky1_base_r",
+      "parent": "hand_r"
+    },
+    {
+      "name": "pinky1_r",
+      "parent": "pinky1_base_r"
+    },
+    {
+      "name": "pinky2_r",
+      "parent": "pinky1_r"
+    },
+    {
+      "name": "pinky3_r",
+      "parent": "pinky2_r"
+    },
+    {
+      "name": "ring1_base_r",
+      "parent": "hand_r"
+    },
+    {
+      "name": "ring1_r",
+      "parent": "ring1_base_r"
+    },
+    {
+      "name": "ring2_r",
+      "parent": "ring1_r"
+    },
+    {
+      "name": "ring3_r",
+      "parent": "ring2_r"
+    },
+    {
+      "name": "thumb1_r",
+      "parent": "hand_r"
+    },
+    {
+      "name": "thumb2_r",
+      "parent": "thumb1_r"
+    },
+    {
+      "name": "thumb3_r",
+      "parent": "thumb2_r"
+    },
+    {
+      "name": "thigh_stretch_l",
+      "parent": "root_x"
+    },
+    {
+      "name": "leg_stretch_l",
+      "parent": "thigh_stretch_l"
+    },
+    {
+      "name": "foot_l",
+      "parent": "leg_stretch_l"
+    },
+    {
+      "name": "toes_01_l",
+      "parent": "foot_l"
+    },
+    {
+      "name": "leg_twist_l",
+      "parent": "leg_stretch_l"
+    },
+    {
+      "name": "thigh_twist_l",
+      "parent": "thigh_stretch_l"
+    },
+    {
+      "name": "thigh_stretch_r",
+      "parent": "root_x"
+    },
+    {
+      "name": "leg_stretch_r",
+      "parent": "thigh_stretch_r"
+    },
+    {
+      "name": "foot_r",
+      "parent": "leg_stretch_r"
+    },
+    {
+      "name": "toes_01_r",
+      "parent": "foot_r"
+    },
+    {
+      "name": "leg_twist_r",
+      "parent": "leg_stretch_r"
+    },
+    {
+      "name": "thigh_twist_r",
+      "parent": "thigh_stretch_r"
+    }
+  ],
+  "skeleton": "/Game/Gameplay/Boss/Phase3/Rig/SK_BossPhase3_ARP_Skeleton.SK_BossPhase3_ARP_Skeleton"
+}

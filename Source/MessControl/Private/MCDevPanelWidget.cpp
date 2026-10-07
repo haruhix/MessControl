@@ -163,7 +163,7 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Босс — убрать тестового Zombie"),TEXT("Удаляет только объект, созданный кнопками F3."),EMCDevAction::BossRemove);
     AddText(Actions,TEXT("Босс · фаза 3"),19)->SetColorAndOpacity(FSlateColor(DevMint));
     AddAction(Actions,TEXT("Фаза 3 — создать для просмотра"),TEXT("Спавн рядом на свободном Boss NavMesh. Начинает с idle; AI и урон выключены."),EMCDevAction::BossPhase3Spawn);
-    const TCHAR* Phase3BossClips[]={TEXT("Idle / дыхание"),TEXT("Ходьба"),TEXT("Удар левой рукой"),TEXT("Удар правой рукой"),TEXT("Пинок"),TEXT("Получение урона"),TEXT("Падение / смерть"),TEXT("Рёв")};
+    const TCHAR* Phase3BossClips[]={TEXT("Idle / дыхание"),TEXT("Ходьба"),TEXT("Удар левой рукой"),TEXT("Удар правой рукой"),TEXT("Пинок"),TEXT("Получение урона"),TEXT("Падение / смерть"),TEXT("Рёв"),TEXT("Атака по области")};
     for (int32 I=0;I<UE_ARRAY_COUNT(Phase3BossClips);++I)
         AddAction(Actions,FString(TEXT("Фаза 3 — анимация: "))+Phase3BossClips[I],TEXT("Изолированный просмотр анимации фазы 3. AI и урон выключены; повторное нажатие начинает заново."),EMCDevAction::BossPhase3Animation,I+1);
     AddAction(Actions,TEXT("Фаза 3 — восстановить и включить AI"),TEXT("Восстановить здоровье и запустить AI и бой. Создаёт тестового босса фазы 3, если его нет."),EMCDevAction::BossPhase3Activate);

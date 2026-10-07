@@ -30,6 +30,33 @@ The combined chest/HUD solo Editor-runtime pass succeeded: no normal-map boss, e
 
 ## Third boss phase
 
+2026-10-07: phase 3 now uses the corrected Auto-Rig Pro mesh and its stable
+104-bone skeleton from `carries_weights_fixed.blend`. `walk` and
+`hit_atack_01` replace the previous clips; all eight old animation packages
+were removed. A neutral source pose supplies idle. See [BossPhase3ARP.md](BossPhase3ARP.md)
+for current assets, F3 controls and the repeatable animation-only import path.
+Melee eligibility now tests the player's capsule against reach/height/cone;
+direct torso contact has no angular blind spot, including coincident XY with
+different heights. Visibility still rejects occluded targets. The phase-3 hit
+starts at source frame 37, impacts 0.2 s into its clip, and has no extra cooldown.
+The phase-3 mesh is now 300 cm tall (+25%) with a matching 1.25 torso hitbox
+scale. `StartDelaySeconds=0.50` holds idle before each combat strike; replicated
+`AttackStartedAt` marks the future clip start. Total time to damage is 0.70 s,
+while the complete 1.567 s clip retains its authored speed. Isolated F3 clip
+previews continue to play immediately.
+Its profile sets `AnimationBlendSeconds=0.30`: native `UMCBossAnimInstance`
+crossfades timestamped full-body sequences. Attacks enter at full weight and
+finish their entire clip before blending out to locomotion; death can cancel
+the presentation lock. Repeated attacks also start without an incoming blend,
+and server damage timing is unchanged. Profiles
+with zero blend duration retain the original single-node presentation.
+The latest source update reimports Walk/Hit and replaces the static idle with
+the artist's five-second `idle`. `atack_aoe` supplies a 6.633-second `AreaAttack`
+slot with 180-degree half-angle (full circle), radius 280 cm and one impact
+1.667 seconds into the clip. Its F3 preview is animation index 9. Both attacks
+retain the 0.50-second pre-clip pause and full-weight playback to the final frame.
+The following describes the superseded 2026-10-06 rig and its historical review.
+
 Colleague commit `bfe90a7` supplies `/Game/FromBlender6/SK_Boss_stady3`, its one-root-bone skeleton and Guardian material. The existing Zombie remains phase 1; phase 2 is not connected. The third variant is `/Game/Gameplay/Boss/Phase3/BP_BossPhase3` with its own `DA_BossPhase3`, `SK_BossPhase3`, 22-bone skeleton and eight sequences. The derived mesh preserves the original topology/UVs, gains separate limb/face weights, and is uniformly normalized to 240 cm tall. Original colleague mesh/skeleton packages are retained. Its source actor remains an editor reference in L_Mouth, hidden and collision-free in gameplay.
 
 F3 → **Босс · фаза 3** provides dormant spawn, eight isolated animation buttons, explicit AI activation, reset/stop and removal. Phase 1 and phase 3 can coexist; variant-specific actions select only their own tagged actor. Both retain `MC_DevBoss` for normal run cleanup. No encounter transition or automatic phase-3 spawn is installed. Health-threshold `Runtime.Phase` remains an internal profile mechanic, distinct from the model's third-phase designation.
@@ -52,3 +79,5 @@ The legacy FBX animation importer strips Blender's Armature ancestor scale from 
 `Tools/CaptureBossPhase3.ps1` runs the opt-in `-MCRoguelikePreview -MCBossPhase3Review` in Unreal, exercises the same owning-controller F3 actions, verifies independent phase-1 assets/state, all eight skeleton-compatible moving poses, playback timestamps, full-body camera and separate activation/stop/removal. It records real offscreen game frames and encodes the animation reel to `Artifacts/Approval/BossPhase3.mp4`; validation is written alongside it. This is a solo presentation/integration check, not a multiplayer latency test.
 
 2026-10-06: Development Editor build and the complete solo review passed. Eight clips moved their evaluated bones and retained zero measured playback timing error; phase-1 defaults/state and observer health stayed unchanged. The reel contains 520 rendered frames over about 25 seconds. Saved-default inspection also confirmed both relocated reward meshes resolve through the package redirects.
+
+2026-10-07: Phase 3's `AreaAttack` now uses `bMouthClotAttack`. `UMCBossMouthAttackComponent` owns a 28-projectile, 2.2-second exhalation from the animated jaw; `AMCBossClot` uses substepped authoritative sphere sweeps and replicated ballistic launch timestamps. Each contact deals 4 damage with a 24-damage budget per living player per salvo. Actual tongue landings use `SpawnDamageUlcer`, capped globally at two active boss-clot ulcers, including repeat salvos. Other ulcer sources keep their own rules. The outward wind is cosmetic plus a small additive locomotion source, predicted for autonomous players from the replicated attack clock. It retains input, respects walls/capture/movement eligibility, and has no lift. Deactivation/death cancels flight and wind; encounter reset/removal also clears owned ulcers. The .50-second pre-clip pause, full attack playback and .30-second blend after completion remain. `PunchRight` has selection weight 4 and no extra cooldown; `AreaAttack` has weight 1 and a 12-second cooldown after full completion (minimum 19.13 seconds between starts). The boss therefore pursues melee range while its long-range salvo recharges. Both weights and cooldowns are retained in the animation manifest for future imports.

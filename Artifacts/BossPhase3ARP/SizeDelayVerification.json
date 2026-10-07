@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "height_cm": 300.0,
+  "body_radius": 125.0,
+  "body_half_height": 150.0,
+  "contact_distance_cm": 157.0,
+  "blend_seconds": 0.30000001192092896,
+  "attack_length": 1.5666667222976685,
+  "attacks": [
+    {
+      "serial": 1,
+      "selected_at": 1.219612792134285,
+      "clip_start_at": 1.719612792134285,
+      "max_position": 1.5645235776901245,
+      "animation_observed_at": 1.7207272909581661,
+      "damage_observed_at": 1.9212414920330048,
+      "damage_age_from_selection": 0.7016286998987198,
+      "damage_age_from_clip": 0.2016286998987198
+    },
+    {
+      "serial": 2,
+      "selected_at": 3.3886965923011303,
+      "clip_start_at": 3.8886965923011303,
+      "max_position": 0.2017596811056137,
+      "animation_observed_at": 3.891784392297268,
+      "damage_observed_at": 4.0904562920331955,
+      "damage_age_from_selection": 0.7017596997320652,
+      "damage_age_from_clip": 0.2017596997320652
+    }
+  ],
+  "waiting_samples": 114,
+  "min_attack_weight": 1.0,
+  "max_animation_time_error": 1.7136335372924805e-07,
+  "attack_interval_seconds": 2.1690838001668453,
+  "final_health": 52.0,
+  "error": null
+}

@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "blend_seconds": 0.30000001192092896,
+  "hit_length": 1.5666667222976685,
+  "samples": 247,
+  "hit_samples": 177,
+  "min_hit_weight": 1.0,
+  "max_pose_rotation_error": 1.7075472925031877e-06,
+  "max_pose_translation_error": 5.46013615121417e-06,
+  "partial_exit_samples": 33,
+  "max_hit_position": 1.5621974468231201,
+  "early_request_held": true,
+  "requested_exit_age": 0.20548810064792633,
+  "actual_exit_age": 1.5722614005208015,
+  "exit_blend_duration": 0.3002244010567665,
+  "partial_locomotion_samples": 33,
+  "error": null
+}

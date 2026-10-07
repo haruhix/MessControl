@@ -1,0 +1,95 @@
+{
+  "source": "C:\\Users\\vasil\\Desktop\\Animation\\arp_weights\\carries_weights_fixed.blend",
+  "sha256": "cc0f392a45b48bbc90d9eb4b0ab1fe0d84cde9abecef25a4a025978f7100cc9e",
+  "working_source": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\BossPhase3ARP\\BossPhase3ARP_Source_20261007.blend",
+  "backups": [
+    {
+      "file": "ArtSource\\BossPhase3ARP\\AN_BossPhase3_ARP_Hit.fbx",
+      "sha256": "5b83337ae2bc091dc062be02231a0ea6d1812803c5c3401a56be6af78ad3bcad"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\AN_BossPhase3_ARP_Idle.fbx",
+      "sha256": "40282230d4c0726b2399d29fe02329150f38a175970c596774e0795df7f0407b"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\AN_BossPhase3_ARP_Walk.fbx",
+      "sha256": "e21bed8627f9d11e8aa54484b650846a25b14114a36b3d8a6d62949f2e38c087"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\BossPhase3ARP_Export.blend",
+      "sha256": "89e1ff4419bcea8a1111ed835ab480ba5880bc85bc70c32fec362e85a9179bb3"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\BossPhase3ARP_Export.blend1",
+      "sha256": "e318cf63f1dc7f5bd5129e37e9bde848bc34a3d378d339c5c7d73b9be670c5bf"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\BossPhase3ARP_Source.blend",
+      "sha256": "e95435c37682ef408cef62383e4a55ab061dbca11d4174ce47cac5174e85cb35"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\clips.json",
+      "sha256": "edbb49952ed9693b6643c40cc907bd30013bd6006fbe47431eab5254af9477de"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\Export.log",
+      "sha256": "7a04807beb65a383e74f6d4cec96b8e8b826aa7a6db23c61e2255a991b62c7c9"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\ExportReport.json",
+      "sha256": "9dd9f286f7c72a5cd67055080f38e0f1f84e734b52f03a65f873d4ae0b0bfab0"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\ImportReport.json",
+      "sha256": "42ee60c53da7ba0a3d2fd1fc6a5ceb3618bf4c94b56d7539e54c9b285a35cb8a"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\IntegrationReport.json",
+      "sha256": "582c11e6204f751a98ffc55a4185d3f9bff35638ced45c767ae46cff71ef1200"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\RigContract.json",
+      "sha256": "a06e5279e671370168edf4f84a8cdb40b6c7ea2d42c76a6bcde7a8b448ac8ab6"
+    },
+    {
+      "file": "ArtSource\\BossPhase3ARP\\SK_BossPhase3_ARP.fbx",
+      "sha256": "369004ebda51360a5b36c5750648132f7253de344fa78d57f1b39362f7b07d1a"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\BP_BossPhase3.uasset",
+      "sha256": "e8c6eee87b524d515a0f532b6baf959454ec846c9ca68e0805959214ed3d4566"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\DA_BossPhase3.uasset",
+      "sha256": "a97ee6c48b7e33180aa2fe520aebf9f4d57c870eeded2c10024aee4eae2e3bbf"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\SK_BossPhase3.uasset",
+      "sha256": "63efb14369a833dbe4c99eef19c9f00fafb9aff14a0ad1cb35a4a11595bfbf3b"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\SK_BossPhase3_Skeleton.uasset",
+      "sha256": "0bedd16619c0430ea9b4fa9a64331699bbb065a25b2e7b061a8c298005c466a6"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\Animations\\AN_BossPhase3_ARP_Hit.uasset",
+      "sha256": "dde1d5eff17e23ed9e0c565e5b93be666ff442b4125d1f7cdc030200e158bb26"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\Animations\\AN_BossPhase3_ARP_Idle.uasset",
+      "sha256": "b9415b9a1e22590848030bfe7d55208f6dd1be40024bb4ff5a26055af5aba196"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\Animations\\AN_BossPhase3_ARP_Walk.uasset",
+      "sha256": "7342c706a38d8052a510cc9774a535d0d35c02977de8bc49fa8fbc85e61d69ec"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\Rig\\SK_BossPhase3_ARP.uasset",
+      "sha256": "d5f09b53accf537cfe67b1391dadfb0ce5e90990fb9e046d65c106239283d9a6"
+    },
+    {
+      "file": "Content\\Gameplay\\Boss\\Phase3\\Rig\\SK_BossPhase3_ARP_Skeleton.uasset",
+      "sha256": "f7e3a9eee5d9b0d90f5b8f852fb72fbbadeabe8f0fd7afc34521ce1dee989b19"
+    }
+  ]
+}

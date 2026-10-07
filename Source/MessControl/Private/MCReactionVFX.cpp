@@ -161,7 +161,36 @@ void AMCReactionVFX::Tick(float Dt)
     FireLight->SetVisibility(Effect==EMCReactionEffect::Fire);
     const FVector Axis=Direction.IsNearlyZero()?FVector::ForwardVector:Direction;
     const FVector R=FVector::CrossProduct(Axis,FVector::UpVector).GetSafeNormal(),V=FVector::CrossProduct(R,Axis).GetSafeNormal();
-    if(Effect==EMCReactionEffect::Stars) {
+    if(Effect==EMCReactionEffect::BossWind) {
+        // Outward, widening streaks identify the jaw as the source of the exhalation.
+        const float Span=FMath::Max(100.f,FlowLength),Strength=FMath::SmoothStep(0.f,.12f,Age)*Fade;
+        for(int32 I=0;I<22;++I) {
+            const float Head=FMath::Frac(Age*.95f+I/22.f),Seed=I*2.39996f;
+            TArray<FVector> Path;
+            for(int32 J=0;J<=14;++J) {
+                const float U=FMath::Lerp(FMath::Max(0.f,Head-.20f),Head,J/14.f);
+                const float Angle=FMath::Sin(Seed)*1.15f;
+                const FVector Aim=Axis.RotateAngleAxis(FMath::RadiansToDegrees(Angle),FVector::UpVector);
+                const float Curl=FMath::Sin(U*10.f+Age*3+Seed)*U*16;
+                Path.Add(Aim*Span*U+R*Curl+FVector(0,0,-U*100+FMath::Cos(Seed)*U*35));
+            }
+            const float Alpha=FMath::Sin(Head*PI)*.46f*Strength;
+            Soft.Stroke(Path,1.8f,FLinearColor(.48f,.62f,.61f,Alpha),true,true);
+        }
+        for(int32 I=0;I<9;++I) {
+            const float U=FMath::Frac(Age*.80f+I/9.f),A=I*2.39996f;
+            const FVector Aim=Axis.RotateAngleAxis(FMath::Sin(A)*65,FVector::UpVector);
+            const FVector P=Aim*Span*U+FVector(0,0,-100*U);
+            const float Size=8+U*22,Alpha=FMath::Sin(U*PI)*.09f*Strength;
+            Soft.Disk(P,Right,Up,Size,FLinearColor(.38f,.49f,.47f,Alpha));
+        }
+    } else if(Effect==EMCReactionEffect::BlackClotImpact) {
+        for(int32 I=0;I<7;++I) {
+            const float A=I*2.39996f;
+            const FVector P=(R*FMath::Cos(A)+V*FMath::Sin(A))*Radius*T+Axis*Radius*.25f*FMath::Sin(T*PI);
+            Soft.Disk(P,Right,Up,Radius*.23f*(1-T),FLinearColor(.008f,.010f,.014f,.9f*(1-T)),12,false);
+        }
+    } else if(Effect==EMCReactionEffect::Stars) {
         const float Pop=FMath::SmoothStep(0.f,.20f,Age)*(1+.13f*FMath::Sin(Age*17)*FMath::Exp(-Age*4));
         const FVector Badge=FVector(0,0,FMath::Min(Age,.8f)*12);
         const float Size=31*Pop;

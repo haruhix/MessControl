@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "initial_hero_health": 100.0,
+  "initial_boss_health": 600.0,
+  "movement_cm": 181.87187866286993,
+  "saw_walk": true,
+  "saw_new_hit": true,
+  "saw_telegraph": true,
+  "received_damage": true,
+  "attack_starts": [
+    {
+      "serial": 1,
+      "time": 203.95887919701636
+    },
+    {
+      "serial": 2,
+      "time": 205.5634147953242
+    }
+  ],
+  "inside_reach_at": 203.87202729843557,
+  "saw_attack_fade": true,
+  "max_animation_time_error": 1.7881393432617188e-07,
+  "hero_health": 52.0,
+  "attack_id": "PunchRight",
+  "target_is_hero": true,
+  "attack_start_delay_seconds": 0.08685189858078957,
+  "first_damage_age": 0.20241300016641617,
+  "attack_serial": 2,
+  "attack_interval_seconds": 1.604535598307848,
+  "detail": "0.25s crossfade preserves immediate attack playback, 0.2s damage and fast repeats."
+}

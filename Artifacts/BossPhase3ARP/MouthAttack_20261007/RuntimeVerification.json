@@ -1,0 +1,86 @@
+{
+  "passed": true,
+  "seen_clots": [
+    "MCBossClot_0",
+    "MCBossClot_1",
+    "MCBossClot_10",
+    "MCBossClot_11",
+    "MCBossClot_12",
+    "MCBossClot_13",
+    "MCBossClot_14",
+    "MCBossClot_15",
+    "MCBossClot_16",
+    "MCBossClot_17",
+    "MCBossClot_18",
+    "MCBossClot_19",
+    "MCBossClot_2",
+    "MCBossClot_20",
+    "MCBossClot_21",
+    "MCBossClot_22",
+    "MCBossClot_23",
+    "MCBossClot_24",
+    "MCBossClot_25",
+    "MCBossClot_26",
+    "MCBossClot_27",
+    "MCBossClot_3",
+    "MCBossClot_4",
+    "MCBossClot_5",
+    "MCBossClot_6",
+    "MCBossClot_7",
+    "MCBossClot_8",
+    "MCBossClot_9"
+  ],
+  "max_flying": 9,
+  "max_ulcers": 2,
+  "health_before": 100.0,
+  "damage_age": 2.2066259011626244,
+  "max_drift_speed": 30.34791467196563,
+  "displacement_cm": 64.93006493885218,
+  "mouth_samples": [
+    [
+      -1191.1175101824158,
+      241.17024963314137,
+      78.56212683161004
+    ],
+    [
+      -1189.121261150999,
+      240.7990262642211,
+      78.1841361234192
+    ],
+    [
+      -1187.023104412312,
+      240.47040938064393,
+      77.78581473957232
+    ],
+    [
+      -1184.6230001114893,
+      240.31267076364824,
+      77.43408986292255
+    ],
+    [
+      -1183.554164215641,
+      240.27538283738966,
+      77.24060471792797
+    ],
+    [
+      -1182.0756347152135,
+      240.3131802411987,
+      76.90599948255826
+    ],
+    [
+      -1181.1498041927316,
+      240.3444064072722,
+      76.68255159844404
+    ],
+    [
+      -1180.1990059905595,
+      240.37841518768556,
+      76.41852806597862
+    ]
+  ],
+  "clip_max_position": 6.627309799194336,
+  "wind_seen": true,
+  "max_mouth_open": 0.9999570846557617,
+  "error": null,
+  "health_after": 76.0
+}

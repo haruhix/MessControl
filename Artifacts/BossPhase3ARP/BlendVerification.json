@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "blend_seconds": 0.25,
+  "transitions": [
+    {
+      "name": "initial_idle",
+      "samples": 49,
+      "partial_weight_samples": 0,
+      "first_full_weight_age": 0.250157174654305,
+      "max_angle_error_degrees": 0.0,
+      "max_translation_error_cm": 3.715411319347471e-13
+    },
+    {
+      "name": "idle_to_walk",
+      "samples": 192,
+      "partial_weight_samples": 115,
+      "first_full_weight_age": 0.2503362251445651,
+      "max_angle_error_degrees": 1.4688877218970407e-05,
+      "max_translation_error_cm": 1.708647998862692e-05
+    },
+    {
+      "name": "walk_to_hit",
+      "samples": 192,
+      "partial_weight_samples": 115,
+      "first_full_weight_age": 0.2502642497420311,
+      "max_angle_error_degrees": 1.9090959104164248e-05,
+      "max_translation_error_cm": 1.542597677745536e-05
+    },
+    {
+      "name": "hit_to_idle",
+      "samples": 191,
+      "partial_weight_samples": 115,
+      "first_full_weight_age": 0.2505179001018405,
+      "max_angle_error_degrees": 7.2445096183544e-06,
+      "max_translation_error_cm": 9.535592908430402e-06
+    },
+    {
+      "name": "interrupted_idle_to_walk",
+      "samples": 48,
+      "partial_weight_samples": 46,
+      "first_full_weight_age": null,
+      "max_angle_error_degrees": 3.4150945850063755e-06,
+      "max_translation_error_cm": 5.460136179635855e-06
+    },
+    {
+      "name": "interrupt_with_hit",
+      "samples": 192,
+      "partial_weight_samples": 115,
+      "first_full_weight_age": 0.25122844986617565,
+      "max_angle_error_degrees": 1.4589290462454057e-05,
+      "max_translation_error_cm": 1.5870093673305097e-05
+    },
+    {
+      "name": "repeat_hit",
+      "samples": 192,
+      "partial_weight_samples": 115,
+      "first_full_weight_age": 0.25116297509521246,
+      "max_angle_error_degrees": 3.7759581337059494e-05,
+      "max_translation_error_cm": 3.083836226876572e-05
+    },
+    {
+      "name": "hit_to_walk",
+      "samples": 192,
+      "partial_weight_samples": 115,
+      "first_full_weight_age": 0.25082832481712103,
+      "max_angle_error_degrees": 1.322660445345283e-05,
+      "max_translation_error_cm": 2.4902088327867786e-05
+    }
+  ],
+  "bone_count": 10,
+  "error": null
+}
