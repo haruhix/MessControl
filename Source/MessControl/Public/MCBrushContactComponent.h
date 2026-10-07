@@ -34,7 +34,7 @@ public:
     UPROPERTY(EditAnywhere, Category="Brush", meta=(ClampMin="1")) float MaxHandTravel=135.f;
     UPROPERTY(EditAnywhere, Category="Brush", meta=(ClampMin="1")) float MaxHandVerticalTravel=250.f;
     FVector ClampHandOffset(FVector Offset) const;
-    void BuildPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt) const;
+    void BuildPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
     FVector ContactPoint() const;
     FVector ContactNormal() const;
     FVector BristlePoint() const;

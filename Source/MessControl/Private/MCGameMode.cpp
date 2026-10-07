@@ -1,4 +1,5 @@
 #include "MCGameMode.h"
+#include "MCGameDirector.h"
 #include "MCColdCola.h"
 #include "MCHazardWave.h"
 #include "MCTongue.h"
@@ -54,6 +55,7 @@ AMCGameMode::AMCGameMode()
     RunRulesProfile = TSoftObjectPtr<UMCRunRules>(FSoftObjectPath(TEXT("/Game/Data/DA_RunRules.DA_RunRules")));
     ArenaToothProfile = TSoftObjectPtr<UMCArenaToothProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_ArenaTooth.DA_ArenaTooth")));
     FirstDayPlan=TSoftObjectPtr<UMCDayPlan>(FSoftObjectPath(TEXT("/Game/Data/DA_Day01.DA_Day01")));
+    DirectorProfile=TSoftObjectPtr<UMCGameDirectorProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_GameDirector.DA_GameDirector")));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Coffee(TEXT("/Game/Data/DA_Coffee"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Food(TEXT("/Game/Data/DA_Food"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Tooth(TEXT("/Game/Data/DA_LooseTooth"));
@@ -66,7 +68,8 @@ void AMCGameMode::BeginPlay()
     Super::BeginPlay();
     bTutorialRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCTutorial"));
     bLobbyRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCLobby"));
-    if (FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays"))) bUseDayOnePlan=false;
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays"))) { bUseDayOnePlan=false; bUseAdaptiveDirector=false; }
+    if (FParse::Param(FCommandLine::Get(),TEXT("MCDayOne")) || FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) bUseAdaptiveDirector=false;
     EventPool.RemoveAll([](const TObjectPtr<UMCDayEvent>& Event) { return !IsValid(Event); });
     // Native fallbacks also make a blank test map playable before content generation.
     if (EventPool.IsEmpty())
@@ -145,6 +148,8 @@ void AMCGameMode::RestartShift()
     State->bTutorialActive=bTutorialRequested;
     State->bLobbyWaiting=bLobbyRequested;
     State->LobbyLoadedPlayers=0;
+    if (IsValid(GameDirector)) { GameDirector->Stop(); GameDirector->Destroy(); } GameDirector=nullptr;
+    State->DirectorState=FMCGameDirectorState();
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { It->ResetPain(); It->ResetPressure(); It->ResetYawn(); }
     TArray<AActor*> OldDayActors;
@@ -230,6 +235,10 @@ void AMCGameMode::RestartShift()
         State->bPhysicalBrushes=false;
     }
     State->StepStartedAt=State->GetServerWorldTimeSeconds(); State->PreviousStepFailed=false;
+    if(bUseAdaptiveDirector && !State->bTutorialActive && !State->bLobbyWaiting) {
+        GameDirector=GetWorld()->SpawnActor<AMCGameDirector>();
+        if(GameDirector) GameDirector->InitializeRun(FirstDayPlan.LoadSynchronous(),DirectorProfile.LoadSynchronous());
+    }
     State->ForceNetUpdate();
 }
 void AMCGameMode::RestartShiftForPlaytest(int32 Seed)
@@ -270,6 +279,7 @@ void AMCGameMode::Tick(float DeltaSeconds)
     if (State->MouthHealth<=0 || (GetGameplayParticipantCount()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0))
     { State->Phase=EMCShiftPhase::Lost; State->ForceNetUpdate(); return; }
     if (State->Phase==EMCShiftPhase::Working && IsValid(DayDirector)) return;
+    if (State->Phase==EMCShiftPhase::Working && IsValid(GameDirector) && GameDirector->IsManagingEvents()) return;
     if (State->Phase==EMCShiftPhase::Working) UpdateObjectives();
     if (State->Phase==EMCShiftPhase::Intermission && State->Day>=State->RunSettings.DaysToSurvive)
     { if (GetGameplayParticipantCount()==0 || HasLivingPlayers()) { State->Phase=EMCShiftPhase::Won; State->ForceNetUpdate(); } return; }
@@ -306,6 +316,13 @@ void AMCGameMode::StartDay()
     AMCGameState* State = GetGameState<AMCGameState>();
     ClearTasks();
     ++State->Day;
+    if(bUseAdaptiveDirector) {
+        if(!IsValid(GameDirector)) {
+            GameDirector=GetWorld()->SpawnActor<AMCGameDirector>();
+            if(GameDirector) GameDirector->InitializeRun(FirstDayPlan.LoadSynchronous(),DirectorProfile.LoadSynchronous());
+        }
+        if(GameDirector) { GameDirector->BeginDay(State->Day); return; }
+    }
     if (State->Day==1 && bUseDayOnePlan)
     {
         UMCDayPlan* Plan=FirstDayPlan.LoadSynchronous(); if (!Plan) Plan=NewObject<UMCDayPlan>(this);

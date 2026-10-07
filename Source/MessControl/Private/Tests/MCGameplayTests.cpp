@@ -90,9 +90,12 @@ namespace
             FWorldContext& Context=GEngine->CreateNewWorldContext(EWorldType::Game); Context.SetCurrentWorld(World);
             Instance=NewObject<UGameInstance>(GEngine); World->SetGameInstance(Instance);
             FURL URL; URL.AddOption(TEXT("game=/Script/MessControl.MCGameMode")); URL.AddOption(TEXT("Seed=41"));
-            World->SetGameMode(URL); World->InitializeActorsForPlay(URL); World->BeginPlay();
-            Mode=World->GetAuthGameMode<AMCGameMode>(); State=World->GetGameState<AMCGameState>();
+            World->SetGameMode(URL);
+            Mode=World->GetAuthGameMode<AMCGameMode>();
             Mode->bUseDayOnePlan=false; // These regression cases cover the retained sandbox events.
+            Mode->bUseAdaptiveDirector=false;
+            World->InitializeActorsForPlay(URL); World->BeginPlay();
+            State=World->GetGameState<AMCGameState>();
             // Movement/flow unit fixtures provide their own geometry. The game's new
             // solid throat must not become an unrelated wall across those test tracks.
             for(TActorIterator<AMCThroat> It(World);It;++It) { It->SetActorEnableCollision(false); It->SetActorTickEnabled(false); }
@@ -809,7 +812,20 @@ bool FMCFoodApproachTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDayOneSequenceTest,"MessControl.DayOne.SequenceAndNoGlobalDeadline",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCDayOneSequenceTest::RunTest(const FString& Parameters)
 {
-    FTestMouth Mouth; Mouth.Mode->bUseDayOnePlan=true; Mouth.NextPhase();
+    FTestMouth Mouth;
+    // The lesson and breakfast use the real tongue footprint sampler. This empty
+    // world needs a floor large enough for the authored whole-food meshes.
+    auto* FloorMesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));
+    if (!TestNotNull(TEXT("Day-one floor mesh loads"),FloorMesh)) return false;
+    const FTransform FloorTransform(FQuat::Identity,FVector::ZeroVector,FVector(60,60,1));
+    auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),FloorTransform);
+    if (!TestNotNull(TEXT("Day-one tongue spawns"),Tongue)) return false;
+    Tongue->SourceMesh=FloorMesh; Tongue->bAutomaticYawns=false; Tongue->FinishSpawning(FloorTransform);
+    if (!TestTrue(TEXT("Day-one tongue has real surface geometry"),!Tongue->CurrentVertices().IsEmpty())) return false;
+    FHitResult Floor;
+    if (!TestTrue(TEXT("Day-one interior accommodates authored food footprints"),
+        Tongue->GameplaySpawnFootprint(FVector(0,2000,0),500,Floor))) return false;
+    Mouth.Mode->bUseDayOnePlan=true; Mouth.NextPhase();
     auto* D=Mouth.Mode->DayDirector.Get(); if (!TestNotNull(TEXT("Day director starts"),D)) return false;
     TestEqual(TEXT("First event is lesson"),Mouth.State->StepIndex,0);
     TestEqual(TEXT("Lesson has no event deadline"),Mouth.State->PhaseEndsAt,0.);
@@ -817,10 +833,9 @@ bool FMCDayOneSequenceTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("240 seconds is a reference, never a hard cutoff"),Mouth.State->StepIndex,0);
     TestTrue(TEXT("Teeth and tissue are both dirty"),D->CountDirt()>8);
     for (TActorIterator<AActor> It(Mouth.World);It;++It) if (auto* S=It->FindComponentByClass<UMCToothStatusComponent>()) while (S->NeedsCare(true)) S->CareContact(true);
-    D->Tick(.1f); TestEqual(TEXT("Cleaning advances to brush disposal in same day"),Mouth.State->StepIndex,1);
+    D->Tick(.1f); TestEqual(TEXT("Cleaning skips obsolete brush disposal and starts breakfast"),Mouth.State->StepIndex,2);
     TestEqual(TEXT("Event progress never increments Day"),Mouth.State->Day,1);
-    for (TActorIterator<AMCFoodActor> It(Mouth.World);It;++It) if (It->bBrushTool) It->Dispose();
-    D->Tick(.1f); D->Tick(.1f); TestEqual(TEXT("Breakfast starts after disposal"),Mouth.State->StepIndex,2);
+    D->Tick(.1f);
     TestTrue(TEXT("Menu food actually spawns"),D->CountFood(2)>0);
     D->Next(); const float Before=Mouth.State->MouthHealth; D->Next(true);
     TestEqual(TEXT("Failed event advances inside day"),Mouth.State->Day,1);
@@ -2630,9 +2645,9 @@ bool FMCVomitFlightTest::RunTest(const FString&)
     for(auto* Patch:Patches) TestTrue(TEXT("Dirt outlives the airborne effect"),IsValid(Patch) && !Patch->IsClean());
     auto* Hero=M.Worker(); auto* Patch=Patches[0];
     Hero->SetActorLocation(Patch->GetActorLocation()+FVector(-65,0,75)); Hero->SetActorRotation(FRotator::ZeroRotator); Hero->bBrushing=true;
-    for(int32 I=0;I<5;++I) Hero->AdvanceCare(.1f);
+    for(int32 I=0;I<5;++I) { ++GFrameCounter; M.World->Tick(LEVELTICK_TimeOnly,.1f); Hero->AdvanceCare(.1f); }
     TestTrue(TEXT("Real brush contacts erase a local track in vomit"),Patch->RemainingLiquid()<.99f);
-    for(int32 I=0;I<200 && !Patch->IsClean();++I) Hero->AdvanceCare(.1f);
+    for(int32 I=0;I<200 && !Patch->IsClean();++I) { ++GFrameCounter; M.World->Tick(LEVELTICK_TimeOnly,.1f); Hero->AdvanceCare(.1f); }
     TestTrue(TEXT("Vomit can be completely cleaned through the existing brush mechanic"),Patch->IsClean() && Patch->RemainingLiquid()<.025f);
     TestTrue(TEXT("Cleaning one impact preserves the other two"),!Patches[1]->IsClean() && !Patches[2]->IsClean());
     auto* Cancelled=M.World->SpawnActor<AMCVomitBurst>(); Cancelled->Configure(Throat); Cancelled->Batch=54321; Cancelled->Destroy(); M.Step(2.5f);

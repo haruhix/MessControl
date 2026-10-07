@@ -2,6 +2,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "MCGameMode.h"
+#include "MCGameDirector.h"
 #include "MCGameState.h"
 #include "MCPlaytestSession.h"
 #include "MCRoguelikeDirector.h"
@@ -397,8 +398,8 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     }
     if (Action==EMCDevAction::RestartDay)
     {
-        bUseDayOnePlan=true; RestartShift();
-        return FText::FromString(TEXT("Обычный первый день перезапущен. Автопереходы включены."));
+        bUseDayOnePlan=true; bUseAdaptiveDirector=true; RestartShift();
+        return FText::FromString(TEXT("Director перезапущен: семь дней, адаптивная подача и журнал решений."));
     }
     if (Action==EMCDevAction::StartStep)
     {
@@ -406,6 +407,8 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         if (!Plan || !Plan->Steps.IsValidIndex(StepIndex) || Plan->Steps[StepIndex].Step==EMCDayStep::Complete)
             return FText::FromString(TEXT("Этап отсутствует в DA_Day01."));
         RestartShift(); GS->Day=1;
+        if(IsValid(GameDirector)) GameDirector->Stop();
+        GS->bDevManualEvents=true;
         DayDirector=GetWorld()->SpawnActor<AMCDayDirector>();
         DayDirector->Start(Plan,StepIndex,true);
         const FString Title=Plan->Steps[StepIndex].Step==EMCDayStep::CoffeeWaves?TEXT("КОФЕ / РЕЧНОЙ ПОТОП"):Plan->Steps[StepIndex].Title.ToString();
@@ -418,7 +421,10 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     if (!IsValid(DayDirector))
     {
         if (!bUseDayOnePlan) return FText::FromString(TEXT("Сначала выбери этап первого дня."));
-        GS->Day=0; StartDay();
+        if(IsValid(GameDirector)) GameDirector->Stop();
+        GS->bDevManualEvents=true; GS->Day=1;
+        DayDirector=GetWorld()->SpawnActor<AMCDayDirector>();
+        if(DayDirector) DayDirector->Start(FirstDayPlan.LoadSynchronous(),0,true);
     }
     if (!IsValid(DayDirector)) return FText::FromString(TEXT("Не удалось запустить первый день."));
     GS->bDevManualEvents=true; GS->PhaseEndsAt=0; GS->ForceNetUpdate();

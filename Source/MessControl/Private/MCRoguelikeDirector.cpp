@@ -1,4 +1,5 @@
 #include "MCRoguelikeDirector.h"
+#include "MCGameDirector.h"
 #include "MCRewardDropZone.h"
 #include "MCPerkComponent.h"
 #include "MCPlayerState.h"
@@ -46,14 +47,30 @@ void AMCRoguelikeDirector::NotifyTaskCompleted(FName CompletionId)
     }
     if(PendingRewards==MAX_int32) { UE_LOG(LogTemp,Error,TEXT("Reward queue exceeded int32 capacity")); return; }
     ++PendingRewards; ForceNetUpdate();
+    if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()) {
+        GetWorldTimerManager().ClearTimer(RetryTimer);
+        return;
+    }
     if(!GetWorldTimerManager().IsTimerActive(RetryTimer))
         GetWorldTimerManager().SetTimer(RetryTimer,this,&AMCRoguelikeDirector::TrySpawnReward,1.f,true);
     TrySpawnReward();
 }
 
+bool AMCRoguelikeDirector::TryReleaseQueuedReward()
+{
+    if(!HasAuthority() || bResetting) return false;
+    const int32 Before=RewardsSpawned;
+    TrySpawnReward();
+    return RewardsSpawned>Before;
+}
+
 void AMCRoguelikeDirector::TrySpawnReward()
 {
     if(!HasAuthority() || bResetting) return;
+    if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()) {
+        GetWorldTimerManager().ClearTimer(RetryTimer);
+        if(!Director->IsLaunchingEvent(EMCGameDirectorEvent::Reward)) return;
+    }
     ActiveChests.RemoveAll([](const TObjectPtr<AMCRewardChest>& Chest) { return !IsValid(Chest); });
     if(PendingRewards<=0) { GetWorldTimerManager().ClearTimer(RetryTimer); return; }
     if(ActiveChests.Num()>=FMath::Clamp(MaxActiveChests,1,8) || GetWorld()->GetTimeSeconds()<NextRewardAt) return;
@@ -124,6 +141,10 @@ void AMCRoguelikeDirector::NotifyChestFinished(AMCRewardChest* Chest,bool bReque
     if(!HasAuthority() || !ActiveChests.Remove(Chest)) return;
     if(bRequeue && !bResetting && PendingRewards<MAX_int32) ++PendingRewards;
     ForceNetUpdate();
+    if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()) {
+        GetWorldTimerManager().ClearTimer(RetryTimer);
+        return;
+    }
     if(PendingRewards>0 && !bResetting && !GetWorldTimerManager().IsTimerActive(RetryTimer))
         GetWorldTimerManager().SetTimer(RetryTimer,this,&AMCRoguelikeDirector::TrySpawnReward,1.f,true);
 }

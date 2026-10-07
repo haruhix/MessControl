@@ -13,6 +13,8 @@ class AMCToothCharacter;
 class AMCFoodDisposal;
 class AMCDayDirector;
 class AMCTutorialDirector;
+class AMCGameDirector;
+class UMCGameDirectorProfile;
 
 USTRUCT()
 struct FMCEventObjective
@@ -60,6 +62,9 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<UMCArenaToothProfile> ArenaToothProfile;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") TSoftObjectPtr<class UMCDayPlan> FirstDayPlan;
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Shift") bool bUseDayOnePlan=true;
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Director") bool bUseAdaptiveDirector=true;
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Director") TSoftObjectPtr<UMCGameDirectorProfile> DirectorProfile;
+    UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Director") TObjectPtr<AMCGameDirector> GameDirector;
     UPROPERTY() TObjectPtr<AMCDayDirector> DayDirector;
     UPROPERTY() TObjectPtr<AMCTutorialDirector> TutorialDirector;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;

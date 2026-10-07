@@ -105,7 +105,7 @@ void MCTickShiftResetValidation(UWorld* World)
                 || Cast<AMCIceBlock>(*It) || Cast<AMCMouthSurface>(*It) || Cast<AMCHazardWave>(*It)
                 || Cast<AMCFoodActor>(*It) || It->ActorHasTag(TEXT("DayOne"))) R.OldActors.Add(*It);
         R.VomitBaseline=R.Throat.IsValid()?R.Throat->VomitCount:0;
-        Mode->bUseDayOnePlan=true;Mode->RestartShift();Mode->SetActorTickEnabled(true);
+        Mode->bUseAdaptiveDirector=false;Mode->bUseDayOnePlan=true;Mode->RestartShift();Mode->SetActorTickEnabled(true);
         R.ResetAt=R.StageAt=Now;++R.ResetNumber;
         if(auto* Fresh=Cast<AMCToothCharacter>(PC->GetPawn())) R.ExpectedPlayerHealth=Fresh->Status->State.Health;
         R.ExpectedMouthHealth=GS->MouthHealth;

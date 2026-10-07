@@ -78,11 +78,13 @@ void AMCFoodActor::Initialize(bool bJam,FVector ExtractionDirection)
     bJamOnLanding=bJam; PullDirection=ExtractionDirection.GetSafeNormal2D();
     if (PullDirection.IsNearlyZero()) PullDirection=FVector(0,1,0);
 }
-void AMCFoodActor::BeginMouthEntry(FVector LaunchVelocity,float PushSpeed)
+void AMCFoodActor::BeginMouthEntry(FVector LaunchVelocity,float PushSpeed,TOptional<FVector> ExpectedLanding)
 {
     if (!HasAuthority() || !HasActorBegunPlay() || IsDisposed() || bBrushTool || StackCarrier || !Holders.IsEmpty()
         || Phase!=EMCFoodPhase::Falling || LaunchVelocity.ContainsNaN() || LaunchVelocity.IsNearlyZero() || !FMath::IsFinite(PushSpeed)) return;
     bMouthEntry=true; MouthEntryPushSpeed=FMath::Clamp(PushSpeed,0.f,180.f);
+    MouthEntryLanding.Reset();
+    if(ExpectedLanding.IsSet() && !ExpectedLanding.GetValue().ContainsNaN()) MouthEntryLanding=ExpectedLanding;
     MouthEntryEndsAt=GetWorld()->GetTimeSeconds()+8;
     bLandingPending=false;
     Body->SetEnableGravity(true); Body->SetLinearDamping(0);
@@ -94,6 +96,7 @@ void AMCFoodActor::EndMouthEntry()
 {
     if (!bMouthEntry) return;
     bMouthEntry=false; MouthEntryPushSpeed=0; MouthEntryEndsAt=0;
+    MouthEntryLanding.Reset();
     Body->SetLinearDamping(.7f);
 }
 void AMCFoodActor::MarkRiverSwept(float EscapeZ)
