@@ -1,5 +1,6 @@
 #include "MCArenaTooth.h"
 #include "MCSurfaceWipe.h"
+#include "MCInventoryComponent.h"
 #include "MCToothCharacter.h"
 #include "MCBrushContactComponent.h"
 #include "MCToothStatusComponent.h"
@@ -329,7 +330,8 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     if (GrimeMask.Num()!=FMCSurfaceWipe::Count) FMCSurfaceWipe::Reset(GrimeMask);
     Worker->BrushContact->Contact(this,Hit.ImpactPoint,Hit.ImpactNormal,&SelectedPoint);
     if(!Worker->BrushContact->IsWorkReady()) { History.At=Now; return true; }
-    if(FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,36,Seconds,&PreciseGrimeMask)) OnRep_Grime();
+    const float DirtRadius=GrimeRelief?FMath::Clamp(float(GrimeRelief->Bounds.SphereRadius)*.6f,36.f,120.f):36.f;
+    if(FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,Worker->Inventory->CleaningRadius(DirtRadius),Seconds,&PreciseGrimeMask,Worker->Inventory->CleaningSpeedMultiplier())) OnRep_Grime();
     History.UV=UV; History.At=Now; BrushAt=Now;
     const float Left=RemainingGrime();
     const int32 RemainingLayers=Left<.025f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));

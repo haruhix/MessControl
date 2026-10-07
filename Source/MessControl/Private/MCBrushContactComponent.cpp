@@ -4,6 +4,7 @@
 #include "MCTongue.h"
 #include "EngineUtils.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothMovementComponent.h"
@@ -66,7 +67,7 @@ FVector UMCBrushContactComponent::ContactPoint() const
 FVector UMCBrushContactComponent::ContactNormal() const
 { return SurfaceTransform().TransformVectorNoScale(LocalNormal).GetSafeNormal(); }
 FVector UMCBrushContactComponent::BristlePoint() const
-{ return Hero?Hero->Brush->GetComponentTransform().TransformPosition(FVector(72,0,-20)):FVector::ZeroVector; }
+{ return Hero?Hero->Brush->GetComponentTransform().TransformPosition(Hero->Inventory->BrushContactLocal()):FVector::ZeroVector; }
 bool UMCBrushContactComponent::IsTouchingSurface() const
 {
     if(!IsValid(Target) || !IsFacingContact()) return false;
@@ -124,7 +125,7 @@ FTransform UMCBrushContactComponent::HandGoal(FVector Point,FVector Normal,bool*
     if(Surface || Target) Clearance.AddIgnoredActor(Surface?Surface:Target.Get());
     for(float Roll:{0.f,25.f,-25.f,50.f,-50.f,90.f,-90.f,135.f,-135.f,180.f}) {
         const FQuat Rotation=FRotationMatrix::MakeFromXZ(Axis.RotateAngleAxis(Roll,Normal),Normal).ToQuat();
-        FTransform BrushWorld(Rotation,Point+Normal*2-Rotation.RotateVector(FVector(72,0,-20)*Scale),Scale);
+        FTransform BrushWorld(Rotation,Point+Normal*2-Rotation.RotateVector(Hero->Inventory->BrushContactLocal()*Scale),Scale);
         FTransform Hand=InHand.Inverse()*BrushWorld;
         if(Roll==0) Preferred=Hand;
         const FVector Offset=Hand.GetLocation()-RestHome;
@@ -388,7 +389,7 @@ void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferen
     if(Contact && GFrameCounter%180==0 && FParse::Param(FCommandLine::Get(),TEXT("MCBrushCoverage"))) {
         const FTransform PlannedBrush=Hero->Brush->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform()*Desired;
         UE_LOG(LogTemp,Display,TEXT("MC_BRUSH_SOLVER error=%.1f desiredError=%.1f obstacle=%s goal=%s hand=%s normal=%s"),
-            FVector::Dist(BristlePoint(),ContactPoint()),FVector::Dist(PlannedBrush.TransformPosition(FVector(72,0,-20)),ContactPoint()),
+            FVector::Dist(BristlePoint(),ContactPoint()),FVector::Dist(PlannedBrush.TransformPosition(Hero->Inventory->BrushContactLocal()),ContactPoint()),
             *GetNameSafe(Obstacle.GetActor()),*Desired.GetLocation().ToString(),*PresentedHand.GetLocation().ToString(),*ContactNormal().ToString());
     }
 #endif

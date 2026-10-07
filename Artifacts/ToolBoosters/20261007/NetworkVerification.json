@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "rare_owner_only": true,
+  "legendary_team": true,
+  "chainsaw_server_distance": 336.03835107645307,
+  "chainsaw_client_distance": 339.2922135726113,
+  "max_position_error": 8.05625648760848,
+  "water_charge_replicated": true,
+  "water_cooldown_replicated": true,
+  "water_stream_replicated": true,
+  "error": null
+}

@@ -108,7 +108,7 @@ bool AMCMouthSurface::IsBurning() const
     for(TActorIterator<AMCFirePatch> It(GetWorld());It;++It) if(It->IsBurning() && It->Lesion==this) return true;
     return false;
 }
-bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds)
+bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds,float Power)
 {
     if(!HasAuthority() || !bUlcer || IsHealed() || IsBurning() || !IsValid(Worker) || !Worker->CanWork() || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
     if(LastTreatmentFrame==GFrameCounter) return true; // Shared lesion cannot heal faster from duplicate calls or teammates.
@@ -116,7 +116,7 @@ bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds)
     const auto* GS=GetWorld()->GetGameState(); const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     NumbUntil=Now+.15; bDisturbed=false; PulseClock=0;
     HealSeconds=FMath::Clamp(HealSeconds,6.f,8.f);
-    Healing=FMath::Min(1.f,Healing+FMath::Min(Seconds,.2f)/HealSeconds);
+    Healing=FMath::Min(1.f,Healing+FMath::Min(Seconds,.2f)/HealSeconds*FMath::Clamp(Power,1.f,3.f));
     if(Healing>=.99999f) {
         Healing=1; NumbUntil=Now+1; SetLifeSpan(.4f); Worker->NotifyTaskFeedback(true,GetActorLocation());
         if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,EMCScoreTask::Ulcer);

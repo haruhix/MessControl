@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "name": "MeshaBrush_Idle",
+      "support_error_cm": 6.195937858826368e-07,
+      "tool_bottom_relative_to_actor_cm": 0.36698443459290786,
+      "emotion": "<MCEmotion.NEUTRAL: 0>",
+      "pain_morph": 0.0,
+      "effort_morph": 0.0
+    },
+    {
+      "name": "Buffer_Idle",
+      "support_error_cm": 4.819062817904991e-07,
+      "tool_bottom_relative_to_actor_cm": -10.287468370926192,
+      "emotion": "<MCEmotion.NEUTRAL: 0>",
+      "pain_morph": 0.0,
+      "effort_morph": 0.0
+    },
+    {
+      "name": "Chainsaw_Idle",
+      "support_error_cm": 5.5075005470837e-07,
+      "tool_bottom_relative_to_actor_cm": -20.862915853988937,
+      "emotion": "<MCEmotion.NEUTRAL: 0>",
+      "pain_morph": 0.0,
+      "effort_morph": 0.0
+    },
+    {
+      "name": "Watergun_Idle",
+      "support_error_cm": 5.507500190109055e-07,
+      "tool_bottom_relative_to_actor_cm": -11.146065248977948,
+      "emotion": "<MCEmotion.NEUTRAL: 0>",
+      "pain_morph": 0.0,
+      "effort_morph": 0.0
+    },
+    {
+      "name": "Chainsaw_Pain",
+      "support_error_cm": 5.507500453691749e-07,
+      "tool_bottom_relative_to_actor_cm": 0.27749170826696457,
+      "emotion": "<MCEmotion.PAIN: 5>",
+      "pain_morph": 0.9999998211860657,
+      "effort_morph": 0.0
+    },
+    {
+      "name": "Watergun_Effort",
+      "support_error_cm": 5.507499994602823e-07,
+      "tool_bottom_relative_to_actor_cm": -4.545375309450051,
+      "emotion": "<MCEmotion.EFFORT: 6>",
+      "pain_morph": 0.0,
+      "effort_morph": 0.9999997615814209
+    }
+  ],
+  "error": null
+}

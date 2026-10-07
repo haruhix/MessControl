@@ -622,6 +622,7 @@ void AMCToothCharacter::ResolvePrimaryAction()
     if(FoodCollection->bCollecting) return;
     if (!bPrimaryHeld || !CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-.3f) return;
     if(!bInCoffee && !Inventory->IsCleaningTool()) {
+        if(Inventory->IsChainsawRunning()) {bBrushing=false;bHandling=false;return;}
         if(Inventory->Selected==EMCToolSlot::Spray) Inventory->ServerSpray();
         else ServerSwingBrush();
         return;
@@ -684,6 +685,7 @@ void AMCToothCharacter::ResolvePrimaryAction()
 }
 void AMCToothCharacter::CancelGameplayInput()
 {
+    if(Inventory) Inventory->CancelUpgradeUse();
     bSharedPrimaryInputHeld=false; bSharedHandleInputHeld=false; bSharedJumpInputHeld=false;
     StopBrace();
     FoodCollection->Stop();
@@ -841,6 +843,10 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const bool ChoppingTool=Inventory->Selected==EMCToolSlot::Pickaxe || Inventory->Selected==EMCToolSlot::Knife;
     BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,ChoppingTool?25.f*UMCInventoryComponent::SwingPlayRate(Inventory->Selected):18.f-12.f*A.FollowThrough);
     AnimationGait=Gait; AnimationBrushAngle=BrushAngle*A.Exaggeration;
+    if(Inventory->IsChainsawRunning()) {
+        AnimationToolOffset=GetActorRotation().RotateVector(FVector(42,5,35)+FVector(FMath::Sin(Time*47)*3,0,FMath::Cos(Time*39)*2));
+        AnimationBrushAngle=-16+FMath::Sin(Time*47)*4;
+    }
     const float PoseEase=1-FMath::Exp(-16.f*DeltaSeconds);
     AnimationBob=FMath::Lerp(AnimationBob,Bob*(1-.85f*GripBlend),PoseEase);
     AnimationPitch=FMath::Lerp(AnimationPitch,(Pitch+(Status->IsLoose()?FMath::Sin(Time*7)*7:0))*(1-GripBlend),PoseEase);
@@ -897,6 +903,7 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
 {
     const float Now=GetWorld()->GetTimeSeconds();
     if (!CanWork() || Now<NextSwingTime) return;
+    if(Inventory->Selected==EMCToolSlot::Knife && Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)) return;
     Grip->ReleaseBrace();
     if(Inventory->Selected==EMCToolSlot::Spray) { Inventory->ServerSpray(); return; }
     FVector Point=FVector::ZeroVector,Normal=FVector::UpVector;
@@ -1081,6 +1088,7 @@ void AMCToothCharacter::ResolveSwing()
 }
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {
+    if(Inventory) Inventory->HandleChainsawCollision(OtherActor,Hit);
     if(HasAuthority()) FoodCollection->HandleCarrierCollision(OtherActor,OtherComponent,NormalImpulse,Hit);
     if(auto* OtherPlayer=Cast<AMCToothCharacter>(OtherActor)) {
         if(HasAuthority() && OtherPlayer!=this) {
@@ -1224,7 +1232,7 @@ void AMCToothCharacter::AdvanceCare(float Dt)
         BrushContact->Contact(Target->GetOwner(),Point,Normal);
         if (!BrushContact->IsWorkReady()) { ContactElapsed=0; ContactProgress=0; return; }
     }
-    ContactElapsed+=FMath::Min(Dt,.1f);
+    ContactElapsed+=FMath::Min(Dt,.1f)*(bBrushing?Inventory->CleaningSpeedMultiplier():1.f);
     const float Seconds=Target->Settings.ContactSeconds;
     ContactProgress=FMath::Clamp(ContactElapsed/Seconds,0.f,1.f);
     if (ContactElapsed+KINDA_SMALL_NUMBER>=Seconds)

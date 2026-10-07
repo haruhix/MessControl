@@ -43,7 +43,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") double NumbUntil=0;
     UFUNCTION(BlueprintPure,Category="Ulcer") bool IsNumb() const;
     bool ApplyAnesthetic(float Seconds);
-    bool Treat(class AMCToothCharacter* Worker,float Seconds);
+    bool Treat(class AMCToothCharacter* Worker,float Seconds,float Power=1.f);
     bool IsBurning() const;
     bool IsHealed() const { return bUlcer && Healing>=1.f; }
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") float HealSeconds=7;

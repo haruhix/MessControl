@@ -1,0 +1,54 @@
+{
+  "dirty_maps": [],
+  "dirty_assets": [],
+  "transforms": {
+    "mesha_brush_transform": {
+      "location": [
+        45.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "chainsaw_transform": {
+      "location": [
+        40.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        0.55,
+        0.55,
+        0.55
+      ]
+    },
+    "buffer_transform": {
+      "location": [
+        35.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        0.42,
+        0.42,
+        0.42
+      ]
+    },
+    "watergun_transform": {
+      "location": [
+        40.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    }
+  }
+}

@@ -41,6 +41,7 @@ public:
     FTransform GetLockpickContact() const;
     bool CanReachLockpick(const AMCToothCharacter* Player) const;
     static bool HasValidLoot(UDataTable* Table,const UMCPerkComponent* Recipient=nullptr);
+    static EMCPerkRarity RollToolRarity(int32 Seed,float LegendaryPercent,float RarePercent);
     bool BeginLockpicking(AMCToothCharacter* Player);
     bool TryChooseCard(AMCToothCharacter* Player,int32 Index);
     AMCToothCharacter* GetOpener() const { return OpeningPlayer; }
@@ -75,6 +76,9 @@ public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1")) float OpeningSeconds=.7f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.1",ClampMax="60")) float LockpickingSeconds=5.f;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="100")) float OpenRadius=320.f;
+    /** Percent per non-mimic chest, separate from ordinary card weights. */
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards|Tools",meta=(ClampMin="0",ClampMax="100")) float LegendaryToolChancePercent=.02f;
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards|Tools",meta=(ClampMin="0",ClampMax="100")) float RareToolChancePercent=1.f;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards|Mimic",meta=(ClampMin="0",ClampMax="1")) float MimicChance=.2f;
     UPROPERTY(EditDefaultsOnly,Replicated,BlueprintReadOnly,Category="Rewards|Mimic",meta=(ClampMin="0.1",ClampMax="5")) float MimicSwallowSeconds=.8f;
     UPROPERTY(EditDefaultsOnly,Replicated,BlueprintReadOnly,Category="Rewards|Mimic",meta=(ClampMin="0.1",ClampMax="30")) float RescueSeconds=3.f;

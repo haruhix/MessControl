@@ -29,7 +29,7 @@ public:
     virtual void SetupInputComponent() override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-    void ToggleDevPanel();
+    UFUNCTION(BlueprintCallable,Category="Debug") void ToggleDevPanel();
     void ToggleEmotes();
     bool CanUseDevPanel() const;
     UFUNCTION(BlueprintCallable, Category="Debug") void RequestDevAction(EMCDevAction Action,int32 StepIndex=-1);

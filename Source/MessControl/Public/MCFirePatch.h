@@ -14,7 +14,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     // Seconds == 0 burns until players extinguish it. Timed effects remain available for authored events.
     UFUNCTION(BlueprintCallable,meta=(WorldContext="Context"),Category="Hazards") static AMCFirePatch* Ignite(UObject* Context,FVector Point,float Radius=100,float Seconds=0,int32 Batch=0,bool CreateLesion=true);
-    bool Extinguish(class AMCToothCharacter* Worker,float Dt);
+    bool Extinguish(class AMCToothCharacter* Worker,float Dt,float Power=1.f);
     bool IsBurning() const { return Heat>0 && !IsActorBeingDestroyed(); }
     UPROPERTY(Replicated,BlueprintReadOnly) float Heat=1;
     UPROPERTY(Replicated,BlueprintReadOnly) float ExtinguishSeconds=.85f;

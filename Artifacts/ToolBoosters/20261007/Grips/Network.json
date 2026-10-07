@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "individual_rare_owner_only": true,
+  "all_rare_owner_only": true,
+  "all_legendary_team": true,
+  "day_preserved": 0,
+  "poses": [
+    {
+      "slot": "<MCToolSlot.BRUSH: 0>",
+      "using": false,
+      "authority_support_error_cm": 6.19593766332013e-07,
+      "client_support_error_cm": 6.195937441390508e-07,
+      "client_emotion": "<MCEmotion.NEUTRAL: 0>"
+    },
+    {
+      "slot": "<MCToolSlot.PICKAXE: 1>",
+      "using": false,
+      "authority_support_error_cm": 4.819062690474875e-07,
+      "client_support_error_cm": 4.819063303416798e-07,
+      "client_emotion": "<MCEmotion.NEUTRAL: 0>"
+    },
+    {
+      "slot": "<MCToolSlot.KNIFE: 2>",
+      "using": false,
+      "authority_support_error_cm": 5.507500230654767e-07,
+      "client_support_error_cm": 5.507500284608473e-07,
+      "client_emotion": "<MCEmotion.NEUTRAL: 0>"
+    },
+    {
+      "slot": "<MCToolSlot.SPRAY: 3>",
+      "using": false,
+      "authority_support_error_cm": 5.507500385615297e-07,
+      "client_support_error_cm": 5.507500641582893e-07,
+      "client_emotion": "<MCEmotion.NEUTRAL: 0>"
+    },
+    {
+      "slot": "<MCToolSlot.KNIFE: 2>",
+      "using": true,
+      "authority_support_error_cm": 5.507500244777e-07,
+      "client_support_error_cm": 5.507500675621e-07,
+      "client_emotion": "<MCEmotion.PAIN: 5>"
+    },
+    {
+      "slot": "<MCToolSlot.SPRAY: 3>",
+      "using": true,
+      "authority_support_error_cm": 5.507499994602823e-07,
+      "client_support_error_cm": 5.507499994602823e-07,
+      "client_emotion": "<MCEmotion.EFFORT: 6>"
+    }
+  ],
+  "error": null
+}

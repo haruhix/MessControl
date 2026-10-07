@@ -1,0 +1,109 @@
+{
+  "meshes": {
+    "MeshaBrush": "/Game/FromBlender7/SM_MeshaBrush",
+    "Chainsaw": "/Game/Art/Meshes/Equipments/SM_Chainsaw",
+    "Buffer": "/Game/FromBlender7/SM_Buffer",
+    "Watergun": "/Game/FromBlender7/SM_Watergun"
+  },
+  "legendary_chance_percent": 0.02,
+  "rare_chance_percent": 1.0,
+  "tool_rows": [
+    {
+      "Name": "Tool_MeshaBrush_Rare",
+      "DisplayName": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_MeshaBrush_Rare_DisplayName\", \"Мегащётка\")",
+      "Description": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_MeshaBrush_Rare_Description\", \"Слот 1. Чистит в 2 раза быстрее и захватывает область по размеру грязи.\")",
+      "Polarity": "Positive",
+      "Weight": 1,
+      "MaxStacks": 1,
+      "EffectClass": "None",
+      "Icon": "/Game/Gameplay/Roguelike/Icons/T_Tool_MeshaBrush.T_Tool_MeshaBrush",
+      "ToolUpgrade": "MeshaBrush",
+      "Rarity": "Rare"
+    },
+    {
+      "Name": "Tool_MeshaBrush_Legendary",
+      "DisplayName": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_MeshaBrush_Legendary_DisplayName\", \"Мегащётка\")",
+      "Description": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_MeshaBrush_Legendary_Description\", \"Слот 1. Чистит в 2 раза быстрее и захватывает область по размеру грязи.\")",
+      "Polarity": "Positive",
+      "Weight": 1,
+      "MaxStacks": 1,
+      "EffectClass": "None",
+      "Icon": "/Game/Gameplay/Roguelike/Icons/T_Tool_MeshaBrush.T_Tool_MeshaBrush",
+      "ToolUpgrade": "MeshaBrush",
+      "Rarity": "Legendary"
+    },
+    {
+      "Name": "Tool_Chainsaw_Rare",
+      "DisplayName": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Chainsaw_Rare_DisplayName\", \"Бензопила\")",
+      "Description": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Chainsaw_Rare_Description\", \"Слот 3. Режет овощи за 2 контакта. ЛКМ: ускорение и тяга вперёд. Урон союзникам ×2 от кирки; удар о стену наносит 30 урона и сбивает с ног.\")",
+      "Polarity": "Positive",
+      "Weight": 1,
+      "MaxStacks": 1,
+      "EffectClass": "None",
+      "Icon": "/Game/Gameplay/Roguelike/Icons/T_Tool_Chainsaw.T_Tool_Chainsaw",
+      "ToolUpgrade": "Chainsaw",
+      "Rarity": "Rare"
+    },
+    {
+      "Name": "Tool_Chainsaw_Legendary",
+      "DisplayName": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Chainsaw_Legendary_DisplayName\", \"Бензопила\")",
+      "Description": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Chainsaw_Legendary_Description\", \"Слот 3. Режет овощи за 2 контакта. ЛКМ: ускорение и тяга вперёд. Урон союзникам ×2 от кирки; удар о стену наносит 30 урона и сбивает с ног.\")",
+      "Polarity": "Positive",
+      "Weight": 1,
+      "MaxStacks": 1,
+      "EffectClass": "None",
+      "Icon": "/Game/Gameplay/Roguelike/Icons/T_Tool_Chainsaw.T_Tool_Chainsaw",
+      "ToolUpgrade": "Chainsaw",
+      "Rarity": "Legendary"
+    },
+    {
+      "Name": "Tool_Buffer_Rare",
+      "DisplayName": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Buffer_Rare_DisplayName\", \"Тяжёлый очиститель\")",
+      "Description": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Buffer_Rare_Description\", \"Слот 2. Снимает зубной камень одним ударом в широкой области. Скорость передвижения с инструментом уменьшается в 2 раза.\")",
+      "Polarity": "Positive",
+      "Weight": 1,
+      "MaxStacks": 1,
+      "EffectClass": "None",
+      "Icon": "/Game/Gameplay/Roguelike/Icons/T_Tool_Buffer.T_Tool_Buffer",
+      "ToolUpgrade": "Buffer",
+      "Rarity": "Rare"
+    },
+    {
+      "Name": "Tool_Buffer_Legendary",
+      "DisplayName": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Buffer_Legendary_DisplayName\", \"Тяжёлый очиститель\")",
+      "Description": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Buffer_Legendary_Description\", \"Слот 2. Снимает зубной камень одним ударом в широкой области. Скорость передвижения с инструментом уменьшается в 2 раза.\")",
+      "Polarity": "Positive",
+      "Weight": 1,
+      "MaxStacks": 1,
+      "EffectClass": "None",
+      "Icon": "/Game/Gameplay/Roguelike/Icons/T_Tool_Buffer.T_Tool_Buffer",
+      "ToolUpgrade": "Buffer",
+      "Rarity": "Legendary"
+    },
+    {
+      "Name": "Tool_Watergun_Rare",
+      "DisplayName": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Watergun_Rare_DisplayName\", \"Водяной пистолет\")",
+      "Description": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Watergun_Rare_Description\", \"Слот 4. Тушит огонь и лечит язвы до 10 м. Повторное 4: сменить режим. Зажми ЛКМ и отпусти для мощного выстрела до 14 м. Перезарядка 4 с.\")",
+      "Polarity": "Positive",
+      "Weight": 1,
+      "MaxStacks": 1,
+      "EffectClass": "None",
+      "Icon": "/Game/Gameplay/Roguelike/Icons/T_Tool_Watergun.T_Tool_Watergun",
+      "ToolUpgrade": "Watergun",
+      "Rarity": "Rare"
+    },
+    {
+      "Name": "Tool_Watergun_Legendary",
+      "DisplayName": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Watergun_Legendary_DisplayName\", \"Водяной пистолет\")",
+      "Description": "NSLOCTEXT(\"DT_Perks [AB87099000F2FA14A2C308191F2B075C]\", \"Tool_Watergun_Legendary_Description\", \"Слот 4. Тушит огонь и лечит язвы до 10 м. Повторное 4: сменить режим. Зажми ЛКМ и отпусти для мощного выстрела до 14 м. Перезарядка 4 с.\")",
+      "Polarity": "Positive",
+      "Weight": 1,
+      "MaxStacks": 1,
+      "EffectClass": "None",
+      "Icon": "/Game/Gameplay/Roguelike/Icons/T_Tool_Watergun.T_Tool_Watergun",
+      "ToolUpgrade": "Watergun",
+      "Rarity": "Legendary"
+    }
+  ],
+  "fallback_material": "/Game/Gameplay/Roguelike/M_ToolBooster"
+}

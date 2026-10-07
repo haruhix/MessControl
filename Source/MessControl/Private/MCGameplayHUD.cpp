@@ -227,9 +227,12 @@ void UMCGameplayHUD::RefreshState()
             Color(FName(N+TEXT("Frame")),Selected?HUD::Mint:FLinearColor(.15f,.23f,.29f,.8f));
             Color(FName(N+TEXT("KeyBG")),Selected?HUD::Mint:HUD::White);
         }
-        const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0);
-        Text(TEXT("CooldownValue"),FString::Printf(TEXT("%.1f"),Cool)); Bar(TEXT("CooldownProgress"),1-Cool/Inv->CooldownSeconds());
+        const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0 || Inv->bChargingWater);
+        Text(TEXT("CooldownValue"),Inv->bChargingWater?FString::Printf(TEXT("%d%%"),FMath::RoundToInt(Inv->WaterChargeFraction()*100)):FString::Printf(TEXT("%.1f"),Cool));
+        Bar(TEXT("CooldownProgress"),Inv->bChargingWater?Inv->WaterChargeFraction():1-Cool/Inv->CooldownSeconds());
         FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):TEXT("ЛКМ · ЧИСТИТЬ");
+        if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=TEXT("УДЕРЖИВАЙ ЛКМ · ПИЛИТЬ И ДВИГАТЬСЯ ВПЕРЁД");
+        if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?TEXT("ЗАЖМИ ЛКМ · ЗАРЯДИТЬ, ОТПУСТИ · ВЫСТРЕЛ     4 · РЕЖИМ"):TEXT("УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ");
         Hint+=TEXT("     ПКМ · ДЕРЖАТЬСЯ");
         if(Hero->FoodCollection->bCollecting)
         {

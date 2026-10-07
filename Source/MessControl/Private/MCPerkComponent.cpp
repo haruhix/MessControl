@@ -1,5 +1,7 @@
 #include "MCPerkComponent.h"
 #include "MCPerkEffect.h"
+#include "MCGameState.h"
+#include "MCPlayerState.h"
 #include "GameFramework/Actor.h"
 #include "Net/UnrealNetwork.h"
 
@@ -38,7 +40,7 @@ bool UMCPerkComponent::HasAuthority() const
 
 bool UMCPerkComponent::IsDefinitionUsable(const FMCPerkDefinition& Definition)
 {
-    return Definition.MaxStacks > 0
+    return Definition.MaxStacks > 0 && uint8(Definition.ToolUpgrade)<=uint8(EMCToolUpgrade::Watergun)
         && (Definition.Polarity == EMCPerkPolarity::Positive || Definition.Polarity == EMCPerkPolarity::Negative)
         && (!Definition.EffectClass || !Definition.EffectClass->HasAnyClassFlags(CLASS_Abstract));
 }
@@ -69,7 +71,44 @@ int32 UMCPerkComponent::GetStacks(FName PerkID) const
 bool UMCPerkComponent::CanGrantPerk(FName PerkID) const
 {
     const FMCPerkDefinition* Definition = FindDefinition(PerkID);
+    if(Definition && IsDefinitionUsable(*Definition) && Definition->ToolUpgrade!=EMCToolUpgrade::None) {
+        const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+        if(GS && (GS->TeamToolUpgrades&(1<< (uint8(Definition->ToolUpgrade)-1)))) return false;
+        if(Definition->Rarity==EMCPerkRarity::Rare && HasToolUpgrade(Definition->ToolUpgrade)) return false;
+    }
     return Definition && IsDefinitionUsable(*Definition) && GetStacks(PerkID) < FMath::Clamp(Definition->MaxStacks, 1, 100);
+}
+
+bool UMCPerkComponent::HasToolUpgrade(EMCToolUpgrade Kind) const
+{
+    if(Kind==EMCToolUpgrade::None || uint8(Kind)>4) return false;
+    if(const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr)
+        if(GS->TeamToolUpgrades&(1<<(uint8(Kind)-1))) return true;
+    for(const auto& Active:ActivePerks) if(Active.Stacks>0)
+        if(const auto* Row=FindDefinition(Active.PerkID);Row && Row->ToolUpgrade==Kind) return true;
+    return false;
+}
+TArray<FName> UMCPerkComponent::GetToolRewardIDs() const
+{
+    TArray<FName> IDs;
+    if(LoadedTable) for(FName ID:LoadedTable->GetRowNames()) {
+        const auto* Row=FindDefinition(ID);
+        if(Row && IsDefinitionUsable(*Row) && Row->ToolUpgrade!=EMCToolUpgrade::None
+            && (Row->Rarity==EMCPerkRarity::Rare || Row->Rarity==EMCPerkRarity::Legendary)) IDs.Add(ID);
+    }
+    IDs.Sort([](FName A,FName B){return A.LexicalLess(B);});return IDs;
+}
+bool UMCPerkComponent::ServerGrantReward(FName PerkID)
+{
+    if(!HasAuthority() || !CanGrantPerk(PerkID)) return false;
+    const auto* Row=FindDefinition(PerkID);
+    if(Row->ToolUpgrade==EMCToolUpgrade::None || Row->Rarity!=EMCPerkRarity::Legendary) return ServerGrantPerk(PerkID);
+    auto* GS=GetWorld()->GetGameState<AMCGameState>();if(!GS) return false;
+    if(!ServerGrantPerk(PerkID)) return false;
+    for(const auto& State:GS->PlayerArray) if(auto* Player=Cast<AMCPlayerState>(State.Get()))
+        if(!Player->IsSpectator() && !Player->IsOnlyASpectator() && Player->Perks && Player->Perks!=this
+            && Player->Perks->GetPerkTable()==LoadedTable && Player->Perks->CanGrantPerk(PerkID)) Player->Perks->ServerGrantPerk(PerkID);
+    GS->TeamToolUpgrades|=1<<(uint8(Row->ToolUpgrade)-1);GS->ForceNetUpdate();return true;
 }
 
 bool UMCPerkComponent::ServerGrantPerk(FName PerkID)

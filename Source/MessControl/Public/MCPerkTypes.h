@@ -14,6 +14,11 @@ enum class EMCPerkPolarity : uint8
     Negative
 };
 
+UENUM(BlueprintType)
+enum class EMCToolUpgrade : uint8 { None, MeshaBrush, Chainsaw, Buffer, Watergun };
+UENUM(BlueprintType)
+enum class EMCPerkRarity : uint8 { Standard, Rare, Legendary };
+
 /** Row name is the stable perk ID. EffectClass is the extension point for custom effects. */
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCPerkDefinition : public FTableRowBase
@@ -40,6 +45,8 @@ struct MESSCONTROL_API FMCPerkDefinition : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Perk")
     TSoftObjectPtr<UTexture2D> Icon;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk") EMCToolUpgrade ToolUpgrade=EMCToolUpgrade::None;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk") EMCPerkRarity Rarity=EMCPerkRarity::Standard;
 };
 
 USTRUCT(BlueprintType)

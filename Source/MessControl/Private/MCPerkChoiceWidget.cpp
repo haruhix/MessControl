@@ -93,7 +93,6 @@ void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity 
     Subtitle->SetText(FText::FromString(TEXT("Два других исчезнут после выбора")));
     Hint->SetText(FText::FromString(TEXT("Нажмите на карточку или клавишу 1 / 2 / 3")));
     const bool Positive = Polarity == EMCPerkPolarity::Positive;
-    const FLinearColor Accent = Positive ? MCPerkCardPrivate::Mint : MCPerkCardPrivate::Coral;
     auto* PC = GetOwningPlayer<AMCPlayerController>();
     const auto* State = PC ? PC->GetPlayerState<AMCPlayerState>() : nullptr;
 
@@ -101,6 +100,9 @@ void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity 
     {
         FMCPerkDefinition Definition;
         if (State && State->Perks) State->Perks->GetPerkDefinition(IDs[Index], Definition);
+        const bool Legendary=Definition.Rarity==EMCPerkRarity::Legendary;
+        const bool Rare=Definition.Rarity==EMCPerkRarity::Rare;
+        const FLinearColor Accent=Legendary?FLinearColor(1.f,.70f,.14f):Rare?FLinearColor(.30f,.58f,1.f):Positive?MCPerkCardPrivate::Mint:MCPerkCardPrivate::Coral;
         auto* Button = WidgetTree->ConstructWidget<UMCPerkCardButton>();
         Button->Configure(PC, Index);
         FButtonStyle Style = Button->GetStyle();
@@ -114,7 +116,7 @@ void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity 
         auto* Column = WidgetTree->ConstructWidget<UVerticalBox>();
         Button->SetContent(Column);
         auto* Badge = MCPerkCardPrivate::Label(WidgetTree,
-            FText::FromString(Positive ? TEXT("ПОЛОЖИТЕЛЬНЫЙ") : TEXT("НЕГАТИВНЫЙ")), 12, Accent);
+            FText::FromString(Legendary?TEXT("ЛЕГЕНДАРНЫЙ · ВСЯ КОМАНДА"):Rare?TEXT("РЕДКИЙ · ТОЛЬКО ВАМ"):Positive ? TEXT("ПОЛОЖИТЕЛЬНЫЙ") : TEXT("НЕГАТИВНЫЙ")), 12, Accent);
         Column->AddChildToVerticalBox(Badge)->SetPadding(FMargin(0, 0, 0, 24));
 
         auto* IconSize = WidgetTree->ConstructWidget<USizeBox>();
@@ -130,7 +132,7 @@ void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity 
             Icon->SetBrushFromSoftTexture(Definition.Icon);
             IconBorder->SetContent(Icon);
         }
-        else IconBorder->SetContent(MCPerkCardPrivate::Label(WidgetTree, FText::FromString(TEXT("?")), 44, Accent));
+        else IconBorder->SetContent(MCPerkCardPrivate::Label(WidgetTree, FText::FromString(Definition.ToolUpgrade==EMCToolUpgrade::None?TEXT("?"):Definition.ToolUpgrade==EMCToolUpgrade::MeshaBrush?TEXT("1"):Definition.ToolUpgrade==EMCToolUpgrade::Buffer?TEXT("2"):Definition.ToolUpgrade==EMCToolUpgrade::Chainsaw?TEXT("3"):TEXT("4")), 44, Accent));
         auto* IconSlot = Column->AddChildToVerticalBox(IconSize);
         IconSlot->SetHorizontalAlignment(HAlign_Center);
         IconSlot->SetPadding(FMargin(0, 0, 0, 24));

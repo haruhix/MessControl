@@ -44,7 +44,7 @@ void EligibleRows(UDataTable* Table,const UMCPerkComponent* Recipient,TArray<FNa
     Names.Sort([](const FName& A,const FName& B) { return A.LexicalLess(B); });
     for(FName ID:Names) {
         const auto* Row=Table->FindRow<FMCPerkDefinition>(ID,TEXT("Reward loot"),false);
-        if(!ValidRow(Row) || (Recipient && !Recipient->CanGrantPerk(ID))) continue;
+        if(!ValidRow(Row) || Row->ToolUpgrade!=EMCToolUpgrade::None || (Recipient && !Recipient->CanGrantPerk(ID))) continue;
         (Row->Polarity==EMCPerkPolarity::Positive?Positive:Negative).Add(ID);
     }
 }
@@ -477,6 +477,14 @@ void AMCRewardChest::PollApproach()
     }
 }
 
+EMCPerkRarity AMCRewardChest::RollToolRarity(int32 Seed,float LegendaryPercent,float RarePercent)
+{
+    FRandomStream Roll(Seed^0x544F4F4C);
+    const float Chance=Roll.FRand()*100.f;
+    const float Legendary=FMath::IsFinite(LegendaryPercent)?FMath::Clamp(LegendaryPercent,0.f,100.f):.02f;
+    const float Rare=FMath::IsFinite(RarePercent)?FMath::Clamp(RarePercent,0.f,100.f-Legendary):1.f;
+    return Chance<Legendary?EMCPerkRarity::Legendary:Chance<Legendary+Rare?EMCPerkRarity::Rare:EMCPerkRarity::Standard;
+}
 bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
 {
     if(!HasAuthority() || Stage!=EMCRewardChestStage::Landed || !IsLivingPlayer(Player)
@@ -494,8 +502,20 @@ bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
         TArray<FName> Positive,Negative; EligibleRows(RewardTable,PS->Perks,Positive,Negative);
         if(Positive.Num()<3 && Negative.Num()<3) return false;
         FRandomStream Roll(RollSeed);
+        // One independent, deterministic roll per chest. Cancellation cannot reroll rarity.
+        FRandomStream ToolRoll(RollSeed^0x544F4F4C);
+        ToolRoll.FRand(); // Type and card draws follow the same reserved rarity draw.
+        const auto Rarity=RollToolRarity(RollSeed,LegendaryToolChancePercent,RareToolChancePercent);
+        TArray<FName> Tools;
+        if(Rarity!=EMCPerkRarity::Standard) {
+            for(FName ID:RewardTable->GetRowNames()) if(const auto* Row=RewardTable->FindRow<FMCPerkDefinition>(ID,TEXT("Tool reward"),false))
+                if(ValidRow(Row) && Row->ToolUpgrade!=EMCToolUpgrade::None && Row->Rarity==Rarity && Row->Polarity==EMCPerkPolarity::Positive
+                    && PS->Perks->CanGrantPerk(ID)) Tools.Add(ID);
+            Tools.Sort([](FName A,FName B){return A.LexicalLess(B);});
+        }
         Polarity=Positive.Num()<3?EMCPerkPolarity::Negative:Negative.Num()<3?EMCPerkPolarity::Positive:
             (Roll.RandRange(0,1)==0?EMCPerkPolarity::Positive:EMCPerkPolarity::Negative);
+        if(!Tools.IsEmpty() && Positive.Num()>=3) Polarity=EMCPerkPolarity::Positive;
         TArray<FName> Pool=Polarity==EMCPerkPolarity::Positive?Positive:Negative;
         for(int32 I=0;I<3;++I) {
             double Total=0; for(FName ID:Pool) Total+=RewardTable->FindRow<FMCPerkDefinition>(ID,TEXT("Loot weight"),false)->Weight;
@@ -503,6 +523,7 @@ bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
             for(int32 J=0;J<Pool.Num();++J) { Draw-=RewardTable->FindRow<FMCPerkDefinition>(Pool[J],TEXT("Loot draw"),false)->Weight; if(Draw<0) { Selected=J; break; } }
             LootIDs.Add(Pool[Selected]); Pool.RemoveAt(Selected);
         }
+        if(Polarity==EMCPerkPolarity::Positive && !Tools.IsEmpty()) LootIDs[ToolRoll.RandRange(0,2)]=Tools[ToolRoll.RandRange(0,Tools.Num()-1)];
         ForceNetUpdate();
         if(LootIDs.Num()!=3) return false;
         for(FName ID:LootIDs) if(!PS->Perks->CanGrantPerk(ID)) return false;
@@ -548,7 +569,7 @@ bool AMCRewardChest::TryChooseCard(AMCToothCharacter* Player,int32 Index)
     const auto* Row=RewardTable->FindRow<FMCPerkDefinition>(ChosenID,TEXT("Reward card"),false);
     if(!ValidRow(Row) || Row->Polarity!=Polarity) return false;
     TGuardValue<bool> Guard(bClaimInProgress,true);
-    if(!PS->Perks->ServerGrantPerk(ChosenID)) return false;
+    if(!PS->Perks->ServerGrantReward(ChosenID)) return false;
     ClaimedMask=7;
     ForceNetUpdate();
     UE_LOG(LogTemp,Display,TEXT("MC_REWARD_CARD player=%s perk=%s"),*PS->GetPlayerName(),*ChosenID.ToString());

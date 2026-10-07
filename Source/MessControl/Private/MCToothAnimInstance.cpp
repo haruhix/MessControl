@@ -53,6 +53,9 @@ public:
     bool WallPlanted[4]={false,false,false,false};
     double NextWallDiagnostic=0;
     float SprayPoseAlpha=0;
+    float SawPoseAlpha=0;
+    float UpgradeIdleAlpha=0,UpgradeSupportAlpha=0;
+    EMCToolUpgrade GripUpgrade=EMCToolUpgrade::None;
     float CalculusPoseAlpha=0;
     FTransform LastCalculusHand=FTransform::Identity;
     float LockpickPoseAlpha=0;
@@ -283,6 +286,69 @@ public:
         const int32 Parent=Ref.GetParentIndex(Lower);
         Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
         Pose[Hand]=Ref.GetRefBonePose()[Hand];
+    }
+    void ChainsawPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        const auto* Inventory=Tooth->Inventory.Get();
+        if(!Inventory || Inventory->Selected!=EMCToolSlot::Knife || !Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)
+            || !Inventory->ShouldPresentTool() || !Tooth->ToothPhysics->CanAct()) {SawPoseAlpha=0;return;}
+        SawPoseAlpha=FMath::FInterpTo(SawPoseAlpha,Inventory->IsChainsawRunning()?1.f:0.f,Dt,12.f);
+        if(SawPoseAlpha<.001f) return;
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        auto Rebuild=[&](){for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];};
+        Rebuild();const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        const auto* GS=Tooth->GetWorld()->GetGameState();const float Time=GS?GS->GetServerWorldTimeSeconds():Tooth->GetWorld()->GetTimeSeconds();
+        const FVector Forward=Tooth->GetActorForwardVector(),Right=Tooth->GetActorRightVector();
+        const FVector Palm=Tooth->GetActorLocation()+Forward*(58+FMath::Sin(Time*47)*1.6f)+Right*24+FVector(0,0,35+FMath::Cos(Time*39)*1.2f);
+        const FQuat Rotation=FRotationMatrix::MakeFromXZ(Forward,FVector::UpVector).ToQuat()*Tooth->BrushPivot->GetRelativeRotation().Quaternion().Inverse();
+        const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
+        const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));
+        if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) return;
+        FTransform Goal=CS[Hand];Goal.SetLocation(World.InverseTransformPosition(Palm));
+        Goal.SetRotation(World.GetRotation().Inverse()*Rotation);
+        FTransform Blended;Blended.Blend(CS[Hand],Goal,SawPoseAlpha);
+        const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;const int32 Parent=Ref.GetParentIndex(Lower);
+        Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];
+    }
+    void UpgradeIdlePose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        const auto* Inventory=Tooth->Inventory.Get();const auto Kind=Inventory?Inventory->SelectedUpgrade():EMCToolUpgrade::None;
+        if(Kind==EMCToolUpgrade::None || !Inventory->ShouldPresentTool() || !Tooth->ToothPhysics->CanAct()) {
+            UpgradeIdleAlpha=UpgradeSupportAlpha=0;GripUpgrade=EMCToolUpgrade::None;return;
+        }
+        if(GripUpgrade!=Kind) {UpgradeIdleAlpha=UpgradeSupportAlpha=0;GripUpgrade=Kind;}
+        const bool Active=Kind==EMCToolUpgrade::Chainsaw?Inventory->IsChainsawRunning():Kind==EMCToolUpgrade::Watergun?Inventory->IsUsingWatergun():
+            Kind==EMCToolUpgrade::MeshaBrush?Tooth->bBrushing:Tooth->GetToolSwingElapsed()<Inventory->SwingDuration();
+        UpgradeIdleAlpha=FMath::FInterpTo(UpgradeIdleAlpha,Active?0.f:1.f,Dt,12.f);
+        if(UpgradeIdleAlpha<.001f) return;
+        const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r"))),Lower=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));
+        if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) return;
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
+        const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        const FVector Forward=Tooth->GetActorForwardVector();
+        const FVector Palm=Tooth->GetActorLocation()+Forward*50+Tooth->GetActorRightVector()*24+FVector(0,0,15);
+        const FQuat Rotation=FRotationMatrix::MakeFromXZ(Forward,FVector::UpVector).ToQuat()*Tooth->BrushPivot->GetRelativeRotation().Quaternion().Inverse();
+        FTransform Goal=CS[Hand];Goal.SetLocation(World.InverseTransformPosition(Palm));Goal.SetRotation(World.GetRotation().Inverse()*Rotation);
+        FTransform Blended;Blended.Blend(CS[Hand],Goal,UpgradeIdleAlpha);
+        const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;const int32 Parent=Ref.GetParentIndex(Lower);
+        Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];
+    }
+    void UpgradeSupportPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        const auto* Inventory=Tooth->Inventory.Get();
+        if(!Inventory || Inventory->SelectedUpgrade()==EMCToolUpgrade::None || !Inventory->ShouldPresentTool() || !Tooth->ToothPhysics->CanAct()) {UpgradeSupportAlpha=0;return;}
+        const int32 RightHand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r"))),LeftHand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_l")));
+        const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_l")));
+        if(RightHand<0 || LeftHand<0 || Lower<0 || Ref.GetParentIndex(LeftHand)!=Lower) return;
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
+        const FTransform World=Tooth->GetMesh()->GetComponentTransform();FTransform Goal;
+        if(!Inventory->UpgradeSupportGrip(CS[RightHand]*World,Goal)) {UpgradeSupportAlpha=0;return;}
+        UpgradeSupportAlpha=FMath::FInterpTo(UpgradeSupportAlpha,1.f,Dt,12.f);
+        FTransform Blended;Blended.Blend(CS[LeftHand],Goal.GetRelativeTransform(World),UpgradeSupportAlpha);
+        const FTransform Branch=Ref.GetRefBonePose()[LeftHand].Inverse()*Blended;const int32 Parent=Ref.GetParentIndex(Lower);
+        Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[LeftHand]=Ref.GetRefBonePose()[LeftHand];
     }
     void ChestLockpickPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
     {
@@ -744,6 +810,8 @@ public:
         if (Tooth->ToothPhysics) Tooth->ToothPhysics->BuildPresentationPose(Pose);
         TraversalContacts(Tooth,Ref,Dt);
         SprayTreatment(Tooth,Ref,Dt);
+        ChainsawPose(Tooth,Ref,Dt);
+        UpgradeIdlePose(Tooth,Ref,Dt);
         CollectionAndYawnPose(Tooth,Ref);
         if(WideSwing && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct()) {
             TArray<FTransform> CS; CS.SetNum(Pose.Num());
@@ -764,6 +832,7 @@ public:
                 }
             }
         }
+        UpgradeSupportPose(Tooth,Ref,Dt);
         // Brace both compact mittens against the uvula while the body stays in
         // front of the stalk. Move each weighted wrist branch rigidly.
         const auto* Base=Cast<UPrimitiveComponent>(Tooth->GetMovementBaseObject());

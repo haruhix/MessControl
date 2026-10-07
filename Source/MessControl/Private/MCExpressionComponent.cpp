@@ -8,6 +8,7 @@
 #include "MCGazeComponent.h"
 #include "MCRewardChest.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCInventoryComponent.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "Engine/SkeletalMesh.h"
@@ -235,7 +236,8 @@ void UMCExpressionComponent::BuildSocialPose(TArray<FTransform>& Pose,const FRef
     const float Reaction=SprayReaction*(.65f+.35f*SprayFlinch);
     if(Reaction<.001f) return;
     const bool HandsBusy=Tooth->HeldFood || Tooth->bHandling || Tooth->bBrushing || Tooth->IsPrimaryHeld()
-        || Tooth->FoodCollection->bCollecting || Tooth->Grip->Blend()>.01f || BodyAlpha()>.01f;
+        || Tooth->FoodCollection->bCollecting || Tooth->Grip->Blend()>.01f || BodyAlpha()>.01f
+        || (Tooth->Inventory && Tooth->Inventory->SelectedUpgrade()!=EMCToolUpgrade::None && Tooth->Inventory->ShouldPresentTool());
     // Only free hands and an idle body flinch; ongoing work retains its contacts.
     if(HandsBusy) return;
     TArray<FTransform> RestCS; RestCS.SetNum(Pose.Num());
@@ -270,8 +272,14 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     if (!Tooth) return;
     const auto& S=Tooth->Status->State;
     const float Pain=Tooth->Status->PainAlpha();
+    const bool Saw=Tooth->Inventory && Tooth->Inventory->IsChainsawRunning();
+    const bool Water=Tooth->Inventory && Tooth->Inventory->IsUsingWatergun();
+    const bool ToolFace=Saw || Water;
+    const bool FaceLocked=ToolFace || Pain>.01f;
     float Strength=1; CurrentEmotion=EMCEmotion::Neutral;
-    if(Tooth->IsYawning()) {
+    if(Saw) {CurrentEmotion=EMCEmotion::Pain;Strength=1.f;}
+    else if(Water) {CurrentEmotion=EMCEmotion::Effort;Strength=1.f;}
+    else if(Tooth->IsYawning()) {
         const float Age=Now()-Tooth->YawnStartedAt,Remaining=Tooth->YawnEndsAt-Now();
         if(Age<.4f) {CurrentEmotion=EMCEmotion::Surprise;Strength=.55f+.25f*FMath::SmoothStep(0.f,.2f,Age);}
         else if(Remaining<.5f) {CurrentEmotion=EMCEmotion::Happy;Strength=.45f*(1-FMath::SmoothStep(0.f,.5f,Remaining));}
@@ -284,7 +292,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     else if (!Tooth->ToothPhysics->CanAct() || Tooth->GetCharacterMovement()->IsFalling()) { CurrentEmotion=EMCEmotion::Surprise; Strength=.75f; }
     else if (Tooth->AnimationSwim>.5f && Tooth->AnimationSwimEffort>.1f) { CurrentEmotion=EMCEmotion::Effort; Strength=.3f+.5f*Tooth->AnimationSwimEffort; }
     else if (S.Health<S.MaxHealth*.35f) { CurrentEmotion=EMCEmotion::Sad; Strength=.6f; }
-    if (Pain>.01f) { CurrentEmotion=EMCEmotion::Pain; Strength=Pain; }
+    if (Pain>.01f && !ToolFace) { CurrentEmotion=EMCEmotion::Pain; Strength=Pain; }
     float J=0,Sml=0,B=0,Tilt=0,Squ=0,Rnd=0;
     switch (CurrentEmotion)
     {
@@ -303,7 +311,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     J*=Strength; Sml*=Strength; B*=Strength; Tilt*=Strength; Squ*=Strength; Rnd*=Strength;
     // An initial wide-eyed intake becomes a small clenched brace near the throat.
     // This overlay fades back into the still-running emote, task reaction or speech.
-    const float Suction=FoodSuctionReaction*(1-Pain);
+    const float Suction=ToolFace?0.f:FoodSuctionReaction*(1-Pain);
     if (Suction>.001f)
     {
         J=FMath::Lerp(J,.48f*FoodSuctionFlinch,Suction);
@@ -313,13 +321,13 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         Squ=FMath::Lerp(Squ,.15f*(1-FoodSuctionFlinch),Suction);
         Rnd=FMath::Lerp(Rnd,.4f*FoodSuctionFlinch,Suction);
     }
-    const float Social=FMath::Max(SocialDisgust*.45f,SprayReaction*.85f)*(1-Pain)*(1-Suction);
+    const float Social=ToolFace?0.f:FMath::Max(SocialDisgust*.45f,SprayReaction*.85f)*(1-Pain)*(1-Suction);
     if(Social>.001f) {
         J=FMath::Lerp(J,0.f,Social); Sml=FMath::Lerp(Sml,-.35f,Social);
         Tilt=FMath::Lerp(Tilt,.8f,Social); B=FMath::Lerp(B,.08f,Social);
         Squ=FMath::Max(Squ,SocialEyeClosure()*(1-Pain));
     }
-    if (Pain<.1f && Voice>0)
+    if (!ToolFace && Pain<.1f && Voice>0)
     {
         const float Open=VoiceViseme==MCViseme::Closed || VoiceViseme==MCViseme::Rest?0:VoiceViseme==MCViseme::LipBite?.12f:Voice;
         J=FMath::Max(J,Open*.75f);
@@ -328,7 +336,7 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     }
     auto Smooth=[&](float& V,float Target){V=FMath::FInterpTo(V,Target,Dt,14.f);};
     Smooth(Jaw,J); Smooth(Smile,Sml); Smooth(Brows,B); Smooth(BrowTilt,Tilt); Smooth(EyeSquint,Squ); Smooth(Round,Rnd);
-    Smooth(LipClosure,Pain<.1f && Voice>0 && VoiceViseme==MCViseme::Closed?Voice:0.f);
+    Smooth(LipClosure,!ToolFace && Pain<.1f && Voice>0 && VoiceViseme==MCViseme::Closed?Voice:0.f);
     TArray<FTransform> RestCS; RestCS.SetNum(Pose.Num());
     for (int32 I=0;I<Pose.Num();++I) RestCS[I]=Ref.GetParentIndex(I)>=0?Ref.GetRefBonePose()[I]*RestCS[Ref.GetParentIndex(I)]:Ref.GetRefBonePose()[I];
     auto Offset=[&](FName Bone,FVector Delta)
@@ -337,13 +345,13 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
         const int32 Parent=Ref.GetParentIndex(I);
         Pose[I].AddToTranslation(Parent>=0?RestCS[Parent].InverseTransformVectorNoScale(Delta):Delta);
     };
-    const bool EyeOnly=UpdateEyeShapes(Dt,Strength,Pain>.01f);
-    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,Pain>.01f,EyeOnly);
+    const bool EyeOnly=UpdateEyeShapes(Dt,Strength,FaceLocked);
+    const bool MorphMouth=UpdateMouthShapes(Dt,Strength,FaceLocked,EyeOnly);
     // Artist brow poses coexist with the runtime morph mouth, blink and gaze.
     const bool AuthoredFace=Tooth->GetMesh()->GetSkeletalMeshAsset()
         && Tooth->GetMesh()->GetSkeletalMeshAsset()->FindMorphTarget(TEXT("Eyes_Blink"));
     const auto* Artist=ActiveEntry();
-    const float ArtistAlpha=!AuthoredFace && Artist && Artist->bFaceOnly && Artist->Animation && Pain<.01f?EmoteAlpha():0;
+    const float ArtistAlpha=!AuthoredFace && Artist && Artist->bFaceOnly && Artist->Animation && !FaceLocked?EmoteAlpha():0;
     if (ArtistAlpha>.001f)
     {
         const auto* Skeleton=Artist->Animation->GetSkeleton();

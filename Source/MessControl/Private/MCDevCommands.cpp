@@ -20,6 +20,8 @@
 #include "MCArenaTooth.h"
 #include "MCToothCalculusComponent.h"
 #include "MCInventoryComponent.h"
+#include "MCPlayerState.h"
+#include "MCPerkComponent.h"
 #include "MCTongue.h"
 #include "MCFirePatch.h"
 #include "MCMouthSurface.h"
@@ -220,6 +222,23 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     }
     if (BotSession && BotSession->IsActive())
         return FText::FromString(TEXT("Во время теста ботов ручные события отключены. Сначала нажми «Остановить ботов»."));
+    if(Action==EMCDevAction::GrantToolBooster || Action==EMCDevAction::GrantAllToolBoosters) {
+        auto* Player=Requester->GetPlayerState<AMCPlayerState>();auto* Perks=Player?Player->Perks.Get():nullptr;
+        if(!Perks) return FText::FromString(TEXT("Нужен игрок с инвентарём."));
+        const auto IDs=Perks->GetToolRewardIDs();
+        if(Action==EMCDevAction::GrantToolBooster) {
+            if(!IDs.IsValidIndex(StepIndex)) return FText::FromString(TEXT("Выбери инструмент в списке F3."));
+            const auto* Row=Perks->FindDefinition(IDs[StepIndex]);
+            return FText::FromString(Perks->ServerGrantReward(IDs[StepIndex])
+                ?Row->DisplayName.ToString()+(Row->Rarity==EMCPerkRarity::Legendary?TEXT(" добавлен всей команде."):TEXT(" добавлен твоему игроку."))
+                :TEXT("Это улучшение уже получено."));
+        }
+        if(StepIndex<0 || StepIndex>1) return FText::FromString(TEXT("Выбери выдачу себе или всей команде."));
+        const auto Rarity=StepIndex==1?EMCPerkRarity::Legendary:EMCPerkRarity::Rare;int32 Granted=0;
+        for(FName ID:IDs) if(const auto* Row=Perks->FindDefinition(ID);Row && Row->Rarity==Rarity && Perks->CanGrantPerk(ID))
+            Granted+=Perks->ServerGrantReward(ID)?1:0;
+        return FText::FromString(FString::Printf(TEXT("Добавлено улучшений: %d. %s"),Granted,StepIndex==1?TEXT("Получает вся команда."):TEXT("Получает только твой игрок.")));
+    }
     if (Action==EMCDevAction::CalculusClear)
     {
         for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) if (It->ActorHasTag(TEXT("MC_CalculusPractice")))

@@ -1,5 +1,6 @@
 #include "MCMouthSurface.h"
 #include "MCCoffeeWipe.h"
+#include "MCInventoryComponent.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCBrushContactComponent.h"
@@ -127,7 +128,7 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
     const FVector2D From=Previous && FVector2D::Distance(*Previous,UV)<.3?*Previous:UV;
     Worker->BrushContact->Contact(this,Point,Normal,&Base);
     if(!Worker->BrushContact->IsWorkReady()) return true;
-    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,36/(2*LiquidHalfSize),Seconds,&WipeFractional)) OnRep_Wipe();
+    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,Worker->Inventory->CleaningRadius(LiquidHalfSize)/(2*LiquidHalfSize),Seconds,&WipeFractional,Worker->Inventory->CleaningSpeedMultiplier())) OnRep_Wipe();
     BrushDirection=(UV-From).IsNearlyZero()?Side:(UV-From).GetSafeNormal();
     BrushUV=UV; PreviousBrush.Add(Worker,UV);
     BrushAt=Now;

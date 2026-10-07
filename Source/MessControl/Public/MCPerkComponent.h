@@ -21,6 +21,9 @@ public:
     /** Authority-only API, intentionally not a client RPC. Reward actors validate claims first. */
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Perks")
     bool ServerGrantPerk(FName PerkID);
+    /** Chest/shop grant: legendary tools additionally unlock for the entire run's team. */
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Perks") bool ServerGrantReward(FName PerkID);
+    UFUNCTION(BlueprintPure,Category="Perks") bool HasToolUpgrade(EMCToolUpgrade Kind) const;
 
     /** Validate every requested stack before changing state; a batch cannot partially apply. */
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Perks")
@@ -42,6 +45,8 @@ public:
     bool GetPerkDefinition(FName PerkID, FMCPerkDefinition& Definition) const;
 
     const FMCPerkDefinition* FindDefinition(FName PerkID) const;
+    /** Stable list shared by the host's F3 menu and its authoritative grant command. */
+    TArray<FName> GetToolRewardIDs() const;
 
     UFUNCTION(BlueprintPure, Category="Perks")
     UDataTable* GetPerkTable() const { return LoadedTable; }

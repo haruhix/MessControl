@@ -152,6 +152,7 @@ void AMCGameMode::RestartShift()
     for (auto* Actor:OldDayActors) Actor->Destroy();
     State->DayPlan=nullptr; State->StepIndex=INDEX_NONE; State->bPhysicalBrushes=false; State->bDayOneComplete=false; State->FailedEvents=0;
     State->bDevManualEvents=false;
+    State->TeamToolUpgrades=0;
     ClearTasks();
     Objectives.Empty(); PendingRespawns.Empty();
     TArray<AMCFoodActor*> OldFood;

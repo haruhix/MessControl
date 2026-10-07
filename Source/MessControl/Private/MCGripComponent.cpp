@@ -888,6 +888,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     const bool Emote=Tooth->Expression && Tooth->Expression->BodyAlpha()>.001f;
     const bool Swimming=Tooth->AnimationSwim>.05f || Tooth->AnimationClimb>.05f;
     const bool ToolPresented=Tooth->Inventory && Tooth->Inventory->ShouldPresentTool();
+    const bool UpgradeHeld=ToolPresented && Tooth->Inventory->SelectedUpgrade()!=EMCToolUpgrade::None;
     const bool ToolSwing=ToolPresented && !Tooth->AnimationToolOffset.IsNearlyZero();
     // The wrist pose keeps the pickaxe outside collision surfaces even between
     // swings. Physical arm blending would overwrite that corrected pose.
@@ -909,7 +910,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         && Tooth->AnimationClimb<=.01f && Tooth->AnimationSwim<=.01f;
     // Animated lock contact owns both visible wrists. SetGripArms already
     // settles the hidden limbs for .18s before easing physics back on release.
-    const bool PreciseBoth=Lockpicking || Emote || Swimming || ToolSwing || TaskCheer
+    const bool PreciseBoth=Lockpicking || Emote || Swimming || ToolSwing || UpgradeHeld || TaskCheer
         || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
     const bool PreciseLeft=PreciseBoth || SprayDefence;
     const bool PreciseRight=PreciseBoth || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());

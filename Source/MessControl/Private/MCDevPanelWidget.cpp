@@ -4,6 +4,8 @@
 #include "MCPrototypeWidget.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCPlayerState.h"
+#include "MCPerkComponent.h"
 #include "MCPlaytestSession.h"
 #include "MCFoodActor.h"
 #include "MCMouthSurface.h"
@@ -146,6 +148,20 @@ void UMCDevPanelWidget::RefreshActions()
             RiverFlood?TEXT("Волна сносит к глотке и смывает мелкие кусочки еды. WASD + Shift — бежать. ПКМ у стены, еды или игрока — держаться."):Step.Instruction.ToString(),EMCDevAction::StartStep,I);
     }
     AddAction(Steps,TEXT("Обычный день 1 — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычные таймеры и переходы."),EMCDevAction::RestartDay);
+    AddText(Actions,TEXT("НОВЫЕ ИНСТРУМЕНТЫ"),18);
+    AddAction(Actions,TEXT("Все новые инструменты — себе"),TEXT("Выдать редкие версии всех доступных бустеров своему игроку."),EMCDevAction::GrantAllToolBoosters,0);
+    AddAction(Actions,TEXT("Все новые инструменты — всей команде"),TEXT("Выдать легендарные версии всех бустеров всей команде, включая будущие возрождения."),EMCDevAction::GrantAllToolBoosters,1);
+    const auto* Owner=Cast<AMCPlayerController>(GetOwningPlayer());
+    const auto* Player=Owner?Owner->GetPlayerState<AMCPlayerState>():nullptr;
+    if(Player && Player->Perks) {
+        const auto IDs=Player->Perks->GetToolRewardIDs();
+        for(int32 I=0;I<IDs.Num();++I) if(const auto* Row=Player->Perks->FindDefinition(IDs[I])) {
+            const bool Team=Row->Rarity==EMCPerkRarity::Legendary;
+            AddAction(Actions,Row->DisplayName.ToString()+(Team?TEXT(" — всей команде"):TEXT(" — себе")),
+                Row->Description.ToString(),EMCDevAction::GrantToolBooster,I);
+        }
+    }
+    AddText(Actions,TEXT("СОБЫТИЯ И ФИЗИКА"),18);
     AddAction(Actions,TEXT("Active Ragdoll — мягкий (основной)"),TEXT("Основной профиль при старте и возрождении: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Применить ко всем текущим игрокам."),EMCDevAction::ActiveRagdoll,1);
     AddAction(Actions,TEXT("Active Ragdoll — упругий"),TEXT("Сравни более сильные мышцы при поворотах, прыжках и ударах. Точные контакты сохраняются."),EMCDevAction::ActiveRagdoll,2);
     AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Сравнение для отладки без перезапуска. Новые игроки и возрождения используют основной мягкий профиль."),EMCDevAction::ActiveRagdoll,0);

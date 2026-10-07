@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataAsset.h"
+#include "MCPerkTypes.h"
 #include "MCInventoryComponent.generated.h"
 
 class AMCToothCharacter;
@@ -30,6 +31,24 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tools") FTransform SprayTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> WaterJetMesh;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform WaterJetTransform;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> MeshaBrushMesh;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform MeshaBrushTransform;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FVector MeshaBrushContact=FVector(67,0,-9);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector MeshaBrushSupportGrip=FVector(-35,0,5);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> ChainsawMesh;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform ChainsawTransform;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector ChainsawSupportGrip=FVector(-36,0,40);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> BufferMesh;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform BufferTransform;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector BufferSupportGrip=FVector(-28,0,30);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> WatergunMesh;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform WatergunTransform;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector WatergunSupportGrip=FVector(20,0,-12);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FVector WatergunNozzle=FVector(102,0,12);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") float WatergunCareReach=1000;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") float WatergunChargeSeconds=1.5f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") float WatergunShotCooldown=4.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UMaterialInterface> UpgradeFallbackMaterial;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="0.1")) float PickaxeDamage=40;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="0.1")) float KnifeDamage=25;
     // Retained for loading old assets; treatment now follows held input without a cooldown.
@@ -45,9 +64,13 @@ class MESSCONTROL_API UMCInventoryComponent : public UActorComponent
 #if !UE_BUILD_SHIPPING
     friend void MCTickSprayNetworkValidation(UWorld* World);
 #endif
+#if WITH_DEV_AUTOMATION_TESTS
+    friend class FMCToolBoosterMechanics;
+#endif
 public:
     UMCInventoryComponent();
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tools") TSoftObjectPtr<UMCEquipmentProfile> Profile;
@@ -57,6 +80,23 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double LastSprayAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<AMCMouthSurface> HealingTarget;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<class AMCFirePatch> FireTarget;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") bool bPressureMode=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") bool bChargingWater=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") double WaterChargeStartedAt=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") double WaterShotReadyAt=0;
+    UFUNCTION(BlueprintPure,Category="Tools") bool HasUpgrade(EMCToolUpgrade Kind) const;
+    UFUNCTION(BlueprintPure,Category="Tools") bool IsChainsawRunning() const;
+    UFUNCTION(BlueprintPure,Category="Tools") bool IsUsingWatergun() const;
+    UFUNCTION(BlueprintPure,Category="Tools") EMCToolUpgrade SelectedUpgrade() const;
+    bool UpgradeSupportGrip(const FTransform& RightHandWorld,FTransform& LeftHandWorld) const;
+    UFUNCTION(BlueprintPure,Category="Tools|Watergun") float WaterChargeFraction() const;
+    float MovementMultiplier() const;
+    float CleaningSpeedMultiplier() const;
+    float CleaningRadius(float DirtRadius=36.f) const;
+    FVector BrushContactLocal() const;
+    float SprayReach() const;
+    void HandleChainsawCollision(AActor* Other,const FHitResult& Hit);
+    void CancelUpgradeUse();
     FVector SprayAim() const;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSelect(EMCToolSlot Slot);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSpray();
@@ -92,6 +132,20 @@ private:
     EMCToolSlot Presented=EMCToolSlot::Brush;
     bool bPresentedUpgrade=false;
     bool bPresentedFallback=false;
+    uint8 PresentedUpgradeMask=0;
+    UPROPERTY() TObjectPtr<UStaticMesh> OriginalBrushMesh;
+    FTransform OriginalBrushTransform;
+    uint16 SawMotionId=0;
+    bool bSawMotionActive=false;
+    double NextSawContactAt=0,SawStunEndsAt=-100;
+    TMap<TWeakObjectPtr<AActor>,double> SawContacts;
+    TWeakObjectPtr<class AMCReactionVFX> WaterStream;
+    void TickUpgrades(float Dt);
+    void TickChainsaw(float Dt);
+    void SawContact();
+    void FireChargedWater(float Charge);
+    void UpdateWaterStream();
+    uint8 UpgradeMask() const;
     void RefreshMesh();
     FVector LocalPickaxeContactTip() const;
     AMCMouthSurface* FindSprayTarget() const;

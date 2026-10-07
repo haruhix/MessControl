@@ -1,0 +1,115 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "54969B604CC347198F86B98117FEEFBA",
+			"instanceName": "VB-32988",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.07-12.21.56",
+	"succeeded": 3,
+	"succeededWithWarnings": 1,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.30011448264122009,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "BrushRateAcrossFrames",
+			"fullTestPath": "MessControl.ToolBoosters.BrushRateAcrossFrames",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"54969B604CC347198F86B98117FEEFBA"
+			],
+			"duration": 0.0077829994261264801,
+			"dateTime": "2026.10.07-12.21.56",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Mechanics",
+			"fullTestPath": "MessControl.ToolBoosters.Mechanics",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"54969B604CC347198F86B98117FEEFBA"
+			],
+			"duration": 0.26031109690666199,
+			"dateTime": "2026.10.07-12.21.56",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: MCFoodActor_0.FoodBody has to have 'Simulate Physics' enabled if you'd like to AddImpulse. ",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.07-12.21.56"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "OwnershipAndChest",
+			"fullTestPath": "MessControl.ToolBoosters.OwnershipAndChest",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"54969B604CC347198F86B98117FEEFBA"
+			],
+			"duration": 0.023875001817941666,
+			"dateTime": "2026.10.07-12.21.56",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Probability",
+			"fullTestPath": "MessControl.ToolBoosters.Probability",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"54969B604CC347198F86B98117FEEFBA"
+			],
+			"duration": 0.0081453993916511536,
+			"dateTime": "2026.10.07-12.21.56",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "One million chest seeds: legendary=204 (0.02% target), rare=10000 (1% target)",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.07-12.21.56"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

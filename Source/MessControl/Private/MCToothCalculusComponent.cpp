@@ -443,7 +443,8 @@ bool UMCToothCalculusComponent::ApplyPickaxeHit(AMCToothCharacter* Worker,FVecto
         { Closest=I; Best=Distance; ActualNormal=N; }
     }
     if(Closest==INDEX_NONE || FVector::DotProduct(ActualNormal,Normal.GetSafeNormal())<.4f) return false;
-    const int32 DamageStages=FMath::Clamp(FMath::CeilToInt(FMath::Min(Damage,75.f)/25.f),1,3);
+    const bool Buffer=Worker->Inventory->HasUpgrade(EMCToolUpgrade::Buffer);
+    const int32 DamageStages=Buffer?3:FMath::Clamp(FMath::CeilToInt(FMath::Min(Damage,75.f)/25.f),1,3);
     const FVector ActualPoint=PieceContact(Closest,ActualNormal);
     for(int32 I=0;I<SurfacePieces.Num() && I<State.Pieces.Num();++I)
     {
@@ -451,7 +452,7 @@ bool UMCToothCalculusComponent::ApplyPickaxeHit(AMCToothCharacter* Worker,FVecto
         FVector N;
         const FVector P=PieceContact(I,N);
         const float Distance=FVector::Dist(P,ActualPoint);
-        const int32 Chip=I==Closest?DamageStages:Distance<23.f?1:0;
+        const int32 Chip=I==Closest?DamageStages:Buffer && Distance<70.f?3:Distance<23.f?1:0;
         State.Pieces[I]=uint8(FMath::Max(0,int32(State.Pieces[I])-Chip));
     }
     State.HitPoint=Tooth->Visual->GetComponentTransform().InverseTransformPosition(Point);

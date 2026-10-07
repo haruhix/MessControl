@@ -1,0 +1,143 @@
+{
+  "meshes": [
+    {
+      "asset": "/Game/Art/Meshes/Equipments/SM_Chainsaw.SM_Chainsaw",
+      "bounds_origin": [
+        0.0,
+        1.9073486328125e-06,
+        0.0
+      ],
+      "extent": [
+        92.33963775634766,
+        40.21136283874512,
+        44.56351852416992
+      ],
+      "min": [
+        -92.33963775634766,
+        -40.211360931396484,
+        -44.56351852416992
+      ],
+      "max": [
+        92.33963775634766,
+        40.21136474609375,
+        44.56351852416992
+      ],
+      "materials": [
+        "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+      ],
+      "sockets": []
+    },
+    {
+      "asset": "/Game/FromBlender7/SM_Chainsaw.SM_Chainsaw",
+      "bounds_origin": [
+        0.0,
+        1.9073486328125e-06,
+        0.0
+      ],
+      "extent": [
+        92.33963775634766,
+        40.21136665344238,
+        44.56351852416992
+      ],
+      "min": [
+        -92.33963775634766,
+        -40.21136474609375,
+        -44.56351852416992
+      ],
+      "max": [
+        92.33963775634766,
+        40.211368560791016,
+        44.56351852416992
+      ],
+      "materials": [
+        "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+      ],
+      "sockets": []
+    },
+    {
+      "asset": "/Game/FromBlender7/SM_Buffer.SM_Buffer",
+      "bounds_origin": [
+        0.0,
+        2.86102294921875e-06,
+        0.0
+      ],
+      "extent": [
+        98.19782257080078,
+        29.920872688293457,
+        38.988037109375
+      ],
+      "min": [
+        -98.19782257080078,
+        -29.920869827270508,
+        -38.988037109375
+      ],
+      "max": [
+        98.19782257080078,
+        29.920875549316406,
+        38.988037109375
+      ],
+      "materials": [
+        "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+      ],
+      "sockets": []
+    },
+    {
+      "asset": "/Game/FromBlender7/SM_MeshaBrush.SM_MeshaBrush",
+      "bounds_origin": [
+        0.0,
+        -5.7220458984375e-06,
+        0.0
+      ],
+      "extent": [
+        81.81877136230469,
+        21.10030746459961,
+        14.871350288391113
+      ],
+      "min": [
+        -81.81877136230469,
+        -21.100313186645508,
+        -14.871350288391113
+      ],
+      "max": [
+        81.81877136230469,
+        21.10030174255371,
+        14.871350288391113
+      ],
+      "materials": [
+        "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+      ],
+      "sockets": []
+    },
+    {
+      "asset": "/Game/FromBlender7/SM_Watergun.SM_Watergun",
+      "bounds_origin": [
+        0.0,
+        -3.814697265625e-06,
+        0.0
+      ],
+      "extent": [
+        102.11331939697266,
+        19.013120651245117,
+        34.07086944580078
+      ],
+      "min": [
+        -102.11331939697266,
+        -19.013124465942383,
+        -34.07086944580078
+      ],
+      "max": [
+        102.11331939697266,
+        19.01311683654785,
+        34.07086944580078
+      ],
+      "materials": [
+        "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+      ],
+      "sockets": []
+    }
+  ],
+  "dirty_content": [],
+  "dirty_maps": [
+    "/Game/Maps/L_Mouth"
+  ]
+}

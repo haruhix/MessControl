@@ -3,7 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "MCReactionVFX.generated.h"
 UENUM()
-enum class EMCReactionEffect : uint8 { Impact, Suction, Yawn, Fire, Stars, Steam, BossWind, BlackClotImpact };
+enum class EMCReactionEffect : uint8 { Impact, Suction, Yawn, Fire, Stars, Steam, BossWind, BlackClotImpact, WaterStream, WaterShot, WaterImpact };
 
 /** Small replicated cosmetic bursts. Geometry is generated locally from the server clock. */
 UCLASS()

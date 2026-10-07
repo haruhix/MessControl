@@ -29,13 +29,13 @@ void AMCFirePatch::BeginPlay()
     if(Flames) Flames->AttachToActor(this,FAttachmentTransformRules::KeepWorldTransform);
     ForceNetUpdate();
 }
-bool AMCFirePatch::Extinguish(AMCToothCharacter* Worker,float Dt)
+bool AMCFirePatch::Extinguish(AMCToothCharacter* Worker,float Dt,float Power)
 {
     if(!HasAuthority() || !IsBurning() || !IsValid(Worker) || !Worker->CanWork() || !FMath::IsFinite(Dt) || Dt<=0) return false;
     if(LastTreatmentFrame==GFrameCounter) return true;
     LastTreatmentFrame=GFrameCounter;
     if(IsValid(Lesion)) Lesion->ApplyAnesthetic(.3f);
-    Heat=FMath::Max(0.f,Heat-FMath::Min(Dt,.2f)/FMath::Max(.1f,ExtinguishSeconds));
+    Heat=FMath::Max(0.f,Heat-FMath::Min(Dt,.2f)/FMath::Max(.1f,ExtinguishSeconds)*FMath::Clamp(Power,1.f,3.f));
     if(Heat<.0001f) {
         Heat=0;SetLifeSpan(.7f);
         AMCReactionVFX::Spawn(GetWorld(),GetActorLocation(),EMCReactionEffect::Steam,1.2f,BurnRadius);

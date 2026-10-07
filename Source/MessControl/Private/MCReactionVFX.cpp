@@ -161,7 +161,23 @@ void AMCReactionVFX::Tick(float Dt)
     FireLight->SetVisibility(Effect==EMCReactionEffect::Fire);
     const FVector Axis=Direction.IsNearlyZero()?FVector::ForwardVector:Direction;
     const FVector R=FVector::CrossProduct(Axis,FVector::UpVector).GetSafeNormal(),V=FVector::CrossProduct(R,Axis).GetSafeNormal();
-    if(Effect==EMCReactionEffect::BossWind) {
+    if(Effect==EMCReactionEffect::WaterStream || Effect==EMCReactionEffect::WaterShot) {
+        const bool Shot=Effect==EMCReactionEffect::WaterShot;
+        const float Span=FMath::Max(10.f,FlowLength),Width=Shot?Radius*.25f:2.5f;
+        Soft.Line(FVector::ZeroVector,Axis*Span,Width,FLinearColor(.10f,.55f,.90f,Shot?.85f:.4f));
+        Glow.Line(FVector::ZeroVector,Axis*Span,Width*.35f,FLinearColor(.45f,.85f,1.4f,Shot?.95f:.7f));
+        for(int32 I=0;I<(Shot?16:26);++I) {
+            const float U=FMath::Frac(Age*3+I/26.f),A=I*2.39996f;
+            const FVector P=Axis*Span*U+(R*FMath::Cos(A)+V*FMath::Sin(A))*Radius*U*.45f;
+            Soft.Disk(P,Right,Up,Shot?3.5f:2.f,FLinearColor(.28f,.72f,1.f,.70f),8);
+        }
+    } else if(Effect==EMCReactionEffect::WaterImpact) {
+        for(int32 I=0;I<16;++I) {
+            const float A=I*2.39996f;
+            const FVector P=(R*FMath::Cos(A)+V*FMath::Sin(A))*Radius*T+Axis*Radius*.3f*FMath::Sin(T*PI)-FVector(0,0,T*T*30);
+            Soft.Disk(P,Right,Up,4*(1-T)+1,FLinearColor(.25f,.72f,1.f,.8f*(1-T)),8);
+        }
+    } else if(Effect==EMCReactionEffect::BossWind) {
         // Outward, widening streaks identify the jaw as the source of the exhalation.
         const float Span=FMath::Max(100.f,FlowLength),Strength=FMath::SmoothStep(0.f,.12f,Age)*Fade;
         for(int32 I=0;I<22;++I) {

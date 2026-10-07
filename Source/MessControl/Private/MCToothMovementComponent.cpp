@@ -1,6 +1,7 @@
 #include "MCToothMovementComponent.h"
 #include "MCCoffeeFlood.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
 #include "MCBrushContactComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
@@ -441,7 +442,7 @@ float UMCToothMovementComponent::GetMaxSpeed() const
     const float Load=bHasBraceSample?BraceMovement.LoadMass:Hero->Grip->LoadMass();
     const float Incoming=bHasBraceSample?BraceMovement.IncomingMass:Hero->Grip->IncomingChainMass();
     Speed/=FMath::Sqrt(1+Load/35.f)*FMath::Sqrt(1+Incoming/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass)*.75f);
-    return Speed*(IsMovingOnGround() && GroundSurface==EMCGroundSurface::Sticky?.58f:1.f);
+    return Speed*(IsMovingOnGround() && GroundSurface==EMCGroundSurface::Sticky?.58f:1.f)*(Hero->Inventory?Hero->Inventory->MovementMultiplier():1.f);
 }
 float UMCToothMovementComponent::GetMaxAcceleration() const
 {
