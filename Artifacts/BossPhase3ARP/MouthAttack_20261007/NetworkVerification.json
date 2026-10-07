@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "server_max_clots": 13,
+  "client_max_clots": 13,
+  "client_wind_seen": true,
+  "max_client_drift_speed": 29.194594117363273,
+  "max_client_displacement": 61.98172199896587,
+  "server_displacement": 62.946117618295474,
+  "max_flight_position_error_cm": 41.42834121661119,
+  "samples": 1650,
+  "error": null,
+  "server_health": 76.0,
+  "client_health": 76.0
+}

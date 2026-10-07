@@ -2,6 +2,7 @@
 #include "MCBossAnimInstance.h"
 #include "MCBossAIController.h"
 #include "MCBossFaceComponent.h"
+#include "MCBossMouthAttackComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCGameMode.h"
@@ -36,6 +37,7 @@ AMCBossCharacter::AMCBossCharacter()
     BodyHitbox->SetGenerateOverlapEvents(false);
     BodyHitbox->SetCanEverAffectNavigation(false);
     Face=CreateDefaultSubobject<UMCBossFaceComponent>(TEXT("BossFace"));
+    MouthAttack=CreateDefaultSubobject<UMCBossMouthAttackComponent>(TEXT("MouthAttack"));
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     bUseControllerRotationYaw=false;
     GetCharacterMovement()->bOrientRotationToMovement=false;
@@ -111,6 +113,8 @@ void AMCBossCharacter::OnRep_Profile()
         KeepClip(ResolvedProfile->DeathAnimation);
         KeepClip(ResolvedProfile->RoarAnimation);
         for (const auto& Attack:ResolvedProfile->Attacks) KeepClip(Attack.Animation);
+        if(ResolvedProfile->Attacks.ContainsByPredicate([](const auto& A){return A.bMouthClotAttack;}))
+            GetMesh()->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
         CurrentAnimation=nullptr;
         UpdateAnimationPresentation();
     }
@@ -133,6 +137,7 @@ FVector AMCBossCharacter::GetMeleeTargetPoint(const FVector& Source) const
 void AMCBossCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     GetWorldTimerManager().ClearTimer(AttackTimer);
+    MouthAttack->StopAttack(true);
     if (auto* Brain=Cast<AMCBossAIController>(GetController())) Brain->StopBossBrain();
     Super::EndPlay(EndPlayReason);
 }
@@ -162,6 +167,7 @@ void AMCBossCharacter::DeactivateBoss()
 {
     if (!HasAuthority() || !IsBossAlive()) return;
     GetWorldTimerManager().ClearTimer(AttackTimer);
+    MouthAttack->StopAttack();
     if (auto* Brain=Cast<AMCBossAIController>(GetController())) Brain->StopBossBrain();
     Runtime.Target=nullptr;
     Runtime.AttackId=NAME_None;
@@ -174,6 +180,7 @@ void AMCBossCharacter::ResetForRun()
 {
     if (!HasAuthority() || IsActorBeingDestroyed()) return;
     GetWorldTimerManager().ClearTimer(AttackTimer);
+    MouthAttack->StopAttack(true);
     if (AMCBossAIController* Brain=Cast<AMCBossAIController>(GetController())) Brain->StopBossBrain();
     NextAttackAt.Reset();
     PendingAttack=FMCBossAttackDefinition();
@@ -209,6 +216,7 @@ float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
     if (Runtime.Health<=0.f)
     {
         GetWorldTimerManager().ClearTimer(AttackTimer);
+        MouthAttack->StopAttack();
         if (auto* Brain=Cast<AMCBossAIController>(GetController())) Brain->StopBossBrain();
         GetCharacterMovement()->DisableMovement();
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -322,6 +330,7 @@ void AMCBossCharacter::ImpactAttack()
 void AMCBossCharacter::ExecuteAttack_Implementation(const FMCBossAttackDefinition& Attack,AMCToothCharacter* Target)
 {
     if (!HasAuthority() || !IsBossAlive() || Runtime.State!=EMCBossState::Attacking) return;
+    if(Attack.bMouthClotAttack) {MouthAttack->StartAttack(Attack);return;}
     // A single impact damages each eligible human or allied test bot once.
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
@@ -411,7 +420,8 @@ UAnimSequence* AMCBossCharacter::PreviewSequence(EMCBossAnimationPreview Preview
     default: break;
     }
     const FName Id=Preview==EMCBossAnimationPreview::PunchLeft?FName(TEXT("PunchLeft")):
-        Preview==EMCBossAnimationPreview::PunchRight?FName(TEXT("PunchRight")):Preview==EMCBossAnimationPreview::Kick?FName(TEXT("Kick")):FName(NAME_None);
+        Preview==EMCBossAnimationPreview::PunchRight?FName(TEXT("PunchRight")):Preview==EMCBossAnimationPreview::Kick?FName(TEXT("Kick")):
+        Preview==EMCBossAnimationPreview::AreaAttack?FName(TEXT("AreaAttack")):FName(NAME_None);
     for (const auto& Attack:ResolvedProfile->Attacks) if (Attack.AttackId==Id) return Attack.Animation.Get();
     return nullptr;
 }
@@ -447,7 +457,8 @@ void AMCBossCharacter::UpdateAnimationPresentation()
         StartedAt=Runtime.PreviewStartedAt;
         bLoop=Runtime.AnimationPreview==EMCBossAnimationPreview::Idle || Runtime.AnimationPreview==EMCBossAnimationPreview::Walk;
         bAttackClip=Runtime.AnimationPreview==EMCBossAnimationPreview::PunchLeft
-            || Runtime.AnimationPreview==EMCBossAnimationPreview::PunchRight || Runtime.AnimationPreview==EMCBossAnimationPreview::Kick;
+            || Runtime.AnimationPreview==EMCBossAnimationPreview::PunchRight || Runtime.AnimationPreview==EMCBossAnimationPreview::Kick
+            || Runtime.AnimationPreview==EMCBossAnimationPreview::AreaAttack;
     }
     else if (Runtime.State==EMCBossState::Dead) Clip=ResolvedProfile->DeathAnimation.Get();
     else if (Runtime.State==EMCBossState::Telegraph || Runtime.State==EMCBossState::Attacking || Runtime.State==EMCBossState::Recovering)

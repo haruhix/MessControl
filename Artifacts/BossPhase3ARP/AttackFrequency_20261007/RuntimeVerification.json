@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "initial_distance": 504.7646513530006,
+  "closest_distance": 301.3317262710555,
+  "attacks": [
+    {
+      "id": "AreaAttack",
+      "selected_at": 0.0,
+      "distance": 504.7646513530006
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 8.41642239689827,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 10.516463499516249,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 12.616498697549105,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 14.716588396579027,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 16.816621899604797,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 18.916654098778963,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 21.01675069704652,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 23.116844296455383,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "AreaAttack",
+      "selected_at": 25.21688859909773,
+      "distance": 301.3317262710555
+    },
+    {
+      "id": "PunchRight",
+      "selected_at": 32.417003598064184,
+      "distance": 301.3317262710555
+    }
+  ],
+  "hit_clip_seen": true,
+  "area_clip_seen": true,
+  "hit_damage_seen": true,
+  "damage": 264.0,
+  "punches": 9,
+  "aoe": 2,
+  "minimum_aoe_interval": 25.21688859909773,
+  "error": null
+}

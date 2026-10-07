@@ -70,9 +70,10 @@ skeleton = mesh.get_editor_property('skeleton')
 assert skeleton.get_path_name().startswith(RIG+'/')
 material = u.load_asset('/Game/Art/Materials/Bosses/Guardian/MI_Boss')
 slots = list(mesh.get_editor_property('materials'))
-for slot in slots:
-    slot.material_interface = material
-mesh.set_editor_property('materials',slots)
+if not existing:
+    for slot in slots:
+        slot.material_interface = material
+    mesh.set_editor_property('materials',slots)
 component = u.new_object(u.SkeletalMeshComponent)
 component.set_skeletal_mesh_asset(mesh)
 hierarchy = [{'name':str(component.get_bone_name(i)), 'parent':str(component.get_parent_bone(component.get_bone_name(i)))}
@@ -103,8 +104,9 @@ for record in manifest['clips']:
                 bones[n]={'position':list(tr.translation.to_tuple()),'scale':list(tr.scale3d.to_tuple())}
         frames.append({'time':t,'bone_count':len(bone_names),'bones':bones})
     rows.append({**record,'asset':clip.get_path_name(),'duration':clip.get_play_length(),'poses':frames})
-u.AnimationLibrary.set_skeleton_preview_mesh(skeleton,mesh)
-for obj in [mesh,skeleton,*clips.values()]:
+if not existing:
+    u.AnimationLibrary.set_skeleton_preview_mesh(skeleton,mesh)
+for obj in ([mesh,skeleton] if not existing else [])+list(clips.values()):
     assert lib.save_loaded_asset(obj,only_if_is_dirty=False)
 report={'mesh':mesh.get_path_name(),'skeleton':skeleton.get_path_name(),'bounds':str(mesh.get_bounds()),
         'hierarchy':hierarchy,'clips':rows,'material':material.get_path_name()}

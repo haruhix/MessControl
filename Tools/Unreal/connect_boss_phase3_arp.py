@@ -66,7 +66,11 @@ for record in manifest['clips']:
     attack.selection_weight=record.get('weight',1.)
     attack.start_delay_seconds=record.get('start_delay_seconds',.50)
     attack.windup_seconds=(record['impact_frame']-record['start'])/manifest['fps']
-    attack.active_seconds=.1
+    attack.mouth_clot_attack=record.get('mouth_clot_attack',False)
+    attack.clot_count=record.get('clot_count',28)
+    attack.clot_damage=record.get('clot_damage',4.)
+    attack.wind_push_acceleration=record.get('wind_push_acceleration',260.)
+    attack.active_seconds=record.get('active_seconds',.1)
     attack.recovery_seconds=clip.get_play_length()-attack.windup_seconds-attack.active_seconds
     assert attack.recovery_seconds>=.05
     attack.cooldown_seconds=record.get('cooldown',3.5)

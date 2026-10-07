@@ -1,0 +1,5 @@
+[
+  {"name":"AN_BossPhase3_ARP_Walk","action":"walk","start":1,"end":44,"role":"walk"},
+  {"name":"AN_BossPhase3_ARP_Hit","action":"hit_atack_01","start":37,"end":84,"role":"attack","attack_id":"PunchRight","impact_frame":43,"start_delay_seconds":0.50,"cooldown":0,"range":280},
+  {"name":"AN_BossPhase3_ARP_Idle","action":"hit_atack_01","start":-5,"end":-4,"role":"idle"}
+]

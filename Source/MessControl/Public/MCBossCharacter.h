@@ -9,6 +9,7 @@ class AMCToothCharacter;
 class AMCBossAIController;
 class UCapsuleComponent;
 class UMCBossFaceComponent;
+class UMCBossMouthAttackComponent;
 
 /** One replicated snapshot keeps phase and attack presentation coherent on clients. Times use server world time. */
 USTRUCT(BlueprintType)
@@ -42,6 +43,7 @@ public:
     /** Combat volume follows the torso; the narrower root capsule remains the navigation shape. */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Boss|Collision") TObjectPtr<UCapsuleComponent> BodyHitbox;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Boss|Presentation") TObjectPtr<UMCBossFaceComponent> Face;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Boss|Attacks") TObjectPtr<UMCBossMouthAttackComponent> MouthAttack;
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual float TakeDamage(float DamageAmount,const FDamageEvent& DamageEvent,AController* EventInstigator,AActor* DamageCauser) override;

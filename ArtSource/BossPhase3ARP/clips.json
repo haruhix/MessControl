@@ -1,5 +1,6 @@
 [
   {"name":"AN_BossPhase3_ARP_Walk","action":"walk","start":1,"end":44,"role":"walk"},
-  {"name":"AN_BossPhase3_ARP_Hit","action":"hit_atack_01","start":37,"end":84,"role":"attack","attack_id":"PunchRight","impact_frame":43,"start_delay_seconds":0.50,"cooldown":0,"range":280},
-  {"name":"AN_BossPhase3_ARP_Idle","action":"hit_atack_01","start":-5,"end":-4,"role":"idle"}
+  {"name":"AN_BossPhase3_ARP_Hit","action":"hit_atack_01","start":37,"end":84,"role":"attack","attack_id":"PunchRight","impact_frame":43,"start_delay_seconds":0.50,"cooldown":0,"range":280,"weight":4},
+  {"name":"AN_BossPhase3_ARP_Idle","action":"idle","start":0,"end":150,"role":"idle"},
+  {"name":"AN_BossPhase3_ARP_AreaAttack","action":"atack_aoe","start":0,"end":199,"role":"attack","attack_id":"AreaAttack","impact_frame":50,"start_delay_seconds":0.50,"cooldown":12,"range":850,"half_angle_degrees":75,"weight":1,"mouth_clot_attack":true,"clot_count":28,"clot_damage":4,"wind_push_acceleration":260,"active_seconds":2.2}
 ]

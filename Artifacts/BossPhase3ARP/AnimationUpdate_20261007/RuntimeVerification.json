@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "bones": 104,
+  "clips": [
+    {
+      "name": "Idle",
+      "seconds": 5.0,
+      "evaluated_poses": 396,
+      "motion_cm": {
+        "root_x": 4.162311350265185,
+        "head_x": 4.420547775935687,
+        "arm_stretch_r": 5.110622884206592,
+        "hand_l": 13.684942618467069,
+        "hand_r": 16.078055456439078,
+        "foot_l": 0.11870262909899441,
+        "foot_r": 0.5019535318709293
+      },
+      "min_attack_weight": 1.0,
+      "damage_suppressed": true
+    },
+    {
+      "name": "Walk",
+      "seconds": 1.4333332777023315,
+      "evaluated_poses": 124,
+      "motion_cm": {
+        "root_x": 25.21418247123585,
+        "head_x": 30.76727414866492,
+        "arm_stretch_r": 54.38902528414893,
+        "hand_l": 255.20891335243618,
+        "hand_r": 219.43273836045722,
+        "foot_l": 101.55423348551139,
+        "foot_r": 124.17161296678186
+      },
+      "min_attack_weight": 1.0,
+      "damage_suppressed": true
+    },
+    {
+      "name": "Hit",
+      "seconds": 1.5666667222976685,
+      "evaluated_poses": 161,
+      "motion_cm": {
+        "root_x": 101.55955215256509,
+        "head_x": 111.81190620345669,
+        "arm_stretch_r": 106.89575450842266,
+        "hand_l": 547.8158153430298,
+        "hand_r": 336.8570804080721,
+        "foot_l": 138.32523763728474,
+        "foot_r": 59.01358879225106
+      },
+      "min_attack_weight": 1.0,
+      "damage_suppressed": true
+    },
+    {
+      "name": "AreaAttack",
+      "seconds": 6.633333206176758,
+      "evaluated_poses": 559,
+      "motion_cm": {
+        "root_x": 41.04161418938105,
+        "head_x": 115.28449908683793,
+        "arm_stretch_r": 94.19379490222494,
+        "hand_l": 200.02451830201576,
+        "hand_r": 177.92839251984728,
+        "foot_l": 54.88714091527915,
+        "foot_r": 19.143913678025392
+      },
+      "min_attack_weight": 1.0,
+      "damage_suppressed": true
+    }
+  ],
+  "max_pose_rotation_error": 0.05364613750851133,
+  "max_pose_translation_error": 7.701086694734104e-13,
+  "max_actor_displacement_cm": 1.3360810279846191,
+  "error": null
+}

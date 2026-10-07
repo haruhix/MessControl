@@ -309,7 +309,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     if (Action==EMCDevAction::BossPhase3Spawn || Action==EMCDevAction::BossPhase3Animation
         || Action==EMCDevAction::BossPhase3Activate || Action==EMCDevAction::BossPhase3Deactivate)
     {
-        if (Action==EMCDevAction::BossPhase3Animation && (StepIndex<1 || StepIndex>8))
+        if (Action==EMCDevAction::BossPhase3Animation && (StepIndex<1 || StepIndex>int32(EMCBossAnimationPreview::AreaAttack)))
             return FText::FromString(TEXT("Неизвестная анимация босса фазы 3."));
         AMCBossCharacter* Boss=SpawnDevBoss(GetWorld(),Requester,EDevBossVariant::Phase3);
         if (!Boss) return FText::FromString(TEXT("Для фазы 3 нужно свободное место на Boss NavMesh рядом с живым игроком."));

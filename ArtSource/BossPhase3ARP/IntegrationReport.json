@@ -5,19 +5,37 @@
   "skeleton": "/Game/Gameplay/Boss/Phase3/Rig/SK_BossPhase3_ARP_Skeleton.SK_BossPhase3_ARP_Skeleton",
   "scale": 0.48024988157371307,
   "height_cm": 300.0,
+  "body_hitbox_scale": 1.25,
   "clips": [
     "AN_BossPhase3_ARP_Walk",
     "AN_BossPhase3_ARP_Hit",
-    "AN_BossPhase3_ARP_Idle"
+    "AN_BossPhase3_ARP_Idle",
+    "AN_BossPhase3_ARP_AreaAttack"
   ],
   "attacks": [
     {
       "id": "PunchRight",
+      "weight": 4.0,
+      "cooldown_after_clip": 0.0,
+      "range": 280.0,
+      "start_delay": 0.5,
       "windup": 0.20000000298023224,
-      "recovery": 1.2666667699813843,
-      "start_delay": 0.5
+      "active": 0.10000000149011612,
+      "recovery": 1.2666667699813843
+    },
+    {
+      "id": "AreaAttack",
+      "weight": 1.0,
+      "cooldown_after_clip": 12.0,
+      "range": 850.0,
+      "start_delay": 0.5,
+      "windup": 1.6666666269302368,
+      "active": 2.200000047683716,
+      "recovery": 2.7666664123535156
     }
   ],
+  "animation_blend_seconds": 0.30000001192092896,
+  "attack_playback": "Full weight from the first frame; blend out only after the clip completes.",
   "deleted_old_animations": [
     "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_Death",
     "/Game/Gameplay/Boss/Phase3/Animations/AN_BossPhase3_Hurt",
@@ -48,8 +66,17 @@
     }
   ],
   "future_import": "Reuse this exact skeleton; append clips.json entries and run exporter/importer/connect.",
-  "animation_blend_seconds": 0.3,
-  "attack_playback": "Full weight from the first frame; blend out only after the clip completes.",
-  "body_hitbox_scale": 1.25,
-  "ground_offset": -109.83296797265623
+  "mouth_attack": {
+    "clots": 28,
+    "emission_seconds": 2.2,
+    "clot_damage": 4,
+    "max_direct_damage_per_player": 24,
+    "max_active_boss_ulcers": 2,
+    "range_cm": 850,
+    "wind_max_drift_cm_s": 55,
+    "mixing_seconds": 0.30000001192092896,
+    "start_delay_seconds": 0.5,
+    "cooldown_after_clip_seconds": 12,
+    "selection_weight": 1
+  }
 }

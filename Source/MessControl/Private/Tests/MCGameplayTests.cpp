@@ -1,5 +1,6 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "MCBossMeleeTests.h"
+#include "MCBossMouthAttackTests.h"
 #include "Misc/AutomationTest.h"
 #include "MCGameMode.h"
 #include "MCColdCola.h"
