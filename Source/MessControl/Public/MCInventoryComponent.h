@@ -35,15 +35,24 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform MeshaBrushTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FVector MeshaBrushContact=FVector(67,0,-9);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector MeshaBrushSupportGrip=FVector(-35,0,5);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FRotator MeshaBrushSupportRotation;
+    // Tool centre/orientation in character space; size comes from its attachment.
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Idle") FTransform MeshaBrushIdlePose;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> ChainsawMesh;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform ChainsawTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector ChainsawSupportGrip=FVector(-36,0,40);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FRotator ChainsawSupportRotation;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Idle") FTransform ChainsawIdlePose;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> BufferMesh;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform BufferTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector BufferSupportGrip=FVector(-28,0,30);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FRotator BufferSupportRotation;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Idle") FTransform BufferIdlePose;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> WatergunMesh;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform WatergunTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector WatergunSupportGrip=FVector(20,0,-12);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FRotator WatergunSupportRotation;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Idle") FTransform WatergunIdlePose;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FVector WatergunNozzle=FVector(102,0,12);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") float WatergunCareReach=1000;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") float WatergunChargeSeconds=1.5f;
@@ -88,6 +97,8 @@ public:
     UFUNCTION(BlueprintPure,Category="Tools") bool IsChainsawRunning() const;
     UFUNCTION(BlueprintPure,Category="Tools") bool IsUsingWatergun() const;
     UFUNCTION(BlueprintPure,Category="Tools") EMCToolUpgrade SelectedUpgrade() const;
+    bool UpgradeIdleGrip(FTransform& RightHandWorld) const;
+    FQuat ToolHandRotation(const FQuat& ToolWorldRotation) const;
     bool UpgradeSupportGrip(const FTransform& RightHandWorld,FTransform& LeftHandWorld) const;
     UFUNCTION(BlueprintPure,Category="Tools|Watergun") float WaterChargeFraction() const;
     float MovementMultiplier() const;

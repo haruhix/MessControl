@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "name": "Chainsaw_Pain",
+      "support_error_cm": 3.60082735135905e-06,
+      "tool_bottom_relative_to_actor_cm": -7.19944728404468,
+      "emotion": "<MCEmotion.PAIN: 5>",
+      "pain_morph": 0.9999997615814209,
+      "effort_morph": 0.0
+    },
+    {
+      "name": "Watergun_Effort",
+      "support_error_cm": 3.0515040388578965e-06,
+      "tool_bottom_relative_to_actor_cm": -6.535732315711883,
+      "emotion": "<MCEmotion.EFFORT: 6>",
+      "pain_morph": 0.0,
+      "effort_morph": 0.9999997615814209
+    }
+  ],
+  "error": null
+}

@@ -1,0 +1,29 @@
+{
+  "mesha_brush_transform": "<Struct 'Transform' (0x000001B41AF3DAD0) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: 58.500000, y: 0.000000, z: 0.000000}, scale3d: {x: 0.715000, y: 0.715000, z: 0.715000}}>",
+  "chainsaw_transform": "<Struct 'Transform' (0x000001B41AF3DB90) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: 52.000000, y: 0.000000, z: 0.000000}, scale3d: {x: 0.715000, y: 0.715000, z: 0.715000}}>",
+  "buffer_transform": "<Struct 'Transform' (0x000001B41AF3DC40) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: 45.500000, y: 0.000000, z: 0.000000}, scale3d: {x: 0.546000, y: 0.546000, z: 0.546000}}>",
+  "watergun_transform": "<Struct 'Transform' (0x000001B41AF3DCF0) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: 52.000000, y: 0.000000, z: 0.000000}, scale3d: {x: 0.650000, y: 0.650000, z: 0.650000}}>",
+  "mesha_brush_support_grip": "<Struct 'Vector' (0x000001B41AF3DB48) {x: -35.000000, y: 0.000000, z: 5.000000}>",
+  "chainsaw_support_grip": "<Struct 'Vector' (0x000001B41AF3DBF0) {x: -36.000000, y: 0.000000, z: 40.000000}>",
+  "buffer_support_grip": "<Struct 'Vector' (0x000001B41AF3DCA0) {x: -28.000000, y: 0.000000, z: 30.000000}>",
+  "watergun_support_grip": "<Struct 'Vector' (0x000001B41AF3DD50) {x: 20.000000, y: 0.000000, z: -12.000000}>",
+  "dirty_maps": [],
+  "dirty_assets": [],
+  "pie": true,
+  "mesha_brush_mesh": {
+    "path": "/Game/FromBlender7/SM_MeshaBrush.SM_MeshaBrush",
+    "bounds": "<Struct 'Box' (0x000001B471812E80) {min: {x: -81.818771, y: -21.100313, z: -14.871350}, max: {x: 81.818771, y: 21.100302, z: 14.871350}, is_valid: True}>"
+  },
+  "chainsaw_mesh": {
+    "path": "/Game/Art/Meshes/Equipments/SM_Chainsaw.SM_Chainsaw",
+    "bounds": "<Struct 'Box' (0x000001B471810480) {min: {x: -92.339638, y: -40.211361, z: -44.563519}, max: {x: 92.339638, y: 40.211365, z: 44.563519}, is_valid: True}>"
+  },
+  "buffer_mesh": {
+    "path": "/Game/FromBlender7/SM_Buffer.SM_Buffer",
+    "bounds": "<Struct 'Box' (0x000001B471811940) {min: {x: -98.197823, y: -29.920870, z: -38.988037}, max: {x: 98.197823, y: 29.920876, z: 38.988037}, is_valid: True}>"
+  },
+  "watergun_mesh": {
+    "path": "/Game/FromBlender7/SM_Watergun.SM_Watergun",
+    "bounds": "<Struct 'Box' (0x000001B471811A00) {min: {x: -102.113319, y: -19.013124, z: -34.070869}, max: {x: 102.113319, y: 19.013117, z: 34.070869}, is_valid: True}>"
+  }
+}

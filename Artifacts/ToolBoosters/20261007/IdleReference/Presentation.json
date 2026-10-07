@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "name": "MeshaBrush",
+      "left_grip_error_cm": 1.4281732235759946e-13,
+      "right_grip_error_cm": 4.930618048002867e-06,
+      "idle_centre_error_cm": 1.6445442854282225e-06,
+      "scale": [
+        1.000000059604691,
+        1.0000001788139876,
+        1.000000059604659
+      ],
+      "actual_idle_rotation": "<Struct 'Rotator' (0x00000203A4D6E180) {pitch: 21.612171, yaw: -76.943695, roll: -18.627291}>"
+    },
+    {
+      "name": "Chainsaw",
+      "left_grip_error_cm": 2.0691316789454157e-13,
+      "right_grip_error_cm": 5.2306450747826315e-06,
+      "idle_centre_error_cm": 5.50717535650869e-06,
+      "scale": [
+        0.8471732048495895,
+        0.8471733058405054,
+        0.8471732048495624
+      ],
+      "actual_idle_rotation": "<Struct 'Rotator' (0x00000203A4D6E180) {pitch: 7.783513, yaw: -56.337288, roll: -13.193520}>"
+    },
+    {
+      "name": "Buffer",
+      "left_grip_error_cm": 1.7346558842822478e-13,
+      "right_grip_error_cm": 3.640915903185556e-05,
+      "idle_centre_error_cm": 6.238611572667172e-06,
+      "scale": [
+        0.8387766980396089,
+        0.8387767980295834,
+        0.8387766980395822
+      ],
+      "actual_idle_rotation": "<Struct 'Rotator' (0x00000203A4D6E180) {pitch: -6.581510, yaw: -57.308178, roll: 2.389203}>"
+    },
+    {
+      "name": "Watergun",
+      "left_grip_error_cm": 2.2958338407482174e-13,
+      "right_grip_error_cm": 1.1794994819837533e-05,
+      "idle_centre_error_cm": 3.639485472710249e-06,
+      "scale": [
+        1.000000059604691,
+        1.0000001788139876,
+        1.000000059604659
+      ],
+      "actual_idle_rotation": "<Struct 'Rotator' (0x00000203A4D6E180) {pitch: -13.501224, yaw: -65.973114, roll: 9.959296}>"
+    }
+  ],
+  "error": null
+}

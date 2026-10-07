@@ -55,21 +55,46 @@ EMCToolUpgrade UMCInventoryComponent::SelectedUpgrade() const
         Selected==EMCToolSlot::Knife?EMCToolUpgrade::Chainsaw:EMCToolUpgrade::Watergun;
     return HasUpgrade(Kind)?Kind:EMCToolUpgrade::None;
 }
+bool UMCInventoryComponent::UpgradeIdleGrip(FTransform& RightHandWorld) const
+{
+    if(!Hero || !Settings) return false;
+    FTransform Attachment,Idle;
+    switch(SelectedUpgrade()) {
+    case EMCToolUpgrade::MeshaBrush:Attachment=Settings->MeshaBrushTransform;Idle=Settings->MeshaBrushIdlePose;break;
+    case EMCToolUpgrade::Chainsaw:Attachment=Settings->ChainsawTransform;Idle=Settings->ChainsawIdlePose;break;
+    case EMCToolUpgrade::Buffer:Attachment=Settings->BufferTransform;Idle=Settings->BufferIdlePose;break;
+    case EMCToolUpgrade::Watergun:Attachment=Settings->WatergunTransform;Idle=Settings->WatergunIdlePose;break;
+    default:return false;
+    }
+    const FTransform InHand=Attachment*Hero->BrushPivot->GetRelativeTransform();
+    Idle.SetScale3D(InHand.GetScale3D());
+    // Solve the wrist from the authored tool pose, retaining the artist's
+    // attachment offset and the character rig's brush-pivot correction.
+    RightHandWorld=InHand.Inverse()*Idle*Hero->GetActorTransform();
+    return !RightHandWorld.ContainsNaN();
+}
 bool UMCInventoryComponent::UpgradeSupportGrip(const FTransform& RightHandWorld,FTransform& LeftHandWorld) const
 {
     if(!Hero || !Settings) return false;
-    FTransform Attachment;FVector Point;const UStaticMesh* Mesh=nullptr;
+    FTransform Attachment;FVector Point;FRotator Rotation;const UStaticMesh* Mesh=nullptr;
     switch(SelectedUpgrade()) {
-    case EMCToolUpgrade::MeshaBrush:Attachment=Settings->MeshaBrushTransform;Point=Settings->MeshaBrushSupportGrip;Mesh=Settings->MeshaBrushMesh.Get();break;
-    case EMCToolUpgrade::Chainsaw:Attachment=Settings->ChainsawTransform;Point=Settings->ChainsawSupportGrip;Mesh=Settings->ChainsawMesh.Get();break;
-    case EMCToolUpgrade::Buffer:Attachment=Settings->BufferTransform;Point=Settings->BufferSupportGrip;Mesh=Settings->BufferMesh.Get();break;
-    case EMCToolUpgrade::Watergun:Attachment=Settings->WatergunTransform;Point=Settings->WatergunSupportGrip;Mesh=Settings->WatergunMesh.Get();break;
+    case EMCToolUpgrade::MeshaBrush:Attachment=Settings->MeshaBrushTransform;Point=Settings->MeshaBrushSupportGrip;Rotation=Settings->MeshaBrushSupportRotation;Mesh=Settings->MeshaBrushMesh.Get();break;
+    case EMCToolUpgrade::Chainsaw:Attachment=Settings->ChainsawTransform;Point=Settings->ChainsawSupportGrip;Rotation=Settings->ChainsawSupportRotation;Mesh=Settings->ChainsawMesh.Get();break;
+    case EMCToolUpgrade::Buffer:Attachment=Settings->BufferTransform;Point=Settings->BufferSupportGrip;Rotation=Settings->BufferSupportRotation;Mesh=Settings->BufferMesh.Get();break;
+    case EMCToolUpgrade::Watergun:Attachment=Settings->WatergunTransform;Point=Settings->WatergunSupportGrip;Rotation=Settings->WatergunSupportRotation;Mesh=Settings->WatergunMesh.Get();break;
     default:return false;
     }
-    if(Mesh) if(const auto* Socket=Mesh->FindSocket(TEXT("GripLeft"))) Point=Socket->RelativeLocation;
+    if(Mesh) if(const auto* Socket=Mesh->FindSocket(TEXT("GripLeft"))) {Point=Socket->RelativeLocation;Rotation=Socket->RelativeRotation;}
     const FTransform ToolWorld=Attachment*Hero->BrushPivot->GetRelativeTransform()*RightHandWorld;
-    LeftHandWorld=FTransform(RightHandWorld.GetRotation(),ToolWorld.TransformPosition(Point));
+    LeftHandWorld=FTransform((ToolWorld.GetRotation()*Rotation.Quaternion()).GetNormalized(),ToolWorld.TransformPosition(Point));
     return !LeftHandWorld.ContainsNaN();
+}
+FQuat UMCInventoryComponent::ToolHandRotation(const FQuat& ToolWorldRotation) const
+{
+    if(!Hero) return ToolWorldRotation;
+    const auto* Mesh=Selected==EMCToolSlot::Brush?Hero->Brush.Get():Tool.Get();
+    const FTransform InHand=(Mesh?Mesh->GetRelativeTransform():FTransform::Identity)*Hero->BrushPivot->GetRelativeTransform();
+    return (ToolWorldRotation*InHand.GetRotation().Inverse()).GetNormalized();
 }
 float UMCInventoryComponent::MovementMultiplier() const
 {

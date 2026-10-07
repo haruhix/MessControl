@@ -280,7 +280,9 @@ public:
         const FQuat CanRotation=FRotationMatrix::MakeFromXZ(Aim,FVector::UpVector).ToQuat();
         FTransform Goal=CS[Hand];
         Goal.SetLocation(World.InverseTransformPosition(Palm));
-        Goal.SetRotation(World.GetRotation().Inverse()*CanRotation*Tooth->BrushPivot->GetRelativeRotation().Quaternion().Inverse());
+        const FQuat GripRotation=Inventory->HasUpgrade(EMCToolUpgrade::Watergun)?Inventory->ToolHandRotation(CanRotation)
+            :CanRotation*Tooth->BrushPivot->GetRelativeRotation().Quaternion().Inverse();
+        Goal.SetRotation(World.GetRotation().Inverse()*GripRotation);
         FTransform Blended;Blended.Blend(CS[Hand],Goal,SprayPoseAlpha);
         const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;
         const int32 Parent=Ref.GetParentIndex(Lower);
@@ -300,7 +302,7 @@ public:
         const auto* GS=Tooth->GetWorld()->GetGameState();const float Time=GS?GS->GetServerWorldTimeSeconds():Tooth->GetWorld()->GetTimeSeconds();
         const FVector Forward=Tooth->GetActorForwardVector(),Right=Tooth->GetActorRightVector();
         const FVector Palm=Tooth->GetActorLocation()+Forward*(58+FMath::Sin(Time*47)*1.6f)+Right*24+FVector(0,0,35+FMath::Cos(Time*39)*1.2f);
-        const FQuat Rotation=FRotationMatrix::MakeFromXZ(Forward,FVector::UpVector).ToQuat()*Tooth->BrushPivot->GetRelativeRotation().Quaternion().Inverse();
+        const FQuat Rotation=Inventory->ToolHandRotation(FRotationMatrix::MakeFromXZ(Forward,FVector::UpVector).ToQuat());
         const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
         const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));
         if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) return;
@@ -326,10 +328,9 @@ public:
         TArray<FTransform> CS;CS.SetNum(Pose.Num());
         for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
-        const FVector Forward=Tooth->GetActorForwardVector();
-        const FVector Palm=Tooth->GetActorLocation()+Forward*50+Tooth->GetActorRightVector()*24+FVector(0,0,15);
-        const FQuat Rotation=FRotationMatrix::MakeFromXZ(Forward,FVector::UpVector).ToQuat()*Tooth->BrushPivot->GetRelativeRotation().Quaternion().Inverse();
-        FTransform Goal=CS[Hand];Goal.SetLocation(World.InverseTransformPosition(Palm));Goal.SetRotation(World.GetRotation().Inverse()*Rotation);
+        FTransform Goal;
+        if(!Inventory->UpgradeIdleGrip(Goal)) return;
+        Goal=Goal.GetRelativeTransform(World);
         FTransform Blended;Blended.Blend(CS[Hand],Goal,UpgradeIdleAlpha);
         const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;const int32 Parent=Ref.GetParentIndex(Lower);
         Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];
