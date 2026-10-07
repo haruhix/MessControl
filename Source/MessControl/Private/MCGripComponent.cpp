@@ -909,7 +909,7 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         && Tooth->AnimationClimb<=.01f && Tooth->AnimationSwim<=.01f;
     // Animated lock contact owns both visible wrists. SetGripArms already
     // settles the hidden limbs for .18s before easing physics back on release.
-    const bool PreciseBoth=Lockpicking || Emote || Swimming || ToolSwing || TaskCheer || Tooth->IsYawning()
+    const bool PreciseBoth=Lockpicking || Emote || Swimming || ToolSwing || TaskCheer
         || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
     const bool PreciseLeft=PreciseBoth || SprayDefence;
     const bool PreciseRight=PreciseBoth || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());

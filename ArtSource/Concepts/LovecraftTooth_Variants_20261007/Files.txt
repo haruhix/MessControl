@@ -1,0 +1,44 @@
+MessControl — 10 Lovecraftian tooth boss variants, 2026-10-07
+Generation: built-in image_gen (imagegen skill).
+Full-resolution PNG images; exact generation/edit prompts in paired TXT files.
+
+01_SplitCrown
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/01_SplitCrown.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/01_SplitCrown.txt
+
+02_Nautilus
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/02_Nautilus.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/02_Nautilus.txt
+
+03_RootKraken
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/03_RootKraken.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/03_RootKraken.txt
+
+04_BlindOracle
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/04_BlindOracle.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/04_BlindOracle.txt
+
+05_FusedTwins
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/05_FusedTwins.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/05_FusedTwins.txt
+
+06_FilterFeeder
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/06_FilterFeeder.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/06_FilterFeeder.txt
+
+07_EyeCrown
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/07_EyeCrown.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/07_EyeCrown.txt
+
+08_InkRoot
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/08_InkRoot.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/08_InkRoot.txt
+
+09_EnamelParasite
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/09_EnamelParasite.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/09_EnamelParasite.txt
+
+10_ToothMedusa
+PNG: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/10_ToothMedusa.png
+Prompt: E:/DEVGAME/MessControl/ArtSource/Concepts/LovecraftTooth_Variants_20261007/10_ToothMedusa.txt
+

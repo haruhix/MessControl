@@ -2638,18 +2638,41 @@ bool FMCVomitFlightTest::RunTest(const FString&)
     TestEqual(TEXT("Cancelling an airborne burst cannot create delayed dirt"),CancelledDirt,0);
     return true;
 }
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpicyFuseTest,"MessControl.Hazards.ChiliLandingFireAndTreatment",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpicyFuseTest,"MessControl.Hazards.ChiliLandingFuseAndTreatment",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSpicyFuseTest::RunTest(const FString&)
 {
     FTestMouth M;M.Mode->SetActorTickEnabled(false);M.State->Phase=EMCShiftPhase::Working;M.State->bDevManualEvents=true;
+    M.State->Day=9; // Later rounds must still leave the full authored ten seconds.
     const FTransform T(FQuat::Identity,FVector(5000,0,0),FVector(30,30,1));
     auto* Tongue=M.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),T);
     Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));Tongue->FinishSpawning(T);
     auto* Pepper=M.GripCube(EMCFoodKind::Spicy);Pepper->SetActorLocation(FVector(5000,0,80));Pepper->Body->SetSimulatePhysics(false);
-    Pepper->FuseEndsAt=M.World->GetTimeSeconds()-.1;Pepper->Tick(.1f);
-    TestFalse(TEXT("Legacy expired fuse cannot ignite stationary chili"),Pepper->IsDisposed());
+    Pepper->Tick(.01f);
+    TestEqual(TEXT("Airborne chili is not armed before a supporting impact"),Pepper->FuseEndsAt,0.);
+    FHitResult Landing;Landing.ImpactNormal=FVector::UpVector;Landing.ImpactPoint=FVector(5000,0,0);
+    Pepper->Body->OnComponentHit.Broadcast(Pepper->Body,Tongue,Cast<UPrimitiveComponent>(Tongue->GetRootComponent()),FVector::ZeroVector,Landing);
+    Pepper->Tick(.01f);
+    TestTrue(TEXT("Landing arms a physical chili without creating fire or a lesion"),!Pepper->IsDisposed() && Pepper->Phase==EMCFoodPhase::Free && Pepper->FireTrail.IsEmpty() && !Pepper->BurnLesion);
+    TestEqual(TEXT("Every round starts with ten seconds"),Pepper->FuseRemaining(),10.f,.01f);
+    const double Deadline=Pepper->FuseEndsAt;
     Pepper->Detonate();
-    TestTrue(TEXT("Landing entry ignites seven persistent road segments and consumes chili"),Pepper->IsDisposed() && Pepper->FireTrail.Num()==7 && Pepper->BurnLesion && Pepper->GetLifeSpan()==0);
+    Pepper->HitFood(10000,FVector::ForwardVector);
+    TestTrue(TEXT("Direct ignition and cutting cannot bypass the live fuse or split chili"),!Pepper->IsDisposed() && Pepper->FireTrail.IsEmpty() && Pepper->Health>0 && !Pepper->bFragment);
+    auto* Holder=M.Worker(FVector(5000,-105,98));Holder->bHandling=true;
+    if(!TestTrue(TEXT("Armed chili retains its production grab"),Pepper->TryGrab(Holder))) return false;
+    M.Step(.3f);
+    TestTrue(TEXT("Holding does not pause the countdown"),!Pepper->bFusePaused && Pepper->FuseRemaining()<10.f);
+    TestEqual(TEXT("Holding preserves the original deadline"),Pepper->FuseEndsAt,Deadline);
+    Pepper->Throw(Holder);
+    TestTrue(TEXT("Throw releases the grip without pausing or resetting the fuse"),Pepper->Holders.IsEmpty() && !Pepper->bFusePaused && Pepper->FuseEndsAt==Deadline);
+    Holder->SetActorLocation(FVector(0,0,98));
+    Pepper->Body->SetSimulatePhysics(false);Pepper->SetActorLocation(FVector(5000,0,80));
+    Pepper->ArmSpicy();
+    TestEqual(TEXT("A repeated landing/arming request cannot restart the fuse"),Pepper->FuseEndsAt,Deadline);
+    M.Step(9.3f);
+    TestFalse(TEXT("No fire before the full fuse expires"),Pepper->IsDisposed());
+    M.Step(.6f);
+    if(!TestTrue(TEXT("Expiry ignites seven persistent road segments and consumes chili"),Pepper->IsDisposed() && Pepper->FireTrail.Num()==7 && Pepper->BurnLesion && Pepper->GetLifeSpan()==0)) return false;
     int32 Waves=0;for(TActorIterator<AMCHazardWave> It(M.World);It;++It) Waves+=It->bSpicy;
     TestEqual(TEXT("Ignition emits no explosion wave"),Waves,0);
     auto* H=M.Worker();
@@ -2665,6 +2688,30 @@ bool FMCSpicyFuseTest::RunTest(const FString&)
     TestFalse(TEXT("Extinguishing alone cannot complete chili objective"),Pepper->IsHazardResolved());
     for(int32 I=0;I<85;++I) {++GFrameCounter;Pepper->BurnLesion->Treat(H,.1f);}
     TestTrue(TEXT("Extinguishing plus treatment resolves the full objective"),Pepper->IsHazardResolved());
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSpicyDisposalTest,"MessControl.Hazards.ChiliDisposalAndSwallowPause",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCSpicyDisposalTest::RunTest(const FString&)
+{
+    FTestMouth M;M.Mode->SetActorTickEnabled(false);M.State->Phase=EMCShiftPhase::Working;M.State->bDevManualEvents=true;
+    auto* Pepper=M.GripCube(EMCFoodKind::Spicy);Pepper->Phase=EMCFoodPhase::Free;Pepper->SetActorLocation(FVector(8000,0,80));Pepper->Body->SetSimulatePhysics(false);Pepper->Batch=54322;Pepper->ArmSpicy();
+    auto* Exit=M.World->SpawnActor<AMCFoodDisposal>(Pepper->GetActorLocation(),FRotator::ZeroRotator);Exit->bBrushBin=true;Exit->SetActorTickEnabled(false);
+    if(!TestTrue(TEXT("The front disposal accepts live pepper before expiry"),Exit->AcceptDelivery(Pepper))) return false;
+    TestTrue(TEXT("Disposal clears the deadline, pause owner and visible countdown"),Pepper->IsDisposed() && Pepper->FuseEndsAt==0 && !Pepper->bFusePaused && Pepper->FuseRemaining()==0);
+    Pepper->Detonate();M.Step(10.2f);
+    int32 LateHazards=0;
+    for(TActorIterator<AMCFirePatch> It(M.World);It;++It) LateHazards+=It->Batch==54322;
+    for(TActorIterator<AMCMouthSurface> It(M.World);It;++It) LateHazards+=It->Batch==54322;
+    TestEqual(TEXT("Disposed pepper never creates delayed fire or a lesion"),LateHazards,0);
+    auto* Saved=M.GripCube(EMCFoodKind::Spicy);Saved->Phase=EMCFoodPhase::Free;Saved->SetActorLocation(FVector(8000,600,80));Saved->Body->SetSimulatePhysics(false);Saved->ArmSpicy();
+    auto* Throat=M.World->SpawnActor<AMCThroat>(FVector(11000,0,200),FRotator::ZeroRotator);Throat->SetActorTickEnabled(false);Throat->ThroatPhase=EMCThroatPhase::Anticipation;
+    Saved->PauseFuse(Throat);const float Remaining=Saved->FuseRemaining();
+    M.Step(10.2f);
+    TestTrue(TEXT("Accepted swallowing keeps pepper safe beyond the original deadline"),Saved->bFusePaused && !Saved->IsDisposed() && Saved->FuseRemaining()==Remaining);
+    Saved->ResumeFuse(Throat);
+    TestEqual(TEXT("Cancelled swallowing restores only the saved remaining time"),Saved->FuseRemaining(),Remaining,.01f);
+    Saved->Dispose();Saved->ResumeFuse(Throat);
+    TestTrue(TEXT("Disposing a paused pepper prevents a later resume"),Saved->IsDisposed() && Saved->FuseEndsAt==0 && !Saved->bFusePaused);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWaveDodgeTest,"MessControl.Hazards.JumpClearsSweptWave",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
@@ -2889,7 +2936,7 @@ bool FMCCollectionBalanceTest::RunTest(const FString&)
     TestTrue(TEXT("Released pieces return to physics"),A->Body->IsSimulatingPhysics() && B->Body->IsSimulatingPhysics());
     return true;
 }
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCYawnAndBurnTest,"MessControl.Food.YawnInterruptsAndBurnCreatesUlcer",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCYawnAndBurnTest,"MessControl.Food.YawnPreservesControlAndBurnCreatesUlcer",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCYawnAndBurnTest::RunTest(const FString&)
 {
     FTestMouth M;M.Mode->SetActorTickEnabled(false);M.State->Phase=EMCShiftPhase::Working;M.State->bDevManualEvents=true;
@@ -2898,9 +2945,11 @@ bool FMCYawnAndBurnTest::RunTest(const FString&)
     Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Plane.Plane"));Tongue->FinishSpawning(T);
     FHitResult Floor;if(!TestTrue(TEXT("Tongue floor is present"),Tongue->SurfacePoint(FVector(5000,0,100),Floor))) return false;
     auto* H=M.Worker();H->SetActorLocation(Floor.ImpactPoint+FVector(0,0,60));H->bBrushing=true;
+    H->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
     H->FoodCollection->Toggle();TestTrue(TEXT("Yawn event starts"),Tongue->StartYawn(2));
-    TestTrue(TEXT("Yawn interrupts work and collection without a click"),!H->CanWork() && !H->bBrushing && !H->FoodCollection->bCollecting && H->YawnTongue==Tongue);
-    H->YawnEndsAt=M.World->GetTimeSeconds()-.01;H->UpdateYawn(.1f);TestTrue(TEXT("Yawn releases movement"),H->CanWork() && H->GetCharacterMovement()->MovementMode!=MOVE_None);
+    TestTrue(TEXT("Yawn keeps work, collection and movement available without an automatic anchor"),H->CanWork() && H->bBrushing && H->FoodCollection->bCollecting && H->YawnTongue==Tongue && H->YawnAnchor.IsNearlyZero() && H->GetCharacterMovement()->MovementMode!=MOVE_None);
+    H->YawnEndsAt=M.World->GetTimeSeconds()-.01;H->UpdateYawn(.1f);
+    TestTrue(TEXT("Yawn expiration clears its wind and pose without changing movement"),H->CanWork() && H->YawnWindVelocity().IsNearlyZero() && H->YawnPoseAlpha()==0 && !H->YawnTongue && H->GetCharacterMovement()->MovementMode!=MOVE_None);
     auto* Fire=AMCFirePatch::Ignite(H,Floor.ImpactPoint,80,2,88);
     TestTrue(TEXT("Fire creates a treatment lesion on the actual tongue"),Fire && Fire->Lesion && Fire->Lesion->bUlcer && Fire->Lesion->Batch==88);
     auto* Again=AMCMouthSurface::SpawnDamageUlcer(M.World,Floor.ImpactPoint,88);

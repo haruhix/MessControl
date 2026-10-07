@@ -22,13 +22,9 @@ bool AMCToothCharacter::IsYawning() const
 void AMCToothCharacter::BeginYawn(AMCTongue* Tongue,float Seconds)
 {
     if(!HasAuthority() || !Tongue || !Status->IsAlive() || SwallowedBy || MimicCaptor) return;
-    CancelGameplayInput();DropFood();bBrushing=false;bHandling=false;ResetContact();
-    YawnTongue=nullptr;
-    FHitResult Hit;
-    if(ToothPhysics->CanAct() && Tongue->SurfacePoint(GetActorLocation(),Hit)
-        && FMath::Abs(GetActorLocation().Z-GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-Hit.ImpactPoint.Z)<95) {
-        YawnTongue=Tongue;YawnAnchor=Tongue->GetActorTransform().InverseTransformPosition(Hit.ImpactPoint);
-    }
+    // The tongue owns the air event, rather than an automatic hand/foot anchor.
+    // Keep input, held food and locomotion alive so the player can resist it.
+    YawnTongue=Tongue;YawnAnchor=FVector::ZeroVector;
     YawnPullDirection=FVector::ForwardVector;float ClosestMouth=FLT_MAX;
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
         const FVector Inlet=It->VacuumInlet();
@@ -44,54 +40,30 @@ float AMCToothCharacter::YawnPoseAlpha() const
     const auto* GS=GetWorld()->GetGameState();const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     return FMath::SmoothStep(.08f,.6f,float(Now-YawnStartedAt))*FMath::SmoothStep(0.f,.65f,float(YawnEndsAt-Now));
 }
+FVector AMCToothCharacter::YawnWindVelocity() const
+{
+    if(!IsYawning() || !IsValid(YawnTongue) || !Status->IsAlive() || SwallowedBy || MimicCaptor) return FVector::ZeroVector;
+    const float Speed=FMath::IsFinite(YawnTongue->YawnWindSpeed)?FMath::Clamp(YawnTongue->YawnWindSpeed,0.f,500.f):260.f;
+    return YawnPullDirection.GetSafeNormal2D()*Speed*YawnPoseAlpha();
+}
 FVector AMCToothCharacter::YawnHandPoint(int32 Side) const
 {
-    FVector P=YawnTongue?YawnTongue->GetActorTransform().TransformPosition(YawnAnchor):GetActorLocation()-FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-    if(YawnTongue) {FHitResult Hit;if(YawnTongue->SurfacePoint(P,Hit)) P=Hit.ImpactPoint;}
-    return P-YawnPullDirection*16+FVector::CrossProduct(FVector::UpVector,YawnPullDirection)*(Side==0?35:-35)+FVector(0,0,8);
+    // Retained for callers of the old pose helper; hands are no longer planted.
+    return GetActorLocation()+GetActorRightVector()*(Side==0?-35:35);
 }
 void AMCToothCharacter::OnRep_Yawn()
 {
-    if(IsYawning()) {
-        bBrushing=false;bHandling=false;GetCharacterMovement()->StopMovementImmediately();
-        // Tiny dropped food must not pin an inhaled character. World geometry
-        // still blocks the swept movement; food keeps its own physics bodies.
-        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(!It->IsDisposed()) GetCapsuleComponent()->IgnoreActorWhenMoving(*It,true);
-        if(YawnTongue) GetCharacterMovement()->SetMovementMode(MOVE_None);
-    } else {
-        if(GetCharacterMovement()->MovementMode==MOVE_None && !SwallowedBy && !MimicCaptor) GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(It->StackCarrier!=this && !It->Holders.Contains(this)) GetCapsuleComponent()->IgnoreActorWhenMoving(*It,false);
+    if(IsYawning() && HasAuthority() && Gaze) {
+        FVector Focus=GetActorLocation()-YawnPullDirection*300;
+        Focus.Z=GetMesh()->GetSocketLocation(RigBone(TEXT("eye_l"))).Z+8;
+        Gaze->NoticePoint(Focus,.8f);
     }
 }
 void AMCToothCharacter::UpdateYawn(float Dt)
 {
-    if(IsYawning()) {
-        bBrushing=false;bHandling=false;ResetContact();
-        if(YawnTongue && Status->IsAlive() && ToothPhysics->CanAct()) {
-            GetCharacterMovement()->StopMovementImmediately();GetCharacterMovement()->SetMovementMode(MOVE_None);
-            for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(!It->IsDisposed()) GetCapsuleComponent()->IgnoreActorWhenMoving(*It,true);
-            FHitResult Hit;
-            const float Age=FMath::Max(0.,YawnTongue->ServerTime()-YawnStartedAt);
-            const float Drag=72*FMath::SmoothStep(.12f,.85f,Age)+FMath::Sin(Age*7)*7*YawnPoseAlpha();
-            const FVector Anchor=YawnTongue->GetActorTransform().TransformPosition(YawnAnchor)+YawnPullDirection*Drag;
-            if(YawnTongue->SurfacePoint(Anchor,Hit)) {
-                const FVector Goal=Hit.ImpactPoint+FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+2);
-                // Sweep keeps automatic grip from pulling a player through other geometry.
-                SetActorLocation(Goal,true);
-                // Face the planted hands while the inhalation drags the body and feet backwards.
-                SetActorRotation(FMath::RInterpTo(GetActorRotation(),FRotator(0,(-YawnPullDirection).Rotation().Yaw,0),Dt,9.f));
-                if(HasAuthority() && Gaze) {
-                    // The planted mittens are too close and low for the eyes:
-                    // aiming there hid both pupils behind the lower eyelids.
-                    const FVector Eyes=(GetMesh()->GetSocketLocation(RigBone(TEXT("eye_l")))
-                        +GetMesh()->GetSocketLocation(RigBone(TEXT("eye_r"))))*.5f;
-                    FVector Focus=GetActorLocation()-YawnPullDirection*300;
-                    Focus.Z=Eyes.Z+8;
-                    Gaze->NoticePoint(Focus,.8f);
-                }
-            } else if(HasAuthority()) {YawnTongue=nullptr;GetCharacterMovement()->SetMovementMode(MOVE_Falling);ForceNetUpdate();}
-        }
-    } else if(YawnEndsAt!=0 && HasAuthority()) {YawnEndsAt=0;YawnTongue=nullptr;OnRep_Yawn();ForceNetUpdate();}
+    if(!IsYawning() && YawnEndsAt!=0 && HasAuthority()) {
+        YawnEndsAt=0;YawnTongue=nullptr;OnRep_Yawn();ForceNetUpdate();
+    }
 }
 bool AMCTongue::StartYawn(float Seconds)
 {

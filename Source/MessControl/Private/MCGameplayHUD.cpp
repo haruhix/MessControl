@@ -239,7 +239,7 @@ void UMCGameplayHUD::RefreshState()
                 :FString::Printf(TEXT("СТОПКА %d/6 · В ЗЕЛЁНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num());
         }
         else if(Inv->IsCleaningTool() && Hero->FoodCollection->HasCandidate()) Hint=TEXT("КЛИК ЛКМ · СОБИРАТЬ СТОПКУ");
-        if(Hero->IsYawning()) Hint=TEXT("ЗЕВАНИЕ · ДЕРЖИСЬ ЗА ЯЗЫК");
+        if(Hero->IsYawning()) Hint=TEXT("ЗЕВАНИЕ · WASD + SHIFT · БЕГИ ПРОТИВ ПОТОКА");
         if(Hero->HeldFood) Hint=Hero->HeldFood->IsWrongIngredient()?TEXT("МУСОР — В КРАСНУЮ · Q БРОСИТЬ"):TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
         if(Hero->bInCoffee) Hint=ActiveFlood && ActiveFlood->bRiverFlood?
             TEXT("WASD + SHIFT · БЕЖАТЬ     ПКМ · ДЕРЖАТЬСЯ ЗА ОПОРУ"):

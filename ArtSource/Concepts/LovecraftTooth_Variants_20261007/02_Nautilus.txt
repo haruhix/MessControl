@@ -1,0 +1,15 @@
+Mode: built-in image_gen.imagegen
+Input references:
+E:\DEVGAME\MessControl\ArtSource\References\Mouth_Coop_Reference.png
+E:\DEVGAME\MessControl\ArtSource\Concepts\LovecraftTooth_20261007_v1.png
+Transparent background: false
+
+Exact prompt:
+Use case: stylized-concept.
+Asset type: one polished game boss concept render for MessControl.
+Input images: image 1 is the approved art style reference, for rounded geometry, warm ivory tooth enamel, wet coral mouth environment, bright colors, soft volume lighting ONLY; remove all its UI and text. Image 2 is the baseline Lovecraft tooth boss species and material reference. Replace its anatomy substantially with the specified new variant; keep its tooth identity and overall stylized material language.
+Scene: inside a huge pink mouth, on the softly glossy coral tongue arena, background teeth and mouth folds, minimal environmental clutter. One boss only. One tiny player tooth with a turquoise backpack seen from behind for scale is allowed.
+Style: bright polished stylized 3D, rounded simple readable large forms, creamy milk-white smoothly glossy enamel with broad soft highlights, thick wet coral-pink tentacles with violet undersides and rounded suckers. Soft volumetric lighting, filled shadows, excellent silhouette readability, subtle turquoise or amber alien eye accents. Eerie ancient nonhuman intelligence, imposing and unsettling.
+Composition: one coherent scene, centered complete boss, full body and every tentacle within the frame, generous framing, no cropping; tooth-sized small player in foreground. Wide landscape image.
+Constraints: visibly a TOOTH first, unmistakable huge molar crown and enamel mass. No humanoid body, arms, legs or cute face, no cartoon smiling mouth, no stone architecture, no rock shell, no realistic medical anatomy, no gore, no dark muddy horror grading, no UI, no text, no watermark, no grid, no multi-panel or sheet.
+Variant 02 NAUTILUS: a huge asymmetric solid molar crown, tilted slightly, very clearly a bulky square-ish milk-white TOOTH with four uneven rounded cusps. ONE gigantic fleshy tentacle spirals diagonally AROUND the enamel tooth, encircling it as a sculptural open helix, with visible gaps exposing tooth enamel; this single giant wrapping limb dominates an asymmetric silhouette. FOUR smaller coral-violet root-tentacles support it at the bottom. ONE amber alien eye sits inside a deep lateral caries fissure in the exposed enamel on one side. Three-quarter view with the eye and helical wrapping limb both visible. The giant spiral is a wet tentacle with suckers, NOT a snail shell or shell-shaped tooth. The crown itself stays solid and tooth-shaped. Avoid the symmetrical raised side-arm pose of the reference.

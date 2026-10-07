@@ -4,6 +4,7 @@
 #include "Engine/DataTable.h"
 #include "MCFoodStackSettings.h"
 #include "MCFoodCollisionData.h"
+#include "MCFoodEntrySettings.h"
 #include "MCDayPlan.generated.h"
 class UMCCoffeeProfile;
 class UMCColdColaProfile;
@@ -33,7 +34,7 @@ struct MESSCONTROL_API FMCFoodRow : public FTableRowBase
     UPROPERTY(EditAnywhere, BlueprintReadWrite) float Health=75;
     UPROPERTY(EditAnywhere, BlueprintReadWrite) EMCFoodResistance Resistance=EMCFoodResistance::Automatic;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hazard") EMCFoodKind Kind=EMCFoodKind::Food;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hazard",meta=(ClampMin="6",ClampMax="8")) float FuseSeconds=8;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hazard",meta=(ClampMin="1",ClampMax="60")) float FuseSeconds=10;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hazard",meta=(ClampMin="50",ClampMax="600")) float FirstPulseRadius=180;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hazard",meta=(ClampMin="0",ClampMax="200")) float RadiusPerRound=90;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Hazard",meta=(ClampMin="0",ClampMax="100")) float PulseDamage=18;
@@ -74,6 +75,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Timeline") TArray<FMCDayStepSettings> Steps;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Breakfast") TSoftObjectPtr<UDataTable> Menu;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Breakfast") int32 BreakfastCount=6;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Breakfast") FMCFoodEntrySettings FoodEntry;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stuck food") int32 StuckCount=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cleaning") int32 SurfacePatches=10;
     // Retained only for old assets. Repetitions now live in Coffee Profile -> Settings -> Cycles.

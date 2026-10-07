@@ -20,6 +20,9 @@ public:
     int32 CountFood(int32 Batch) const;
     void DropBrushes(); // Legacy developer action; permanent inventory tools are never spawned.
     AMCFoodActor* SpawnMenuFood(FVector Position,int32 Batch);
+    // Random event drops use the shared tongue zones; explicit placed food keeps its position.
+    AMCFoodActor* SpawnMenuFoodDrop(float Height,int32 Batch,bool bHeightFromSurface=false);
+    AMCFoodActor* SpawnMenuFoodEntry(int32 Batch);
     void DirtyMouth(bool bCoffee);
     UPROPERTY() TObjectPtr<UMCDayPlan> Settings;
     UPROPERTY() TObjectPtr<AMCCoffeeFlood> Flood;
@@ -27,6 +30,7 @@ public:
     int32 RainSpawned=0;
 private:
     void EnterStep();
+    AMCFoodActor* SpawnMenuFoodInternal(FVector Position,int32 Batch,bool bRandomDrop,bool bHeightFromSurface=false,bool bMouthEntry=false);
     FRandomStream Random;
     double StepStartedAt=0;
 };

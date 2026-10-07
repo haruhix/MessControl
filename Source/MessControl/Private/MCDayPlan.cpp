@@ -7,7 +7,7 @@ void FMCFoodRow::Sanitize()
     auto Safe=[](float V,float D,float Lo,float Hi){return FMath::IsFinite(V)?FMath::Clamp(V,Lo,Hi):D;};
     SelectionWeight=Safe(SelectionWeight,1,0,100); Health=Safe(Health,75,1,1000);
     Mass=Safe(Mass,9,1,50); SpoilSeconds=Safe(SpoilSeconds,180,3,600); Fragments=FMath::Clamp(Fragments,2,5);
-    FuseSeconds=Safe(FuseSeconds,8,6,8); FirstPulseRadius=Safe(FirstPulseRadius,180,50,600);
+    FuseSeconds=Safe(FuseSeconds,10,1,60); FirstPulseRadius=Safe(FirstPulseRadius,180,50,600);
     RadiusPerRound=Safe(RadiusPerRound,90,0,200); PulseDamage=Safe(PulseDamage,18,0,100);
     AbsorbSeconds=Safe(AbsorbSeconds,2,.5f,10);
     for (int32 Axis=0;Axis<3;++Axis) {
@@ -86,6 +86,7 @@ void UMCDayPlan::Sanitize()
     TargetDaySeconds=Safe(TargetDaySeconds,240,30,600);
     for (auto& S:Steps) { S.Seconds=Safe(S.Seconds,30,0,120); S.FailureDamage=Safe(S.FailureDamage,8,0,50); }
     BreakfastCount=FMath::Clamp(BreakfastCount,1,12); StuckCount=FMath::Clamp(StuckCount,1,8);
+    FoodEntry.Sanitize();
     SurfacePatches=FMath::Clamp(SurfacePatches,1,24); WaveCount=FMath::Clamp(WaveCount,1,8);
     FloodHeight=Safe(FloodHeight,155,60,240); FlowAcceleration=Safe(FlowAcceleration,320,0,800);
     PaddleAcceleration=Safe(PaddleAcceleration,400,0,800); AnchorReach=Safe(AnchorReach,160,60,250);

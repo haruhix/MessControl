@@ -114,12 +114,12 @@ void MCTickGameplayV3Validation(UWorld* World)
         Pepper->FinishSpawning(Transform); Pepper->Body->SetSimulatePhysics(false); Pepper->Label->SetHiddenInGame(true); Pepper->ArmSpicy(); R.Pepper=Pepper;
         View(P+FVector(0,0,40),FVector(-125,-140,105)); R.Stage=3; R.At=Now;
     }
-    else if(R.Stage==3 && T>6.5) { Shot(TEXT("PepperWarning.png")); R.Stage=4; }
-    else if(R.Stage==4 && T>8.2) {
-        for(TActorIterator<AMCHazardWave> It(World);It;++It) if(It->bSpicy) R.Detonation|=R.Pepper.IsValid() && R.Pepper->IsDisposed();
+    else if(R.Stage==3 && T>8.5) { Shot(TEXT("PepperWarning.png")); R.Stage=4; }
+    else if(R.Stage==4 && T>10.2) {
+        R.Detonation=R.Pepper.IsValid() && R.Pepper->IsDisposed() && !R.Pepper->FireTrail.IsEmpty() && R.Pepper->BurnLesion;
         Shot(TEXT("PepperPulse.png")); R.Stage=5;
     }
-    else if(R.Stage==5 && T>9) {
+    else if(R.Stage==5 && T>11) {
         const bool Pass=R.Climb && R.Hang && R.Jump && R.Dodge && R.Detonation;
         UE_LOG(LogTemp,Display,TEXT("MC_VALIDATION_%s GAMEPLAY_V3 climb=%d hang=%d jump=%d dodge=%d pepper=%d"),Pass?TEXT("PASS"):TEXT("FAIL"),R.Climb,R.Hang,R.Jump,R.Dodge,R.Detonation);
         FPlatformMisc::RequestExitWithStatus(false,Pass?0:1);

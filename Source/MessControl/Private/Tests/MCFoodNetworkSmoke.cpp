@@ -27,6 +27,8 @@ void MCTickFoodNetworkValidation(UWorld* W)
     struct FRun {
         TWeakObjectPtr<UWorld> W;double At=0,NextFireDiagnostic=0;int32 Stage=0,MaxStack=0;bool Setup=false,Failed=false,YawnSeen=false,StarsSeen=false,FireSeen=false,FireSuppressed=false;
         bool CollisionScaleSent=false,CollisionVariantSent=false,StableStackSeen=false,PickupHopSeen=false,PickupStretchSeen=false;
+        bool YawnIdleStarted=false,YawnRunStarted=false,YawnRunEnded=false,YawnControlsFree=true;
+        FVector YawnIdleStart,YawnRunStart,YawnDirection;float YawnIdleDistance=0,YawnRunDistance=0;
         TMap<TWeakObjectPtr<AMCToothCharacter>,int32> ServerMax;
     };static FRun R;if(R.W!=W) {R=FRun();R.W=W;}
     auto* GS=W->GetGameState<AMCGameState>();auto* PC=W->GetFirstPlayerController();auto* H=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
@@ -94,7 +96,19 @@ void MCTickFoodNetworkValidation(UWorld* W)
             Held&=IsValid(Piece) && Piece->StackCarrier==H && !Piece->Body->IsSimulatingPhysics();
         R.StableStackSeen|=Held;
     }
-    R.YawnSeen|=H->IsYawning() && H->YawnTongue==Tongue && !H->FoodCollection->bCollecting && !H->bBrushing && !H->bHandling;
+    R.YawnSeen|=H->IsYawning() && H->YawnTongue==Tongue && H->CanWork() && H->FoodCollection->bCollecting && H->YawnAnchor.IsNearlyZero() && H->GetCharacterMovement()->MovementMode!=MOVE_None;
+    if(H->IsLocallyControlled() && H->IsYawning()) {
+        const double Age=Now-H->YawnStartedAt;
+        R.YawnControlsFree&=H->CanWork() && !PC->IsMoveInputIgnored() && H->YawnAnchor.IsNearlyZero() && H->GetCharacterMovement()->MovementMode!=MOVE_None;
+        if(Age>.6 && !R.YawnIdleStarted) {R.YawnIdleStarted=true;R.YawnIdleStart=H->GetActorLocation();R.YawnDirection=H->YawnWindVelocity().GetSafeNormal();}
+        if(R.YawnIdleStarted && !R.YawnRunStarted) R.YawnIdleDistance=FVector::DotProduct(H->GetActorLocation()-R.YawnIdleStart,R.YawnDirection);
+        if(Age>1.35 && !R.YawnRunStarted) {R.YawnRunStarted=true;R.YawnRunStart=H->GetActorLocation();H->SetSprintInputHeld(true);}
+        if(R.YawnRunStarted && !R.YawnRunEnded) {
+            H->AddMovementInput(-R.YawnDirection,1);
+            R.YawnRunDistance=FVector::DotProduct(H->GetActorLocation()-R.YawnRunStart,R.YawnDirection);
+            if(Age>2.75) {R.YawnRunEnded=true;H->SetSprintInputHeld(false);}
+        }
+    }
     for(TActorIterator<AMCReactionVFX> It(W);It;++It) R.StarsSeen|=It->Effect==EMCReactionEffect::Stars;
     if(W->GetNetMode()!=NM_Client) {
         for(TActorIterator<AMCToothCharacter> It(W);It;++It) R.ServerMax.FindOrAdd(*It)=FMath::Max(R.ServerMax.FindRef(*It),It->FoodCollection->Pieces.Num());
@@ -103,13 +117,13 @@ void MCTickFoodNetworkValidation(UWorld* W)
             Check(Tongue->StartYawn(3),TEXT("server starts the yawn event"));
             for(TActorIterator<AMCToothCharacter> It(W);It;++It) {
                 FHitResult Floor;const bool HasFloor=Tongue->SurfacePoint(It->GetActorLocation(),Floor);
-                UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN hero=%s active=%d anchor=%s floor=%d gap=%.2f position=%s"),*It->GetName(),It->IsYawning(),*GetNameSafe(It->YawnTongue),HasFloor,HasFloor?It->GetActorLocation().Z-It->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-Floor.ImpactPoint.Z:9999,*It->GetActorLocation().ToString());
+                UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN hero=%s active=%d source=%s anchored=%d movement=%d floor=%d gap=%.2f position=%s"),*It->GetName(),It->IsYawning(),*GetNameSafe(It->YawnTongue),!It->YawnAnchor.IsNearlyZero(),int32(It->GetCharacterMovement()->MovementMode),HasFloor,HasFloor?It->GetActorLocation().Z-It->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-Floor.ImpactPoint.Z:9999,*It->GetActorLocation().ToString());
                 It->NotifyTaskFeedback(true);
             }
         }
     }
     if(W->GetNetMode()!=NM_Client && T>10 && R.Stage==1) {
-        // Pickup and yawn have finished; their released food must not become
+        // Pickup and yawn have finished; their food must not become
         // an accidental Visibility obstacle in the independent spray check.
         for(TActorIterator<AMCToothCharacter> It(W);It;++It) {
             FHitResult Floor,Block;
@@ -167,7 +181,9 @@ void MCTickFoodNetworkValidation(UWorld* W)
         Check(R.MaxStack>=3,TEXT("owning input produced a replicated three-piece physical stack"));
         Check(R.StableStackSeen,TEXT("all collected pieces stay held without falling on this peer"));
         Check(R.PickupHopSeen && R.PickupStretchSeen,TEXT("this peer observed the timed pickup hop and visual stretch"));
-        Check(R.YawnSeen && H->CanWork() && !H->IsYawning(),TEXT("replicated yawn interrupted collection, gripped tongue and released movement"));
+        Check(R.YawnSeen && R.YawnControlsFree && H->CanWork() && !H->IsYawning() && H->YawnWindVelocity().IsNearlyZero() && H->YawnPoseAlpha()==0 && !H->YawnTongue,TEXT("replicated yawn preserves collection and control and expires without a stale pose"));
+        Check(R.YawnIdleStarted && R.YawnRunEnded && R.YawnIdleDistance>10 && R.YawnRunDistance<-10,TEXT("owning movement predicts idle downwind drift and running upstream on this peer"));
+        UE_LOG(LogTemp,Display,TEXT("MC_FOOD_NETWORK_YAWN_CURRENT net=%d idle=%.1f upstream=%.1f free=%d"),int32(W->GetNetMode()),R.YawnIdleDistance,R.YawnRunDistance,R.YawnControlsFree);
         Check(R.StarsSeen,TEXT("completion VFX replicated to this peer"));
         AMCFoodActor* CollisionFood=nullptr;
         for(TActorIterator<AMCFoodActor> It(W);It;++It) if(It->Batch==91003) {CollisionFood=*It;break;}

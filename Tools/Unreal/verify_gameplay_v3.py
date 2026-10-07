@@ -15,7 +15,7 @@ t.call_method('RebuildAppearance')
 assert mouth.get_morph_target('Open')>.95
 table=lib.load_asset('/Game/Data/DT_BreakfastMenu')
 row=next(r for r in json.loads(u.DataTableFunctionLibrary.export_data_table_to_json_string(table)) if r['Name']=='SpicyPepper')
-assert row['Kind']=='Spicy' and row['FuseSeconds']==8 and row['FirstPulseRadius']==180
+assert row['Kind']=='Spicy' and row['FuseSeconds']==10 and row['FirstPulseRadius']==180
 assignments=[]
 for a in actors:
     if isinstance(a,u.StaticMeshActor) and a.static_mesh_component.static_mesh and a.static_mesh_component.static_mesh.get_name() in ('SM_Gum','SM_Roof_Wall'):

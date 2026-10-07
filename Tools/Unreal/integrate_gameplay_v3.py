@@ -118,7 +118,7 @@ row=dict(Name='SpicyPepper',Label='SPICY PEPPER',Kind='Spicy',Resistance='Soft',
          WholeMeshes=['/Game/Stylized_Vegetables/Meshes/SM_Chili.SM_Chili'],
          FragmentMeshes=['/Game/Stylized_Vegetables/Meshes/SM_ChiliCutA.SM_ChiliCutA','/Game/Stylized_Vegetables/Meshes/SM_ChiliCutB.SM_ChiliCutB'],
          Scale=dict(X=2,Y=2,Z=2),HalfExtent=dict(X=40,Y=20,Z=20),Mass=4,Health=50,SpoilSeconds=600,
-         FuseSeconds=8,FirstPulseRadius=180,RadiusPerRound=90,PulseDamage=18,Fragments=2)
+         FuseSeconds=10,FirstPulseRadius=180,RadiusPerRound=90,PulseDamage=18,Fragments=2)
 rows=[r for r in rows if r['Name']!='SpicyPepper']+[row]
 assert u.DataTableFunctionLibrary.fill_data_table_from_json_string(table,json.dumps(rows,ensure_ascii=False))
 save(table)

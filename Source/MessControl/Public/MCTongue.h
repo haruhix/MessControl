@@ -44,12 +44,24 @@ public:
     void ResetYawn();
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Yawn") double YawnStartedAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tongue|Yawn") float YawnDuration=4;
+    /** Additive air speed: ordinary movement and sprint can counter the inhale. */
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Tongue|Yawn",meta=(ClampMin="0",ClampMax="500",Units="cm/s")) float YawnWindSpeed=260;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue|Yawn") bool bAutomaticYawns=true;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue") void ResetPain();
     bool SurfacePoint(FVector WorldPoint,FHitResult& Hit) const;
     // Shared spawn footprint for stains, vomit and ice on the authored arena.
     bool InteriorSurfacePoint(FVector WorldPoint,float Margin,FHitResult& Hit) const;
     bool RandomInteriorPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit);
+    // Food rain and coffee stains share two weighted bands. Depth runs from the
+    // green throat (+world X) toward the red front exit (-world X).
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue|Gameplay Spawn",meta=(ClampMin="0",ClampMax="1")) float GameplaySpawnNearDepth=.18f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue|Gameplay Spawn",meta=(ClampMin="0",ClampMax="1")) float GameplaySpawnSplitDepth=.60f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue|Gameplay Spawn",meta=(ClampMin="0",ClampMax="1")) float GameplaySpawnFarDepth=.82f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Tongue|Gameplay Spawn",meta=(ClampMin="0",ClampMax="1")) float GameplaySpawnLeftChance=.30f;
+    // -1 = forbidden, 0 = broad throat-side band, 1 = narrow front-side band.
+    int32 GameplaySpawnZone(FVector WorldPoint) const;
+    bool GameplaySpawnFootprint(FVector WorldPoint,float Margin,FHitResult& Hit) const;
+    bool RandomGameplaySpawnPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit,int32* OutZone=nullptr);
     // Stable support for permanent coatings: breathing, pressure and pain waves
     // must not give server and clients different grime layouts.
     bool RestSurfacePoint(FVector WorldPoint,FVector& Point) const;

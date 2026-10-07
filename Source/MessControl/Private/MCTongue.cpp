@@ -512,5 +512,5 @@ void AMCTongue::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
     DOREPLIFETIME(AMCTongue,PressureSettings); DOREPLIFETIME(AMCTongue,PressureFrame);
     DOREPLIFETIME(AMCTongue,ActivePressurePreset);
     DOREPLIFETIME(AMCTongue,ActivePressureMaterial);
-    DOREPLIFETIME(AMCTongue,YawnStartedAt);DOREPLIFETIME(AMCTongue,YawnDuration);
+    DOREPLIFETIME(AMCTongue,YawnStartedAt);DOREPLIFETIME(AMCTongue,YawnDuration);DOREPLIFETIME(AMCTongue,YawnWindSpeed);
 }

@@ -57,6 +57,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Yawn") double YawnStartedAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Yawn") FVector YawnPullDirection=FVector::ForwardVector;
     float YawnPoseAlpha() const;
+    FVector YawnWindVelocity() const;
     FVector YawnHandPoint(int32 Side) const;
     bool IsYawning() const;
     void BeginYawn(class AMCTongue* Tongue,float Seconds);

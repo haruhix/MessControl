@@ -78,6 +78,24 @@ void AMCFoodActor::Initialize(bool bJam,FVector ExtractionDirection)
     bJamOnLanding=bJam; PullDirection=ExtractionDirection.GetSafeNormal2D();
     if (PullDirection.IsNearlyZero()) PullDirection=FVector(0,1,0);
 }
+void AMCFoodActor::BeginMouthEntry(FVector LaunchVelocity,float PushSpeed)
+{
+    if (!HasAuthority() || !HasActorBegunPlay() || IsDisposed() || bBrushTool || StackCarrier || !Holders.IsEmpty()
+        || Phase!=EMCFoodPhase::Falling || LaunchVelocity.ContainsNaN() || LaunchVelocity.IsNearlyZero() || !FMath::IsFinite(PushSpeed)) return;
+    bMouthEntry=true; MouthEntryPushSpeed=FMath::Clamp(PushSpeed,0.f,180.f);
+    MouthEntryEndsAt=GetWorld()->GetTimeSeconds()+8;
+    bLandingPending=false;
+    Body->SetEnableGravity(true); Body->SetLinearDamping(0);
+    Body->SetPhysicsLinearVelocity(LaunchVelocity);
+    PrePhysicsVelocity=LaunchVelocity;
+    Body->WakeAllRigidBodies(); ForceNetUpdate();
+}
+void AMCFoodActor::EndMouthEntry()
+{
+    if (!bMouthEntry) return;
+    bMouthEntry=false; MouthEntryPushSpeed=0; MouthEntryEndsAt=0;
+    Body->SetLinearDamping(.7f);
+}
 void AMCFoodActor::MarkRiverSwept(float EscapeZ)
 {
     if (!HasAuthority() || IsDisposed() || !FMath::IsFinite(EscapeZ)) return;
@@ -157,6 +175,7 @@ void AMCFoodActor::UpdateCarryPresentation(float Dt)
 }
 void AMCFoodActor::OnRep_Phase()
 {
+    if (bMouthEntry && (Phase!=EMCFoodPhase::Falling || StackCarrier || !Holders.IsEmpty())) EndMouthEntry();
     const bool bGone=IsDisposed() || Phase==EMCFoodPhase::Equipped;
     const bool bSimulate=HasAuthority() && !StackCarrier && (Phase==EMCFoodPhase::Falling || Phase==EMCFoodPhase::Free || Phase==EMCFoodPhase::Carried);
     // Stop Chaos before disabling collision, including disposal while the item is still moving.
@@ -179,6 +198,7 @@ bool AMCFoodActor::TryGrab(AMCToothCharacter* Hero)
     const FVector GrabPoint=Phase==EMCFoodPhase::Absorbing?Visual->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation()):GetActorLocation();
     if (GetWorld()->LineTraceSingleByChannel(Hit,Hero->GetActorLocation(),GrabPoint,ECC_Visibility,Params)) return false;
     if (!Hero->Grip || !Hero->Grip->BeginGrip(this)) return false;
+    EndMouthEntry();
     Holders.Add(Hero); Hero->HeldFood=Hero->Grip->Frame.Food;
     LastHandledBy=Hero->GetPlayerState<AMCPlayerState>();
     AttendFood();
@@ -288,7 +308,9 @@ void AMCFoodActor::Dispose()
     SetStackCarrier(nullptr);
     for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]);
     if (IsValid(EquippedBy)) { EquippedBy->EquippedBrush=nullptr; EquippedBy->ForceNetUpdate(); } EquippedBy=nullptr;
-    Phase=EMCFoodPhase::Disposed; OnRep_Phase(); ForceNetUpdate(); SetLifeSpan(IsHazardResolved()?3:0);
+    Phase=EMCFoodPhase::Disposed;
+    FuseEndsAt=0; PausedFuse=0; bFusePaused=false; FuseOwner.Reset(); bLandingPending=false;
+    OnRep_Phase(); ForceNetUpdate(); SetLifeSpan(IsHazardResolved()?3:0);
 }
 void AMCFoodActor::AwardDelivery()
 {
@@ -319,6 +341,20 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
         && Hit.ImpactNormal.Z>.55f && PrePhysicsVelocity.Z<-140)
         ReactToImpact(FMath::Clamp(-PrePhysicsVelocity.Z/650.f,.15f,1.f));
     if (!HasAuthority() || IsDisposed() || Phase==EMCFoodPhase::Carried || !IsValid(Other)) return;
+    if (bMouthEntry && !Cast<AMCToothCharacter>(Other) && OtherComponent && Hit.bBlockingHit
+        && (OtherComponent->GetCollisionObjectType()==ECC_WorldStatic || OtherComponent->GetCollisionObjectType()==ECC_WorldDynamic))
+    {
+        if (FoodData.Kind==EMCFoodKind::Food && OtherComponent->GetCollisionObjectType()==ECC_WorldStatic
+            && Hit.ImpactNormal.Z>.6f && PrePhysicsVelocity.Z<-140 && Body->IsSimulatingPhysics())
+        {
+            // Flight can span the whole arena. Retain a little post-solver motion,
+            // without turning the landed piece into a high-speed rolling attack.
+            const FVector LandingVelocity=Body->GetPhysicsLinearVelocity().GetClampedToMaxSize(160.f);
+            Body->SetPhysicsLinearVelocity(LandingVelocity);
+            PrePhysicsVelocity=LandingVelocity;
+        }
+        EndMouthEntry();
+    }
     if ((Phase==EMCFoodPhase::Falling || (FoodData.Kind==EMCFoodKind::Spicy && PrePhysicsVelocity.Z<-140))
         && Hit.ImpactNormal.Z>.6f && OtherComponent && OtherComponent->GetCollisionObjectType()==ECC_WorldStatic)
         bLandingPending=true;
@@ -340,6 +376,25 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
     LastHit.Add(Other,Now); ++ConfirmedImpacts;
     FVector Direction=(Other->GetActorLocation()-GetActorLocation()).GetSafeNormal2D();
     if (Direction.IsNearlyZero()) Direction=FVector::ForwardVector;
+    if (bMouthEntry && FoodData.Kind==EMCFoodKind::Food)
+        if (auto* Hero=Cast<AMCToothCharacter>(Other))
+        {
+            // Entry is a small kinetic nudge. Damage and ApplyHit both spill the
+            // player's load, and the ordinary impact path intentionally knocks them down.
+            if (!Hero->IsMimicCaptured() && Hero->ToothPhysics->GetBodyState()!=EMCBodyState::Recovering)
+            {
+                FVector IncomingDirection=PrePhysicsVelocity.GetSafeNormal2D();
+                if (IncomingDirection.IsNearlyZero()) IncomingDirection=Direction;
+                const float Push=MouthEntryPushSpeed*FMath::Clamp(IncomingSpeed/600.f,.5f,1.f);
+                const FVector Velocity=(IncomingDirection*Push+FVector(0,0,Push*(25.f/140.f)))
+                    .GetClampedToMaxSize(Hero->ToothPhysics->Settings.FallThreshold*.8f);
+                if (Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll)
+                    Hero->GetMesh()->AddImpulseToAllBodiesBelow(Velocity,Hero->RigBone(TEXT("body")),true,true);
+                else Hero->LaunchCharacter(Velocity,false,false);
+                Hero->ForceNetUpdate();
+            }
+            return;
+        }
     Target->Damage(FMath::Min(Settings.MaxDamage,Speed*Settings.DamagePerSpeed*Settings.Mass/9.f),Direction);
     if (auto* Hero=Cast<AMCToothCharacter>(Other))
     {
@@ -350,6 +405,8 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
 void AMCFoodActor::Tick(float Dt)
 {
     Super::Tick(Dt);
+    if (bMouthEntry && (GetWorld()->GetTimeSeconds()>=MouthEntryEndsAt || !Body->IsSimulatingPhysics()
+        || Phase!=EMCFoodPhase::Falling || StackCarrier || !Holders.IsEmpty())) EndMouthEntry();
     UpdateHazard(Dt);
     UpdateReaction(Dt);
     if(StackCarrier && !HasAuthority()) UpdateCarryPresentation(Dt);
@@ -437,7 +494,7 @@ void AMCFoodActor::Tick(float Dt)
         // falls out below the arena, remove it instead of respawning it upstream.
         if (bRiverSwept && GetActorLocation().Z<EscapeZ) { Dispose(); return; }
         if (!bRiverSwept && GetActorLocation().Z<EscapeZ)
-        { for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]); SetActorLocation(FVector(0,0,Settings.DropHeight),false,nullptr,ETeleportType::TeleportPhysics); Body->SetPhysicsLinearVelocity(FVector::ZeroVector); }
+        { EndMouthEntry(); for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]); SetActorLocation(FVector(0,0,Settings.DropHeight),false,nullptr,ETeleportType::TeleportPhysics); Body->SetPhysicsLinearVelocity(FVector::ZeroVector); }
         PrePhysicsVelocity=Body->GetPhysicsLinearVelocity();
     }
     if(GetNetMode()==NM_DedicatedServer) return;
@@ -446,8 +503,11 @@ void AMCFoodActor::Tick(float Dt)
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("SPOILED"):FoodData.Kind==EMCFoodKind::Spicy?*FString::Printf(TEXT("%.1fs %s"),FuseRemaining(),bFusePaused?TEXT("PAUSED"):TEXT("THROW INTO THROAT")):FoodData.Kind==EMCFoodKind::ForeignObject?TEXT("FOREIGN OBJECT"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
     if (bBrushTool) Caption=TEXT("LMB: PICK UP BRUSH\nQ: THROW OVERBOARD");
     if(FoodData.Kind==EMCFoodKind::Spicy) {
-        Caption=FString::Printf(TEXT("%.1fs%s"),FuseRemaining(),bFusePaused?TEXT(" [PAUSED]"):TEXT(""));
-        if(!FMath::IsNearlyEqual(Label->WorldSize,13.f)) Label->SetWorldSize(13);
+        Caption=FuseEndsAt>0 || bFusePaused
+            ?FString::Printf(TEXT("SPICY PEPPER | %.1fs%s\nTHROW TO THROAT OR EXIT"),FuseRemaining(),bFusePaused?TEXT(" [PAUSED]"):TEXT(""))
+            :FString::Printf(TEXT("SPICY PEPPER\n%.0fs AFTER LANDING"),FoodData.FuseSeconds);
+        if(!FMath::IsNearlyEqual(Label->WorldSize,18.f)) Label->SetWorldSize(18);
+        Label->SetTextRenderColor(FuseRemaining()<=3 && !bFusePaused?FColor(255,75,35):FColor(255,220,90));
         const FVector LabelLocation(0,0,Body->GetUnscaledBoxExtent().Z+30);
         if(!Label->GetRelativeLocation().Equals(LabelLocation,.001)) Label->SetRelativeLocation(LabelLocation);
     }
@@ -628,13 +688,13 @@ bool AMCFoodDisposal::IsFoodInDeliveryZone(const AMCFoodActor* Food) const
 }
 bool AMCFoodDisposal::CanAcceptDelivery(const AMCFoodActor* Food) const
 {
-    if(!HasAuthority() || !IsValid(Food) || Food->IsDisposed() || !IsFoodInDeliveryZone(Food)) return false;
+    if(!HasAuthority() || !IsValid(Food) || Food->IsDisposed() || Food->IsMouthEntryActive() || !IsFoodInDeliveryZone(Food)) return false;
     // Keep the working brush equipped while cleaning inside the broad exit cap.
     // A brush enters disposal only after the player's explicit Q throw/drop.
     if(Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling && Food->Phase!=EMCFoodPhase::Carried) return false;
     // The front exit now accepts the same rejected ingredients in normal play as in the lesson.
     // Fresh ingredients stay available for delivery to the green throat zone.
-    return bBrushBin?(Food->bBrushTool || Food->IsWrongIngredient()):!Food->bBrushTool;
+    return bBrushBin?(Food->bBrushTool || Food->IsWrongIngredient() || Food->FoodData.Kind==EMCFoodKind::Spicy):!Food->bBrushTool;
 }
 bool AMCFoodDisposal::AcceptDelivery(AMCFoodActor* Food)
 {
@@ -729,6 +789,9 @@ void AMCFoodDisposal::Tick(float Dt)
     if (!HasAuthority()) return;
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
     {
+        // A fresh incoming piece crosses the front cap on its way into the mouth.
+        // Delivery and the wrong-sort return resume only after that flight ends.
+        if (It->IsMouthEntryActive()) continue;
         if(CanAcceptDelivery(*It)) {AcceptDelivery(*It);continue;}
         if(bBrushBin && !It->bBrushTool && !It->IsWrongIngredient() && IsFoodInDeliveryZone(*It)
             && (It->Phase==EMCFoodPhase::Free || It->Phase==EMCFoodPhase::Falling || It->Phase==EMCFoodPhase::Carried)
@@ -812,11 +875,16 @@ void AMCFoodActor::Throw(AMCToothCharacter* Hero)
 bool AMCFoodActor::HitFood(float Damage,FVector Direction)
 {
     if (!HasAuthority() || bBrushTool || IsDisposed() || Phase==EMCFoodPhase::Swallowing || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
+    EndMouthEntry();
     if(StackCarrier) StackCarrier->FoodCollection->Spill(Direction.GetSafeNormal()*180+FVector(0,0,60));
     if(Phase==EMCFoodPhase::Stuck) {Phase=EMCFoodPhase::Free;StuckTooth=nullptr;OnRep_Phase();}
     ReactToImpact();
+    if(FoodData.Kind==EMCFoodKind::Spicy) {
+        // Pepper stays one throwable hazard. Cutting and impacts preserve its fuse.
+        Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true);
+        return true;
+    }
     AttendFood(); Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();
-    if(FoodData.Kind==EMCFoodKind::Spicy && Health<=0) {Detonate();return true;}
     if (Health>0 || bFragment) { Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
     FRandomStream Random(FMath::Rand()); const FVector P=GetActorLocation();
     for (int32 I=0;I<FoodData.Fragments;++I)

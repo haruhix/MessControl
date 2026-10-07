@@ -201,14 +201,14 @@ private:
 public:
     void CollectionAndYawnPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
     {
-        const bool Yawn=Tooth->IsYawning();
-        if(!Yawn && (!Tooth->FoodCollection || !Tooth->FoodCollection->bCollecting)) return;
+        const bool Yawn=Tooth->IsYawning() && Tooth->ToothPhysics->CanAct();
+        const bool Collecting=Tooth->FoodCollection && Tooth->FoodCollection->bCollecting;
+        if(!Yawn && !Collecting) return;
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
-        const float Alpha=Yawn?Tooth->YawnPoseAlpha():1.f;
-        const auto* GS=Tooth->GetWorld()->GetGameState();const double Now=GS?GS->GetServerWorldTimeSeconds():Tooth->GetWorld()->GetTimeSeconds();
-        const float Age=Now-Tooth->YawnStartedAt;
+        const auto* GS=Tooth->GetWorld()->GetGameState();
+        const double Now=GS?GS->GetServerWorldTimeSeconds():Tooth->GetWorld()->GetTimeSeconds();
         float CatchDip=0;
-        if(!Yawn) for(const auto& Piece:Tooth->FoodCollection->Pieces) if(IsValid(Piece)) {
+        if(Collecting) for(const auto& Piece:Tooth->FoodCollection->Pieces) if(IsValid(Piece)) {
             const float LandAge=(Now-Piece->StackPickup.StartedAt)*FMCStackPickup::PlayRate-.075f-Piece->StackPickup.FlightSeconds;
             if(LandAge>=0 && LandAge<.22f)
                 CatchDip+=FMath::Sin(LandAge*26)*FMath::Exp(-18*LandAge)*5*(1-FMath::SmoothStep(.12f,.22f,LandAge));
@@ -224,69 +224,27 @@ public:
             Pose[I].SetRotation((Basis.Inverse()*Delta*Basis*Pose[I].GetRotation()).GetNormalized());
         };
         const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
-        if(Yawn && !Tooth->ToothPhysics->CanAct()) return;
         if(Yawn && Body>=0) {
-            // Catch the inhale, plant the mittens, then lean away from the grip.
-            // The torso elastically lags the swept capsule rather than tipping
-            // the entire tooth onto its face. Slow strain pulses read as effort.
-            const float Brace=FMath::SmoothStep(.25f,.95f,Age);
-            const float Anticipation=FMath::Sin(FMath::Clamp(Age/.38f,0.f,1.f)*PI)*(1-Brace);
-            const float Strain=FMath::Sin(Age*2*PI*1.35f)*Brace;
-            const FVector Offset=-Tooth->YawnPullDirection*(24*Brace*Alpha)
-                -FVector(0,0,(14+5*Brace+1.5f*Strain)*Alpha+4*Anticipation);
+            // A small wind lean layers over the ordinary run cycle. Feet and
+            // hands keep locomotion/tool/grip poses instead of planting anchors.
+            const float Alpha=Tooth->YawnPoseAlpha();
+            const FVector LocalWind=Tooth->GetActorTransform().InverseTransformVectorNoScale(Tooth->YawnPullDirection);
+            const FVector Offset=Tooth->YawnPullDirection*10*Alpha;
             const int32 Parent=Ref.GetParentIndex(Body);
             const FVector MeshOffset=World.InverseTransformVectorNoScale(Offset);
             Pose[Body].AddToTranslation(Parent<0?MeshOffset:ReferenceCS[Parent].InverseTransformVectorNoScale(MeshOffset));
-            Rotate(TEXT("body"),FRotator((-22*Brace+7*Anticipation+2.5f*Strain)*Alpha,0,FMath::Sin(Age*2*PI*.65f)*1.8f*Alpha));
-            Rotate(TEXT("gaze_head"),FRotator((14*Brace-7*Anticipation)*Alpha,0,0));
+            Rotate(TEXT("body"),FRotator(-8*LocalWind.X*Alpha,0,8*LocalWind.Y*Alpha));
+            Rotate(TEXT("gaze_head"),FRotator(4*LocalWind.X*Alpha,0,-4*LocalWind.Y*Alpha));
         }
+        if(!Collecting) return;
         Rebuild();
-        if(Yawn && Tooth->YawnTongue) {
-            // A braced foot stays on the tongue while the other makes a small
-            // recovery step. Solve the full chain so lowering the body does not
-            // bury the feet or turn them into a pair of unrelated fast kicks.
-            for(int32 Side=0;Side<2;++Side) {
-                const FString S=Side==0?TEXT("_l"):TEXT("_r");
-                const int32 Upper=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("leg")+S))));
-                const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("knee")+S))));
-                const int32 End=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("foot")+S))));
-                if(Upper<0 || Lower<0 || End<0) continue;
-                const float Phase=FMath::Frac(FMath::Max(0.f,Age-.8f)*.8f+Side*.5f);
-                const float Step=Phase>.68f?FMath::Sin((Phase-.68f)/.32f*PI):0.f;
-                const float Slide=FMath::SmoothStep(.6f,1.1f,Age);
-                const float Sign=Side==0?-1.f:1.f;
-                FVector Touch=World.TransformPosition(ReferenceCS[End].GetLocation())
-                    +Tooth->GetActorRightVector()*Sign*7
-                    -Tooth->YawnPullDirection*(8+Step*15)*Slide;
-                FHitResult Hit;FCollisionQueryParams Q(SCENE_QUERY_STAT(MCYawnFoot),false,Tooth);
-                if(!Tooth->GetWorld()->LineTraceSingleByObjectType(Hit,Touch+FVector(0,0,55),Touch-FVector(0,0,90),FCollisionObjectQueryParams(ECC_WorldStatic),Q) || Hit.ImpactNormal.Z<.6f) continue;
-                const float Sole=FMath::Clamp(Tooth->StandingMeshTransform().TransformPosition(ReferenceCS[End].GetLocation()).Z+Tooth->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight(),3.,20.);
-                Touch.Z=Hit.ImpactPoint.Z+Sole+Step*7*Slide;
-                FTransform U=CS[Upper],L=CS[Lower],F=CS[End];
-                const float Reach=(FVector::Dist(U.GetLocation(),L.GetLocation())+FVector::Dist(L.GetLocation(),F.GetLocation()))*.97f;
-                const FVector Goal=U.GetLocation()+(World.InverseTransformPosition(Touch)-U.GetLocation()).GetClampedToMaxSize(Reach);
-                const FVector Pole=U.GetLocation()+World.InverseTransformVectorNoScale(Tooth->GetActorForwardVector()*40+Tooth->GetActorRightVector()*Sign*14);
-                AnimationCore::SolveTwoBoneIK(U,L,F,Pole,Goal,false,1.,1.);
-                const int32 Bones[]={Upper,Lower,End};const FTransform Solved[]={U,L,F};
-                for(int32 J=0;J<3;++J) {
-                    const int32 Parent=Ref.GetParentIndex(Bones[J]);
-                    const FTransform Local=Parent<0?Solved[J]:Solved[J].GetRelativeTransform(J>0?Solved[J-1]:CS[Parent]);
-                    FTransform Blended;Blended.Blend(Pose[Bones[J]],Local,Alpha);Pose[Bones[J]]=Blended;
-                }
-                Rebuild();
-            }
-        }
         for(int32 Side=0;Side<2;++Side) {
             const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
             const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
             if(Hand<0 || Lower<0) continue;
-            const FVector Point=Yawn?Tooth->YawnHandPoint(Side):Tooth->FoodCollection->HandPoint()+Tooth->GetActorRightVector()*(Side==0?-20:20)-FVector(0,0,FMath::Clamp(CatchDip,-3.f,3.f));
-            // This rig uses floating mittens. Position their branch directly so
-            // the skin's compact arm lengths do not prevent a real ground grip.
+            const FVector Point=Tooth->FoodCollection->HandPoint()+Tooth->GetActorRightVector()*(Side==0?-20:20)-FVector(0,0,FMath::Clamp(CatchDip,-3.f,3.f));
             FTransform Goal=CS[Hand];Goal.SetLocation(World.InverseTransformPosition(Point));
-            if(Yawn) Goal.SetRotation(World.GetRotation().Inverse()*FRotationMatrix::MakeFromXZ(-Tooth->YawnPullDirection,FVector::UpVector).ToQuat());
-            FTransform Blended;Blended.Blend(CS[Hand],Goal,Alpha);
-            const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;
+            const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Goal;
             const int32 Parent=Ref.GetParentIndex(Lower);
             Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];Rebuild();
         }

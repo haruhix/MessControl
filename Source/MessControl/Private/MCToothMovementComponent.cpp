@@ -306,6 +306,9 @@ FVector UMCToothMovementComponent::CaptureSuctionForMove()
     float Strength=0;FVector Sample=FVector::ZeroVector;
     if(CharacterOwner) AMCThroat::FindAmbientSuctionAt(GetWorld(),CharacterOwner->GetActorLocation(),Strength,Sample);
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    // Yawn shares the predicted additive wind path and its saved-move samples.
+    // Ground acceleration remains available to run against the airflow.
+    if(Hero) Sample+=Hero->YawnWindVelocity();
     if(Hero && Hero->Grip && Hero->Grip->IsWorldAnchored()) Sample=FVector::ZeroVector;
     PendingSuction=Sample;bHasSuctionSample=true;
     return Sample;

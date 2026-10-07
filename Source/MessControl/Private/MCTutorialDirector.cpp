@@ -245,12 +245,18 @@ AMCArenaTooth* AMCTutorialDirector::AssignTooth(const FMCTutorialPlayerProgress&
 
 AMCMouthSurface* AMCTutorialDirector::SpawnTonguePatch(const FMCTutorialPlayerProgress& Player)
 {
-    const int32 Index=Players.IndexOfByPredicate([&Player](const auto& P){return P.PlayerState==Player.PlayerState;});
-    const FVector Point=LessonPosition(Player,Index);
-    const FTransform Pose(Point+FVector(0,0,5));
+    constexpr float HalfSize=35;
+    const float Margin=HalfSize*1.415f+20;
+    FHitResult Floor; bool Found=false;
+    for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+    {
+        if (It->RandomGameplaySpawnPoint(Random,Margin,100,TConstArrayView<FVector>(),Floor)) { Found=true; break; }
+    }
+    if (!Found) return nullptr;
+    const FTransform Pose(Floor.ImpactPoint+Floor.ImpactNormal*5);
     auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose,Player.PlayerState,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if (!Patch) return nullptr;
-    Patch->Batch=TutorialFoodBatch; Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=35;
+    Patch->Batch=TutorialFoodBatch; Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=HalfSize;
     Patch->FinishSpawning(Pose); Patch->Status->ApplyCoffee(.25f); Patch->ForceNetUpdate();
     SpawnedActors.Add(Patch); return Patch;
 }
@@ -262,11 +268,31 @@ AMCFoodActor* AMCTutorialDirector::SpawnFood(FName RowName,FVector Position,AMCP
         if (const auto* Found=Menu->FindRow<FMCFoodRow>(RowName,TEXT("Day zero"))) Row=*Found;
     Row.Health=25; Row.Resistance=EMCFoodResistance::Soft; Row.Fragments=2; Row.SpoilSeconds=600;
     Row.Kind=EMCFoodKind::Food;
-    const FTransform Pose(FRotator::ZeroRotator,Position);
+    FTransform Pose(FRotator::ZeroRotator,Position);
     auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose,OwnerPlayer?static_cast<AActor*>(OwnerPlayer):this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if (!Food) return nullptr;
     Food->ConfigureItem(RowName,Row,Random,bFragment); Food->Batch=TutorialFoodBatch; Food->bSpoiled=bSpoiled;
+    const bool bMouthEntry=Stage==EMCTutorialStage::BreakfastRain && !OwnerPlayer;
+    FVector EntryVelocity=FVector::ZeroVector;
+    if (bMouthEntry)
+    {
+        const float Margin=Food->Body->GetScaledBoxExtent().Size2D()+20;
+        FHitResult Floor; bool Found=false; AMCTongue* LandingTongue=nullptr;
+        for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+            if (It->RandomGameplaySpawnPoint(Random,Margin,Margin*2+40,TConstArrayView<FVector>(),Floor)) { Found=true; LandingTongue=*It; break; }
+        if (!Found)
+        {
+            UE_LOG(LogTemp,Warning,TEXT("MC_TUTORIAL_FOOD_DROP no gameplay zone footprint for %s (radius %.1f)"),*RowName.ToString(),Margin);
+            Food->Destroy(); return nullptr;
+        }
+        const FVector LandingCenter=Floor.ImpactPoint+FVector(0,0,Food->Body->GetScaledBoxExtent().Z+5);
+        FVector EntryPosition;
+        if(!Settings->FoodEntry.BuildTrajectory(LandingTongue->Surface->Bounds.GetBox(),LandingCenter,GetWorld()->GetGravityZ(),EntryPosition,EntryVelocity))
+        { Food->Destroy();return nullptr; }
+        Pose.SetLocation(EntryPosition);
+    }
     Food->SpoilAt=Now()+86400; Food->FinishSpawning(Pose); Food->ForceNetUpdate();
+    if(bMouthEntry) Food->BeginMouthEntry(EntryVelocity,Settings->FoodEntry.PushSpeed);
     SpawnedActors.Add(Food); return Food;
 }
 
@@ -444,7 +470,7 @@ void AMCTutorialDirector::Tick(float DeltaSeconds)
         {
             for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
             {
-                if (It->Batch!=TutorialFoodBatch || It->bBrushTool || It->IsDisposed() || It->Phase==EMCFoodPhase::Swallowing || It->StackCarrier || !It->Holders.IsEmpty()) continue;
+                if (It->Batch!=TutorialFoodBatch || It->bBrushTool || It->IsDisposed() || It->IsMouthEntryActive() || It->Phase==EMCFoodPhase::Swallowing || It->StackCarrier || !It->Holders.IsEmpty()) continue;
                 const FVector Offset=It->GetActorLocation()-Settings->ArenaCenter;
                 if (Offset.Z> -900 && FMath::Abs(Offset.X)<Settings->ArenaHalfSize.X+900 && FMath::Abs(Offset.Y)<Settings->ArenaHalfSize.Y+900) continue;
                 It->SetActorLocation(LessonPosition(Players[0],0)+FVector(0,0,70),false,nullptr,ETeleportType::TeleportPhysics);
@@ -465,11 +491,13 @@ void AMCTutorialDirector::Tick(float DeltaSeconds)
     if (Stage==EMCTutorialStage::BreakfastRain)
     {
         const FName Menu[]={TEXT("Broccoli"),TEXT("Egg"),TEXT("Bacon")};
-        while (BreakfastSpawned<3 && Elapsed>=double(BreakfastSpawned)*2.0/3.0)
+        if (BreakfastSpawned<3 && Elapsed>=double(BreakfastSpawned)*2.0/3.0)
         {
-            const int32 I=BreakfastSpawned++; const auto& Player=Players[I%Players.Num()];
-            SpawnFood(Menu[I],LessonPosition(Player,I)+FVector(0,0,550),nullptr);
+            const int32 I=BreakfastSpawned++;
+            SpawnFood(Menu[I],FVector(0,0,550),nullptr);
         }
+        // A late frame may reach the deadline before all individual entries ran.
+        if(BreakfastSpawned<3) return;
     }
     if (Stage==EMCTutorialStage::BreakfastCleanup)
     {

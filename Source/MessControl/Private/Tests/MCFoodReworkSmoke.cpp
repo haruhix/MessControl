@@ -4,6 +4,7 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
+#include "MCToothMovementComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCThroat.h"
 #include "MCTongue.h"
@@ -40,8 +41,9 @@ void MCTickFoodReworkValidation(UWorld* W)
         TWeakObjectPtr<AMCThroat> Throat;TWeakObjectPtr<AMCFirePatch> Fire;
         TArray<TWeakObjectPtr<AMCFoodActor>> Foods;
         double At=0;int32 Stage=0,MaxStack=0,FallenBeforeMotion=0;bool Started=false,Failed=false,Impact=false,Stretched=false,Squashed=false,MotionStarted=false;
-        FVector P,Start;float FreshStart=0,MinScaleZ=FLT_MAX,MaxScaleZ=0;double RestImpact=-100,NextDiagnostic=0;float YawnDrag=0,HandGap=FLT_MAX,StackTilt=0;
-        bool FoodImpactParticles=false,RedFlash=false,YawnEyesFocused=false;
+        FVector P,Start;float FreshStart=0,MinScaleZ=FLT_MAX,MaxScaleZ=0;double RestImpact=-100,NextDiagnostic=0;float YawnDrag=0,StackTilt=0;
+        FVector YawnRunStart,YawnDirection;float YawnRunDistance=0;bool YawnIdleMeasured=false,YawnRunMeasured=false;
+        bool FoodImpactParticles=false,RedFlash=false,YawnControlsFree=true;
         bool PickupHop=false,PickupSquash=false,PickupStretch=false;
     };static FRun R;if(R.W!=W) {R=FRun();R.W=W;}
     FString Case;if(!FParse::Value(FCommandLine::Get(),TEXT("MCFoodRework="),Case)) return;
@@ -106,7 +108,7 @@ void MCTickFoodReworkValidation(UWorld* W)
             for(TActorIterator<AMCThroat> It(W);It;++It) {R.Throat=*It;It->SetActorTickEnabled(true);break;}
             if(!R.Throat.IsValid()) {Check(false,TEXT("authored mouth exists for the yawn"));Finish();return;}
             const FTransform Mouth=R.Throat->GetActorTransform();
-            const FVector Probe=Mouth.TransformPosition(R.Throat->ZoneCenter)-R.Throat->GetActorForwardVector()*420-R.Throat->GetActorRightVector()*80;
+            const FVector Probe=Mouth.TransformPosition(R.Throat->ZoneCenter)-R.Throat->GetActorForwardVector()*700-R.Throat->GetActorRightVector()*80;
             FHitResult NearMouth;if(!Tongue->SurfacePoint(Probe,NearMouth)) {Check(false,TEXT("walkable tongue in front of the mouth"));Finish();return;}
             R.P=NearMouth.ImpactPoint;H->SetActorLocation(R.P+FVector(0,0,H->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()+3));
             R.Start=H->GetActorLocation();H->bBrushing=true;H->CareTarget=Tongue;
@@ -122,8 +124,10 @@ void MCTickFoodReworkValidation(UWorld* W)
         UE_LOG(LogTemp,Display,TEXT("MC_FOOD_REWORK_START %s"),*Case);
     }
     const double T=W->GetTimeSeconds()-R.At;
-    // Keep the review footage clear; gameplay HUD still shows stack controls.
-    for(TActorIterator<AMCFoodActor> It(W);It;++It) It->Label->SetVisibility(false);
+    // Keep ordinary ingredient labels out of review footage, while the live
+    // pepper countdown remains visible so its warning can be reviewed.
+    for(TActorIterator<AMCFoodActor> It(W);It;++It)
+        It->Label->SetVisibility(Case==TEXT("FoodDamage") && It->FoodData.Kind==EMCFoodKind::Spicy && !It->IsDisposed());
     if(R.Throat.IsValid()) R.Throat->Label->SetVisibility(false);
     R.MaxStack=FMath::Max(R.MaxStack,H->FoodCollection->Pieces.Num());
     if(Case==TEXT("FoodReaction") && R.Food.IsValid()) {
@@ -187,29 +191,36 @@ void MCTickFoodReworkValidation(UWorld* W)
         if(T>7.5 && R.Stage==1) {Check(R.Throat->FoodSwallowed>0 && !H->SwallowedBy,TEXT("ingredient swallowed automatically after the gathering window; player remains outside intake"));Spawn(TEXT("Carrot"),R.P+FVector(30,0,70),true);++R.Stage;}
         if(T>14) {Check(R.Throat->FoodSwallowed>=2 && R.Throat->UvulaLanding->GetCollisionEnabled()==ECollisionEnabled::NoCollision,TEXT("repeat intake works and decorative uvula has no trigger"));Finish();}
     } else if(Case==TEXT("FoodYawn")) {
-        // A continuous gameplay take: establish the mouth and airflow, then
-        // show both planted hands and the face before returning to the mouth.
+        // Show an idle player drifting, then running against the same current.
         if(T>4.1 && T<7.1) {
             const FVector Eyes=(H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("eye_l")))+H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("eye_r"))))*.5f;
-            const FVector Hands=(H->YawnHandPoint(0)+H->YawnHandPoint(1))*.5f;
-            Camera((Eyes+Hands)*.5f+FVector(0,0,12),-H->YawnPullDirection*360+FVector::CrossProduct(FVector::UpVector,H->YawnPullDirection)*-280+FVector(0,0,170));
+            Camera((Eyes+H->GetActorLocation())*.5f+FVector(0,0,12),-H->YawnPullDirection*400+FVector::CrossProduct(FVector::UpVector,H->YawnPullDirection)*-320+FVector(0,0,170));
         } else if(R.Throat.IsValid()) {
             Camera((R.Throat->VacuumInlet()+R.Start)*.5f+FVector(0,0,17),R.Throat->GetActorTransform().TransformVectorNoScale(FVector(-1300,-500,150)));
             R.Camera->GetCameraComponent()->SetFieldOfView(58);
         }
         if(T>1 && R.Stage==0) {H->ServerSetPrimary(true);H->ServerSetPrimary(false);++R.Stage;}
         if(T>2.5 && R.Stage==1) {
-            R.Start=H->GetActorLocation();Tongue->StartYawn(4);
-            Check(!H->CanWork() && !H->bBrushing && !H->bHandling && !H->FoodCollection->bCollecting && H->YawnTongue==Tongue,TEXT("yawn cancels work and automatically grips tongue"));
+            R.Start=H->GetActorLocation();const bool Collecting=H->FoodCollection->bCollecting;Tongue->StartYawn(4);
+            Check(H->CanWork() && H->FoodCollection->bCollecting==Collecting && H->YawnTongue==Tongue && H->YawnAnchor.IsNearlyZero() && H->GetCharacterMovement()->MovementMode!=MOVE_None,TEXT("yawn preserves input and collection without an automatic anchor"));
+            H->FoodCollection->Stop();H->bBrushing=false;
             int32 MouthFlows=0,HeroFlows=0;for(TActorIterator<AMCReactionVFX> It(W);It;++It) if(It->Effect==EMCReactionEffect::Yawn) {MouthFlows+=It->GetAttachParentActor()==R.Throat.Get();HeroFlows+=Cast<AMCToothCharacter>(It->GetAttachParentActor())!=nullptr;}
             Check(MouthFlows==1 && HeroFlows==0,TEXT("one cartoon vacuum originates at the mouth with no player ray emitters"));++R.Stage;
         }
-        if(T>3 && T<6) {
-            H->AddMovementInput(FVector::RightVector,1);
-            R.YawnDrag=FMath::Max(R.YawnDrag,float(FVector::Dist2D(H->GetActorLocation(),R.Start)));
-            const FVector Hand=H->GetMesh()->GetSocketLocation(H->RigBone(TEXT("hand_l")));
-            R.HandGap=FMath::Min(R.HandGap,float(FVector::Dist(Hand,H->YawnHandPoint(0))));
-            R.YawnEyesFocused|=H->YawnPoseAlpha()>.9f && FMath::Abs(H->Gaze->LeftAngles.Y)<15 && FMath::Abs(H->Gaze->RightAngles.Y)<15;
+        if(T>3.2 && T<6) {
+            R.YawnControlsFree&=H->CanWork() && H->GetCharacterMovement()->MovementMode!=MOVE_None && !PC->IsMoveInputIgnored() && H->YawnAnchor.IsNearlyZero();
+            if(T>3.7 && !R.YawnIdleMeasured) {
+                R.YawnIdleMeasured=true;R.YawnDirection=H->YawnWindVelocity().GetSafeNormal();
+                R.YawnDrag=FVector::DotProduct(H->GetActorLocation()-R.Start,R.YawnDirection);R.YawnRunStart=H->GetActorLocation();
+                Check(R.YawnDrag>45,TEXT("the air current moves an idle player toward the mouth"));
+                CastChecked<UMCToothMovementComponent>(H->GetCharacterMovement())->SetSprinting(true);
+            }
+            if(R.YawnIdleMeasured && T<5.7) H->AddMovementInput(-R.YawnDirection,1);
+            if(T>5.7 && !R.YawnRunMeasured) {
+                R.YawnRunMeasured=true;R.YawnRunDistance=FVector::DotProduct(H->GetActorLocation()-R.YawnRunStart,R.YawnDirection);
+                Check(R.YawnRunDistance<-40,TEXT("the player can run upstream and gain ground during inhalation"));
+                CastChecked<UMCToothMovementComponent>(H->GetCharacterMovement())->SetSprinting(false);
+            }
             if(T>R.NextDiagnostic) {
                 R.NextDiagnostic=T+.75;
                 const auto* Mesh=H->GetMesh();const auto* Asset=Mesh->GetSkeletalMeshAsset();
@@ -220,21 +231,26 @@ void MCTickFoodReworkValidation(UWorld* W)
                     *H->Gaze->TargetPoint().ToString(),*Mesh->GetSocketLocation(H->RigBone(TEXT("gaze_head"))).ToString());
             }
         }
-        if(T>7 && R.Stage==2) {Check(!H->IsYawning() && H->CanWork(),TEXT("yawn releases automatically and work becomes available"));++R.Stage;}
-        if(T>8) {Check(R.YawnDrag>45 && R.HandGap<28,TEXT("visible suction drag and grounded skeletal hand contact"));Check(R.YawnEyesFocused,TEXT("yawn gaze stays away from the downward pitch limit"));UE_LOG(LogTemp,Display,TEXT("MC_YAWN_POSE drag=%.1f handGap=%.1f"),R.YawnDrag,R.HandGap);Finish();}
+        if(T>7 && R.Stage==2) {Check(!H->IsYawning() && H->CanWork() && H->YawnWindVelocity().IsNearlyZero() && H->YawnPoseAlpha()==0 && !H->YawnTongue,TEXT("the countdown clears wind and reaction pose while controls remain available"));++R.Stage;}
+        if(T>8) {Check(R.YawnControlsFree && R.YawnIdleMeasured && R.YawnRunMeasured,TEXT("normal movement and input remain available throughout the yawn"));UE_LOG(LogTemp,Display,TEXT("MC_YAWN_CURRENT idle=%.1f upstream=%.1f"),R.YawnDrag,R.YawnRunDistance);Finish();}
     } else if(Case==TEXT("FoodSpoil") && R.Food.IsValid()) {
         // Advance the freshness clock explicitly, leaving normal gameplay speed intact.
         const float FreshAge=FMath::Min(181.f,float(T)*24);R.Food->SpoilAt=W->GetTimeSeconds()+180-FreshAge;
         if(T>4 && R.Stage==0) {Check(!R.Food->bSpoiled,TEXT("food is still fresh before 180 seconds"));++R.Stage;}
         if(T>8.5) {int32 Ulcers=0;for(TActorIterator<AMCMouthSurface> It(W);It;++It) Ulcers+=It->bUlcer;Check(R.Food->bSpoiled && !R.Food->IsDisposed() && Ulcers==0,TEXT("at 180 seconds food spoils without absorption or ulcers"));Finish();}
     } else if(Case==TEXT("FoodDamage")) {
-        if(T>2 && R.Stage==0) {
-            Check(R.Food.IsValid() && R.Food->IsDisposed() && R.Food->FireTrail.Num()>=6 && R.Food->BurnLesion,TEXT("landing immediately ignites a persistent fire road and one lesion"));
+        if(T>2 && R.Stage==0 && R.Food.IsValid() && !R.Food->IsDisposed()) {
+            Check(R.Food->Phase==EMCFoodPhase::Free && R.Food->FuseEndsAt>0 && R.Food->FireTrail.IsEmpty() && !R.Food->BurnLesion,TEXT("landing starts the ten-second fuse while pepper remains throwable"));
+            Check(R.Food->FuseRemaining()>7 && R.Food->FuseRemaining()<10,TEXT("the landing fuse counts down before ignition"));
+            R.Stage=-1;
+        }
+        if(R.Stage==-1 && R.Food.IsValid() && R.Food->IsDisposed()) {
+            Check(T>=10 && R.Food->FireTrail.Num()>=6 && R.Food->BurnLesion,TEXT("only fuse expiry ignites a persistent fire road and one lesion"));
             Check(R.Food.IsValid() && !R.Food->IsHazardResolved(),TEXT("ignition cannot complete the food objective"));
-            H->Inventory->ServerSelect(EMCToolSlot::Spray);++R.Stage;
+            H->Inventory->ServerSelect(EMCToolSlot::Spray);R.Stage=1;
         }
         if(R.Stage==3) {H->ServerSetPrimary(false);if(T>R.FreshStart+2.5) {GS->TasksLeft=0;Finish();}return;}
-        if(T>2.2 && R.Food.IsValid()) {
+        if(R.Stage>=1 && R.Food.IsValid()) {
             AMCFirePatch* Next=nullptr;float Distance=FLT_MAX;int32 Left=0;
             for(auto Fire:R.Food->FireTrail) if(IsValid(Fire) && Fire->IsBurning()) {++Left;const float D=FVector::DistSquared2D(H->GetActorLocation(),Fire->GetActorLocation());if(D<Distance) {Distance=D;Next=Fire;}}
             GS->TasksTotal=8;GS->TasksLeft=Left+(R.Food->IsHazardResolved()?0:1);
@@ -259,6 +275,6 @@ void MCTickFoodReworkValidation(UWorld* W)
         if(T>6 && T<7.3) for(TActorIterator<AMCTaskActor> It(W);It;++It) It->ApplyWork(H,true,W->GetDeltaSeconds());
         if(T>9.5) {Check(H->TaskSuccessAt>R.At+6,TEXT("second fully completed task also emits the shared celebration"));Finish();}
     }
-    if(T>(Case==TEXT("FoodDamage")?28:16)) {Check(false,TEXT("scenario timed out"));Finish();}
+    if(T>(Case==TEXT("FoodDamage")?45:16)) {Check(false,TEXT("scenario timed out"));Finish();}
 }
 #endif

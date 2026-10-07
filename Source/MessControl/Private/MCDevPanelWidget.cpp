@@ -170,8 +170,8 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Фаза 3 — остановить AI / восстановить"),TEXT("Выключить бой, восстановить здоровье и вернуть idle."),EMCDevAction::BossPhase3Deactivate);
     AddAction(Actions,TEXT("Фаза 3 — убрать тестового босса"),TEXT("Удаляет только тестового босса фазы 3, созданного кнопками F3."),EMCDevAction::BossPhase3Remove);
     AddText(Actions,TEXT("Другие механики"),19)->SetColorAndOpacity(FSlateColor(DevMint));
-    AddAction(Actions,TEXT("Еда — уронить перед игроком"),TEXT("Случайный целый кусок из таблицы завтрака. Проверь удар, распад на фрагменты и хват."),EMCDevAction::DropFood);
-    AddAction(Actions,TEXT("Перец — таймер и красная волна"),TEXT("Настоящий предмет из таблицы. Проглоти до детонации; от волны можно перепрыгнуть."),EMCDevAction::SpicyPepper);
+    AddAction(Actions,TEXT("Еда — дроп в зоны 30/70"),TEXT("Случайный целый кусок из таблицы завтрака падает в разрешённую зону языка. Крайние полосы у выходов исключены."),EMCDevAction::DropFood);
+    AddAction(Actions,TEXT("Перец — 10 секунд до взрыва"),TEXT("Подними и выброси в глотку до конца отсчёта. Просроченный перец оставляет огонь и язву."),EMCDevAction::SpicyPepper);
     AddAction(Actions,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);
     AddAction(Actions,TEXT("Рвота — испорченный заказ"),TEXT("Два куска в круге: глотка автоматически выплюнет испорченный заказ со струёй и брызгами. Пятна на языке очищаются щёткой."),EMCDevAction::VomitMeal);
     AddAction(Actions,TEXT("Руки — хват, тяга и толкание"),TEXT("Большой и два маленьких куба. ПКМ — держаться за предмет. ЛКМ — прежняя тяга и переноска. ПКМ возле игрока — тормозить его своим весом."),EMCDevAction::GripPractice);

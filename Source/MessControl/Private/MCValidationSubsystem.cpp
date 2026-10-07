@@ -31,6 +31,8 @@ void MCTickGameplayV3Validation(UWorld* World);
 void MCTickUlcerReworkValidation(UWorld* World);
 void MCTickApprovalRecorder(UWorld* World);
 void MCTickFoodReworkValidation(UWorld* World);
+void MCTickFoodEntryValidation(UWorld* World);
+void MCTickSpawnZonesValidation(UWorld* World);
 void MCTickFoodNetworkValidation(UWorld* World);
 void MCTickFoodCollisionValidation(UWorld* World);
 void MCTickFoodPilePerformance(UWorld* World);
@@ -53,6 +55,7 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
 {
     if (FParse::Param(FCommandLine::Get(),TEXT("MCSwimTest"))) { TickSwim(DeltaSeconds); return; }
 #if !UE_BUILD_SHIPPING
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCFoodEntryTest"))) {MCTickFoodEntryValidation(GetWorld());return;}
     if(FParse::Param(FCommandLine::Get(),TEXT("MCCalculusTest"))) { MCTickCalculusValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCToothPianoTest"))) { MCTickToothPianoValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCPlayerNameTest"))) { MCTickPlayerNameValidation(GetWorld()); return; }
@@ -62,6 +65,7 @@ void UMCValidationSubsystem::Tick(float DeltaSeconds)
     if(FParse::Param(FCommandLine::Get(),TEXT("MCOrbitCameraTest"))) { MCTickOrbitCameraValidation(GetWorld()); return; }
     if(FParse::Param(FCommandLine::Get(),TEXT("MCSteamHostTest")) || FParse::Param(FCommandLine::Get(),TEXT("MCSteamFindTest"))) { MCTickSteamValidation(GetWorld()); return; }
     MCTickApprovalRecorder(GetWorld());
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCSpawnZones"))) {MCTickSpawnZonesValidation(GetWorld());return;}
     if(FParse::Param(FCommandLine::Get(),TEXT("MCFoodPilePerf"))) {MCTickFoodPilePerformance(GetWorld());return;}
     if(FParse::Param(FCommandLine::Get(),TEXT("MCFoodCollision"))) {MCTickFoodCollisionValidation(GetWorld());return;}
     if(FParse::Param(FCommandLine::Get(),TEXT("MCFoodNetwork"))) {MCTickFoodNetworkValidation(GetWorld());return;}

@@ -1,0 +1,15 @@
+Mode: built-in image_gen.imagegen
+Input references:
+E:\DEVGAME\MessControl\ArtSource\References\Mouth_Coop_Reference.png
+E:\DEVGAME\MessControl\ArtSource\Concepts\LovecraftTooth_20261007_v1.png
+Transparent background: false
+
+Exact prompt:
+Use case: stylized-concept.
+Asset type: one polished game boss concept render for MessControl.
+Input images: image 1 is the approved art style reference, for rounded geometry, warm ivory tooth enamel, wet coral mouth environment, bright colors, soft volume lighting ONLY; remove all its UI and text. Image 2 is the baseline Lovecraft tooth boss species and material reference. Replace its anatomy substantially with the specified new variant; keep its tooth identity and overall stylized material language.
+Scene: inside a huge pink mouth, on the softly glossy coral tongue arena, background teeth and mouth folds, minimal environmental clutter. One boss only. One tiny player tooth with a turquoise backpack seen from behind for scale is allowed.
+Style: bright polished stylized 3D, rounded simple readable large forms, creamy milk-white smoothly glossy enamel with broad soft highlights, thick wet coral-pink tentacles with violet undersides and rounded suckers. Soft volumetric lighting, filled shadows, excellent silhouette readability, subtle turquoise or amber alien eye accents. Eerie ancient nonhuman intelligence, imposing and unsettling.
+Composition: one coherent scene, centered complete boss, full body and every tentacle within the frame, generous framing, no cropping; tooth-sized small player in foreground. Wide landscape image.
+Constraints: visibly a TOOTH first, unmistakable huge molar crown and enamel mass. No humanoid body, arms, legs or cute face, no cartoon smiling mouth, no stone architecture, no rock shell, no realistic medical anatomy, no gore, no dark muddy horror grading, no UI, no text, no watermark, no grid, no multi-panel or sheet.
+Variant 03 ROOT KRAKEN: a TALL huge massive upright solid molar crown with three to four rounded enamel cusps, intact upper tooth silhouette. It is carried high above the tongue by THREE EXTREMELY LONG thick root-tentacles in a wide tripod stance, their long exposed curving lengths and three separated contact points dominating the silhouette. Two additional thinner coral-violet tentacles curve UPWARD behind the upper crown like two uneven organic arcs. ONE turquoise alien eye is recessed into a narrow VERTICAL fissure on the side of the tall enamel crown, not in a face. Wide full-body low three-quarter camera showing the entire very tall boss from crown to the complete tripod feet, no cropping. The three lower tentacles look like long flexible roots, not humanoid legs; preserve a massive recognizable white molar above them. This is a slender-tall root-stilt anatomy, visually very different from the broad squat baseline.

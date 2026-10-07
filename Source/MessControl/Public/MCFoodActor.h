@@ -81,6 +81,9 @@ public:
     virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Initialize(bool bJam,FVector ExtractionDirection);
+    /** Launch a newly spawned piece through the mouth; call after FinishSpawning. */
+    void BeginMouthEntry(FVector LaunchVelocity,float PushSpeed);
+    bool IsMouthEntryActive() const { return bMouthEntry; }
     // Ordinary food is reserved for the new collection system. Tools and hazards retain the old grip.
     bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
     bool TryGrab(AMCToothCharacter* Hero);
@@ -185,6 +188,10 @@ private:
     TWeakObjectPtr<AMCToothCharacter> CollisionIgnoredCarrier;
     // Sampled in the actor's PrePhysics tick, before contact impulses change velocity.
     FVector PrePhysicsVelocity=FVector::ZeroVector;
+    bool bMouthEntry=false;
+    float MouthEntryPushSpeed=0;
+    double MouthEntryEndsAt=0;
+    void EndMouthEntry();
     double StackReleaseSafeUntil=-100;
     TMap<TWeakObjectPtr<AActor>,double> LastHit;
     UPROPERTY(Replicated) TObjectPtr<class AMCTongue> AbsorptionTongue;

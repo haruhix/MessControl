@@ -72,7 +72,7 @@ void AMCDayDirector::DirtyMouth(bool bCoffee)
         const float HalfSize=Random.FRandRange(55.f,175.f);
         FHitResult Floor; bool FoundFloor=false;
         for(auto* Tongue:Tongues)
-            if(Tongue->RandomInteriorPoint(Random,HalfSize*1.415f+40,HalfSize*1.6f+90,Placed,Floor)) {FoundFloor=true;break;}
+            if(Tongue->RandomGameplaySpawnPoint(Random,HalfSize*1.415f+40,HalfSize*1.6f+90,Placed,Floor)) {FoundFloor=true;break;}
         if(!FoundFloor) {UE_LOG(LogTemp,Warning,TEXT("MC_DIRT_SPAWN no interior tongue footprint for patch %d"),I);continue;}
         const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
         auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
@@ -85,6 +85,19 @@ void AMCDayDirector::DirtyMouth(bool bCoffee)
 }
 AMCFoodActor* AMCDayDirector::SpawnMenuFood(FVector Position,int32 Batch)
 {
+    return SpawnMenuFoodInternal(Position,Batch,false);
+}
+AMCFoodActor* AMCDayDirector::SpawnMenuFoodDrop(float Height,int32 Batch,bool bHeightFromSurface)
+{
+    return SpawnMenuFoodInternal(FVector(0,0,Height),Batch,true,bHeightFromSurface);
+}
+AMCFoodActor* AMCDayDirector::SpawnMenuFoodEntry(int32 Batch)
+{
+    return SpawnMenuFoodInternal(FVector::ZeroVector,Batch,true,false,true);
+}
+AMCFoodActor* AMCDayDirector::SpawnMenuFoodInternal(FVector Position,int32 Batch,bool bRandomDrop,bool bHeightFromSurface,bool bMouthEntry)
+{
+    if (!HasAuthority() || !Settings || Position.ContainsNaN()) return nullptr;
     FName Choice=TEXT("Broccoli"); FMCFoodRow Row; Row.Label=FText::FromString(TEXT("BROCCOLI"));
     if (auto* Table=Settings->Menu.LoadSynchronous())
     {
@@ -95,9 +108,37 @@ AMCFoodActor* AMCDayDirector::SpawnMenuFood(FVector Position,int32 Batch)
         { FMCFoodRow V=*R; V.Sanitize(); if (V.SelectionWeight<=0) continue; Pick-=V.SelectionWeight; if (Pick<=0) { Choice=Name; Row=V; break; } }
         if (Batch==3) if (const auto* Fibre=Table->FindRow<FMCFoodRow>(TEXT("Fibre"),TEXT("Stuck food"))) { Choice=TEXT("Fibre"); Row=*Fibre; }
     }
-    const FTransform T(FRotator(0,Random.FRandRange(-180,180),0),Position);
+    FTransform T(FRotator(0,Random.FRandRange(-180,180),0),Position);
     auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-    if (Food) { Food->ConfigureItem(Choice,Row,Random); Food->Batch=Batch; UGameplayStatics::FinishSpawningActor(Food,T); }
+    if (Food)
+    {
+        Food->ConfigureItem(Choice,Row,Random); Food->Batch=Batch;
+        FVector EntryVelocity=FVector::ZeroVector;
+        if (bRandomDrop)
+        {
+            // The configured mesh, including the selected variant and scale, sets the footprint.
+            const float Margin=Food->Body->GetScaledBoxExtent().Size2D()+20;
+            FHitResult Floor; bool Found=false; AMCTongue* LandingTongue=nullptr;
+            for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+                if (It->RandomGameplaySpawnPoint(Random,Margin,Margin*2+40,TConstArrayView<FVector>(),Floor)) { Found=true; LandingTongue=*It; break; }
+            if (!Found)
+            {
+                UE_LOG(LogTemp,Warning,TEXT("MC_FOOD_DROP no gameplay zone footprint for %s (radius %.1f)"),*Choice.ToString(),Margin);
+                Food->Destroy(); return nullptr;
+            }
+            Position.X=Floor.ImpactPoint.X; Position.Y=Floor.ImpactPoint.Y;
+            if (bHeightFromSurface) Position.Z+=Floor.ImpactPoint.Z;
+            if(bMouthEntry)
+            {
+                const FVector LandingCenter=Floor.ImpactPoint+FVector(0,0,Food->Body->GetScaledBoxExtent().Z+5);
+                if(!Settings->FoodEntry.BuildTrajectory(LandingTongue->Surface->Bounds.GetBox(),LandingCenter,GetWorld()->GetGravityZ(),Position,EntryVelocity))
+                { Food->Destroy();return nullptr; }
+            }
+            T.SetLocation(Position);
+        }
+        UGameplayStatics::FinishSpawningActor(Food,T);
+        if(bMouthEntry) Food->BeginMouthEntry(EntryVelocity,Settings->FoodEntry.PushSpeed);
+    }
     return Food;
 }
 void AMCDayDirector::EnterStep()
@@ -117,7 +158,7 @@ void AMCDayDirector::EnterStep()
     GS->PhaseEndsAt=!GS->bDevManualEvents && Step.Seconds>0?StepStartedAt+Step.Seconds:0; GS->TasksTotal=0; GS->TasksLeft=0;
     // A directly selected cleanup step needs the food normally left by its predecessor.
     if (GS->bDevManualEvents && Step.Step==EMCDayStep::BreakfastCleanup)
-        for (int32 I=0;I<Settings->BreakfastCount;++I) SpawnMenuFood(FVector(Random.FRandRange(-620,650),Random.FRandRange(-430,430),650),2);
+        for (int32 I=0;I<Settings->BreakfastCount;++I) SpawnMenuFoodDrop(650,2);
     if (Step.Step==EMCDayStep::BrushLesson) DirtyMouth(false);
     if (Step.Step==EMCDayStep::BreakfastRain) RainSpawned=0;
     if (Step.Step==EMCDayStep::CoffeeWaves && Flood)
@@ -172,10 +213,12 @@ void AMCDayDirector::Tick(float Dt)
         Left=CountDirt();
         break;
     case EMCDayStep::BreakfastRain:
-        while (RainSpawned<Settings->BreakfastCount && Elapsed>=double(RainSpawned)*FMath::Max(.1f,Step.Seconds)/Settings->BreakfastCount)
-        { SpawnMenuFood(FVector(Random.FRandRange(-620,650),Random.FRandRange(-430,430),650),2); ++RainSpawned; }
-        Left=GS->bDevManualEvents?CountFood(2):Settings->BreakfastCount-RainSpawned; bWait=Elapsed<Step.Seconds; break;
-    case EMCDayStep::BreakfastCleanup: Left=CountFood(2); break;
+        // The event owns the cadence. Each call introduces one independent piece,
+        // without a catch-up burst after a slow frame.
+        if (RainSpawned<Settings->BreakfastCount && Elapsed>=double(RainSpawned)*FMath::Max(.1f,Step.Seconds)/Settings->BreakfastCount)
+        { SpawnMenuFoodEntry(2); ++RainSpawned; }
+        Left=GS->bDevManualEvents?CountFood(2):Settings->BreakfastCount-RainSpawned; bWait=Elapsed<Step.Seconds;break;
+    case EMCDayStep::BreakfastCleanup: Left=CountFood(2);break;
     case EMCDayStep::CoffeeWaves: bWait=Flood && Flood->IsActive(); Left=bWait?FMath::Max(1,Flood->Waves-Flood->Wave+1):0; break;
     case EMCDayStep::StuckFood: Left=CountFood(3); break;
     case EMCDayStep::ColdCola: Left=ColdCola?ColdCola->IceLeft():0; bWait=ColdCola && !ColdCola->IsComplete(); break;
@@ -183,6 +226,8 @@ void AMCDayDirector::Tick(float Dt)
     }
     GS->TasksLeft=Left; GS->TasksTotal=FMath::Max(GS->TasksTotal,Left);
     if (GS->bDevManualEvents) return;
+    // A late frame may pass the deadline before every individual spawn ran.
+    if (Step.Step==EMCDayStep::BreakfastRain && RainSpawned<Settings->BreakfastCount) return;
     // The profile owns the complete fill/drain duration; never cut the final drain short.
     if (Step.Step==EMCDayStep::CoffeeWaves) { if (!bWait) Next(false); return; }
     if (Left==0 && !bWait) Next(false);

@@ -23,6 +23,7 @@
 #include "MCArenaToothSocket.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "MCArenaDemo.h"
@@ -340,10 +341,27 @@ void AMCGameMode::StartDay()
         for (int32 I=0;I<Count;++I)
         {
             const bool bJam=I%2==0; const float Side=I%4<2?1.f:-1.f;
-            const FVector Location(-650+(I%4)*380,bJam?Side*590.f:Random.FRandRange(-350,350),FoodSettings.DropHeight+I*60);
-            const FTransform Transform(FRotator::ZeroRotator,Location);
+            FTransform Transform(FRotator::ZeroRotator,FVector(0,0,FoodSettings.DropHeight+I*60));
             auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Transform);
-            if (Food) { Food->Initialize(bJam,FVector(0,-Side,0)); UGameplayStatics::FinishSpawningActor(Food,Transform); AddObjective(Food); }
+            if (Food)
+            {
+                // Legacy food uses the prototype visual; BeginPlay derives its collision from this mesh.
+                FVector Extent=Food->Body->GetScaledBoxExtent();
+                if (const auto* Mesh=Food->Visual->GetStaticMesh().Get())
+                    Extent=Mesh->GetBounds().BoxExtent*Food->Visual->GetRelativeScale3D().GetAbs()*Food->GetActorScale3D().GetAbs();
+                const float Margin=Extent.Size2D()+20;
+                FHitResult Floor; bool Found=false;
+                for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+                    if (It->RandomGameplaySpawnPoint(Random,Margin,Margin*2+40,TConstArrayView<FVector>(),Floor)) { Found=true; break; }
+                if (!Found)
+                {
+                    UE_LOG(LogTemp,Warning,TEXT("MC_FOOD_DROP no gameplay zone footprint for legacy food (radius %.1f)"),Margin);
+                    Food->Destroy(); continue;
+                }
+                Transform.SetLocation(FVector(Floor.ImpactPoint.X,Floor.ImpactPoint.Y,FoodSettings.DropHeight+I*60));
+                Food->Initialize(bJam,FVector(0,-Side,0));
+                UGameplayStatics::FinishSpawningActor(Food,Transform); AddObjective(Food);
+            }
         }
     }
     State->TasksTotal = Objectives.Num(); State->TasksLeft = State->TasksTotal;

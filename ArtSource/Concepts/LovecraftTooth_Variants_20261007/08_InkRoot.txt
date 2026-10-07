@@ -1,0 +1,24 @@
+Mode: built-in image_gen
+
+INITIAL GENERATION PROMPT (reference inputs: Mouth_Coop_Reference.png; LovecraftTooth_20261007_v1.png)
+
+Use case: stylized-concept
+Asset type: separate MessControl game boss concept, variant 08 "Ink Root", for a future 3D model.
+Primary request: transform the boss in reference image 2 into an ancient Lovecraftian MOLAR TOOTH supported by a living deep-violet translucent ink-gel lower body. One separate new full-body boss variant, not a collage.
+Input images: Image 1 is the visual style and mouth arena reference only, ignore its text and UI. Image 2 is the boss family reference; preserve polished stylized 3D quality and obvious tooth identity, but change its lower anatomy, eye shape, material and silhouette substantially.
+Subject: a giant broad smooth milk-white glossy molar crown with four rounded cusps. The tooth occupies more than half of the creature's body. Its front has a narrow dark diagonal fissure, with ONE glowing turquoise crescent-shaped alien eye peeking through it. No huge round eyeball, no multiple eyes. The crown merges into a low dense living mass of deep-violet semi-transparent ink jelly. Six thick gelatinous root-tentacles spread outward close to the floor like fluid petal arms, with soft pointed tapered tips and gently curling lifted ends. The lower body is organic animated ink-gel, glossy, translucent at thinner edges, simple clean shapes with subtle internal purple glow; no coral octopus tentacles, no ordinary sucker rows. An unmistakable contrast between the solid light enamel molar and its flowing dark jelly root base. The tooth has an eerie alien intelligence, not a humanoid or cute face. A clean wet dark-purple ink trail stains the pink tongue immediately behind the creature.
+Scene/backdrop: warm pink glossy tongue arena inside a mouth, rounded milk-white teeth along sides and soft pink mouth walls. Simple secondary softly blurred backdrop. One tiny tooth player with turquoise backpack seen from behind in the foreground for boss scale.
+Style/medium: bright high-quality polished stylized 3D game render matching reference 1. Large rounded sculptable shapes, smooth simplification, milk-white enamel, translucent candy-like ink jelly. Colorful uncanny Lovecraftian fantasy, soft game lighting, no gritty realism.
+Composition/framing: landscape full body, three-quarter frontal camera, entire molar and all six spreading jelly tentacles visible with ample margin. Main tooth centered and dominant; broad low jelly skirt silhouette rather than upright octopus arms. One single completed concept, readable geometry for future 3D model.
+Lighting/mood: soft warm mouth lighting, shiny clean reflections, cool purple translucency and subtle turquoise eye glow.
+Constraints: no text, no labels, no UI, no grid, no border, no watermark, no gore, no blood, no stone, no humanoid, no arms or legs, no cute face, no photorealistic sludge, no grunge, no noisy complex textures. Do not preserve the original eye cluster or original raised coral tentacle anatomy.
+
+FINAL EDIT PROMPT (input: initial generated Ink Root image)
+
+Use case: precise-object-edit
+Asset type: MessControl boss concept variant 08 "Ink Root", updated summoning scene.
+Edit target: the attached full-body tooth boss image. Keep the same boss, molar anatomy, crescent turquoise eye, glossy milk enamel, translucent violet jelly tentacles, scale, polished stylized 3D material quality, pink mouth arena, side teeth, camera and small turquoise-backpack tooth player unchanged.
+Change only these two things:
+1. Replace the pink tongue floor directly beneath the giant boss and inside its spreading jelly roots with an unmistakable OPEN black-violet circular portal, seen as a broad horizontal oval in perspective. It is a supernatural black hole embedded in the tongue, with a clean dark depth, subtle spiraling purple energy, and a bright violet rim. The jelly tentacles emerge from and surround this portal; their enamel tooth boss has been summoned from it. The portal is secondary to the boss and does not obscure its geometry. A few small pieces of food close to the rim are being drawn toward the opening, simple enough to preserve the clean boss silhouette.
+2. Add ONE small OPEN Necronomicon-like ancient magic book on the tongue, off to the side of the portal in the lower-left quarter, clearly smaller than the player and tiny compared with the boss. Rounded dark purple covers, ivory pages, a subtle purple glow; non-readable abstract marks only, no lettering or labels. It is the summoning item, a secondary environmental prop. Leave the player visible.
+Keep the boss as the central dominant subject; full silhouette stays inside the frame. No text, no UI, no captions, no watermark, no gore, no realistic grunge, no stone, no extra characters. The result remains a clean bright stylized 3D MessControl game concept.

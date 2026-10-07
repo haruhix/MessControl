@@ -1143,7 +1143,7 @@ bool AMCToothCharacter::CanWork() const
 {
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const auto* Player=Cast<AMCPlayerController>(GetController());
-    return (!Player || !Player->IsBossIntroPlaying()) && !IsValid(RewardInteraction) && !IsMimicCaptured() && !IsYawning() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
+    return (!Player || !Player->IsBossIntroPlaying()) && !IsValid(RewardInteraction) && !IsMimicCaptured() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
 }
 void AMCToothCharacter::ToggleSelfCare() { ServerToggleSelfCare(); }
 void AMCToothCharacter::ServerToggleSelfCare_Implementation()
