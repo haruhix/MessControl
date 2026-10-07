@@ -297,7 +297,7 @@ void UMCBrushContactComponent::TickComponent(float Dt,ELevelTick Type,FActorComp
         bFoamEmitting=Emit;
     }
 }
-void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt) const
+void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt)
 {
     if(!Hero || !Hero->ToothPhysics->CanAct()) { bHandPresented=false; return; }
     const FTransform World=Hero->GetMesh()->GetComponentTransform();
@@ -319,7 +319,7 @@ void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferen
         ContactGoal.SetLocation(Home+ClampHandOffset(ContactGoal.GetLocation()-Home));
         Desired.Blend(Animated,ContactGoal,FMath::SmoothStep(0.f,1.f,Blend));
     }
-    auto KeepOutsideSurface=[&](FTransform& Hand,bool Destination=false) {
+    auto KeepOutsideSurface=[&](FTransform& Hand,bool Destination=false,bool ActualSurface=false) {
         if(!IsValid(Target) || !Hero->Brush->GetStaticMesh()
             || FVector::Dist2D(ContactPoint(),Hero->GetActorLocation())>SurfaceReach+30) return;
         const FVector N=ContactNormal(),Point=ContactPoint();
@@ -330,7 +330,7 @@ void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferen
             // A new stain's tangent plane can cut across empty space beside a
             // curved crown. During reach/return, use the actual enamel there;
             // otherwise reacquiring a stain teleported a safe resting wrist.
-            if(!Destination && Blend<.98f && Tooth) {
+            if(!Destination && (Blend<.98f || ActualSurface) && Tooth) {
                 FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCBrushReturnSurface),true,Hero);
                 if(Tooth->BrushSurface->LineTraceComponent(Hit,P+N*160,P-N*160,Q))
                     return float(FVector::DotProduct(P-Hit.ImpactPoint,N));
@@ -385,6 +385,22 @@ void UMCBrushContactComponent::BuildPose(TArray<FTransform>& Pose,const FReferen
     PresentedHand.SetRotation(FQuat::Slerp(PresentedHand.GetRotation(),Desired.GetRotation(),FMath::Min(1.f,FMath::DegreesToRadians(360.f)*Dt/FMath::Max(Angle,.0001f))).GetNormalized());
     PresentedHand.SetScale3D(Desired.GetScale3D());
     KeepOutsideSurface(PresentedHand);
+    // Changing stains can move the contact plane through empty space beside a
+    // curved crown. Bound that correction as well as the approach, while giving
+    // actual enamel and floor clearance priority over presentation speed.
+    const float MaxCorrectedStep=590.f*Dt;
+    const FVector CorrectedStep=PresentedHand.GetLocation()-Previous;
+    if(CorrectedStep.SizeSquared()>FMath::Square(MaxCorrectedStep)) {
+        FTransform Limited=PresentedHand;
+        Limited.SetLocation(Previous+CorrectedStep.GetClampedToMaxSize(MaxCorrectedStep));
+        KeepOutsideSurface(Limited,false,true);
+        if(FVector::DistSquared(Limited.GetLocation(),Previous)<=FMath::Square(MaxCorrectedStep)+.001f) {
+            PresentedHand=Limited;
+            // The wrist is still approaching this stain. Resume full contact
+            // and foam only after the limited pose reaches its contact envelope.
+            if(Contact) Blend=FMath::Min(Blend,.97f);
+        }
+    }
 #if !UE_BUILD_SHIPPING
     if(Contact && GFrameCounter%180==0 && FParse::Param(FCommandLine::Get(),TEXT("MCBrushCoverage"))) {
         const FTransform PlannedBrush=Hero->Brush->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform()*Desired;

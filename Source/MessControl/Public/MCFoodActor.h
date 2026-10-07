@@ -82,8 +82,10 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Initialize(bool bJam,FVector ExtractionDirection);
     /** Launch a newly spawned piece through the mouth; call after FinishSpawning. */
-    void BeginMouthEntry(FVector LaunchVelocity,float PushSpeed);
+    void BeginMouthEntry(FVector LaunchVelocity,float PushSpeed,TOptional<FVector> ExpectedLanding=TOptional<FVector>());
     bool IsMouthEntryActive() const { return bMouthEntry; }
+    /** Entry flight is automatic transport, so work is measured at its planned landing. */
+    FVector WorkPosition() const { return bMouthEntry && MouthEntryLanding.IsSet()?MouthEntryLanding.GetValue():GetActorLocation(); }
     // Ordinary food is reserved for the new collection system. Tools and hazards retain the old grip.
     bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
     bool TryGrab(AMCToothCharacter* Hero);
@@ -189,6 +191,7 @@ private:
     // Sampled in the actor's PrePhysics tick, before contact impulses change velocity.
     FVector PrePhysicsVelocity=FVector::ZeroVector;
     bool bMouthEntry=false;
+    TOptional<FVector> MouthEntryLanding;
     float MouthEntryPushSpeed=0;
     double MouthEntryEndsAt=0;
     void EndMouthEntry();

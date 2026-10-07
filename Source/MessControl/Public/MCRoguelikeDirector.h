@@ -22,6 +22,8 @@ public:
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards") void NotifyTaskCompleted(FName CompletionId=NAME_None);
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Rewards") void ResetRewards();
     void NotifyChestFinished(AMCRewardChest* Chest,bool bRequeue);
+    /** Release one queued reward only while the central director grants its launch. */
+    bool TryReleaseQueuedReward();
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards") TSoftObjectPtr<UDataTable> PerkTable;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards") TSubclassOf<AMCRewardChest> ChestClass;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Rewards") EMCRewardSelectionPolicy SelectionPolicy=EMCRewardSelectionPolicy::ChooseOne;

@@ -1,4 +1,5 @@
 #include "MCBossCharacter.h"
+#include "MCGameDirector.h"
 #include "MCBossAnimInstance.h"
 #include "MCBossAIController.h"
 #include "MCBossFaceComponent.h"
@@ -156,6 +157,8 @@ float AMCBossCharacter::GetStateAge() const
 void AMCBossCharacter::ActivateBoss()
 {
     if (!HasAuthority() || !IsBossAlive()) return;
+    if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()
+        && !Director->IsLaunchingEvent(EMCGameDirectorEvent::Boss)) return;
     Runtime.AnimationPreview=EMCBossAnimationPreview::None;
     GetCharacterMovement()->SetMovementMode(MOVE_Walking);
     if (!GetController()) SpawnDefaultController();

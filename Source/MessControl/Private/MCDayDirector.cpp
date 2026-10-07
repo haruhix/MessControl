@@ -59,15 +59,30 @@ void AMCDayDirector::DropBrushes()
 }
 void AMCDayDirector::DirtyMouth(bool bCoffee)
 {
-    auto* GS=GetWorld()->GetGameState<AMCGameState>();
-    for (AMCArenaTooth* Tooth:GS->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable()) Tooth->Status->ApplyCoffee(bCoffee?1.f:.5f);
-    if (bCoffee) for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if (It->Status->IsAlive()) It->Status->ApplyCoffee();
     TArray<AMCMouthSurface*> Existing; for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (!It->bUlcer) Existing.Add(*It);
     for (auto* Patch:Existing) Patch->Destroy();
+    auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    AddDirt(bCoffee,Settings?Settings->SurfacePatches:0,GS?GS->StepIndex:0);
+}
+void AMCDayDirector::InitializeEventServices(UMCDayPlan* Plan,int32 Seed)
+{
+    if(!HasAuthority() || !Plan) return;
+    Settings=Plan; Random.Initialize(Seed); SetActorTickEnabled(false);
+}
+void AMCDayDirector::AddDirt(bool bCoffee,int32 Patches,int32 Batch,int32 ToothLimit,float ToothAmount)
+{
+    if(!HasAuthority() || !Settings) return;
+    auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
+    const float Amount=ToothAmount<0?(bCoffee?1.f:.5f):FMath::Clamp(ToothAmount,0.f,1.f);
+    int32 Dirtied=0;
+    for (AMCArenaTooth* Tooth:GS->ArenaTeeth) if (IsValid(Tooth) && Tooth->IsAvailable() && (ToothLimit<0 || Dirtied<ToothLimit))
+    { Tooth->Status->ApplyCoffee(ToothLimit<0?Amount:FMath::Max(Amount,Tooth->Status->CoffeeAmount())); ++Dirtied; }
+    if (bCoffee) for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+        if (It->Status->IsAlive() && (ToothLimit<0 || Dirtied<ToothLimit)) { It->Status->ApplyCoffee(ToothLimit<0?Amount:FMath::Max(Amount,It->Status->CoffeeAmount())); ++Dirtied; }
     TArray<AMCTongue*> Tongues; for (TActorIterator<AMCTongue> It(GetWorld());It;++It) Tongues.Add(*It);
     TArray<FVector> Placed;
-    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->bUlcer) Placed.Add(It->GetActorLocation());
-    for (int32 I=0;I<Settings->SurfacePatches;++I)
+    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(!It->IsClean()) Placed.Add(It->GetActorLocation());
+    for (int32 I=0;I<FMath::Clamp(Patches,0,40);++I)
     {
         const float HalfSize=Random.FRandRange(55.f,175.f);
         FHitResult Floor; bool FoundFloor=false;
@@ -77,7 +92,7 @@ void AMCDayDirector::DirtyMouth(bool bCoffee)
         const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
         auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
         if(Patch) {
-            Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=HalfSize; Patch->Batch=GS->StepIndex;
+            Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=HalfSize; Patch->Batch=Batch;
             Patch->FinishSpawning(Pose); Patch->Status->ApplyCoffee(bCoffee?1.f:.5f); Patch->ForceNetUpdate();
             Placed.Add(Floor.ImpactPoint);
         }
@@ -113,7 +128,7 @@ AMCFoodActor* AMCDayDirector::SpawnMenuFoodInternal(FVector Position,int32 Batch
     if (Food)
     {
         Food->ConfigureItem(Choice,Row,Random); Food->Batch=Batch;
-        FVector EntryVelocity=FVector::ZeroVector;
+        FVector EntryVelocity=FVector::ZeroVector; TOptional<FVector> EntryLanding;
         if (bRandomDrop)
         {
             // The configured mesh, including the selected variant and scale, sets the footprint.
@@ -131,13 +146,14 @@ AMCFoodActor* AMCDayDirector::SpawnMenuFoodInternal(FVector Position,int32 Batch
             if(bMouthEntry)
             {
                 const FVector LandingCenter=Floor.ImpactPoint+FVector(0,0,Food->Body->GetScaledBoxExtent().Z+5);
+                EntryLanding=LandingCenter;
                 if(!Settings->FoodEntry.BuildTrajectory(LandingTongue->Surface->Bounds.GetBox(),LandingCenter,GetWorld()->GetGravityZ(),Position,EntryVelocity))
                 { Food->Destroy();return nullptr; }
             }
             T.SetLocation(Position);
         }
         UGameplayStatics::FinishSpawningActor(Food,T);
-        if(bMouthEntry) Food->BeginMouthEntry(EntryVelocity,Settings->FoodEntry.PushSpeed);
+        if(bMouthEntry) Food->BeginMouthEntry(EntryVelocity,Settings->FoodEntry.PushSpeed,EntryLanding);
     }
     return Food;
 }
@@ -216,7 +232,7 @@ void AMCDayDirector::Tick(float Dt)
         // The event owns the cadence. Each call introduces one independent piece,
         // without a catch-up burst after a slow frame.
         if (RainSpawned<Settings->BreakfastCount && Elapsed>=double(RainSpawned)*FMath::Max(.1f,Step.Seconds)/Settings->BreakfastCount)
-        { SpawnMenuFoodEntry(2); ++RainSpawned; }
+        { if(SpawnMenuFoodEntry(2)) ++RainSpawned; }
         Left=GS->bDevManualEvents?CountFood(2):Settings->BreakfastCount-RainSpawned; bWait=Elapsed<Step.Seconds;break;
     case EMCDayStep::BreakfastCleanup: Left=CountFood(2);break;
     case EMCDayStep::CoffeeWaves: bWait=Flood && Flood->IsActive(); Left=bWait?FMath::Max(1,Flood->Waves-Flood->Wave+1):0; break;

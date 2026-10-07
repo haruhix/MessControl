@@ -70,19 +70,20 @@ public:
     virtual void Tick(float Dt) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
-    void Start(const class UMCDayPlan* Plan);
+    void Start(const class UMCDayPlan* Plan,int32 IceCountOverride=0);
     void Stop();
     int32 IceLeft() const;
     float FrostAmount() const;
     bool IsComplete() const;
-    UPROPERTY(Replicated,BlueprintReadOnly) bool bActive=false;
-    UPROPERTY(Replicated) double StartedAt=0;
-    UPROPERTY(Replicated) double ThawStartedAt=0;
-    UPROPERTY(Replicated) TObjectPtr<UMCColdColaProfile> Profile;
+    UPROPERTY(ReplicatedUsing=OnRep_Timeline,BlueprintReadOnly) bool bActive=false;
+    UPROPERTY(ReplicatedUsing=OnRep_Timeline) double StartedAt=0;
+    UPROPERTY(ReplicatedUsing=OnRep_Timeline) double ThawStartedAt=0;
+    UPROPERTY(ReplicatedUsing=OnRep_Timeline) TObjectPtr<UMCColdColaProfile> Profile;
     UPROPERTY() TObjectPtr<AMCCoffeeFlood> Drink;
     UPROPERTY() TObjectPtr<AMCLocomotionSurface> SlipperyFloor;
 private:
-    int32 Spawned=0;
+    UFUNCTION() void OnRep_Timeline();
+    int32 Spawned=0,IceTarget=5;
     double NextIceAttempt=0;
     FVector Center=FVector::ZeroVector,Extent=FVector(1050,740,220);
     TArray<TWeakObjectPtr<AMCIceBlock>> Blocks;

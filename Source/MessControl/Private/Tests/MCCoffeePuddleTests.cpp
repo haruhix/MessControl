@@ -42,8 +42,10 @@ bool FMCCoffeeContactTest::RunTest(const FString&)
     auto& Context=GEngine->CreateNewWorldContext(EWorldType::Game); Context.SetCurrentWorld(World);
     World->SetGameInstance(NewObject<UGameInstance>(GEngine));
     FURL URL; URL.AddOption(TEXT("game=/Script/MessControl.MCGameMode"));
-    World->SetGameMode(URL); World->InitializeActorsForPlay(URL); World->BeginPlay();
+    World->SetGameMode(URL);
     World->GetAuthGameMode<AMCGameMode>()->bUseDayOnePlan=false;
+    World->GetAuthGameMode<AMCGameMode>()->bUseAdaptiveDirector=false;
+    World->InitializeActorsForPlay(URL); World->BeginPlay();
     auto* GS=World->GetGameState<AMCGameState>(); GS->Phase=EMCShiftPhase::Working; GS->bPhysicalBrushes=false;
     auto* Patch=World->SpawnActor<AMCMouthSurface>(FVector(300,0,5),FRotator::ZeroRotator);
     Patch->LiquidHalfSize=92; Patch->Status->ApplyCoffee();

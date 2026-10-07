@@ -24,6 +24,9 @@
 #include "Components/Image.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
+#include "Components/Border.h"
+#include "Components/SizeBox.h"
+#include "HAL/IConsoleManager.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Styling/CoreStyle.h"
 #include "GameFramework/GameStateBase.h"
@@ -32,7 +35,42 @@
 // Unity builds combine this file with the prototype widgets and mouth renderer.
 namespace MCGameplayHUDPrivate
 {
+TAutoConsoleVariable<int32> DirectorDebug(TEXT("MC.Director.Debug"),0,
+    TEXT("1: show Director observations, candidate weights/probabilities and recent decisions; 0: compact monitor."),ECVF_Default);
 const FLinearColor Ink(.012f,.020f,.033f,.90f),White(.98f,.97f,.93f),Muted(.56f,.66f,.72f),Mint(.26f,.91f,.71f),Amber(1.f,.64f,.23f),Blue(.22f,.65f,1.f);
+FString PacingName(EMCGameDirectorPacing Pacing)
+{
+    switch(Pacing) {
+    case EMCGameDirectorPacing::Build:return TEXT("НАРАСТАНИЕ");
+    case EMCGameDirectorPacing::Drain:return TEXT("РАЗГРУЗКА");
+    case EMCGameDirectorPacing::Rest:return TEXT("ПЕРЕДЫШКА");
+    case EMCGameDirectorPacing::FinalCleanup:return TEXT("ФИНАЛЬНАЯ УБОРКА");
+    default:return TEXT("ПЕРЕРЫВ"); }
+}
+FString ShortLine(FString Value,int32 Limit)
+{
+    Value.ReplaceInline(TEXT("\r"),TEXT(" "));Value.ReplaceInline(TEXT("\n"),TEXT(" "));
+    return Value.Len()>Limit?Value.Left(Limit-1)+TEXT("…"):Value;
+}
+FString CandidateName(EMCGameDirectorEvent Kind)
+{
+    switch(Kind) {
+    case EMCGameDirectorEvent::Food:return TEXT("Еда");
+    case EMCGameDirectorEvent::Coffee:return TEXT("Пятна кофе");
+    case EMCGameDirectorEvent::CoffeeFlood:return TEXT("Река кофе");
+    case EMCGameDirectorEvent::ColdCola:return TEXT("Кола");
+    case EMCGameDirectorEvent::Yawn:return TEXT("Зевание");
+    case EMCGameDirectorEvent::Pepper:return TEXT("Перец");
+    case EMCGameDirectorEvent::StuckFood:return TEXT("Застр. еда");
+    case EMCGameDirectorEvent::LooseTooth:return TEXT("Шаткий зуб");
+    case EMCGameDirectorEvent::Reward:return TEXT("Сундук");
+    default:return TEXT("Босс"); }
+}
+float CandidateProbability(const FMCGameDirectorCandidate& Candidate)
+{
+    return Candidate.EffectiveWeight>0?FMath::Clamp(Candidate.Probability,0.f,1.f):0.f;
+}
+int32 Percent(float Value) { return FMath::RoundToInt(FMath::Clamp(Value,0.f,1.f)*100); }
 FString StepName(EMCDayStep Step)
 {
     switch(Step) {
@@ -126,6 +164,90 @@ void UMCGameplayHUD::NativeOnInitialized()
         auto* StaminaSlot=Root->AddChildToCanvas(StaminaWidget);StaminaSlot->SetAnchors(FAnchors(.5f,1));StaminaSlot->SetAlignment(FVector2D(.5f,1));
         StaminaSlot->SetPosition(FVector2D(0,-138));StaminaSlot->SetSize(FVector2D(250,58));
     }
+    EnsureDirectorMonitor();
+}
+void UMCGameplayHUD::EnsureDirectorMonitor()
+{
+    if((DirectorPanel && DirectorCandidatesPanel) || !WidgetTree) return;
+    // Use the authored design canvas so the sidebar follows its viewport scale.
+    auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
+    if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
+    if(!Root) return;
+    auto AddPanel=[&](FName Name,TObjectPtr<UBorder>& Panel,TObjectPtr<UTextBlock>& TextWidget,float Width,float RightOffset,float Top)
+    {
+        Panel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),Name);
+        Panel->SetPadding(FMargin(12,10));Panel->SetBrushColor(MCGameplayHUDPrivate::Ink);
+        Panel->SetVisibility(ESlateVisibility::Collapsed);
+        auto* PanelSize=WidgetTree->ConstructWidget<USizeBox>();
+        PanelSize->SetWidthOverride(Width);PanelSize->SetMaxDesiredHeight(600);
+        PanelSize->SetClipping(EWidgetClipping::ClipToBounds);Panel->SetContent(PanelSize);
+        TextWidget=WidgetTree->ConstructWidget<UTextBlock>();
+        TextWidget->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11));
+        TextWidget->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::White));
+        TextWidget->SetWrapTextAt(Width);TextWidget->SetAutoWrapText(false);
+        PanelSize->SetContent(TextWidget);
+        auto* PanelSlot=Root->AddChildToCanvas(Panel);PanelSlot->SetAnchors(FAnchors(1,0));
+        PanelSlot->SetAlignment(FVector2D(1,0));PanelSlot->SetPosition(FVector2D(RightOffset,Top));PanelSlot->SetAutoSize(true);
+        return PanelSize;
+    };
+    if(!DirectorPanel) DirectorPanelSize=AddPanel(TEXT("DirectorMonitor"),DirectorPanel,DirectorText,280,-22,338);
+    // The second column ends before the observation column and stays right of
+    // the arena centre, leaving the player portraits and bottom controls clear.
+    if(!DirectorCandidatesPanel) AddPanel(TEXT("DirectorCandidates"),DirectorCandidatesPanel,DirectorCandidatesText,306,-362,144);
+}
+void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
+{
+    EnsureDirectorMonitor();
+    if(!DirectorPanel || !DirectorText) return;
+    const bool Debug=State.bEnabled && MCGameplayHUDPrivate::DirectorDebug.GetValueOnGameThread()>0;
+    DirectorPanel->SetVisibility(State.bEnabled?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(DirectorCandidatesPanel) DirectorCandidatesPanel->SetVisibility(Debug?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    if(auto* Events=Find(TEXT("EventsPanel")))
+        Events->SetVisibility(Debug?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
+    if(!State.bEnabled) return;
+    const float Width=Debug?306.f:280.f;
+    DirectorPanelSize->SetWidthOverride(Width);DirectorText->SetWrapTextAt(Width);
+    if(auto* PanelSlot=Cast<UCanvasPanelSlot>(DirectorPanel->Slot)) PanelSlot->SetPosition(FVector2D(-22,Debug?144:338));
+    using namespace MCGameplayHUDPrivate;
+    FString Value=PacingName(State.Pacing)+FString::Printf(TEXT(" · сложность %.2f\nНагрузка %.2f · цель %.2f"),State.Difficulty,State.Pressure,State.TargetPressure);
+    if(!State.Instruction.IsEmpty()) Value+=TEXT("\n")+ShortLine(State.Instruction,92);
+    Value+=(State.bNextReserved?TEXT("\nОкно зарезервировано: "):TEXT("\nКандидат: "))
+        +(State.NextTitle.IsEmpty()?TEXT("ожидание"):ShortLine(State.NextTitle,70));
+    if(!State.DecisionReason.IsEmpty()) Value+=TEXT("\n")+ShortLine(State.DecisionReason,120);
+    if(Debug)
+    {
+        Value+=FString::Printf(TEXT("\n\nПредел %.2f · работа ≈ %.0f чел·с\nТемп %.2f чел·с/с/доступного\nЗдоровье %d%% · запас сил %d%%\nСтресс %d%% · игроков %d · доступны %d\nДень прошёл на %d%%\nИсходная еда %d/%d · готово %d%%\nзавершено / фактически подано\nЦелых %d · кусочков %d · несут %d\nГлотка: %d в очереди · движение %s\nУборка %d · лёд %d · огонь %d · язвы %d\nОчередь событий %d · срочно: %s"),
+            State.PressureLimit,State.WorkSeconds,State.Throughput,Percent(State.TeamHealth),Percent(State.TeamStamina),Percent(State.Stress),
+            State.LivingPlayers,State.AvailablePlayers,Percent(State.DayProgress),State.FinishedFood,State.SpawnedFood,Percent(State.CompletionProgress),
+            State.WholeFood,State.Fragments,State.CarriedFood,State.ThroatQueued,State.bGlobalMovement?TEXT("да"):TEXT("нет"),
+            State.CleaningTasks,State.Ice,State.Fires,State.Ulcers,State.QueuedEvents,State.bUrgent?TEXT("да"):TEXT("нет"));
+        if(!State.LastDecision.IsEmpty()) Value+=TEXT("\nРешение: ")+ShortLine(State.LastDecision,100);
+        Value+=TEXT("\nMC.Director.Debug 0 — свернуть\n\nПОСЛЕДНИЕ РЕШЕНИЯ · НОВЫЕ СВЕРХУ");
+        // Keep the newest decisions visible within the observation panel's height.
+        for(int32 I=State.DecisionLog.Num()-1;I>=FMath::Max(0,State.DecisionLog.Num()-4);--I)
+            Value+=TEXT("\n")+ShortLine(State.DecisionLog[I],40);
+
+        TArray<const FMCGameDirectorCandidate*,TInlineAllocator<16>> Candidates;
+        for(const auto& Candidate:State.Candidates) Candidates.Add(&Candidate);
+        Candidates.Sort([](const FMCGameDirectorCandidate& A,const FMCGameDirectorCandidate& B)
+        {
+            const float AP=CandidateProbability(A),BP=CandidateProbability(B);
+            return AP==BP?uint8(A.Kind)<uint8(B.Kind):AP>BP;
+        });
+        FString Weights=TEXT("КАНДИДАТЫ · ВЕРОЯТНОСТЬ ВЫБОРА\nВес базовый → итоговый · шанс\nP — прогноз нагрузки после события");
+        for(const auto* Candidate:Candidates)
+        {
+            Weights+=FString::Printf(TEXT("\n%s  %.1f→%.1f · %.1f%%\nP %.2f · %s"),*CandidateName(Candidate->Kind),
+                Candidate->BaseWeight,Candidate->EffectiveWeight,CandidateProbability(*Candidate)*100,Candidate->ForecastPressure,
+                *ShortLine(Candidate->BlockReason.IsEmpty()?TEXT("доступно"):Candidate->BlockReason,60));
+        }
+        Weights+=FString::Printf(TEXT("\n\nЖдать: вес %.1f · %.1f%%\nВыбор включает ожидание."),State.WaitWeight,
+            State.WaitWeight>0?FMath::Clamp(State.WaitProbability,0.f,1.f)*100:0.f);
+        if(DirectorCandidatesText && !DirectorCandidatesText->GetText().ToString().Equals(Weights))
+            DirectorCandidatesText->SetText(FText::FromString(Weights));
+    }
+    else Value+=TEXT("\nMC.Director.Debug 1 — наблюдения и веса");
+    if(!DirectorText->GetText().ToString().Equals(Value)) DirectorText->SetText(FText::FromString(Value));
 }
 void UMCGameplayHUD::NativeConstruct()
 {
@@ -157,15 +279,18 @@ void UMCGameplayHUD::RefreshState()
     auto Show=[&](FName Name,bool Visible) { if(auto* W=Find(Name)) W->SetVisibility(Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed); };
     auto Color=[&](FName Name,FLinearColor Value) { if(auto* I=Cast<UImage>(Find(Name))) I->SetColorAndOpacity(Value); };
     const double Now=GS->GetServerWorldTimeSeconds();
-    const bool HasStep=GS->DayPlan && GS->DayPlan->Steps.IsValidIndex(GS->StepIndex);
-    const bool Finished=GS->bDayOneComplete || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost;
-    FString Title=HasStep?HUD::StepName(GS->DayPlan->Steps[GS->StepIndex].Step):GS->CurrentEvent?GS->CurrentEvent->Title.ToString():TEXT("СКОРО НАЧНЁМ");
+    const auto& Director=GS->DirectorState;const bool Directed=Director.bEnabled;
+    RefreshDirectorMonitor(Director);
+    const bool HasStep=!Directed && GS->DayPlan && GS->DayPlan->Steps.IsValidIndex(GS->StepIndex);
+    const bool Finished=(!Directed && GS->bDayOneComplete) || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost;
+    FString Title=Directed?(Director.CurrentTitle.IsEmpty()?TEXT("СКОРО НАЧНЁМ"):Director.CurrentTitle):HasStep?HUD::StepName(GS->DayPlan->Steps[GS->StepIndex].Step):GS->CurrentEvent?GS->CurrentEvent->Title.ToString():TEXT("СКОРО НАЧНЁМ");
     const AMCCoffeeFlood* ActiveFlood=nullptr;
     for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) if(It->IsActive()) { ActiveFlood=*It; break; }
-    if(ActiveFlood) Title=ActiveFlood->bRiverFlood?TEXT("ЦУНАМИ"):ActiveFlood->GetPhase()==EMCCoffeePhase::Holding?TEXT("КОФЕ · ПЛАВАНИЕ"):TEXT("old_flood");
+    if(!Directed && ActiveFlood) Title=ActiveFlood->bRiverFlood?TEXT("ЦУНАМИ"):ActiveFlood->GetPhase()==EMCCoffeePhase::Holding?TEXT("КОФЕ · ПЛАВАНИЕ"):TEXT("old_flood");
+    if(Directed && GS->Phase==EMCShiftPhase::Intermission) Title=TEXT("ПЕРЕДЫШКА");
     if(Finished) Title=GS->Phase==EMCShiftPhase::Lost?TEXT("РОТ НЕ СПАСЁН"):TEXT("ДЕНЬ ЗАВЕРШЁН");
     Text(TEXT("DayTitle"),FString::Printf(TEXT("ДЕНЬ %d"),FMath::Max(1,GS->Day))); Text(TEXT("EventTitle"),Title);
-    const float Done=GS->TasksTotal>0?1-float(GS->TasksLeft)/GS->TasksTotal:0;
+    const float Done=Directed?FMath::Clamp(Director.CompletionProgress,0.f,1.f):GS->TasksTotal>0?1-float(GS->TasksLeft)/GS->TasksTotal:0;
     int32 Surfaces=0; float Clean=0;
     for(TActorIterator<AActor> It(GetWorld());It;++It) {
         if(const auto* Patch=Cast<AMCMouthSurface>(*It);Patch && Patch->bUlcer) continue;
@@ -174,15 +299,19 @@ void UMCGameplayHUD::RefreshState()
     }
     Clean=Surfaces?Clean/Surfaces:1;
     const float Health=GS->MouthHealth/FMath::Max(1.f,GS->RunSettings.MaxMouthHealth);
-    Text(TEXT("TaskValue"),FString::Printf(TEXT("%d/%d"),FMath::Max(0,GS->TasksTotal-GS->TasksLeft),GS->TasksTotal)); Bar(TEXT("TaskProgress"),Done);
+    Text(TEXT("TaskLabel"),Directed?TEXT("ЕДА ЗАВЕРШЕНА"):TEXT("ТЕКУЩАЯ ЗАДАЧА"));
+    Text(TEXT("TaskValue"),Directed?FString::Printf(TEXT("%d/%d"),Director.FinishedFood,Director.SpawnedFood)
+        :FString::Printf(TEXT("%d/%d"),FMath::Max(0,GS->TasksTotal-GS->TasksLeft),GS->TasksTotal)); Bar(TEXT("TaskProgress"),Done);
     Text(TEXT("CleanValue"),FString::Printf(TEXT("%d%%"),FMath::RoundToInt(Clean*100))); Bar(TEXT("CleanProgress"),Clean);
     Text(TEXT("HealthValue"),FString::Printf(TEXT("%d%%"),FMath::RoundToInt(Health*100))); Bar(TEXT("HealthProgress"),Health);
-    const bool Timed=GS->PhaseEndsAt>0 && !Finished && !GS->bDevManualEvents;
-    const int32 Seconds=FMath::CeilToInt(GS->SecondsLeft());
-    const float Duration=FMath::Max(1.f,float(GS->PhaseEndsAt-GS->StepStartedAt));
-    const float Progress=Timed?FMath::Clamp(1-GS->SecondsLeft()/Duration,0.f,1.f):Done;
+    const double EndAt=Directed && GS->Phase==EMCShiftPhase::Working?Director.DayEndAt:GS->PhaseEndsAt;
+    const bool Timed=EndAt>0 && !Finished && (Directed || !GS->bDevManualEvents);
+    const float Remaining=float(FMath::Max(0.,EndAt-Now));const int32 Seconds=FMath::CeilToInt(Remaining);
+    const float Duration=FMath::Max(1.f,float(EndAt-GS->StepStartedAt));
+    const float Progress=Directed && GS->Phase==EMCShiftPhase::Working?FMath::Clamp(Director.DayProgress,0.f,1.f)
+        :Timed?FMath::Clamp(1-Remaining/Duration,0.f,1.f):Done;
     Text(TEXT("TimerValue"),Timed?FString::Printf(TEXT("%02d:%02d"),Seconds/60,Seconds%60):TEXT("--:--"));
-    Text(TEXT("TimerLabel"),Finished?TEXT("ИТОГИ ДНЯ"):Timed?TEXT("ДО СЛЕД. СОБЫТИЯ"):TEXT("БЕЗ ЛИМИТА ВРЕМЕНИ")); Bar(TEXT("TimerProgress"),Finished?1:Progress);
+    Text(TEXT("TimerLabel"),Finished?TEXT("ИТОГИ ДНЯ"):Timed?Directed?GS->Phase==EMCShiftPhase::Working?TEXT("ДО КОНЦА ДНЯ"):TEXT("ДО НАЧАЛА ДНЯ"):TEXT("ДО СЛЕД. СОБЫТИЯ"):TEXT("БЕЗ ЛИМИТА ВРЕМЕНИ")); Bar(TEXT("TimerProgress"),Finished?1:Progress);
     if(auto* T=Cast<UTextBlock>(Find(TEXT("TimerValue")))) T->SetColorAndOpacity(FSlateColor(Timed && Seconds<10?HUD::Amber:HUD::White));
     TArray<APlayerState*> Players; for(const auto& Player:GS->PlayerArray) if(IsValid(Player)) Players.Add(Player.Get());
     Players.Sort([](const APlayerState& A,const APlayerState& B){return A.GetPlayerId()<B.GetPlayerId();});
@@ -210,6 +339,17 @@ void UMCGameplayHUD::RefreshState()
     const int32 TimelineStart=FMath::Max(0,TimelineSteps.IndexOfByKey(GS->StepIndex)-1);
     for(int32 I=0;I<3;++I) {
         const FString N=FString::Printf(TEXT("Timeline%d"),I);
+        if(Directed)
+        {
+            const bool Visible=I==0 || I==1 && !Director.NextTitle.IsEmpty();Show(FName(N),Visible);
+            if(!Visible) continue;
+            Text(FName(N+TEXT("Label")),I==0?TEXT("СЕЙЧАС"):Director.bNextReserved?TEXT("ЗАРЕЗЕРВИРОВАНО"):TEXT("КАНДИДАТ"));
+            Text(FName(N+TEXT("Title")),I==0?Title:Director.NextTitle);
+            Bar(FName(N+TEXT("Fill")),I==0?Finished?1:Progress:0);
+            if(auto* B=Cast<UProgressBar>(Find(FName(N+TEXT("Fill"))))) B->SetFillColorAndOpacity(FLinearColor(.04f,.24f,.24f,.66f));
+            Color(FName(N+TEXT("Accent")),I==0?HUD::Mint:HUD::Muted);
+            continue;
+        }
         const bool Visible=HasStep?TimelineSteps.IsValidIndex(TimelineStart+I):I==0; Show(FName(N),Visible); if(!Visible) continue;
         const int32 Index=HasStep?TimelineSteps[TimelineStart+I]:INDEX_NONE;
         const bool Past=HasStep && Index<GS->StepIndex,Current=!HasStep || Index==GS->StepIndex,Failed=Past && GS->PreviousStepFailed;
@@ -298,6 +438,8 @@ void UMCGameplayHUD::RefreshState()
         }
         Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
     }
+    if(auto* Results=Find(TEXT("ResultsPanel")))
+        Results->SetRenderTranslation(FVector2D(Directed && HUD::DirectorDebug.GetValueOnGameThread()>0?-186.f:0.f,0));
     Show(TEXT("ResultsPanel"),Finished); Text(TEXT("ResultTitle"),Title);
     Text(TEXT("ResultDetail"),FString::Printf(TEXT("Незавершённых событий: %d   ·   R — новый забег"),GS->FailedEvents));
 }

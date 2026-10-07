@@ -38,8 +38,12 @@ namespace MCTutorialTestsPrivate
             World->SetGameInstance(NewObject<UGameInstance>(GEngine));
             FURL URL; URL.AddOption(TEXT("game=/Script/MessControl.MCGameMode"));
             if (bTutorial) URL.AddOption(TEXT("MCTutorial=1"));
-            World->SetGameMode(URL); World->InitializeActorsForPlay(URL); World->BeginPlay();
-            Mode=World->GetAuthGameMode<AMCGameMode>(); State=World->GetGameState<AMCGameState>();
+            World->SetGameMode(URL);
+            Mode=World->GetAuthGameMode<AMCGameMode>();
+            // These tutorial fixtures retain the authored day-one/legacy handoff.
+            Mode->bUseAdaptiveDirector=false;
+            World->InitializeActorsForPlay(URL); World->BeginPlay();
+            State=World->GetGameState<AMCGameState>();
             Mode->SetActorTickEnabled(false);
         }
         ~FWorldFixture()

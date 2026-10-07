@@ -1,4 +1,5 @@
 #include "MCThroat.h"
+#include "MCGameDirector.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCTongue.h"
@@ -514,7 +515,11 @@ void AMCThroat::Tick(float Dt)
         if(ThroatPhase==EMCThroatPhase::Anticipation) {
             if(PendingMeal.IsEmpty()) SetPhase(EMCThroatPhase::Collecting,Now);
             else if(Now-PhaseStartedAt>=AnticipationSeconds) {
-                SetPhase(EMCThroatPhase::Swallowing,Now);CaptureMeal();
+                const auto* Director=AMCGameDirector::Find(GetWorld());
+                // Accepted food stays reserved; postpone only the next air event.
+                if(!Director || !Director->IsManagingEvents() || Director->CanStartSwallow()) {
+                    SetPhase(EMCThroatPhase::Swallowing,Now);CaptureMeal();
+                }
             }
         }
         if (ThroatPhase==EMCThroatPhase::Swallowing)

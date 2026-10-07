@@ -4,6 +4,7 @@
 #include "MCDataAssets.h"
 #include "MCRunRules.h"
 #include "MCDayPlan.h"
+#include "MCGameDirectorTypes.h"
 #include "MCGameState.generated.h"
 class AMCArenaTooth;
 
@@ -14,6 +15,7 @@ class MESSCONTROL_API AMCGameState : public AGameStateBase
 public:
     /** Legendary tools belong to the run, including respawns and late team joins. */
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") uint8 TeamToolUpgrades=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Director") FMCGameDirectorState DirectorState;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Front End") bool bLobbyWaiting=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Tutorial") bool bTutorialActive=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Front End") int32 LobbyLoadedPlayers=0;

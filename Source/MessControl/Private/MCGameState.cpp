@@ -11,6 +11,7 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCGameState,TeamToolUpgrades);
+    DOREPLIFETIME(AMCGameState,DirectorState);
     DOREPLIFETIME(AMCGameState,bLobbyWaiting);
     DOREPLIFETIME(AMCGameState,bTutorialActive);
     DOREPLIFETIME(AMCGameState,LobbyLoadedPlayers);

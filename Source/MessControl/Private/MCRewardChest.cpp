@@ -1,4 +1,5 @@
 #include "MCRewardChest.h"
+#include "MCGameDirector.h"
 #include "MCRewardDropZone.h"
 #include "MCPerkPickup.h"
 #include "MCRoguelikeDirector.h"
@@ -490,6 +491,8 @@ bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
     if(!HasAuthority() || Stage!=EMCRewardChestStage::Landed || !IsLivingPlayer(Player)
         || !Player->CanWork() || !CanReachLockpick(Player) || !IsValid(DropZone) || !Body->GetStaticMesh() || !Lid->GetStaticMesh()
         || FVector::DistSquared(Player->GetActorLocation(),GetActorLocation())>FMath::Square(FMath::Clamp(OpenRadius,100.f,800.f))) return false;
+    if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()
+        && !Director->CanStartRewardInteraction()) return false;
     auto* PS=Player->GetPlayerState<AMCPlayerState>();
     auto* PC=Cast<AMCPlayerController>(Player->GetController());
     if(!PC || (!bMimic && (!PS->Perks || PS->Perks->GetPerkTable()!=RewardTable))) return false;

@@ -1,4 +1,5 @@
 #include "MCTongue.h"
+#include "MCGameDirector.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "Engine/StaticMesh.h"
 #include "MCGameState.h"
@@ -469,9 +470,11 @@ void AMCTongue::Tick(float Dt)
     const bool Playing=State && State->Phase==EMCShiftPhase::Working && !State->bDayOneComplete;
     if (HasAuthority() && Playing)
     {
-        if(bAutomaticYawns && !State->bDevManualEvents && Time>=NextYawnAt) StartYawn();
+        const auto* Director=AMCGameDirector::Find(GetWorld());
+        const bool Managed=Director && Director->IsManagingEvents();
+        if(!Managed && bAutomaticYawns && !State->bDevManualEvents && Time>=NextYawnAt) StartYawn();
         const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
-        if (Settings.bAutomaticJolts && Mode && Mode->bUseDayOnePlan && !State->bDevManualEvents && Time>=NextJoltAt) TriggerJolt();
+        if (!Managed && Settings.bAutomaticJolts && Mode && Mode->bUseDayOnePlan && !State->bDevManualEvents && Time>=NextJoltAt) TriggerJolt();
     }
     // Ulcers persist through intermissions. An active surface motion keeps its
     // force until the run ends, even if the event that started it just completed.

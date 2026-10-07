@@ -24,6 +24,9 @@ public:
     AMCFoodActor* SpawnMenuFoodDrop(float Height,int32 Batch,bool bHeightFromSurface=false);
     AMCFoodActor* SpawnMenuFoodEntry(int32 Batch);
     void DirtyMouth(bool bCoffee);
+    /** Mechanics executor for the central Director; no legacy step timer is started. */
+    void InitializeEventServices(UMCDayPlan* Plan,int32 Seed);
+    void AddDirt(bool bCoffee,int32 Patches,int32 Batch,int32 ToothLimit=-1,float ToothAmount=-1);
     UPROPERTY() TObjectPtr<UMCDayPlan> Settings;
     UPROPERTY() TObjectPtr<AMCCoffeeFlood> Flood;
     UPROPERTY() TObjectPtr<AMCColdColaEvent> ColdCola;

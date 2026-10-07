@@ -1,4 +1,5 @@
 #include "MCTongue.h"
+#include "MCGameDirector.h"
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCToothStatusComponent.h"
@@ -69,6 +70,8 @@ bool AMCTongue::StartYawn(float Seconds)
 {
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     if(!HasAuthority() || IsYawnActive() || (GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost))) return false;
+    if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()
+        && !Director->IsLaunchingEvent(EMCGameDirectorEvent::Yawn)) return false;
     YawnStartedAt=ServerTime();YawnDuration=FMath::Clamp(Seconds,1.f,8.f);NextYawnAt=ServerTime()+65;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) It->BeginYawn(this,YawnDuration);
     // One mouth-owned vacuum explains the pull. The broad end reaches across

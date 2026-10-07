@@ -1,4 +1,5 @@
 #include "MCColdCola.h"
+#include "MCGameDirector.h"
 #include "MCCoffeeFlood.h"
 #include "MCLocomotionSurface.h"
 #include "MCDayPlan.h"
@@ -73,11 +74,15 @@ void AMCIceBlock::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 
 AMCColdColaEvent::AMCColdColaEvent() { bReplicates=true; bAlwaysRelevant=true; PrimaryActorTick.bCanEverTick=true; }
 double AMCColdColaEvent::Now() const { const auto* GS=GetWorld()->GetGameState(); return GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds(); }
-void AMCColdColaEvent::Start(const UMCDayPlan* Plan)
+void AMCColdColaEvent::Start(const UMCDayPlan* Plan,int32 IceCountOverride)
 {
     if(!HasAuthority() || !Plan) return;
+    if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()
+        && !Director->IsLaunchingEvent(EMCGameDirectorEvent::ColdCola)) return;
     Stop(); Profile=Plan->ColdColaProfile.LoadSynchronous(); if(!Profile) Profile=NewObject<UMCColdColaProfile>(this);
+    IceTarget=FMath::Clamp(IceCountOverride>0?IceCountOverride:Profile->IceCount,1,12);
     Center=Plan->ArenaCenter; Extent=Plan->ArenaHalfSize; Spawned=0; NextIceAttempt=0; SpawnPositions.Reset(); StartedAt=Now(); ThawStartedAt=0; bActive=true;
+    SetActorTickEnabled(true);
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) if(!It->CurrentVertices().IsEmpty())
     {const FBox Bounds=It->Surface->Bounds.GetBox();Center=Bounds.GetCenter();Extent=Bounds.GetExtent();break;}
     auto* DrinkPlan=DuplicateObject<UMCDayPlan>(Plan,this); DrinkPlan->CoffeeProfile=Profile->Drink;
@@ -96,14 +101,30 @@ float AMCColdColaEvent::FrostAmount() const
 bool AMCColdColaEvent::IsComplete() const { return !bActive || (ThawStartedAt>0 && FrostAmount()<=0); }
 void AMCColdColaEvent::SetFrost(float Amount)
 {
+    // A late completion/reset notification must not clear a newer cola's climate.
+    if(Amount<=0) for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It)
+        if(*It!=this && It->bActive && !It->IsComplete()) return;
     if(auto* MPC=LoadObject<UMaterialParameterCollection>(nullptr,TEXT("/Game/Gameplay/Cold/MPC_MouthClimate.MPC_MouthClimate")))
         GetWorld()->GetParameterCollectionInstance(MPC)->SetScalarParameterValue(TEXT("ColdAmount"),Amount);
 }
+void AMCColdColaEvent::OnRep_Timeline()
+{
+    SetActorTickEnabled(bActive && Profile && !IsComplete());
+    if(!bActive || IsComplete()) SetFrost(0);
+}
 void AMCColdColaEvent::Tick(float Dt)
 {
-    Super::Tick(Dt); SetFrost(FrostAmount()); if(!HasAuthority() || !bActive || !Profile) return;
+    Super::Tick(Dt);
+    if(!bActive || !Profile) {OnRep_Timeline();return;}
+    SetFrost(FrostAmount());
+    if(IsComplete()) {
+        // End the timeline without deleting ice that still needs to be broken.
+        if(HasAuthority()) {bActive=false;ForceNetUpdate();}
+        SetActorTickEnabled(false);return;
+    }
+    if(!HasAuthority()) return;
     const double Age=Now()-StartedAt;
-    if(Spawned<Profile->IceCount && Age>1.5+Spawned*.6 && Now()>=NextIceAttempt) {
+    if(ThawStartedAt<=0 && Spawned<IceTarget && Age>1.5+Spawned*.6 && Now()>=NextIceAttempt) {
         NextIceAttempt=Now()+.5;
         const int32 I=Spawned;
         const FVector Size=FVector(Profile->IceSize)*(I%3==2?FVector(.8,.8,1.5):I==3?FVector(1.8,.65,.7):FVector::OneVector);
@@ -119,14 +140,15 @@ void AMCColdColaEvent::Tick(float Dt)
             if(B) { B->Shape=I%3; B->Size=Size; B->Health=B->MaxHealth=Profile->IceHealth; B->FinishSpawning(T); Blocks.Add(B); SpawnPositions.Add(Floor.ImpactPoint); ++Spawned; }
         }
     }
-    if(ThawStartedAt<=0 && ((Spawned>=Profile->IceCount && IceLeft()==0 && (!Drink || !Drink->IsActive())) || Age>=Profile->ColdSeconds)) {
+    if(ThawStartedAt<=0 && Spawned>=IceTarget
+        && ((IceLeft()==0 && (!Drink || !Drink->IsActive())) || Age>=Profile->ColdSeconds)) {
         ThawStartedAt=Now(); if(SlipperyFloor) { SlipperyFloor->Destroy(); SlipperyFloor=nullptr; } ForceNetUpdate();
     }
 }
 void AMCColdColaEvent::Stop()
 {
     if(!HasAuthority()) return;
-    bActive=false; SetFrost(0); if(Drink) { Drink->Stop(); Drink->Destroy(); Drink=nullptr; }
+    bActive=false; SetActorTickEnabled(false); SetFrost(0); if(Drink) { Drink->Stop(); Drink->Destroy(); Drink=nullptr; }
     if(SlipperyFloor) { SlipperyFloor->Destroy(); SlipperyFloor=nullptr; }
     for(auto& B:Blocks) if(B.IsValid()) B->Destroy(); Blocks.Empty(); ForceNetUpdate();
 }

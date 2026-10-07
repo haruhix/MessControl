@@ -3,6 +3,10 @@
 #include "Blueprint/UserWidget.h"
 #include "MCGameplayHUD.generated.h"
 class UMCStaminaWidget;
+class UBorder;
+class USizeBox;
+class UTextBlock;
+struct FMCGameDirectorState;
 
 UCLASS()
 class MESSCONTROL_API UMCGameplayHUD : public UUserWidget
@@ -17,10 +21,17 @@ protected:
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
 private:
     UPROPERTY(Transient) TObjectPtr<UMCStaminaWidget> StaminaWidget;
+    UPROPERTY(Transient) TObjectPtr<UBorder> DirectorPanel;
+    UPROPERTY(Transient) TObjectPtr<USizeBox> DirectorPanelSize;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorText;
+    UPROPERTY(Transient) TObjectPtr<UBorder> DirectorCandidatesPanel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorCandidatesText;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UWidget>> Widgets;
     float RefreshElapsed=1;
     UWidget* Find(FName Name) const;
     void RefreshState();
+    void EnsureDirectorMonitor();
+    void RefreshDirectorMonitor(const FMCGameDirectorState& State);
 };
 
 /** Replaceable vector icon widget; layout, tint and size are editable in UMG. */

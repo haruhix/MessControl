@@ -1,4 +1,5 @@
 #include "MCCoffeeFlood.h"
+#include "MCGameDirector.h"
 #include "MCDayPlan.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -80,6 +81,8 @@ void AMCCoffeeFlood::OnRep_Profile()
 void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds,bool bUseLegacyFlood)
 {
     if (!HasAuthority() || !Plan) return;
+    if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()
+        && !Director->IsLaunchingEvent(EMCGameDirectorEvent::CoffeeFlood)) return;
     bRiverFlood=!bUseLegacyFlood && SwimTestSeconds<=0;
     Height=Plan->FloodHeight; Flow=Plan->FlowAcceleration; Paddle=Plan->PaddleAcceleration; Reach=Plan->AnchorReach; HalfSize=Plan->ArenaHalfSize;
     ArenaCenter=Plan->ArenaCenter.ContainsNaN()?FVector::ZeroVector:Plan->ArenaCenter;
@@ -338,7 +341,10 @@ void AMCCoffeeFlood::Tick(float Dt)
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     if (HasAuthority() && bActive)
     {
-        if (!GS || GS->Phase!=EMCShiftPhase::Working) { Stop(); return; }
+        const auto* Director=AMCGameDirector::Find(GetWorld());
+        const bool CarryingIntoRest=GS && GS->Phase==EMCShiftPhase::Intermission
+            && Director && Director->IsManagingEvents();
+        if (!GS || (GS->Phase!=EMCShiftPhase::Working && !CarryingIntoRest)) { Stop(); return; }
         const float Age=WaterTime();
         if (Age>=Seconds) { Stop(); return; }
         const int32 Current=FMath::FloorToInt(Age/WaterSettings.CycleSeconds())+1;

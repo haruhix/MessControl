@@ -1,6 +1,8 @@
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
 #include "MCGameState.h"
+#include "MCGameDirector.h"
+#include "MCDayPlan.h"
 #include "MCReactionVFX.h"
 #include "EngineUtils.h"
 
@@ -18,9 +20,12 @@ AMCMouthSurface* AMCMouthSurface::SpawnDamageUlcer(UWorld* W,FVector P,int32 InB
     const FTransform T(FRotationMatrix::MakeFromZ(Floor.ImpactNormal).Rotator(),Floor.ImpactPoint+Floor.ImpactNormal*5);
     auto* Patch=W->SpawnActorDeferred<AMCMouthSurface>(StaticClass(),T);if(!Patch) return nullptr;
     Patch->bUlcer=true;Patch->bRandomizeLiquidSize=false;Patch->Batch=InBatch;
-    if(const auto* GS=W->GetGameState<AMCGameState>();GS && GS->DayPlan) {
-        Patch->HealSeconds=GS->DayPlan->UlcerHealSeconds;Patch->DamagePerSecond=GS->DayPlan->UlcerDamagePerSecond;
-        Patch->DisturbDamage=GS->DayPlan->UlcerDisturbDamage;Patch->PulseInterval=GS->DayPlan->UlcerPulseInterval;
+    const auto* GS=W->GetGameState<AMCGameState>();
+    const auto* Director=AMCGameDirector::Find(W);
+    const UMCDayPlan* Plan=Director && Director->IsManagingEvents()?Director->Mechanics.Get():GS?GS->DayPlan.Get():nullptr;
+    if(Plan) {
+        Patch->HealSeconds=Plan->UlcerHealSeconds;Patch->DamagePerSecond=Plan->UlcerDamagePerSecond;
+        Patch->DisturbDamage=Plan->UlcerDisturbDamage;Patch->PulseInterval=Plan->UlcerPulseInterval;
     }
     Patch->FinishSpawning(T);Tongue->TriggerPain(Floor.ImpactPoint);
     AMCReactionVFX::Spawn(W,Floor.ImpactPoint+Floor.ImpactNormal*8,EMCReactionEffect::Impact,1,110);return Patch;

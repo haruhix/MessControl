@@ -38,14 +38,15 @@ namespace MCPlaytestBotsTestsPrivate
             URL.AddOption(TEXT("game=/Script/MessControl.MCGameMode"));
             URL.AddOption(TEXT("Seed=41"));
             World->SetGameMode(URL);
+            Mode=World->GetAuthGameMode<AMCGameMode>();
+            Mode->bUseDayOnePlan=false;
+            Mode->bUseAdaptiveDirector=false;
             World->InitializeActorsForPlay(URL);
             World->BeginPlay();
-            Mode=World->GetAuthGameMode<AMCGameMode>();
             State=World->GetGameState<AMCGameState>();
             // Exercise the production shift reset/respawn, with fixed native pawn
             // and isolated spawn geometry rather than map-dependent collision.
             Mode->DefaultPawnClass=AMCToothCharacter::StaticClass();
-            Mode->bUseDayOnePlan=false;
             Mode->SetActorTickEnabled(false);
             State->RunSettings.MaxPlayers=4;
 
