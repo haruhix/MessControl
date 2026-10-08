@@ -1,0 +1,55 @@
+{
+  "video": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Wizard\\WizardStylePreview.mp4",
+  "fps": 15,
+  "frames": 337,
+  "duration_seconds": 22.466666666666665,
+  "segments": [
+    {
+      "label": "Idle",
+      "start_seconds": 0.0,
+      "end_seconds": 3.0
+    },
+    {
+      "label": "Walk",
+      "start_seconds": 3.0,
+      "end_seconds": 6.2
+    },
+    {
+      "label": "Cast",
+      "start_seconds": 6.2,
+      "end_seconds": 8.0
+    },
+    {
+      "label": "HeavyCast",
+      "start_seconds": 8.0,
+      "end_seconds": 10.4
+    },
+    {
+      "label": "Summon",
+      "start_seconds": 10.4,
+      "end_seconds": 12.666666666666666
+    },
+    {
+      "label": "Rain",
+      "start_seconds": 12.666666666666666,
+      "end_seconds": 19.266666666666666
+    },
+    {
+      "label": "Hit",
+      "start_seconds": 19.266666666666666,
+      "end_seconds": 19.666666666666668
+    },
+    {
+      "label": "Idle",
+      "start_seconds": 19.666666666666668,
+      "end_seconds": 20.066666666666666
+    },
+    {
+      "label": "Death",
+      "start_seconds": 20.066666666666666,
+      "end_seconds": 22.466666666666665
+    }
+  ],
+  "timing": "Native C++ default prep/recovery, rain channel 4s; DA overrides not queried.",
+  "scope": "Blender animation playblast. Game overlays, root motion, movement, VFX and networking not simulated."
+}

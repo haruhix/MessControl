@@ -1,0 +1,89 @@
+{
+  "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Wizard\\NutWizard_Style_v2.blend",
+  "new_action": {
+    "label": "Melee",
+    "action": "MC_Wizard_Melee",
+    "start": 1,
+    "end": 101,
+    "loop": false,
+    "key_poses": [
+      1,
+      18,
+      41,
+      50,
+      56,
+      62,
+      78,
+      91,
+      101
+    ],
+    "description": "Close-range palm shove. Distinct from FireNut; damage accent at 55%, planted feet and recoil."
+  },
+  "existing_actions_unchanged": true,
+  "existing_action_curve_hashes": {
+    "MC_Wizard_Cast": "07cfe9529d867aa01f3a32cfd88d46a5a9722ccb4d346c30fbd4ca17051ec826",
+    "MC_Wizard_Death": "5a7cd80e26a33c3bdb75ef5bbd9d8e8231e35aea350db0251883e5b26ba625d6",
+    "MC_Wizard_HeavyCast": "ed1508b204f0023dffb6a5974d684e063e39398b815a04cf313af38d0f5abde8",
+    "MC_Wizard_Hit": "9bac66fed728e081e988f68c7d9605df01a5f0abe66400eb914feabc9671a50d",
+    "MC_Wizard_Idle": "c2ee09d98452fb0d3065a54386970ae19da0416d2a7d2dadc5a2998649585417",
+    "MC_Wizard_Rain": "d5c073ad8c93a44ef80e382b6d52ec00bd7942460adcc87d7e9c741c346dba06",
+    "MC_Wizard_Summon": "57e68822368a1a8a05800307e3e16d4f5c97fbf7d46a99ad2f57bd4e9d8c2e2c",
+    "MC_Wizard_Walk": "901cb95cbc003216970c0abaaf657519a5b701caa4135bc77a3e9ca3d21c7ae8",
+    "mixamo.com": "ea0df1298f2befe9ee676bdb06d984bd41ddc522491a2810f6868a9082a2e20b",
+    "mixamo.com.001": "a12d39667e8f74a64c5dbe7fd300a2f2136ce8396e3ae5f0edf99bb004f43a11",
+    "mixamo.com.002": "857df3b287003b1a1bc81d1a3d498d10aa1617a6b3fa0a4f241865feb357bdfb",
+    "mixamo.com.003": "b6b6d6c885a7e37eb6c880e627f75bf8255cf78b32f85565763b3db602585f2a",
+    "mixamo.com.004": "101802fd982732125a566eb5a2ca5aa180bd96b353216084d6f31f7a2bca7312",
+    "mixamo.com.005": "cb1fdf24d1cc38d304f3e9e3e2e0b21025fe5cb16eb6a4d592d8facb1f75750f",
+    "NUT_W_CastSummon": "580bc5698da93948e3783071d239a6a7e437f41a400d73e176cde2971c6e3e09",
+    "NUT_W_Firenut": "e6f8e37a9a1b01eb9ba33bccfc592ddb776ddce4369a5af8c26a0ab1b6332581",
+    "NUT_W_NutRain": "e8c7f9bbdbdbff39621a738fca98d074520afebd1d2a3c15d80a7a0c01f086c8"
+  },
+  "rig_rest_unchanged": true,
+  "input_blend_unchanged": true,
+  "original_source_unchanged": true,
+  "frames_checked": 101,
+  "limb_length_ratio_ranges": {
+    "thigh_stretch.l": [
+      0.9999986701020961,
+      0.9999997852503928
+    ],
+    "thigh_stretch.r": [
+      0.9999994087069513,
+      1.0000005521320938
+    ],
+    "leg_stretch.l": [
+      0.9999990856071952,
+      1.0000005634925597
+    ],
+    "leg_stretch.r": [
+      0.9999995658336509,
+      1.0000008768223092
+    ],
+    "arm_stretch.l": [
+      0.9999989490670614,
+      1.0000010021881303
+    ],
+    "arm_stretch.r": [
+      0.9999996426555562,
+      1.0000019206882964
+    ],
+    "forearm_stretch.l": [
+      0.999999283447042,
+      1.000000618531946
+    ],
+    "forearm_stretch.r": [
+      0.9999993994694821,
+      1.0000005065726854
+    ]
+  },
+  "foot_drift_m": {
+    "foot.l": 1.2515786801397751e-05,
+    "foot.r": 1.8588384830746854e-05
+  },
+  "mesh_min_z_m": 0.0005624964833259583,
+  "mesh_min_z_frame": 52,
+  "finite_pose_matrices": true,
+  "game_imported": false,
+  "runtime_gap": "MageMelee currently uses MageCast; dedicated slot required."
+}

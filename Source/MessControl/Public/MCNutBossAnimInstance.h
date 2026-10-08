@@ -6,7 +6,7 @@
 
 class UAnimSequence;
 
-enum class EMCNutBossClip : uint8 { Idle, Walk, WalkLeft, WalkRight, Melee, Jump, Transform, Cast, HeavyCast, Summon, Rain, Hit, Death, Count };
+enum class EMCNutBossClip : uint8 { Idle, Walk, WalkLeft, WalkRight, Melee, Jump, Transform, Cast, HeavyCast, Summon, Rain, Hit, Death, ChargeTell, ChargeLoop, ChargeRecovery, Count };
 enum class EMCNutPoseBone : uint8 { Torso, Head, LeftArm, RightArm, LeftForearm, RightForearm, LeftHand, RightHand, Count };
 
 struct FMCNutBossClipSample

@@ -1,0 +1,191 @@
+{
+  "schema": 2,
+  "status": "authored_review_pass",
+  "source_v1": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Tank\\Nut_Tank_MC_Style.blend",
+  "source_artist": "C:\\Users\\user\\Downloads\\Telegram Desktop\\Nut_Tank.blend",
+  "source_sha256_before": {
+    "v1": "c51499b99d373d49fea7f3faae2421284c312ae8aa271796acbc33278032c0b0",
+    "artist": "5d02660145bd7c0f50697a1fb842c1e816351f6927e72eb40760122fdade3b76"
+  },
+  "native_contracts": {
+    "Charge": {
+      "tell_seconds": 1.1,
+      "speed_cmps": 650,
+      "maximum_distance_cm": 1100,
+      "recovery_seconds": 1.4,
+      "locked_direction": true,
+      "damage": 22,
+      "hit_per_hero": 1,
+      "push_horizontal": 260,
+      "push_vertical": 45
+    },
+    "Roll": {
+      "tell_seconds": 1.2,
+      "speed_cmps": 520,
+      "active_seconds": 5,
+      "steering_degrees_per_second": 50,
+      "recovery_seconds": 1.4,
+      "damage": 16,
+      "same_hero_hit_gap_seconds": 1.1,
+      "push_horizontal": 260,
+      "push_vertical": 55,
+      "ball_crossfade_seconds": 0.18
+    }
+  },
+  "source_evidence": [
+    "Source/MessControl/Private/MCNutBoss.cpp:255-297 (Charge still Walk2x)",
+    "Source/MessControl/Private/MCNutBoss.cpp:326-343 (warrior/ball presentation)",
+    "Source/MessControl/Private/MCNutBoss.cpp:434-450 (locked tells)",
+    "Source/MessControl/Private/MCNutBoss.cpp:511-580 (hits, push, steering, ricochet)",
+    "Source/MessControl/Private/MCNutBoss.cpp:623-629 (Charge execution, recovery1.4s)",
+    "Source/MessControl/Public/MCNutBossTypes.h:84-96 (defaults)"
+  ],
+  "clips": [
+    {
+      "action": "MC_Tank_ChargeTell",
+      "start_frame": 1,
+      "end_frame": 28,
+      "duration_seconds": 1.08,
+      "loop": false
+    },
+    {
+      "action": "MC_Tank_ChargeLoop",
+      "start_frame": 1,
+      "end_frame": 9,
+      "duration_seconds": 0.32,
+      "loop": true
+    },
+    {
+      "action": "MC_Tank_ChargeRecovery",
+      "start_frame": 1,
+      "end_frame": 36,
+      "duration_seconds": 1.4,
+      "loop": false
+    }
+  ],
+  "limitations": [
+    "New Charge assets require runtime slots and export/import wiring; current game continues sampling Walk2x.",
+    "Review animation illustrates the existing kinematic Roll behavior; it does not run game collision, physics, target selection or network code.",
+    "World footlock and variable-speed gait blending remain unvalidated; no runtime packages were modified."
+  ],
+  "charge_per_mesh_floor_qa": {
+    "MC_Tank_ChargeTell": {
+      "samples": 109,
+      "per_mesh_floor_minima": {
+        "SM_NutTank": {
+          "z_m": 0.0005546808242797852,
+          "frame": 28.0
+        },
+        "SM_Sheld": {
+          "z_m": 0.13970564305782318,
+          "frame": 17.0
+        },
+        "SM_Club": {
+          "z_m": 0.030367041006684303,
+          "frame": 1.0
+        }
+      }
+    },
+    "MC_Tank_ChargeLoop": {
+      "samples": 33,
+      "per_mesh_floor_minima": {
+        "SM_NutTank": {
+          "z_m": 0.0005546808242797852,
+          "frame": 1.0
+        },
+        "SM_Sheld": {
+          "z_m": 0.1436109095811844,
+          "frame": 6.0
+        },
+        "SM_Club": {
+          "z_m": 0.13436058163642883,
+          "frame": 2.0
+        }
+      }
+    },
+    "MC_Tank_ChargeRecovery": {
+      "samples": 141,
+      "per_mesh_floor_minima": {
+        "SM_NutTank": {
+          "z_m": 0.0005546808242797852,
+          "frame": 1.0
+        },
+        "SM_Sheld": {
+          "z_m": 0.03630460053682327,
+          "frame": 4.0
+        },
+        "SM_Club": {
+          "z_m": 0.030367041006684303,
+          "frame": 29.0
+        }
+      }
+    }
+  },
+  "review": {
+    "scene": "MC_Tank_Abilities_v2_Review",
+    "frames": 311,
+    "fps": 25,
+    "duration_seconds": 12.4,
+    "sections": [
+      {
+        "label": "ChargeTell / locked direction",
+        "start_seconds": 0,
+        "end_seconds": 1.1
+      },
+      {
+        "label": "ChargeLoop / illustrative motion",
+        "start_seconds": 1.1,
+        "end_seconds": 2.792307692307692
+      },
+      {
+        "label": "ChargeRecovery",
+        "start_seconds": 2.792307692307692,
+        "end_seconds": 4.192307692307692
+      },
+      {
+        "label": "RollTransform / tuck",
+        "start_seconds": 4.792307692307691,
+        "end_seconds": 5.9923076923076914
+      },
+      {
+        "label": "Rolling / steer, contact proxy, ricochet",
+        "start_seconds": 5.9923076923076914,
+        "end_seconds": 10.99230769230769
+      },
+      {
+        "label": "Unfold / recovery",
+        "start_seconds": 10.99230769230769,
+        "end_seconds": 12.392307692307691
+      }
+    ],
+    "ball_source": "stylized_walnut_game_ready.001",
+    "ball_source_mesh_vertices": 239,
+    "ball_display_height_m": 2.0,
+    "steer_limit_degrees_per_second": 50,
+    "roll_speed_mps": 5.2,
+    "roll_seconds": 5,
+    "edge_reflection_at_seconds": 3.08,
+    "contact_proxy_at_roll_age_seconds": 1.8,
+    "contact_proxy_scope": "Illustrative hit/push marker. No game target, hit detection or physics is simulated.",
+    "character_model_scale_for_review": 1.4920720297681302,
+    "charge_loop_preview_play_rate": 2.0,
+    "charge_review_speed_mps": 6.341306126514554,
+    "charge_review_distance_m": 10.731441137178475,
+    "charge_motion_illustrative": true,
+    "review_wall_height_m": 0.5,
+    "ball_support_floor_m": -0.035,
+    "ball_support_clearance_m": 0.005,
+    "ball_spin_uses_actual_travel_over_radius": true
+  },
+  "v1_action_fcurves_unchanged": true,
+  "v1_object_transforms_unchanged": true,
+  "rig_bind_unchanged": true,
+  "charge_loop_pose_seam_error_m": 0.0,
+  "charge_tell_to_loop_exact_pose_match": true,
+  "source_sha256_after": {
+    "v1": "c51499b99d373d49fea7f3faae2421284c312ae8aa271796acbc33278032c0b0",
+    "artist": "5d02660145bd7c0f50697a1fb842c1e816351f6927e72eb40760122fdade3b76"
+  },
+  "source_files_preserved": true,
+  "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Tank\\Nut_Tank_MC_Style_v2.blend"
+}

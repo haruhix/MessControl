@@ -1,0 +1,95 @@
+{
+  "video": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Wizard\\Wizard_AllAbilities_v2.mp4",
+  "fps": 24,
+  "frames": 548,
+  "duration_seconds": 22.833333333333332,
+  "segments": [
+    {
+      "action": "Idle",
+      "label": "Idle - poised and smug",
+      "start_seconds": 0.0,
+      "end_seconds": 1.5
+    },
+    {
+      "action": "Walk",
+      "label": "Walk - cautious backsteps",
+      "start_seconds": 1.5,
+      "end_seconds": 3.9166666666666665
+    },
+    {
+      "action": "Cast",
+      "label": "Ability 1 - FireNut",
+      "start_seconds": 3.9166666666666665,
+      "end_seconds": 5.708333333333333
+    },
+    {
+      "action": "Idle",
+      "label": "Reset",
+      "start_seconds": 5.708333333333333,
+      "end_seconds": 6.0
+    },
+    {
+      "action": "Summon",
+      "label": "Ability 2 - Summon",
+      "start_seconds": 6.0,
+      "end_seconds": 8.291666666666666
+    },
+    {
+      "action": "Idle",
+      "label": "Reset",
+      "start_seconds": 8.291666666666666,
+      "end_seconds": 8.583333333333334
+    },
+    {
+      "action": "Rain",
+      "label": "Ability 3 - NutRain - 4 second channel",
+      "start_seconds": 8.583333333333334,
+      "end_seconds": 15.166666666666666
+    },
+    {
+      "action": "Idle",
+      "label": "Reset",
+      "start_seconds": 15.166666666666666,
+      "end_seconds": 15.458333333333334
+    },
+    {
+      "action": "Melee",
+      "label": "Ability 4 - close-range palm shove - NEW",
+      "start_seconds": 15.458333333333334,
+      "end_seconds": 17.0
+    },
+    {
+      "action": "Idle",
+      "label": "Reset",
+      "start_seconds": 17.0,
+      "end_seconds": 17.291666666666668
+    },
+    {
+      "action": "HeavyCast",
+      "label": "HeavyCast - fallback clip",
+      "start_seconds": 17.291666666666668,
+      "end_seconds": 19.708333333333332
+    },
+    {
+      "action": "Hit",
+      "label": "Hit reaction",
+      "start_seconds": 19.708333333333332,
+      "end_seconds": 20.125
+    },
+    {
+      "action": "Idle",
+      "label": "Reset",
+      "start_seconds": 20.125,
+      "end_seconds": 20.416666666666668
+    },
+    {
+      "action": "Death",
+      "label": "Death",
+      "start_seconds": 20.416666666666668,
+      "end_seconds": 22.833333333333332
+    }
+  ],
+  "timing": "Native C++ default preparation/recovery and 4s Rain channel. Instant abilities resolve into Recovery in the same tick; no artificial executing hold. Saved DA overrides not queried.",
+  "scope": "DCC animations only. No game VFX, collision, targeting or network simulation.",
+  "runtime_gap": "Melee action requires a dedicated slot; current game reuses Cast."
+}

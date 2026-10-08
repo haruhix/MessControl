@@ -35,6 +35,7 @@ void FMCNutBossSettings::Sanitize()
     Safe(TankModelYaw,-90,-180,180); Safe(MageModelYaw,-90,-180,180);
     Safe(TankHeight,220,150,320); Safe(MageHeight,200,140,300); Safe(CreepHeight,70,40,100);
     Safe(TankBallHeight,200,120,300); Safe(TankMeleeImpactFraction,.5f,.05f,.95f);
+    Safe(TankChargeLoopPlayRate,2.f,.1f,4.f); Safe(MageMeleeImpactFraction,.55f,.05f,.95f);
     Safe(TankJumpTakeoffFraction,.25f,.05f,.8f); Safe(TankJumpImpactFraction,FMath::Max(.7f,TankJumpTakeoffFraction+.05f),TankJumpTakeoffFraction+.05f,.95f);
     Safe(MageCastReleaseFraction,.55f,.2f,.8f); Safe(AnimationBlendSeconds,.18f,.08f,.4f); Safe(DeathSeconds,2.4f,1.6f,4);
     if(MageCastOffset.ContainsNaN()) MageCastOffset=FVector(120,-22,65);

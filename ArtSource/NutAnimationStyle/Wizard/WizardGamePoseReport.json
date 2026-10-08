@@ -1,0 +1,353 @@
+{
+  "passed": true,
+  "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Wizard\\NutWizard_Style_v2_Game.blend",
+  "input": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Wizard\\NutWizard_Style_v2.blend",
+  "input_sha256": "8376ad7906fc1db26ef8a76fbb4dc653145701263a8ff962d1b609c906b48b83",
+  "preserved_gameplay_emitter_actor_cm": [
+    129.014337,
+    11.936049,
+    5.57991
+  ],
+  "component_wrist_target_m": [
+    -0.067,
+    0.904,
+    0.713
+  ],
+  "source_wrist_target_m": [
+    -0.06700000166893005,
+    -0.9039999842643738,
+    0.7129999995231628
+  ],
+  "primary_aim_only": true,
+  "actions": {
+    "Cast": {
+      "frames_checked": 101,
+      "mesh_min_z_m": 0.000560171902179718,
+      "limb_ratio_ranges": {
+        "thigh_stretch.l": [
+          0.9999987605309043,
+          0.999999840730905
+        ],
+        "thigh_stretch.r": [
+          0.9999994645069498,
+          1.0000004970193392
+        ],
+        "leg_stretch.l": [
+          0.9999992699103486,
+          1.000000589247916
+        ],
+        "leg_stretch.r": [
+          0.9999996032161343,
+          1.0000006725168034
+        ],
+        "arm_stretch.l": [
+          0.999999233036322,
+          1.0000015148394898
+        ],
+        "arm_stretch.r": [
+          0.9999993863294294,
+          1.0000016078203455
+        ],
+        "forearm_stretch.l": [
+          0.9999995037542319,
+          1.0000007088216634
+        ],
+        "forearm_stretch.r": [
+          0.9999992408468125,
+          1.0000003683900025
+        ]
+      },
+      "foot_drift_m": {
+        "foot.l": 1.9775031164634725e-05,
+        "foot.r": 2.1823161376666056e-05
+      },
+      "release_samples": [
+        {
+          "frame": 56,
+          "wrist_m": [
+            -0.06700001657009125,
+            -0.9040002822875977,
+            0.7129999399185181
+          ],
+          "wrist_target_error_m": 3.042903223136386e-07,
+          "error_actor_cm": 4.124586914496915e-05,
+          "span_from_joint_heads_m": 0.3275044930085015,
+          "shoulder_to_wrist_target_m": 0.30855088751124293
+        },
+        {
+          "frame": 59,
+          "wrist_m": [
+            -0.06699998676776886,
+            -0.9040002226829529,
+            0.7129998803138733
+          ],
+          "wrist_target_error_m": 2.669762502188819e-07,
+          "error_actor_cm": 3.618803055455895e-05,
+          "span_from_joint_heads_m": 0.3275044673995067,
+          "shoulder_to_wrist_target_m": 0.30522695188671545
+        },
+        {
+          "frame": 63,
+          "wrist_m": [
+            -0.06700004637241364,
+            -0.9040005803108215,
+            0.7129998207092285
+          ],
+          "wrist_target_error_m": 6.238943760233617e-07,
+          "error_actor_cm": 8.456748015540938e-05,
+          "span_from_joint_heads_m": 0.32750441965453503,
+          "shoulder_to_wrist_target_m": 0.3024348952279545
+        }
+      ],
+      "finite": true
+    },
+    "HeavyCast": {
+      "frames_checked": 101,
+      "mesh_min_z_m": 0.0005611777305603027,
+      "limb_ratio_ranges": {
+        "thigh_stretch.l": [
+          0.9999987676456752,
+          0.9999998274198417
+        ],
+        "thigh_stretch.r": [
+          0.9999993912428288,
+          1.000000462730063
+        ],
+        "leg_stretch.l": [
+          0.9999993001408217,
+          1.0000005619498156
+        ],
+        "leg_stretch.r": [
+          0.9999995195550812,
+          1.000000989273805
+        ],
+        "arm_stretch.l": [
+          0.9999994391024608,
+          1.0000014331425684
+        ],
+        "arm_stretch.r": [
+          0.9999996376295543,
+          1.0000018490679308
+        ],
+        "forearm_stretch.l": [
+          0.9999995182006033,
+          1.0000008701392713
+        ],
+        "forearm_stretch.r": [
+          0.9999993619992013,
+          1.0000004439718029
+        ]
+      },
+      "foot_drift_m": {
+        "foot.l": 2.5972552977396916e-05,
+        "foot.r": 2.6130833642178545e-05
+      },
+      "release_samples": [
+        {
+          "frame": 56,
+          "wrist_m": [
+            -0.06700000911951065,
+            -0.9039998650550842,
+            0.7129999399185181
+          ],
+          "wrist_target_error_m": 1.3348812510944096e-07,
+          "error_actor_cm": 1.8094015277279475e-05,
+          "span_from_joint_heads_m": 0.32750429031108946,
+          "shoulder_to_wrist_target_m": 0.3102812309377749
+        },
+        {
+          "frame": 59,
+          "wrist_m": [
+            -0.06700006127357483,
+            -0.9040001630783081,
+            0.7129999995231628
+          ],
+          "wrist_target_error_m": 1.884864366154897e-07,
+          "error_actor_cm": 2.5548912765720117e-05,
+          "span_from_joint_heads_m": 0.32750446315125964,
+          "shoulder_to_wrist_target_m": 0.3069191441516416
+        },
+        {
+          "frame": 63,
+          "wrist_m": [
+            -0.06699999421834946,
+            -0.9040004014968872,
+            0.7129999399185181
+          ],
+          "wrist_target_error_m": 4.2153433441566336e-07,
+          "error_actor_cm": 5.7138031420859405e-05,
+          "span_from_joint_heads_m": 0.3275044725396697,
+          "shoulder_to_wrist_target_m": 0.30209289717966986
+        }
+      ],
+      "finite": true
+    },
+    "Summon": {
+      "frames_checked": 101,
+      "mesh_min_z_m": 0.0005616098642349243,
+      "limb_ratio_ranges": {
+        "thigh_stretch.l": [
+          0.9999986049310533,
+          0.9999999328434566
+        ],
+        "thigh_stretch.r": [
+          0.9999995878206761,
+          1.000000546855925
+        ],
+        "leg_stretch.l": [
+          0.9999993805233203,
+          1.0000006393829797
+        ],
+        "leg_stretch.r": [
+          0.9999995891301037,
+          1.0000009506644456
+        ],
+        "arm_stretch.l": [
+          0.9999990923082029,
+          1.0000010122401202
+        ],
+        "arm_stretch.r": [
+          0.9999999753139978,
+          1.000001808860004
+        ],
+        "forearm_stretch.l": [
+          0.9999994447648798,
+          1.0000004632336135
+        ],
+        "forearm_stretch.r": [
+          0.9999994399494224,
+          1.0000008383497727
+        ]
+      },
+      "foot_drift_m": {
+        "foot.l": 2.1620686285312592e-05,
+        "foot.r": 1.9696725531461267e-05
+      },
+      "release_samples": [
+        {
+          "frame": 56,
+          "wrist_m": [
+            -0.07390522956848145,
+            -0.8789052963256836,
+            0.7192453742027283
+          ],
+          "wrist_target_error_m": 0.026766215011437732,
+          "error_actor_cm": 3.628100274349039,
+          "span_from_joint_heads_m": 0.3275043605917954,
+          "shoulder_to_wrist_target_m": 0.35426951934179973
+        },
+        {
+          "frame": 59,
+          "wrist_m": [
+            -0.07390522956848145,
+            -0.8789052963256836,
+            0.7192453742027283
+          ],
+          "wrist_target_error_m": 0.026766215011437732,
+          "error_actor_cm": 3.628100274349039,
+          "span_from_joint_heads_m": 0.3275043605917954,
+          "shoulder_to_wrist_target_m": 0.35426951934179973
+        },
+        {
+          "frame": 63,
+          "wrist_m": [
+            -0.07390522956848145,
+            -0.8789052963256836,
+            0.7192453742027283
+          ],
+          "wrist_target_error_m": 0.026766215011437732,
+          "error_actor_cm": 3.628100274349039,
+          "span_from_joint_heads_m": 0.3275043605917954,
+          "shoulder_to_wrist_target_m": 0.35426951934179973
+        }
+      ],
+      "finite": true
+    },
+    "Rain": {
+      "frames_checked": 101,
+      "mesh_min_z_m": 0.0005623325705528259,
+      "limb_ratio_ranges": {
+        "thigh_stretch.l": [
+          0.9999987657288801,
+          0.9999997784351281
+        ],
+        "thigh_stretch.r": [
+          0.9999994819710709,
+          1.0000007508877335
+        ],
+        "leg_stretch.l": [
+          0.9999993777483632,
+          1.0000006211007335
+        ],
+        "leg_stretch.r": [
+          0.999999534535115,
+          1.000000946750444
+        ],
+        "arm_stretch.l": [
+          0.9999987681308532,
+          1.0000011705589489
+        ],
+        "arm_stretch.r": [
+          0.9999998562606116,
+          1.0000020651855097
+        ],
+        "forearm_stretch.l": [
+          0.999999500142639,
+          1.0000007088216634
+        ],
+        "forearm_stretch.r": [
+          0.9999993291938942,
+          1.0000005282422209
+        ]
+      },
+      "foot_drift_m": {
+        "foot.l": 1.9647535618626363e-05,
+        "foot.r": 1.9190445271578128e-05
+      },
+      "release_samples": [
+        {
+          "frame": 56,
+          "wrist_m": [
+            -0.07390516251325607,
+            -0.8789051175117493,
+            0.719245433807373
+          ],
+          "wrist_target_error_m": 0.02676637899457781,
+          "error_actor_cm": 3.6281225018950423,
+          "span_from_joint_heads_m": 0.32750426044056385,
+          "shoulder_to_wrist_target_m": 0.354269589663617
+        },
+        {
+          "frame": 59,
+          "wrist_m": [
+            -0.07344552874565125,
+            -0.8801556825637817,
+            0.7189533710479736
+          ],
+          "wrist_target_error_m": 0.025407443270776476,
+          "error_actor_cm": 3.443921819421279,
+          "span_from_joint_heads_m": 0.3275046106840783,
+          "shoulder_to_wrist_target_m": 0.3529110106111044
+        },
+        {
+          "frame": 63,
+          "wrist_m": [
+            -0.0727611780166626,
+            -0.8820780515670776,
+            0.7184991240501404
+          ],
+          "wrist_target_error_m": 0.02332386432551655,
+          "error_actor_cm": 3.1614973772767647,
+          "span_from_joint_heads_m": 0.3275043142521721,
+          "shoulder_to_wrist_target_m": 0.3508271294870083
+        }
+      ],
+      "finite": true
+    }
+  },
+  "scope": "Source DCC wrist/reach, finite bones, no stretch, contacts, floor. Imported/native-overlay measurements remain separate.",
+  "input_preserved": true,
+  "all_previous_actions_preserved_as_backups": true,
+  "rig_rest_preserved": true,
+  "blend_sha256": "1f522b49ceea26fc9e1f8fe16fe8b1f921cc82a4be59af1a3b1e88658b69df61"
+}

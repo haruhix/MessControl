@@ -1,0 +1,224 @@
+{
+  "status": "rendered_review_pass",
+  "source_blend_sha256_before": "7f86ed201a055b0b88766536523d8bf152f89caffcba804feac059063dc851d7",
+  "source_blend_sha256_after": "7f86ed201a055b0b88766536523d8bf152f89caffcba804feac059063dc851d7",
+  "review_scene": "MC_Tank_Abilities_v2_Review",
+  "frames": 311,
+  "duration_seconds": 12.44,
+  "fps": 25,
+  "key_samples": {
+    "ChargeTell_Start": {
+      "frame": 1,
+      "seconds": 0.0,
+      "ball_visible": false,
+      "ball_scale": [
+        9.999999747378752e-05,
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ],
+      "course_location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "course_heading_degrees": 0.0
+    },
+    "ChargeTell_Coil": {
+      "frame": 18,
+      "seconds": 0.68,
+      "ball_visible": false,
+      "ball_scale": [
+        9.999999747378752e-05,
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ],
+      "course_location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "course_heading_degrees": 0.0
+    },
+    "ChargeLoop": {
+      "frame": 31,
+      "seconds": 1.2,
+      "ball_visible": false,
+      "ball_scale": [
+        9.999999747378752e-05,
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ],
+      "course_location": [
+        0.0,
+        -0.634130597114563,
+        0.0
+      ],
+      "course_heading_degrees": 0.0
+    },
+    "ChargeRecovery_Stop": {
+      "frame": 77,
+      "seconds": 3.04,
+      "ball_visible": false,
+      "ball_scale": [
+        9.999999747378752e-05,
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ],
+      "course_location": [
+        0.0,
+        -10.731441497802734,
+        0.0
+      ],
+      "course_heading_degrees": 0.0
+    },
+    "ChargeRecovery_Guard": {
+      "frame": 104,
+      "seconds": 4.12,
+      "ball_visible": false,
+      "ball_scale": [
+        9.999999747378752e-05,
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ],
+      "course_location": [
+        0.0,
+        -10.731441497802734,
+        0.0
+      ],
+      "course_heading_degrees": 0.0
+    },
+    "RollTransform_Coil": {
+      "frame": 138,
+      "seconds": 5.48,
+      "ball_visible": false,
+      "ball_scale": [
+        9.999999747378752e-05,
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ],
+      "course_location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "course_heading_degrees": 0.0
+    },
+    "RollTransform_Swap": {
+      "frame": 150,
+      "seconds": 5.96,
+      "ball_visible": true,
+      "ball_scale": [
+        0.9149176478385925,
+        0.9149176478385925,
+        0.9149176478385925
+      ],
+      "course_location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "course_heading_degrees": 0.0
+    },
+    "Rolling_Ball": {
+      "frame": 163,
+      "seconds": 6.48,
+      "ball_visible": true,
+      "ball_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "course_location": [
+        0.0,
+        -2.495999574661255,
+        0.0
+      ],
+      "course_heading_degrees": 0.0
+    },
+    "Rolling_Turn": {
+      "frame": 196,
+      "seconds": 7.8,
+      "ball_visible": true,
+      "ball_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "course_location": [
+        2.3719022274017334,
+        -8.607117652893066,
+        0.0
+      ],
+      "course_heading_degrees": 51.999999170302104
+    },
+    "Rolling_ContactProxy": {
+      "frame": 198,
+      "seconds": 7.88,
+      "ball_visible": true,
+      "ball_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "course_location": [
+        2.7126176357269287,
+        -8.845688819885254,
+        0.0
+      ],
+      "course_heading_degrees": 56.000000419977106
+    },
+    "Rolling_Ricochet": {
+      "frame": 233,
+      "seconds": 9.28,
+      "ball_visible": true,
+      "ball_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "course_location": [
+        7.580259323120117,
+        -11.106773376464844,
+        0.0
+      ],
+      "course_heading_degrees": -65.00000067042492
+    },
+    "Unfold_Swap": {
+      "frame": 277,
+      "seconds": 11.04,
+      "ball_visible": true,
+      "ball_scale": [
+        0.8265941739082336,
+        0.8265941739082336,
+        0.8265941739082336
+      ],
+      "course_location": [
+        1.911745548248291,
+        -17.901214599609375,
+        0.0
+      ],
+      "course_heading_degrees": -34.99999983559887
+    },
+    "Unfold_Guard": {
+      "frame": 308,
+      "seconds": 12.28,
+      "ball_visible": false,
+      "ball_scale": [
+        9.999999747378752e-05,
+        9.999999747378752e-05,
+        9.999999747378752e-05
+      ],
+      "course_location": [
+        1.911745548248291,
+        -17.901214599609375,
+        0.0
+      ],
+      "course_heading_degrees": -34.99999983559887
+    }
+  },
+  "new_actions_present": true,
+  "ball_mesh_vertices": 239,
+  "original_ball_mesh_vertices": 239,
+  "review_uses_actual_saved_ball_mesh": true,
+  "scope": "Blender visual presentation only. Runtime slots, export/import, gameplay contacts, push physics and networking are pending."
+}

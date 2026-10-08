@@ -1,0 +1,160 @@
+{
+  "fps": 25,
+  "sections": [
+    {
+      "label": "Idle",
+      "start_index": 0,
+      "end_index": 79,
+      "seconds": 3.2,
+      "timing_segments": [
+        [
+          3.2,
+          1,
+          81
+        ]
+      ]
+    },
+    {
+      "label": "Walk",
+      "start_index": 80,
+      "end_index": 127,
+      "seconds": 1.92,
+      "timing_segments": [
+        [
+          1.92,
+          1,
+          49
+        ]
+      ]
+    },
+    {
+      "label": "WalkLeft",
+      "start_index": 128,
+      "end_index": 175,
+      "seconds": 1.92,
+      "timing_segments": [
+        [
+          1.92,
+          1,
+          49
+        ]
+      ]
+    },
+    {
+      "label": "WalkRight",
+      "start_index": 176,
+      "end_index": 223,
+      "seconds": 1.92,
+      "timing_segments": [
+        [
+          1.92,
+          1,
+          49
+        ]
+      ]
+    },
+    {
+      "label": "Melee",
+      "start_index": 224,
+      "end_index": 261,
+      "seconds": 1.52,
+      "timing_segments": [
+        [
+          0.65,
+          1,
+          51
+        ],
+        [
+          0.9,
+          51,
+          101
+        ]
+      ]
+    },
+    {
+      "label": "Jump",
+      "start_index": 262,
+      "end_index": 353,
+      "seconds": 3.68,
+      "timing_segments": [
+        [
+          1.2,
+          1,
+          26
+        ],
+        [
+          0.8,
+          26,
+          71
+        ],
+        [
+          1.7,
+          71,
+          101
+        ]
+      ]
+    },
+    {
+      "label": "Transform",
+      "start_index": 354,
+      "end_index": 428,
+      "seconds": 3.0,
+      "timing_segments": [
+        [
+          1.2,
+          1,
+          101
+        ],
+        [
+          0.4,
+          101,
+          101
+        ],
+        [
+          1.4,
+          101,
+          1
+        ]
+      ]
+    }
+  ],
+  "frames": 429,
+  "source_blend_sha256_before": "c51499b99d373d49fea7f3faae2421284c312ae8aa271796acbc33278032c0b0",
+  "source_blend_sha256_after": "c51499b99d373d49fea7f3faae2421284c312ae8aa271796acbc33278032c0b0",
+  "animation_validation": {
+    "Idle": {
+      "root_control_max_displacement_m": 0.0,
+      "loop_position_error_m": 0.0,
+      "foot_max_displacement_m": 1.0821711198416379e-05
+    },
+    "Walk": {
+      "root_control_max_displacement_m": 0.0,
+      "loop_position_error_m": 0.0
+    },
+    "WalkLeft": {
+      "root_control_max_displacement_m": 0.0,
+      "loop_position_error_m": 0.0
+    },
+    "WalkRight": {
+      "root_control_max_displacement_m": 0.0,
+      "loop_position_error_m": 0.0
+    },
+    "Melee": {
+      "root_control_max_displacement_m": 0.0,
+      "foot_max_displacement_m": 2.2248348123790866e-05
+    },
+    "Jump": {
+      "root_control_max_displacement_m": 0.0,
+      "takeoff_frame": 26,
+      "landing_frame": 71,
+      "landing_to_idle_pose_error_m": 0.0
+    },
+    "Transform": {
+      "root_control_max_displacement_m": 0.0,
+      "terminal_hold_error_m": 0.0
+    }
+  },
+  "native_default_timing_preview": true,
+  "material_scope": "Workbench uses original geometry and source material display; no mesh/material edits.",
+  "limitations": "Preview reproduces default state clip timing only. Unreal airborne overrides and ball substitution are not simulated."
+}

@@ -1,0 +1,213 @@
+{
+  "status": "authored_blender_study",
+  "source": "C:\\Users\\user\\Downloads\\Telegram Desktop\\Nut_Wizard.blend",
+  "source_sha256_before": "a26301457a083051e42515fd56aada5116cbce646d8cd430a9d97ad74b455a37",
+  "source_sha256_after": "a26301457a083051e42515fd56aada5116cbce646d8cd430a9d97ad74b455a37",
+  "source_preserved": true,
+  "rest_pose_preserved": true,
+  "original_actions_retained": true,
+  "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Wizard\\NutWizard_Style.blend",
+  "fps": 30,
+  "actions": [
+    {
+      "label": "Idle",
+      "action": "MC_Wizard_Idle",
+      "start": 1,
+      "end": 91,
+      "loop": true,
+      "key_poses": [
+        1,
+        20,
+        43,
+        66,
+        91
+      ],
+      "description": "Smug, poised wizard. Subtle breath and delayed glance; planted feet.",
+      "review_start": 1,
+      "review_end": 91
+    },
+    {
+      "label": "Walk",
+      "action": "MC_Wizard_Walk",
+      "start": 1,
+      "end": 49,
+      "loop": true,
+      "key_poses": [
+        1,
+        5,
+        13,
+        20,
+        25,
+        29,
+        37,
+        44,
+        49
+      ],
+      "description": "Short deliberate backsteps, guarded hands, alternating support. Faces the target.",
+      "review_start": 101,
+      "review_end": 149
+    },
+    {
+      "label": "Cast",
+      "action": "MC_Wizard_Cast",
+      "start": 1,
+      "end": 101,
+      "loop": false,
+      "key_poses": [
+        1,
+        15,
+        40,
+        50,
+        56,
+        62,
+        78,
+        91,
+        101
+      ],
+      "description": "Fire nut: gather, held compression, sharp release at 55%, elastic follow-through.",
+      "review_start": 159,
+      "review_end": 259
+    },
+    {
+      "label": "HeavyCast",
+      "action": "MC_Wizard_HeavyCast",
+      "start": 1,
+      "end": 101,
+      "loop": false,
+      "key_poses": [
+        1,
+        18,
+        42,
+        50,
+        56,
+        63,
+        79,
+        101
+      ],
+      "description": "Two-hand heavy charge fallback. More compression and recoil; release at 55%.",
+      "review_start": 269,
+      "review_end": 369
+    },
+    {
+      "label": "Summon",
+      "action": "MC_Wizard_Summon",
+      "start": 1,
+      "end": 101,
+      "loop": false,
+      "key_poses": [
+        1,
+        16,
+        33,
+        49,
+        56,
+        63,
+        80,
+        101
+      ],
+      "description": "Summon: pull an invisible weight out of the ground, left-hand lift accent at 55%.",
+      "review_start": 379,
+      "review_end": 479
+    },
+    {
+      "label": "Rain",
+      "action": "MC_Wizard_Rain",
+      "start": 1,
+      "end": 101,
+      "loop": false,
+      "key_poses": [
+        1,
+        19,
+        41,
+        49,
+        56,
+        63,
+        71,
+        88,
+        101
+      ],
+      "description": "Rain conductor. Strong held skyward silhouette on 55\u201362%, reversible small movement in channel.",
+      "review_start": 489,
+      "review_end": 589
+    },
+    {
+      "label": "Hit",
+      "action": "MC_Wizard_Hit",
+      "start": 1,
+      "end": 31,
+      "loop": false,
+      "key_poses": [
+        1,
+        5,
+        12,
+        22,
+        31
+      ],
+      "description": "Short recoil and regain composure. Runtime blends this as a 0.4 s hit overlay.",
+      "review_start": 599,
+      "review_end": 629
+    },
+    {
+      "label": "Death",
+      "action": "MC_Wizard_Death",
+      "start": 1,
+      "end": 91,
+      "loop": false,
+      "key_poses": [
+        1,
+        13,
+        25,
+        40,
+        59,
+        65,
+        78,
+        91
+      ],
+      "description": "Lose composure, knees buckle, soft forward collapse, small settle and final hold.",
+      "review_start": 639,
+      "review_end": 729
+    }
+  ],
+  "checks": [
+    {
+      "action": "MC_Wizard_Idle",
+      "loop": true,
+      "endpoint_position_delta_m": 0.0
+    },
+    {
+      "action": "MC_Wizard_Walk",
+      "loop": true,
+      "endpoint_position_delta_m": 0.0
+    },
+    {
+      "action": "MC_Wizard_Cast",
+      "loop": false,
+      "endpoint_position_delta_m": 0.0
+    },
+    {
+      "action": "MC_Wizard_HeavyCast",
+      "loop": false,
+      "endpoint_position_delta_m": 0.0
+    },
+    {
+      "action": "MC_Wizard_Summon",
+      "loop": false,
+      "endpoint_position_delta_m": 0.0
+    },
+    {
+      "action": "MC_Wizard_Rain",
+      "loop": false,
+      "endpoint_position_delta_m": 0.0
+    },
+    {
+      "action": "MC_Wizard_Hit",
+      "loop": false,
+      "endpoint_position_delta_m": 0.0
+    },
+    {
+      "action": "MC_Wizard_Death",
+      "loop": false,
+      "endpoint_position_delta_m": 0.5128574165022045
+    }
+  ],
+  "game_imported": false
+}

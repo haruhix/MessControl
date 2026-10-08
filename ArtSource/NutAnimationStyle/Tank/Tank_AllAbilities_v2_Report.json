@@ -1,0 +1,46 @@
+{
+  "video": "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Tank\\Tank_AllAbilities_v2.mp4",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 760,
+        "height": 640,
+        "avg_frame_rate": "25/1",
+        "nb_frames": "441"
+      }
+    ],
+    "format": {
+      "duration": "17.640000"
+    }
+  },
+  "source_videos_preserved": true,
+  "source_videos_sha256": {
+    "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Tank\\Tank_Style_Review.mp4": "98ade1e0b5dbcc03a5d327dcd475c6511ef5971129ee268aad7d67f9f80b9135",
+    "E:\\DEVGAME\\MessControl\\ArtSource\\NutAnimationStyle\\Tank\\Tank_Abilities_v2_Review.mp4": "b8983b56a0a4a642cdd0eb4b3605c6b647ab50bcb58b579a948112ad5e6b50ca"
+  },
+  "prefix_frames": 130,
+  "new_charge_roll_frames": 311,
+  "sections": [
+    {
+      "ability": "Melee",
+      "start_seconds": 0,
+      "end_seconds": 1.52
+    },
+    {
+      "ability": "Jump",
+      "start_seconds": 1.52,
+      "end_seconds": 5.2
+    }
+  ],
+  "charge_roll_start_seconds": 5.2,
+  "ability_coverage": [
+    "Melee",
+    "Jump",
+    "Charge",
+    "Roll"
+  ],
+  "scope": "Blender animation/presentation review. Game VFX, collision, push physics, network and new animation slot integration are not validated."
+}

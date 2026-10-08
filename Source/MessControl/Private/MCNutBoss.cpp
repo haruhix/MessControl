@@ -167,9 +167,13 @@ void AMCNutBoss::CacheBossAnimations()
         Set(EMCNutBossClip::WalkLeft,BossSettings.TankWalkLeftAnimation); Set(EMCNutBossClip::WalkRight,BossSettings.TankWalkRightAnimation);
         Set(EMCNutBossClip::Melee,BossSettings.TankMeleeAnimation); Set(EMCNutBossClip::Jump,BossSettings.TankJumpAnimation);
         Set(EMCNutBossClip::Transform,BossSettings.TankTransformAnimation);
+        Set(EMCNutBossClip::ChargeTell,BossSettings.TankChargeTellAnimation);
+        Set(EMCNutBossClip::ChargeLoop,BossSettings.TankChargeLoopAnimation);
+        Set(EMCNutBossClip::ChargeRecovery,BossSettings.TankChargeRecoveryAnimation);
     } else {
         Set(EMCNutBossClip::Idle,BossSettings.MageIdleAnimation); Set(EMCNutBossClip::Walk,BossSettings.MageWalkAnimation);
         Set(EMCNutBossClip::Cast,BossSettings.MageCastAnimation); Set(EMCNutBossClip::HeavyCast,BossSettings.MageHeavyCastAnimation);
+        Set(EMCNutBossClip::Melee,BossSettings.MageMeleeAnimation);
         Set(EMCNutBossClip::Summon,BossSettings.MageSummonAnimation); Set(EMCNutBossClip::Rain,BossSettings.MageRainAnimation);
         Set(EMCNutBossClip::Hit,BossSettings.MageHitAnimation); Set(EMCNutBossClip::Death,BossSettings.MageDeathAnimation);
     }
@@ -236,7 +240,14 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
     else if(Attack==EMCNutBossAttack::Summon) Windup=1.1f;
     else if(Attack==EMCNutBossAttack::NutRain) Windup=BossSettings.RainWindup;
     const float WindupProgress=Progress(Time-(ResolveAt-Windup),Windup);
+    auto Has=[&](EMCNutBossClip Slot){return BossAnimations.IsValidIndex(int32(Slot)) && BossAnimations[int32(Slot)]
+        && BossAnimations[int32(Slot)]->GetSkeleton()==Model->GetSkeletalMeshAsset()->GetSkeleton()
+        && BossAnimations[int32(Slot)]->GetPlayLength()>KINDA_SMALL_NUMBER;};
+    const bool MageMelee=Out.bMage && Attack==EMCNutBossAttack::Melee && Has(EMCNutBossClip::Melee);
     float AttackWeight=Active?1.f:0.f,Phase=0;
+    bool AttackLoop=false;
+    float AttackRate=1.f;
+    double AttackLoopStartedAt=0;
     EMCNutBossClip AttackClip=EMCNutBossClip::Idle;
     if(Telegraph) AttackWeight=FMath::SmoothStep(0.f,BossSettings.AnimationBlendSeconds,float(Time-StateStartedAt));
     if(Recovery) AttackWeight=1-FMath::SmoothStep(.65f,1.f,RecoveryProgress);
@@ -253,14 +264,24 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         Phase=Telegraph?BossSettings.TankMeleeImpactFraction*WindupProgress:
             FMath::Lerp(BossSettings.TankMeleeImpactFraction,1.f,RecoveryProgress);
     } else if(Active && Attack==EMCNutBossAttack::Charge) {
-        AttackClip=EMCNutBossClip::Walk; Phase=Progress(Time-StateStartedAt,1);
+        AttackClip=Telegraph?EMCNutBossClip::ChargeTell:Recovery?EMCNutBossClip::ChargeRecovery:EMCNutBossClip::ChargeLoop;
+        Phase=Telegraph?WindupProgress:RecoveryProgress;
+        if(Has(AttackClip)) {
+            AttackLoop=State==EMCNutBossState::Executing;
+            AttackRate=BossSettings.TankChargeLoopPlayRate;
+            // Tell ends in the loop's first contact pose, so each charge starts at frame one.
+            AttackLoopStartedAt=StateStartedAt;
+        } else {
+            AttackClip=EMCNutBossClip::Walk; AttackLoop=true; AttackRate=2.f;
+        }
     } else if(Active && Out.bMage) {
-        AttackClip=Attack==EMCNutBossAttack::Summon?EMCNutBossClip::Summon:
+        AttackClip=MageMelee?EMCNutBossClip::Melee:Attack==EMCNutBossAttack::Summon?EMCNutBossClip::Summon:
             Attack==EMCNutBossAttack::NutRain?EMCNutBossClip::Rain:EMCNutBossClip::Cast;
-        const float Release=BossSettings.MageCastReleaseFraction;
-        Out.Cast=AttackWeight; Out.CastProgress=WindupProgress;
+        const float Release=MageMelee?BossSettings.MageMeleeImpactFraction:BossSettings.MageCastReleaseFraction;
+        // The shove is authored directly; casting aim, palm IK and spell release overlays would erase it.
+        Out.Cast=MageMelee?0.f:AttackWeight; Out.CastProgress=WindupProgress;
         const float SinceRelease=float(Time-ResolveAt);
-        Out.Release=SinceRelease>=0 && SinceRelease<.22f?FMath::Sin(SinceRelease/.22f*PI):0;
+        Out.Release=!MageMelee && SinceRelease>=0 && SinceRelease<.22f?FMath::Sin(SinceRelease/.22f*PI):0;
         Out.Channel=Attack==EMCNutBossAttack::NutRain && State==EMCNutBossState::Executing?1.f:0.f;
         // A channel sustains an authored mid-cast section for its complete server duration.
         // It never reaches the final clip frame merely because the FBX is shorter than the spell.
@@ -272,18 +293,16 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         Phase=FMath::Lerp(BossSettings.TankJumpTakeoffFraction,BossSettings.TankJumpImpactFraction,Progress(Time-StateStartedAt,BossSettings.EntranceSeconds));
         Out.Airborne=Out.bMage?0.f:1.f;
     }
-    auto Has=[&](EMCNutBossClip Slot){return BossAnimations.IsValidIndex(int32(Slot)) && BossAnimations[int32(Slot)]
-        && BossAnimations[int32(Slot)]->GetSkeleton()==Model->GetSkeletalMeshAsset()->GetSkeleton();};
     if(!Has(AttackClip)) {
         AttackClip=Out.bMage && Has(EMCNutBossClip::HeavyCast)?EMCNutBossClip::HeavyCast:EMCNutBossClip::Idle;
         if(!Active) AttackWeight=0;
     }
-    auto Add=[&](EMCNutBossClip Slot,float Fraction,float Weight,bool Loop=false,float Rate=1.f) {
+    auto Add=[&](EMCNutBossClip Slot,float Fraction,float Weight,bool Loop=false,float Rate=1.f,double LoopStartedAt=0) {
         if(Weight<=.001f || !Has(Slot)) return;
         UAnimSequence* Clip=BossAnimations[int32(Slot)]; const float Length=Clip->GetPlayLength();
         if(Length<=KINDA_SMALL_NUMBER) return;
         FMCNutBossClipSample Sample; Sample.Clip=Clip;Sample.Weight=Weight;Sample.bLoop=Loop;
-        Sample.Seconds=Loop?float(FMath::Fmod(FMath::Max(0.,Time)*Rate,double(Length))):FMath::Clamp(Fraction,0.f,1.f)*Length;
+        Sample.Seconds=Loop?float(FMath::Fmod(FMath::Max(0.,Time-LoopStartedAt)*Rate,double(Length))):FMath::Clamp(Fraction,0.f,1.f)*Length;
         Out.Samples.Add(Sample);
     };
     const float Living=bDefeated?0.f:1.f,Locomotion=Living*(1-AttackWeight);
@@ -294,7 +313,7 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         Add(EMCNutBossClip::WalkLeft,0,Locomotion*Moving*FMath::Max(0.f,-Side),true);
         Add(EMCNutBossClip::WalkRight,0,Locomotion*Moving*FMath::Max(0.f,Side),true);
     }
-    Add(AttackClip,Phase,Living*AttackWeight,Attack==EMCNutBossAttack::Charge,2.f);
+    Add(AttackClip,Phase,Living*AttackWeight,AttackLoop,AttackRate,AttackLoopStartedAt);
     if(Out.bMage && Out.Hit>.01f) Add(EMCNutBossClip::Hit,Progress(HitAge,.4),Out.Hit*.3f);
     Out.bHasDeathClip=Has(EMCNutBossClip::Death);
     if(bDefeated) Add(Out.bHasDeathClip?EMCNutBossClip::Death:EMCNutBossClip::Idle,Out.Death,1.f);
