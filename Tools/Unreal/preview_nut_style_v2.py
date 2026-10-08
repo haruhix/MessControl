@@ -56,7 +56,8 @@ def measure_cast_reach(mesh, clips, boss):
     scale = float(boss.get_editor_property("mage_height")) / (2 * bounds.get_editor_property("box_extent").z)
     yaw = math.radians(float(boss.get_editor_property("mage_model_yaw")))
     c, s = math.cos(yaw), math.sin(yaw)
-    height_offset = float(boss.get_editor_property("mage_height")) * .5 - 90
+    height = float(boss.get_editor_property("mage_height"))
+    height_offset = height * .5 - max(60.0, min(260.0, height * .45))
     emitter = vector_list(boss.get_editor_property("mage_cast_offset"))
     options = u.AnimPoseEvaluationOptions()
     options.set_editor_property("optional_skeletal_mesh", mesh)

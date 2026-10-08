@@ -164,15 +164,23 @@ void AMCGameDirector::BeginSupport(float Seconds)
     if (!HasAuthority() || !Settings) return;
     bSupportMode=true;
     Settings->Days[0].InitialPatches=0;
+    // Destruction clears food much faster than the old carry-and-deliver loop.
+    // Keep the saved profile usable while tuning only this encounter's run copy.
+    Settings->DecisionInterval=FMath::Min(Settings->DecisionInterval,1.25f);
+    auto& SupportDay=Settings->Days[0];
+    SupportDay.MaxFoodBatch=FMath::Max(SupportDay.MaxFoodBatch,4);
+    SupportDay.FoodInterval=FMath::Min(SupportDay.FoodInterval,2.25f);
+    SupportDay.RestSeconds=FMath::Min(SupportDay.RestSeconds,1.5f);
     for (auto& Rule:Settings->Events)
         if (Rule.Kind==EMCGameDirectorEvent::Boss || Rule.Kind==EMCGameDirectorEvent::Reward) Rule.Weight=0;
         else if(Rule.Weight>0) {
             // A saved support profile may still contain the older sparse menu.
             // Adjust only this run's copy; explicitly disabled kinds stay disabled.
-            const float Minimum=Rule.Kind==EMCGameDirectorEvent::Food?6.f:
+            const float Minimum=Rule.Kind==EMCGameDirectorEvent::Food?12.f:
                 Rule.Kind==EMCGameDirectorEvent::Coffee?4.5f:
                 Rule.Kind==EMCGameDirectorEvent::Pepper || Rule.Kind==EMCGameDirectorEvent::CoffeeFlood?2.f:0.f;
             Rule.Weight=FMath::Max(Rule.Weight,Minimum);
+            if(Rule.Kind==EMCGameDirectorEvent::Food) Rule.CooldownSeconds=FMath::Min(Rule.CooldownSeconds,3.f);
         }
     BeginDay(1);
     bInterlude=true;
@@ -321,7 +329,8 @@ float AMCGameDirector::ComputeWaitWeight(const FMCGameDirectorState& Seen) const
     if(bSupportMode && !ArenaHasWork(Seen)
         && !Tickets.ContainsByPredicate([](const FTicket& T){return T.bStarted && !T.bDone && T.Kind!=EMCGameDirectorEvent::Reward;})) return 0;
     const float Ratio=Seen.Pressure/FMath::Max(.05f,TargetPressure);
-    return 1+FMath::Clamp(Ratio*Ratio*4,0.f,20.f)+Seen.Stress*8;
+    const float IdleWeight=bSupportMode?.35f:1.f;
+    return IdleWeight+FMath::Clamp(Ratio*Ratio*4,0.f,20.f)+Seen.Stress*8;
 }
 TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGameDirectorState& Seen,double Now) const
 {

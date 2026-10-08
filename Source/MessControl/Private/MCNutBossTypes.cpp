@@ -31,33 +31,53 @@ FMCNutBossSettings::FMCNutBossSettings()
 void FMCNutBossSettings::Sanitize()
 {
     auto Safe=[](float& V,float Default,float Low,float High){ V=FMath::IsFinite(V)?FMath::Clamp(V,Low,High):Default; };
+    // Migrate only the earlier generated dimensions. Repeated calls never double
+    // a run copy again, and independently authored dimensions remain intact.
+    if(FMath::IsNearlyEqual(TankHeight,220.f)) TankHeight=440.f;
+    if(FMath::IsNearlyEqual(MageHeight,200.f)) {MageHeight=400.f; MageCastOffset*=2.f;}
+    if(FMath::IsNearlyEqual(TankBallHeight,200.f)) TankBallHeight=400.f;
+    if(FMath::IsNearlyEqual(CreepHeight,70.f)) CreepHeight=116.f;
+    if(FMath::IsNearlyEqual(MeleeRange,190.f)) MeleeRange=380.f;
+    if(FMath::IsNearlyEqual(JumpRadius,230.f)) JumpRadius=460.f;
+    if(FMath::IsNearlyEqual(RainRadius,300.f)) RainRadius=703.5624f;
+    if(FMath::IsNearlyEqual(RollPush,260.f)) RollPush=620.f;
     Safe(TankHealth,1400,200,10000); Safe(MageHealth,1100,200,10000); Safe(ExtraPlayerHealth,.65f,0,2);
     Safe(TankModelYaw,-90,-180,180); Safe(MageModelYaw,-90,-180,180);
-    Safe(TankHeight,220,150,320); Safe(MageHeight,200,140,300); Safe(CreepHeight,70,40,100);
-    Safe(TankBallHeight,200,120,300); Safe(TankMeleeImpactFraction,.5f,.05f,.95f);
+    Safe(TankHeight,440,150,640); Safe(MageHeight,400,140,600); Safe(CreepHeight,116,40,240);
+    Safe(TankBallHeight,400,120,600); Safe(TankMeleeImpactFraction,.5f,.05f,.95f);
     Safe(TankChargeLoopPlayRate,2.f,.1f,4.f); Safe(MageMeleeImpactFraction,.55f,.05f,.95f);
     Safe(TankJumpTakeoffFraction,.25f,.05f,.8f); Safe(TankJumpImpactFraction,FMath::Max(.7f,TankJumpTakeoffFraction+.05f),TankJumpTakeoffFraction+.05f,.95f);
     Safe(MageCastReleaseFraction,.55f,.2f,.8f); Safe(AnimationBlendSeconds,.18f,.08f,.4f); Safe(DeathSeconds,2.4f,1.6f,4);
-    if(MageCastOffset.ContainsNaN()) MageCastOffset=FVector(120,-22,65);
-    MageCastOffset.X=FMath::Clamp(MageCastOffset.X,60.,180.); MageCastOffset.Y=FMath::Clamp(MageCastOffset.Y,-90.,90.);
-    MageCastOffset.Z=FMath::Clamp(MageCastOffset.Z,-20.,160.);
+    if(MageCastOffset.ContainsNaN()) MageCastOffset=FVector(240,-44,130);
+    MageCastOffset.X=FMath::Clamp(MageCastOffset.X,60.,360.); MageCastOffset.Y=FMath::Clamp(MageCastOffset.Y,-180.,180.);
+    MageCastOffset.Z=FMath::Clamp(MageCastOffset.Z,-40.,320.);
     Safe(EntranceSeconds,1.3f,.8f,3); Safe(EntranceHeight,800,300,1500);
     Safe(TankMoveSpeed,160,60,300); Safe(MageMoveSpeed,120,40,250);
     Safe(ShieldFrontDamageScale,.35f,.15f,1); Safe(ShieldHalfAngle,55,20,85);
-    Safe(MeleeDamage,12,1,30); Safe(MeleeRange,190,140,280); Safe(MeleeWindup,.65f,.5f,2); Safe(MeleeCooldown,2.5f,1.5f,8);
+    Safe(MeleeDamage,12,1,30); Safe(MeleeRange,380,140,560); Safe(MeleeWindup,.65f,.5f,2); Safe(MeleeCooldown,2.5f,1.5f,8);
+    Safe(TankMeleePush,620,0,1500); Safe(TankChargePush,820,0,1500); Safe(TankJumpPush,900,0,1800); Safe(TankPushLift,210,0,500);
     Safe(ChargeDamage,22,1,40); Safe(ChargeWindup,1.1f,.8f,3); Safe(ChargeCooldown,8,5,25);
     Safe(ChargeSpeed,650,300,900); Safe(ChargeDistance,1100,350,1600);
     Safe(RollDamage,16,1,30); Safe(RollWindup,1.2f,.9f,3); Safe(RollCooldown,16,10,35);
     Safe(RollDuration,5,3,7); Safe(RollSpeed,520,300,750); Safe(RollTurnDegreesPerSecond,50,0,75);
-    Safe(RollHitGap,1.1f,.8f,3); Safe(RollPush,260,50,400);
+    Safe(RollHitGap,1.1f,.8f,3); Safe(RollPush,620,50,1000); Safe(RollPainCooldown,1.25f,.4f,4);
     Safe(JumpDamage,25,1,40); Safe(JumpWindup,1.2f,.8f,3); Safe(JumpFlightSeconds,.8f,.6f,1.5f);
-    Safe(JumpRadius,230,150,330); Safe(JumpCooldown,13,8,35);
+    Safe(JumpRadius,460,150,660); Safe(JumpCooldown,13,8,35);
     Safe(FireballDamage,18,1,35); Safe(FireballWindup,.9f,.7f,2); Safe(FireballCooldown,5,3,15);
     Safe(FireballSpeed,550,250,850); Safe(FireballRadius,28,15,45);
     Safe(SummonCooldown,17,10,40); SummonCount=FMath::Clamp(SummonCount,1,4); MaxLiveCreeps=FMath::Clamp(MaxLiveCreeps,1,12);
     Safe(CreepHealth,40,20,80);
-    Safe(RainRadius,300,180,420); Safe(RainImpactRadius,90,55,130); Safe(RainWindup,1.2f,1,3); Safe(RainActiveSeconds,4,3,6);
+    Safe(RainRadius,703.5624f,180,1000); Safe(RainImpactRadius,90,55,130); Safe(RainWindup,1.2f,1,3); Safe(RainActiveSeconds,4,3,6);
     RainDrops=FMath::Clamp(RainDrops,4,12); Safe(RainDamage,8,1,15); Safe(RainHitGap,.8f,.6f,2); Safe(RainCooldown,20,12,40);
+    Safe(MageTeleportCooldown,12,3,40); Safe(MageTeleportWindup,.65f,.3f,2);
+    Safe(MageTeleportMinDistance,600,250,1600); Safe(MageTeleportMaxDistance,1100,MageTeleportMinDistance,2200);
+    Safe(MageFocusRadius,420,150,1200);
+}
+
+float FMCNutBossSettings::BodyRadiusForRole(EMCNutBossRole Role) const
+{
+    const float Radius=Role==EMCNutBossRole::Tank?TankHeight*(100.f/220.f):MageHeight*.45f;
+    return FMath::IsFinite(Radius)?FMath::Clamp(Radius,60.f,260.f):(Role==EMCNutBossRole::Tank?200.f:180.f);
 }
 
 float FMCNutBossSettings::HealthForPlayers(EMCNutBossRole Role,int32 Players) const

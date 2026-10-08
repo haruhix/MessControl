@@ -14,7 +14,7 @@ UENUM(BlueprintType)
 enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated };
 
 UENUM(BlueprintType)
-enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll };
+enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport };
 
 /** Encounter tuning shared by the event and the two authoritative boss actors. */
 USTRUCT(BlueprintType)
@@ -29,7 +29,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<USkeletalMesh> TankSkeletalMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float TankModelYaw=-90;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<UStaticMesh> TankBallMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float TankBallHeight=200;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float TankBallHeight=400;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankIdleAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankWalkAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankWalkLeftAnimation;
@@ -63,7 +63,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float AnimationBlendSeconds=.18f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float DeathSeconds=2.4f;
     /** Gameplay emitter in world centimetres relative to the boss body, rotated toward the locked target. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FVector MageCastOffset=FVector(120,-22,65);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FVector MageCastOffset=FVector(240,-44,130);
     /** Optional visual socket; authoritative projectile origins never depend on evaluated cosmetic bones. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName MageCastSocket=TEXT("cast_palm");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName TorsoBone=TEXT("root_x");
@@ -76,9 +76,9 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName RightHandBone=TEXT("hand_r");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<UStaticMesh> ShellMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<UStaticMesh> KernelMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float TankHeight=220;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float MageHeight=200;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float CreepHeight=70;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float TankHeight=440;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float MageHeight=400;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float CreepHeight=116;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Entrance") float EntranceSeconds=1.3f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Entrance") float EntranceHeight=800;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement") float TankMoveSpeed=160;
@@ -86,10 +86,13 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield") float ShieldFrontDamageScale=.35f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield") float ShieldHalfAngle=55;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float MeleeDamage=12;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float MeleeRange=190;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float MeleeRange=380;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float TankMeleePush=620;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement") float TankPushLift=210;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float MeleeWindup=.65f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Melee") float MeleeCooldown=2.5f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeDamage=22;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float TankChargePush=820;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeWindup=1.1f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeCooldown=8;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeSpeed=650;
@@ -101,11 +104,13 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollSpeed=520;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollTurnDegreesPerSecond=50;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollHitGap=1.1f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollPush=260;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollPush=620;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollPainCooldown=1.25f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpDamage=25;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float TankJumpPush=900;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpWindup=1.2f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpFlightSeconds=.8f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpRadius=230;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpRadius=460;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpCooldown=13;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballDamage=18;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballWindup=.9f;
@@ -116,7 +121,8 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") int32 SummonCount=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") int32 MaxLiveCreeps=8;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") float CreepHealth=40;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainRadius=300;
+    /** The original 300 cm radius enlarged by sqrt(5.5), so its area grows 5.5 times. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainRadius=703.5624f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainImpactRadius=90;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainWindup=1.2f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainActiveSeconds=4;
@@ -124,6 +130,13 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainDamage=8;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainHitGap=.8f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainCooldown=20;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportCooldown=12;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportWindup=.65f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportMinDistance=600;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageTeleportMaxDistance=1100;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Teleport") float MageFocusRadius=420;
     void Sanitize();
+    /** Same physical footprint for event placement and the boss's authoritative body. */
+    float BodyRadiusForRole(EMCNutBossRole Role) const;
     float HealthForPlayers(EMCNutBossRole Role,int32 Players) const;
 };

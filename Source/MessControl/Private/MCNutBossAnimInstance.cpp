@@ -139,6 +139,17 @@ private:
             Pose[Torso].SetTranslation(Translation);
         }
         if(Input.bMage) MatchCastHand(Pose,Input,Cast*.85f);
+        if(Input.bMage && Input.Melee>.001f && !Input.bHasMeleeClip) {
+            // A custom profile without a compatible melee clip still has a
+            // physical windup/thrust/recovery, never the spell-emitter palm IK.
+            const float Anticipation=FMath::Sin(FMath::Clamp(Input.MeleePhase/.55f,0.f,1.f)*PI);
+            const float Strike=FMath::SmoothStep(.32f,.55f,Input.MeleePhase)*(1-FMath::SmoothStep(.55f,1.f,Input.MeleePhase));
+            const float Weight=Input.Melee*Alive;
+            Rotate(Torso,FRotator((-Anticipation*5+Strike*8)*Weight,(-Anticipation*12+Strike*16)*Weight,0));
+            Rotate(RightArm,FRotator((Anticipation*15-Strike*48)*Weight,Strike*14*Weight,0));
+            Rotate(PoseBone(Pose,Input,EMCNutPoseBone::RightForearm),FRotator(-Strike*24*Weight,0,0));
+            Rotate(RightHand,FRotator(Strike*12*Weight,0,0));
+        }
         if(Input.Death>0) {
             const float Fall=FMath::SmoothStep(.1f,.85f,Input.Death);
             Rotate(Torso,FRotator(-Fall*(Input.bHasDeathClip?10:65),0,Fall*12));

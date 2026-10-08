@@ -30,13 +30,14 @@ def measure_cast_offset(mesh, animation, height, release_fraction, model_yaw=-90
     origin = bounds.get_editor_property("origin")
     extent = bounds.get_editor_property("box_extent")
     scale = height / (2 * extent.z)
-    # ConfigureEncounter places the mage body at radius 90 and the model feet at
-    # the floor. The server emitter is actor-local and never reads live bones.
+    # Match FMCNutBossSettings::BodyRadiusForRole while keeping the model feet
+    # at the floor. The server emitter is actor-local and never reads live bones.
+    body_radius = max(60.0, min(260.0, height * .45))
     x, y = (palm.x - origin.x) * scale, (palm.y - origin.y) * scale
     yaw = math.radians(model_yaw)
     return u.Vector(x * math.cos(yaw) - y * math.sin(yaw),
                     x * math.sin(yaw) + y * math.cos(yaw),
-                    (palm.z - origin.z) * scale + height * .5 - 90)
+                    (palm.z - origin.z) * scale + height * .5 - body_radius)
 
 
 def main():
@@ -99,7 +100,9 @@ def main():
     cast_offset = measure_cast_offset(mage, cast, boss.get_editor_property("mage_height"),
                                       boss.get_editor_property("mage_cast_release_fraction"),
                                       boss.get_editor_property("mage_model_yaw"))
-    require(40 < cast_offset.x < 220 and abs(cast_offset.y) < 120 and abs(cast_offset.z) < 140,
+    size_ratio = float(boss.get_editor_property("mage_height")) / 200.0
+    require(40 * size_ratio < cast_offset.x < 220 * size_ratio
+            and abs(cast_offset.y) < 120 * size_ratio and abs(cast_offset.z) < 140 * size_ratio,
             "Inspect the imported caster orientation before binding its palm: " + str(cast_offset))
     boss.set_editor_property("mage_cast_offset", cast_offset)
     settings.set_editor_property("boss", boss)

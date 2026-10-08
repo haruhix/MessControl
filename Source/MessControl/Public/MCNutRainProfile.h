@@ -18,7 +18,7 @@ struct MESSCONTROL_API FMCNutEnemySettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", ClampMax="100")) float AttackDamage=12;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.25", ClampMax="3", Units="s")) float WindupSeconds=.55f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.5", ClampMax="8", Units="s")) float AttackCooldown=1.8f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="20", ClampMax="100", Units="cm")) float BodyRadius=42;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="20", ClampMax="260", Units="cm")) float BodyRadius=58;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0", ClampMax="40", Units="cm")) float HopHeight=14;
     void Sanitize();
 };
@@ -39,7 +39,7 @@ struct MESSCONTROL_API FMCNutRainSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="4", ClampMax="8", Units="s")) float SeriesRestSeconds=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance", meta=(ClampMin="150", ClampMax="220", Units="cm")) float LargeNutHeight=180;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="0", ClampMax="40")) float ImpactDamageLimit=18;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="80", ClampMax="320", Units="cm")) float ImpactRadius=180;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="80", ClampMax="480", Units="cm")) float ImpactRadius=300;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="0", ClampMax="500", Units="cm/s")) float ImpactPushSpeed=260;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Encounter") FMCNutBossSettings Boss;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="1", ClampMax="120")) int32 NutCount=30;
