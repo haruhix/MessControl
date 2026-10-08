@@ -10,9 +10,10 @@ class UMCGameDirectorProfile;
 class AMCNutRainEvent;
 class AMCGameDirector;
 class AMCBossCharacter;
+class AMCDayDirector;
 
 UENUM(BlueprintType)
-enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete };
+enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest };
 
 UENUM(BlueprintType)
 enum class EMCSingleDayKeyEventKind : uint8 { NutEncounter };
@@ -40,6 +41,10 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence") TArray<FMCSingleDayKeyEvent> KeyEvents;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMinMinutes=25;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMaxMinutes=35;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float AfterTrainingPauseSeconds=5;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="6")) int32 OpeningMealItems=3;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin=".5",ClampMax="5",Units="s")) float OpeningMealDropSeconds=1.5f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BeforeNutsPauseSeconds=4;
     /** Explicit compatibility for the old short prototype, never enabled by new fragment authoring. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Legacy") bool bLegacyTimedFinale=false;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Sequence") TArray<TSoftObjectPtr<UMCNutRainProfile>> NutRainVariants;
@@ -70,7 +75,12 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") int32 VariantIndex=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") int32 KeyEventIndex=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") bool bAuthoredFragmentComplete=false;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") double StageEndsAt=0;
 private:
+    void BeginOpeningPause(bool bAfterMeal=false);
+    void BeginFirstMeal();
+    void TickFirstMeal();
+    FName ChooseOpeningFood();
     void BeginNuts();
     void BeginDirector();
     void BeginBoss();
@@ -81,7 +91,11 @@ private:
     UPROPERTY() TObjectPtr<UMCSingleDayProfile> Settings;
     UPROPERTY() TObjectPtr<UMCGameDirectorProfile> DirectorProfile;
     UPROPERTY() TObjectPtr<AMCGameDirector> Interlude;
+    UPROPERTY() TObjectPtr<AMCDayDirector> MealServices;
     double InterludeEndsAt=0;
     double RunStartedAt=0;
+    double NextMealDropAt=0;
+    int32 FirstMealBatch=0,MealSpawned=0,MealAttempts=0;
+    FRandomStream MealRandom;
     bool bStopped=false;
 };

@@ -134,7 +134,7 @@ def save_owned_walnut_collision(lib):
     return dict(current=True, menu=menu.get_path_name(), profiles=profiles)
 
 
-def main():
+def main(migrate_legacy_walnut=False):
     if u.get_editor_subsystem(u.LevelEditorSubsystem).is_in_play_in_editor():
         raise RuntimeError("Stop the owned PIE before nut combat VFX authoring")
     dirty = list(u.EditorLoadingAndSavingUtils.get_dirty_content_packages())
@@ -144,7 +144,9 @@ def main():
     lib, edit = u.EditorAssetLibrary, u.MaterialEditingLibrary
     tools = u.AssetToolsHelpers.get_asset_tools()
     reports = []
-    runtime_material = runtime_walnut(lib, edit, tools)
+    # The runtime walnut migration and targeted collision bake were completed
+    # earlier. Boss VFX authoring has no reason to repeat those asset changes.
+    runtime_material = runtime_walnut(lib, edit, tools) if migrate_legacy_walnut else dict(skipped=True)
 
     def node(mat, kind, x=0, y=0):
         return edit.create_material_expression(mat, kind, x, y)
@@ -282,15 +284,93 @@ def main():
         output(custom(mat, "return F.rgb;", {"F": (field, "")}, u.CustomMaterialOutputType.CMOT_FLOAT3), u.MaterialProperty.MP_EMISSIVE_COLOR)
         output(custom(mat, "return F.a;", {"F": (field, "")}), u.MaterialProperty.MP_OPACITY)
 
+    def arcane(mat):
+        uv = node(mat, u.MaterialExpressionTextureCoordinate)
+        vertex = node(mat, u.MaterialExpressionVertexColor)
+        tint = node(mat, u.MaterialExpressionVectorParameter)
+        tint.set_editor_property("parameter_name", "Tint")
+        tint.set_editor_property("default_value", u.LinearColor(.56, .19, 1, 1))
+        age, progress, beam = scalar(mat, "Age", 0), scalar(mat, "Progress", 0), scalar(mat, "Beam", 0)
+        field = custom(mat, r'''
+            float2 p=UV*2-1; float r=length(p);
+            float angle=atan2(p.y,p.x)/6.283185;
+            float rim=smoothstep(.66,.70,r)*(1-smoothstep(.77,.82,r));
+            float outer=smoothstep(.91,.93,r)*(1-smoothstep(.96,.99,r))*.48;
+            float tick=pow(saturate(1-abs(frac(angle*12-Age*.13)-.5)*7),3);
+            float glyph=tick*smoothstep(.44,.48,r)*(1-smoothstep(.60,.64,r));
+            float spiral=pow(saturate(1-abs(frac(angle*3-r*1.8+Age*.35)-.5)*13),2);
+            float focus=pow(saturate(1-r*2.5),4);
+            float circular=(rim+outer+glyph*.75+spiral*.14+focus*.5)*(1-smoothstep(.96,1,r));
+            float stream=pow(saturate(1-abs(p.y)),3)*(1-smoothstep(.88,1,abs(p.x)));
+            stream*=.72+.28*sin(UV.x*20-Age*17);
+            float alpha=lerp(circular,stream,Beam)*Alpha*(.68+.32*Progress);
+            float3 color=lerp(Tint,float3(.62,1.15,1.22),focus*.65);
+            return float4(color*2.1,saturate(alpha)*.85);
+        ''', {"UV": (uv, ""), "Tint": (tint, "RGB"), "Alpha": (vertex, "A"),
+              "Age": (age, ""), "Progress": (progress, ""), "Beam": (beam, "")},
+                       u.CustomMaterialOutputType.CMOT_FLOAT4)
+        output(custom(mat, "return F.rgb;", {"F": (field, "")}, u.CustomMaterialOutputType.CMOT_FLOAT3), u.MaterialProperty.MP_EMISSIVE_COLOR)
+        output(custom(mat, "return F.a;", {"F": (field, "")}), u.MaterialProperty.MP_OPACITY)
+
+    def arcane_spark(mat):
+        uv = node(mat, u.MaterialExpressionTextureCoordinate)
+        age = node(mat, u.MaterialExpressionParticleRelativeTime)
+        particle = node(mat, u.MaterialExpressionParticleColor)
+        field = custom(mat, r'''
+            float2 p=UV*2-1; float r=length(p);
+            float diamond=pow(saturate(1-abs(p.x)-abs(p.y)),2);
+            float core=pow(saturate(1-r*2.4),3);
+            float alpha=(diamond*.65+core*.7)*smoothstep(0,.06,Age)*(1-smoothstep(.3,1,Age))*A;
+            return float4(lerp(float3(.50,.14,1.2),float3(.42,1.2,1.3),core)*2.1,saturate(alpha));
+        ''', {"UV": (uv, ""), "Age": (age, ""), "A": (particle, "A")}, u.CustomMaterialOutputType.CMOT_FLOAT4)
+        output(custom(mat, "return F.rgb;", {"F": (field, "")}, u.CustomMaterialOutputType.CMOT_FLOAT3), u.MaterialProperty.MP_EMISSIVE_COLOR)
+        output(custom(mat, "return F.a;", {"F": (field, "")}), u.MaterialProperty.MP_OPACITY)
+
+    def fire_core(mat):
+        uv = node(mat, u.MaterialExpressionTextureCoordinate)
+        vertex = node(mat, u.MaterialExpressionVertexColor)
+        age = scalar(mat, "Age", 0)
+        field = custom(mat, r'''
+            float2 p=UV*2-1; float r=length(p);
+            float hot=pow(saturate(1-r*1.75),2);
+            float halo=pow(saturate(1-r),3);
+            float ripple=(.9+.1*sin(r*28-Age*18));
+            float alpha=(hot*.82+halo*.28)*ripple*Alpha;
+            return float4(lerp(float3(1.8,.38,.025),float3(3.1,2.35,.8),hot),saturate(alpha));
+        ''', {"UV": (uv, ""), "Age": (age, ""), "Alpha": (vertex, "A")}, u.CustomMaterialOutputType.CMOT_FLOAT4)
+        output(custom(mat, "return F.rgb;", {"F": (field, "")}, u.CustomMaterialOutputType.CMOT_FLOAT3), u.MaterialProperty.MP_EMISSIVE_COLOR)
+        output(custom(mat, "return F.a;", {"F": (field, "")}), u.MaterialProperty.MP_OPACITY)
+
+    def storm(mat):
+        uv = node(mat, u.MaterialExpressionTextureCoordinate)
+        vertex = node(mat, u.MaterialExpressionVertexColor)
+        age = scalar(mat, "Age", 0)
+        field = custom(mat, r'''
+            float2 p=UV*2-1; float r=length(p);
+            float wisps=sin(UV.x*15+Age*.6)*sin(UV.y*11-Age*.4);
+            wisps+=sin((UV.x+UV.y)*22-Age*.7)*.35;
+            float cloud=(1-smoothstep(.48,1,r))*saturate(.55+wisps*.3);
+            float rim=pow(saturate(1-abs(r-.7)/.16),2)*.15;
+            return float4(float3(.15,.08,.29)+float3(.22,.35,.48)*rim,
+                          saturate(cloud+rim)*Alpha*.55);
+        ''', {"UV": (uv, ""), "Age": (age, ""), "Alpha": (vertex, "A")}, u.CustomMaterialOutputType.CMOT_FLOAT4)
+        output(custom(mat, "return F.rgb;", {"F": (field, "")}, u.CustomMaterialOutputType.CMOT_FLOAT3), u.MaterialProperty.MP_EMISSIVE_COLOR)
+        output(custom(mat, "return F.a;", {"F": (field, "")}), u.MaterialProperty.MP_OPACITY)
+
     material("M_NutTelegraph", telegraph)
     material("M_NutSoftShadow", shadow)
     material("M_NutDust", dust, True)
     material("M_NutEmber", ember, True)
+    material("M_NutArcane", arcane)
+    material("M_NutArcaneSpark", arcane_spark, True)
+    material("M_NutFireCore", fire_core)
+    material("M_NutStorm", storm)
     if not u.MCNutCombatEffect.author_niagara_assets():
         raise RuntimeError("Native bounded Niagara asset authoring failed")
-    collision = save_owned_walnut_collision(lib)
+    collision = save_owned_walnut_collision(lib) if migrate_legacy_walnut else dict(skipped=True)
     systems = []
-    for name in ("NS_NutDustImpact", "NS_NutFireImpact", "NS_NutEmberTrail"):
+    for name in ("NS_NutDustImpact", "NS_NutFireImpact", "NS_NutEmberTrail", "NS_NutArcaneBurst",
+                 "NS_NutCastCharge", "NS_NutMotionDust", "NS_NutStormMotes", "NS_NutShieldHit"):
         asset = u.load_asset(FOLDER + "/" + name)
         if not isinstance(asset, u.NiagaraSystem):
             raise RuntimeError("Missing authored Niagara system: " + name)
@@ -300,7 +380,10 @@ def main():
     if remaining:
         raise RuntimeError("VFX authoring left unsaved packages: " + ", ".join(p.get_name() for p in remaining))
     report = dict(complete=True, materials=reports, niagara=systems, runtime_walnut=runtime_material, collision=collision,
-                  budgets=dict(dust_burst=24, fire_burst=32, ember_rate=36, max_visual_rain_drops=24))
+                  budgets=dict(dust_burst=24, fire_burst=32, ember_rate=36, arcane_burst=28,
+                               charge_rate=24, motion_dust_rate=28, storm_rate=24, shield_burst=18,
+                               max_active_bursts_per_cue=8, max_visual_rain_drops=24,
+                               max_cloud_panels=5, max_storm_streaks=24, projectile_wake_segments=12))
     report_path = Path(u.Paths.project_saved_dir()) / "NutCombat" / "VFXAuthoring.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")

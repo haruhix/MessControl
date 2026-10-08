@@ -483,7 +483,9 @@ void AMCTongue::Tick(float Dt)
     if (HasAuthority() && Playing)
     {
         const auto* Director=AMCGameDirector::Find(GetWorld());
-        const bool KeyEvent=State->SingleDayDirector && State->SingleDayDirector->Stage==EMCSingleDayStage::Nuts;
+        const auto* Loop=State->SingleDayDirector.Get();
+        const bool KeyEvent=Loop && (Loop->Stage==EMCSingleDayStage::Nuts || Loop->Stage==EMCSingleDayStage::FirstPerk || Loop->Stage==EMCSingleDayStage::OpeningPause
+            || Loop->Stage==EMCSingleDayStage::FirstMeal || Loop->Stage==EMCSingleDayStage::MealRest);
         const bool Managed=KeyEvent || Director && Director->IsManagingEvents();
         if(!Managed && bAutomaticYawns && !State->bDevManualEvents && Time>=NextYawnAt) StartYawn();
         const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
