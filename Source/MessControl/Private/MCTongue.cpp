@@ -1,5 +1,6 @@
 #include "MCTongue.h"
 #include "MCGameDirector.h"
+#include "MCSingleDayDirector.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "Engine/StaticMesh.h"
 #include "MCGameState.h"
@@ -101,6 +102,17 @@ bool AMCTongue::TriggerPain(FVector Point)
     Event.Speed=Settings.WaveSpeed; Event.Width=Settings.WaveWidth; Event.Radius=Settings.WaveRadius;
     Event.Anticipation=0; Event.Redness=1; Event.Lift=Settings.LiftSpeed; Event.Push=Settings.PushSpeed;
     Event.AffectHeight=Settings.AffectHeight; Event.RestAfter=FMath::Max(.2f,Settings.Cooldown-Settings.Duration());
+    return StartMotion(Event,Point,FVector::ForwardVector,1);
+}
+bool AMCTongue::TriggerToothpickPain(FVector Point)
+{
+    FMCTongueMotionSettings Event=Profile && Profile->PainMotion?Profile->PainMotion->Settings:FMCTongueMotionSettings();
+    Event.Shape=EMCTongueShape::RadialWave; Event.Anticipation=0; Event.Redness=1;
+    Event.Height=FMath::Max(65.f,FMath::Max(Event.Height,Settings.WaveHeight));
+    Event.Radius=FMath::Max(Settings.WaveRadius,float(RestBounds.GetSize().Size2D())+200.f);
+    Event.Width=FMath::Max(300.f,Settings.WaveWidth); Event.Speed=Settings.WaveSpeed;
+    Event.Lift=Settings.LiftSpeed; Event.Push=Settings.PushSpeed; Event.AffectHeight=Settings.AffectHeight;
+    Event.RestAfter=FMath::Max(.2f,Settings.Cooldown-Event.Duration());
     return StartMotion(Event,Point,FVector::ForwardVector,1);
 }
 void AMCTongue::ScheduleJolt() { NextJoltAt=ServerTime()+FMath::FRandRange(Settings.JoltRestMin,Settings.JoltRestMax); }
@@ -471,7 +483,8 @@ void AMCTongue::Tick(float Dt)
     if (HasAuthority() && Playing)
     {
         const auto* Director=AMCGameDirector::Find(GetWorld());
-        const bool Managed=Director && Director->IsManagingEvents();
+        const bool KeyEvent=State->SingleDayDirector && State->SingleDayDirector->Stage==EMCSingleDayStage::Nuts;
+        const bool Managed=KeyEvent || Director && Director->IsManagingEvents();
         if(!Managed && bAutomaticYawns && !State->bDevManualEvents && Time>=NextYawnAt) StartYawn();
         const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
         if (!Managed && Settings.bAutomaticJolts && Mode && Mode->bUseDayOnePlan && !State->bDevManualEvents && Time>=NextJoltAt) TriggerJolt();

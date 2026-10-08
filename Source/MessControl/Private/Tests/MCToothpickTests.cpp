@@ -10,6 +10,9 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
+#include "MCHazardWave.h"
+#include "MCRewardChest.h"
+#include "Components/CapsuleComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
@@ -49,6 +52,16 @@ struct FWorld
         auto* Hero=World->SpawnActor<AMCToothCharacter>(Position,FRotator::ZeroRotator);
         Hero->SetActorTickEnabled(false);Hero->GetCharacterMovement()->DisableMovement();PC->Possess(Hero);
         Hero->Status->Settings.Reach=250;return Hero;
+    }
+    void Advance(float Seconds,AMCToothpick* Pick)
+    {
+        // UWorld clamps oversized deltas through WorldSettings::FixupDeltaSeconds.
+        // Advance the actual server clock with ordinary frames rather than a .7/1 s tick.
+        for(float Elapsed=0;Elapsed<Seconds-KINDA_SMALL_NUMBER;Elapsed+=.1f)
+        {
+            World->Tick(LEVELTICK_All,FMath::Min(.1f,Seconds-Elapsed));
+            Pick->Tick(.01f);
+        }
     }
 };
 }
@@ -117,6 +130,10 @@ bool FMCShortTutorialSharedTargetTest::RunTest(const FString&)
     if(!TestNotNull(TEXT("The actual runner creates a shared toothpick"),Pick)) return false;
     TestSamePtr(TEXT("Both players see the same object"),Director->Players[1].GoalTarget.Get(),static_cast<AActor*>(Pick));
     TestEqual(TEXT("The object is a team objective"),Director->TeamTasksTotal,1);
+    TestEqual(TEXT("The shared toothpick falls visibly before the lesson can be extracted"),Pick->State,EMCToothpickState::Falling);
+    Director->Tick(.01f);TestEqual(TEXT("Falling does not skip the extraction stage"),Director->Stage,EMCTutorialStage::ToothpickPull);
+    Fixture.Advance(1.f,Pick);
+    if(!TestEqual(TEXT("Contact impales the shared toothpick"),Pick->State,EMCToothpickState::Impaled)) return false;
     const FVector Point=Pick->GetActorLocation();First->SetActorLocation(Point+FVector(-100,0,100));Second->SetActorLocation(Point+FVector(-110,40,100));
     for(int32 I=0;I<8 && Pick->State==EMCToothpickState::Impaled;++I) {++GFrameCounter;Pick->TryPull(First,.2f);}
     Director->Tick(.01f);TestEqual(TEXT("One extraction advances the entire team"),Director->Stage,EMCTutorialStage::ToothpickBreak);
@@ -127,6 +144,70 @@ bool FMCShortTutorialSharedTargetTest::RunTest(const FString&)
     Director->Tick(.01f);TestEqual(TEXT("Healing completes the short sequence"),Director->Stage,EMCTutorialStage::Complete);
     int32 Finished=0;Director->OnTutorialFinished.AddLambda([&Finished](){++Finished;});Director->Tick(.01f);Director->Tick(.01f);
     TestEqual(TEXT("Short flow completes once without the old foam/ready detour"),Finished,1);
-    Director->Stop();return true;
+    Director->Stop();
+    TestTrue(TEXT("Stopping the lesson also removes its deferred impact wound"),!IsValid(Ulcer) || Ulcer->IsActorBeingDestroyed());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToothpickImpactContactTest,"MessControl.Tutorial.ToothpickFallsOnceAndPainRequiresFreshStep",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCToothpickImpactContactTest::RunTest(const FString&)
+{
+    MCToothpickTestsPrivate::FWorld Fixture;FHitResult Floor;
+    if(!Fixture.Tongue->InteriorSurfacePoint(Fixture.Tongue->Surface->Bounds.GetBox().GetCenter(),85,Floor)) return false;
+    auto* Hero=Fixture.Worker(Floor.ImpactPoint+FVector(-200,0,150));
+    auto* Pick=Fixture.World->SpawnActor<AMCToothpick>();Pick->SetActorTickEnabled(false);
+    if(!TestTrue(TEXT("The toothpick begins its one visible descent"),Pick->BeginFall(Fixture.Tongue,Floor.ImpactPoint,true,AMCTutorialDirector::TutorialFoodBatch))) return false;
+    const float StartedZ=Pick->GetActorLocation().Z;
+    TestTrue(TEXT("A falling toothpick starts above the tongue"),StartedZ>Floor.ImpactPoint.Z+500);
+    TestNull(TEXT("No wound exists before contact"),Pick->Ulcer.Get());
+    TestFalse(TEXT("There is no initial pain before contact"),Fixture.Tongue->IsMotionActive());
+    TestFalse(TEXT("A player cannot extract it in the air"),Pick->CanPull(Hero));
+    Fixture.Advance(.3f,Pick);
+    TestTrue(TEXT("The visible descent advances before landing"),Pick->GetActorLocation().Z<StartedZ && Pick->GetActorLocation().Z>Floor.ImpactPoint.Z+100);
+    TestFalse(TEXT("Descent still does not emit pain"),Fixture.Tongue->IsMotionActive());
+    Fixture.Advance(.7f,Pick);
+    if(!TestEqual(TEXT("One contact impales the toothpick"),Pick->State,EMCToothpickState::Impaled)) return false;
+    auto* Ulcer=Pick->Ulcer.Get();if(!TestNotNull(TEXT("Contact creates its wound"),Ulcer)) return false;
+    TestTrue(TEXT("Impact emits one large radial pain wave"),Fixture.Tongue->Motion.Serial>0 && Fixture.Tongue->Motion.Settings.Shape==EMCTongueShape::RadialWave && Fixture.Tongue->Motion.Settings.Height>=65);
+    const int32 ImpactSerial=Fixture.Tongue->Motion.Serial;
+    Pick->Tick(10);Ulcer->Tick(10);
+    TestEqual(TEXT("Neither toothpick nor idle wound repeats the initial wave"),Fixture.Tongue->Motion.Serial,ImpactSerial);
+    int32 Waves=0;for(TActorIterator<AMCHazardWave> It(Fixture.World);It;++It) ++Waves;
+    TestEqual(TEXT("The toothpick wound has no periodic micro-waves"),Waves,0);
+    Fixture.Tongue->ResetPain();
+    Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+    Hero->SetActorLocation(Ulcer->GetActorLocation()+FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+    const float MouthHealth=Fixture.State->MouthHealth;
+    Ulcer->Tick(.1f);
+    TestTrue(TEXT("A fresh player step can trigger another pain wave"),Fixture.Tongue->IsMotionActive());
+    TestEqual(TEXT("Tutorial contact remains safe for mouth health"),Fixture.State->MouthHealth,MouthHealth);
+    Fixture.Tongue->ResetPain();Ulcer->Tick(10);
+    TestFalse(TEXT("Standing on the wound does not periodically repeat pain"),Fixture.Tongue->IsMotionActive());
+    Hero->SetActorLocation(Ulcer->GetActorLocation()+FVector(200,0,100));Ulcer->Tick(1);
+    Hero->SetActorLocation(Ulcer->GetActorLocation()+FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));Ulcer->Tick(.1f);
+    TestTrue(TEXT("Leaving and stepping back onto the wound can trigger pain again"),Fixture.Tongue->IsMotionActive());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToothpickHandlePriorityTest,"MessControl.Tutorial.ToothpickHandleOutranksNearbyChest",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCToothpickHandlePriorityTest::RunTest(const FString&)
+{
+    MCToothpickTestsPrivate::FWorld Fixture;FHitResult Floor;
+    if(!Fixture.Tongue->InteriorSurfacePoint(Fixture.Tongue->Surface->Bounds.GetBox().GetCenter(),85,Floor)) return false;
+    auto* Hero=Fixture.Worker(Floor.ImpactPoint+FVector(-100,0,100));
+    auto* Pick=Fixture.World->SpawnActor<AMCToothpick>();Pick->SetActorTickEnabled(false);
+    if(!Pick->Impale(Fixture.Tongue,Floor.ImpactPoint,true,AMCTutorialDirector::TutorialFoodBatch)) return false;
+    auto* Chest=Fixture.World->SpawnActor<AMCRewardChest>(Floor.ImpactPoint+FVector(-100,220,100),FRotator::ZeroRotator);
+    Chest->SetActorTickEnabled(false);Chest->Stage=EMCRewardChestStage::Landed;Chest->OpenRadius=320;
+    if(!TestTrue(TEXT("A toothpick remains reachable alongside the landed chest"),Pick->CanPull(Hero))) return false;
+    if(!TestSamePtr(TEXT("The normal interaction query finds the toothpick beside the chest"),AMCToothpick::FindPullTarget(Hero),Pick)) return false;
+    Hero->SetHandleInputHeld(true);
+    if(!TestTrue(TEXT("Ordinary held E selects extraction before the nearby chest"),Hero->bHandling)) return false;
+    ++GFrameCounter;Hero->Tick(.2f);
+    TestTrue(TEXT("Ordinary character work advances extraction"),Pick->PullProgress>0);
+    TestNull(TEXT("Extraction never enters reward interaction"),Hero->RewardInteraction.Get());
+    TestEqual(TEXT("The nearby chest remains landed"),Chest->Stage,EMCRewardChestStage::Landed);
+    Hero->SetHandleInputHeld(false);
+    return true;
 }
 #endif

@@ -1,4 +1,4 @@
-"""Owned, two-player listen-server PIE check of personal level cards and shared XP.
+"""Owned two-player check of cards, shared XP, landing cues and nut combat replication.
 
 Run through remote_python.py after author_single_day.py, in an idle editor on
 L_Mouth. This skips teaching by setting only the server tutorial's reflected
@@ -67,11 +67,13 @@ class SingleDayNetworkValidation:
         self.target_level = 2
         self.selected = {}
         self.second_offers = {}
+        self.landing_shadow_observed = False
+        self.combat_observed = set()
         self.failure = None
         self.path = Path(u.Paths.project_saved_dir()) / "SingleDayNetwork" / "Validation.json"
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.report = dict(status="running", passed=False,
-                           scope="two real PIE network peers; shared XP, owner-only cards and real client choice RPC",
+                           scope="two real PIE network peers; shared XP, owner-only cards, real client choice RPC, landing shadows and naturally scheduled nut bosses/cues/fireball",
                            teaching_scope="native handoff exercised; teaching deliberately skipped in this network fixture",
                            selection_route="existing card Choose UFUNCTION scheduled on next client world tick; no reflected RPC call",
                            adversarial_rpc_scope="foreign/stale offer validation covered by native progression tests; Python guard forces reflected RPCs local",
@@ -130,6 +132,51 @@ class SingleDayNetworkValidation:
         return {str(prop(value, "perk_id", "PerkID")): prop(value, "stacks")
                 for value in prop(prop(player, "perks"), "active_perks")}
 
+    def landing_shadow_samples(self, world):
+        samples = []
+        for shadow in u.GameplayStatics.get_all_actors_of_class(world, u.MCNutLandingShadow):
+            try:
+                # Short-lived actors and their tongue references use separate
+                # channels. Skip a disappearing/incomplete sample and retry on
+                # subsequent ticks rather than retaining UObject handles.
+                if not prop(shadow, "tongue"):
+                    continue
+                anchor = prop(shadow, "surface_anchor")
+                samples.append(dict(actor=shadow.get_path_name(), authority=shadow.has_authority(),
+                                    anchor=[anchor.x, anchor.y, anchor.z],
+                                    impact_at=prop(shadow, "impact_at"), radius=prop(shadow, "radius"),
+                                    opacity=prop(shadow, "max_opacity"),
+                                    active=shadow.is_warning_active(), strength=shadow.get_shadow_strength()))
+            except RuntimeError:
+                continue
+        return samples
+
+    def observe_landing_shadows(self):
+        if self.landing_shadow_observed or not self.director or prop(self.director, "stage") != u.MCSingleDayStage.NUTS:
+            return
+        servers = self.landing_shadow_samples(self.server_world)
+        clients = self.landing_shadow_samples(self.client_world)
+        for server in servers:
+            if not (server["authority"] and server["active"] and server["strength"] > 0):
+                continue
+            for client in clients:
+                # Match replicated identity payload rather than PIE object paths,
+                # whose world prefixes and dynamic actor names can differ.
+                matches = (not client["authority"] and client["active"] and client["strength"] > 0
+                           and all(abs(a-b) < .1 for a, b in zip(server["anchor"], client["anchor"]))
+                           and abs(server["impact_at"]-client["impact_at"]) < .001
+                           and abs(server["radius"]-client["radius"]) < .01
+                           and abs(server["opacity"]-client["opacity"]) < .0001)
+                if not matches:
+                    continue
+                self.check("landing_shadow_authoritative_and_remote", True, "")
+                self.check("landing_shadow_replicated_payload_matches", True, "")
+                self.check("landing_shadow_active_positive_strength_both_peers", True, "")
+                self.report["landing_shadow_sample"] = dict(server=server, remote=client)
+                self.landing_shadow_observed = True
+                self.write()
+                return
+
     def snapshot(self, label):
         item = dict(label=label, worlds=[])
         for world in (self.server_world, self.client_world):
@@ -140,6 +187,112 @@ class SingleDayNetworkValidation:
                                                  for pid, ps in self.player_map(world).items()}))
         self.report["snapshots"].append(item)
         self.write()
+
+    @staticmethod
+    def vector(value):
+        return [value.x, value.y, value.z]
+
+    def combat_samples(self, world):
+        result = dict(bosses=[], cues=[], projectiles=[])
+        for boss in u.GameplayStatics.get_all_actors_of_class(world, u.MCNutBoss):
+            settings = prop(boss, "boss_settings")
+            result["bosses"].append(dict(role=str(prop(boss, "boss_role")), state=str(prop(boss, "state")),
+                attack=str(prop(boss, "attack")), health=prop(boss, "health"),
+                max_health=prop(prop(boss, "settings"), "max_health"),
+                tank_health=prop(settings, "tank_health"), mage_health=prop(settings, "mage_health"),
+                extra_health=prop(settings, "extra_player_health"),
+                state_started_at=prop(boss, "state_started_at"),
+                origin=self.vector(prop(boss, "locked_start")), target=self.vector(prop(boss, "locked_target")),
+                authority=boss.has_authority()))
+        for effect in u.GameplayStatics.get_all_actors_of_class(world, u.MCNutCombatEffect):
+            value = prop(effect, "cue")
+            result["cues"].append(dict(role=str(prop(value, "role")), type=str(prop(value, "type")),
+                started_at=prop(value, "started_at"), origin=self.vector(prop(value, "origin")),
+                target=self.vector(prop(value, "target")), radius=prop(value, "radius"),
+                windup=prop(value, "windup_seconds"), active=prop(value, "active_seconds"),
+                detail_radius=prop(value, "detail_radius"), seed=prop(value, "seed"),
+                drops=prop(value, "drop_count"), cadence=prop(value, "drop_cadence"), authority=effect.has_authority()))
+        for shot in u.GameplayStatics.get_all_actors_of_class(world, u.MCNutSpellProjectile):
+            flight, impact = prop(shot, "flight"), prop(shot, "impact")
+            result["projectiles"].append(dict(start=self.vector(prop(flight, "start")), target=self.vector(prop(flight, "target")),
+                started_at=prop(flight, "started_at"), seconds=prop(flight, "seconds"), radius=prop(flight, "radius"),
+                impacted=prop(impact, "impacted", "bImpacted"), impact_point=self.vector(prop(impact, "point")),
+                impact_normal=self.vector(prop(impact, "normal")), impact_at=prop(impact, "at"),
+                damage_applications=prop(shot, "damage_applications"), authority=shot.has_authority()))
+        return result
+
+    @staticmethod
+    def payload_matches(server, remote, keys):
+        for key in keys:
+            a, b = server[key], remote[key]
+            if isinstance(a, list):
+                if not all(abs(x-y) < .1 for x, y in zip(a, b)):
+                    return False
+            elif isinstance(a, (int, float)):
+                if abs(a-b) > .001:
+                    return False
+            elif a != b:
+                return False
+        return server["authority"] and not remote["authority"]
+
+    def observe_combat(self):
+        server, remote = self.combat_samples(self.server_world), self.combat_samples(self.client_world)
+        changed = False
+        expected_roles = {str(u.MCNutBossRole.TANK), str(u.MCNutBossRole.MAGE)}
+        if "boss_roles_settings" not in self.combat_observed and {b["role"] for b in server["bosses"]} == expected_roles:
+            pairs = [(a, b) for a in server["bosses"] for b in remote["bosses"]
+                     if self.payload_matches(a, b, ("role", "max_health", "tank_health", "mage_health", "extra_health"))]
+            if len(pairs) == 2 and all(a["health"] > 0 and b["health"] > 0 for a, b in pairs):
+                self.check("two_live_boss_roles_replicate", True, "")
+                self.check("boss_party_health_settings_replicate", all(abs(a["max_health"]-
+                           (a["tank_health"] if a["role"] == str(u.MCNutBossRole.TANK) else a["mage_health"])*(1+a["extra_health"])) < .01
+                           for a, _ in pairs), "The two-player health scaling differs from replicated boss settings")
+                self.report["boss_replication_sample"] = dict(server=server["bosses"], remote=remote["bosses"])
+                self.combat_observed.add("boss_roles_settings"); changed = True
+        if "boss_state" not in self.combat_observed:
+            for a in server["bosses"]:
+                if a["attack"] == str(u.MCNutBossAttack.NONE) or a["state"] != str(u.MCNutBossState.TELEGRAPH):
+                    continue
+                for b in remote["bosses"]:
+                    if self.payload_matches(a, b, ("role", "state", "attack", "state_started_at", "origin", "target")):
+                        self.check("boss_attack_timeline_and_locked_points_replicate", True, "")
+                        self.report["boss_state_sample"] = dict(server=a, remote=b)
+                        self.combat_observed.add("boss_state"); changed = True
+                        break
+        cue_keys = ("role", "type", "started_at", "origin", "target", "radius", "windup", "active", "detail_radius", "seed", "drops", "cadence")
+        for a in server["cues"]:
+            category = ("tank_cue" if a["type"] == str(u.MCNutCombatCue.CHARGE_TELL)
+                        and a["role"] == str(u.MCNutBossRole.TANK) else
+                        "mage_cue" if a["type"] == str(u.MCNutCombatCue.FIRE_CAST) else None)
+            if category is None or category in self.combat_observed:
+                continue
+            for b in remote["cues"]:
+                if self.payload_matches(a, b, cue_keys):
+                    self.check(category + "_immutable_payload_replicates", True, "")
+                    self.report[category + "_sample"] = dict(server=a, remote=b)
+                    self.combat_observed.add(category); changed = True
+                    break
+        for a in server["projectiles"]:
+            for b in remote["projectiles"]:
+                if not self.payload_matches(a, b, ("started_at", "start", "target", "seconds", "radius")):
+                    continue
+                if "flight" not in self.combat_observed:
+                    self.check("fireball_locked_flight_replicates", a["seconds"] > 0 and a["radius"] > 0,
+                               "The authoritative fireball has invalid flight metadata")
+                    self.check("remote_fireball_never_applies_damage", b["damage_applications"] == 0,
+                               "The cosmetic remote fireball applied gameplay damage")
+                    self.report["fireball_flight_sample"] = dict(server=a, remote=b)
+                    self.combat_observed.add("flight"); changed = True
+                if a["impacted"] and b["impacted"] and "impact" not in self.combat_observed and self.payload_matches(a, b, ("impact_point", "impact_normal", "impact_at")):
+                    self.check("fireball_terminal_impact_payload_replicates", True, "")
+                    self.check("one_server_fireball_damage_budget", a["damage_applications"] <= 1 and b["damage_applications"] == 0,
+                               "A terminal fireball exceeded its authority-only contact budget")
+                    self.report["fireball_impact_sample"] = dict(server=a, remote=b)
+                    self.combat_observed.add("impact"); changed = True
+        if changed:
+            self.report["combat_observed"] = sorted(self.combat_observed)
+            self.write()
+        return {"boss_roles_settings", "boss_state", "tank_cue", "mage_cue", "flight", "impact"}.issubset(self.combat_observed)
 
     def local_controller(self, world):
         controllers = [pc for pc in u.GameplayStatics.get_all_actors_of_class(world, u.MCPlayerController)
@@ -265,6 +418,8 @@ class SingleDayNetworkValidation:
                     self.restore()
                 return
             self.require(now-self.started < 120, "Network check timed out in phase " + self.phase)
+            if self.server_world and self.client_world and self.director:
+                self.observe_landing_shadows()
             worlds = u.EditorLevelLibrary.get_pie_worlds(False)
             if self.phase == "waiting_worlds":
                 pairs = [(w, u.GameplayStatics.get_game_state(w)) for w in worlds]
@@ -375,11 +530,36 @@ class SingleDayNetworkValidation:
                 self.snapshot("next_team_level_three_cards_while_rain_runs")
                 self.enter("rain_with_pending_choices")
             elif self.phase == "rain_with_pending_choices" and now-self.phase_started > .8:
+                self.require(prop(self.director, "stage") == u.MCSingleDayStage.NUTS,
+                             "The nut stage ended before observing ongoing rain and replicated landing cues")
+                # The new storm intentionally contains quiet gaps. Wait for its
+                # next real drop and complete replication, without spawning,
+                # delaying, or altering any gameplay actor for this observation.
+                if prop(self.nut_event, "nuts_spawned") <= self.nuts_before or not self.landing_shadow_observed:
+                    self.require(now-self.phase_started < 12,
+                                 "No matching active landing shadow/continued nut drop reached the remote peer within 12 seconds")
+                    return
                 self.check("later_choices_dont_pause_rain", prop(self.director, "stage") == u.MCSingleDayStage.NUTS
                            and prop(self.nut_event, "nuts_spawned") > self.nuts_before,
                            "Pending later personal choices stopped the ongoing nut event")
                 self.snapshot("pending_next_choices_and_rain_continues")
-                self.finish()
+                self.choose_card_next_tick(self.host_pc, 0)
+                self.choose_card_next_tick(self.remote_pc, 0)
+                self.enter("accept_later_choices")
+            elif self.phase == "accept_later_choices":
+                if any(prop(p, "pending_level_choices") for p in self.player_map(self.server_world).values()):
+                    return
+                if self.host_pc.is_reward_menu_open() or self.remote_pc.is_reward_menu_open():
+                    return
+                self.check("later_actual_choices_close_before_combat", True, "")
+                self.report["combat_scope"] = "Natural storm duration and boss attack schedule observed on both peers; no objective, actor pose, HP, cooldown or completion changes"
+                self.enter("combat_replication")
+            elif self.phase == "combat_replication":
+                if self.observe_combat():
+                    self.snapshot("natural_two_boss_combat_and_fireball_both_peers")
+                    self.finish()
+                else:
+                    self.require(now-self.phase_started < 85, "Natural boss/cue/fireball replication was not fully observed within 85 seconds; observed=" + repr(sorted(self.combat_observed)))
         except Exception:
             if self.phase == "stopping":
                 self.failure = self.failure or traceback.format_exc()

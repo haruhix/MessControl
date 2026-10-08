@@ -3,6 +3,7 @@
 #include "MCPlayerState.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
+#include "MCSingleDayDirector.h"
 #include "MCProgressionComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
@@ -26,6 +27,8 @@
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Border.h"
+#include "Components/Button.h"
+#include "Components/ButtonSlot.h"
 #include "Components/SizeBox.h"
 #include "Components/VerticalBox.h"
 #include "HAL/IConsoleManager.h"
@@ -189,7 +192,7 @@ void UMCGameplayHUD::EnsureProgressionPanel()
 }
 void UMCGameplayHUD::EnsureDirectorMonitor()
 {
-    if((DirectorPanel && DirectorCandidatesPanel) || !WidgetTree) return;
+    if((DirectorPanel && DirectorCandidatesPanel && DirectorLogButton) || !WidgetTree) return;
     // Use the authored design canvas so the sidebar follows its viewport scale.
     auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
     if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
@@ -215,14 +218,42 @@ void UMCGameplayHUD::EnsureDirectorMonitor()
     // The second column ends before the observation column and stays right of
     // the arena centre, leaving the player portraits and bottom controls clear.
     if(!DirectorCandidatesPanel) AddPanel(TEXT("DirectorCandidates"),DirectorCandidatesPanel,DirectorCandidatesText,306,-362,144);
+    if (!DirectorLogButton) {
+        DirectorLogButton=WidgetTree->ConstructWidget<UButton>(UButton::StaticClass(),TEXT("DirectorLogButton"));
+        DirectorLogButton->SetBackgroundColor(MCGameplayHUDPrivate::Ink);
+        DirectorLogButton->SetToolTipText(FText::FromString(TEXT("Открыть общий журнал забега и решения директора. F3 доступен также с клавиатуры.")));
+        DirectorLogButtonText=WidgetTree->ConstructWidget<UTextBlock>();
+        DirectorLogButtonText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),11));
+        DirectorLogButtonText->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::Mint));
+        DirectorLogButtonText->SetText(FText::FromString(TEXT("F3 · ЖУРНАЛ ДИРЕКТОРА")));
+        auto* Content=CastChecked<UButtonSlot>(DirectorLogButton->AddChild(DirectorLogButtonText));
+        Content->SetPadding(FMargin(12,8));
+        DirectorLogButton->OnClicked.AddDynamic(this,&UMCGameplayHUD::OpenDirectorLog);
+        auto* LogSlot=Root->AddChildToCanvas(DirectorLogButton);LogSlot->SetAnchors(FAnchors(1,0));
+        LogSlot->SetAlignment(FVector2D(1,0));LogSlot->SetPosition(FVector2D(-22,96));LogSlot->SetAutoSize(true);
+        LogSlot->SetZOrder(10);
+    }
+}
+void UMCGameplayHUD::OpenDirectorLog()
+{
+    if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->ToggleDevPanel();
 }
 void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
 {
     EnsureDirectorMonitor();
     if(!DirectorPanel || !DirectorText) return;
-    const bool Debug=State.bEnabled && MCGameplayHUDPrivate::DirectorDebug.GetValueOnGameThread()>0;
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
-    DirectorPanel->SetVisibility(State.bEnabled?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+    const bool Debug=(State.bEnabled || (GS && !GS->DirectorDecisionLog.IsEmpty())) && MCGameplayHUDPrivate::DirectorDebug.GetValueOnGameThread()>0;
+    if (DirectorLogButton) {
+#if UE_BUILD_SHIPPING
+        DirectorLogButton->SetVisibility(ESlateVisibility::Collapsed);
+#else
+        DirectorLogButton->SetVisibility(ESlateVisibility::Visible);
+#endif
+        const bool FragmentComplete=GS && GS->SingleDayDirector && GS->SingleDayDirector->bAuthoredFragmentComplete;
+        DirectorLogButtonText->SetText(FText::FromString(FragmentComplete?TEXT("ФРАГМЕНТ ГОТОВ · F3 / ЖУРНАЛ"):TEXT("F3 · ЖУРНАЛ ДИРЕКТОРА")));
+    }
+    DirectorPanel->SetVisibility(State.bEnabled || Debug?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(DirectorCandidatesPanel) DirectorCandidatesPanel->SetVisibility(Debug?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(auto* Events=Find(TEXT("EventsPanel")))
         Events->SetVisibility(Debug?ESlateVisibility::Collapsed:ESlateVisibility::HitTestInvisible);
@@ -253,8 +284,9 @@ void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
         if(!State.LastDecision.IsEmpty()) Value+=TEXT("\nРешение: ")+ShortLine(State.LastDecision,100);
         Value+=TEXT("\nMC.Director.Debug 0 — свернуть\n\nПОСЛЕДНИЕ РЕШЕНИЯ · НОВЫЕ СВЕРХУ");
         // Keep the newest decisions visible within the observation panel's height.
-        for(int32 I=State.DecisionLog.Num()-1;I>=FMath::Max(0,State.DecisionLog.Num()-4);--I)
-            Value+=TEXT("\n")+ShortLine(State.DecisionLog[I],40);
+        const auto& History=GS?GS->DirectorDecisionLog:State.DecisionLog;
+        for(int32 I=History.Num()-1;I>=FMath::Max(0,History.Num()-4);--I)
+            Value+=TEXT("\n")+ShortLine(History[I],40);
 
         TArray<const FMCGameDirectorCandidate*,TInlineAllocator<16>> Candidates;
         for(const auto& Candidate:State.Candidates) Candidates.Add(&Candidate);
@@ -353,7 +385,9 @@ void UMCGameplayHUD::RefreshState()
     Text(TEXT("TimerValue"),Timed?FString::Printf(TEXT("%02d:%02d"),Seconds/60,Seconds%60):TEXT("--:--"));
     Text(TEXT("TimerLabel"),Finished?TEXT("ИТОГИ ДНЯ"):GS->bSingleDayLoop?Timed?TEXT("ДО СЛЕД. ЭВЕНТА"):TEXT("ПРОДЕРЖИСЬ И ПРОКАЧАЙСЯ"):Timed?Directed?GS->Phase==EMCShiftPhase::Working?TEXT("ДО КОНЦА ДНЯ"):TEXT("ДО НАЧАЛА ДНЯ"):TEXT("ДО СЛЕД. СОБЫТИЯ"):TEXT("БЕЗ ЛИМИТА ВРЕМЕНИ")); Bar(TEXT("TimerProgress"),Finished?1:Progress);
     if(auto* T=Cast<UTextBlock>(Find(TEXT("TimerValue")))) T->SetColorAndOpacity(FSlateColor(Timed && Seconds<10?HUD::Amber:HUD::White));
-    TArray<APlayerState*> Players; for(const auto& Player:GS->PlayerArray) if(IsValid(Player)) Players.Add(Player.Get());
+    TArray<APlayerState*> Players;
+    for(const auto& Player:GS->PlayerArray)
+        if(IsValid(Player) && !Player->IsSpectator() && !Player->IsOnlyASpectator()) Players.Add(Player.Get());
     Players.Sort([](const APlayerState& A,const APlayerState& B){return A.GetPlayerId()<B.GetPlayerId();});
     if(auto* Strip=Find(TEXT("PlayersPanel"))) Strip->SetRenderTranslation(FVector2D(76*(4-FMath::Min(4,Players.Num())),0));
     for(int32 I=0;I<4;++I) {
@@ -482,4 +516,16 @@ void UMCGameplayHUD::RefreshState()
         Results->SetRenderTranslation(FVector2D(Directed && HUD::DirectorDebug.GetValueOnGameThread()>0?-186.f:0.f,0));
     Show(TEXT("ResultsPanel"),Finished); Text(TEXT("ResultTitle"),Title);
     Text(TEXT("ResultDetail"),FString::Printf(TEXT("Незавершённых событий: %d   ·   R — новый забег"),GS->FailedEvents));
+    // Keep the actual equipped tools and controls during the lesson; its own
+    // fairy card supplies the objective instead of the ordinary day overview.
+    const bool Overview=!GS->bTutorialActive;
+    Show(TEXT("ObjectivesPanel"),Overview);
+    Show(TEXT("TimerPanel"),Overview);
+    Show(TEXT("PlayersPanel"),Overview);
+    if (!Overview) {
+        Show(TEXT("EventsPanel"),false);
+        Show(TEXT("ResultsPanel"),false);
+        if (DirectorPanel) DirectorPanel->SetVisibility(ESlateVisibility::Collapsed);
+        if (DirectorCandidatesPanel) DirectorCandidatesPanel->SetVisibility(ESlateVisibility::Collapsed);
+    }
 }

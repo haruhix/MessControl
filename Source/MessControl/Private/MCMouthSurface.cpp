@@ -95,12 +95,12 @@ bool AMCMouthSurface::ApplyAnesthetic(float Seconds)
 }
 void AMCMouthSurface::Disturb()
 {
-    if (!HasAuthority() || !bUlcer || IsNumb() || bTutorialLesion) return;
+    if (!HasAuthority() || !bUlcer || IsNumb() || (bTutorialLesion && !bContactPainOnly)) return;
     if (ContactCooldown<=0)
     {
-        if (auto* GS=GetWorld()->GetGameState<AMCGameState>()) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DisturbDamage);
+        if (!bTutorialLesion) if (auto* GS=GetWorld()->GetGameState<AMCGameState>()) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DisturbDamage);
         ContactCooldown=1;
-        if (Tongue) Tongue->TriggerPain(GetActorLocation());
+        if (Tongue) {if(bContactPainOnly) Tongue->TriggerToothpickPain(GetActorLocation());else Tongue->TriggerPain(GetActorLocation());}
     }
 }
 bool AMCMouthSurface::IsBurning() const
@@ -142,10 +142,13 @@ void AMCMouthSurface::Tick(float Dt)
     if (HasAuthority() && bUlcer && !IsHealed() && State && !State->bDayOneComplete && State->Phase!=EMCShiftPhase::Won && State->Phase!=EMCShiftPhase::Lost)
     {
         ContactCooldown=FMath::Max(0.f,ContactCooldown-Dt); bDisturbed=false;
+        TSet<TWeakObjectPtr<AMCToothCharacter>> CurrentFeet;
+        bool FreshStep=false;
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         {
             if (!It->Status->IsAlive()) continue;
-            if (It->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll)
+            if(bContactPainOnly && It->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll) continue;
+            if (!bContactPainOnly && It->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll)
             {
                 const FVector P=It->ToothPhysics->PhysicalLocation();
                 if (FVector::DistSquared2D(P,GetActorLocation())<FMath::Square(80.f) && FMath::Abs(P.Z-GetActorLocation().Z)<60) bDisturbed=true;
@@ -153,16 +156,20 @@ void AMCMouthSurface::Tick(float Dt)
             else if (It->GetCharacterMovement()->IsMovingOnGround())
             {
                 const FVector Foot=It->GetActorLocation()-FVector(0,0,It->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-                if (FVector::DistSquared2D(Foot,GetActorLocation())<FMath::Square(80.f) && FMath::Abs(Foot.Z-GetActorLocation().Z)<22) bDisturbed=true;
+                if (FVector::DistSquared2D(Foot,GetActorLocation())<FMath::Square(80.f) && FMath::Abs(Foot.Z-GetActorLocation().Z)<22)
+                {
+                    bDisturbed=true; CurrentFeet.Add(*It); FreshStep|=!FootContacts.Contains(*It);
+                }
             }
         }
-        for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
+        FootContacts=MoveTemp(CurrentFeet);
+        if(!bContactPainOnly) for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
         {
             if (It->IsDisposed() || It->Phase==EMCFoodPhase::Equipped) continue;
             const FBox Box=It->Body->Bounds.GetBox(); const FVector P=GetActorLocation();
             if (Box.Min.Z<P.Z+18 && Box.Max.Z>P.Z-10 && FVector::DistSquared2D(Box.GetClosestPointTo(P),P)<FMath::Square(62.f)) bDisturbed=true;
         }
-        if(IsNumb()) { bDisturbed=false; PulseClock=0; }
+        if(IsNumb() || bContactPainOnly) { if(IsNumb()) bDisturbed=false; PulseClock=0; }
         else if((PulseClock+=Dt)>=FMath::Max(1.f,PulseInterval))
         {
             PulseClock=0;
@@ -173,7 +180,7 @@ void AMCMouthSurface::Tick(float Dt)
                 if(Wave) { Wave->Source=this; Wave->MaxRadius=PulseRadius; Wave->Damage=bTutorialLesion?0:PulseDamage; Wave->FinishSpawning(T); }
             }
         }
-        if (bDisturbed) Disturb();
+        if (bDisturbed && (!bContactPainOnly || FreshStep)) Disturb();
         auto* GS=GetWorld()->GetGameState<AMCGameState>();
         if(!IsNumb() && !bTutorialLesion) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DamagePerSecond*Dt);
     }
@@ -217,6 +224,7 @@ void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCMouthSurface,BrushUV); DOREPLIFETIME(AMCMouthSurface,BrushDirection); DOREPLIFETIME(AMCMouthSurface,BrushAt);
     DOREPLIFETIME(AMCMouthSurface,bUlcer); DOREPLIFETIME(AMCMouthSurface,Healing); DOREPLIFETIME(AMCMouthSurface,HealSeconds);
     DOREPLIFETIME(AMCMouthSurface,bTreatmentBlocked); DOREPLIFETIME(AMCMouthSurface,bTutorialLesion);
+    DOREPLIFETIME(AMCMouthSurface,bContactPainOnly);
     DOREPLIFETIME(AMCMouthSurface,NumbUntil);
     DOREPLIFETIME(AMCMouthSurface,PulseInterval); DOREPLIFETIME(AMCMouthSurface,PulseRadius); DOREPLIFETIME(AMCMouthSurface,PulseDamage);
     DOREPLIFETIME(AMCMouthSurface,DamagePerSecond); DOREPLIFETIME(AMCMouthSurface,DisturbDamage); DOREPLIFETIME(AMCMouthSurface,bDisturbed); DOREPLIFETIME(AMCMouthSurface,Batch);

@@ -11,6 +11,12 @@
 #include "MCMouthSurface.h"
 #include "MCFirePatch.h"
 #include "MCBossCharacter.h"
+#include "MCNutEnemy.h"
+#include "MCNutBoss.h"
+#include "MCNutRainEvent.h"
+#include "MCSingleDayDirector.h"
+#include "MCNutLandingShadow.h"
+#include "MCNutSpellProjectile.h"
 #include "MCThroat.h"
 #include "MCGameState.h"
 #include "MCPlayerState.h"
@@ -35,6 +41,7 @@ AMCPlaytestBotController::AMCPlaytestBotController()
 void AMCPlaytestBotController::Configure(EMCPlaytestBotSkill InSkill,int32 BotIndex,int32 Seed)
 {
     Skill=InSkill; Tuning=FMCPlaytestBotTuning::ForSkill(Skill);
+    NutFlankSide=BotIndex%2==0?1:-1;
     Random.Initialize(int32(uint32(Seed)^((uint32(BotIndex)+1u)*2654435761u)));
     AimError=Random.FRandRange(-Tuning.AimErrorDegrees,Tuning.AimErrorDegrees);
     bConfigured=true;
@@ -54,6 +61,8 @@ void AMCPlaytestBotController::OnPossess(APawn* InPawn)
     Hero=Cast<AMCToothCharacter>(InPawn);
     Target.Reset(); Goal=EMCPlaytestBotGoal::Idle; NextTaskAt=NextMoveAt=0; HazardSeenAt=-1; EscapeUntil=0;
     bHasWorkApproach=false; RecoveryUntil=JumpReleaseAt=0; FailedApproaches.Reset();
+    NutFlankTarget.Reset(); NutFlankPoints.Reset(); NutFlankPointIndex=0; NutFlankUntil=NextNutFlankAt=0;
+    bNutBossCare=false;
     if(Hero) {
         Hero->GetCharacterMovement()->GetNavMovementProperties()->bUseAccelerationForPaths=true;
         LastProgressPosition=Hero->GetActorLocation(); ProgressCheckedAt=GetWorld()->GetTimeSeconds();
@@ -63,11 +72,11 @@ void AMCPlaytestBotController::OnPossess(APawn* InPawn)
     }
 }
 
-void AMCPlaytestBotController::ReleaseInputs(bool bDropCollection)
+void AMCPlaytestBotController::ReleaseInputs(bool bDropCollection,bool bKeepSprint)
 {
     if(!IsValid(Hero)) return;
     Hero->SetPrimaryInputHeld(false); Hero->SetHandleInputHeld(false);
-    Hero->SetJumpInputHeld(false); Hero->SetSprintInputHeld(false); JumpReleaseAt=0;
+    Hero->SetJumpInputHeld(false); if(!bKeepSprint) Hero->SetSprintInputHeld(false); JumpReleaseAt=0;
     Hero->SetSelfCareInput(false);
     if(bDropCollection && Hero->FoodCollection->bCollecting) {
         // E is the same collection toggle used by a human; never dispose food from AI.
@@ -78,7 +87,7 @@ void AMCPlaytestBotController::ReleaseInputs(bool bDropCollection)
 void AMCPlaytestBotController::OnUnPossess()
 {
     GetWorldTimerManager().ClearTimer(DecisionTimer); ReleaseInputs(); StopMovement();
-    Hero=nullptr; Target.Reset(); Super::OnUnPossess();
+    Hero=nullptr; Target.Reset(); bNutBossCare=false; Super::OnUnPossess();
 }
 
 void AMCPlaytestBotController::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -140,6 +149,7 @@ FVector AMCPlaytestBotController::TaskPoint(AActor* Actor) const
 {
     if(!IsValid(Actor) || !Hero) return FVector::ZeroVector;
     if(const auto* Boss=Cast<AMCBossCharacter>(Actor)) return Boss->GetMeleeTargetPoint(Hero->GetActorLocation());
+    if(const auto* Nut=Cast<AMCNutEnemy>(Actor)) return Nut->GetToolTargetPoint(Hero->GetActorLocation());
     if(const auto* Zone=Cast<AMCFoodDisposal>(Actor)) {
         FTransform Transform; FVector Extent; bool Circular;
         Zone->GetDeliveryZoneGeometry(Transform,Extent,Circular); return Transform.GetLocation();
@@ -177,6 +187,7 @@ bool AMCPlaytestBotController::IsTaskValid() const
         const auto* Tooth=Cast<AMCArenaTooth>(Actor); return Tooth && Tooth->IsAvailable() && Tooth->Calculus->HasCalculus();
     }
     if(Goal==EMCPlaytestBotGoal::Fight) {
+        if(const auto* Nut=Cast<AMCNutEnemy>(Actor)) return Nut->CanReceiveToolHit();
         const auto* Boss=Cast<AMCBossCharacter>(Actor); return Boss && Boss->CanReceiveWeaponHit() && Boss->Runtime.State!=EMCBossState::Dormant;
     }
     const auto* Food=Cast<AMCFoodActor>(Actor);
@@ -194,8 +205,10 @@ void AMCPlaytestBotController::ChooseTask()
         if(!bKnownLandmark && !CanObserve(Actor)) return;
         if(const double* Retry=FailedTargets.Find(Actor); Retry && Now<*Retry) return;
         double Score=FVector::Dist2D(Hero->GetActorLocation(),TaskPoint(Actor))-Priority;
+        const float SharingPenalty=Candidate==EMCPlaytestBotGoal::Fight && Cast<AMCNutBoss>(Actor) && IsNutEncounterActive()
+            ?Tuning.CooperationPenalty*.2f:Tuning.CooperationPenalty;
         for(TActorIterator<AMCPlaytestBotController> It(GetWorld());It;++It)
-            if(*It!=this && It->GetTaskTarget()==Actor) Score+=Tuning.CooperationPenalty;
+            if(*It!=this && It->GetTaskTarget()==Actor) Score+=SharingPenalty;
         Score+=Random.FRandRange(0,Skill==EMCPlaytestBotSkill::Novice?240.f:50.f);
         if(Score<Best) { Best=Score; Target=Actor; Goal=Candidate; }
     };
@@ -230,6 +243,11 @@ void AMCPlaytestBotController::ChooseTask()
         }
         for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
             if(It->CanReceiveWeaponHit() && It->Runtime.State!=EMCBossState::Dormant) Consider(*It,EMCPlaytestBotGoal::Fight,1700);
+        for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) if(It->CanReceiveToolHit()) {
+            const auto* Boss=Cast<AMCNutBoss>(*It);
+            const float Priority=Boss?(Boss->BossRole==EMCNutBossRole::Mage?2000:1650):1950;
+            Consider(*It,EMCPlaytestBotGoal::Fight,Priority);
+        }
     }
     AimError=Random.FRandRange(-Tuning.AimErrorDegrees,Tuning.AimErrorDegrees);
     NextTaskAt=Now+Tuning.CommitSeconds;
@@ -243,6 +261,7 @@ double AMCPlaytestBotController::TargetProgress() const
     if(const auto* Surface=Cast<AMCMouthSurface>(Actor)) return Surface->bUlcer?Surface->Healing*100:(1-Surface->RemainingLiquid())*100;
     if(const auto* Fire=Cast<AMCFirePatch>(Actor)) return -Fire->Heat*100;
     if(const auto* Boss=Cast<AMCBossCharacter>(Actor)) return -Boss->Runtime.Health;
+    if(const auto* Nut=Cast<AMCNutEnemy>(Actor)) return -Nut->Health;
     if(const auto* Tooth=Cast<AMCArenaTooth>(Actor); Tooth && Goal==EMCPlaytestBotGoal::Calculus) return -Tooth->Calculus->RemainingFraction()*100;
     if(const auto* Status=Actor->FindComponentByClass<UMCToothStatusComponent>())
     {
@@ -295,6 +314,7 @@ void AMCPlaytestBotController::ResetApproach(bool bRememberFailure)
         if(FailedApproaches.Num()>16) FailedApproaches.RemoveAt(0);
     }
     bHasWorkApproach=false;
+    NutFlankTarget.Reset(); NutFlankPoints.Reset(); NutFlankPointIndex=0;
 }
 
 bool AMCPlaytestBotController::PlanCleanApproach(AMCArenaTooth* Tooth)
@@ -396,11 +416,34 @@ bool AMCPlaytestBotController::ReactToHazard()
     const double Now=GetWorld()->GetTimeSeconds();
     if(Now<EscapeUntil) { ReleaseInputs(); Hero->SetSprintInputHeld(true); MoveTowards(EscapeDestination,45); Goal=EMCPlaytestBotGoal::Escape; return true; }
     FVector Away=FVector::ZeroVector;
+    for(TActorIterator<AMCNutBoss> It(GetWorld());It;++It) {
+        FVector Escape;
+        if(CanObserve(*It) && It->IsPlayerInThreat(Hero,Escape)) Away+=Escape;
+    }
+    for(TActorIterator<AMCNutSpellProjectile> It(GetWorld());It;++It) {
+        if(It->Impact.bImpacted || !CanObserve(*It)) continue;
+        const FVector Closest=FMath::ClosestPointOnSegment(Hero->GetActorLocation(),It->GetActorLocation(),It->Flight.Target);
+        const float Radius=It->Flight.Radius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+30;
+        if(FVector::DistSquared2D(Hero->GetActorLocation(),Closest)>FMath::Square(Radius)
+            || FMath::Abs(Closest.Z-Hero->GetActorLocation().Z)>180) continue;
+        FVector Direction=(Hero->GetActorLocation()-Closest).GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=FVector::CrossProduct((It->Flight.Target-It->Flight.Start).GetSafeNormal2D(),FVector::UpVector);
+        Away+=Direction;
+    }
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
         if(!CanObserve(*It) || (It->Runtime.State!=EMCBossState::Telegraph && It->Runtime.State!=EMCBossState::Attacking)) continue;
         for(const auto& Attack:It->GetAttackDefinitions())
             if(Attack.AttackId==It->Runtime.AttackId && It->IsPlayerInAttack(Hero,Attack,It->Runtime.AttackForward))
                 Away+=(Hero->GetActorLocation()-It->GetActorLocation()).GetSafeNormal2D();
+    }
+    for(TActorIterator<AMCNutLandingShadow> It(GetWorld());It;++It) {
+        if(!It->IsWarningActive() || !CanObserve(*It)) continue;
+        const FVector Offset=Hero->GetActorLocation()-It->GetActorLocation();
+        const float DangerRadius=It->Radius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+25;
+        if(FMath::Abs(Offset.Z)>180 || Offset.SizeSquared2D()>FMath::Square(DangerRadius)) continue;
+        FVector Direction=Offset.GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=Hero->GetActorRightVector();
+        Away+=Direction;
     }
     if(Away.IsNearlyZero()) { HazardSeenAt=-1; return false; }
     if(HazardSeenAt<0) HazardSeenAt=Now;
@@ -410,10 +453,119 @@ bool AMCPlaytestBotController::ReactToHazard()
     Hero->SetSprintInputHeld(true); MoveTowards(EscapeDestination,45); return true;
 }
 
+bool AMCPlaytestBotController::InterruptForNutThreat()
+{
+    // Keep an acquired enemy until it is defeated, and preserve the existing
+    // boss encounter. Nearby nuts must be able to interrupt held care/collection.
+    if(Goal==EMCPlaytestBotGoal::Fight && IsTaskValid() && !Cast<AMCNutBoss>(Target.Get())) return false;
+    const double Now=GetWorld()->GetTimeSeconds();
+    AMCNutEnemy* Threat=nullptr; double Best=DBL_MAX;
+    for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
+        if(!It->CanReceiveToolHit() || !CanObserve(*It)) continue;
+        if(const double* Retry=FailedTargets.Find(*It); Retry && Now<*Retry) continue;
+        const double Distance=FVector::Dist2D(Hero->GetActorLocation(),It->GetActorLocation());
+        if(Distance>FMath::Max(400.f,It->Settings.AttackRange+180.f)) continue;
+        // Defend against the nut attacking this worker before helping another.
+        const auto* Boss=Cast<AMCNutBoss>(*It);
+        const double Score=Distance-(It->Target==Hero?400.f:0.f)-(Boss?(Boss->BossRole==EMCNutBossRole::Mage?220.f:0.f):180.f);
+        if(Score<Best) {Best=Score; Threat=*It;}
+    }
+    if(!Threat) return false;
+    if(Threat==Target.Get()) return false;
+    StopMovement(); ReleaseInputs(); ResetApproach();
+    Target=Threat; Goal=EMCPlaytestBotGoal::Fight;
+    AimError=Random.FRandRange(-Tuning.AimErrorDegrees,Tuning.AimErrorDegrees);
+    NextTaskAt=Now+Tuning.CommitSeconds; NextMoveAt=0;
+    LastWorkProgressAt=Now; LastTargetProgress=TargetProgress();
+    return true;
+}
+
+bool AMCPlaytestBotController::IsNutEncounterActive() const
+{
+    const auto* State=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    const auto* Director=State?State->SingleDayDirector.Get():nullptr;
+    return State && State->bSingleDayLoop && Director && Director->Stage==EMCSingleDayStage::Nuts
+        && IsValid(Director->NutEvent) && Director->NutEvent->Settings.bBossEncounter
+        && Director->NutEvent->Stage==EMCNutRainStage::Enemies;
+}
+
+bool AMCPlaytestBotController::TryNutFlank(AMCNutBoss* Boss)
+{
+    const double Now=GetWorld()->GetTimeSeconds();
+    auto EndAttempt=[&]() {
+        NutFlankTarget.Reset(); NutFlankPoints.Reset(); NutFlankPointIndex=0;
+        // Give ordinary reduced front strikes a chance instead of orbiting forever.
+        NextNutFlankAt=Now+2.5;
+    };
+    if(NutFlankTarget.IsValid()) {
+        if(NutFlankTarget.Get()!=Boss || !Boss->IsShieldProtectingFrom(Hero->GetActorLocation())
+            || Now>=NutFlankUntil || FVector::DistSquared2D(Boss->GetActorLocation(),NutFlankCenter)>FMath::Square(140.f)) {
+            EndAttempt(); return false;
+        }
+    } else {
+        if(Now<NextNutFlankAt || !Boss->IsShieldProtectingFrom(Hero->GetActorLocation())
+            || FVector::DistSquared2D(Hero->GetActorLocation(),Boss->GetActorLocation())>FMath::Square(500.f)) return false;
+        const FVector Center=Boss->GetActorLocation();
+        const FVector Radial=(Hero->GetActorLocation()-Center).GetSafeNormal2D();
+        const float Capsule=Hero->GetCapsuleComponent()->GetScaledCapsuleRadius();
+        const float Clearance=Boss->Settings.BodyRadius+Capsule+15;
+        const float OrbitRadius=FMath::Max(Boss->Settings.BodyRadius+95,Clearance+55);
+        TArray<FVector> Route;
+        FVector Previous=Hero->GetActorLocation();
+        for(int32 Index=1;Index<=3;++Index) {
+            const FVector Direction=Radial.RotateAngleAxis(NutFlankSide*60.f*FMath::Min(Index,2),FVector::UpVector);
+            const float Radius=Index==3?Boss->Settings.BodyRadius+70:OrbitRadius;
+            FVector Stand;
+            if(!ProjectStandingPosition(Center+Direction*Radius,Stand)
+                || FVector::DistSquared2D(FMath::ClosestPointOnSegment(Center,Previous,Stand),Center)<FMath::Square(Clearance)) {
+                EndAttempt(); return false;
+            }
+            Route.Add(Stand); Previous=Stand;
+        }
+        // These world-space arc points stay fixed while the tank turns to its
+        // nearest worker. Recomputing a rear point every decision starves swings.
+        NutFlankTarget=Boss; NutFlankCenter=Center; NutFlankPoints=MoveTemp(Route);
+        NutFlankPointIndex=0; NutFlankUntil=Now+2.5;
+    }
+    while(NutFlankPoints.IsValidIndex(NutFlankPointIndex)
+        && FVector::DistSquared2D(Hero->GetActorLocation(),NutFlankPoints[NutFlankPointIndex])<=FMath::Square(40.f)) ++NutFlankPointIndex;
+    if(!NutFlankPoints.IsValidIndex(NutFlankPointIndex)) {EndAttempt();return false;}
+    const FVector Stand=NutFlankPoints[NutFlankPointIndex];
+    ReleaseInputs(false,true); MoveTowards(Stand,25);
+    if(Goal==EMCPlaytestBotGoal::Fight && Target.Get()==Boss)
+        Hero->SetSprintInputHeld(FVector::DistSquared2D(Hero->GetActorLocation(),Stand)>FMath::Square(180.f));
+    return true;
+}
+
 void AMCPlaytestBotController::WorkAtTarget()
 {
     AActor* Actor=Target.Get(); if(!Actor) return;
     FVector Point=TaskPoint(Actor);
+    auto* Nut=Goal==EMCPlaytestBotGoal::Fight?Cast<AMCNutEnemy>(Actor):nullptr;
+    if(Nut && Hero->Inventory->Selected!=EMCToolSlot::Pickaxe) {
+        // Switching tools drops a carried pile through the same action as a
+        // human. Do it before approaching so food cannot keep forcing delivery.
+        ReleaseInputs(); Hero->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
+        if(Hero->Inventory->Selected!=EMCToolSlot::Pickaxe) return;
+    }
+    const bool NutEncounter=Nut && IsNutEncounterActive();
+    if(auto* Boss=Cast<AMCNutBoss>(Nut); Boss && NutEncounter) {
+        if(TryNutFlank(Boss)) return;
+    } else if(Boss && Boss->IsShieldProtectingFrom(Hero->GetActorLocation())) {
+        // Approach a flank using the same nav/direct movement as all other work.
+        // The shield keeps receiving real reduced hits if no flank is reachable.
+        const FVector Side=(-Boss->GetActorForwardVector()+Boss->GetActorRightVector()*NutFlankSide).GetSafeNormal2D();
+        FVector Stand;
+        if(ProjectStandingPosition(Boss->GetActorLocation()+Side*(Boss->Settings.BodyRadius+70),Stand)
+            && FVector::DistSquared2D(Hero->GetActorLocation(),Stand)>FMath::Square(40.f)) {
+            ReleaseInputs(); MoveTowards(Stand,25); return;
+        }
+    }
+    if(Nut && FVector::DistSquared2D(Hero->GetActorLocation(),Nut->GetActorLocation())<FMath::Square(35.f)) {
+        // An enemy can pass through the worker capsule. Step out using ordinary
+        // movement instead of swinging straight down at an invalid aim vector.
+        ReleaseInputs(); MoveTowards(Hero->GetActorLocation()-Hero->GetActorForwardVector()*100,25); return;
+    }
     if(Goal==EMCPlaytestBotGoal::Deliver) {
         auto* Zone=CastChecked<AMCFoodDisposal>(Actor);
         if(Zone->ContainsDeliveryPosition(Hero->FoodCollection->HandPoint()) || Zone->ContainsDeliveryPosition(Hero->GetActorLocation())) {
@@ -462,15 +614,22 @@ void AMCPlaytestBotController::WorkAtTarget()
         Hero->SetPrimaryInputHeld(true);
         return;
     }
-    const float Reach=Goal==EMCPlaytestBotGoal::Spray?180:Goal==EMCPlaytestBotGoal::CollectFood?125:90;
+    // Approach inside the real contact reach before holding a swing. A nut
+    // chasing another teammate may otherwise stay just outside weapon contact.
+    const float Reach=Nut?FMath::Min(90.f,Hero->Status->Settings.Reach*.75f)
+        :Goal==EMCPlaytestBotGoal::Spray?180:Goal==EMCPlaytestBotGoal::CollectFood?125:90;
     const FVector Delta=Point-Hero->GetActorLocation();
     if(Actor!=Hero && Delta.Size2D()>Reach) {
-        ReleaseInputs();
+        ReleaseInputs(false,NutEncounter);
         const FVector Towards=Delta.GetSafeNormal2D();
-        MoveTowards(Point-Towards*(Reach*.65f),25); return;
+        MoveTowards(Point-Towards*(Reach*.65f),25);
+        if(NutEncounter && Goal==EMCPlaytestBotGoal::Fight && Target.Get()==Nut)
+            Hero->SetSprintInputHeld(Delta.Size2D()>Reach+70.f);
+        return;
     }
+    if(NutEncounter) Hero->SetSprintInputHeld(false);
     StopMovement();
-    FVector Facing=Delta.GetSafeNormal2D();
+    FVector Facing=(Nut?Nut->GetActorLocation()-Hero->GetActorLocation():Delta).GetSafeNormal2D();
     if(!Facing.IsNearlyZero()) {
         FRotator Rotation=Facing.Rotation(); Rotation.Yaw+=AimError;
         SetControlRotation(Rotation);
@@ -506,6 +665,19 @@ void AMCPlaytestBotController::Decide()
     }
     if(ReactToHazard()) return;
     const double Now=GetWorld()->GetTimeSeconds();
+    bool LiveNutBoss=false;
+    for(TActorIterator<AMCNutBoss> It(GetWorld());It;++It) if(It->IsEncounterAlive()) {LiveNutBoss=true;break;}
+    if(LiveNutBoss && Hero->Status->Settings.bAllowSelfCare && Hero->Status->NeedsCare(false)
+        && (Hero->Status->State.Health<Hero->Status->State.MaxHealth*.35f
+            || (bNutBossCare && Hero->Status->State.Health<Hero->Status->State.MaxHealth*.75f))) {
+        if(!bNutBossCare || Target.Get()!=Hero) {
+            StopMovement(); ReleaseInputs(); ResetApproach(); Target=Hero; Goal=EMCPlaytestBotGoal::Repair;
+            LastWorkProgressAt=Now; LastTargetProgress=TargetProgress();
+        }
+        bNutBossCare=true; WorkAtTarget(); return;
+    }
+    if(bNutBossCare) {bNutBossCare=false;ReleaseInputs();Target.Reset();Goal=EMCPlaytestBotGoal::Idle;NextTaskAt=0;}
+    InterruptForNutThreat();
     if(Goal==EMCPlaytestBotGoal::Recover) {
         if(Now<RecoveryUntil) return;
         StopMovement(); ReleaseInputs(); Goal=EMCPlaytestBotGoal::Idle;
@@ -523,8 +695,10 @@ void AMCPlaytestBotController::Decide()
         LastProgressPosition=Hero->GetActorLocation(); ProgressCheckedAt=Now;
         if(Stuck) {RecoverFromStall(); return;}
     }
-    const bool ReadyToDeliver=(!Hero->FoodCollection->Pieces.IsEmpty() || (IsValid(Hero->HeldFood) && Hero->HeldFood->Phase!=EMCFoodPhase::Stuck)) && Goal!=EMCPlaytestBotGoal::Deliver;
-    if(ReadyToDeliver || !IsTaskValid() || (Now>=NextTaskAt && !Hero->IsPrimaryHeld() && !Hero->bHandling)) {
+    const bool FightingNut=Goal==EMCPlaytestBotGoal::Fight && Cast<AMCNutEnemy>(Target.Get()) && IsTaskValid();
+    const bool ReadyToDeliver=(!Hero->FoodCollection->Pieces.IsEmpty() || (IsValid(Hero->HeldFood) && Hero->HeldFood->Phase!=EMCFoodPhase::Stuck)) && Goal!=EMCPlaytestBotGoal::Deliver && !FightingNut;
+    const bool KeepNutFight=FightingNut && IsNutEncounterActive();
+    if(ReadyToDeliver || !IsTaskValid() || (!KeepNutFight && Now>=NextTaskAt && !Hero->IsPrimaryHeld() && !Hero->bHandling)) {
         if(Now<NextHesitationAt) return;
         if(Random.FRand()<Tuning.HesitationChance) { ReleaseInputs(); StopMovement(); NextHesitationAt=Now+Tuning.DecisionSeconds*2; return; }
         ChooseTask();

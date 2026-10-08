@@ -41,6 +41,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) bool bUlcer=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") bool bTreatmentBlocked=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tutorial") bool bTutorialLesion=false;
+    /** Toothpick wounds react only to a fresh player step, never timed pulses or food contact. */
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") bool bContactPainOnly=false;
     UPROPERTY(Replicated, BlueprintReadOnly) float Healing=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") double NumbUntil=0;
     UFUNCTION(BlueprintPure,Category="Ulcer") bool IsNumb() const;
@@ -97,4 +99,5 @@ private:
     float ContactCooldown=0;
     float PulseClock=0;
     uint64 LastTreatmentFrame=MAX_uint64;
+    TSet<TWeakObjectPtr<class AMCToothCharacter>> FootContacts;
 };

@@ -22,6 +22,9 @@ public:
     /** Legendary tools belong to the run, including respawns and late team joins. */
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") uint8 TeamToolUpgrades=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Director") FMCGameDirectorState DirectorState;
+    /** Run history survives HUD state changes and authored key events. Oldest entries expire at 128. */
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Director") TArray<FString> DirectorDecisionLog;
+    void RecordDirectorDecision(const FString& Decision);
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Front End") bool bLobbyWaiting=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Tutorial") bool bTutorialActive=false;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Front End") int32 LobbyLoadedPlayers=0;

@@ -188,8 +188,8 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     {
         if (StepIndex<0 || StepIndex>=24) return FText::FromString(TEXT("Выбери 1–4 бота, уровень и режим теста."));
         if (BotSession && BotSession->IsActive()) return FText::FromString(TEXT("Боты уже играют. Сначала нажми «Остановить ботов»."));
-        if (GS->bLobbyWaiting || GS->bTutorialActive || GS->bDevManualEvents)
-            return FText::FromString(TEXT("Для ботов нужен обычный день: заверши обучение / лобби или нажми «Обычный день 1 — полный перезапуск»."));
+        if (GS->bLobbyWaiting || (GS->bTutorialActive && !bUseSingleDayLoop) || GS->bDevManualEvents)
+            return FText::FromString(TEXT("Заверши лобби или верни обычный день после ручного теста. В старом режиме сначала заверши обучение."));
         const int32 Count=StepIndex%4+1;
         const auto Skill=static_cast<EMCPlaytestBotSkill>((StepIndex/4)%3);
         const bool bObserve=StepIndex>=12;
@@ -204,7 +204,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             if (BotSession && !BotSession->IsActive()) BotSession->Destroy();
             return FText::FromString(TEXT("Боты не запущены: ")+Error);
         }
-        return FText::FromString(FString::Printf(TEXT("Новый обычный день: %d бота, %s. Seed %d. F3 — %s. CSV сохраняется автоматически."),
+        return FText::FromString(FString::Printf(TEXT("Новый день: %d бота, %s. Seed %d. F3 — %s. CSV сохраняется автоматически."),
             Count,Skill==EMCPlaytestBotSkill::Novice?TEXT("новички"):Skill==EMCPlaytestBotSkill::Skilled?TEXT("опытные"):TEXT("обычные"),
             GS->RunSeed,bObserve?TEXT("наблюдать"):TEXT("играть вместе")));
     }

@@ -6,6 +6,7 @@
 #include "MCPlaytestBotController.generated.h"
 
 class AMCToothCharacter;
+class AMCNutBoss;
 
 UENUM()
 enum class EMCPlaytestBotGoal : uint8 { Idle, Clean, Repair, Spray, BreakFood, CollectFood, PullFood, Deliver, Calculus, Fight, Escape, Recover };
@@ -37,7 +38,7 @@ private:
     bool IsTaskValid() const;
     bool CanObserve(AActor* Actor) const;
     FVector TaskPoint(AActor* Actor) const;
-    void ReleaseInputs(bool bDropCollection=false);
+    void ReleaseInputs(bool bDropCollection=false,bool bKeepSprint=false);
     void MoveTowards(FVector Destination,float Acceptance=30.f);
     void WorkAtTarget();
     void FailPath();
@@ -46,6 +47,9 @@ private:
     void ResetApproach(bool bRememberFailure=false);
     void RecoverFromStall();
     bool ReactToHazard();
+    bool InterruptForNutThreat();
+    bool IsNutEncounterActive() const;
+    bool TryNutFlank(AMCNutBoss* Boss);
     double TargetProgress() const;
     UPROPERTY(Transient) TObjectPtr<AMCToothCharacter> Hero;
     TWeakObjectPtr<AActor> Target;
@@ -70,4 +74,11 @@ private:
     int32 PathFailures=0;
     bool bConfigured=false;
     bool bSuspended=false;
+    bool bNutBossCare=false;
+    int32 NutFlankSide=1;
+    TWeakObjectPtr<AMCNutBoss> NutFlankTarget;
+    TArray<FVector> NutFlankPoints;
+    FVector NutFlankCenter=FVector::ZeroVector;
+    int32 NutFlankPointIndex=0;
+    double NutFlankUntil=0,NextNutFlankAt=0;
 };

@@ -4,6 +4,7 @@
 #include "MCPrototypeWidget.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCSingleDayDirector.h"
 #include "MCPlayerState.h"
 #include "MCPerkComponent.h"
 #include "MCPlaytestSession.h"
@@ -25,6 +26,7 @@
 #include "Components/ComboBoxString.h"
 #include "Styling/CoreStyle.h"
 #include "EngineUtils.h"
+#include "HAL/IConsoleManager.h"
 
 namespace { const FLinearColor DevMint(.28f,.93f,.75f); }
 void UMCDevActionButton::Configure(AMCPlayerController* Player,EMCDevAction Command,int32 Index)
@@ -121,6 +123,16 @@ void UMCDevPanelWidget::NativeOnInitialized()
     };
     Steps=Column(TEXT("ЭТАПЫ ДНЯ"),TEXT("Чистый запуск: новые игроки, полное здоровье, все зубы с карты. Выбранный этап остаётся до следующей команды."));
     Actions=Column(TEXT("ДОБАВИТЬ В ТЕКУЩИЙ ТЕСТ"),TEXT("Можно сочетать эффекты. Отключают автопереходы; урон, порча, заживление и возрождения продолжаются."));
+    auto* DirectorColumn=Column(TEXT("DIRECTOR / ЖУРНАЛ"),TEXT("Общий журнал забега. Новые решения сверху; обучение, ключевые события и поддержка сохраняются вместе."));
+    DirectorOverlayCheck=WidgetTree->ConstructWidget<UCheckBox>();
+    auto* DirectorLabel=WidgetTree->ConstructWidget<UTextBlock>();
+    DirectorLabel->SetText(FText::FromString(TEXT("Подробные наблюдения на HUD")));
+    DirectorLabel->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),13));
+    DirectorLabel->SetColorAndOpacity(FSlateColor(DevMint));
+    DirectorOverlayCheck->SetContent(DirectorLabel);
+    DirectorOverlayCheck->OnCheckStateChanged.AddDynamic(this,&UMCDevPanelWidget::DirectorOverlayChanged);
+    DirectorColumn->AddChildToVerticalBox(DirectorOverlayCheck)->SetPadding(FMargin(0,3,0,10));
+    DirectorLogText=AddText(DirectorColumn,TEXT("Журнал пока пуст."),12);
     Feedback=AddText(Main,TEXT("Наведи на кнопку для подсказки. Язвы заживают сами — убери еду и защищай поверхность."),13);
     Feedback->SetColorAndOpacity(FSlateColor(DevMint));
     auto* Close=WidgetTree->ConstructWidget<UButton>();
@@ -133,6 +145,8 @@ void UMCDevPanelWidget::RefreshActions()
     if (!Steps || !Actions) return;
     if (const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer()); PC && PC->PrototypeWidget && PlayerOverlayCheck)
         PlayerOverlayCheck->SetIsChecked(PC->PrototypeWidget->IsPlayerOverlayVisible());
+    if (DirectorOverlayCheck)
+        if (const auto* Debug=IConsoleManager::Get().FindConsoleVariable(TEXT("MC.Director.Debug"))) DirectorOverlayCheck->SetIsChecked(Debug->GetInt()>0);
     // Keep the two introduction labels; rebuild so a changed DA needs no widget edits.
     while (Steps->GetChildrenCount()>2) Steps->RemoveChildAt(2);
     while (Actions->GetChildrenCount()>2) Actions->RemoveChildAt(2);
@@ -241,10 +255,22 @@ void UMCDevPanelWidget::StartBotsClicked()
 void UMCDevPanelWidget::StopBotsClicked() { if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RequestDevAction(EMCDevAction::BotsStop); }
 void UMCDevPanelWidget::ReportBotsClicked() { if (auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RequestDevAction(EMCDevAction::BotsReport); }
 void UMCDevPanelWidget::SetFeedback(const FText& Text) { if (Feedback) Feedback->SetText(Text); }
+void UMCDevPanelWidget::DirectorOverlayChanged(bool Checked)
+{
+    if (auto* Debug=IConsoleManager::Get().FindConsoleVariable(TEXT("MC.Director.Debug"))) Debug->Set(Checked?1:0,ECVF_SetByCode);
+}
 void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt); if (!Status || !IsVisible()) return;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>(); if (!GS) return;
+    if (DirectorLogText) {
+        FString History;
+        if (GS->SingleDayDirector && GS->SingleDayDirector->bAuthoredFragmentComplete)
+            History=TEXT("АВТОРЕННЫЙ ФРАГМЕНТ ЗАВЕРШЁН\nСледующий контент ещё не авторен. Директор поддерживает арену без дедлайна.\n\n");
+        for (int32 Index=GS->DirectorDecisionLog.Num()-1;Index>=0;--Index) History+=GS->DirectorDecisionLog[Index]+TEXT("\n\n");
+        if (History.IsEmpty()) History=TEXT("Журнал пока пуст.");
+        if (DirectorLogText->GetText().ToString()!=History) DirectorLogText->SetText(FText::FromString(History));
+    }
     int32 Food=0,Ulcers=0; bool Water=false;
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if (!It->bBrushTool && !It->IsDisposed()) ++Food;
     for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (It->bUlcer) ++Ulcers;
@@ -253,7 +279,7 @@ void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
     const auto* BotSession=AMCPlaytestSession::Find(GetWorld());
     const bool BotsActive=BotSession && BotSession->IsActive();
     const bool CanControl=PC && PC->CanUseDevPanel();
-    if (StartBotsButton) StartBotsButton->SetIsEnabled(CanControl && !BotsActive && !GS->bLobbyWaiting && !GS->bTutorialActive && !GS->bDevManualEvents);
+    if (StartBotsButton) StartBotsButton->SetIsEnabled(CanControl && !BotsActive && !GS->bLobbyWaiting && (!GS->bTutorialActive || GS->bSingleDayLoop) && !GS->bDevManualEvents);
     if (StopBotsButton) StopBotsButton->SetIsEnabled(CanControl && BotsActive);
     if (ReportBotsButton) ReportBotsButton->SetIsEnabled(CanControl && BotsActive);
     if (Steps) Steps->SetIsEnabled(!BotsActive);

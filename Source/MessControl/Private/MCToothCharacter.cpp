@@ -498,6 +498,11 @@ void AMCToothCharacter::StartHandle()
         Move->SetWantsClimb(false); Move->CancelDash();
         bMimicRescueInputHeld=true; ServerSetMimicRescueHeld(Rescue,true); return;
     }
+    if(AMCToothpick::FindPullTarget(this)) {
+        FoodCollection->Stop(); StopPrimary();
+        CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false);
+        ServerSetWorking(false,true); return;
+    }
     AMCRewardChest* Nearby=nullptr;
     double Nearest=TNumericLimits<double>::Max();
     for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) {
@@ -510,11 +515,6 @@ void AMCToothCharacter::StartHandle()
         Nearby=*It; Nearest=Distance;
     }
     if(Nearby) { ServerBeginRewardOpening(Nearby); return; }
-    if(AMCToothpick::FindPullTarget(this)) {
-        FoodCollection->Stop(); StopPrimary();
-        CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false);
-        ServerSetWorking(false,true); return;
-    }
     if (CanWork() && !bInCoffee && !bSelfCare && !CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()
         && (FoodCollection->bCollecting || FoodCollection->HasCandidate()))
     { ServerToggleFoodCollection(); return; }

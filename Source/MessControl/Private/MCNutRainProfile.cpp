@@ -21,13 +21,23 @@ void FMCNutEnemySettings::Sanitize()
 FMCNutRainSettings::FMCNutRainSettings()
 {
     Entry.FlightSeconds=1.65f; Entry.EntryHeight=650; Entry.OutsideDistance=150;
+    Enemy.MaxHealth=40; Enemy.MoveSpeed=135; Enemy.AttackDamage=8; Enemy.WindupSeconds=.75f; Enemy.AttackCooldown=2.3f; Enemy.BodyRadius=35;
 }
 
 void FMCNutRainSettings::Sanitize()
 {
     NutCount=FMath::Clamp(NutCount,1,120); NutsPerExtraPlayer=FMath::Clamp(NutsPerExtraPlayer,0,30);
     EnemyCount=FMath::Clamp(EnemyCount,0,16); EnemiesPerExtraPlayer=FMath::Clamp(EnemiesPerExtraPlayer,0,4);
-    RainSeconds=SafeNutValue(RainSeconds,12,3,60); Entry.Sanitize(); Enemy.Sanitize();
+    MinimumSeries=FMath::Clamp(MinimumSeries,4,8); MaximumSeries=FMath::Clamp(MaximumSeries,MinimumSeries,8);
+    MinimumNutsPerSeries=FMath::Clamp(MinimumNutsPerSeries,2,4); MaximumNutsPerSeries=FMath::Clamp(MaximumNutsPerSeries,MinimumNutsPerSeries,4);
+    MinimumDropSeconds=SafeNutValue(MinimumDropSeconds,1.5f,1.5f,2.5f);
+    MaximumDropSeconds=SafeNutValue(MaximumDropSeconds,2.5f,MinimumDropSeconds,2.5f);
+    SeriesRestSeconds=SafeNutValue(SeriesRestSeconds,4,4,8);
+    LargeNutHeight=SafeNutValue(LargeNutHeight,180,150,220); Boss.Sanitize();
+    ImpactDamageLimit=SafeNutValue(ImpactDamageLimit,18,0,40);
+    RainSeconds=SafeNutValue(RainSeconds,40,bBossEncounter?40:3,60); Entry.Sanitize(); Enemy.Sanitize();
+    ClusterRadius=SafeNutValue(ClusterRadius,260,60,650);
+    LandingShadowOpacity=SafeNutValue(LandingShadowOpacity,.20f,.03f,.35f);
     SettleSeconds=SafeNutValue(SettleSeconds,2,.5f,6);
     SettleSeconds=FMath::Max(SettleSeconds,Entry.FlightSeconds+.25f);
 }
@@ -35,6 +45,7 @@ void FMCNutRainSettings::Sanitize()
 int32 FMCNutRainSettings::RainCountForPlayers(int32 Players) const
 {
     FMCNutRainSettings Copy=*this; Copy.Sanitize();
+    if(Copy.bBossEncounter) return Copy.MaximumSeries*Copy.MaximumNutsPerSeries;
     return FMath::Clamp(Copy.NutCount+Copy.NutsPerExtraPlayer*(FMath::Clamp(Players,1,8)-1),1,120);
 }
 

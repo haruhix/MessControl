@@ -451,8 +451,10 @@ void AMCPlayerController::TogglePauseMenu()
 void AMCPlayerController::RefreshFrontEnd()
 {
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
-    if (!State || !GetPawn() || !GetPlayerState<AMCPlayerState>()) return;
-    if (!bGameplayLoadAckSent) { ServerGameplayLoaded(); bGameplayLoadAckSent=true; }
+    if (!State || !GetPlayerState<AMCPlayerState>()) return;
+    // Observe-mode bots remove the human pawn. Still clear the previous lesson
+    // overlay and restore the HUD instead of leaving that player's UI frozen.
+    if (GetPawn() && !bGameplayLoadAckSent) { ServerGameplayLoaded(); bGameplayLoadAckSent=true; }
     if (State->bLobbyWaiting && !bLobbyUIOpen)
     {
         bLobbyUIOpen=true;
@@ -466,7 +468,9 @@ void AMCPlayerController::RefreshFrontEnd()
         if (FrontEndWidget) FrontEndWidget->RemoveFromParent();
         UpdateInputMode();
     }
-    const bool HideGameplay=State->bLobbyWaiting || State->bTutorialActive;
+    // The tutorial teaches the equipped tools, so their HUD stays visible.
+    // The gameplay HUD hides its ordinary day overview while training is active.
+    const bool HideGameplay=State->bLobbyWaiting;
     if (PrototypeWidget && HideGameplay) { PrototypeWidget->SetVisibility(ESlateVisibility::Collapsed); bFrontEndHidPrototype=true; }
     else if (PrototypeWidget && bFrontEndHidPrototype) { PrototypeWidget->SetVisibility(ESlateVisibility::Visible); bFrontEndHidPrototype=false; }
     if (State->bTutorialActive)
@@ -474,7 +478,8 @@ void AMCPlayerController::RefreshFrontEnd()
         if (!TutorialWidget) { TutorialWidget=CreateWidget<UMCTutorialWidget>(this,UMCTutorialWidget::StaticClass()); if (TutorialWidget) TutorialWidget->AddToViewport(20); }
         if (TutorialWidget) TutorialWidget->RefreshState();
         auto* Director=AMCTutorialDirector::Find(GetWorld());
-        if (Director && AcknowledgedTutorial.Get()!=Director) { ServerTutorialLoaded(); AcknowledgedTutorial=Director; }
+        // The server rejects a load ACK without a pawn; retry after possession instead of caching that request.
+        if (GetPawn() && Director && AcknowledgedTutorial.Get()!=Director) { ServerTutorialLoaded(); AcknowledgedTutorial=Director; }
         const bool NeedsInput=TutorialWidget && TutorialWidget->RequiresMenuInput();
         if (NeedsInput!=bTutorialMenuInput) { bTutorialMenuInput=NeedsInput; UpdateInputMode(); if (NeedsInput && TutorialWidget->GetReadyFocusTarget()) TutorialWidget->GetReadyFocusTarget()->SetUserFocus(this); }
     }

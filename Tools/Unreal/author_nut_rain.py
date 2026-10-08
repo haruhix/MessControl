@@ -8,10 +8,25 @@ designer tuning; old collection scales are converted to the same maximum size.
 import hashlib
 import importlib
 import json
+import math
 import sys
 from pathlib import Path
 
 import unreal as u
+
+
+def migrate_boss_health(boss):
+    """Replace only known generated health values; preserve designer tuning."""
+    migrated = {}
+    for key, old, new in (("tank_health", 2000.0, 1400.0),
+                          ("mage_health", 1600.0, 1100.0),
+                          ("extra_player_health", .8, .65)):
+        current = float(boss.get_editor_property(key))
+        # Unreal's float32 representation of .8 differs slightly from Python's float.
+        if math.isclose(current, old, rel_tol=0.0, abs_tol=1e-7):
+            boss.set_editor_property(key, new)
+            migrated[key] = dict(previous=current, current=new)
+    return migrated
 
 
 def main():
@@ -46,6 +61,27 @@ def main():
         profile = tools.create_asset("DA_NutRain", folder, u.MCNutRainProfile, factory)
     if not isinstance(profile, u.MCNutRainProfile):
         raise RuntimeError("Nut profile path has an unexpected asset type")
+    # Migrate this authored first encounter from the old dense 12-second storm.
+    settings = profile.get_editor_property("settings")
+    for key, value in dict(boss_encounter=True, minimum_series=4, maximum_series=8,
+                           minimum_nuts_per_series=2, maximum_nuts_per_series=4,
+                           minimum_drop_seconds=1.5, maximum_drop_seconds=2.5,
+                           series_rest_seconds=4.0, rain_seconds=40.0,
+                           large_nut_height=180.0, impact_damage_limit=18.0, enemy_count=4, enemies_per_extra_player=1).items():
+        settings.set_editor_property(key, value)
+    enemy = settings.get_editor_property("enemy")
+    for key, value in dict(max_health=40.0, move_speed=135.0, attack_damage=8.0,
+                           windup_seconds=.75, attack_cooldown=2.3, body_radius=35.0).items():
+        enemy.set_editor_property(key, value)
+    settings.set_editor_property("enemy", enemy)
+    boss = settings.get_editor_property("boss")
+    health_migrations = migrate_boss_health(boss)
+    boss.set_editor_property("creep_health", 40.0)
+    boss.set_editor_property("whole_mesh", whole)
+    boss.set_editor_property("shell_mesh", fragments[0])
+    boss.set_editor_property("kernel_mesh", fragments[1])
+    settings.set_editor_property("boss", boss)
+    profile.set_editor_property("settings", settings)
 
     menu_path = folder + "/DT_NutRainMenu"
     table = u.load_asset(menu_path)
@@ -99,6 +135,18 @@ def main():
             walnut["CollisionData"] = []
             if not u.DataTableFunctionLibrary.fill_data_table_from_json_string(table, json.dumps(rows)):
                 raise RuntimeError("Could not replace the collection with individual walnut meshes")
+    walnut = next(row for row in rows if row["Name"] == "Walnut")
+    bounds = whole.get_bounding_box()
+    height = bounds.max.z - bounds.min.z
+    scale = settings.get_editor_property("large_nut_height") / max(.001, height)
+    fragment_scale = boss.get_editor_property("creep_height") / max(.001, max(m.get_bounding_box().max.z-m.get_bounding_box().min.z for m in fragments))
+    walnut["Scale"] = dict(X=scale, Y=scale, Z=scale)
+    walnut["FragmentScale"] = dict(X=fragment_scale, Y=fragment_scale, Z=fragment_scale)
+    walnut["WholeMeshes"] = [whole.get_path_name()]
+    walnut["FragmentMeshes"] = [m.get_path_name() for m in fragments]
+    walnut["SpoilSeconds"] = 600
+    if not u.DataTableFunctionLibrary.fill_data_table_from_json_string(table, json.dumps(rows)):
+        raise RuntimeError("Could not resize event walnuts to player height")
     if not u.MCFoodCollisionEditorLibrary.bake_menu_collision(table, True):
         raise RuntimeError("Walnut food collision bake failed")
     if not u.MCFoodCollisionEditorLibrary.is_menu_current(table):
@@ -126,6 +174,7 @@ def main():
         raise RuntimeError("Nut authoring changed the imported walnut package")
     report = dict(complete=True, profile=profile.get_path_name(), menu=table.get_path_name(),
                   source_unchanged=True, migrated_collection_row=migrated,
+                  migrated_boss_health=health_migrations,
                   meshes={name:asset.get_path_name() for name,asset in isolated.items()},
                   settings=str(profile.get_editor_property("settings")))
     report_path = Path(u.Paths.project_saved_dir()) / "NutRain" / "Authoring.json"

@@ -10,6 +10,15 @@ int32 AMCGameState::AvailableArenaTeeth() const
     return Count;
 }
 float AMCGameState::SecondsLeft() const { return FMath::Max(0., PhaseEndsAt - GetServerWorldTimeSeconds()); }
+void AMCGameState::RecordDirectorDecision(const FString& Decision)
+{
+    if (!HasAuthority() || Decision.IsEmpty()) return;
+    DirectorDecisionLog.Add(Decision);
+    if (DirectorDecisionLog.Num()>128) DirectorDecisionLog.RemoveAt(0,DirectorDecisionLog.Num()-128);
+    DirectorState.DecisionLog=DirectorDecisionLog;
+    DirectorState.LastDecision=DirectorDecisionLog.Last();
+    ForceNetUpdate();
+}
 void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -17,6 +26,7 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     DOREPLIFETIME(AMCGameState,SingleDayDirector);
     DOREPLIFETIME(AMCGameState,TeamToolUpgrades);
     DOREPLIFETIME(AMCGameState,DirectorState);
+    DOREPLIFETIME(AMCGameState,DirectorDecisionLog);
     DOREPLIFETIME(AMCGameState,bLobbyWaiting);
     DOREPLIFETIME(AMCGameState,bTutorialActive);
     DOREPLIFETIME(AMCGameState,LobbyLoadedPlayers);

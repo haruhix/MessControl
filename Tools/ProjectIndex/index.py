@@ -430,6 +430,7 @@ class AssetIndex:
         args = [str(root / "Engine/Binaries/Win64/UnrealEditor-Cmd.exe"), str(self.project / "MessControl.uproject"),
                 "-run=MCProjectIndex", "-MCIndexOutput=" + str(self.cache), "-unattended", "-nop4", "-NullRHI", "-nosplash",
                 "-DisablePython",  # Native exporter does not need the editor's embedded Python or startup scripts.
+                "-ini:EditorPerProjectUserSettings:[/Script/ModelContextProtocolEngine.ModelContextProtocolSettings]:bAutoStartServer=False",
                 "-stdout", "-FullStdOutLogOutput", "-abslog=" + str(self.cache / "unreal_export.log")]
         if catalog_only:
             args.append("-MCIndexCatalogOnly")

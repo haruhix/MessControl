@@ -57,7 +57,7 @@ void UMCPrototypeWidget::NativeOnInitialized()
     UCanvasPanel* Root = WidgetTree->ConstructWidget<UCanvasPanel>(); WidgetTree->RootWidget = Root;
     auto* HUDClass=LoadClass<UMCGameplayHUD>(nullptr,TEXT("/Game/Gameplay/UI/WBP_GameplayHUD.WBP_GameplayHUD_C"));
     auto* GameplayHUD=CreateWidget<UMCGameplayHUD>(GetOwningPlayer(),HUDClass?HUDClass:UMCGameplayHUD::StaticClass());
-    GameplayHUD->SetVisibility(ESlateVisibility::HitTestInvisible);
+    GameplayHUD->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
     auto* HUDSlot=Root->AddChildToCanvas(GameplayHUD); HUDSlot->SetAnchors(FAnchors(0,0,1,1)); HUDSlot->SetOffsets(FMargin(0)); HUDSlot->SetZOrder(-1);
     auto Panel = [&](FVector2D Position,FVector2D Size,FAnchors Anchors,FVector2D Alignment,UBorder*& Border)
     {

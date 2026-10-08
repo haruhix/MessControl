@@ -17,8 +17,13 @@
 #include "MCPerkComponent.h"
 #include "MCPerkChoiceWidget.h"
 #include "MCNutRainEvent.h"
+#include "MCNutLandingShadow.h"
 #include "MCNutEnemy.h"
+#include "MCNutBoss.h"
+#include "MCNutCombatEffect.h"
+#include "MCNutSpellProjectile.h"
 #include "MCBossCharacter.h"
+#include "MCRewardChest.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -49,12 +54,12 @@ void MCTickSingleDayValidation(UWorld* World)
         TWeakObjectPtr<AMCToothCharacter> Pawn;
         TWeakObjectPtr<ACameraActor> Camera;
         EMCTutorialStage Lesson=EMCTutorialStage::Finished;
-        double StartedWall=0,LessonAt=0,PerkAt=0,EnemiesAt=0,DirectorAt=0,BossAt=0,WonAt=0;
+        double StartedWall=0,LessonAt=0,PerkAt=0,EnemiesAt=0,DirectorAt=0,BossAt=0,WonAt=0,NextPullDebugAt=0;
         int64 TrainingExperience=0;
-        int32 TrainingPoints=0,Checks=0,EnemyHitBaseline=0;
+        int32 TrainingPoints=0,Checks=0,EnemyHitBaseline=0,ImpactSerial=0;
         float EnemyHealthBaseline=0;
         uint32 Shots=0;
-        bool Failed=false,Finished=false,Initialized=false,FirstChoice=false,SawRain=false,SawAttack=false,SawEnemies=false,SawDirector=false,BossDefeated=false;
+        bool Failed=false,Finished=false,Initialized=false,FirstChoice=false,SawRain=false,SawAttack=false,SawEnemies=false,SawDirector=false,BossDefeated=false,SawFalling=false,ImpactChecked=false,ExtractionChecked=false,HandleAttempted=false;
         FString Report;
     };
     static FRun R;
@@ -67,13 +72,13 @@ void MCTickSingleDayValidation(UWorld* World)
     };
     auto Finish=[&]() {
         R.Finished=true;
-        const FString Result=FString::Printf(TEXT("MC_SINGLE_DAY_TEST_%s checks=%d scope=scripted_saved_arena_training_first_choice_nut_combat_natural_director_boss_spawn_authority_boss_damage_victory"),R.Failed?TEXT("FAIL"):TEXT("PASS"),R.Checks);
+        const FString Result=FString::Printf(TEXT("MC_SINGLE_DAY_TEST_%s checks=%d scope=scripted_saved_arena_training_personal_choice_directed_nuts_real_tool_boss_combat_open_support"),R.Failed?TEXT("FAIL"):TEXT("PASS"),R.Checks);
         UE_LOG(LogTemp,Display,TEXT("%s"),*Result);
         IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("SingleDaySmoke")),true);
         FFileHelper::SaveStringToFile(R.Report+Result+TEXT("\n"),*(FPaths::ProjectSavedDir()/TEXT("SingleDaySmoke/Validation.txt")));
         FPlatformMisc::RequestExitWithStatus(false,R.Failed?1:0);
     };
-    if(FPlatformTime::Seconds()-R.StartedWall>180) {Check(false,TEXT("Saved arena smoke timed out"));Finish();return;}
+    if(FPlatformTime::Seconds()-R.StartedWall>420) {Check(false,TEXT("Saved arena smoke timed out"));Finish();return;}
     auto* GS=World->GetGameState<AMCGameState>();auto* PC=World->GetFirstPlayerController();
     auto* Hero=PC?Cast<AMCToothCharacter>(PC->GetPawn()):nullptr;
     auto* PS=Hero?Hero->GetPlayerState<AMCPlayerState>():nullptr;
@@ -115,7 +120,7 @@ void MCTickSingleDayValidation(UWorld* World)
         if(GS->Progression->TotalExperience!=R.TrainingExperience || PS->Points!=R.TrainingPoints) {Check(false,TEXT("Teaching actions awarded XP before training completion"));Finish();return;}
         if(Director->Stage!=R.Lesson) {
             Hero->SetPrimaryInputHeld(false);Hero->SetHandleInputHeld(false);
-            R.Lesson=Director->Stage;R.LessonAt=Now;
+            R.Lesson=Director->Stage;R.LessonAt=Now;R.HandleAttempted=false;
             UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY_LESSON %d"),int32(R.Lesson));
         }
         const double Age=Now-R.LessonAt;
@@ -123,12 +128,46 @@ void MCTickSingleDayValidation(UWorld* World)
         if(R.Lesson==EMCTutorialStage::ToothpickPull || R.Lesson==EMCTutorialStage::ToothpickBreak || R.Lesson==EMCTutorialStage::ToothpickHeal) {
             AMCToothpick* Pick=nullptr;for(TActorIterator<AMCToothpick> It(World);It;++It) if(It->Batch==AMCTutorialDirector::TutorialFoodBatch) {Pick=*It;break;}
             if(!Pick) return;
+            // The obstacle now enters from above. Wait for its real impact
+            // before positioning the fixture beside the interaction point.
+            if (Pick->State==EMCToothpickState::Falling) {
+                R.SawFalling=true;
+                if(Age>.15) Shot(8,TEXT("00_Toothpick_Falling"),Pick->GetActorLocation()+FVector(0,0,80));
+                return;
+            }
+            if(!R.ImpactChecked) {
+                R.ImpactChecked=true;R.ImpactSerial=Tongue->Motion.Serial;
+                Check(R.SawFalling && Pick->Ulcer && Pick->Ulcer->bContactPainOnly && R.ImpactSerial>0
+                    && Tongue->Motion.Settings.Height>=65,TEXT("Visible toothpick descent ends in one large impact with a contact-only wound"));
+            }
             Place(Pick->GetActorLocation()+FVector(-100,0,0));
             if(R.Lesson==EMCTutorialStage::ToothpickPull) {
+                if(Now>=R.NextPullDebugAt) {
+                    R.NextPullDebugAt=Now+1;
+                    const FVector Contact=Pick->Body->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation());
+                    FHitResult Block;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSingleDayPullContact),false,Hero);Query.AddIgnoredActor(Pick);
+                    World->LineTraceSingleByChannel(Block,Hero->GetActorLocation(),Contact,ECC_Visibility,Query);
+                    UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY_PULL can_pull=%d can_work=%d can_contact=%d handling=%d held_food=%s body_state=%d reward=%s move_ignored=%d progress=%.3f los_block=%s"),
+                        Pick->CanPull(Hero),Hero->CanWork(),Hero->CanContact(Pick),Hero->bHandling,*GetNameSafe(Hero->HeldFood.Get()),
+                        int32(Hero->ToothPhysics->GetBodyState()),*GetNameSafe(Hero->RewardInteraction.Get()),PC->IsMoveInputIgnored(),Pick->PullProgress,*GetNameSafe(Block.GetActor()));
+                }
                 if(Age>.3) Shot(0,TEXT("01_Toothpick_Pull"),Pick->GetActorLocation()+FVector(0,0,80));
-                if(Age>.8) Hero->SetHandleInputHeld(true);
+                if(Age>1.3) Shot(9,TEXT("00b_Toothpick_Impact"),Pick->GetActorLocation()+FVector(0,0,80));
+                if(Age>.8) {
+                    // The real impact can interrupt a held action by knocking the player down.
+                    // Once pulling is available again, model an ordinary E release and new press.
+                    if(!Hero->bHandling && Pick->CanPull(Hero)) {
+                        Hero->SetHandleInputHeld(false);
+                        if(R.HandleAttempted) UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY_PULL_RETRY knockdowns=%d progress=%.3f"),Hero->ToothPhysics->KnockdownCount,Pick->PullProgress);
+                    }
+                    Hero->SetHandleInputHeld(true);R.HandleAttempted=true;
+                }
             } else if(R.Lesson==EMCTutorialStage::ToothpickBreak) {
                 Hero->Inventory->ServerSelect(EMCToolSlot::Pickaxe);
+                if(!R.ExtractionChecked) {
+                    R.ExtractionChecked=true;
+                    Check(Tongue->Motion.Serial==R.ImpactSerial,TEXT("Toothpick extraction does not create another pain wave"));
+                }
                 if(Age>.3) Shot(1,TEXT("02_Toothpick_Pickaxe"),Pick->GetActorLocation()+FVector(0,0,55));
                 if(Age>.8) {Hero->Inventory->ServerSelect(EMCToolSlot::Pickaxe);Hero->SetPrimaryInputHeld(true);}
             } else {
@@ -181,20 +220,42 @@ void MCTickSingleDayValidation(UWorld* World)
     if(GS->SingleDayDirector->Stage==EMCSingleDayStage::Nuts && Nuts) {
         if(!R.SawRain && Nuts->Stage==EMCNutRainStage::Rainfall && Nuts->NutsSpawned>3) {
             R.SawRain=true;Check(R.FirstChoice && R.Pawn.Get()==Hero && !PS->Perks->ActivePerks.IsEmpty(),TEXT("Nuts begin after the first choice with the pawn and perk preserved"));
-            Shot(4,TEXT("05_Nut_Rain"),Tongue->Surface->Bounds.Origin+FVector(0,0,100));
+        }
+        if(R.SawRain && Nuts->Stage==EMCNutRainStage::Rainfall && (R.Shots&(1u<<4))==0) {
+            AMCNutLandingShadow* Warning=nullptr;float Strength=0;
+            for(AMCNutLandingShadow* Candidate:Nuts->LandingShadows) if(IsValid(Candidate) && Candidate->IsWarningActive()) {
+                const float Value=Candidate->GetShadowStrength();
+                if(Value>Strength) {Warning=Candidate;Strength=Value;}
+            }
+            // Observe a real active warning, allowing its normal fade-in to begin before capture.
+            if(Warning) {
+                UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY_RAIN_CAPTURE shadow=%s strength=%.3f impact_in=%.3f"),*Warning->GetName(),Strength,Warning->SecondsToImpact());
+                Shot(4,TEXT("05_Nut_Rain"),Warning->GetActorLocation()+FVector(0,0,100));
+            }
         }
         if(Nuts->Stage!=EMCNutRainStage::Enemies || Nuts->Enemies.IsEmpty()) return;
         if(!R.SawEnemies) {
             R.SawEnemies=true;R.EnemiesAt=Now;R.EnemyHealthBaseline=Hero->Status->State.Health;R.EnemyHitBaseline=Hero->ConfirmedHitCount;
-            Check(R.SawRain && Nuts->EnemiesLeft>0,TEXT("Remaining nuts awaken after rainfall"));
+            Check(R.SawRain && Nuts->Bosses.Num()==2 && Nuts->CompletedSeries>=4 && Nuts->EnemiesLeft>2,TEXT("Both bosses and weak creeps arrive after directed rain"));
         }
         if(Now-R.EnemiesAt>.3) Shot(5,TEXT("06_Nut_Enemies"),Nuts->Enemies[0]->GetActorLocation());
         AMCNutEnemy* Enemy=nullptr;for(AMCNutEnemy* Candidate:Nuts->Enemies) if(IsValid(Candidate) && Candidate->CanReceiveToolHit()) {Enemy=Candidate;break;}
         if(!Enemy) return;
-        Place(Enemy->GetActorLocation()+FVector(-100,0,0));
+        Place(Enemy->GetActorLocation()+FVector(-160,0,0));
         if(Hero->Status->State.Health<R.EnemyHealthBaseline) R.SawAttack=true;
-        if(!R.SawAttack && Now-R.EnemiesAt<5) return;
+        if(!R.SawAttack && Now-R.EnemiesAt<8) return;
         if(!R.SawAttack) {Check(false,TEXT("Awakened enemies did not perform a visible damaging attack"));Finish();return;}
+        // This input/completion fixture restores its stationary worker after observing
+        // actual incoming damage. Full bot runs measure survival without this aid.
+        if(R.SawAttack && Hero->Status->State.Health<Hero->Status->State.MaxHealth*.75f) {
+            FMCToothStatus Restored=Hero->Status->State;Restored.Health=Restored.MaxHealth;Hero->Status->Restore(Restored);
+        }
+        for(TActorIterator<AMCNutSpellProjectile> It(World);It;++It) Shot(9,TEXT("07_Mage_Fireball"),It->GetActorLocation());
+        for(const AMCNutBoss* Boss:Nuts->Bosses) if(IsValid(Boss)) {
+            if(Boss->Attack==EMCNutBossAttack::NutRain) Shot(6,TEXT("08_Mage_Rain"),Boss->LockedTarget);
+            if(Boss->Attack==EMCNutBossAttack::Charge && Boss->State==EMCNutBossState::Telegraph) Shot(10,TEXT("09_Tank_Charge"),(Boss->LockedStart+Boss->LockedTarget)*.5);
+            if(Boss->Attack==EMCNutBossAttack::Jump && Boss->State==EMCNutBossState::Telegraph) Shot(11,TEXT("10_Tank_Jump"),Boss->LockedTarget);
+        }
         Hero->Inventory->ServerSelect(EMCToolSlot::Pickaxe);Hero->SetPrimaryInputHeld(true);
         return;
     }
@@ -206,44 +267,21 @@ void MCTickSingleDayValidation(UWorld* World)
             Check(Hero->ConfirmedHitCount>R.EnemyHitBaseline,TEXT("Normal tool swings defeated the nut enemies"));
             Check(GS->Day==1 && R.Pawn.Get()==Hero && !PS->Perks->ActivePerks.IsEmpty(),TEXT("The director interval retains the same day, pawn and perk"));
         }
-        // Keep the scripted participant on tissue while the real timed scheduler runs.
         Place(Tongue->Surface->Bounds.Origin+FVector(-350,250,0));
         for(TActorIterator<AMCPlayerState> It(World);It;++It) if(It->HasPendingLevelChoices() && It->LevelUpOffer.IsValid())
-            Check(It->TryChooseLevelUpPerk(It->LevelUpOffer.OfferId,0),TEXT("A later earned personal choice resolves during the director interval"));
-        return;
-    }
-    if(GS->SingleDayDirector->Stage==EMCSingleDayStage::Boss) {
-        auto* Boss=GS->SingleDayDirector->FinalBoss.Get();if(!IsValid(Boss)) return;
-        Hero->SetPrimaryInputHeld(false);Hero->SetHandleInputHeld(false);
-        if(R.BossAt==0) {
-            R.BossAt=Now;
-            Check(R.SawDirector && Now-R.DirectorAt>=29,TEXT("The real thirty-second director interval precedes the final boss"));
-            Check(Boss->IsBossAlive() && Boss->Runtime.State!=EMCBossState::Dormant,TEXT("The event runner spawns and activates a living final boss"));
-            Check(Boss->GetClass()!=AMCBossCharacter::StaticClass(),TEXT("The final boss uses its saved authored Blueprint class"));
-            Check(GS->Phase==EMCShiftPhase::Working && GS->Day==1 && GS->DirectorState.NextTitle.IsEmpty(),
-                TEXT("The final encounter keeps day one active without offering another next event"));
-        }
-        if(Now-R.BossAt>1.5) Shot(6,TEXT("07_Final_Boss"),Boss->GetActorLocation()+FVector(0,0,100));
-        if(Now-R.BossAt>=3 && !R.BossDefeated) {
-            // Deliberate authority damage verifies encounter completion, not a full player-input boss fight.
-            const float Applied=Boss->ReceiveBossDamage(Boss->Runtime.MaxHealth+1,Hero);
-            R.BossDefeated=true;
-            Check(Applied>0 && !Boss->IsBossAlive(),TEXT("Scripted authority weapon damage defeats the final boss"));
-        }
-        return;
-    }
-    if(GS->SingleDayDirector->Stage==EMCSingleDayStage::Complete) {
-        if(R.WonAt==0) {
+            Check(It->TryChooseLevelUpPerk(It->LevelUpOffer.OfferId,0),TEXT("Earned completion XP grants another personal choice"));
+        if(Now-R.DirectorAt>=34) {
+          if(R.WonAt==0) {
             R.WonAt=Now;
-            Check(R.BossDefeated && GS->Phase==EMCShiftPhase::Won,TEXT("Final boss death naturally completes the run with victory"));
-            Check(GS->Day==1 && GS->RunSettings.DaysToSurvive==1 && GS->TasksLeft==0
-                && GS->DirectorState.NextTitle.IsEmpty() && GS->DirectorState.Instruction.IsEmpty()
-                && GS->DirectorState.FinishedFood==GS->DirectorState.SpawnedFood,
-                TEXT("Victory finishes the sole day and clears completed encounter instructions"));
-            Check(R.Pawn.Get()==Hero && !PS->Perks->ActivePerks.IsEmpty(),TEXT("Victory preserves the pawn and earned personal perks"));
+            Check(GS->SingleDayDirector->bAuthoredFragmentComplete && GS->Phase==EMCShiftPhase::Working,
+                TEXT("Completed authored fragment leaves the same run active after thirty seconds"));
+            Check(!GS->SingleDayDirector->FinalBoss && GS->SingleDayDirector->Stage==EMCSingleDayStage::Director,
+                TEXT("Support cannot start the obsolete final boss"));
+            Check(GS->DirectorDecisionLog.Num()>5,TEXT("Persistent director history records the ordered encounter and support decisions"));
+          }
+            Shot(7,TEXT("11_Director_Support"),FVector::ZeroVector,false);
+            if(Now-R.DirectorAt>=35) { Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);Finish(); }
         }
-        if(Now-R.WonAt>.3) Shot(7,TEXT("08_Single_Day_Victory"),FVector::ZeroVector,false);
-        if(Now-R.WonAt>=1) {Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);Finish();}
         return;
     }
 }

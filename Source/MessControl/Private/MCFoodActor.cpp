@@ -344,6 +344,21 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
         && Hit.ImpactNormal.Z>.55f && PrePhysicsVelocity.Z<-140)
         ReactToImpact(FMath::Clamp(-PrePhysicsVelocity.Z/650.f,.15f,1.f));
     if (!HasAuthority() || IsDisposed() || Phase==EMCFoodPhase::Carried || !IsValid(Other)) return;
+    // Only an incoming event walnut can crack another whole event walnut.
+    // Resting contacts, carried pieces and fragments cannot chain this hazard.
+    if(bMouthEntry && !bFragment && Holders.IsEmpty() && ActorHasTag(TEXT("MCNutRain")) && PrePhysicsVelocity.Z<-140)
+        if(auto* Nut=Cast<AMCFoodActor>(Other); Nut && !Nut->IsDisposed() && !Nut->bFragment
+            && !Nut->StackCarrier && Nut->Holders.IsEmpty() && Nut->ActorHasTag(TEXT("MCNutRain")))
+        {
+            const FVector Approach=-Hit.ImpactNormal.GetSafeNormal();
+            const float ClosingSpeed=FVector::DotProduct(PrePhysicsVelocity-Nut->GetVelocity(),Approach);
+            if(Hit.bBlockingHit && FMath::IsFinite(ClosingSpeed) && ClosingSpeed>=Settings.ImpactSpeed) {
+                const FVector Direction=(Nut->GetActorLocation()-GetActorLocation()).GetSafeNormal();
+                Nut->HitFood(FMath::Max(1.f,Nut->Health),Direction);
+                HitFood(FMath::Max(1.f,Health),-Direction);
+                return;
+            }
+        }
     if (bMouthEntry && !Cast<AMCToothCharacter>(Other) && OtherComponent && Hit.bBlockingHit
         && (OtherComponent->GetCollisionObjectType()==ECC_WorldStatic || OtherComponent->GetCollisionObjectType()==ECC_WorldDynamic))
     {
@@ -382,8 +397,10 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
     if (bMouthEntry && FoodData.Kind==EMCFoodKind::Food)
         if (auto* Hero=Cast<AMCToothCharacter>(Other))
         {
-            // Entry is a small kinetic nudge. Damage and ApplyHit both spill the
-            // player's load, and the ordinary impact path intentionally knocks them down.
+            // The nut cataclysm is an avoidable impact hazard. Ordinary food
+            // keeps its gentle entry behavior; both use the contact/speed gate above.
+            if (ActorHasTag(TEXT("MCNutRain")))
+                Target->Damage(FMath::Min(Settings.MaxDamage,Speed*Settings.DamagePerSpeed*Settings.Mass/9.f),Direction);
             if (!Hero->IsMimicCaptured() && Hero->ToothPhysics->GetBodyState()!=EMCBodyState::Recovering)
             {
                 FVector IncomingDirection=PrePhysicsVelocity.GetSafeNormal2D();

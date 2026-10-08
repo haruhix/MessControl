@@ -9,6 +9,7 @@
 #include "Components/SceneComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "GameFramework/GameStateBase.h"
 #include "Components/WidgetComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "EngineUtils.h"
@@ -50,12 +51,23 @@ bool AMCToothpick::Impale(AMCTongue* Surface,FVector Point,bool bTraining,int32 
     Ulcer=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Ulcer) return false;
     Ulcer->bUlcer=true; Ulcer->bRandomizeLiquidSize=false; Ulcer->Batch=InBatch;
-    Ulcer->bTreatmentBlocked=true; Ulcer->bTutorialLesion=bTraining;
+    Ulcer->bTreatmentBlocked=true; Ulcer->bTutorialLesion=bTraining; Ulcer->bContactPainOnly=true;
     if(bTraining) { Ulcer->DamagePerSecond=0; Ulcer->DisturbDamage=0; Ulcer->PulseDamage=0; }
     Ulcer->FinishSpawning(Pose); SetActorTransform(Pose);
-    if(bTraining && Tongue->IsMotionActive()) Tongue->ResetPain();
-    Tongue->TriggerPain(Hit.ImpactPoint); AddTickPrerequisiteActor(Tongue);
+    if(Tongue->IsMotionActive()) Tongue->ResetPain();
+    Tongue->TriggerToothpickPain(Hit.ImpactPoint); AddTickPrerequisiteActor(Tongue);
     RefreshAppearance(); ForceNetUpdate(); return true;
+}
+
+bool AMCToothpick::BeginFall(AMCTongue* Surface,FVector Point,bool bTraining,int32 InBatch)
+{
+    if(!HasAuthority() || !IsValid(Surface) || Surface->GetWorld()!=GetWorld() || Point.ContainsNaN() || Ulcer || State==EMCToothpickState::Falling) return false;
+    FHitResult Hit; if(!Surface->InteriorSurfacePoint(Point,85,Hit)) return false;
+    Tongue=Surface; SurfaceAnchor=Surface->GetActorTransform().InverseTransformPosition(Hit.ImpactPoint);
+    Batch=InBatch; bFallingTraining=bTraining; State=EMCToothpickState::Falling;
+    const auto* GS=GetWorld()->GetGameState(); FallStartedAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    SetActorLocationAndRotation(Hit.ImpactPoint+FVector(0,0,FallHeight+5),FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
+    AddTickPrerequisiteActor(Tongue); RefreshAppearance(); ForceNetUpdate(); return true;
 }
 
 bool AMCToothpick::CanPull(const AMCToothCharacter* Worker) const
@@ -111,10 +123,12 @@ bool AMCToothpick::HitWithPickaxe(AMCToothCharacter* Worker,float Damage)
 void AMCToothpick::RefreshAppearance()
 {
     const bool Visible=!IsBroken(); Body->SetVisibility(Visible); ActionIndicator->SetVisibility(Visible);
-    Body->SetCollisionEnabled(Visible?ECollisionEnabled::QueryOnly:ECollisionEnabled::NoCollision);
-    Body->SetRelativeLocation(State==EMCToothpickState::Impaled?FVector(0,0,80+PullProgress*90):FVector(0,65,12));
-    Body->SetRelativeRotation(State==EMCToothpickState::Impaled?FRotator(0,0,12):FRotator(90,0,0));
-    ActionIndicator->SetRelativeLocation(State==EMCToothpickState::Impaled?FVector(0,0,230):FVector(0,65,90));
+    const bool Upright=State==EMCToothpickState::Impaled || State==EMCToothpickState::Falling;
+    ActionIndicator->SetVisibility(Visible && State!=EMCToothpickState::Falling);
+    Body->SetCollisionEnabled(Visible && State!=EMCToothpickState::Falling?ECollisionEnabled::QueryOnly:ECollisionEnabled::NoCollision);
+    Body->SetRelativeLocation(Upright?FVector(0,0,80+PullProgress*90):FVector(0,65,12));
+    Body->SetRelativeRotation(Upright?FRotator(0,0,12):FRotator(90,0,0));
+    ActionIndicator->SetRelativeLocation(Upright?FVector(0,0,230):FVector(0,65,90));
 }
 
 void AMCToothpick::Tick(float DeltaSeconds)
@@ -124,7 +138,17 @@ void AMCToothpick::Tick(float DeltaSeconds)
     if(Tongue) {
         FHitResult Hit;
         if(Tongue->SurfacePoint(Tongue->GetActorTransform().TransformPosition(SurfaceAnchor),Hit))
-            SetActorLocationAndRotation(Hit.ImpactPoint+Hit.ImpactNormal*5,FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
+        {
+            float Height=0;
+            if(State==EMCToothpickState::Falling)
+            {
+                const auto* GS=GetWorld()->GetGameState(); const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+                const float Alpha=FMath::Clamp(float((Now-FallStartedAt)/FMath::Max(.2f,FallSeconds)),0.f,1.f);
+                Height=FMath::Max(100.f,FallHeight)*(1-Alpha*Alpha);
+                if(HasAuthority() && Alpha>=1 && !Impale(Tongue,Hit.ImpactPoint,bFallingTraining,Batch)) {Destroy();return;}
+            }
+            SetActorLocationAndRotation(Hit.ImpactPoint+Hit.ImpactNormal*5+FVector(0,0,Height),FRotationMatrix::MakeFromZ(Hit.ImpactNormal).Rotator());
+        }
     }
     RefreshAppearance();
     if(GetNetMode()!=NM_DedicatedServer && !IsBroken()) {
@@ -138,4 +162,5 @@ void AMCToothpick::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(AMCToothpick,State); DOREPLIFETIME(AMCToothpick,PullProgress);
     DOREPLIFETIME(AMCToothpick,Ulcer); DOREPLIFETIME(AMCToothpick,Batch); DOREPLIFETIME(AMCToothpick,Tongue); DOREPLIFETIME(AMCToothpick,SurfaceAnchor);
     DOREPLIFETIME(AMCToothpick,bWoundHealed);
+    DOREPLIFETIME(AMCToothpick,FallStartedAt); DOREPLIFETIME(AMCToothpick,FallSeconds); DOREPLIFETIME(AMCToothpick,FallHeight);
 }

@@ -2,6 +2,8 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCPlayerState.h"
+#include "MCProgressionComponent.h"
+#include "MCSingleDayDirector.h"
 #include "MCPlaytestBotController.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -121,8 +123,8 @@ bool AMCPlaytestSession::StartSession(int32 Count, EMCPlaytestBotSkill Skill, bo
     { Error=TEXT("Playtests require an authoritative MCGameMode game world."); return false; }
     if (bActive || (Find(GetWorld()) && Find(GetWorld())!=this && Find(GetWorld())->IsActive()))
     { Error=TEXT("A playtest is already active. Use MC.Bots.Stop first."); return false; }
-    if (State->bTutorialActive || State->bLobbyWaiting || State->bDevManualEvents)
-    { Error=TEXT("Finish the tutorial/lobby and leave manual event mode before starting a playtest."); return false; }
+    if ((State->bTutorialActive && !Mode->bUseSingleDayLoop) || State->bLobbyWaiting || State->bDevManualEvents)
+    { Error=TEXT("Leave the lobby/manual event mode before starting a playtest; legacy training must be finished first."); return false; }
     if (static_cast<uint8>(Skill)>static_cast<uint8>(EMCPlaytestBotSkill::Skilled))
     { Error=TEXT("Invalid bot skill."); return false; }
     InitialHumans=0;
@@ -140,6 +142,7 @@ bool AMCPlaytestSession::StartSession(int32 Count, EMCPlaytestBotSkill Skill, bo
     { Error=TEXT("Playtests need a PlayerStart and the game's tooth pawn / player state classes."); return false; }
 
     // Restart before adding participants: no old objectives, reward ownership or pending deaths survive.
+    const bool bSkippedTraining=State->bTutorialActive && Mode->bUseSingleDayLoop;
     Mode->RestartShiftForPlaytest(Seed);
     DecisionSeed=Seed;
     BotSkill=Skill;
@@ -178,11 +181,14 @@ bool AMCPlaytestSession::StartSession(int32 Count, EMCPlaytestBotSkill Skill, bo
     const FString Name=FString::Printf(TEXT("Bots_%s_%s.csv"), *FDateTime::UtcNow().ToString(TEXT("%Y%m%d_%H%M%S")), *FGuid::NewGuid().ToString(EGuidFormats::Digits));
     ReportPath=FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Playtests"), Name));
     IFileManager::Get().MakeDirectory(*FPaths::GetPath(ReportPath), true);
-    PendingRows.Add(TEXT("schema_version,engine_version,build_version,map,mode,run_seed,decision_seed,skill,initial_humans,initial_team,participants,elapsed_seconds,day,step,phase,tasks_total,tasks_left,failed_events,mouth_health,reserve_teeth,bot_id,bot_name,bot_alive,bot_points,bot_deaths,idle_seconds,work_seconds,path_failures,activity,outcome,bot_x,bot_y,bot_z,bot_speed,brush_contacts,confirmed_hits,contact_progress"));
+    PendingRows.Add(TEXT("schema_version,engine_version,build_version,map,mode,run_seed,decision_seed,skill,initial_humans,initial_team,participants,elapsed_seconds,day,step,phase,tasks_total,tasks_left,failed_events,mouth_health,reserve_teeth,bot_id,bot_name,bot_alive,bot_points,bot_deaths,idle_seconds,work_seconds,path_failures,activity,outcome,bot_x,bot_y,bot_z,bot_speed,brush_contacts,confirmed_hits,contact_progress,tutorial_active,single_day_stage,team_level,total_experience,pending_bot_choices"));
     StartedAt=State->GetServerWorldTimeSeconds();
     NextSnapshotAt=StartedAt+1.; NextFlushAt=StartedAt+5.;
     bActive=true;
     SetActorTickEnabled(true);
+    Mode->BeginPlaytestSequence();
+    UE_LOG(LogTemp,Display,TEXT("MC_BOTS_SETUP single_day=%d skipped_training=%d participants=%d tutorial=%d"),
+        State->bSingleDayLoop?1:0,bSkippedTraining?1:0,Mode->GetGameplayParticipantCount(),State->bTutorialActive?1:0);
     WriteSnapshot(TEXT("started")); FlushReport();
     PlaytestMessage(FString::Printf(TEXT("Diagnostic prototype (uncalibrated): %d %s bots, %s, seed=%d. New shift. Physics is not deterministic. CSV: %s"), Count, MCPlaytestSkillName(Skill), bObserve?TEXT("observe"):TEXT("coop"), Seed, *ReportPath));
     return true;
@@ -287,7 +293,7 @@ void AMCPlaytestSession::WriteSnapshot(const FString& Outcome)
     const AMCGameState* State=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
     const AMCGameMode* Mode=GetWorld()?GetWorld()->GetAuthGameMode<AMCGameMode>():nullptr;
     if (!State || !Mode || ReportPath.IsEmpty()) return;
-    const FString Prefix=FString::Printf(TEXT("1,%s,%s,%s,%s,%d,%d,%s,%d,%d,%d,%.3f,%d,%d,%d,%d,%d,%d,%.3f,%d"),
+    const FString Prefix=FString::Printf(TEXT("2,%s,%s,%s,%s,%d,%d,%s,%d,%d,%d,%.3f,%d,%d,%d,%d,%d,%d,%.3f,%d"),
         *CsvField(FEngineVersion::Current().ToString()), *CsvField(FApp::GetBuildVersion()), *CsvField(GetWorld()->GetMapName()),
         bObservation?TEXT("observe"):TEXT("coop"), State->RunSeed, DecisionSeed, MCPlaytestSkillName(BotSkill),
         InitialHumans, InitialTeamSize, Mode->GetGameplayParticipantCount(), FMath::Max(0.,State->GetServerWorldTimeSeconds()-StartedAt),
@@ -300,12 +306,15 @@ void AMCPlaytestSession::WriteSnapshot(const FString& Outcome)
         const AMCPlayerState* Identity=Bot?Bot->GetPlayerState<AMCPlayerState>():nullptr;
         const FVector Position=Hero?Hero->GetActorLocation():FVector::ZeroVector;
         // These contact counters belong to the current pawn life; bot_deaths identifies respawn resets.
-        PendingRows.Add(Prefix+FString::Printf(TEXT(",%d,%s,%d,%d,%d,%.3f,%.3f,%d,%s,%s,%.3f,%.3f,%.3f,%.3f,%d,%d,%.3f"), Index+1,
+        PendingRows.Add(Prefix+FString::Printf(TEXT(",%d,%s,%d,%d,%d,%.3f,%.3f,%d,%s,%s,%.3f,%.3f,%.3f,%.3f,%d,%d,%.3f,%d,%d,%d,%lld,%d"), Index+1,
             *CsvField(Identity?Identity->GetPlayerName():TEXT("missing")), Hero && Hero->Status && Hero->Status->IsAlive()?1:0,
             Identity?Identity->Points:0, BotDeaths[Index], Bot?Bot->GetIdleSeconds():0.f, Bot?Bot->GetWorkSeconds():0.f,
             Bot?Bot->GetPathFailureCount():0, *CsvField(Bot?Bot->GetActivity():TEXT("controller_missing")), *CsvField(Outcome),
             Position.X, Position.Y, Position.Z, Hero?Hero->GetVelocity().Size():0.f,
-            Hero?Hero->SuccessfulBrushContacts:0, Hero?Hero->ConfirmedHitCount:0, Hero?Hero->ContactProgress:0.f));
+            Hero?Hero->SuccessfulBrushContacts:0, Hero?Hero->ConfirmedHitCount:0, Hero?Hero->ContactProgress:0.f,
+            State->bTutorialActive?1:0, State->SingleDayDirector?static_cast<int32>(State->SingleDayDirector->Stage):INDEX_NONE,
+            State->Progression?State->Progression->TeamLevel:1, State->Progression?State->Progression->TotalExperience:int64(0),
+            Identity?Identity->PendingLevelChoices:0));
     }
 }
 
@@ -325,8 +334,10 @@ void AMCPlaytestSession::PrintReport()
     const AMCGameState* State=GetWorld()->GetGameState<AMCGameState>();
     WriteSnapshot(TerminalOutcome.IsEmpty()?TEXT("snapshot"):TerminalOutcome); FlushReport();
     if (!State) return;
-    PlaytestMessage(FString::Printf(TEXT("Uncalibrated diagnostic: %s, %.1fs, day=%d step=%d tasks=%d/%d health=%.1f reserves=%d. CSV: %s"),
-        *CurrentOutcome(), State->GetServerWorldTimeSeconds()-StartedAt, State->Day, State->StepIndex, State->TasksLeft,
+    PlaytestMessage(FString::Printf(TEXT("Uncalibrated diagnostic: %s, %.1fs, day=%d step=%d tutorial=%d single_day_stage=%d team_level=%d tasks=%d/%d health=%.1f reserves=%d. CSV: %s"),
+        *CurrentOutcome(), State->GetServerWorldTimeSeconds()-StartedAt, State->Day, State->StepIndex, State->bTutorialActive?1:0,
+        State->SingleDayDirector?static_cast<int32>(State->SingleDayDirector->Stage):INDEX_NONE,
+        State->Progression?State->Progression->TeamLevel:1, State->TasksLeft,
         State->TasksTotal, State->MouthHealth, State->AvailableArenaTeeth(), *ReportPath));
     for (int32 Index=0; Index<Bots.Num(); ++Index)
         if (AMCPlaytestBotController* Bot=Bots[Index].Get())

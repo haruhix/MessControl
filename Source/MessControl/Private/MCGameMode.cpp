@@ -154,7 +154,7 @@ void AMCGameMode::RestartShift()
     if (!State) return;
     if(IsValid(State->SingleDayDirector)) { State->SingleDayDirector->Stop(); State->SingleDayDirector->Destroy(); }
     State->SingleDayDirector=nullptr; State->bSingleDayLoop=bUseSingleDayLoop;
-    if(bUseSingleDayLoop) bTutorialRequested=true;
+    if(bUseSingleDayLoop) bTutorialRequested=!bRestartingForPlaytest;
     if (IsValid(TutorialDirector)) { TutorialDirector->OnTutorialFinished.RemoveAll(this); TutorialDirector->Stop(); TutorialDirector->Destroy(); }
     TutorialDirector=nullptr;
     State->bTutorialActive=bTutorialRequested;
@@ -162,6 +162,7 @@ void AMCGameMode::RestartShift()
     State->LobbyLoadedPlayers=0;
     if (IsValid(GameDirector)) { GameDirector->Stop(); GameDirector->Destroy(); } GameDirector=nullptr;
     State->DirectorState=FMCGameDirectorState();
+    State->DirectorDecisionLog.Reset();
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { It->ResetPain(); It->ResetPressure(); It->ResetYawn(); }
     TArray<AActor*> OldDayActors;
@@ -250,7 +251,12 @@ void AMCGameMode::RestartShift()
     State->StepStartedAt=State->GetServerWorldTimeSeconds(); State->PreviousStepFailed=false;
     if(bUseSingleDayLoop) {
         State->SingleDayDirector=GetWorld()->SpawnActor<AMCSingleDayDirector>();
-        if(State->SingleDayDirector) State->SingleDayDirector->Initialize(FirstDayPlan.LoadSynchronous(),SingleDayProfile.LoadSynchronous(),DirectorProfile.LoadSynchronous());
+        auto* SupportProfile=DirectorProfile.LoadSynchronous();
+        if(!SupportProfile || DirectorProfile.ToSoftObjectPath().GetAssetPathString()==TEXT("/Game/Data/DA_GameDirector.DA_GameDirector")) {
+            SupportProfile=LoadObject<UMCGameDirectorProfile>(nullptr,TEXT("/Game/Gameplay/CoreLoop/DA_SingleDayDirector.DA_SingleDayDirector"));
+            if(!SupportProfile) { SupportProfile=NewObject<UMCGameDirectorProfile>(this); SupportProfile->InitialCleaningSeconds=1.5f; }
+        }
+        if(State->SingleDayDirector) State->SingleDayDirector->Initialize(FirstDayPlan.LoadSynchronous(),SingleDayProfile.LoadSynchronous(),SupportProfile);
     }
     else if(bUseAdaptiveDirector && !State->bTutorialActive && !State->bLobbyWaiting) {
         GameDirector=GetWorld()->SpawnActor<AMCGameDirector>();
@@ -263,7 +269,28 @@ void AMCGameMode::RestartShiftForPlaytest(int32 Seed)
     if (!HasAuthority()) return;
     if (const AMCPlaytestSession* Session=AMCPlaytestSession::Find(GetWorld()); Session && Session->IsActive()) return;
     NextPlaytestSeed=Seed;
+    TGuardValue<bool> PlaytestRestart(bRestartingForPlaytest,true);
     RestartShift();
+}
+void AMCGameMode::BeginPlaytestSequence()
+{
+    if (!HasAuthority()) return;
+    const AMCPlaytestSession* Session=AMCPlaytestSession::Find(GetWorld());
+    const auto* GS=GetGameState<AMCGameState>();
+    if (!Session || !Session->IsActive() || !GS || GS->bTutorialActive || GS->bLobbyWaiting || GS->bDevManualEvents) return;
+    BeginSingleDaySequence();
+}
+void AMCGameMode::BeginSingleDaySequence()
+{
+    auto* GS=GetGameState<AMCGameState>();
+    if (!HasAuthority() || !GS || !GS->bSingleDayLoop || !IsValid(GS->SingleDayDirector)
+        || GS->SingleDayDirector->Stage!=EMCSingleDayStage::Training) return;
+    GS->bTutorialActive=false;
+    // The complete team must exist before XP is awarded: every participant gets
+    // their own offer, while observers have already been excluded from the run.
+    if (GS->Progression) GS->Progression->AddExperience(GS->Progression->GetExperienceToNextLevel());
+    GS->SingleDayDirector->BeginFirstPerk();
+    GS->ForceNetUpdate();
 }
 void AMCGameMode::Tick(float DeltaSeconds)
 {
@@ -327,9 +354,7 @@ void AMCGameMode::FinishTutorial()
     TutorialDirector->Stop();
     bTutorialRequested=false;
     if(auto* GS=GetGameState<AMCGameState>(); GS && GS->bSingleDayLoop && GS->SingleDayDirector) {
-        GS->bTutorialActive=false;
-        if(GS->Progression) GS->Progression->AddExperience(GS->Progression->GetExperienceToNextLevel());
-        GS->SingleDayDirector->BeginFirstPerk(); GS->ForceNetUpdate();
+        BeginSingleDaySequence();
         UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_FINISHED_FIRST_PERK"));
         return;
     }

@@ -82,7 +82,7 @@ void UMCTutorialWidget::NativeOnInitialized()
     CardSlot=Root->AddChildToCanvas(Scale);
     CardSlot->SetAnchors(FAnchors(.5f,1.f));
     CardSlot->SetAlignment(FVector2D(.5f,1.f));
-    CardSlot->SetPosition(FVector2D(0,-210));
+    CardSlot->SetPosition(FVector2D(0,-290));
     CardSlot->SetSize(FVector2D(980,230));
     CardSize=WidgetTree->ConstructWidget<USizeBox>();
     CardSize->SetWidthOverride(980);
@@ -267,7 +267,9 @@ void UMCTutorialWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
     {
         const float Width=FMath::Min(980.f,FMath::Max(280.f,float(Area.X)-32.f));
         const float Scale=Width/980.f;
-        CardSlot->SetPosition(FVector2D(0,-FMath::Clamp(float(Area.Y)*.24f,100.f,210.f)));
+        // Leave the lower 278 px for the inventory, stamina and action hints.
+        const float BottomInset=FMath::Min(290.f,float(Area.Y)*.55f);
+        CardSlot->SetPosition(FVector2D(0,-BottomInset));
         CardSlot->SetSize(FVector2D(Width,DesiredCardHeight*Scale));
     }
     RefreshElapsed+=DeltaSeconds;

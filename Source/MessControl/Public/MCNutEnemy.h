@@ -24,9 +24,11 @@ public:
     virtual void Tick(float Dt) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void ConfigureFromFood(const AMCFoodActor* Food,AMCTongue* OnTongue,FMCNutEnemySettings InSettings);
-    bool CanReceiveToolHit() const { return !bDefeated && Health>0 && !IsActorBeingDestroyed(); }
+    void ConfigureEnemy(AMCTongue* OnTongue,UStaticMesh* Mesh,FVector Scale,FMCNutEnemySettings InSettings);
+    virtual bool IsEncounterAlive() const { return !bDefeated && Health>0 && !IsActorBeingDestroyed(); }
+    virtual bool CanReceiveToolHit() const { return IsEncounterAlive(); }
     FVector GetToolTargetPoint(FVector From) const;
-    float ReceiveToolDamage(float Damage,AMCToothCharacter* Source);
+    virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source);
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USphereComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> LeftEye;
@@ -41,13 +43,15 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) double AttackStartedAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) double HitAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCTongue> Tongue;
-private:
-    UFUNCTION() void RefreshPresentation();
+protected:
+    UFUNCTION() virtual void RefreshPresentation();
     bool IsLiveTarget(const AMCToothCharacter* Hero) const;
     bool HasAttackContact(const AMCToothCharacter* Hero) const;
     void Retarget();
-    void Defeat();
+    virtual void Defeat();
     void MoveOnTongue(FVector Direction,float Dt);
+    void TickPresentation(double Now);
+private:
     double NextTargetAt=0,NextAttackAt=0;
     bool bAttackPending=false;
     TWeakObjectPtr<AMCToothCharacter> AttackTarget;

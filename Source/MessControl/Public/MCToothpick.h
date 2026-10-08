@@ -11,7 +11,7 @@ class UStaticMeshComponent;
 class UWidgetComponent;
 
 UENUM(BlueprintType)
-enum class EMCToothpickState : uint8 { Impaled, Extracted, Broken };
+enum class EMCToothpickState : uint8 { Impaled, Extracted, Broken, Falling };
 
 /** One shared obstacle: pull it out, break it with a pickaxe, then treat its wound. */
 UCLASS()
@@ -24,6 +24,7 @@ public:
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     bool Impale(AMCTongue* Surface, FVector Point, bool bTraining=false, int32 InBatch=0);
+    bool BeginFall(AMCTongue* Surface,FVector Point,bool bTraining=false,int32 InBatch=0);
     bool CanPull(const AMCToothCharacter* Worker) const;
     bool TryPull(AMCToothCharacter* Worker,float Seconds);
     bool CanReceivePickaxeHit(const AMCToothCharacter* Worker) const;
@@ -39,9 +40,13 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly) TObjectPtr<AMCMouthSurface> Ulcer;
     UPROPERTY(Replicated,BlueprintReadOnly) int32 Batch=0;
     UPROPERTY(Replicated,BlueprintReadOnly) bool bWoundHealed=false;
+    UPROPERTY(Replicated,BlueprintReadOnly) double FallStartedAt=-100;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,meta=(ClampMin="0.2",ClampMax="3")) float FallSeconds=.9f;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,meta=(ClampMin="100",ClampMax="1500")) float FallHeight=600;
     UFUNCTION() void RefreshAppearance();
 private:
     UPROPERTY(Replicated) TObjectPtr<AMCTongue> Tongue;
     UPROPERTY(Replicated) FVector SurfaceAnchor=FVector::ZeroVector;
     uint64 LastPullFrame=MAX_uint64;
+    bool bFallingTraining=false;
 };

@@ -38,6 +38,7 @@ public:
     UFUNCTION(BlueprintPure,Category="Tongue") bool IsMotionActive() const;
     UFUNCTION(CallInEditor,Category="Tongue") void RebuildSurface();
     bool TriggerPain(FVector WorldPoint);
+    bool TriggerToothpickPain(FVector WorldPoint);
     bool TriggerJolt();
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue|Yawn") bool StartYawn(float Seconds=4);
     UFUNCTION(BlueprintPure,Category="Tongue|Yawn") bool IsYawnActive() const;

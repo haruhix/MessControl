@@ -47,8 +47,10 @@ public:
     void UpdateObjectives();
     void ProcessRespawns();
     UFUNCTION(BlueprintCallable, Category="Shift") void RestartShift();
-    /** Start a fresh diagnostic run with the same event seed used by the bot decisions. */
+    /** Start a fresh diagnostic run; single-day bot tests skip the human tutorial once. */
     void RestartShiftForPlaytest(int32 Seed);
+    /** Release the first personal perk only after the diagnostic team has been spawned. */
+    void BeginPlaytestSequence();
     /** Human players and allied test controllers count alike; spectators do not. */
     int32 GetGameplayParticipantCount() const;
     static bool IsGameplayParticipant(const AController* Controller);
@@ -75,7 +77,9 @@ public:
 private:
     bool bTutorialRequested=false;
     bool bLobbyRequested=false;
+    bool bRestartingForPlaytest=false;
     TOptional<int32> NextPlaytestSeed;
+    void BeginSingleDaySequence();
     void StartDay();
     void FinishDay(bool bTimedOut);
     void ClearTasks();

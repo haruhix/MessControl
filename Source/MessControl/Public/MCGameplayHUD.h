@@ -7,6 +7,7 @@ class UBorder;
 class USizeBox;
 class UTextBlock;
 class UProgressBar;
+class UButton;
 struct FMCGameDirectorState;
 
 UCLASS()
@@ -27,6 +28,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorText;
     UPROPERTY(Transient) TObjectPtr<UBorder> DirectorCandidatesPanel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorCandidatesText;
+    UPROPERTY(Transient) TObjectPtr<UButton> DirectorLogButton;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorLogButtonText;
     UPROPERTY(Transient) TObjectPtr<UBorder> ProgressionPanel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ProgressionText;
     UPROPERTY(Transient) TObjectPtr<UProgressBar> ProgressionBar;
@@ -37,6 +40,7 @@ private:
     void EnsureDirectorMonitor();
     void EnsureProgressionPanel();
     void RefreshDirectorMonitor(const FMCGameDirectorState& State);
+    UFUNCTION() void OpenDirectorLog();
 };
 
 /** Replaceable vector icon widget; layout, tint and size are editable in UMG. */

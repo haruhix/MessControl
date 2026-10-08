@@ -68,12 +68,15 @@ bool FMCSingleDayHandoffTest::RunTest(const FString&)
     TestFalse(TEXT("The team is ready after its choice"),F.State->Progression->HasPendingChoices());
     return true;
 }
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayBossEndTest,"MessControl.SingleDay.FinalBossDeathEndsRun",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSingleDayBossEndTest,"MessControl.SingleDay.LegacyFinalBossDeathEndsRun",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCSingleDayBossEndTest::RunTest(const FString&)
 {
     MCSingleDayTestsPrivate::FWorldFixture F;
     auto* Loop=F.State->SingleDayDirector.Get(); F.State->bTutorialActive=false; F.State->Phase=EMCShiftPhase::Working;
+    auto* Legacy=NewObject<UMCSingleDayProfile>(F.World); Legacy->bLegacyTimedFinale=true;
+    Loop->Initialize(F.Mode->FirstDayPlan.LoadSynchronous(),Legacy,nullptr);
+    TestTrue(TEXT("The timed finale requires explicit legacy opt-in"),Loop->IsLegacyTimedFinale());
     Loop->Stage=EMCSingleDayStage::Boss;
     Loop->FinalBoss=F.World->SpawnActor<AMCBossCharacter>();
     Loop->Tick(.1f);

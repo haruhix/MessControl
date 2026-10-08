@@ -353,11 +353,13 @@ void AMCTutorialDirector::EnsureSharedToothpick()
             if(!It->InteriorSurfacePoint(Center,85,Floor)) continue;
             auto* Pick=GetWorld()->SpawnActor<AMCToothpick>(Floor.ImpactPoint,FRotator::ZeroRotator);
             if(!Pick) continue;
-            if(!Pick->Impale(*It,Floor.ImpactPoint,true,TutorialFoodBatch)) {Pick->Destroy();continue;}
-            LessonToothpick=Pick; LessonUlcer=Pick->Ulcer; SpawnedActors.Add(Pick); SpawnedActors.Add(LessonUlcer);
+            if(!Pick->BeginFall(*It,Floor.ImpactPoint,true,TutorialFoodBatch)) {Pick->Destroy();continue;}
+            LessonToothpick=Pick; SpawnedActors.Add(Pick);
             break;
         }
     }
+    LessonUlcer=IsValid(LessonToothpick)?LessonToothpick->Ulcer.Get():nullptr;
+    if(IsValid(LessonUlcer)) SpawnedActors.AddUnique(LessonUlcer.Get());
     for(auto& Player:Players) {
         Player.StageRequired=0;
         Player.GoalTarget=Stage==EMCTutorialStage::ToothpickHeal?static_cast<AActor*>(LessonUlcer.Get()):static_cast<AActor*>(LessonToothpick.Get());
@@ -537,7 +539,7 @@ void AMCTutorialDirector::Tick(float DeltaSeconds)
     if(FMCTutorialProgressRules::IsSharedStage(Stage)) {
         bool Complete=false;
         if(IsValid(LessonToothpick)) {
-            if(Stage==EMCTutorialStage::ToothpickPull) Complete=LessonToothpick->State!=EMCToothpickState::Impaled;
+            if(Stage==EMCTutorialStage::ToothpickPull) Complete=LessonToothpick->State==EMCToothpickState::Extracted || LessonToothpick->IsBroken();
             if(Stage==EMCTutorialStage::ToothpickBreak) Complete=LessonToothpick->IsBroken();
             if(Stage==EMCTutorialStage::ToothpickHeal) Complete=LessonToothpick->IsWoundHealed() || (IsValid(LessonUlcer) && LessonUlcer->IsHealed());
         }

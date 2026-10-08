@@ -2,6 +2,7 @@
 #include "Misc/AutomationTest.h"
 #include "MCFoodActor.h"
 #include "MCNutEnemy.h"
+#include "Components/StaticMeshComponent.h"
 #include "MCNutRainEvent.h"
 #include "MCNutRainProfile.h"
 #include "MCTongue.h"
@@ -14,6 +15,8 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "UObject/GarbageCollection.h"
+#include "UObject/StrongObjectPtr.h"
 #include <limits>
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
@@ -23,6 +26,9 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainLimits,"MessControl.CoreLoop.NutRain.
 bool FMCNutRainLimits::RunTest(const FString&)
 {
     FMCNutRainSettings Settings;
+    TestEqual(TEXT("Directed rain stays at least forty seconds"),Settings.RainSeconds,40.f);
+    TestEqual(TEXT("Directed rain has a bounded eight by four launch ceiling"),Settings.RainCountForPlayers(4),32);
+    Settings.bBossEncounter=false;
     TestEqual(TEXT("Solo prototype launches 30 nuts"),Settings.RainCountForPlayers(1),30);
     TestEqual(TEXT("Solo prototype can awaken four surviving nuts"),Settings.EnemyCountForPlayers(1),4);
     TestEqual(TEXT("Cooperation can scale the rain"),Settings.RainCountForPlayers(4),54);
@@ -47,7 +53,10 @@ struct FNutRainWorld
     UWorld* World=UWorld::CreateWorld(EWorldType::Game,false);
     AMCTongue* Tongue=nullptr;
     AMCNutRainEvent* Event=nullptr;
-    UMCNutRainProfile* Profile=nullptr;
+    // A transient soft asset path cannot reload its table after collection.
+    // The fixture owns both objects across Event::Stop and a second Start.
+    TStrongObjectPtr<UMCNutRainProfile> Profile;
+    TStrongObjectPtr<UDataTable> Menu;
     FNutRainWorld()
     {
         GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
@@ -61,14 +70,15 @@ struct FNutRainWorld
         const FTransform Pose(FRotator::ZeroRotator,FVector::ZeroVector,FVector(24,16,.2));
         Tongue=World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),Pose,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         Tongue->SourceMesh=Cube; Tongue->bAutomaticYawns=false; Tongue->FinishSpawning(Pose); Tongue->SetActorTickEnabled(false);
-        Profile=NewObject<UMCNutRainProfile>(World); Profile->Settings.NutCount=6;
+        Profile.Reset(NewObject<UMCNutRainProfile>(World)); Profile->Settings.NutCount=6;
+        Profile->Settings.bBossEncounter=false;
         Profile->Settings.NutsPerExtraPlayer=Profile->Settings.EnemiesPerExtraPlayer=0;
         Profile->Settings.EnemyCount=2; Profile->Settings.RainSeconds=3; Profile->Settings.SettleSeconds=1.5f;
         Profile->Settings.Entry.FlightSeconds=.75f; Profile->Settings.Entry.EntryHeight=150;
-        auto* Menu=NewObject<UDataTable>(World); Menu->RowStruct=FMCFoodRow::StaticStruct();
+        Menu.Reset(NewObject<UDataTable>(World)); Menu->RowStruct=FMCFoodRow::StaticStruct();
         FMCFoodRow Row; Row.WholeMeshes={Cube}; Row.FragmentMeshes={Cube}; Row.Resistance=EMCFoodResistance::Hard;
         Row.Scale=FVector(.5); Row.FragmentScale=FVector(.25); Row.SpoilSeconds=600; Row.Mass=7;
-        Menu->AddRow(TEXT("Walnut"),Row); Profile->Menu=Menu;
+        Menu->AddRow(TEXT("Walnut"),Row); Profile->Menu=Menu.Get();
         Event=World->SpawnActor<AMCNutRainEvent>();
     }
     ~FNutRainWorld()
@@ -81,7 +91,7 @@ struct FNutRainWorld
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainLifecycle,"MessControl.CoreLoop.NutRain.RainThenHostilesAndReset",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCNutRainLifecycle::RunTest(const FString&)
 {
-    FNutRainWorld T; T.Event->Start(nullptr,T.Profile);
+    FNutRainWorld T; T.Event->Start(nullptr,T.Profile.Get());
     TestEqual(TEXT("The event begins with rain"),T.Event->Stage,EMCNutRainStage::Rainfall);
     TestEqual(TEXT("Only the first nut launches immediately"),T.Event->NutsSpawned,1);
     TestEqual(TEXT("Rain does not immediately create enemies"),T.Event->EnemiesLeft,0);
@@ -109,7 +119,9 @@ bool FMCNutRainLifecycle::RunTest(const FString&)
     TestEqual(TEXT("Explicit reset removes rain leftovers"),Remaining,0);
     TestEqual(TEXT("Reset restores the idle stage"),T.Event->Stage,EMCNutRainStage::Idle);
     TestEqual(TEXT("Reset removes enemy handles"),T.Event->Enemies.Num(),0);
-    T.Event->Start(nullptr,T.Profile);
+    CollectGarbage(RF_NoFlags);
+    TestEqual(TEXT("The fixture retains its transient menu across reset and collection"),T.Profile->Menu.Get(),T.Menu.Get());
+    T.Event->Start(nullptr,T.Profile.Get());
     TestEqual(TEXT("A new event starts a fresh count"),T.Event->NutsSpawned,1);
     TestFalse(TEXT("A restarted storm cannot inherit completion"),T.Event->IsComplete());
     return true;
@@ -118,7 +130,7 @@ bool FMCNutRainLifecycle::RunTest(const FString&)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutEnemyTargeting,"MessControl.CoreLoop.NutRain.LiveTargetsAndInterruptibleBites",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCNutEnemyTargeting::RunTest(const FString&)
 {
-    FNutRainWorld T; T.Event->Start(nullptr,T.Profile); T.Step(4.8f);
+    FNutRainWorld T; T.Event->Start(nullptr,T.Profile.Get()); T.Step(4.8f);
     if(!TestTrue(TEXT("The fixture has a hostile nut"),!T.Event->Enemies.IsEmpty())) return false;
     AMCNutEnemy* Enemy=T.Event->Enemies[0];
     for(AMCNutEnemy* Other:T.Event->Enemies) if(Other!=Enemy) Other->SetActorTickEnabled(false);
@@ -134,6 +146,42 @@ bool FMCNutEnemyTargeting::RunTest(const FString&)
     Hero->Status->Damage(1000); T.Step(.6f);
     TestNull(TEXT("A dead player is removed from the nut's target"),Enemy->Target.Get());
     TestTrue(TEXT("A defeated player cannot deal another tool hit"),Enemy->ReceiveToolDamage(5,Hero)==0);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutDirectedEncounter,"MessControl.CoreLoop.NutRain.DirectedSeriesAndGuaranteedBossGate",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutDirectedEncounter::RunTest(const FString&)
+{
+    FNutRainWorld T;
+    T.Profile->Settings.bBossEncounter=true;
+    T.Profile->Settings.RainSeconds=40;
+    T.Profile->Settings.MinimumNutsPerSeries=T.Profile->Settings.MaximumNutsPerSeries=2;
+    auto* Cube=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+    T.Profile->Settings.Boss.WholeMesh=Cube; T.Profile->Settings.Boss.ShellMesh=Cube; T.Profile->Settings.Boss.KernelMesh=Cube;
+    T.Event->Start(nullptr,T.Profile.Get());
+    const int32 Batch=T.Event->Nuts[0]->Batch;
+    TestTrue(TEXT("Rain walnuts have the configured player-sized height"),FMath::IsNearlyEqual(float(T.Event->Nuts[0]->Visual->Bounds.BoxExtent.Z*2),180.f,1.f));
+    T.Step(39);
+    TestEqual(TEXT("Forty-second dodge phase cannot start bosses early"),T.Event->Stage,EMCNutRainStage::Rainfall);
+    for(AMCFoodActor* Food:T.Event->Nuts) if(IsValid(Food) && !Food->IsDisposed()) Food->Dispose();
+    T.Step(12);
+    TestFalse(TEXT("Directed encounter starts successfully"),T.Event->bFailed);
+    TestTrue(TEXT("At least four complete series precede bosses"),T.Event->CompletedSeries>=4);
+    TestEqual(TEXT("Removing every existing walnut cannot cancel the two bosses"),T.Event->Bosses.Num(),2);
+    TestEqual(TEXT("Falling bosses remain part of the alive encounter"),T.Event->BossesLeft,2);
+    TestFalse(TEXT("An untouched encounter cannot complete on a deadline"),T.Event->IsComplete());
+    const auto& Times=T.Event->PlannedLaunchTimes;
+    for(int32 I=1;I<Times.Num();++I) {
+        const float Gap=Times[I]-Times[I-1];
+        if(I%2==1) TestTrue(TEXT("Nuts inside a series have reaction time"),Gap>=1.49f && Gap<=2.57f);
+        else TestTrue(TEXT("Complete series have a four-second breather"),Gap>=3.99f && Gap<=4.07f);
+    }
+    for(AMCNutEnemy* Enemy:T.Event->Enemies) if(IsValid(Enemy)) Enemy->ReceiveToolDamage(100000,nullptr);
+    T.Step(.1f);
+    TestTrue(TEXT("Defeating both bosses and every creep unlocks the encounter"),T.Event->IsComplete());
+    T.Event->Stop();
+    int32 Left=0; for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->Batch==Batch) ++Left;
+    TestEqual(TEXT("Encounter reset also removes cracked walnut fragments"),Left,0);
+    TestEqual(TEXT("Encounter reset releases boss handles"),T.Event->Bosses.Num(),0);
     return true;
 }
 #endif

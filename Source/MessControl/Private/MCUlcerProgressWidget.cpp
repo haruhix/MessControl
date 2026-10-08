@@ -13,7 +13,7 @@
 int32 UMCUlcerProgressWidget::NativePaint(const FPaintArgs& Args,const FGeometry& G,const FSlateRect& CullingRect,FSlateWindowElementList& E,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
 {
     const auto* Pick=ToothpickSource.Get(); const auto* Patch=Source.Get();
-    if(Pick?Pick->IsBroken():(!Patch || !Patch->bUlcer || Patch->bTreatmentBlocked || Patch->IsHealed())) return Layer;
+    if(Pick?(Pick->IsBroken() || Pick->State==EMCToothpickState::Falling):(!Patch || !Patch->bUlcer || Patch->bTreatmentBlocked || Patch->IsHealed())) return Layer;
     const bool Pull=Pick && Pick->State==EMCToothpickState::Impaled;
     const float Value=Pick?(Pull?Pick->PullProgress:0.f):Patch->Healing;
     const FVector2D Center=G.GetLocalSize()*.5;

@@ -11,6 +11,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #if WITH_EDITOR
 #include "StaticMeshCompiler.h"
@@ -100,6 +101,30 @@ bool FMCMouthEntryGentleImpact::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainEntryImpact,"MessControl.Food.MouthEntry.NutStormContactDamageAndCooldown",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutRainEntryImpact::RunTest(const FString&)
+{
+    FMouthEntryWorld T;
+    auto* Nut=T.Food(FVector(-4000,0,2000));
+    Nut->Tags.AddUnique(TEXT("MCNutRain"));
+    Nut->BeginMouthEntry(FVector(600,0,0),140);
+    const float Health=T.Hero->Status->State.Health;
+    T.Step(.1f);
+    TestEqual(TEXT("A falling nut that misses the player cannot deal proximity damage"),T.Hero->Status->State.Health,Health);
+    T.Contact(Nut,T.Hero,T.Hero->GetCapsuleComponent(),FVector(-1,0,0));
+    const float HitHealth=T.Hero->Status->State.Health;
+    TestTrue(TEXT("A validated cataclysm contact damages the player"),HitHealth<Health);
+    TestTrue(TEXT("The ordinary impact damage limit still applies"),Health-HitHealth<=Nut->Settings.MaxDamage);
+    T.Contact(Nut,T.Hero,T.Hero->GetCapsuleComponent(),FVector(-1,0,0));
+    TestEqual(TEXT("Duplicate physics contacts cannot apply a second hit immediately"),T.Hero->Status->State.Health,HitHealth);
+    auto* Stationary=T.Food(FVector(-5000,0,2000));
+    Stationary->Tags.AddUnique(TEXT("MCNutRain"));
+    Stationary->BeginMouthEntry(FVector::ZeroVector,140);
+    T.Contact(Stationary,T.Hero,T.Hero->GetCapsuleComponent(),FVector(-1,0,0));
+    TestEqual(TEXT("A stationary storm nut is not an incoming impact hazard"),T.Hero->Status->State.Health,HitHealth);
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCMouthEntryLifecycle,"MessControl.Food.MouthEntry.LandingAndDisposalRestoreDrag",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCMouthEntryLifecycle::RunTest(const FString&)
 {
@@ -151,6 +176,33 @@ bool FMCMouthEntryLifecycle::RunTest(const FString&)
     TimedOut->Body->SetEnableGravity(false); TimedOut->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
     T.Step(8.1f);
     TestEqual(TEXT("An interrupted entry cannot keep zero drag indefinitely"),TimedOut->Body->GetLinearDamping(),.7f);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutCollisionCracks,"MessControl.Food.MouthEntry.FallingWalnutsCrackWithoutContactChains",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutCollisionCracks::RunTest(const FString&)
+{
+    FMouthEntryWorld T;
+    auto* Lower=T.Food(FVector(-4000,0,1800));
+    auto* Incoming=T.Food(FVector(-4000,0,2000));
+    Lower->Batch=Incoming->Batch=991;
+    Lower->Tags.Add(TEXT("MCNutRain")); Incoming->Tags.Add(TEXT("MCNutRain"));
+    Incoming->BeginMouthEntry(FVector(0,0,-650),140);
+    T.Contact(Incoming,Lower,Lower->Body,FVector::UpVector);
+    TestTrue(TEXT("A falling whole walnut cracks the struck walnut"),Lower->IsDisposed());
+    TestTrue(TEXT("The incoming shell also fractures on the impact"),Incoming->IsDisposed());
+    int32 Fragments=0;for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->Batch==991 && It->bFragment) ++Fragments;
+    TestEqual(TEXT("Both broken walnuts create their normal collectable fragments"),Fragments,Lower->FoodData.Fragments+Incoming->FoodData.Fragments);
+    T.Contact(Incoming,Lower,Lower->Body,FVector::UpVector);
+    int32 After=0;for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->Batch==991 && It->bFragment) ++After;
+    TestEqual(TEXT("Duplicate solver contacts cannot duplicate fragments"),After,Fragments);
+    auto* Resting=T.Food(FVector(-6000,0,2000));auto* Neighbor=T.Food(FVector(-6000,0,1800));
+    Resting->Tags.Add(TEXT("MCNutRain"));Neighbor->Tags.Add(TEXT("MCNutRain"));
+    T.Contact(Resting,Neighbor,Neighbor->Body,FVector::UpVector);
+    TestFalse(TEXT("Resting walnut contact cannot start a fracture chain"),Neighbor->IsDisposed());
+    auto* Ordinary=T.Food(FVector(-8000,0,1800));auto* Event=T.Food(FVector(-8000,0,2000));
+    Event->Tags.Add(TEXT("MCNutRain"));Event->BeginMouthEntry(FVector(0,0,-650),140);
+    T.Contact(Event,Ordinary,Ordinary->Body,FVector::UpVector);
+    TestFalse(TEXT("A walnut cannot auto-fracture unrelated ordinary food"),Ordinary->IsDisposed());
     return true;
 }
 #endif

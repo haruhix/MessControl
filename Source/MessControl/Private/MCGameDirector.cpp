@@ -67,10 +67,11 @@ FString AMCGameDirector::EventName(EMCGameDirectorEvent Kind)
 }
 void AMCGameDirector::Record(const FString& Decision)
 {
-    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const int32 Seconds=FMath::Max(0,int32(GetWorld()->GetTimeSeconds()-DayStartedAt));
     const FString Entry=FString::Printf(TEXT("Д%d %02d:%02d  %s"),GS?GS->Day:0,Seconds/60,Seconds%60,*Decision);
     Log.Add(Entry); if(Log.Num()>12) Log.RemoveAt(0,Log.Num()-12);
+    if (GS) GS->RecordDirectorDecision(Entry);
     UE_LOG(LogTemp,Display,TEXT("MC_DIRECTOR %s"),*Entry);
 }
 void AMCGameDirector::InitializeRun(UMCDayPlan* Plan,UMCGameDirectorProfile* Profile)
@@ -96,7 +97,7 @@ void AMCGameDirector::InitializeRun(UMCDayPlan* Plan,UMCGameDirectorProfile* Pro
     GS->DayPlan=SharedPlan; GS->StepIndex=INDEX_NONE; GS->bDayOneComplete=false;
     Services=GetWorld()->SpawnActor<AMCDayDirector>();
     if(Services) { Services->SetOwner(this); Services->InitializeEventServices(Mechanics,GS->RunSeed); }
-    bManaging=true; Pacing=EMCGameDirectorPacing::Intermission;
+    bManaging=true; bInterlude=false; bSupportMode=false; Pacing=EMCGameDirectorPacing::Intermission;
     GS->DirectorState=FMCGameDirectorState(); GS->DirectorState.bEnabled=true;
     Record(TEXT("Director включён: выбор по состоянию команды, без квот событий")); GS->ForceNetUpdate();
 }
@@ -131,6 +132,7 @@ void AMCGameDirector::BeginDay(int32 Day)
 void AMCGameDirector::BeginInterlude(float Seconds)
 {
     if(!HasAuthority() || !Settings) return;
+    bSupportMode=false;
     Settings->Days[0].InitialPatches=0;
     for(auto& Rule:Settings->Events) if(Rule.Kind==EMCGameDirectorEvent::Boss || Rule.Kind==EMCGameDirectorEvent::Reward) Rule.Weight=0;
     BeginDay(1); bInterlude=true;
@@ -140,6 +142,23 @@ void AMCGameDirector::BeginInterlude(float Seconds)
     DaySettings.FinalCleanupSeconds=FMath::Min(8.f,DaySettings.DaySeconds*.25f);
     GS->PhaseEndsAt=DayEndsAt;
     GS->ForceNetUpdate();
+}
+void AMCGameDirector::BeginSupport(float Seconds)
+{
+    if (!HasAuthority() || !Settings) return;
+    bSupportMode=true;
+    Settings->Days[0].InitialPatches=0;
+    for (auto& Rule:Settings->Events)
+        if (Rule.Kind==EMCGameDirectorEvent::Boss || Rule.Kind==EMCGameDirectorEvent::Reward) Rule.Weight=0;
+    BeginDay(1);
+    bInterlude=true;
+    auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const float Duration=FMath::IsFinite(Seconds)?FMath::Max(0.f,Seconds):0.f;
+    DayEndsAt=Duration>0?GS->GetServerWorldTimeSeconds()+Duration:0;
+    DaySettings.FinalCleanupSeconds=0;
+    GS->PhaseEndsAt=DayEndsAt;
+    Record(Duration>0?TEXT("Поддержка арены до следующего ключевого события"):TEXT("Поддержка арены: авторенный фрагмент завершён, дедлайна нет"));
+    Publish(Observe(),TEXT("Обычные задачи доступны без дневных гейтов и оценки дедлайна"),GS->GetServerWorldTimeSeconds());
 }
 FName AMCGameDirector::ChooseFoodRow(EMCGameDirectorEvent Kind,const FMCGameDirectorState& Seen) const
 {
@@ -237,7 +256,7 @@ FMCGameDirectorState AMCGameDirector::Observe() const
     S.Difficulty=Difficulty; S.Throughput=Throughput; S.TargetPressure=TargetPressure;
     const auto* GameState=GetWorld()->GetGameState<AMCGameState>();
     const double Now=GameState?GameState->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
-    S.DayProgress=FMath::Clamp(float((Now-DayStartedAt)/FMath::Max(1.f,DaySettings.DaySeconds)),0.f,1.f);
+    S.DayProgress=bSupportMode?0.f:FMath::Clamp(float((Now-DayStartedAt)/FMath::Max(1.f,DaySettings.DaySeconds)),0.f,1.f);
     S.CompletionProgress=SpawnedFoodTotal>0?FMath::Clamp(float(FinishedFoodTotal)/SpawnedFoodTotal,0.f,1.f):0;
     return S;
 }
@@ -279,7 +298,7 @@ TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGa
         auto& C=Out.AddDefaulted_GetRef(); C.Kind=Rule.Kind; C.BaseWeight=Rule.Weight;
         const auto T=MakeTicket(Rule.Kind,Seen); C.ForecastPressure=ForecastPressure(T,Seen);
         if(Rule.Weight<=0) C.BlockReason=TEXT("Выключено");
-        else if(GS && GS->Day<Rule.FirstDay) C.BlockReason=TEXT("Откроется в день ")+FString::FromInt(Rule.FirstDay);
+        else if(!bSupportMode && GS && GS->Day<Rule.FirstDay) C.BlockReason=TEXT("Откроется в день ")+FString::FromInt(Rule.FirstDay);
         else if(Difficulty+.001f<Rule.MinimumDifficulty) C.BlockReason=TEXT("Сложность ниже порога");
         else if(Rule.MaxPerDay>0 && DayEventCounts.FindRef(Rule.Kind)>=Rule.MaxPerDay) C.BlockReason=TEXT("Достигнут безопасный предел");
         else if(const auto* Last=LastEventAt.Find(Rule.Kind);Last && Now<*Last+Rule.CooldownSeconds) C.BlockReason=FString::Printf(TEXT("Cooldown %.0f с"),*Last+Rule.CooldownSeconds-Now);
@@ -318,7 +337,8 @@ TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGa
         }
         float Duration=FoodKind(Rule.Kind)?25.f:Rule.Kind==EMCGameDirectorEvent::Boss?90.f:15.f;
         if(Rule.Kind==EMCGameDirectorEvent::ColdCola) {const auto* Cola=Mechanics->ColdColaProfile.LoadSynchronous();Duration=Cola?Cola->ColdSeconds+Cola->ThawSeconds+15:55;}
-        if(C.BlockReason.IsEmpty() && Now+Duration+Settings->WarningSeconds>DayEndsAt) C.BlockReason=TEXT("Не успеть до конца дня");
+        if(DayEndsAt>0 && C.BlockReason.IsEmpty() && Now+Duration+Settings->WarningSeconds>DayEndsAt)
+            C.BlockReason=bSupportMode?TEXT("Не успеть до следующего ключевого события"):TEXT("Не успеть до конца дня");
         if(!C.BlockReason.IsEmpty()) continue;
         const float Cost=FMath::Max(0.f,C.ForecastPressure-Seen.Pressure);
         const float Fit=FMath::Clamp((TargetPressure-Seen.Pressure+.15f)/FMath::Max(.05f,Cost),.15f,1.5f);
@@ -515,7 +535,8 @@ void AMCGameDirector::Publish(const FMCGameDirectorState& Seen,const FString& Re
     S.WaitProbability=S.WaitWeight/Sum; S.NextTitle=TEXT("ПЕРЕДЫШКА");
     float Best=S.WaitProbability; for(const auto& C:S.Candidates) if(C.Probability>Best) {Best=C.Probability;S.NextTitle=EventName(C.Kind);}
     for(const auto& T:Tickets) if(!T.bStarted && T.WarningAt>=0) {S.bNextReserved=true;S.NextTitle=EventName(T.Kind);break;}
-    S.LastDecision=Log.IsEmpty()?FString():Log.Last(); S.DecisionLog=Log;
+    S.DecisionLog=GS->DirectorDecisionLog;
+    S.LastDecision=S.DecisionLog.IsEmpty()?FString():S.DecisionLog.Last();
     int32 Outstanding=0; for(const auto& T:Tickets) Outstanding+=T.bStarted && !T.bDone && FoodKind(T.Kind);
     const auto Pipeline=MCMeasureFoodPipeline(GetWorld());
     GS->TasksLeft=FMath::Max(Outstanding,Pipeline.OutstandingActors>0?1:0)+Seen.CleaningTasks+Seen.Fires+Seen.Ulcers+Seen.Ice+(Seen.bGlobalMovement?1:0);
@@ -543,11 +564,11 @@ void AMCGameDirector::Tick(float Dt)
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(GS->Phase!=EMCShiftPhase::Working) return;
     const double Now=GS->GetServerWorldTimeSeconds(); ResolveTickets(Now); auto Seen=Observe();
     UpdateAdaptation(Seen,Now,Dt); Seen=Observe();
-    if(Now>=DayEndsAt) {
+    if(DayEndsAt>0 && Now>=DayEndsAt) {
         if(bInterlude) {CancelReservation(TEXT("следующий основной эвент"),Now);Stop();return;}
         CancelReservation(TEXT("конец смены"),Now);Publish(Seen,TEXT("Окончание смены"),Now);FinishDay(Seen,Now);return;
     }
-    if(Now>=DayEndsAt-DaySettings.FinalCleanupSeconds) Pacing=EMCGameDirectorPacing::FinalCleanup;
+    if(!bSupportMode && Now>=DayEndsAt-DaySettings.FinalCleanupSeconds) Pacing=EMCGameDirectorPacing::FinalCleanup;
     else if(Pacing==EMCGameDirectorPacing::Build && (Seen.Pressure>=TargetPressure*1.12f || Seen.Stress>.4f || Seen.bUrgent)) {
         Pacing=EMCGameDirectorPacing::Drain; PhaseStartedAt=Now;
     } else if(Pacing==EMCGameDirectorPacing::Drain && !Seen.bUrgent && !Seen.bGlobalMovement && Seen.Pressure<=TargetPressure*.45f) {

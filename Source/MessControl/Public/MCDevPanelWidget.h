@@ -40,6 +40,7 @@ private:
     void AddAction(UVerticalBox* Box,const FString& Text,const FString& Hint,EMCDevAction Action,int32 Step=INDEX_NONE);
     UFUNCTION() void CloseClicked();
     UFUNCTION() void PlayerOverlayChanged(bool Checked);
+    UFUNCTION() void DirectorOverlayChanged(bool Checked);
     UFUNCTION() void StartBotsClicked();
     UFUNCTION() void StopBotsClicked();
     UFUNCTION() void ReportBotsClicked();
@@ -51,6 +52,8 @@ private:
     UPROPERTY() TObjectPtr<UButton> ReportBotsButton;
     UPROPERTY() TObjectPtr<UTextBlock> BotsStatus;
     UPROPERTY() TObjectPtr<UCheckBox> PlayerOverlayCheck;
+    UPROPERTY() TObjectPtr<UCheckBox> DirectorOverlayCheck;
+    UPROPERTY() TObjectPtr<UTextBlock> DirectorLogText;
     UPROPERTY() TObjectPtr<UVerticalBox> Steps;
     UPROPERTY() TObjectPtr<UVerticalBox> Actions;
     UPROPERTY() TObjectPtr<UTextBlock> Status;

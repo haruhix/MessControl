@@ -52,8 +52,14 @@ void AMCNutEnemy::BeginPlay()
 void AMCNutEnemy::ConfigureFromFood(const AMCFoodActor* Food,AMCTongue* OnTongue,FMCNutEnemySettings InSettings)
 {
     if(!HasAuthority() || !IsValid(Food)) return;
+    ConfigureEnemy(OnTongue,Food->ItemMesh,Food->Visual->GetRelativeScale3D()*Food->GetActorScale3D(),InSettings);
+}
+
+void AMCNutEnemy::ConfigureEnemy(AMCTongue* OnTongue,UStaticMesh* Mesh,FVector Scale,FMCNutEnemySettings InSettings)
+{
+    if(!HasAuthority() || !IsValid(OnTongue) || !IsValid(Mesh) || Scale.ContainsNaN()) return;
     Settings=InSettings; Settings.Sanitize(); Health=Settings.MaxHealth; bDefeated=false;
-    NutMesh=Food->ItemMesh; MeshScale=Food->Visual->GetRelativeScale3D()*Food->GetActorScale3D();
+    NutMesh=Mesh; MeshScale=Scale;
     Tongue=OnTongue; RefreshPresentation(); ForceNetUpdate();
 }
 
@@ -144,11 +150,8 @@ void AMCNutEnemy::MoveOnTongue(FVector Direction,float Dt)
     }
 }
 
-void AMCNutEnemy::Tick(float Dt)
+void AMCNutEnemy::TickPresentation(double Now)
 {
-    Super::Tick(Dt);
-    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
-    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     const bool Winding=AttackStartedAt>-99 && Now-AttackStartedAt<Settings.WindupSeconds;
     const float Hop=bDefeated?0:Settings.HopHeight*(.5f+.5f*FMath::Sin(Now*9+PhaseOffset));
     const float Squash=Winding?.82f:1.f;
@@ -160,6 +163,14 @@ void AMCNutEnemy::Tick(float Dt)
         FVector EyePoint=Eye->GetRelativeLocation(); EyePoint.Z=Settings.BodyRadius*.32f+(Winding?0:Hop);
         Eye->SetRelativeLocation(EyePoint);
     }
+}
+
+void AMCNutEnemy::Tick(float Dt)
+{
+    Super::Tick(Dt);
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    TickPresentation(Now);
     if(!HasAuthority() || bDefeated) return;
     if(GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost)) return;
     if(!IsValid(Tongue) || Tongue->IsActorBeingDestroyed()) { Defeat(); return; }
