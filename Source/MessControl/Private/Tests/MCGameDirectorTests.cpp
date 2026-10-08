@@ -481,12 +481,15 @@ bool FMCGameDirectorCandidateStateTest::RunTest(const FString&)
     TestTrue(TEXT("Observed health changes effective event weight before any new choice"),Hurt.Stress>Healthy.Stress
         && HurtCoffee->EffectiveWeight<Coffee->EffectiveWeight);
     T.Hero->Status->State.Health=T.Hero->Status->State.MaxHealth;
-    for(int32 I=0;I<40;++I) T.Food(true,EMCFoodKind::Food,7000+I);
+    // Whole ingredients retain enough destruction work to cross the actual
+    // pressure target; forty one-hit fragments no longer constitute overload.
+    for(int32 I=0;I<40;++I) T.Food(false,EMCFoodKind::Food,7000+I);
     const auto Overloaded=T.Director->Observe();
     const auto Blocked=T.Director->EvaluateCandidates(Overloaded,T.State->GetServerWorldTimeSeconds()+10);
     const auto* BlockedCoffee=FindCandidate(Blocked,EMCGameDirectorEvent::Coffee);
     if(!TestNotNull(TEXT("Overload exposes its candidate diagnostic"),BlockedCoffee)) return false;
     TestTrue(TEXT("Real outstanding food increases observed work and pressure"),Overloaded.WorkSeconds>Healthy.WorkSeconds && Overloaded.Pressure>Healthy.Pressure);
+    TestTrue(TEXT("The overload fixture reaches the director's actual target"),Overloaded.Pressure>=Overloaded.TargetPressure);
     TestTrue(TEXT("Overload suppresses new coffee and explains the decision"),BlockedCoffee->EffectiveWeight==0
         && BlockedCoffee->Probability==0 && !BlockedCoffee->BlockReason.IsEmpty());
     T.Hero->Status->State.Health=0;
@@ -693,16 +696,20 @@ bool FMCGameDirectorCoffeeStarvationTest::RunTest(const FString&)
     const auto* Yawn=FindCandidate(Cooling,EMCGameDirectorEvent::Yawn);const auto* Coffee=FindCandidate(Cooling,EMCGameDirectorEvent::Coffee);
     if(!TestNotNull(TEXT("The next special event has a cadence diagnostic"),Yawn)
         || !TestNotNull(TEXT("Coffee has its own cooldown diagnostic"),Coffee)) return false;
-    TestTrue(TEXT("An actual coffee event still closes the common special-event gap"),Yawn->EffectiveWeight==0
-        && Yawn->BlockReason.Contains(TEXT("Интервал")));
+    // Coffee cleaning is an ordinary producer in the current scheduler. Its own
+    // cooldown still applies, while it does not reset the movement-event gap.
+    TestTrue(TEXT("Coffee cleaning does not restart the movement-event gap"),Yawn->EffectiveWeight>0
+        && Yawn->Probability>0 && Yawn->BlockReason.IsEmpty());
     TestTrue(TEXT("Coffee keeps its individual cooldown after a real launch"),Coffee->EffectiveWeight==0
         && Coffee->BlockReason.Contains(TEXT("Cooldown")));
     const auto Restored=T.Director->EvaluateCandidates(T.Director->Observe(),CoffeeFinished+31);
     const auto* Ready=FindCandidate(Restored,EMCGameDirectorEvent::Coffee);
     if(!TestNotNull(TEXT("Coffee remains an explicit option after its cooldown"),Ready)) return false;
     TestTrue(TEXT("Elapsed special gap and cooldown reopen coffee"),Ready->EffectiveWeight>0 && Ready->Probability>0);
-    for(int32 I=0;I<40;++I) T.Food(true,EMCFoodKind::Food,9200+I);
-    const auto Overloaded=T.Director->EvaluateCandidates(T.Director->Observe(),CoffeeFinished+31);
+    for(int32 I=0;I<40;++I) T.Food(false,EMCFoodKind::Food,9200+I);
+    const auto OverloadedWorld=T.Director->Observe();
+    TestTrue(TEXT("The admission fixture exceeds the actual pressure target"),OverloadedWorld.Pressure>=OverloadedWorld.TargetPressure);
+    const auto Overloaded=T.Director->EvaluateCandidates(OverloadedWorld,CoffeeFinished+31);
     const auto* Blocked=FindCandidate(Overloaded,EMCGameDirectorEvent::Coffee);
     if(!TestNotNull(TEXT("Overloaded coffee remains visible in diagnostics"),Blocked)) return false;
     TestTrue(TEXT("Removing food starvation never bypasses overload admission"),Blocked->EffectiveWeight==0

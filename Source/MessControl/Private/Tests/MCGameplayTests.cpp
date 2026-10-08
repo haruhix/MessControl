@@ -22,6 +22,7 @@
 #include "MCVomitBurst.h"
 #include "MCHazardWave.h"
 #include "MCDayDirector.h"
+#include "MCGameDirector.h"
 #include "MCDayPlan.h"
 #include "MCMouthSurface.h"
 #include "MCCoffeeFlood.h"
@@ -1108,15 +1109,30 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCDevEventsTest,"MessControl.Development.Event
 bool FMCDevEventsTest::RunTest(const FString& Parameters)
 {
     FTestMouth Mouth;
-    const FTransform TongueTransform(FQuat::Identity,FVector::ZeroVector,FVector(30,30,1));
+    // Keep workflow counts independent of authored food variants and their changing footprints.
+    auto* AuthoredPlan=Mouth.Mode->FirstDayPlan.LoadSynchronous();
+    if (!TestNotNull(TEXT("Day plan"),AuthoredPlan)) return false;
+    auto* Plan=DuplicateObject<UMCDayPlan>(AuthoredPlan,Mouth.Mode);
+    auto* Menu=NewObject<UDataTable>(Plan);
+    Menu->RowStruct=FMCFoodRow::StaticStruct();
+    auto* MealMesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+    if (!TestNotNull(TEXT("Compact workflow meal mesh"),MealMesh)) return false;
+    FMCFoodRow Meal;Meal.Label=FText::FromString(TEXT("Workflow meal"));
+    Meal.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(MealMesh));Meal.FragmentMeshes=Meal.WholeMeshes;
+    Meal.Scale=Meal.FragmentScale=FVector(.25);Meal.HalfExtent=FVector(12.5);Meal.Mass=1;
+    Meal.Resistance=EMCFoodResistance::Soft;Meal.Fragments=1;
+    Menu->AddRow(TEXT("WorkflowMeal"),Meal);
+    // Real F3 paths explicitly request these rows; keep them compact without changing random meal selection.
+    FMCFoodRow PreferredMeal=Meal;PreferredMeal.SelectionWeight=0;
+    Menu->AddRow(TEXT("Fibre"),PreferredMeal);Menu->AddRow(TEXT("Egg"),PreferredMeal);
+    Plan->Menu=Menu;Plan->BreakfastCount=6;Mouth.Mode->FirstDayPlan=Plan;
+    const FTransform TongueTransform(FQuat::Identity,FVector::ZeroVector,FVector(60,60,1));
     auto* Tongue=Mouth.World->SpawnActorDeferred<AMCTongue>(AMCTongue::StaticClass(),TongueTransform);
     Tongue->SourceMesh=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Plane.Plane")); Tongue->FinishSpawning(TongueTransform);
     auto* Floor=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Floor);
     Floor->SetRootComponent(Box); Box->SetBoxExtent(FVector(3000,2000,10)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent(); Floor->SetActorLocation(FVector(0,0,-10));
     Mouth.World->SpawnActor<APlayerStart>(FVector(-500,0,100),FRotator::ZeroRotator);
     auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->Possess(Mouth.Worker());
-    const auto* Plan=Mouth.Mode->FirstDayPlan.LoadSynchronous();
-    if (!TestNotNull(TEXT("Day plan"),Plan)) return false;
     auto Index=[&](EMCDayStep Step) { return Plan->Steps.IndexOfByPredicate([Step](const FMCDayStepSettings& S){return S.Step==Step;}); };
     TestFalse(TEXT("Unassigned controller cannot use panel"),Mouth.Mode->CanUseDevPanel(PC));
     PC->SetAsLocalPlayerController(); // Same host designation used by GameMode when spawning a local player.
@@ -1177,7 +1193,10 @@ bool FMCDevEventsTest::RunTest(const FString& Parameters)
     TestFalse(TEXT("Normal restart leaves manual mode"),Mouth.State->bDevManualEvents);
     TestEqual(TEXT("Normal restart restores reserve"),Mouth.State->AvailableArenaTeeth(),8);
     Mouth.NextPhase();
-    TestEqual(TEXT("Normal day starts with lesson"),Mouth.State->StepIndex,0);
+    TestTrue(TEXT("F3 normal restart selects the adaptive director"),Mouth.Mode->bUseAdaptiveDirector);
+    TestEqual(TEXT("The restored adaptive run begins on day one"),Mouth.State->Day,1);
+    if(TestNotNull(TEXT("Normal restart restores the real adaptive director"),Mouth.Mode->GameDirector.Get()))
+        TestTrue(TEXT("The restored director actively manages the run"),Mouth.Mode->GameDirector->IsManagingEvents() && Mouth.State->DirectorState.bEnabled);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCoffeeWaterTest,"MessControl.Coffee.SurfaceAndRagdollSwimming",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
@@ -2285,7 +2304,11 @@ bool FMCCameraStabilityTest::RunTest(const FString&)
     const float Released=FVector::Distance(Pivot,H->Camera->GetComponentLocation());
     TestTrue(TEXT("Wall exit eases out instead of popping to the full arm"),Released>Blocked && Released<Blocked+60);
     for(int32 I=0;I<240;++I) View(1.f/120);
-    TestTrue(TEXT("The camera eventually restores the selected distance"),FMath::IsNearlyEqual(float(FVector::Distance(Pivot,H->Camera->GetComponentLocation())),900.f,1.f));
+    // The collision sweep still starts at Z30; orbit distance belongs to the raised editable pivot.
+    const FVector OrbitFocus=H->GetCameraFocusLocation();
+    TestTrue(TEXT("The camera eventually restores the selected distance"),FMath::IsNearlyEqual(float(FVector::Distance(OrbitFocus,H->Camera->GetComponentLocation())),900.f,1.f));
+    const FVector WantedEye=OrbitFocus-FRotator(-30,0,0).Vector()*900;
+    TestTrue(TEXT("Wall recovery restores the selected eye position above the sweep origin"),H->Camera->GetComponentLocation().Equals(WantedEye,1.f));
     return true;
 }
 
@@ -2311,7 +2334,10 @@ bool FMCRadialCameraTest::RunTest(const FString&)
     Hero->bCameraWallReveal=true; TickView();
     TestEqual(TEXT("Reveal bypasses only camera collision"),Mesh->GetCollisionResponseToChannel(ECC_Camera),ECR_Ignore);
     TestEqual(TEXT("Wall keeps its pawn collision"),Mesh->GetCollisionResponseToChannel(ECC_Pawn),ECR_Block);
-    TestTrue(TEXT("Reveal retains selected camera distance"),FMath::IsNearlyEqual(float(FVector::Dist(Pivot,Hero->Camera->GetComponentLocation())),900.f,1.f));
+    const FVector OrbitFocus=Hero->GetCameraFocusLocation();
+    TestTrue(TEXT("Reveal retains selected camera distance"),FMath::IsNearlyEqual(float(FVector::Dist(OrbitFocus,Hero->Camera->GetComponentLocation())),900.f,1.f));
+    const FVector WantedEye=OrbitFocus-FRotator(-30,0,0).Vector()*900;
+    TestTrue(TEXT("Reveal preserves the raised orbit eye while keeping wall collision for gameplay"),Hero->Camera->GetComponentLocation().Equals(WantedEye,1.f));
     const auto& Data=Mesh->GetCustomPrimitiveData().Data;
     TestTrue(TEXT("An occluding wall receives active radial coverage"),Data.Num()>=28 && Data[24]>.99f && FMath::IsNearlyEqual(Data[25],Hero->CameraWallRevealRadius));
     Wall->SetActorLocation(Pivot-Direction*450); TickView();

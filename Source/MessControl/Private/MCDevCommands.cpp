@@ -13,6 +13,12 @@
 #include "MCDayDirector.h"
 #include "MCCoffeeFlood.h"
 #include "MCColdCola.h"
+#include "MCIceEvent.h"
+#include "MCFogBrawlEvent.h"
+#include "MCNutRainEvent.h"
+#include "MCSingleDayDirector.h"
+#include "MCTutorialDirector.h"
+#include "MCFoodDirectorHooks.h"
 #include "MCFoodActor.h"
 #include "MCThroat.h"
 #include "MCToothCharacter.h"
@@ -40,6 +46,19 @@
 namespace
 {
 #if !UE_BUILD_SHIPPING
+    void SuspendDevSchedulers(AMCGameMode* Mode,AMCGameState* State)
+    {
+        if (IsValid(State->SingleDayDirector)) { State->SingleDayDirector->Stop(); State->SingleDayDirector->Destroy(); }
+        State->SingleDayDirector=nullptr;
+        if (IsValid(Mode->TutorialDirector))
+        { Mode->TutorialDirector->OnTutorialFinished.RemoveAll(Mode); Mode->TutorialDirector->Stop(); Mode->TutorialDirector->Destroy(); }
+        Mode->TutorialDirector=nullptr;
+        if (IsValid(Mode->GameDirector)) { Mode->GameDirector->Stop(); Mode->GameDirector->Destroy(); }
+        Mode->GameDirector=nullptr;
+        State->bTutorialActive=false; State->bLobbyWaiting=false; State->bDevManualEvents=true;
+        State->Phase=EMCShiftPhase::Working; State->Day=FMath::Max(1,State->Day); State->PhaseEndsAt=0;
+    }
+
     bool PlaceForCalculus(UWorld* World,AMCToothCharacter* Hero,AMCArenaTooth* Tooth)
     {
         AMCTongue* Tongue=nullptr;
@@ -223,6 +242,81 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     }
     if (BotSession && BotSession->IsActive())
         return FText::FromString(TEXT("Во время теста ботов ручные события отключены. Сначала нажми «Остановить ботов»."));
+    if (Action==EMCDevAction::StopNutEncounter || Action==EMCDevAction::StopIceEvent || Action==EMCDevAction::FogEventStop)
+    {
+        int32 Stopped=0;
+        if (Action==EMCDevAction::StopNutEncounter)
+            for (TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) if (It->ActorHasTag(TEXT("MC_DevKeyEvent")))
+            { It->Stop(); It->Destroy(); ++Stopped; }
+        if (Action==EMCDevAction::StopIceEvent)
+            for (TActorIterator<AMCIceEvent> It(GetWorld());It;++It) if (It->ActorHasTag(TEXT("MC_DevKeyEvent")))
+            { It->Stop(); It->Destroy(); ++Stopped; }
+        if (Action==EMCDevAction::FogEventStop)
+            for (TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It) if (It->ActorHasTag(TEXT("MC_DevKeyEvent")))
+            { It->Stop(); It->Destroy(); ++Stopped; }
+        if (Stopped==0) return FText::FromString(TEXT("Тест этого события через F3 сейчас не запущен."));
+        GS->DirectorState.CurrentTitle=TEXT("РУЧНОЙ ТЕСТ");
+        GS->DirectorState.Instruction=TEXT("Выбери следующее событие в F3 или верни обычный день.");
+        GS->TasksLeft=GS->TasksTotal=0; GS->ForceNetUpdate();
+        if (Action==EMCDevAction::FogEventStop)
+            return FText::FromString(TEXT("Тест потасовки остановлен: туман и предупреждения убраны."));
+        return FText::FromString(Action==EMCDevAction::StopIceEvent?
+            TEXT("Тест зимы остановлен: леденец, сосульки, зоны и заморозка убраны."):
+            TEXT("Тест орехового события остановлен: орехи, боссы и осколки убраны."));
+    }
+    if (Action==EMCDevAction::NutEncounter || Action==EMCDevAction::IceEvent || Action==EMCDevAction::FogEvent)
+    {
+        // Key events run in a clean sandbox; no authored sequence or support scheduler competes with them.
+        RestartShift();
+        SuspendDevSchedulers(this,GS);
+        if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
+        GS->bTutorialActive=false; GS->bLobbyWaiting=false; GS->bDevManualEvents=true;
+        GS->Phase=EMCShiftPhase::Working; GS->Day=1; GS->PhaseEndsAt=0; GS->bDayOneComplete=false;
+        GS->DayPlan=FirstDayPlan.LoadSynchronous(); GS->StepIndex=INDEX_NONE; GS->TasksLeft=GS->TasksTotal=0;
+        GS->DirectorState=FMCGameDirectorState();
+        if (Action==EMCDevAction::FogEvent)
+        {
+            auto* Fog=GetWorld()->SpawnActor<AMCFogBrawlEvent>();
+            if (!Fog) return FText::FromString(TEXT("Не удалось создать потасовку в тумане."));
+            Fog->Tags.AddUnique(TEXT("MC_DevKeyEvent")); Fog->Tags.AddUnique(TEXT("DayOne")); Fog->Start();
+            if (Fog->bFailed) { Fog->Stop(); Fog->Destroy(); return FText::FromString(TEXT("Потасовке в тумане нужен доступный язык и живые игроки.")); }
+            GS->DirectorState.CurrentTitle=TEXT("ПОТАСОВКА В ТУМАНЕ");
+            GS->DirectorState.Instruction=TEXT("Найди пульсирующий красным зуб за 5 секунд. Рядом удерживай ПКМ: урон и отбрасывание делятся между защитниками.");
+            GS->RecordDirectorDecision(TEXT("F3: чистый тест потасовки в тумане, автоматическая последовательность остановлена"));
+            GS->ForceNetUpdate();
+            return FText::FromString(TEXT("Потасовка в тумане: найди пульсирующий красным зуб за 5 секунд. Рядом удерживай ПКМ: урон и отбрасывание делятся между защитниками. F3 — играть."));
+        }
+        if (Action==EMCDevAction::IceEvent)
+        {
+            auto* Ice=GetWorld()->SpawnActor<AMCIceEvent>();
+            if (!Ice) return FText::FromString(TEXT("Не удалось создать ледяное событие."));
+            Ice->Tags.AddUnique(TEXT("MC_DevKeyEvent")); Ice->Tags.AddUnique(TEXT("DayOne")); Ice->Start();
+            if (Ice->bFailed) { Ice->Stop(); Ice->Destroy(); return FText::FromString(TEXT("Для ледяного события нужен доступный язык и место для леденца.")); }
+            GS->DirectorState.CurrentTitle=TEXT("ЗИМА БЛИЗКО");
+            GS->DirectorState.Instruction=TEXT("Разбей мятный леденец киркой (слот 2). Отогревайся в круге; выбегай из отметки сосульки.");
+            GS->RecordDirectorDecision(TEXT("F3: чистый тест ледяного события, автоматическая последовательность остановлена"));
+            GS->ForceNetUpdate();
+            return FText::FromString(TEXT("Зима близко: разбивай леденец киркой (слот 2), отогревайся в круге. Сосулька целится туда, где стоят игроки: выбегай из отметки. F3 — играть."));
+        }
+        auto* Nuts=GetWorld()->SpawnActor<AMCNutRainEvent>();
+        if (!Nuts) return FText::FromString(TEXT("Не удалось создать ореховое событие."));
+        Nuts->Tags.AddUnique(TEXT("MC_DevKeyEvent")); Nuts->Tags.AddUnique(TEXT("DayOne"));
+        UMCNutRainProfile* Variant=nullptr;
+        if (const auto* Profile=SingleDayProfile.LoadSynchronous())
+        {
+            for (const auto& Slot:Profile->KeyEvents)
+                if (Slot.Kind==EMCSingleDayKeyEventKind::NutEncounter && !Slot.NutRainVariants.IsEmpty())
+                { Variant=Slot.NutRainVariants[0].LoadSynchronous(); break; }
+            if (!Variant && !Profile->NutRainVariants.IsEmpty()) Variant=Profile->NutRainVariants[0].LoadSynchronous();
+        }
+        Nuts->Start(GS->DayPlan,Variant);
+        if (Nuts->bFailed) { Nuts->Stop(); Nuts->Destroy(); return FText::FromString(TEXT("Для орехового события нужен доступный язык и коллизия орехов.")); }
+        GS->DirectorState.CurrentTitle=TEXT("ОРЕХОВЫЙ КАТАКЛИЗМ");
+        GS->DirectorState.Instruction=TEXT("Уклоняйся от падающих орехов, затем победи ореховых боссов.");
+        GS->RecordDirectorDecision(TEXT("F3: чистый тест NutEncounter, автоматическая последовательность остановлена"));
+        GS->ForceNetUpdate();
+        return FText::FromString(TEXT("Ореховый катаклизм запущен: серии падений, затем бой с ореховыми боссами. Кирка и нож наносят урон. F3 — играть."));
+    }
     if(Action==EMCDevAction::GrantToolBooster || Action==EMCDevAction::GrantAllToolBoosters) {
         auto* Player=Requester->GetPlayerState<AMCPlayerState>();auto* Perks=Player?Player->Perks.Get():nullptr;
         if(!Perks) return FText::FromString(TEXT("Нужен игрок с инвентарём."));
@@ -407,30 +501,50 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         if (!Plan || !Plan->Steps.IsValidIndex(StepIndex) || Plan->Steps[StepIndex].Step==EMCDayStep::Complete)
             return FText::FromString(TEXT("Этап отсутствует в DA_Day01."));
         RestartShift(); GS->Day=1;
-        if(IsValid(GameDirector)) GameDirector->Stop();
-        GS->bDevManualEvents=true;
+        SuspendDevSchedulers(this,GS);
         DayDirector=GetWorld()->SpawnActor<AMCDayDirector>();
+        if (!DayDirector) return FText::FromString(TEXT("Не удалось создать тест этапа."));
         DayDirector->Start(Plan,StepIndex,true);
         const FString Title=Plan->Steps[StepIndex].Step==EMCDayStep::CoffeeWaves?TEXT("КОФЕ / РЕЧНОЙ ПОТОП"):Plan->Steps[StepIndex].Title.ToString();
         return FText::FromString(TEXT("Чистый тест: ")+Title+TEXT(". F3 — вернуться в игру."));
     }
-    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::SwimCoffee) && Action!=EMCDevAction::OldFlood)
+    if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::SwimCoffee) && Action!=EMCDevAction::OldFlood
+        && Action!=EMCDevAction::CoffeeFlood && Action!=EMCDevAction::StuckFood
+        && Action!=EMCDevAction::Yawn && Action!=EMCDevAction::Fire)
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
+    SuspendDevSchedulers(this,GS);
     if (!IsValid(DayDirector))
     {
-        if (!bUseDayOnePlan) return FText::FromString(TEXT("Сначала выбери этап первого дня."));
-        if(IsValid(GameDirector)) GameDirector->Stop();
-        GS->bDevManualEvents=true; GS->Day=1;
+        auto* Plan=FirstDayPlan.LoadSynchronous();
+        if (!Plan) return FText::FromString(TEXT("Для события нужен профиль первого дня."));
         DayDirector=GetWorld()->SpawnActor<AMCDayDirector>();
-        if(DayDirector) DayDirector->Start(FirstDayPlan.LoadSynchronous(),0,true);
+        if (DayDirector) DayDirector->InitializeEventServices(Plan,GS->RunSeed);
+        GS->DayPlan=Plan; GS->StepIndex=INDEX_NONE;
     }
     if (!IsValid(DayDirector)) return FText::FromString(TEXT("Не удалось запустить первый день."));
     GS->bDevManualEvents=true; GS->PhaseEndsAt=0; GS->ForceNetUpdate();
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::CoffeeFlood:
+        if (!IsValid(DayDirector->Flood)) DayDirector->Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>();
+        if (DayDirector->ColdCola) DayDirector->ColdCola->Stop();
+        if (!DayDirector->Flood) return FText::FromString(TEXT("Не удалось создать кофейную волну."));
+        DayDirector->Flood->Start(DayDirector->Settings);
+        return FText::FromString(TEXT("Кофе / цунами: беги от волны и держись ПКМ за доступную опору. F3 → убрать кофе останавливает волну."));
+    case EMCDevAction::StuckFood:
+    {
+        // Normal gameplay samples one 30/70 band and may legitimately find no
+        // supported tooth contact there. A manual event request should search
+        // for a legal pose instead of failing on that single random selection.
+        AMCFoodActor* Food=nullptr;
+        for (int32 Attempt=0;Attempt<20 && !Food;++Attempt)
+            Food=MCSpawnDirectedStuckFood(GetWorld(),DayDirector->Settings,TEXT("Fibre"),12001,Random,DayDirector);
+        return FText::FromString(Food?TEXT("Застрявшая еда у зуба: работай инструментом в месте контакта."):
+            TEXT("Для застрявшей еды нужна строка Fibre в меню и свободный доступный зуб на языке."));
+    }
     case EMCDevAction::OldFlood:
         if (!IsValid(DayDirector->Flood)) DayDirector->Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>();
         if (DayDirector->ColdCola) DayDirector->ColdCola->Stop();

@@ -1,4 +1,5 @@
 #include "MCColdCola.h"
+#include "MCIceEvent.h"
 #include "MCGameDirector.h"
 #include "MCCoffeeFlood.h"
 #include "MCLocomotionSurface.h"
@@ -101,9 +102,11 @@ float AMCColdColaEvent::FrostAmount() const
 bool AMCColdColaEvent::IsComplete() const { return !bActive || (ThawStartedAt>0 && FrostAmount()<=0); }
 void AMCColdColaEvent::SetFrost(float Amount)
 {
-    // A late completion/reset notification must not clear a newer cola's climate.
-    if(Amount<=0) for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It)
-        if(*It!=this && It->bActive && !It->IsComplete()) return;
+    // Cola and the mint share a climate collection; either event may finish first.
+    for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It)
+        if(*It!=this && !It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
+    for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+        if(!It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
     if(auto* MPC=LoadObject<UMaterialParameterCollection>(nullptr,TEXT("/Game/Gameplay/Cold/MPC_MouthClimate.MPC_MouthClimate")))
         GetWorld()->GetParameterCollectionInstance(MPC)->SetScalarParameterValue(TEXT("ColdAmount"),Amount);
 }

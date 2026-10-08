@@ -41,10 +41,11 @@ bool CircleTouchesPolygon(FVector Point,double Radius,TConstArrayView<FVector> P
     return Inside;
 }
 
-bool TouchesDeliveryLane(const AMCTongue& Tongue,FVector Point,float Margin)
+bool TouchesDeliveryLane(const AMCTongue& Tongue,FVector Point,float Margin,bool AllowBrushBin=false)
 {
     for(TActorIterator<AMCFoodDisposal> It(Tongue.GetWorld());It;++It)
     {
+        if(AllowBrushBin && It->bBrushBin) continue;
         TArray<FVector> Outer,Inner,Polygon;
         if(It->GetDeliveryZoneOutline(Outer,Inner))
         {
@@ -83,6 +84,17 @@ bool AMCTongue::GameplaySpawnFootprint(FVector Point,float Margin,FHitResult& Hi
     if(Point.X+Margin>Bands.Near || Point.X-Margin<Bands.Far
         || !InteriorSurfacePoint(Point,Margin,Hit)) return false;
     return !TouchesDeliveryLane(*this,Hit.ImpactPoint,Margin);
+}
+
+bool AMCTongue::GameplayStuckFoodFootprint(FVector Point,float Margin,FHitResult& Hit) const
+{
+    if(!FMath::IsFinite(Margin) || Margin<0 || GameplaySpawnZone(Point)==INDEX_NONE) return false;
+    const FSpawnBands Bands(*this);
+    if(Point.X+Margin>Bands.Near || Point.X-Margin<Bands.Far
+        || !InteriorSurfacePoint(Point,Margin,Hit)) return false;
+    // Only directed, tooth-anchored Stuck food uses this query. Its native
+    // delivery phase guard prevents disposal while the players work on it.
+    return !TouchesDeliveryLane(*this,Hit.ImpactPoint,Margin,true);
 }
 
 bool AMCTongue::RandomGameplaySpawnPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit,int32* OutZone)

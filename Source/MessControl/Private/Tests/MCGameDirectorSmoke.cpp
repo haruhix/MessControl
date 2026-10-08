@@ -238,7 +238,7 @@ void MCTickGameDirectorValidation(UWorld* World)
             {
                 FHitResult Floor;
                 if(It->GameplaySpawnZone(Probe->GetActorLocation())!=INDEX_NONE
-                    && It->GameplaySpawnFootprint(Probe->GetActorLocation(),Extent.Size2D()+20.f,Floor)
+                    && It->GameplayStuckFoodFootprint(Probe->GetActorLocation(),Extent.Size2D()+20.f,Floor)
                     && FMath::Abs(Probe->GetActorLocation().Z-Floor.ImpactPoint.Z-Extent.Z-5.f)<3.f)
                     {Supported=true;break;}
             }

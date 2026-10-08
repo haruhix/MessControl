@@ -95,6 +95,7 @@ bool UMCGripComponent::IsBracing() const
     const auto& Contact=EffectiveBrace();
     return Contact.bHeld && IsValid(Contact.Target) && IsValid(Contact.Component);
 }
+bool UMCGripComponent::IsBraceInputHeld() const { return EffectiveBrace().bHeld; }
 AActor* UMCGripComponent::BraceTarget() const { return IsBracing()?EffectiveBrace().Target.Get():nullptr; }
 FVector UMCGripComponent::BracePoint() const
 {

@@ -1,5 +1,6 @@
 #include "MCTongue.h"
 #include "MCGameDirector.h"
+#include "MCFogBrawlEvent.h"
 #include "MCSingleDayDirector.h"
 #include "KismetProceduralMeshLibrary.h"
 #include "Engine/StaticMesh.h"
@@ -484,9 +485,12 @@ void AMCTongue::Tick(float Dt)
     {
         const auto* Director=AMCGameDirector::Find(GetWorld());
         const auto* Loop=State->SingleDayDirector.Get();
-        const bool KeyEvent=Loop && (Loop->Stage==EMCSingleDayStage::Nuts || Loop->Stage==EMCSingleDayStage::FirstPerk || Loop->Stage==EMCSingleDayStage::OpeningPause
+        const bool KeyEvent=Loop && (Loop->Stage==EMCSingleDayStage::Nuts || Loop->Stage==EMCSingleDayStage::Ice || Loop->Stage==EMCSingleDayStage::FogBrawl || Loop->Stage==EMCSingleDayStage::FirstPerk || Loop->Stage==EMCSingleDayStage::OpeningPause
             || Loop->Stage==EMCSingleDayStage::FirstMeal || Loop->Stage==EMCSingleDayStage::MealRest);
-        const bool Managed=KeyEvent || Director && Director->IsManagingEvents();
+        bool FogActive=false;
+        for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)
+            if(!It->IsActorBeingDestroyed() && It->IsActive()) { FogActive=true; break; }
+        const bool Managed=KeyEvent || FogActive || (Director && Director->IsManagingEvents());
         if(!Managed && bAutomaticYawns && !State->bDevManualEvents && Time>=NextYawnAt) StartYawn();
         const auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>();
         if (!Managed && Settings.bAutomaticJolts && Mode && Mode->bUseDayOnePlan && !State->bDevManualEvents && Time>=NextJoltAt) TriggerJolt();

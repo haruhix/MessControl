@@ -125,6 +125,8 @@ public:
     UFUNCTION(BlueprintCallable,Category="Grip|Brace") void SetBraceHeld(bool Held);
     UFUNCTION(BlueprintCallable,Category="Grip|Brace") void ReleaseBrace();
     UFUNCTION(BlueprintPure,Category="Grip|Brace") bool IsBracing() const;
+    // Input intent survives a missed physical contact. Events validate position separately.
+    UFUNCTION(BlueprintPure,Category="Grip|Brace") bool IsBraceInputHeld() const;
     UFUNCTION(BlueprintPure,Category="Grip|Brace") bool IsWorldAnchored() const;
     UFUNCTION(BlueprintPure,Category="Grip|Brace") AActor* BraceTarget() const;
     UFUNCTION(BlueprintPure,Category="Grip|Brace") FVector BracePoint() const;

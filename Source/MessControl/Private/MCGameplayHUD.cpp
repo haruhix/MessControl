@@ -16,6 +16,7 @@
 #include "MCArenaTooth.h"
 #include "MCThroat.h"
 #include "MCCoffeeFlood.h"
+#include "MCFogBrawlEvent.h"
 #include "MCRewardChest.h"
 #include "GameFramework/PlayerState.h"
 #include "EngineUtils.h"
@@ -570,6 +571,36 @@ void UMCGameplayHUD::RefreshState()
                 Hint=FString::Printf(TEXT("УДЕРЖИВАЙ E · ВЫТАЩИТЬ %s ИЗ МИМИКА"),*Name);
                 Contact=Nearest->RescueProgress();
             }
+        }
+        if(Hero->CanWork()) for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)
+        {
+            if(!It->IsActive()) continue;
+            if(It->Stage==EMCFogBrawlStage::Warning)
+            {
+                const bool Guarding=It->IsGuarding(Hero);
+                FString Direction;
+                if(IsValid(It->ActiveTarget))
+                {
+                    FVector ViewLocation; FRotator ViewRotation=Hero->GetControlRotation();
+                    if(const auto* Owner=GetOwningPlayer()) Owner->GetPlayerViewPoint(ViewLocation,ViewRotation);
+                    const FVector Offset=(It->ActiveTarget->GetActorLocation()-Hero->GetActorLocation()).GetSafeNormal2D();
+                    FVector Forward=ViewRotation.Vector().GetSafeNormal2D();
+                    if(Forward.IsNearlyZero()) Forward=FRotationMatrix(ViewRotation).GetUnitAxis(EAxis::Z).GetSafeNormal2D();
+                    const FVector Right=FVector::CrossProduct(FVector::UpVector,Forward);
+                    const float Side=FVector::DotProduct(Offset,Right),Ahead=FVector::DotProduct(Offset,Forward);
+                    Direction=FMath::Abs(Side)>FMath::Abs(Ahead)?Side>0?TEXT("СПРАВА"):TEXT("СЛЕВА")
+                        :Ahead>0?TEXT("ВПЕРЕДИ"):TEXT("СЗАДИ");
+                }
+                Hint=Guarding
+                    ?FString::Printf(TEXT("ДЕРЖИ ПКМ · ЗАЩИТНИКОВ %d · УДАР ЧЕРЕЗ %.1f С"),It->GuardCount,FMath::Max(0.,It->WarningEndsAt-Now))
+                    :FString::Printf(TEXT("НАЙДИ ЗУБ %s · РЯДОМ ДЕРЖИ ПКМ · %.1f С"),*Direction,FMath::Max(0.,It->WarningEndsAt-Now));
+            }
+            else if(It->Stage==EMCFogBrawlStage::Recovery)
+                Hint=It->LastImpactAt<0?TEXT("СОБЕРИТЕСЬ · СЛЕДУЮЩИЙ УДАР ЖДЁТ ГОТОВНОСТИ КОМАНДЫ")
+                    :It->LastGuardCount>0?FString::Printf(TEXT("ЗУБ СПАСЁН · %d ЗАЩИТНИКОВ · %.0f УРОНА КАЖДОМУ"),It->LastGuardCount,It->LastDamagePerGuard)
+                    :TEXT("ЗУБ ВЫБИТ · СОБЕРИТЕСЬ К СЛЕДУЮЩЕМУ УДАРУ");
+            else Hint=TEXT("ТУМАН СГУЩАЕТСЯ · ИЩИ ПУЛЬСИРУЮЩИЙ КРАСНЫМ ЗУБ");
+            break;
         }
         Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
     }

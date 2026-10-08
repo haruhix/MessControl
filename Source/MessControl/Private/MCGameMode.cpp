@@ -3,6 +3,9 @@
 #include "MCProgressionComponent.h"
 #include "MCGameDirector.h"
 #include "MCColdCola.h"
+#include "MCIceEvent.h"
+#include "MCFogBrawlEvent.h"
+#include "MCNutRainEvent.h"
 #include "MCHazardWave.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
@@ -164,6 +167,10 @@ void AMCGameMode::RestartShift()
     State->DirectorState=FMCGameDirectorState();
     State->DirectorDecisionLog.Reset();
     if (IsValid(DayDirector)) DayDirector->Destroy(); DayDirector=nullptr;
+    // F3 key events can exist without a single-day owner.
+    for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) { It->Stop(); It->Destroy(); }
+    for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) { It->Stop(); It->Destroy(); }
+    for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It) { It->Stop(); It->Destroy(); }
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It) { It->ResetPain(); It->ResetPressure(); It->ResetYawn(); }
     TArray<AActor*> OldDayActors;
     for (TActorIterator<AActor> It(GetWorld());It;++It) if (Cast<AMCFirePatch>(*It) || Cast<AMCReactionVFX>(*It) || Cast<AMCMouthSurface>(*It) || Cast<AMCCoffeeFlood>(*It) || Cast<AMCColdColaEvent>(*It) || Cast<AMCIceBlock>(*It) || Cast<AMCHazardWave>(*It) || It->ActorHasTag(TEXT("DayOne"))) OldDayActors.Add(*It);
@@ -322,6 +329,8 @@ void AMCGameMode::Tick(float DeltaSeconds)
     if (State->bDayOneComplete) return;
     if (State->MouthHealth<=0 || (GetGameplayParticipantCount()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0))
     { State->Phase=EMCShiftPhase::Lost; State->ForceNetUpdate(); return; }
+    // Manual event previews retain death/respawn rules but own their completion.
+    if(State->bDevManualEvents) return;
     if(State->bSingleDayLoop && IsValid(State->SingleDayDirector)) return;
     if (State->Phase==EMCShiftPhase::Working && IsValid(DayDirector)) return;
     if (State->Phase==EMCShiftPhase::Working && IsValid(GameDirector) && GameDirector->IsManagingEvents()) return;

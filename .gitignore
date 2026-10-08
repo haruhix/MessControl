@@ -13,4 +13,6 @@ Saved/
 __pycache__/
 .DS_Store
 Artifacts/Logs/
+# Local encoder manifests reference untracked frames under Saved/.
+Artifacts/*/Frames.ffconcat
 *.log

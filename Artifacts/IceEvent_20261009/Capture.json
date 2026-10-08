@@ -1,0 +1,51 @@
+{
+  "source": "Unreal FScreenshotRequest rendered gameplay",
+  "frames_directory": "E:\\DEVGAME\\MessControl\\Saved\\IceEventValidation_20261009\\final_visual\\Visual_20261009_041732_562\\Frames",
+  "source_frames": 1259,
+  "rendered_frames": 1206,
+  "excluded_stages": [
+    "STOP_RESET_CLEAN"
+  ],
+  "excluded_frame_files": [
+    "Frame01206.png"
+  ],
+  "excluded_frames": 53,
+  "missing_frames": [],
+  "first_server_time": 10.649503,
+  "last_server_time": 76.558274,
+  "gameplay_duration": 65.96943300000001,
+  "stages": [
+    "F3_START_ARRIVAL",
+    "FREEZE_OUTSIDE",
+    "THAW_INSIDE",
+    "ICICLE_WARNING_DODGE",
+    "ICICLE_LOCKED_DODGE",
+    "ICICLE_WARNING_HIT",
+    "ICICLE_REAL_IMPACT",
+    "CIRCLE_TRANSFER",
+    "FREEZE_LETHAL",
+    "NORMAL_RESPAWN",
+    "PICKAXE_ARRIVAL",
+    "PICKAXE_COMBAT",
+    "WINTER_COMPLETE"
+  ],
+  "video": "E:\\DEVGAME\\MessControl\\Artifacts\\IceEvent_20261009\\IceEvent.mp4",
+  "thumbnail": "E:\\DEVGAME\\MessControl\\Artifacts\\IceEvent_20261009\\IceEvent.png",
+  "thumbnail_time": 9.5,
+  "media": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1600,
+        "height": 1000,
+        "avg_frame_rate": "30/1",
+        "nb_frames": "1979"
+      }
+    ],
+    "format": {
+      "duration": "65.966667"
+    }
+  }
+}

@@ -1,5 +1,7 @@
 #include "MCSingleDayDirector.h"
 #include "MCNutRainEvent.h"
+#include "MCIceEvent.h"
+#include "MCFogBrawlEvent.h"
 #include "MCNutRainProfile.h"
 #include "MCGameDirector.h"
 #include "MCGameDirectorProfile.h"
@@ -38,7 +40,16 @@ FTeamCondition ObserveTeam(UWorld* World)
 bool NeedsRelief(const FTeamCondition& Team) { return Team.Health<.5f || Team.Stamina<.25f; }
 bool IsHealthy(const FTeamCondition& Team) { return Team.Health>.8f && Team.Stamina>.55f; }
 }
-UMCSingleDayProfile::UMCSingleDayProfile() { KeyEvents.AddDefaulted(); }
+UMCSingleDayProfile::UMCSingleDayProfile()
+{
+    KeyEvents.AddDefaulted();
+    auto& Ice=KeyEvents.AddDefaulted_GetRef();
+    Ice.EventId=TEXT("IceEvent");
+    Ice.Kind=EMCSingleDayKeyEventKind::IceEvent;
+    auto& Fog=KeyEvents.AddDefaulted_GetRef();
+    Fog.EventId=TEXT("FogBrawl");
+    Fog.Kind=EMCSingleDayKeyEventKind::FogBrawl;
+}
 AMCSingleDayDirector::AMCSingleDayDirector()
 {
     bReplicates=true; bAlwaysRelevant=true;
@@ -49,6 +60,21 @@ void AMCSingleDayDirector::Initialize(UMCDayPlan* Plan, UMCSingleDayProfile* Pro
     if(!HasAuthority()) return;
     Mechanics=Plan?Plan:NewObject<UMCDayPlan>(this);
     Settings=Profile?DuplicateObject<UMCSingleDayProfile>(Profile,this):NewObject<UMCSingleDayProfile>(this);
+    // Extend the previous prototype shapes in the runtime copy only, preserving
+    // saved identities, variants and support intervals. Custom sequences stay authored.
+    if(!Settings->bLegacyTimedFinale && Settings->KeyEvents.Num()==1
+        && Settings->KeyEvents[0].Kind==EMCSingleDayKeyEventKind::NutEncounter) {
+        auto& Ice=Settings->KeyEvents.AddDefaulted_GetRef();
+        Ice.EventId=TEXT("IceEvent");
+        Ice.Kind=EMCSingleDayKeyEventKind::IceEvent;
+    }
+    if(!Settings->bLegacyTimedFinale && Settings->KeyEvents.Num()==2
+        && Settings->KeyEvents[0].Kind==EMCSingleDayKeyEventKind::NutEncounter
+        && Settings->KeyEvents[1].Kind==EMCSingleDayKeyEventKind::IceEvent) {
+        auto& Fog=Settings->KeyEvents.AddDefaulted_GetRef();
+        Fog.EventId=TEXT("FogBrawl");
+        Fog.Kind=EMCSingleDayKeyEventKind::FogBrawl;
+    }
     DirectorProfile=InterludeProfile;
     Stage=EMCSingleDayStage::Training; bStopped=false;
     KeyEventIndex=0; bAuthoredFragmentComplete=false; InterludeEndsAt=StageEndsAt=0;
@@ -111,7 +137,7 @@ void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instructi
     const bool BeforeMeal=(!IsLegacyTimedFinale() && Stage==EMCSingleDayStage::FirstPerk) || Stage==EMCSingleDayStage::OpeningPause;
     S.NextTitle=BeforeMeal?TEXT("ПРИЁМ ПИЩИ"):
         Stage==EMCSingleDayStage::FirstMeal || Stage==EMCSingleDayStage::MealRest?TEXT("ОРЕХОВОЕ СОБЫТИЕ"):
-        Stage==EMCSingleDayStage::Nuts?TEXT("ПОДДЕРЖКА ДИРЕКТОРА"):
+        Stage==EMCSingleDayStage::Nuts || Stage==EMCSingleDayStage::Ice || Stage==EMCSingleDayStage::FogBrawl?TEXT("ПОДДЕРЖКА ДИРЕКТОРА"):
         IsLegacyTimedFinale() && Stage==EMCSingleDayStage::Director?TEXT("ФИНАЛЬНЫЙ БОСС"):TEXT("");
     if(Stage==EMCSingleDayStage::FirstMeal && DirectorProfile)
         S.Difficulty=DirectorProfile->GetScaledDaySettings(0).MinimumDifficulty;
@@ -119,7 +145,7 @@ void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instructi
     S.LastDecision=S.DecisionLog.IsEmpty()?FString():S.DecisionLog.Last();
     S.SpawnedFood=Total; S.FinishedFood=FMath::Max(0,Total-Left);
     S.CompletionProgress=Total>0?1-float(Left)/Total:0;
-    S.DayProgress=Stage==EMCSingleDayStage::Nuts?.25f:Stage==EMCSingleDayStage::Boss?.85f:.1f;
+    S.DayProgress=Stage==EMCSingleDayStage::Nuts?.25f:Stage==EMCSingleDayStage::Ice?.55f:Stage==EMCSingleDayStage::FogBrawl?.75f:Stage==EMCSingleDayStage::Boss?.85f:.1f;
     GS->ForceNetUpdate();
 }
 void AMCSingleDayDirector::BeginOpeningPause(bool bAfterMeal)
@@ -195,21 +221,30 @@ void AMCSingleDayDirector::TickFirstMeal()
     Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Разбейте еду, получите XP и очистите оставшуюся грязь."),
         Left,FMath::Max(GS->TasksTotal,Left));
 }
-void AMCSingleDayDirector::BeginNuts()
+void AMCSingleDayDirector::BeginKeyEvent()
 {
     StageEndsAt=0;
     if (!IsLegacyTimedFinale() && !Settings->KeyEvents.IsValidIndex(KeyEventIndex)) {
         BeginDirector(); return;
     }
-    if (!IsLegacyTimedFinale() && Settings->KeyEvents[KeyEventIndex].Kind!=EMCSingleDayKeyEventKind::NutEncounter) {
-        Fail(TEXT("Ключевое событие ещё не реализовано.")); return;
+    if(IsLegacyTimedFinale()) {BeginNuts();return;}
+    switch(Settings->KeyEvents[KeyEventIndex].Kind) {
+        case EMCSingleDayKeyEventKind::NutEncounter: BeginNuts(); break;
+        case EMCSingleDayKeyEventKind::IceEvent: BeginIce(); break;
+        case EMCSingleDayKeyEventKind::FogBrawl: BeginFogBrawl(); break;
+        default: Fail(TEXT("Ключевое событие ещё не реализовано.")); break;
     }
+}
+void AMCSingleDayDirector::BeginNuts()
+{
     if (Interlude) {Interlude->Stop();Interlude->Destroy();Interlude=nullptr;}
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) {
         if (IsValid(Mode->GameDirector)) {Mode->GameDirector->Stop();Mode->GameDirector->Destroy();}
         Mode->GameDirector=nullptr;
     }
     if (IsValid(NutEvent)) {NutEvent->Stop();NutEvent->Destroy();NutEvent=nullptr;}
+    if (IsValid(IceEvent)) {IceEvent->Stop();IceEvent->Destroy();IceEvent=nullptr;}
+    if (IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();FogEvent=nullptr;}
     Stage=EMCSingleDayStage::Nuts;
     NutEvent=GetWorld()->SpawnActor<AMCNutRainEvent>();
     if(!NutEvent) { Fail(TEXT("Не удалось создать ореховое событие.")); return; }
@@ -226,6 +261,46 @@ void AMCSingleDayDirector::BeginNuts()
     UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY NUTS variant=%d"),VariantIndex);
     ForceNetUpdate();
 }
+void AMCSingleDayDirector::BeginIce()
+{
+    if (IsValid(Interlude)) {Interlude->Stop();Interlude->Destroy();Interlude=nullptr;}
+    if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) {
+        if (IsValid(Mode->GameDirector)) {Mode->GameDirector->Stop();Mode->GameDirector->Destroy();}
+        Mode->GameDirector=nullptr;
+    }
+    if (IsValid(NutEvent)) {NutEvent->Stop();NutEvent->Destroy();NutEvent=nullptr;}
+    if (IsValid(IceEvent)) {IceEvent->Stop();IceEvent->Destroy();IceEvent=nullptr;}
+    if (IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();FogEvent=nullptr;}
+    Stage=EMCSingleDayStage::Ice;
+    IceEvent=GetWorld()->SpawnActor<AMCIceEvent>();
+    if(!IceEvent) {Fail(TEXT("Не удалось создать ледяное событие."));return;}
+    IceEvent->SetOwner(this);
+    Record(FString::Printf(TEXT("Ключевое событие %d: мятный леденец замораживает арену; обычные события приостановлены"),KeyEventIndex+1));
+    IceEvent->Start();
+    Publish(TEXT("ЗИМА БЛИЗКО"),TEXT("Разбейте мятный леденец киркой. Отогревайтесь в круге; выбегайте из отметок сосулек."),
+        FMath::CeilToInt(IceEvent->CandyHealth),FMath::CeilToInt(IceEvent->MaxCandyHealth));
+    ForceNetUpdate();
+}
+void AMCSingleDayDirector::BeginFogBrawl()
+{
+    if (IsValid(Interlude)) {Interlude->Stop();Interlude->Destroy();Interlude=nullptr;}
+    if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) {
+        if (IsValid(Mode->GameDirector)) {Mode->GameDirector->Stop();Mode->GameDirector->Destroy();}
+        Mode->GameDirector=nullptr;
+    }
+    if (IsValid(NutEvent)) {NutEvent->Stop();NutEvent->Destroy();NutEvent=nullptr;}
+    if (IsValid(IceEvent)) {IceEvent->Stop();IceEvent->Destroy();IceEvent=nullptr;}
+    if (IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();FogEvent=nullptr;}
+    Stage=EMCSingleDayStage::FogBrawl;
+    FogEvent=GetWorld()->SpawnActor<AMCFogBrawlEvent>();
+    if(!FogEvent) {Fail(TEXT("Не удалось создать событие тумана."));return;}
+    FogEvent->SetOwner(this);
+    Record(FString::Printf(TEXT("Ключевое событие %d: туман скрывает арену; вместе защищайте отмеченные зубы от ударов, обычные события приостановлены"),KeyEventIndex+1));
+    FogEvent->Start();
+    Publish(TEXT("ТУМАННАЯ ДРАКА"),TEXT("Найдите мигающий красным зуб и удерживайте ПКМ рядом с ним до удара. Вместе защищать легче."),
+        FMath::Max(0,FogEvent->TotalStrikes-FogEvent->StrikesResolved),FMath::Max(0,FogEvent->TotalStrikes));
+    ForceNetUpdate();
+}
 void AMCSingleDayDirector::BeginDirector()
 {
     Stage=EMCSingleDayStage::Director;
@@ -233,6 +308,8 @@ void AMCSingleDayDirector::BeginDirector()
     const bool Legacy=IsLegacyTimedFinale();
     const auto* CompletedSlot=Settings->KeyEvents.IsValidIndex(KeyEventIndex)?&Settings->KeyEvents[KeyEventIndex]:nullptr;
     if(GS->Progression && (Legacy || CompletedSlot)) GS->Progression->AddExperience(FMath::Max(0,Legacy?Settings->NutEventExperience:CompletedSlot->CompletionExperience));
+    if(IsValid(IceEvent)) {IceEvent->Stop();IceEvent->Destroy();} IceEvent=nullptr;
+    if(IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();} FogEvent=nullptr;
     const bool HasNext=!Legacy && Settings->KeyEvents.IsValidIndex(KeyEventIndex+1);
     bAuthoredFragmentComplete=!Legacy && !HasNext;
     const float Configured=Legacy?Settings->DirectorSeconds:HasNext?CompletedSlot->DirectorSupportSeconds:0.f;
@@ -278,13 +355,31 @@ void AMCSingleDayDirector::Tick(float Dt)
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
     if(GS->Phase==EMCShiftPhase::Lost) {Stop();return;}
     if(Stage==EMCSingleDayStage::FirstPerk && GS->Progression && !GS->Progression->HasPendingChoices()) {
-        if(IsLegacyTimedFinale()) BeginNuts(); else BeginOpeningPause();
+        if(IsLegacyTimedFinale()) BeginKeyEvent(); else BeginOpeningPause();
     }
     else if(Stage==EMCSingleDayStage::OpeningPause && GS->GetServerWorldTimeSeconds()>=StageEndsAt) BeginFirstMeal();
     else if(Stage==EMCSingleDayStage::FirstMeal) TickFirstMeal();
     else if(Stage==EMCSingleDayStage::MealRest && GS->GetServerWorldTimeSeconds()>=StageEndsAt) {
-        if(!GS->Progression || !GS->Progression->HasPendingChoices()) BeginNuts();
+        if(!GS->Progression || !GS->Progression->HasPendingChoices()) BeginKeyEvent();
         else Publish(TEXT("ПЕРВОЕ УСИЛЕНИЕ"),TEXT("Выберите личный перк перед ореховым событием: 1 / 2 / 3."));
+    }
+    else if(Stage==EMCSingleDayStage::Ice && IsValid(IceEvent)) {
+        if(IceEvent->bFailed) {Fail(TEXT("Не удалось запустить ледяное событие. Проверьте поверхность языка."));return;}
+        if(IceEvent->IsComplete()) {
+            Record(TEXT("Мятный леденец разбит: ледяное событие завершено, арена оттаивает"));
+            BeginDirector();
+        }
+        else Publish(TEXT("ЗИМА БЛИЗКО"),TEXT("Разбейте мятный леденец киркой. Отогревайтесь в круге; выбегайте из отметок сосулек."),
+            FMath::CeilToInt(IceEvent->CandyHealth),FMath::CeilToInt(IceEvent->MaxCandyHealth));
+    }
+    else if(Stage==EMCSingleDayStage::FogBrawl && IsValid(FogEvent)) {
+        if(FogEvent->bFailed) {Fail(TEXT("Не удалось запустить событие тумана. Проверьте доступные зубы и участников."));return;}
+        if(FogEvent->IsComplete()) {
+            Record(TEXT("Все удары в тумане пережиты: событие завершено, арена снова видна"));
+            BeginDirector();
+        }
+        else Publish(TEXT("ТУМАННАЯ ДРАКА"),TEXT("Найдите мигающий красным зуб и удерживайте ПКМ рядом с ним до удара. Вместе защищать легче."),
+            FMath::Max(0,FogEvent->TotalStrikes-FogEvent->StrikesResolved),FMath::Max(0,FogEvent->TotalStrikes));
     }
     else if(Stage==EMCSingleDayStage::Nuts && NutEvent) {
         if(NutEvent->bFailed) { Fail(TEXT("Не удалось запустить ореховый дождь. Проверьте язык и коллизию орехов.")); return; }
@@ -295,7 +390,7 @@ void AMCSingleDayDirector::Tick(float Dt)
     }
     else if(Stage==EMCSingleDayStage::Director && InterludeEndsAt>0 && GS->GetServerWorldTimeSeconds()>=InterludeEndsAt) {
         if (IsLegacyTimedFinale()) BeginBoss();
-        else {++KeyEventIndex;BeginNuts();}
+        else {++KeyEventIndex;BeginKeyEvent();}
     }
     else if(IsLegacyTimedFinale() && Stage==EMCSingleDayStage::Boss && IsValid(FinalBoss) && !FinalBoss->IsBossAlive()) {
         Stage=EMCSingleDayStage::Complete; bStopped=true;
@@ -320,6 +415,8 @@ void AMCSingleDayDirector::Stop()
     }
     if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
     if(IsValid(NutEvent)) {NutEvent->Stop();NutEvent->Destroy();} NutEvent=nullptr;
+    if(IsValid(IceEvent)) {IceEvent->Stop();IceEvent->Destroy();} IceEvent=nullptr;
+    if(IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();} FogEvent=nullptr;
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>(); Mode && Mode->GameDirector==Interlude) Mode->GameDirector=nullptr;
     if(IsValid(Interlude)) {Interlude->Stop();Interlude->Destroy();} Interlude=nullptr;
     if(IsValid(FinalBoss)) FinalBoss->Destroy(); FinalBoss=nullptr;
@@ -337,6 +434,8 @@ void AMCSingleDayDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCSingleDayDirector,Stage); DOREPLIFETIME(AMCSingleDayDirector,NutEvent);
+    DOREPLIFETIME(AMCSingleDayDirector,IceEvent);
+    DOREPLIFETIME(AMCSingleDayDirector,FogEvent);
     DOREPLIFETIME(AMCSingleDayDirector,FinalBoss); DOREPLIFETIME(AMCSingleDayDirector,VariantIndex);
     DOREPLIFETIME(AMCSingleDayDirector,KeyEventIndex); DOREPLIFETIME(AMCSingleDayDirector,bAuthoredFragmentComplete);
     DOREPLIFETIME(AMCSingleDayDirector,StageEndsAt);

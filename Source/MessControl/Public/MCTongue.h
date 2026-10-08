@@ -62,6 +62,10 @@ public:
     // -1 = forbidden, 0 = broad throat-side band, 1 = narrow front-side band.
     int32 GameplaySpawnZone(FVector WorldPoint) const;
     bool GameplaySpawnFootprint(FVector WorldPoint,float Margin,FHitResult& Hit) const;
+    // A tooth-anchored jam may overlap the brush exit cap: delivery ignores
+    // Stuck items and returns fresh food to the tissue after it is freed.
+    // Retains the full supported footprint/end strips and excludes the throat.
+    bool GameplayStuckFoodFootprint(FVector WorldPoint,float Margin,FHitResult& Hit) const;
     bool RandomGameplaySpawnPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit,int32* OutZone=nullptr);
     // Stable support for permanent coatings: breathing, pressure and pain waves
     // must not give server and clients different grime layouts.

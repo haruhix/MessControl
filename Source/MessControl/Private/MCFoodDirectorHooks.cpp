@@ -21,6 +21,8 @@
 #include "EngineUtils.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 
 namespace MCFoodDirectorPrivate
 {
@@ -209,66 +211,192 @@ AMCFoodActor* MCSpawnDirectedFoodEntry(UWorld* World,const UMCDayPlan* Plan,FNam
 AMCFoodActor* MCSpawnDirectedStuckFood(UWorld* World,const UMCDayPlan* Plan,FName RowName,
     int32 Batch,FRandomStream& Random,AMCDayDirector* DirtServices)
 {
-    if(!World || World->GetNetMode()==NM_Client || !Plan || RowName.IsNone()) return nullptr;
+    const bool bDiagnostic=FParse::Param(FCommandLine::Get(),TEXT("MCStuckFoodDiagnostic"));
+    const auto Failed=[&](const TCHAR* Reason)->AMCFoodActor*
+    {
+        if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC FAIL reason=%s row=%s batch=%d plan=%s"),
+            Reason,*RowName.ToString(),Batch,*GetPathNameSafe(Plan));
+        return nullptr;
+    };
+    if(!World || World->GetNetMode()==NM_Client || !Plan || RowName.IsNone()) return Failed(TEXT("world_authority_plan_or_row_guard"));
     UDataTable* Menu=Plan->Menu.LoadSynchronous();
     const FMCFoodRow* Row=Menu?Menu->FindRow<FMCFoodRow>(RowName,TEXT("Directed stuck food"),false):nullptr;
-    if(!Row || Row->Kind!=EMCFoodKind::Food) return nullptr;
+    if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC ROW menu=%s row=%s found=%d kind=%d whole_meshes=%d scale=%s services=%s services_plan=%s"),
+        *GetPathNameSafe(Menu),*RowName.ToString(),Row!=nullptr,Row?int32(Row->Kind):-1,Row?Row->WholeMeshes.Num():0,
+        Row?*Row->Scale.ToString():TEXT("none"),*GetNameSafe(DirtServices),*GetPathNameSafe(IsValid(DirtServices)?DirtServices->Settings.Get():nullptr));
+    if(!Row || Row->Kind!=EMCFoodKind::Food) return Failed(TEXT("menu_row_or_kind_guard"));
     TArray<AMCTongue*> Tongues;
     for(TActorIterator<AMCTongue> It(World);It;++It)
         if(It->Surface && It->Surface->IsRegistered() && !It->CurrentVertices().IsEmpty()) Tongues.Add(*It);
-    if(Tongues.IsEmpty()) return nullptr;
+    if(Tongues.IsEmpty()) return Failed(TEXT("no_registered_tongue_surface"));
     AMCTongue* Tongue=Tongues[Random.RandRange(0,Tongues.Num()-1)];
     const FBox TongueBounds=Tongue->Surface->Bounds.GetBox();
     const float LeftChance=FMath::IsFinite(Tongue->GameplaySpawnLeftChance)
         ?FMath::Clamp(Tongue->GameplaySpawnLeftChance,0.f,1.f):.30f;
     const int32 Zone=Random.FRand()<LeftChance?0:1;
+    if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC TONGUE name=%s bounds_min=%s bounds_max=%s selected_zone=%d left_chance=%.3f near_depth=%.3f split_depth=%.3f far_depth=%.3f"),
+        *Tongue->GetName(),*TongueBounds.Min.ToString(),*TongueBounds.Max.ToString(),Zone,LeftChance,
+        Tongue->GameplaySpawnNearDepth,Tongue->GameplaySpawnSplitDepth,Tongue->GameplaySpawnFarDepth);
     TArray<AMCArenaTooth*> Teeth;
     for(TActorIterator<AMCArenaTooth> It(World);It;++It)
         if(!It->IsActorBeingDestroyed() && It->IsAvailable() && It->Body->IsRegistered()) Teeth.Add(*It);
-    if(Teeth.IsEmpty()) return nullptr;
+    if(Teeth.IsEmpty()) return Failed(TEXT("no_available_registered_tooth"));
     for(int32 I=Teeth.Num()-1;I>0;--I) Teeth.Swap(I,Random.RandRange(0,I));
 
     FTransform Pose(FRotator(0,Random.FRandRange(-180.f,180.f),0),FVector::ZeroVector);
     AMCFoodActor* Food=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose,
         nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-    if(!Food) return nullptr;
+    if(!Food) return Failed(TEXT("deferred_spawn_failed"));
     Food->ConfigureItem(RowName,*Row,Random);
     bool AuthoredMesh=false;
     for(const auto& Mesh:Row->WholeMeshes) AuthoredMesh|=Mesh.Get()==Food->ItemMesh.Get() && Food->ItemMesh!=nullptr;
-    if(!AuthoredMesh) {Food->Destroy();return nullptr;}
+    if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC MESH path=%s authored=%d body_registered=%d"),
+        *GetPathNameSafe(Food->ItemMesh.Get()),AuthoredMesh,Food->Body->IsRegistered());
+    if(!AuthoredMesh) {Food->Destroy();return Failed(TEXT("authored_mesh_guard"));}
     const FVector Extent=Food->Body->GetScaledBoxExtent();
     const float Margin=Extent.Size2D()+20.f;
+    // Diagnostic-only copy of GameplaySpawnFootprint's outer-strip calculation.
+    // It classifies a rejected pose; it never replaces the authoritative query.
+    double DiagnosticNear=0,DiagnosticFar=0;
+    if(bDiagnostic)
+    {
+        const auto Finite=[](float Value,float Default) {return FMath::IsFinite(Value)?Value:Default;};
+        const double NearDepth=FMath::Clamp(double(Finite(Tongue->GameplaySpawnNearDepth,.18f)),0.,.95);
+        const double FarDepth=FMath::Clamp(double(Finite(Tongue->GameplaySpawnFarDepth,.82f)),NearDepth+.05,1.);
+        DiagnosticNear=TongueBounds.Max.X-TongueBounds.GetSize().X*NearDepth;
+        DiagnosticFar=TongueBounds.Max.X-TongueBounds.GetSize().X*FarDepth;
+    }
+    if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC FOOD extents=%s margin=%.3f candidates_teeth=%d"),
+        *Extent.ToString(),Margin,Teeth.Num());
+    if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC FOOTPRINT_LIMITS far=%.3f near=%.3f center_min_x=%.3f center_max_x=%.3f"),
+        DiagnosticFar,DiagnosticNear,DiagnosticFar+Margin,DiagnosticNear-Margin);
     const float InitialYaw=Pose.Rotator().Yaw;
+    const float CornerYaw=FMath::RadiansToDegrees(FMath::Atan2(Extent.Y,Extent.X));
     AMCArenaTooth* Anchor=nullptr;FVector Inward=FVector::ZeroVector;
+    bool bBrushCapUsed=false;int32 SelectedContactPass=INDEX_NONE;
+    int32 Candidates=0,ZeroDirection=0,WrongZone=0,NoFootprint=0,NoContact=0,OccupiedCount=0,SupportedCount=0;
+    int32 OutsideStrip=0,OutsideTissue=0,DeliveryRejected=0;
+    // Preserve the original two-row search first. Curved, wider authored arenas
+    // also need corner contacts directed diagonally toward the tongue centre;
+    // those poses still satisfy the same band, full footprint and contact tests.
+    // Preserve the original overlap first, then search shallower but still
+    // intersecting jams when a large authored mesh has little rim clearance.
+    // Exhaust all ordinary poses before allowing a tooth-anchored jam in the
+    // brush exit cap. Its native delivery guards ignore Stuck food; the throat
+    // cap, tissue footprint and forbidden outer strips remain excluded.
+    for(int32 ContactPass=0;ContactPass<7 && !Anchor;++ContactPass)
     for(AMCArenaTooth* Tooth:Teeth)
     {
+        const bool bAllowBrushCap=ContactPass>=4;
+        const TCHAR* QueryPolicy=bAllowBrushCap?TEXT("stuck_brush_cap"):TEXT("ordinary");
+        const int32 DepthPass=bAllowBrushCap?ContactPass-3:ContactPass;
+        const float JamDepth=DepthPass<2?22.f:DepthPass==2?12.f:4.f;
         const FVector Center=Tooth->Body->Bounds.Origin;
-        // Centre-only contacts can sit over the tongue's concave rim. Search the
-        // same physical inner face tangentially; never change the selected band.
-        const int32 FirstSample=Random.RandRange(0,12);
-        for(int32 Orientation=0;Orientation<12;++Orientation)
+        const FVector TowardTongue=(TongueBounds.GetCenter()-Center).GetSafeNormal2D();
+        const float TargetDistance=FMath::Max(float(FVector::Dist2D(Center,TongueBounds.GetCenter())),
+            float(Tooth->Body->Bounds.BoxExtent.Size2D()*3.f));
+        const int32 BeforeCandidates=Candidates,BeforeWrongZone=WrongZone,BeforeNoFootprint=NoFootprint,
+            BeforeNoContact=NoContact,BeforeOccupied=OccupiedCount,BeforeSupported=SupportedCount,
+            BeforeOutsideStrip=OutsideStrip,BeforeOutsideTissue=OutsideTissue,BeforeDelivery=DeliveryRejected;
+        bool bLoggedFootprint=false,bLoggedContact=false,bLoggedDelivery=false;
+        if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC TOOTH pass=%d query_policy=%s jam_depth=%.1f name=%s bounds_origin=%s bounds_extent=%s local_extent=%s transform=%s"),
+            ContactPass,QueryPolicy,JamDepth,*Tooth->GetName(),*Center.ToString(),*Tooth->Body->Bounds.BoxExtent.ToString(),
+            *Tooth->Body->GetUnscaledBoxExtent().ToString(),*Tooth->Body->GetComponentTransform().ToString());
+        // The fallback aligns the actual box corner with each contact ray. This
+        // reaches its physical diagonal exactly, without treating an arbitrary
+        // yaw's support projection as its radial reach. Refine the inward arc to
+        // one degree for narrow legal intervals along the authored tongue rim.
+        const int32 SampleCount=ContactPass==0?13:141;
+        const int32 FirstSample=Random.RandRange(0,SampleCount-1);
+        const int32 OrientationCount=ContactPass==0?12:1;
+        for(int32 Orientation=0;Orientation<OrientationCount;++Orientation)
         {
             // Keep the configured variant and band; only its legal contact pose changes.
-            Pose.SetRotation(FRotator(0,InitialYaw+Orientation*30.f,0).Quaternion());
-            Food->SetActorRotation(Pose.GetRotation());
-            for(int32 Sample=0;Sample<13;++Sample)
+            if(ContactPass==0)
             {
-                const float Offset=-.9f+.15f*((FirstSample+Sample)%13);
-                const FVector Target(Center.X+Offset*Tooth->Body->Bounds.BoxExtent.X,TongueBounds.GetCenter().Y,Center.Z);
-                // The authored teeth form two rows; their inner face points to the tongue centre.
+                Pose.SetRotation(FRotator(0,InitialYaw+Orientation*30.f,0).Quaternion());
+                Food->SetActorRotation(Pose.GetRotation());
+            }
+            for(int32 Sample=0;Sample<SampleCount;++Sample)
+            {
+                if(bDiagnostic) ++Candidates;
+                const int32 SampleIndex=(FirstSample+Sample)%SampleCount;
+                const float Offset=-.9f+.15f*SampleIndex;
+                const FVector Target=ContactPass==0
+                    ?FVector(Center.X+Offset*Tooth->Body->Bounds.BoxExtent.X,TongueBounds.GetCenter().Y,Center.Z)
+                    :Center+TowardTongue.RotateAngleAxis(-70.f+SampleIndex,FVector::UpVector)*TargetDistance;
+                // Probe the actual tooth box toward the tissue, including the inner arch corners.
                 const FVector Contact=MCFoodDirectorPrivate::ToothBoxContact(Tooth->Body,Target);
                 const FVector Direction=(Target-Contact).GetSafeNormal2D();
-                if(Direction.IsNearlyZero()) continue;
+                if(Direction.IsNearlyZero()) {if(bDiagnostic) ++ZeroDirection;continue;}
+                if(ContactPass>0)
+                {
+                    Pose.SetRotation(FRotator(0,Direction.Rotation().Yaw-CornerYaw,0).Quaternion());
+                    Food->SetActorRotation(Pose.GetRotation());
+                }
                 const float Support=FMath::Abs(FVector::DotProduct(Food->GetActorForwardVector(),Direction))*Extent.X
                     +FMath::Abs(FVector::DotProduct(Food->GetActorRightVector(),Direction))*Extent.Y;
-                const FVector Candidate=Contact+Direction*(Support-FMath::Min(22.f,Support*.35f));
+                const FVector Candidate=Contact+Direction*(Support-FMath::Min(JamDepth,Support*.35f));
                 FHitResult Floor;
-                if(Tongue->GameplaySpawnZone(Candidate)!=Zone || !Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor)) continue;
+                if(Tongue->GameplaySpawnZone(Candidate)!=Zone) {if(bDiagnostic) ++WrongZone;continue;}
+                const bool bFootprint=bAllowBrushCap?Tongue->GameplayStuckFoodFootprint(Candidate,Margin,Floor)
+                    :Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor);
+                if(!bFootprint)
+                {
+                    if(bDiagnostic)
+                    {
+                        ++NoFootprint;
+                        const bool bBandFootprint=FMath::IsFinite(Margin) && Margin>=0
+                            && Candidate.X+Margin<=DiagnosticNear && Candidate.X-Margin>=DiagnosticFar;
+                        FHitResult Interior;
+                        const bool bInterior=bBandFootprint && Tongue->InteriorSurfacePoint(Candidate,Margin,Interior);
+                        if(!bBandFootprint) ++OutsideStrip;
+                        else if(!bInterior) ++OutsideTissue;
+                        else
+                        {
+                            // With valid band + interior tissue, the selected
+                            // footprint query's final false return is a delivery lane.
+                            ++DeliveryRejected;
+                            if(!bLoggedDelivery)
+                            {
+                                UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC DELIVERY_REJECT pass=%d query_policy=%s jam_depth=%.1f tooth=%s candidate=%s floor=%s margin=%.3f far=%.3f near=%.3f"),
+                                    ContactPass,QueryPolicy,JamDepth,*Tooth->GetName(),*Candidate.ToString(),*Interior.ImpactPoint.ToString(),Margin,DiagnosticFar,DiagnosticNear);
+                                bLoggedDelivery=true;
+                            }
+                        }
+                        if(!bLoggedFootprint)
+                        {
+                            FHitResult Surface,UnrestrictedInterior;
+                            const bool bSurface=Tongue->SurfacePoint(Candidate,Surface);
+                            const bool bTissue=Tongue->InteriorSurfacePoint(Candidate,Margin,UnrestrictedInterior);
+                            UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC FOOTPRINT_REJECT pass=%d query_policy=%s jam_depth=%.1f tooth=%s candidate=%s contact=%s margin=%.3f surface_hit=%d surface=%s normal_z=%.3f band_pass=%d interior=%d far_gap=%.3f near_gap=%.3f"),
+                                ContactPass,QueryPolicy,JamDepth,*Tooth->GetName(),*Candidate.ToString(),*Contact.ToString(),Margin,bSurface,*Surface.ImpactPoint.ToString(),Surface.ImpactNormal.Z,bBandFootprint,bTissue,
+                                Candidate.X-Margin-DiagnosticFar,DiagnosticNear-Candidate.X-Margin);
+                            bLoggedFootprint=true;
+                        }
+                    }
+                    continue;
+                }
+                if(bDiagnostic) ++SupportedCount;
                 const FVector Position=Floor.ImpactPoint+FVector(0,0,Extent.Z+5.f);
                 const FVector Nearest=MCFoodDirectorPrivate::ToothBoxContact(Tooth->Body,Position);
                 const FVector LocalContact=Pose.GetRotation().UnrotateVector(Nearest-Position).GetAbs();
                 // Floor-supported height must still intersect the tooth, rather than float above it.
-                if(LocalContact.X>Extent.X+1 || LocalContact.Y>Extent.Y+1 || LocalContact.Z>Extent.Z+1) continue;
+                if(LocalContact.X>Extent.X+1 || LocalContact.Y>Extent.Y+1 || LocalContact.Z>Extent.Z+1)
+                {
+                    if(bDiagnostic)
+                    {
+                        ++NoContact;
+                        if(!bLoggedContact)
+                        {
+                            UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC CONTACT_REJECT pass=%d tooth=%s position=%s floor=%s nearest=%s local_contact=%s food_extent=%s gap=%s"),
+                                ContactPass,*Tooth->GetName(),*Position.ToString(),*Floor.ImpactPoint.ToString(),*Nearest.ToString(),
+                                *LocalContact.ToString(),*Extent.ToString(),*(LocalContact-Extent).ToString());
+                            bLoggedContact=true;
+                        }
+                    }
+                    continue;
+                }
                 bool Occupied=false;
                 for(TActorIterator<AMCFoodActor> It(World);It;++It)
                 {
@@ -278,20 +406,37 @@ AMCFoodActor* MCSpawnDirectedStuckFood(UWorld* World,const UMCDayPlan* Plan,FNam
                     if(FVector::DistSquared2D(It->GetActorLocation(),Position)<FMath::Square(Margin+OtherExtent.Size2D()+20.f))
                         {Occupied=true;break;}
                 }
-                if(Occupied) continue;
-                Pose.SetLocation(Position);Anchor=Tooth;Inward=Direction;break;
+                if(Occupied) {if(bDiagnostic) ++OccupiedCount;continue;}
+                Pose.SetLocation(Position);Anchor=Tooth;Inward=Direction;SelectedContactPass=ContactPass;
+                if(bAllowBrushCap)
+                {
+                    // Both queries use the same bands and tissue test. A normal
+                    // refusal here proves the chosen pose needed only the brush exemption.
+                    FHitResult OrdinaryFloor;
+                    bBrushCapUsed=!Tongue->GameplaySpawnFootprint(Candidate,Margin,OrdinaryFloor);
+                }
+                break;
             }
             if(Anchor) break;
         }
+        if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC TOOTH_RESULT pass=%d query_policy=%s name=%s candidates=%d wrong_zone=%d no_footprint=%d outside_strip=%d outside_tissue=%d delivery_rejected=%d supported=%d no_contact=%d occupied=%d selected=%d"),
+            ContactPass,QueryPolicy,*Tooth->GetName(),Candidates-BeforeCandidates,WrongZone-BeforeWrongZone,NoFootprint-BeforeNoFootprint,
+            OutsideStrip-BeforeOutsideStrip,OutsideTissue-BeforeOutsideTissue,DeliveryRejected-BeforeDelivery,
+            SupportedCount-BeforeSupported,NoContact-BeforeNoContact,OccupiedCount-BeforeOccupied,Anchor==Tooth);
         if(Anchor) break;
     }
-    if(!Anchor) {Food->Destroy();return nullptr;}
+    if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC SEARCH candidates=%d zero_direction=%d wrong_zone=%d no_footprint=%d outside_strip=%d outside_tissue=%d delivery_rejected=%d supported=%d no_contact=%d occupied=%d anchor=%s"),
+        Candidates,ZeroDirection,WrongZone,NoFootprint,OutsideStrip,OutsideTissue,DeliveryRejected,SupportedCount,NoContact,OccupiedCount,*GetNameSafe(Anchor));
+    if(!Anchor) {Food->Destroy();return Failed(TEXT("no_legal_tooth_contact"));}
     Food->Batch=Batch;Food->Initialize(true,Inward);
     Food->Phase=EMCFoodPhase::Stuck;Food->StuckTooth=Anchor;
     UGameplayStatics::FinishSpawningActor(Food,Pose);
-    if(!IsValid(Food) || Food->IsActorBeingDestroyed()) return nullptr;
+    if(!IsValid(Food) || Food->IsActorBeingDestroyed()) return Failed(TEXT("finish_spawning_failed"));
     Food->Body->SetSimulatePhysics(false);Food->ForceNetUpdate();
-    if(!MCFoodDirectorPrivate::CommitServedDirt(Food,Plan,DirtServices)) {Food->Destroy();return nullptr;}
+    if(!MCFoodDirectorPrivate::CommitServedDirt(Food,Plan,DirtServices)) {Food->Destroy();return Failed(TEXT("served_dirt_commit_failed"));}
+    if(bDiagnostic) UE_LOG(LogTemp,Display,TEXT("MC_STUCK_DIAGNOSTIC SUCCESS food=%s tooth=%s position=%s zone=%d pass=%d query_policy=%s brush_cap_used=%d"),
+        *Food->GetName(),*Anchor->GetName(),*Food->GetActorLocation().ToString(),Zone,SelectedContactPass,
+        SelectedContactPass>=4?TEXT("stuck_brush_cap"):TEXT("ordinary"),bBrushCapUsed);
     return Food;
 }
 

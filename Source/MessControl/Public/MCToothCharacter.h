@@ -226,6 +226,7 @@ private:
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void StartPrimary(); void StopPrimary();
     void StartBrace(); void StopBrace();
+    void ContinueFogGuard();
     bool bSharedPrimaryInputHeld=false,bSharedHandleInputHeld=false,bSharedJumpInputHeld=false;
     UFUNCTION(Server,Reliable) void ServerToggleFoodCollection();
     void SelectBrush(); void SelectPickaxe(); void SelectKnife(); void SelectSpray();

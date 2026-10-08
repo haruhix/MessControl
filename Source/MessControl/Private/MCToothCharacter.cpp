@@ -4,6 +4,8 @@
 #include "MCRewardChest.h"
 #include "Components/BoxComponent.h"
 #include "MCColdCola.h"
+#include "MCIceEvent.h"
+#include "MCFogBrawlEvent.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
 #include "MCBrushContactComponent.h"
@@ -291,6 +293,7 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(RestartAction, ETriggerEvent::Started, this, &AMCToothCharacter::RestartRun);
     Input->BindAction(SwingAction,ETriggerEvent::Started,this,&AMCToothCharacter::SwingBrush);
     Input->BindAction(BraceAction,ETriggerEvent::Started,this,&AMCToothCharacter::StartBrace);
+    Input->BindAction(BraceAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::ContinueFogGuard);
     Input->BindAction(BraceAction,ETriggerEvent::Completed,this,&AMCToothCharacter::StopBrace);
     Input->BindAction(BraceAction,ETriggerEvent::Canceled,this,&AMCToothCharacter::StopBrace);
     Input->BindAction(OrbitXAction,ETriggerEvent::Triggered,this,&AMCToothCharacter::OrbitMouseX);
@@ -619,6 +622,16 @@ void AMCToothCharacter::StartBrace()
     Grip->SetBraceHeld(true);
 }
 void AMCToothCharacter::StopBrace() { Grip->SetBraceHeld(false); }
+void AMCToothCharacter::ContinueFogGuard()
+{
+    if(!Grip || Grip->IsBraceInputHeld() || !CanWork()) return;
+    for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)
+        if(!It->IsActorBeingDestroyed() && It->IsActive() && It->Stage==EMCFogBrawlStage::Warning)
+        {
+            StartBrace();
+            return;
+        }
+}
 void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
     if(bActive && IsMimicCaptured()) return;
@@ -1034,6 +1047,14 @@ void AMCToothCharacter::ResolveSwing()
             if(Offset.SizeSquared()<PickDistance) {BestPick=*It;PickDistance=Offset.SizeSquared();}
         }
         if(BestPick && BestPick->HitWithPickaxe(this,Inventory->Damage())) {++ConfirmedHitCount;MulticastHitSound(BestPick->GetActorLocation(),AudioTool,HitIntensity);return;}
+        AMCIceEvent* BestMint=nullptr; float MintDistance=FMath::Square(180.f);
+        for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) {
+            if(It->Stage!=EMCIceEventStage::Active) continue;
+            const FVector Offset=It->CandyContactPoint(GetActorLocation())-GetActorLocation();
+            if(Offset.SizeSquared()<MintDistance && FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())>.25f && CanContact(*It))
+            { BestMint=*It; MintDistance=Offset.SizeSquared(); }
+        }
+        if(BestMint && BestMint->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestMint->GetActorLocation(),AudioTool,HitIntensity); return; }
         AMCIceBlock* BestIce=nullptr; float Distance=FMath::Square(180.f);
         for(TActorIterator<AMCIceBlock> It(GetWorld());It;++It) {
             const FVector D=It->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();

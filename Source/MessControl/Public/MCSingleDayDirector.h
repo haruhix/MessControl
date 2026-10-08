@@ -8,15 +8,17 @@ class UMCDayPlan;
 class UMCNutRainProfile;
 class UMCGameDirectorProfile;
 class AMCNutRainEvent;
+class AMCIceEvent;
+class AMCFogBrawlEvent;
 class AMCGameDirector;
 class AMCBossCharacter;
 class AMCDayDirector;
 
 UENUM(BlueprintType)
-enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest };
+enum class EMCSingleDayStage : uint8 { Training, FirstPerk, Nuts, Director, Boss, Complete, OpeningPause, FirstMeal, MealRest, Ice, FogBrawl };
 
 UENUM(BlueprintType)
-enum class EMCSingleDayKeyEventKind : uint8 { NutEncounter };
+enum class EMCSingleDayKeyEventKind : uint8 { NutEncounter, IceEvent, FogBrawl };
 
 /** A saved position in the main sequence. Only authored event kinds can run. */
 USTRUCT(BlueprintType)
@@ -71,6 +73,8 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") EMCSingleDayStage Stage=EMCSingleDayStage::Training;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCNutRainEvent> NutEvent;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCIceEvent> IceEvent;
+    UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCFogBrawlEvent> FogEvent;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") TObjectPtr<AMCBossCharacter> FinalBoss;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") int32 VariantIndex=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Sequence") int32 KeyEventIndex=0;
@@ -81,7 +85,10 @@ private:
     void BeginFirstMeal();
     void TickFirstMeal();
     FName ChooseOpeningFood();
+    void BeginKeyEvent();
     void BeginNuts();
+    void BeginIce();
+    void BeginFogBrawl();
     void BeginDirector();
     void BeginBoss();
     void Fail(const FString& Reason);

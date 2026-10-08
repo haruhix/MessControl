@@ -2,6 +2,7 @@
 #include "Misc/AutomationTest.h"
 #include "MCTongue.h"
 #include "MCFoodActor.h"
+#include "MCArenaTooth.h"
 #include "Components/BoxComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/GameInstance.h"
@@ -83,6 +84,8 @@ bool FMCSpawnZoneWeightedTest::RunTest(const FString&)
     FHitResult Hit;
     TestFalse(TEXT("A center inside the band cannot let its footprint spill over the throat boundary"),A.Tongue->GameplaySpawnFootprint(A.AtDepth(.18)+FVector(-10,0,0),40,Hit));
     TestFalse(TEXT("A center inside the band cannot let its footprint spill over the front boundary"),A.Tongue->GameplaySpawnFootprint(A.AtDepth(.82)+FVector(10,0,0),40,Hit));
+    TestFalse(TEXT("Stuck food also retains the throat end strip"),A.Tongue->GameplayStuckFoodFootprint(A.AtDepth(.18)+FVector(-10,0,0),40,Hit));
+    TestFalse(TEXT("Stuck food also retains the front end strip"),A.Tongue->GameplayStuckFoodFootprint(A.AtDepth(.82)+FVector(10,0,0),40,Hit));
     TestTrue(TEXT("Crossing the internal split remains allowed"),A.Tongue->GameplaySpawnFootprint(A.AtDepth(.60),80,Hit));
     TestFalse(TEXT("Negative margin is rejected"),A.Tongue->RandomGameplaySpawnPoint(RA,-1,0,{},Hit));
     TestFalse(TEXT("Negative separation is rejected"),A.Tongue->RandomGameplaySpawnPoint(RA,40,-1,{},Hit));
@@ -122,6 +125,43 @@ bool FMCSpawnZoneAuthoredTest::RunTest(const FString&)
     if(!TestTrue(TEXT("The cap edge has tissue beneath it"),T.Tongue->SurfacePoint(JustOutside,Floor))) return false;
     TestFalse(TEXT("Footprint center is outside the cap"),Cap->ContainsDeliveryPosition(Floor.ImpactPoint+FVector(0,0,35)));
     TestFalse(TEXT("A footprint reaching into the actual delivery cap is rejected"),T.Tongue->GameplaySpawnFootprint(Floor.ImpactPoint,70,Hit));
+    TestFalse(TEXT("Stuck food still cannot overlap the throat cap"),T.Tongue->GameplayStuckFoodFootprint(Floor.ImpactPoint,70,Hit));
+
+    auto* BrushCap=T.World->SpawnActor<AMCFoodDisposal>(FVector(Bounds.Min.X+150,Bounds.GetCenter().Y,Bounds.Max.Z+50),FRotator::ZeroRotator);
+    BrushCap->bBrushBin=true;
+    BrushCap->Volume->SetBoxExtent(FVector(Bounds.GetSize().X*.3,Bounds.GetSize().Y,500));BrushCap->SetActorTickEnabled(false);
+    TArray<FVector> BrushOuter,BrushInner;
+    if(!TestTrue(TEXT("Brush exit has its real curved cap"),BrushCap->GetDeliveryZoneOutline(BrushOuter,BrushInner))) return false;
+    const FVector BrushPoint=BrushInner[BrushInner.Num()/2]+FVector(20,0,0);
+    if(!TestTrue(TEXT("Brush cap contact has a supported floor"),T.Tongue->SurfacePoint(BrushPoint,Floor))) return false;
+    TestFalse(TEXT("Normal food still excludes the brush cap footprint"),T.Tongue->GameplaySpawnFootprint(Floor.ImpactPoint,70,Hit));
+    TestTrue(TEXT("A tooth-anchored jam may touch the brush cap while retaining its whole supported footprint"),T.Tongue->GameplayStuckFoodFootprint(Floor.ImpactPoint,70,Hit));
+
+    const FVector InsideBrush=BrushInner[BrushInner.Num()/2]-FVector(30,0,0);
+    if(!TestTrue(TEXT("Jammed-food delivery fixture has a floor"),T.Tongue->SurfacePoint(InsideBrush,Floor))) return false;
+    auto* FoodMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+#if WITH_EDITOR
+    if(FoodMesh) FStaticMeshCompilingManager::Get().FinishCompilation({FoodMesh});
+#endif
+    if(!TestNotNull(TEXT("Jammed-food fixture mesh"),FoodMesh)) return false;
+    FMCFoodRow Row;Row.Scale=FVector(.25);Row.HalfExtent=FVector(12.5);Row.Health=100;
+    Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FoodMesh));
+    FRandomStream FoodRandom(87);
+    const FTransform FoodPose(Floor.ImpactPoint+FVector(0,0,18));
+    auto* Food=T.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),FoodPose);
+    Food->ConfigureItem(TEXT("Fibre"),Row,FoodRandom);Food->Initialize(true,FVector::ForwardVector);
+    Food->Phase=EMCFoodPhase::Stuck;
+    Food->StuckTooth=T.World->SpawnActor<AMCArenaTooth>(FoodPose.GetLocation(),FRotator::ZeroRotator);
+    Food->FinishSpawning(FoodPose);
+    const FVector JammedLocation=Food->GetActorLocation();
+    TestTrue(TEXT("Jammed fixture actually lies in the brush exit cap"),BrushCap->ContainsDeliveryPosition(JammedLocation));
+    BrushCap->Tick(.1f);
+    TestTrue(TEXT("Brush delivery preserves the jam until a real tool hit"),!Food->IsDisposed() && Food->Phase==EMCFoodPhase::Stuck && Food->GetActorLocation().Equals(JammedLocation,.01));
+    TestTrue(TEXT("A nonlethal tool hit frees the actual jammed item"),Food->HitFood(1,FVector::ForwardVector));
+    BrushCap->Tick(.1f);
+    TestTrue(TEXT("Freed fresh food survives and is returned outside the brush cap"),!Food->IsDisposed() && Food->Phase==EMCFoodPhase::Free && !BrushCap->ContainsDeliveryPosition(Food->GetActorLocation()));
+    Food->Dispose();
+    BrushCap->Destroy();
     FRandomStream Random(41);int32 Found[2]={0,0};
     for(int32 I=0;I<256;++I) {
         const float Margin=I%2?55.f*1.415f+40:175.f*1.415f+40;

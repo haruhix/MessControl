@@ -121,7 +121,7 @@ void UMCDevPanelWidget::NativeOnInitialized()
         AddText(Box,Title,19); AddText(Box,Hint,12);
         return Box;
     };
-    Steps=Column(TEXT("ЭТАПЫ ДНЯ"),TEXT("Чистый запуск: новые игроки, полное здоровье, все зубы с карты. Выбранный этап остаётся до следующей команды."));
+    Steps=Column(TEXT("ВСЕ СОБЫТИЯ"),TEXT("Ключевые события и этапы — чистый тест. События поддержки добавляются в текущую арену. Мир продолжает работать."));
     Actions=Column(TEXT("ДОБАВИТЬ В ТЕКУЩИЙ ТЕСТ"),TEXT("Можно сочетать эффекты. Отключают автопереходы; урон, порча, заживление и возрождения продолжаются."));
     auto* DirectorColumn=Column(TEXT("DIRECTOR / ЖУРНАЛ"),TEXT("Общий журнал забега. Новые решения сверху; обучение, ключевые события и поддержка сохраняются вместе."));
     DirectorOverlayCheck=WidgetTree->ConstructWidget<UCheckBox>();
@@ -154,6 +154,30 @@ void UMCDevPanelWidget::RefreshActions()
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const UMCDayPlan* Plan=Mode?Mode->FirstDayPlan.LoadSynchronous():GS?GS->DayPlan.Get():nullptr;
     if (!Plan) Plan=LoadObject<UMCDayPlan>(nullptr,TEXT("/Game/Data/DA_Day01.DA_Day01"));
+    AddText(Steps,TEXT("КЛЮЧЕВЫЕ СОБЫТИЯ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
+    AddAction(Steps,TEXT("Ореховый катаклизм — начать"),TEXT("Чистая арена: ореховые серии, затем бой с ореховыми боссами. Обычная последовательность приостановлена."),EMCDevAction::NutEncounter);
+    AddAction(Steps,TEXT("Ореховый катаклизм — остановить тест"),TEXT("Убирает орехи, боссов и осколки, созданные тестом F3."),EMCDevAction::StopNutEncounter);
+    AddAction(Steps,TEXT("Зима близко — начать"),TEXT("Чистая арена: разбей мятный леденец киркой в слоте 2, возвращайся в тёплый круг. Сосулька отмечает место, где стоят игроки: ненадолго выбегай."),EMCDevAction::IceEvent);
+    AddAction(Steps,TEXT("Зима близко — остановить тест"),TEXT("Убирает леденец, круги и сосульки; сбрасывает заморозку тестового события."),EMCDevAction::StopIceEvent);
+    AddAction(Steps,TEXT("Потасовка в тумане — начать"),TEXT("Найди пульсирующий красным зуб за 5 секунд. Рядом удерживай ПКМ: урон и отбрасывание делятся между защитниками."),EMCDevAction::FogEvent);
+    AddAction(Steps,TEXT("Потасовка в тумане — остановить тест"),TEXT("Убирает туман и предупреждения теста F3."),EMCDevAction::FogEventStop);
+    AddAction(Steps,TEXT("Обычный день — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычную последовательность и поддержку."),EMCDevAction::RestartDay);
+    AddText(Steps,TEXT("СОБЫТИЯ ПОДДЕРЖКИ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
+    AddAction(Steps,TEXT("Еда — дроп в зоны 30/70"),TEXT("Случайный целый кусок из таблицы завтрака падает в разрешённую зону языка. Крайние полосы у выходов исключены."),EMCDevAction::DropFood);
+    AddAction(Steps,TEXT("Кофейный налёт"),TEXT("Покрывает зубы, игроков и поверхность налётом. Щётка доступна в слоте 1."),EMCDevAction::CoffeeDirt);
+    AddAction(Steps,TEXT("Кофе / цунами — волна"),TEXT("Волна сносит к глотке и смывает мелкие кусочки еды. WASD + Shift — бежать. ПКМ у опоры — держаться."),EMCDevAction::CoffeeFlood);
+    AddAction(Steps,TEXT("Кофе — остановить"),TEXT("Останавливает кофейную волну или тест плавания, убирает воду и зацепы."),EMCDevAction::StopCoffee);
+    AddAction(Steps,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);
+    AddAction(Steps,TEXT("Зевание"),TEXT("Работа прерывается. Игроки автоматически цепляются за доступную поверхность языка."),EMCDevAction::Yawn);
+    AddAction(Steps,TEXT("Перец — 10 секунд до взрыва"),TEXT("Подними и выброси в глотку до конца отсчёта. Просроченный перец оставляет огонь и язву."),EMCDevAction::SpicyPepper);
+    AddAction(Steps,TEXT("Застрявшая еда у зуба"),TEXT("Создаёт Fibre у доступного зуба. Работа инструментом освобождает и разбивает еду."),EMCDevAction::StuckFood);
+    AddAction(Steps,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);
+    AddAction(Steps,TEXT("Сундук за задачу"),TEXT("Падение в безопасной зоне. E — вскрыть: обычный сундук даёт карточки, мимик может проглотить открывателя."),EMCDevAction::RewardChest);
+    AddAction(Steps,TEXT("Босс Zombie — начать бой"),TEXT("Создаёт тестового Zombie. Преследование, удары руками и пинок с уроном; подробные настройки справа."),EMCDevAction::BossAI);
+    AddAction(Steps,TEXT("Рвота — испорченный заказ"),TEXT("Два куска в круге: глотка автоматически выплюнет испорченный заказ со струёй и брызгами. Пятна очищаются щёткой."),EMCDevAction::VomitMeal);
+    AddAction(Steps,TEXT("Огонь"),TEXT("Горящий участок повреждает язык и создаёт язву."),EMCDevAction::Fire);
+    AddAction(Steps,TEXT("Язык — язва и волна боли"),TEXT("Язва перед игроком. Space — перепрыгнуть волну. Слот 4 + удерживать ЛКМ — лечить; отпускание сохраняет прогресс."),EMCDevAction::TongueUlcer);
+    AddText(Steps,TEXT("ЭТАПЫ ПЕРВОГО ДНЯ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
     if (Plan) for (int32 I=0;I<Plan->Steps.Num();++I)
     {
         const auto& Step=Plan->Steps[I]; if (Step.Step==EMCDayStep::Complete || Step.Step==EMCDayStep::DiscardBrushes) continue;
@@ -161,7 +185,6 @@ void UMCDevPanelWidget::RefreshActions()
         AddAction(Steps,RiverFlood?TEXT("КОФЕ / ЦУНАМИ"):Step.Title.ToString(),
             RiverFlood?TEXT("Волна сносит к глотке и смывает мелкие кусочки еды. WASD + Shift — бежать. ПКМ у стены, еды или игрока — держаться."):Step.Instruction.ToString(),EMCDevAction::StartStep,I);
     }
-    AddAction(Steps,TEXT("Обычный день 1 — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычные таймеры и переходы."),EMCDevAction::RestartDay);
     AddText(Actions,TEXT("НОВЫЕ ИНСТРУМЕНТЫ"),18);
     AddAction(Actions,TEXT("Все новые инструменты — себе"),TEXT("Выдать редкие версии всех доступных бустеров своему игроку."),EMCDevAction::GrantAllToolBoosters,0);
     AddAction(Actions,TEXT("Все новые инструменты — всей команде"),TEXT("Выдать легендарные версии всех бустеров всей команде, включая будущие возрождения."),EMCDevAction::GrantAllToolBoosters,1);
@@ -175,11 +198,10 @@ void UMCDevPanelWidget::RefreshActions()
                 Row->Description.ToString(),EMCDevAction::GrantToolBooster,I);
         }
     }
-    AddText(Actions,TEXT("СОБЫТИЯ И ФИЗИКА"),18);
+    AddText(Actions,TEXT("ФИЗИКА И ОТЛАДКА"),18);
     AddAction(Actions,TEXT("Active Ragdoll — мягкий (основной)"),TEXT("Основной профиль при старте и возрождении: стабилизированный корпус, физические руки и ноги, мягкие мышцы. Применить ко всем текущим игрокам."),EMCDevAction::ActiveRagdoll,1);
     AddAction(Actions,TEXT("Active Ragdoll — упругий"),TEXT("Сравни более сильные мышцы при поворотах, прыжках и ударах. Точные контакты сохраняются."),EMCDevAction::ActiveRagdoll,2);
     AddAction(Actions,TEXT("Active Ragdoll — исходный режим"),TEXT("Сравнение для отладки без перезапуска. Новые игроки и возрождения используют основной мягкий профиль."),EMCDevAction::ActiveRagdoll,0);
-    AddAction(Actions,TEXT("Roguelike — сундук за задачу"),TEXT("Падение в безопасной зоне. E — вскрыть: обычный сундук даёт карточки, мимик может проглотить открывателя."),EMCDevAction::RewardChest);
     AddAction(Actions,TEXT("Мимик — создать сундук [100%]"),TEXT("Гарантированный мимик в ближайшей свободной зоне. E — вскрыть; товарищ удерживает E рядом, чтобы вытащить пленника. Камера пленника смотрит на сундук со стороны."),EMCDevAction::MimicChest);
     AddAction(Actions,TEXT("Мимик — убрать / освободить"),TEXT("Удаляет тестового мимика и возвращает игроку движение и обычную камеру. Работает и в одиночном тесте."),EMCDevAction::MimicRemove);
     AddText(Actions,TEXT("Босс · фаза 1"),19)->SetColorAndOpacity(FSlateColor(DevMint));
@@ -200,18 +222,11 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Actions,TEXT("Фаза 3 — остановить AI / восстановить"),TEXT("Выключить бой, восстановить здоровье и вернуть idle."),EMCDevAction::BossPhase3Deactivate);
     AddAction(Actions,TEXT("Фаза 3 — убрать тестового босса"),TEXT("Удаляет только тестового босса фазы 3, созданного кнопками F3."),EMCDevAction::BossPhase3Remove);
     AddText(Actions,TEXT("Другие механики"),19)->SetColorAndOpacity(FSlateColor(DevMint));
-    AddAction(Actions,TEXT("Еда — дроп в зоны 30/70"),TEXT("Случайный целый кусок из таблицы завтрака падает в разрешённую зону языка. Крайние полосы у выходов исключены."),EMCDevAction::DropFood);
-    AddAction(Actions,TEXT("Перец — 10 секунд до взрыва"),TEXT("Подними и выброси в глотку до конца отсчёта. Просроченный перец оставляет огонь и язву."),EMCDevAction::SpicyPepper);
-    AddAction(Actions,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);
-    AddAction(Actions,TEXT("Рвота — испорченный заказ"),TEXT("Два куска в круге: глотка автоматически выплюнет испорченный заказ со струёй и брызгами. Пятна на языке очищаются щёткой."),EMCDevAction::VomitMeal);
     AddAction(Actions,TEXT("Руки — хват, тяга и толкание"),TEXT("Большой и два маленьких куба. ПКМ — держаться за предмет. ЛКМ — прежняя тяга и переноска. ПКМ возле игрока — тормозить его своим весом."),EMCDevAction::GripPractice);
     AddAction(Actions,TEXT("Движение — липкий участок"),TEXT("Создать участок под ногами для проверки усилия и бега с Shift."),EMCDevAction::LocomotionGround,1);
     AddAction(Actions,TEXT("Движение — скользкий участок"),TEXT("Проверить инерцию, торможение и тягу при слабом сцеплении."),EMCDevAction::LocomotionGround,2);
     AddAction(Actions,TEXT("Движение — убрать участок"),TEXT("Вернуть исходные свойства пола."),EMCDevAction::LocomotionGround,0);
     AddAction(Actions,TEXT("Еда — ускоренная порча"),TEXT("Проверка порчи: 3 секунды вместо 180. Еда не становится язвой."),EMCDevAction::Infection);
-    AddAction(Actions,TEXT("Зевание"),TEXT("Работа прерывается. Игроки автоматически цепляются за доступную поверхность языка."),EMCDevAction::Yawn);
-    AddAction(Actions,TEXT("Огонь"),TEXT("Горящий участок повреждает язык и создаёт язву."),EMCDevAction::Fire);
-    AddAction(Actions,TEXT("Язык — язва и волна боли"),TEXT("Язва перед игроком. Space — перепрыгнуть волну. Слот 4 + удерживать ЛКМ — лечить; отпускание сохраняет прогресс."),EMCDevAction::TongueUlcer);
     AddAction(Actions,TEXT("Язык — сильный рывок / ragdoll"),TEXT("Поджатие, резкий подъём и бросок игроков с едой. Случайные рывки отключены; эта кнопка запускает рывок вручную."),EMCDevAction::TongueJolt);
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It) if (It->Profile)
     {
@@ -230,17 +245,14 @@ void UMCDevPanelWidget::RefreshActions()
     }
     AddAction(Actions,TEXT("Давление — применить DA_Tongue"),TEXT("Вернуть настройки основного DA без перезапуска Play. Если Default Pressure Preset назначен, используется он. Ассеты не перезаписываются."),EMCDevAction::TonguePressureReload);
     AddAction(Actions,TEXT("Давление — очистить следы"),TEXT("Сбросить историю продавливания. Текущие объекты продолжат давить на язык."),EMCDevAction::TonguePressureClear);
-    AddAction(Actions,TEXT("Кофейный налёт"),TEXT("Покрывает зубы, игроков и поверхность налётом. Щётка доступна в слоте 1."),EMCDevAction::CoffeeDirt);
     AddAction(Actions,TEXT("Зубной камень — восстановить"),TEXT("Три приросших участка на доступном зубе. Ставит рядом и выбирает кирку: удерживай ЛКМ, чтобы выбивать камень в месте контакта."),EMCDevAction::CalculusPractice);
     AddAction(Actions,TEXT("Зубной камень — убрать тестовый"),TEXT("Убирает только камень, восстановленный кнопкой F3."),EMCDevAction::CalculusClear);
     AddAction(Actions,TEXT("old_flood"),TEXT("Прежняя механика кофе: струя сверху, наполнение, плавание и слив к глотке. ЛКМ у зуба — зацепиться."),EMCDevAction::OldFlood);
     AddAction(Actions,TEXT("Плавание — кофе на 10 минут"),TEXT("Прежний режим плавания. Наполняет рот выше языка и держит уровень 10 минут без струи и слива. WASD — плавать."),EMCDevAction::SwimCoffee);
-    AddAction(Actions,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);
     AddAction(Actions,TEXT("Повредить моего игрока: −25 HP"),TEXT("Проверка материала, реакции на урон и лечения."),EMCDevAction::DamageSelf);
     AddAction(Actions,TEXT("Толчок / ragdoll моего игрока"),TEXT("Обычный физический удар. После падения персонаж встаёт штатно."),EMCDevAction::Ragdoll);
     AddAction(Actions,TEXT("Гибель → возрождение за зуб арены"),TEXT("Убивает игрока хоста; обычное возрождение расходует конкретный большой зуб."),EMCDevAction::KillSelf);
     AddAction(Actions,TEXT("Восстановить общее здоровье рта"),TEXT("Язвы и повреждения отдельных зубов сохраняются."),EMCDevAction::RestoreMouth);
-    AddAction(Actions,TEXT("Мгновенно убрать кофе — сброс теста"),TEXT("Заканчивает потоп или тест плавания, убирает воду и зацепы."),EMCDevAction::StopCoffee);
 }
 void UMCDevPanelWidget::PlayerOverlayChanged(bool Checked)
 {

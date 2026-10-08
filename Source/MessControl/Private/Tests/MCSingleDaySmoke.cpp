@@ -44,9 +44,9 @@
 #include "ShaderCompiler.h"
 #endif
 
-/** Scripted authority smoke on the saved arena. Placement/care/delivery and final boss damage use
- *  gameplay APIs; obstacle extraction, breaking, spraying and nut damage use normal character inputs.
- *  The event runner, director interval, boss spawn and victory transition advance naturally. */
+/** Scripted authority smoke on the saved arena. Placement/care/delivery use gameplay APIs;
+ *  obstacle extraction, breaking, spraying and nut damage use normal character inputs.
+ *  This scope ends during support after nuts, before the next key event. */
 void MCTickSingleDayValidation(UWorld* World)
 {
     struct FRun {
@@ -54,7 +54,7 @@ void MCTickSingleDayValidation(UWorld* World)
         TWeakObjectPtr<AMCToothCharacter> Pawn;
         TWeakObjectPtr<ACameraActor> Camera;
         EMCTutorialStage Lesson=EMCTutorialStage::Finished;
-        double StartedWall=0,LessonAt=0,PerkAt=0,EnemiesAt=0,DirectorAt=0,BossAt=0,WonAt=0,NextPullDebugAt=0;
+        double StartedWall=0,LessonAt=0,PerkAt=0,EnemiesAt=0,DirectorAt=0,BossAt=0,WonAt=0,NextPullDebugAt=0,SupportCheckAt=0,SupportFinishAt=0;
         int64 TrainingExperience=0;
         int32 TrainingPoints=0,Checks=0,EnemyHitBaseline=0,ImpactSerial=0;
         float EnemyHealthBaseline=0;
@@ -72,7 +72,7 @@ void MCTickSingleDayValidation(UWorld* World)
     };
     auto Finish=[&]() {
         R.Finished=true;
-        const FString Result=FString::Printf(TEXT("MC_SINGLE_DAY_TEST_%s checks=%d scope=scripted_saved_arena_training_personal_choice_directed_nuts_real_tool_boss_combat_open_support"),R.Failed?TEXT("FAIL"):TEXT("PASS"),R.Checks);
+        const FString Result=FString::Printf(TEXT("MC_SINGLE_DAY_TEST_%s checks=%d scope=scripted_saved_arena_training_personal_choice_directed_nuts_real_tool_boss_combat_support_before_next_key_event"),R.Failed?TEXT("FAIL"):TEXT("PASS"),R.Checks);
         UE_LOG(LogTemp,Display,TEXT("%s"),*Result);
         IFileManager::Get().MakeDirectory(*(FPaths::ProjectSavedDir()/TEXT("SingleDaySmoke")),true);
         FFileHelper::SaveStringToFile(R.Report+Result+TEXT("\n"),*(FPaths::ProjectSavedDir()/TEXT("SingleDaySmoke/Validation.txt")));
@@ -263,6 +263,10 @@ void MCTickSingleDayValidation(UWorld* World)
         Hero->SetPrimaryInputHeld(false);Hero->SetHandleInputHeld(false);
         if(!R.SawDirector) {
             R.SawDirector=true;R.DirectorAt=Now;
+            const double Deadline=GS->DirectorState.DayEndAt;
+            const double SupportSeconds=Deadline>Now?FMath::Min(34.,FMath::Max(.1,Deadline-Now-1.)):34.;
+            R.SupportCheckAt=Now+SupportSeconds;
+            R.SupportFinishAt=Deadline>Now?FMath::Min(R.SupportCheckAt+1.,Deadline-.1):Now+35.;
             Check(R.SawAttack,TEXT("Nut enemies actually attacked the player"));
             Check(Hero->ConfirmedHitCount>R.EnemyHitBaseline,TEXT("Normal tool swings defeated the nut enemies"));
             Check(GS->Day==1 && R.Pawn.Get()==Hero && !PS->Perks->ActivePerks.IsEmpty(),TEXT("The director interval retains the same day, pawn and perk"));
@@ -270,17 +274,19 @@ void MCTickSingleDayValidation(UWorld* World)
         Place(Tongue->Surface->Bounds.Origin+FVector(-350,250,0));
         for(TActorIterator<AMCPlayerState> It(World);It;++It) if(It->HasPendingLevelChoices() && It->LevelUpOffer.IsValid())
             Check(It->TryChooseLevelUpPerk(It->LevelUpOffer.OfferId,0),TEXT("Earned completion XP grants another personal choice"));
-        if(Now-R.DirectorAt>=34) {
+        if(Now>=R.SupportCheckAt) {
           if(R.WonAt==0) {
             R.WonAt=Now;
-            Check(GS->SingleDayDirector->bAuthoredFragmentComplete && GS->Phase==EMCShiftPhase::Working,
-                TEXT("Completed authored fragment leaves the same run active after thirty seconds"));
+            Check(!GS->SingleDayDirector->bAuthoredFragmentComplete && GS->Phase==EMCShiftPhase::Working,
+                TEXT("Completing nuts keeps the same run active with the next authored event pending"));
+            Check(GS->DirectorState.DayEndAt>Now,
+                TEXT("Support retains the authored interval before the next key event"));
             Check(!GS->SingleDayDirector->FinalBoss && GS->SingleDayDirector->Stage==EMCSingleDayStage::Director,
                 TEXT("Support cannot start the obsolete final boss"));
             Check(GS->DirectorDecisionLog.Num()>5,TEXT("Persistent director history records the ordered encounter and support decisions"));
           }
             Shot(7,TEXT("11_Director_Support"),FVector::ZeroVector,false);
-            if(Now-R.DirectorAt>=35) { Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);Finish(); }
+            if(Now>=R.SupportFinishAt) { Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);Finish(); }
         }
         return;
     }
