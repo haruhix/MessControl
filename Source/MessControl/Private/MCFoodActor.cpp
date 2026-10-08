@@ -95,7 +95,6 @@ void AMCFoodActor::BeginMouthEntry(FVector LaunchVelocity,float PushSpeed,TOptio
 void AMCFoodActor::EndMouthEntry()
 {
     if (!bMouthEntry) return;
-    if(bEntryImpactManaged) EntryImpactSafeUntil=GetWorld()->GetTimeSeconds()+.8;
     bMouthEntry=false; MouthEntryPushSpeed=0; MouthEntryEndsAt=0;
     MouthEntryLanding.Reset();
     Body->SetLinearDamping(.7f);
@@ -363,10 +362,6 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
     if (bMouthEntry && !Cast<AMCToothCharacter>(Other) && OtherComponent && Hit.bBlockingHit
         && (OtherComponent->GetCollisionObjectType()==ECC_WorldStatic || OtherComponent->GetCollisionObjectType()==ECC_WorldDynamic))
     {
-        // A real supporting tongue contact resolves a managed impact once. The
-        // hazard marks itself before applying damage; solver contacts may repeat.
-        if(Cast<AMCTongue>(Other) && Hit.ImpactNormal.Z>.55f && PrePhysicsVelocity.Z<-140)
-            OnEntryLanding.Broadcast(Hit);
         if (FoodData.Kind==EMCFoodKind::Food && OtherComponent->GetCollisionObjectType()==ECC_WorldStatic
             && Hit.ImpactNormal.Z>.6f && PrePhysicsVelocity.Z<-140 && Body->IsSimulatingPhysics())
         {
@@ -382,8 +377,6 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
         && Hit.ImpactNormal.Z>.6f && OtherComponent && OtherComponent->GetCollisionObjectType()==ECC_WorldStatic)
         bLandingPending=true;
     UMCToothStatusComponent* Target=Other->FindComponentByClass<UMCToothStatusComponent>();
-    if(bEntryImpactManaged && Cast<AMCToothCharacter>(Other)
-        && (bMouthEntry || GetWorld()->GetTimeSeconds()<EntryImpactSafeUntil)) return;
     if (!Target || !Target->IsAlive() || Phase==EMCFoodPhase::Stuck || bBrushTool) return;
     if (const auto* Arena=Cast<AMCArenaTooth>(Other); Arena && !Arena->IsAvailable()) return;
     if (const auto* Hero=Cast<AMCToothCharacter>(Other); Hero && (GetWorld()->GetTimeSeconds()<StackReleaseSafeUntil || Holders.Contains(Hero) || StackCarrier==Hero || Hero->FoodCollection->IsSettlingRelease(this))) return;

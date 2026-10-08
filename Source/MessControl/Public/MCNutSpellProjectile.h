@@ -8,9 +8,7 @@ class AMCTongue;
 class UStaticMeshComponent;
 class UProceduralMeshComponent;
 class UNiagaraComponent;
-class UNiagaraSystem;
 class UMaterialInstanceDynamic;
-class UMaterialInterface;
 
 USTRUCT(BlueprintType)
 struct FMCNutSpellFlight
@@ -54,12 +52,6 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Nut;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UProceduralMeshComponent> Flames;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UNiagaraComponent> Trail;
-    UPROPERTY(VisibleAnywhere) TObjectPtr<UProceduralMeshComponent> Core;
-    UPROPERTY(VisibleAnywhere) TObjectPtr<UProceduralMeshComponent> Wake;
-    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UMaterialInterface> CoreMaterial;
-    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UMaterialInterface> WakeMaterial;
-    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UMaterialInterface> FlameMaterial;
-    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UNiagaraSystem> TrailSystem;
     UPROPERTY(BlueprintReadOnly) int32 DamageApplications=0;
 private:
     double Now() const;
@@ -67,8 +59,6 @@ private:
     void ResolveImpact(const FHitResult& Hit);
     UFUNCTION() void PresentImpact();
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> FireMID;
-    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> CoreMID;
-    UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> WakeMID;
     float Damage=18,PreviousAge=0;
     bool bImpactPresented=false,bTrailStarted=false;
 };

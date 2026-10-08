@@ -135,7 +135,7 @@ void AMCNutRainEvent::SpawnNut()
         UE_LOG(LogTemp,Error,TEXT("MC_NUT_RAIN_FAILED walnut needs baked food collision; run author_nut_rain.py"));
         return;
     }
-    const float Margin=FMath::Max(float(Food->Body->GetScaledBoxExtent().Size2D()+18),Settings.ImpactRadius);
+    const float Margin=Food->Body->GetScaledBoxExtent().Size2D()+18;
     FHitResult Floor;
     if(!ChooseLanding(Margin,Floor)) { Food->Destroy(); return; }
     const FVector Landing=Floor.ImpactPoint+FVector(0,0,Food->Body->GetScaledBoxExtent().Z+5);
@@ -149,15 +149,12 @@ void AMCNutRainEvent::SpawnNut()
     Velocity=(Landing-Start-FVector(0,0,GetWorld()->GetGravityZ())*(.5f*Settings.Entry.FlightSeconds*Settings.Entry.FlightSeconds))/Settings.Entry.FlightSeconds;
     Pose.SetLocation(Start); Food->FinishSpawning(Pose);
     if(Settings.bBossEncounter) Food->Settings.MaxDamage=Settings.ImpactDamageLimit;
+    Food->BeginMouthEntry(Velocity,Settings.Entry.PushSpeed,Landing);
     const FTransform ShadowPose(Floor.ImpactPoint);
     if(auto* Shadow=GetWorld()->SpawnActorDeferred<AMCNutLandingShadow>(AMCNutLandingShadow::StaticClass(),ShadowPose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn)) {
-        Shadow->Configure(Tongue,Food,Floor.ImpactPoint,Settings.Entry.FlightSeconds,Settings.ImpactRadius,Settings.LandingShadowOpacity,
-            Settings.ImpactDamageLimit,Settings.ImpactPushSpeed);
+        Shadow->Configure(Tongue,Food,Floor.ImpactPoint,Settings.Entry.FlightSeconds,Margin,Settings.LandingShadowOpacity);
         Shadow->FinishSpawning(ShadowPose); LandingShadows.Add(Shadow);
-    } else {
-        Food->Destroy(); bFailed=true; return;
     }
-    Food->BeginMouthEntry(Velocity,Settings.Entry.PushSpeed,Landing);
     PlannedLandings.Add(Landing); LaunchLocations.Add(Start);
     Nuts.Add(Food); ++NutsSpawned; ForceNetUpdate();
 }

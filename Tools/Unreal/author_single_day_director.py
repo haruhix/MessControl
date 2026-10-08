@@ -27,16 +27,16 @@ day = days[0]
 # Keep authored base values inside their existing 0..3 bounds.
 for name, value in dict(minimum_difficulty=1.0, maximum_difficulty=1.0,
                         target_pressure_min=0.18, target_pressure_max=0.55, pressure_limit=0.95,
-                        initial_patches=0, coffee_patches=2, max_food_batch=2, max_whole_food=4,
+                        initial_patches=0, coffee_patches=3, max_food_batch=2, max_whole_food=4,
                         max_fragments=24, food_interval=5.0, food_work_per_player=32.0,
-                        event_gap=6.0, rest_seconds=5.0).items():
+                        event_gap=10.0, rest_seconds=5.0).items():
     day.set_editor_property(name, value)
 days[0] = day
 profile.set_editor_property('days', days)
 rules = []
 for kind, weight, cooldown, difficulty in (
     (ue.MCGameDirectorEvent.FOOD, 4.5, 6.0, 0.0),
-    (ue.MCGameDirectorEvent.COFFEE, 4.5, 10.0, 0.0),
+    (ue.MCGameDirectorEvent.COFFEE, 1.0, 35.0, 0.0),
     (ue.MCGameDirectorEvent.COFFEE_FLOOD, 0.45, 75.0, 0.75),
     (ue.MCGameDirectorEvent.COLD_COLA, 0.8, 70.0, 0.6),
     (ue.MCGameDirectorEvent.YAWN, 0.65, 45.0, 0.65),

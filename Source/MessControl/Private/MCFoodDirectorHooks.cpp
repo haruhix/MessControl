@@ -5,13 +5,6 @@
 #include "MCTongue.h"
 #include "MCThroat.h"
 #include "MCToothCharacter.h"
-#include "MCFoodCollectionComponent.h"
-#include "MCInventoryComponent.h"
-#include "MCToothStatusComponent.h"
-#include "MCToothMovementComponent.h"
-#include "MCToothPhysicsComponent.h"
-#include "MCDayDirector.h"
-#include "MCMouthSurface.h"
 #include "MCArenaTooth.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -23,53 +16,6 @@
 
 namespace MCFoodDirectorPrivate
 {
-const FName ServedDirtTag(TEXT("MCFoodServedDirt"));
-struct FWorker
-{
-    AMCToothCharacter* Hero=nullptr;
-    int32 Capacity=1,Held=0;
-    float Speed=340.f;
-};
-TArray<FWorker> Workers(UWorld* World)
-{
-    TArray<FWorker> Out;
-    if(!World) return Out;
-    for(TActorIterator<AMCToothCharacter> It(World);It;++It) {
-        if(It->IsActorBeingDestroyed() || !It->Status || !It->Status->IsAlive() || !It->FoodCollection
-            || !It->CanWork() || !It->ToothPhysics || !It->ToothPhysics->CanAct()) continue;
-        auto& Worker=Out.AddDefaulted_GetRef();Worker.Hero=*It;
-        Worker.Capacity=FMath::Clamp(It->FoodCollection->MaxPieces,1,8);
-        Worker.Held=FMath::Clamp(It->FoodCollection->Pieces.Num(),0,Worker.Capacity);
-        const auto* Move=It->GetCharacterMovement();
-        const float Speed=Move?Move->GetMaxSpeed():340.f;
-        Worker.Speed=FMath::IsFinite(Speed)?FMath::Clamp(Speed,20.f,1500.f):340.f;
-    }
-    Out.Sort([](const FWorker& A,const FWorker& B){return A.Hero->GetName()<B.Hero->GetName();});
-    return Out;
-}
-bool CommitServedDirt(AMCFoodActor* Food,const UMCDayPlan* Plan,AMCDayDirector* Services)
-{
-    if(Food->FoodData.Kind!=EMCFoodKind::Food) return true;
-    UWorld* World=Food->GetWorld();
-    if(!IsValid(Services)) {
-        Services=nullptr;
-        for(TActorIterator<AMCDayDirector> It(World);It;++It) {
-            if(It->IsActorBeingDestroyed() || It->Settings!=Plan) continue;
-            // A caller must disambiguate simultaneous executors instead of dirtying a random one.
-            if(Services) return false;
-            Services=*It;
-        }
-    }
-    if(!IsValid(Services) || !Services->HasAuthority() || Services->GetWorld()!=World || Services->Settings!=Plan) return false;
-    TSet<AMCMouthSurface*> Before;
-    for(TActorIterator<AMCMouthSurface> It(World);It;++It) Before.Add(*It);
-    Services->AddDirt(false,1,Food->Batch,0,0.f);
-    int32 Created=0;
-    for(TActorIterator<AMCMouthSurface> It(World);It;++It) if(!Before.Contains(*It) && !It->bUlcer && It->Batch==Food->Batch) {
-        It->SetOwner(Food);It->Tags.AddUnique(ServedDirtTag);++Created;
-    }
-    return Created>0;
-}
 float Positive(float Value,float Default)
 {
     return FMath::IsFinite(Value) && Value>0 ? Value : Default;
@@ -86,28 +32,9 @@ bool HardRow(FName Name,const FMCFoodRow& Row)
     return Name==TEXT("Carrot") || Name==TEXT("Nut") || Name==TEXT("Crust") || Name==TEXT("Tartar");
 }
 
-float CuttingWork(float Health,bool Hard,const FMCFoodPipelineTuning& Tuning,
-    float WholeHealth=0.f,UWorld* World=nullptr)
+float CuttingWork(float Health,bool Hard,const FMCFoodPipelineTuning& Tuning)
 {
     const float Efficiency=FMath::Clamp(Positive(Tuning.EffectiveWorkFraction,.84f),.1f,1.f);
-    const auto Team=Tuning.bUseLivePlayerStats?Workers(World):TArray<FWorker>();
-    if(!Team.IsEmpty()) {
-        float Work=0;
-        for(const auto& Worker:Team) {
-            const auto* Inventory=Worker.Hero->Inventory.Get();const auto* Profile=Inventory?Inventory->Profile.Get():nullptr;
-            if(!Hard && Inventory && Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)) {
-                // SawContact removes half the authored food health per contact, with a .45s per-food cooldown.
-                const int32 Hits=FMath::CeilToInt(FMath::Max(0.f,Health)/FMath::Max(1.f,WholeHealth*.5f));
-                Work+=(Hits>0?.12f+(Hits-1)*.45f:0.f)/Efficiency;
-                continue;
-            }
-            const float Damage=Hard?(Inventory && Inventory->HasUpgrade(EMCToolUpgrade::Buffer)?75.f:Profile?Profile->PickaxeDamage:Tuning.PickaxeDamage)
-                :(Profile?Profile->KnifeDamage:Tuning.KnifeDamage);
-            Work+=FMath::CeilToInt(FMath::Max(0.f,Health)/Positive(Damage,Hard?40.f:25.f))
-                *Positive(Hard?Tuning.PickaxeSwingSeconds:Tuning.KnifeSwingSeconds,Hard?.65f:.70f)/Efficiency;
-        }
-        return Work/Team.Num();
-    }
     const float Damage=Positive(Hard?Tuning.PickaxeDamage:Tuning.KnifeDamage,Hard?40.f:25.f);
     const float Swing=Positive(Hard?Tuning.PickaxeSwingSeconds:Tuning.KnifeSwingSeconds,Hard?.65f:.70f);
     return FMath::CeilToInt(FMath::Max(0.f,Health)/Damage)*Swing/Efficiency;
@@ -119,42 +46,6 @@ float LooseTransportWork(int32 Pieces,float Distance,const FMCFoodPipelineTuning
     const int32 Trips=FMath::DivideAndRoundUp(Pieces,FMath::Clamp(Tuning.StackCapacity,1,64));
     return Distance*Positive(Tuning.PathFactor,1.25f)*(2.f*Trips-1.f)/Positive(Tuning.CarrySpeed,340.f)
         +Trips*Positive(Tuning.DeliveryTripSeconds,.4f);
-}
-
-struct FTransportEstimate
-{
-    int32 Trips=0;
-    float Work=0;
-    TArray<AMCToothCharacter*> FilledStacks;
-};
-FTransportEstimate LiveTransportWork(int32 Pieces,float Distance,const FMCFoodPipelineTuning& Tuning,
-    const TArray<FWorker>& Team)
-{
-    FTransportEstimate Out;
-    if(Pieces<=0) return Out;
-    if(Team.IsEmpty()) {
-        Out.Trips=FMath::DivideAndRoundUp(Pieces,FMath::Clamp(Tuning.StackCapacity,1,64));
-        Out.Work=LooseTransportWork(Pieces,Distance,Tuning);return Out;
-    }
-    const float Path=Positive(Tuning.PathFactor,1.25f),Delivery=Positive(Tuning.DeliveryTripSeconds,.4f);
-    // Existing mixed loads retain their single delivery trip. Only their real spare slots
-    // can absorb another portion; a full stack must be delivered before another trip.
-    for(const auto& Worker:Team) if(Worker.Held>0 && Worker.Held<Worker.Capacity && Pieces>0) {
-        const int32 Added=FMath::Min(Pieces,Worker.Capacity-Worker.Held);Pieces-=Added;
-        Out.FilledStacks.Add(Worker.Hero);
-        // Budget a pickup detour; the existing outbound stack is measured separately.
-        Out.Work+=Distance*Path/Positive(Worker.Speed,340.f);
-    }
-    TArray<int32> TripsPerWorker;TripsPerWorker.Init(0,Team.Num());
-    while(Pieces>0) {
-        for(int32 Index=0;Index<Team.Num() && Pieces>0;++Index) {
-            const auto& Worker=Team[Index];Pieces-=FMath::Min(Pieces,Worker.Capacity);
-            const bool FirstEmptyTrip=TripsPerWorker[Index]==0 && Worker.Held==0;
-            Out.Work+=Distance*Path*(FirstEmptyTrip?1.f:2.f)/Positive(Worker.Speed,340.f)+Delivery;
-            ++TripsPerWorker[Index];++Out.Trips;
-        }
-    }
-    return Out;
 }
 
 float DeliveryDistance(UWorld* World,FVector Point,const AMCFoodActor* Food)
@@ -185,7 +76,7 @@ FVector ToothBoxContact(const UBoxComponent* Body,FVector WorldPoint)
 }
 
 AMCFoodActor* MCSpawnDirectedFoodEntry(UWorld* World,const UMCDayPlan* Plan,FName RowName,
-    int32 Batch,FRandomStream& Random,AMCDayDirector* DirtServices)
+    int32 Batch,FRandomStream& Random)
 {
     if(!World || World->GetNetMode()==NM_Client || !Plan || RowName.IsNone()) return nullptr;
     UDataTable* Menu=Plan->Menu.LoadSynchronous();
@@ -223,12 +114,11 @@ AMCFoodActor* MCSpawnDirectedFoodEntry(UWorld* World,const UMCDayPlan* Plan,FNam
     UGameplayStatics::FinishSpawningActor(Food,Pose);
     if(!IsValid(Food) || Food->IsActorBeingDestroyed()) return nullptr;
     Food->BeginMouthEntry(Velocity,Plan->FoodEntry.PushSpeed,Landing);
-    if(!MCFoodDirectorPrivate::CommitServedDirt(Food,Plan,DirtServices)) {Food->Destroy();return nullptr;}
     return Food;
 }
 
 AMCFoodActor* MCSpawnDirectedStuckFood(UWorld* World,const UMCDayPlan* Plan,FName RowName,
-    int32 Batch,FRandomStream& Random,AMCDayDirector* DirtServices)
+    int32 Batch,FRandomStream& Random)
 {
     if(!World || World->GetNetMode()==NM_Client || !Plan || RowName.IsNone()) return nullptr;
     UDataTable* Menu=Plan->Menu.LoadSynchronous();
@@ -312,58 +202,16 @@ AMCFoodActor* MCSpawnDirectedStuckFood(UWorld* World,const UMCDayPlan* Plan,FNam
     UGameplayStatics::FinishSpawningActor(Food,Pose);
     if(!IsValid(Food) || Food->IsActorBeingDestroyed()) return nullptr;
     Food->Body->SetSimulatePhysics(false);Food->ForceNetUpdate();
-    if(!MCFoodDirectorPrivate::CommitServedDirt(Food,Plan,DirtServices)) {Food->Destroy();return nullptr;}
     return Food;
 }
 
-int32 MCCountDirectedFoodDirt(UWorld* World,int32 Batch)
-{
-    int32 Count=0;if(!World) return Count;
-    for(TActorIterator<AMCMouthSurface> It(World);It;++It)
-        if(!It->IsActorBeingDestroyed() && It->Batch==Batch && It->Tags.Contains(MCFoodDirectorPrivate::ServedDirtTag)
-            && !It->bUlcer && !It->IsClean()) ++Count;
-    return Count;
-}
-void MCDestroyDirectedFoodDirt(const AMCFoodActor* Food)
-{
-    if(!Food || !Food->HasAuthority()) return;
-    for(TActorIterator<AMCMouthSurface> It(Food->GetWorld());It;++It)
-        if(It->GetOwner()==Food && It->Tags.Contains(MCFoodDirectorPrivate::ServedDirtTag)) It->Destroy();
-}
-void MCDestroyDirectedFoodDirt(UWorld* World,int32 Batch)
-{
-    if(!World || World->GetNetMode()==NM_Client) return;
-    for(TActorIterator<AMCMouthSurface> It(World);It;++It)
-        if(It->Batch==Batch && It->Tags.Contains(MCFoodDirectorPrivate::ServedDirtTag)) It->Destroy();
-}
-FMCFoodPipelineTuning MCResolveFoodPipelineTuning(UWorld* World,const FMCFoodPipelineTuning& Base)
-{
-    auto Out=Base;if(!Base.bUseLivePlayerStats) return Out;
-    const auto Team=MCFoodDirectorPrivate::Workers(World);if(Team.IsEmpty()) return Out;
-    float Knife=0,Pickaxe=0,Speed=0,Cleaning=0;int32 Capacity=0;
-    for(const auto& Worker:Team) {
-        const auto* Inventory=Worker.Hero->Inventory.Get();const auto* Profile=Inventory?Inventory->Profile.Get():nullptr;
-        const float BasePickaxe=Profile?Profile->PickaxeDamage:Base.PickaxeDamage;
-        const float BaseKnife=Profile?Profile->KnifeDamage:Base.KnifeDamage;
-        Knife+=Inventory && Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)?2.f*FMath::Max(1.f,BasePickaxe):BaseKnife;
-        Pickaxe+=Inventory && Inventory->HasUpgrade(EMCToolUpgrade::Buffer)?75.f:BasePickaxe;
-        Cleaning+=Inventory?Inventory->CleaningSpeedMultiplier():1.f;
-        Speed+=Worker.Speed;Capacity+=Worker.Capacity;
-    }
-    Out.KnifeDamage=Knife/Team.Num();Out.PickaxeDamage=Pickaxe/Team.Num();
-    Out.CarrySpeed=Speed/Team.Num();Out.PepperCarrySpeed=Out.CarrySpeed*Base.PepperCarrySpeed/FMath::Max(1.f,Base.CarrySpeed);
-    Out.CleaningSpeedMultiplier=Cleaning/Team.Num();Out.StackCapacity=FMath::Max(1,FMath::RoundToInt(float(Capacity)/Team.Num()));
-    return Out;
-}
-
 float MCForecastDirectedFoodWork(UWorld* World,const UMCDayPlan* Plan,FName RowName,bool bStuck,
-    const FMCFoodPipelineTuning& BaseTuning,float CleaningWorkerSeconds)
+    const FMCFoodPipelineTuning& Tuning)
 {
     if(!World || World->GetNetMode()==NM_Client || !Plan || RowName.IsNone()) return MAX_flt;
     const UDataTable* Menu=Plan->Menu.LoadSynchronous();
     const FMCFoodRow* SavedRow=Menu?Menu->FindRow<FMCFoodRow>(RowName,TEXT("Directed food forecast"),false):nullptr;
     if(!SavedRow) return MAX_flt;
-    const auto Tuning=MCResolveFoodPipelineTuning(World,BaseTuning);
     FMCFoodRow Row=*SavedRow;Row.Sanitize();
     using namespace MCFoodDirectorPrivate;
     float MaximumDistance=0;bool FoundTongue=false;
@@ -404,27 +252,20 @@ float MCForecastDirectedFoodWork(UWorld* World,const UMCDayPlan* Plan,FName RowN
     const int32 Pieces=FMath::Clamp(Row.Fragments,1,128);
     // Stuck items require cutting; ordinary entry variants conservatively do too.
     (void)bStuck;
-    const auto Team=BaseTuning.bUseLivePlayerStats?Workers(World):TArray<FWorker>();
-    return CuttingWork(Row.Health,HardRow(RowName,Row),Tuning,Row.Health,World)+Pieces*Pickup+LiveTransportWork(Pieces,MaximumDistance,Tuning,Team).Work
-        +Positive(CleaningWorkerSeconds,8.f)/Positive(Tuning.CleaningSpeedMultiplier,1.f);
+    return CuttingWork(Row.Health,HardRow(RowName,Row),Tuning)+Pieces*Pickup+LooseTransportWork(Pieces,MaximumDistance,Tuning);
 }
 
-FMCFoodPipelineLoad MCMeasureFoodPipeline(UWorld* World,int32 Batch,const FMCFoodPipelineTuning& BaseTuning)
+FMCFoodPipelineLoad MCMeasureFoodPipeline(UWorld* World,int32 Batch,const FMCFoodPipelineTuning& Tuning)
 {
     FMCFoodPipelineLoad Out;
     if(!World || World->GetNetMode()==NM_Client) return Out;
-    const auto Tuning=MCResolveFoodPipelineTuning(World,BaseTuning);
     using namespace MCFoodDirectorPrivate;
     const float Efficiency=FMath::Clamp(Positive(Tuning.EffectiveWorkFraction,.84f),.1f,1.f);
     const float CarrySpeed=Positive(Tuning.CarrySpeed,340.f);
     const float Path=Positive(Tuning.PathFactor,1.25f);
     const float Pickup=Positive(Tuning.PickupPieceSeconds,.275f);
     const float Delivery=Positive(Tuning.DeliveryTripSeconds,.4f);
-    const auto Team=BaseTuning.bUseLivePlayerStats?Workers(World):TArray<FWorker>();
-    for(const auto& Worker:Team) {
-        Out.TeamStackCapacity+=Worker.Capacity;Out.FreeStackSlots+=Worker.Capacity-Worker.Held;
-        Out.FullStacks+=Worker.Held>=Worker.Capacity;
-    }
+    const int32 Capacity=FMath::Clamp(Tuning.StackCapacity,1,64);
     int32 LoosePieces=0;
     double LooseDistance=0;
     TMap<TWeakObjectPtr<AMCToothCharacter>,float> CarrierDistances;
@@ -469,7 +310,7 @@ FMCFoodPipelineLoad MCMeasureFoodPipeline(UWorld* World,int32 Batch,const FMCFoo
         if(NeedsCut)
         {
             const float Health=FMath::IsFinite(Food->Health)?FMath::Max(0.f,Food->Health):Food->FoodData.Health;
-            Out.EstimatedWorkerSeconds+=CuttingWork(Health,HardRow(Food->ItemName,Food->FoodData),Tuning,Food->FoodData.Health,World);
+            Out.EstimatedWorkerSeconds+=CuttingWork(Health,HardRow(Food->ItemName,Food->FoodData),Tuning);
         }
         LoosePieces+=Pieces;
         LooseDistance+=double(Distance)*Pieces;
@@ -477,21 +318,15 @@ FMCFoodPipelineLoad MCMeasureFoodPipeline(UWorld* World,int32 Batch,const FMCFoo
     }
     if(LoosePieces>0)
     {
+        const int32 Trips=FMath::DivideAndRoundUp(LoosePieces,Capacity);
         const float MeanDistance=float(LooseDistance/LoosePieces);
-        const auto Transport=LiveTransportWork(LoosePieces,MeanDistance,Tuning,Team);
-        Out.EstimatedTrips+=Transport.Trips;Out.EstimatedWorkerSeconds+=Transport.Work;
-        for(AMCToothCharacter* Hero:Transport.FilledStacks) {
-            auto& Distance=CarrierDistances.FindOrAdd(TWeakObjectPtr<AMCToothCharacter>(Hero));
-            for(const auto& Piece:Hero->FoodCollection->Pieces)
-                if(IsValid(Piece) && !Piece->IsDisposed() && Piece->FoodData.Kind==EMCFoodKind::Food)
-                    Distance=FMath::Max(Distance,DeliveryDistance(World,Hero->GetActorLocation(),Piece));
-        }
+        Out.EstimatedTrips+=Trips;
+        Out.EstimatedWorkerSeconds+=LooseTransportWork(LoosePieces,MeanDistance,Tuning);
     }
     for(const auto& Carrier:CarrierDistances)
     {
-        const auto* Worker=Team.FindByPredicate([&](const FWorker& Candidate){return Candidate.Hero==Carrier.Key.Get();});
         ++Out.EstimatedTrips;
-        Out.EstimatedWorkerSeconds+=Carrier.Value*Path/Positive(Worker?Worker->Speed:CarrySpeed,340.f)+Delivery;
+        Out.EstimatedWorkerSeconds+=Carrier.Value*Path/CarrySpeed+Delivery;
     }
     for(TActorIterator<AMCThroat> It(World);It;++It)
     {

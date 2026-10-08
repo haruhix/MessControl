@@ -3,9 +3,6 @@
 #include "MCNutRainProfile.h"
 #include "MCGameDirector.h"
 #include "MCGameDirectorProfile.h"
-#include "MCFoodActor.h"
-#include "MCFoodDirectorHooks.h"
-#include "MCDayDirector.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCProgressionComponent.h"
@@ -51,8 +48,7 @@ void AMCSingleDayDirector::Initialize(UMCDayPlan* Plan, UMCSingleDayProfile* Pro
     Settings=Profile?DuplicateObject<UMCSingleDayProfile>(Profile,this):NewObject<UMCSingleDayProfile>(this);
     DirectorProfile=InterludeProfile;
     Stage=EMCSingleDayStage::Training; bStopped=false;
-    KeyEventIndex=0; bAuthoredFragmentComplete=false; InterludeEndsAt=StageEndsAt=0;
-    FirstMealBatch=0; MealSpawned=MealAttempts=0;
+    KeyEventIndex=0; bAuthoredFragmentComplete=false; InterludeEndsAt=0;
     RunStartedAt=GetWorld()->GetTimeSeconds();
     if(auto* GS=GetWorld()->GetGameState<AMCGameState>()) {
         GS->RunSettings.DaysToSurvive=1; GS->Day=1;
@@ -104,17 +100,11 @@ void AMCSingleDayDirector::BeginFirstPerk()
 void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instruction,int32 Left,int32 Total)
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
-    GS->Phase=EMCShiftPhase::Working; GS->PhaseEndsAt=StageEndsAt;
+    GS->Phase=EMCShiftPhase::Working; GS->PhaseEndsAt=0;
     GS->TasksLeft=Left; GS->TasksTotal=Total;
     auto& S=GS->DirectorState; S=FMCGameDirectorState(); S.bEnabled=true;
     S.CurrentTitle=Title; S.Instruction=Instruction;
-    const bool BeforeMeal=(!IsLegacyTimedFinale() && Stage==EMCSingleDayStage::FirstPerk) || Stage==EMCSingleDayStage::OpeningPause;
-    S.NextTitle=BeforeMeal?TEXT("ПРИЁМ ПИЩИ"):
-        Stage==EMCSingleDayStage::FirstMeal || Stage==EMCSingleDayStage::MealRest?TEXT("ОРЕХОВОЕ СОБЫТИЕ"):
-        Stage==EMCSingleDayStage::Nuts?TEXT("ПОДДЕРЖКА ДИРЕКТОРА"):
-        IsLegacyTimedFinale() && Stage==EMCSingleDayStage::Director?TEXT("ФИНАЛЬНЫЙ БОСС"):TEXT("");
-    if(Stage==EMCSingleDayStage::FirstMeal && DirectorProfile)
-        S.Difficulty=DirectorProfile->GetScaledDaySettings(0).MinimumDifficulty;
+    S.NextTitle=Stage==EMCSingleDayStage::FirstPerk?TEXT("ОРЕХОВОЕ СОБЫТИЕ"):Stage==EMCSingleDayStage::Nuts?TEXT("ПОДДЕРЖКА ДИРЕКТОРА"):IsLegacyTimedFinale() && Stage==EMCSingleDayStage::Director?TEXT("ФИНАЛЬНЫЙ БОСС"):TEXT("");
     S.DecisionLog=GS->DirectorDecisionLog;
     S.LastDecision=S.DecisionLog.IsEmpty()?FString():S.DecisionLog.Last();
     S.SpawnedFood=Total; S.FinishedFood=FMath::Max(0,Total-Left);
@@ -122,82 +112,8 @@ void AMCSingleDayDirector::Publish(const FString& Title,const FString& Instructi
     S.DayProgress=Stage==EMCSingleDayStage::Nuts?.25f:Stage==EMCSingleDayStage::Boss?.85f:.1f;
     GS->ForceNetUpdate();
 }
-void AMCSingleDayDirector::BeginOpeningPause(bool bAfterMeal)
-{
-    auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
-    Stage=bAfterMeal?EMCSingleDayStage::MealRest:EMCSingleDayStage::OpeningPause;
-    const float Configured=bAfterMeal?Settings->BeforeNutsPauseSeconds:Settings->AfterTrainingPauseSeconds;
-    const float Seconds=FMath::IsFinite(Configured)?FMath::Clamp(Configured,0.f,30.f):(bAfterMeal?4.f:5.f);
-    StageEndsAt=GS->GetServerWorldTimeSeconds()+Seconds;
-    Record(bAfterMeal?TEXT("Приём пищи завершён: короткая передышка перед орехами"):
-        TEXT("Первый перк выбран: короткая передышка после обучения"));
-    Publish(TEXT("ПЕРЕДЫШКА"),bAfterMeal?TEXT("Приготовьтесь уворачиваться от падающих орехов."):
-        TEXT("Обычная еда скоро появится. Подготовьте нож и место для переноски."));
-    ForceNetUpdate();
-}
-void AMCSingleDayDirector::BeginFirstMeal()
-{
-    Stage=EMCSingleDayStage::FirstMeal; StageEndsAt=0;
-    FirstMealBatch=2000000+int32(GetUniqueID()&0x000FFFFF);
-    MealSpawned=MealAttempts=0;
-    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
-    MealRandom.Initialize((GS?GS->RunSeed:41)^0x4D45414C);
-    MealServices=GetWorld()->SpawnActor<AMCDayDirector>();
-    if(!MealServices) {Fail(TEXT("Не удалось запустить обычный приём пищи."));return;}
-    MealServices->SetOwner(this);
-    MealServices->InitializeEventServices(Mechanics,GS?GS->RunSeed:41);
-    NextMealDropAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
-    Record(TEXT("Обычный приём пищи: нарезка и доставка; ореховое событие ждёт завершения еды"));
-    Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Доставьте еду в горло и очистите оставшуюся грязь."),
-        FMath::Clamp(Settings->OpeningMealItems,1,6),FMath::Clamp(Settings->OpeningMealItems,1,6));
-    ForceNetUpdate();
-}
-FName AMCSingleDayDirector::ChooseOpeningFood()
-{
-    UDataTable* Menu=Mechanics?Mechanics->Menu.LoadSynchronous():nullptr;
-    TArray<FName> Names=Menu?Menu->GetRowNames():TArray<FName>(); Names.Sort(FNameLexicalLess());
-    TArray<FName> Eligible; TArray<float> Weights; float Total=0;
-    for(FName Name:Names) if(const auto* Row=Menu->FindRow<FMCFoodRow>(Name,TEXT("Opening meal"),false))
-        if(Row->Kind==EMCFoodKind::Food && !Row->WholeMeshes.IsEmpty() &&
-            FMath::IsFinite(Row->SelectionWeight) && Row->SelectionWeight>0) {
-            Eligible.Add(Name); Weights.Add(Row->SelectionWeight); Total+=Row->SelectionWeight;
-        }
-    if(Eligible.IsEmpty() || !FMath::IsFinite(Total)) return NAME_None;
-    float Pick=MealRandom.FRand()*Total;
-    for(int32 Index=0;Index<Eligible.Num();++Index) {Pick-=Weights[Index];if(Pick<=0) return Eligible[Index];}
-    return Eligible.Last();
-}
-void AMCSingleDayDirector::TickFirstMeal()
-{
-    auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
-    const int32 Target=FMath::Clamp(Settings->OpeningMealItems,1,6);
-    const double Time=GS->GetServerWorldTimeSeconds();
-    if(MealSpawned<Target && Time>=NextMealDropAt) {
-        const FName Row=ChooseOpeningFood(); ++MealAttempts;
-        if(auto* Food=MCSpawnDirectedFoodEntry(GetWorld(),Mechanics,Row,FirstMealBatch,MealRandom,MealServices)) {
-            Food->SetOwner(this); ++MealSpawned;
-        }
-        else if(MealAttempts>=Target*6) {
-            Fail(TEXT("Не удалось подать обычную еду. Проверьте меню, язык и коллизию продуктов.")); return;
-        }
-        const float Configured=Settings->OpeningMealDropSeconds;
-        NextMealDropAt=Time+(FMath::IsFinite(Configured)?FMath::Clamp(Configured,.5f,5.f):1.5f);
-    }
-    // Fracture parents disappear before their fragments. The ordinary food pipeline
-    // keeps carried, loose and swallowing pieces outstanding until their work ends.
-    const auto Food=MCMeasureFoodPipeline(GetWorld(),FirstMealBatch);
-    const int32 Dirt=MCCountDirectedFoodDirt(GetWorld(),FirstMealBatch);
-    if(MealSpawned>=Target && Food.OutstandingActors==0 && Food.UnresolvedHazards==0 && Dirt==0) {
-        if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
-        BeginOpeningPause(true); return;
-    }
-    const int32 Left=Target-MealSpawned+Food.OutstandingActors+Dirt;
-    Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Доставьте еду в горло и очистите оставшуюся грязь."),
-        Left,FMath::Max(GS->TasksTotal,Left));
-}
 void AMCSingleDayDirector::BeginNuts()
 {
-    StageEndsAt=0;
     if (!IsLegacyTimedFinale() && !Settings->KeyEvents.IsValidIndex(KeyEventIndex)) {
         BeginDirector(); return;
     }
@@ -277,15 +193,7 @@ void AMCSingleDayDirector::Tick(float Dt)
     Super::Tick(Dt); if(!HasAuthority() || bStopped) return;
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
     if(GS->Phase==EMCShiftPhase::Lost) {Stop();return;}
-    if(Stage==EMCSingleDayStage::FirstPerk && GS->Progression && !GS->Progression->HasPendingChoices()) {
-        if(IsLegacyTimedFinale()) BeginNuts(); else BeginOpeningPause();
-    }
-    else if(Stage==EMCSingleDayStage::OpeningPause && GS->GetServerWorldTimeSeconds()>=StageEndsAt) BeginFirstMeal();
-    else if(Stage==EMCSingleDayStage::FirstMeal) TickFirstMeal();
-    else if(Stage==EMCSingleDayStage::MealRest && GS->GetServerWorldTimeSeconds()>=StageEndsAt) {
-        if(!GS->Progression || !GS->Progression->HasPendingChoices()) BeginNuts();
-        else Publish(TEXT("ПЕРВОЕ УСИЛЕНИЕ"),TEXT("Выберите личный перк перед ореховым событием: 1 / 2 / 3."));
-    }
+    if(Stage==EMCSingleDayStage::FirstPerk && GS->Progression && !GS->Progression->HasPendingChoices()) BeginNuts();
     else if(Stage==EMCSingleDayStage::Nuts && NutEvent) {
         if(NutEvent->bFailed) { Fail(TEXT("Не удалось запустить ореховый дождь. Проверьте язык и коллизию орехов.")); return; }
         if(NutEvent->IsComplete()) BeginDirector();
@@ -311,14 +219,6 @@ void AMCSingleDayDirector::Stop()
 {
     bStopped=true;
     if(!HasAuthority()) return;
-    if(FirstMealBatch>0) {
-        MCDestroyDirectedFoodDirt(GetWorld(),FirstMealBatch);
-        TArray<AMCFoodActor*> Meal;
-        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(It->Batch==FirstMealBatch) Meal.Add(*It);
-        for(auto* Food:Meal) Food->Destroy();
-        FirstMealBatch=0;
-    }
-    if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
     if(IsValid(NutEvent)) {NutEvent->Stop();NutEvent->Destroy();} NutEvent=nullptr;
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>(); Mode && Mode->GameDirector==Interlude) Mode->GameDirector=nullptr;
     if(IsValid(Interlude)) {Interlude->Stop();Interlude->Destroy();} Interlude=nullptr;
@@ -339,5 +239,4 @@ void AMCSingleDayDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
     DOREPLIFETIME(AMCSingleDayDirector,Stage); DOREPLIFETIME(AMCSingleDayDirector,NutEvent);
     DOREPLIFETIME(AMCSingleDayDirector,FinalBoss); DOREPLIFETIME(AMCSingleDayDirector,VariantIndex);
     DOREPLIFETIME(AMCSingleDayDirector,KeyEventIndex); DOREPLIFETIME(AMCSingleDayDirector,bAuthoredFragmentComplete);
-    DOREPLIFETIME(AMCSingleDayDirector,StageEndsAt);
 }

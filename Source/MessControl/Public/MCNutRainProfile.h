@@ -39,8 +39,6 @@ struct MESSCONTROL_API FMCNutRainSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="4", ClampMax="8", Units="s")) float SeriesRestSeconds=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance", meta=(ClampMin="150", ClampMax="220", Units="cm")) float LargeNutHeight=180;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="0", ClampMax="40")) float ImpactDamageLimit=18;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="80", ClampMax="320", Units="cm")) float ImpactRadius=180;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="0", ClampMax="500", Units="cm/s")) float ImpactPushSpeed=260;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Encounter") FMCNutBossSettings Boss;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="1", ClampMax="120")) int32 NutCount=30;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="0", ClampMax="30")) int32 NutsPerExtraPlayer=8;

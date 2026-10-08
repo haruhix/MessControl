@@ -23,16 +23,8 @@ AMCNutSpellProjectile::AMCNutSpellProjectile()
     auto* Root=CreateDefaultSubobject<USceneComponent>(TEXT("FlightRoot"));SetRootComponent(Root);
     Nut=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BurningWalnut"));Nut->SetupAttachment(Root);
     Flames=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("FireRibbons"));Flames->SetupAttachment(Root);
-    Core=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("HotGoldenCore"));Core->SetupAttachment(Root);
-    Wake=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("DirectionalFireWake"));Wake->SetupAttachment(Root);
     Trail=CreateDefaultSubobject<UNiagaraComponent>(TEXT("EmberTrail"));Trail->SetupAttachment(Root);Trail->SetAutoActivate(false);
     MCNutCombatVisuals::Configure(Nut);MCNutCombatVisuals::Configure(Flames);MCNutCombatVisuals::Configure(Trail);
-    MCNutCombatVisuals::Configure(Core);MCNutCombatVisuals::Configure(Wake);
-    Core->SetTranslucentSortPriority(5);Wake->SetTranslucentSortPriority(4);
-    CoreMaterial=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NutCombat/M_NutFireCore.M_NutFireCore"));
-    WakeMaterial=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NutCombat/M_NutArcane.M_NutArcane"));
-    FlameMaterial=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/M_ReactionFire.M_ReactionFire"));
-    TrailSystem=FSoftObjectPath(TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutEmberTrail.NS_NutEmberTrail"));
 }
 
 double AMCNutSpellProjectile::Now() const
@@ -61,11 +53,8 @@ void AMCNutSpellProjectile::BeginPlay()
     if(Tongue) AddTickPrerequisiteActor(Tongue);
     if(GetNetMode()==NM_DedicatedServer) return;
     Nut->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_Whole.SM_Walnut_Whole")));
-    if(auto* Parent=FlameMaterial.LoadSynchronous()) FireMID=Flames->CreateDynamicMaterialInstance(0,Parent);
-    if(auto* Parent=CoreMaterial.LoadSynchronous()) CoreMID=Core->CreateDynamicMaterialInstance(0,Parent);
-    if(auto* Parent=WakeMaterial.LoadSynchronous()) WakeMID=Wake->CreateDynamicMaterialInstance(0,Parent);
-    if(WakeMID) {WakeMID->SetScalarParameterValue(TEXT("Beam"),1);WakeMID->SetVectorParameterValue(TEXT("Tint"),FLinearColor(1,.40f,.055f));}
-    Trail->SetAsset(TrailSystem.LoadSynchronous());
+    if(auto* Parent=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/VFX/M_ReactionFire.M_ReactionFire"))) FireMID=Flames->CreateDynamicMaterialInstance(0,Parent);
+    Trail->SetAsset(LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NutCombat/NS_NutEmberTrail.NS_NutEmberTrail")));
     if(Impact.bImpacted) PresentImpact();
 }
 
@@ -80,8 +69,7 @@ void AMCNutSpellProjectile::ResolveImpact(const FHitResult& Hit)
             if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Direction*180+FVector(0,0,65),Hit.ImpactPoint);
         }
     }
-    if(auto* Effect=AMCNutCombatEffect::Spawn(SourceActor,Tongue,EMCNutCombatCue::FireImpact,
-        Impact.Point+Impact.Normal*Flight.Radius,Impact.Point,Flight.Radius*2.6f,0,.65f)) {
+    if(auto* Effect=AMCNutCombatEffect::Spawn(SourceActor,Tongue,EMCNutCombatCue::FireImpact,Impact.Point,Impact.Point,Flight.Radius*2.6f,0,.65f)) {
         // Keep the transient terminal burst in the encounter cleanup set as well as the projectile.
         if(auto* Event=Cast<AMCNutRainEvent>(GetOwner())) {Effect->SetOwner(Event);Event->TrackEncounterActor(Effect);}
     }
@@ -91,7 +79,7 @@ void AMCNutSpellProjectile::ResolveImpact(const FHitResult& Hit)
 void AMCNutSpellProjectile::PresentImpact()
 {
     if(!Impact.bImpacted) return;
-    Nut->SetVisibility(false);Flames->SetVisibility(false);Core->SetVisibility(false);Wake->SetVisibility(false);Trail->Deactivate();SetActorLocation(Impact.Point);
+    Nut->SetVisibility(false);Flames->SetVisibility(false);Trail->Deactivate();SetActorLocation(Impact.Point);
     bImpactPresented=true;
 }
 
@@ -122,35 +110,6 @@ void AMCNutSpellProjectile::Tick(float DeltaSeconds)
     Nut->SetRelativeRotation(FRotator(Age*160,Age*100,Age*65));
     Flames->SetVisibility(FireMID!=nullptr);
     if(FireMID) {FireMID->SetScalarParameterValue(TEXT("FireAge"),Age);MCNutCombatVisuals::RenderFlames(Flames,Flight.Radius,Age,1,(Flight.Start-Flight.Target).GetSafeNormal()*Flight.Radius*2.8f);}
-    const FVector Direction=(Flight.Target-Flight.Start).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
-    const FVector Side=FVector::CrossProduct(Direction,FVector::UpVector).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
-    const FVector Up=FVector::CrossProduct(Side,Direction).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
-    if(CoreMID) {
-        MCNutCombatVisuals::FMesh Glow;
-        const float Size=Flight.Radius*1.2f*(1+.035f*FMath::Sin(Age*22));
-        Glow.Quad(FVector::ZeroVector,Side,Up,Size,Size);
-        Glow.Quad(FVector::ZeroVector,Direction,Up,Size,Size,FLinearColor(1,1,1,.75f));
-        Glow.Quad(FVector::ZeroVector,Direction,Side,Size,Size,FLinearColor(1,1,1,.75f));
-        Glow.Upload(Core);CoreMID->SetScalarParameterValue(TEXT("Age"),Age);
-    }
-    if(WakeMID) {
-        MCNutCombatVisuals::FMesh Ribbon;
-        constexpr int32 Segments=12;
-        const float History=FMath::Min(Age,.38f);
-        for(int32 Index=0;Index<Segments;++Index) {
-            const float Fraction=Index/float(Segments);
-            const FVector From=PositionAt(Age-History*Fraction)-GetActorLocation();
-            const FVector To=PositionAt(Age-History*(Index+1)/float(Segments))-GetActorLocation();
-            const float Length=FVector::Dist(From,To);
-            if(Length<.05f) continue;
-            const float Width=Flight.Radius*.5f*(1-Fraction);
-            const FLinearColor Alpha(1,1,1,.65f*(1-Fraction));
-            Ribbon.Quad((From+To)*.5f,Direction,Side,Length*.52f,Width,Alpha);
-            Ribbon.Quad((From+To)*.5f,Direction,Up,Length*.52f,Width*.8f,Alpha);
-        }
-        if(!Ribbon.Points.IsEmpty()) Ribbon.Upload(Wake);
-        Wake->SetVisibility(!Ribbon.Points.IsEmpty());WakeMID->SetScalarParameterValue(TEXT("Age"),Age);
-    }
     if(!bTrailStarted && Trail->GetAsset()) {bTrailStarted=true;Trail->Activate(true);}
 }
 

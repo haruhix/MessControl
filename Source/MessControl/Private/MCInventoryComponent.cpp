@@ -48,11 +48,6 @@ void UMCInventoryComponent::BeginPlay()
         SprayMist->SetupAttachment(Hero->GetRootComponent());SprayMist->SetAutoActivate(false);
         SprayMist->SetAsset(System);SprayMist->SetCastShadow(false);Hero->AddInstanceComponent(SprayMist);SprayMist->RegisterComponent();
     }
-    if(auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NS_WatergunMist.NS_WatergunMist"))) {
-        WaterMist=NewObject<UNiagaraComponent>(Hero,TEXT("WatergunSprayNiagara"));
-        WaterMist->SetupAttachment(Hero->GetRootComponent());WaterMist->SetAutoActivate(false);
-        WaterMist->SetAsset(System);WaterMist->SetCastShadow(false);Hero->AddInstanceComponent(WaterMist);WaterMist->RegisterComponent();
-    }
     PrimaryComponentTick.AddPrerequisite(Hero,Hero->PrimaryActorTick); RefreshMesh();
 }
 void UMCInventoryComponent::ServerSelect_Implementation(EMCToolSlot Slot)
@@ -185,24 +180,21 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
     if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe) return false;
     if(HasUpgrade(EMCToolUpgrade::Buffer)) {
         if(!IsUsingBuffer()) return false;
-        FTransform WorkTool;
-        if(!UpgradeWorkToolPose(WorkTool)) return false;
+        FTransform IdleHand;
+        if(!UpgradeIdleGrip(IdleHand)) return false;
         const bool Contact=Hero->GetCalculusSwingContact(Point,Normal);
+        const FVector Forward=Contact?-Normal:Hero->GetActorForwardVector();
+        FVector Up=FVector::VectorPlaneProject(FVector::UpVector,Forward).GetSafeNormal();
+        if(Up.IsNearlyZero()) Up=FVector::VectorPlaneProject(Hero->GetActorForwardVector(),Forward).GetSafeNormal();
+        FQuat Rotation=FRotationMatrix::MakeFromXZ(Forward,Up).ToQuat();
+        const FVector Right=Rotation.GetAxisY();Up=Rotation.GetAxisZ();
         const FTransform InHand=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
-        const FVector Scale=WorkTool.GetScale3D();
+        const FVector Scale=InHand.GetScale3D()*Hero->GetMesh()->GetComponentScale();
         const FVector Tip=LocalPickaxeContactTip();
-        FQuat Rotation=WorkTool.GetRotation();
-        FVector TipWorld=WorkTool.TransformPosition(Tip);
-        if(Contact) {
-            // Aim from the braced rear grip, retaining the reference shoulder
-            // pose instead of lifting the whole machine to the stone's height.
-            const FVector Wrist=(InHand.Inverse()*WorkTool).GetLocation();
-            Rotation=(FQuat::FindBetweenNormals((TipWorld-Wrist).GetSafeNormal(),(Point-Wrist).GetSafeNormal())*Rotation).GetNormalized();
-            TipWorld=Point+Normal*.7f;
-        }
-        const FVector Forward=Rotation.GetAxisX(),Right=Rotation.GetAxisY(),Up=Rotation.GetAxisZ();
         // Keep the bit pressed into the locked patch across repeated uses.
         // A small axial feed and motor vibration replace the pickaxe windup.
+        FVector TipWorld=Contact?Point+Normal*.7f
+            :(InHand*IdleHand).TransformPosition(Tip)+Forward*18+Up*2;
         const auto* GS=Hero->GetWorld()->GetGameState();
         const float Time=GS?GS->GetServerWorldTimeSeconds():Hero->GetWorld()->GetTimeSeconds();
         TipWorld+=Forward*(.35f*FMath::Sin(Time*67))+Right*(.2f*FMath::Sin(Time*53))+Up*(.15f*FMath::Cos(Time*59));
@@ -344,7 +336,7 @@ FVector UMCInventoryComponent::SprayOrigin() const
     if(!Hero) return FVector::ZeroVector;
     FVector Local(34,0,31);
     if(HasUpgrade(EMCToolUpgrade::Watergun) && Settings) {
-        Local=(Tool?Tool->GetRelativeTransform():UpgradeAttachment()).TransformPosition(Settings->WatergunNozzle);
+        Local=Settings->WatergunTransform.TransformPosition(Settings->WatergunNozzle);
         return Hero->BrushPivot->GetComponentTransform().TransformPosition(Local);
     }
     if(const auto* Mesh=Settings?Settings->SprayMesh.Get():nullptr)
@@ -390,7 +382,6 @@ FString UMCInventoryComponent::ToolName() const
 void UMCInventoryComponent::RefreshMesh()
 {
     if(!Tool || !Detail) return;
-    WorkingGripAlpha=0;
     Presented=Selected; bPresentedUpgrade=bWaterJetUnlocked; Detail->SetVisibility(false);
     PresentedUpgradeMask=UpgradeMask();
     const bool Mega=HasUpgrade(EMCToolUpgrade::MeshaBrush) && !Settings->MeshaBrushMesh.IsNull();
@@ -452,10 +443,6 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
     }
     if(!Hero || !Tool) return;
     if(Presented!=Selected || bPresentedUpgrade!=bWaterJetUnlocked || PresentedUpgradeMask!=UpgradeMask()) RefreshMesh();
-    const auto Upgrade=SelectedUpgrade();
-    const bool Working=Upgrade==EMCToolUpgrade::Buffer?IsUsingBuffer():Upgrade==EMCToolUpgrade::Watergun?IsUsingWatergun():false;
-    WorkingGripAlpha=FMath::FInterpTo(WorkingGripAlpha,Working?1.f:0.f,Dt,12.f);
-    if(Upgrade==EMCToolUpgrade::Buffer || Upgrade==EMCToolUpgrade::Watergun) Tool->SetRelativeTransform(UpgradeAttachment());
     const bool Visible=ShouldPresentTool();
     const bool Custom=Tool->GetStaticMesh()!=nullptr;
     Tool->SetVisibility(Visible && Custom); Detail->SetVisibility(Visible && Custom && bPresentedFallback && (Selected==EMCToolSlot::Knife || Selected==EMCToolSlot::Spray));
@@ -467,12 +454,6 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
         const bool Emit=Visible && Selected==EMCToolSlot::Spray && !HasUpgrade(EMCToolUpgrade::Watergun) && Hero->CanWork() && (HealingTarget || FireTarget || Hero->IsPrimaryHeld());
         if(Emit) SprayMist->SetWorldLocationAndRotation(SprayOrigin(),FRotationMatrix::MakeFromZ(SprayDirection()).Rotator());
         if(Emit!=bSprayEmitting) {if(Emit) SprayMist->Activate(true);else SprayMist->Deactivate();bSprayEmitting=Emit;}
-    }
-    if(WaterMist) {
-        const bool Emit=Visible && Upgrade==EMCToolUpgrade::Watergun && !bPressureMode
-            && Hero->IsPrimaryHeld() && Hero->CanWork() && !Hero->bInCoffee;
-        if(Emit) WaterMist->SetWorldLocationAndRotation(SprayOrigin(),FRotationMatrix::MakeFromZ(SprayDirection()).Rotator());
-        if(Emit!=bWaterEmitting) {if(Emit) WaterMist->Activate(true);else WaterMist->Deactivate();bWaterEmitting=Emit;}
     }
 }
 void UMCInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

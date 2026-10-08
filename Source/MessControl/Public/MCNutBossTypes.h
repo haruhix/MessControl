@@ -4,8 +4,6 @@
 #include "MCNutBossTypes.generated.h"
 
 class UStaticMesh;
-class USkeletalMesh;
-class UAnimSequence;
 
 UENUM(BlueprintType)
 enum class EMCNutBossRole : uint8 { Tank, Mage };
@@ -14,7 +12,7 @@ UENUM(BlueprintType)
 enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated };
 
 UENUM(BlueprintType)
-enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll };
+enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain };
 
 /** Encounter tuning shared by the event and the two authoritative boss actors. */
 USTRUCT(BlueprintType)
@@ -26,46 +24,6 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health") float MageHealth=1100;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Health") float ExtraPlayerHealth=.65f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<UStaticMesh> WholeMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<USkeletalMesh> TankSkeletalMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float TankModelYaw=-90;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<UStaticMesh> TankBallMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float TankBallHeight=200;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankIdleAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankWalkAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankWalkLeftAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankWalkRightAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankMeleeAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankJumpAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankTransformAnimation;
-    /** Clip contact poses map to the existing server resolve/landing times. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="0.05",ClampMax="0.95")) float TankMeleeImpactFraction=.5f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="0.05",ClampMax="0.8")) float TankJumpTakeoffFraction=.25f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="0.1",ClampMax="0.95")) float TankJumpImpactFraction=.7f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<USkeletalMesh> MageSkeletalMesh;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float MageModelYaw=-90;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageIdleAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageWalkAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageCastAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageHeavyCastAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageSummonAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageRainAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageHitAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> MageDeathAnimation;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float MageCastReleaseFraction=.55f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float AnimationBlendSeconds=.18f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float DeathSeconds=2.4f;
-    /** Gameplay emitter in world centimetres relative to the boss body, rotated toward the locked target. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FVector MageCastOffset=FVector(120,-22,65);
-    /** Optional visual socket; authoritative projectile origins never depend on evaluated cosmetic bones. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName MageCastSocket=TEXT("cast_palm");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName TorsoBone=TEXT("root_x");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName HeadBone=TEXT("head_x");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName LeftArmBone=TEXT("arm_stretch_l");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName RightArmBone=TEXT("arm_stretch_r");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName LeftForearmBone=TEXT("forearm_stretch_l");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName RightForearmBone=TEXT("forearm_stretch_r");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName LeftHandBone=TEXT("hand_l");
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FName RightHandBone=TEXT("hand_r");
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<UStaticMesh> ShellMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") TSoftObjectPtr<UStaticMesh> KernelMesh;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance") float TankHeight=220;
@@ -86,14 +44,6 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeCooldown=8;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeSpeed=650;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Charge") float ChargeDistance=1100;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollDamage=16;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollWindup=1.2f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollCooldown=16;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollDuration=5;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollSpeed=520;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollTurnDegreesPerSecond=50;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollHitGap=1.1f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollPush=260;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpDamage=25;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpWindup=1.2f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Jump") float JumpFlightSeconds=.8f;

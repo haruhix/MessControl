@@ -170,7 +170,7 @@ FName AMCGameDirector::ChooseFoodRow(EMCGameDirectorEvent Kind,const FMCGameDire
     TArray<FName> Names; TArray<float> Weights; float Total=0;
     for(const auto Name:MenuNames) if(const auto* Row=Menu->FindRow<FMCFoodRow>(Name,TEXT("Director menu"))) {
         const bool Match=Kind==EMCGameDirectorEvent::Pepper?Row->Kind==EMCFoodKind::Spicy:Row->Kind==EMCFoodKind::Food;
-        const float Added=MCForecastDirectedFoodWork(GetWorld(),Mechanics,Name,false,FMCFoodPipelineTuning(),Settings->CleaningWorkerSeconds)/(FMath::Max(1,Seen.AvailablePlayers)*40)+(Kind==EMCGameDirectorEvent::Pepper?.35f:0);
+        const float Added=MCForecastDirectedFoodWork(GetWorld(),Mechanics,Name)/(FMath::Max(1,Seen.AvailablePlayers)*40)+(Kind==EMCGameDirectorEvent::Pepper?.35f:0);
         if(Match && Seen.Pressure+Added<=DaySettings.PressureLimit && Row->SelectionWeight>0 && FMath::IsFinite(Row->SelectionWeight))
         {Names.Add(Name);Weights.Add(Row->SelectionWeight);Total+=Row->SelectionWeight;}
     }
@@ -188,9 +188,6 @@ AMCGameDirector::FTicket AMCGameDirector::MakeTicket(EMCGameDirectorEvent Kind,c
     const float WorkBudget=FMath::Max(0.f,FMath::Min(Room,TargetPressure-Seen.Pressure+.2f))*FMath::Max(1,Seen.AvailablePlayers)*40;
     T.Patches=FMath::Clamp(FMath::FloorToInt(WorkBudget/FMath::Max(1.f,Settings->CleaningWorkerSeconds)),1,DaySettings.CoffeePatches);
     T.ToothCount=FMath::Clamp(FMath::FloorToInt((WorkBudget-T.Patches*Settings->CleaningWorkerSeconds)/(Settings->CleaningWorkerSeconds*.5f)),0,4);
-    if(bSupportMode && Kind==EMCGameDirectorEvent::Coffee) {
-        T.Patches=FMath::Min(T.Patches,2);T.ToothCount=FMath::Min(T.ToothCount,1);
-    }
     const auto* Cola=Mechanics?Mechanics->ColdColaProfile.LoadSynchronous():nullptr;
     T.IceCount=FMath::Clamp(FMath::FloorToInt(FMath::Max(0.f,Room-.3f)*FMath::Max(1,Seen.AvailablePlayers)*40/8),1,Cola?FMath::Clamp(Cola->IceCount,1,12):5);
     return T;
@@ -209,8 +206,7 @@ FMCGameDirectorState AMCGameDirector::Observe() const
     S.WholeFood=Pipeline.Whole; S.Fragments=Pipeline.Fragments; S.CarriedFood=Pipeline.Carried; S.ThroatQueued=Pipeline.ThroatQueued;
     float Work=Pipeline.EstimatedWorkerSeconds;
     int32 Occupied=0,Players=0; float HealthSum=0,StaminaSum=0;
-    const float CleaningSeconds=(Settings?Settings->CleaningWorkerSeconds:8.f)
-        /FMath::Max(1.f,MCResolveFoodPipelineTuning(GetWorld()).CleaningSpeedMultiplier);
+    const float CleaningSeconds=Settings?Settings->CleaningWorkerSeconds:8.f;
     const float RepairSeconds=Settings?Settings->RepairWorkerSeconds:10.f;
     for(TActorIterator<AActor> It(GetWorld());It;++It) {
         if(It->IsActorBeingDestroyed()) continue;
@@ -282,10 +278,7 @@ void AMCGameDirector::UpdateAdaptation(const FMCGameDirectorState& Seen,double N
     if(Seen.Pressure>=DaySettings.PressureLimit || Seen.TeamHealth<.45f) Desired=DaySettings.MinimumDifficulty;
     const float Response=Settings->AdaptationSeconds*(Desired<Difficulty?.5f:2.f);
     Difficulty=FMath::Lerp(Difficulty,Desired,1-FMath::Exp(-FMath::Max(0.f,Dt)/Response));
-    const float Range=DaySettings.MaximumDifficulty-DaySettings.MinimumDifficulty;
-    // A fixed numerical difficulty still adapts admitted work to actual clear rate and stress.
-    float Fraction=Range>.01f?(Difficulty-DaySettings.MinimumDifficulty)/Range:Performance;
-    if(Seen.Pressure>=DaySettings.PressureLimit || Seen.TeamHealth<.45f) Fraction=0;
+    const float Fraction=(Difficulty-DaySettings.MinimumDifficulty)/FMath::Max(.01f,DaySettings.MaximumDifficulty-DaySettings.MinimumDifficulty);
     const float DesiredPressure=FMath::Clamp(FMath::Lerp(DaySettings.TargetPressureMin,DaySettings.TargetPressureMax,FMath::Clamp(Fraction,0.f,1.f))*(1-.35f*Seen.Stress),DaySettings.TargetPressureMin,DaySettings.TargetPressureMax);
     TargetPressure=FMath::Lerp(TargetPressure,DesiredPressure,1-FMath::Exp(-FMath::Max(0.f,Dt)/Settings->AdaptationSeconds));
 }
@@ -320,7 +313,7 @@ TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGa
         else if(FoodKind(Rule.Kind) && (Seen.WholeFood>=DaySettings.MaxWholeFood || Seen.Fragments>=DaySettings.MaxFragments ||
             MCMeasureFoodPipeline(GetWorld()).EstimatedWorkerSeconds>=DaySettings.FoodWorkPerPlayer*FMath::Max(1,Seen.AvailablePlayers))) C.BlockReason=TEXT("Очередь еды заполнена");
         else if(FoodKind(Rule.Kind) && Now<NextFoodAt) C.BlockReason=TEXT("Интервал порций");
-        else if(!FoodKind(Rule.Kind) && Rule.Kind!=EMCGameDirectorEvent::Coffee && Now<LastSpecialAt+DaySettings.EventGap) C.BlockReason=TEXT("Интервал событий");
+        else if(!FoodKind(Rule.Kind) && Now<LastSpecialAt+DaySettings.EventGap) C.BlockReason=TEXT("Интервал событий");
         else if(FoodKind(Rule.Kind) && (T.FoodRow.IsNone() || !Mechanics->Menu.LoadSynchronous() ||
             !Mechanics->Menu.LoadSynchronous()->FindRow<FMCFoodRow>(T.FoodRow,TEXT("Director availability")))) C.BlockReason=TEXT("Нет подходящей еды в меню");
         else if(Rule.Kind==EMCGameDirectorEvent::Coffee && Seen.CleaningTasks>FMath::Max(2,Seen.AvailablePlayers*2)) C.BlockReason=TEXT("Сначала текущие пятна");
@@ -426,11 +419,10 @@ float AMCGameDirector::ForecastPressure(const FTicket& T,const FMCGameDirectorSt
     if(FoodKind(T.Kind)) {
         const auto* Menu=Mechanics->Menu.LoadSynchronous();
         const auto* Row=Menu && !T.FoodRow.IsNone()?Menu->FindRow<FMCFoodRow>(T.FoodRow,TEXT("Director forecast"),false):nullptr;
-        if(Row) Work=MCForecastDirectedFoodWork(GetWorld(),Mechanics,T.FoodRow,T.Kind==EMCGameDirectorEvent::StuckFood,FMCFoodPipelineTuning(),Settings->CleaningWorkerSeconds);
+        if(Row) Work=MCForecastDirectedFoodWork(GetWorld(),Mechanics,T.FoodRow,T.Kind==EMCGameDirectorEvent::StuckFood);
         if(T.Kind==EMCGameDirectorEvent::Pepper) Intensity=.35f;
     } else if(T.Kind==EMCGameDirectorEvent::Coffee) {
-        Work=(T.Patches+T.ToothCount*.5f)*Settings->CleaningWorkerSeconds
-            /FMath::Max(1.f,MCResolveFoodPipelineTuning(GetWorld()).CleaningSpeedMultiplier);
+        Work=(T.Patches+T.ToothCount*.5f)*Settings->CleaningWorkerSeconds;
     } else if(T.Kind==EMCGameDirectorEvent::LooseTooth) Work=Settings->RepairWorkerSeconds;
     else if(T.Kind==EMCGameDirectorEvent::ColdCola) {
         Work=T.IceCount*8.f; Intensity=.3f;
@@ -460,13 +452,13 @@ bool AMCGameDirector::TryStart(FTicket& T,const FMCGameDirectorState& S,double N
     bool Success=false;
     if(FoodKind(T.Kind)) {
         auto* Food=T.Kind==EMCGameDirectorEvent::StuckFood
-            ?MCSpawnDirectedStuckFood(GetWorld(),Mechanics,T.FoodRow,T.Batch,Random,Services)
-            :MCSpawnDirectedFoodEntry(GetWorld(),Mechanics,T.FoodRow,T.Batch,Random,Services);
+            ?MCSpawnDirectedStuckFood(GetWorld(),Mechanics,T.FoodRow,T.Batch,Random)
+            :MCSpawnDirectedFoodEntry(GetWorld(),Mechanics,T.FoodRow,T.Batch,Random);
         if(Food) {
             // Mixed stacks and exact geometry can differ from the conservative
             // preflight estimate. Reject this synchronous attempt before it is
             // committed to the ledger or replicated on the next network tick.
-            if(Observe().Pressure>DaySettings.PressureLimit) {MCDestroyDirectedFoodDirt(Food);Food->Destroy();LaunchGrant.Reset();return false;}
+            if(Observe().Pressure>DaySettings.PressureLimit) {Food->Destroy();LaunchGrant.Reset();return false;}
             T.Actor=Food; ++SpawnedFoodTotal; Success=true;
         }
     } else if(T.Kind==EMCGameDirectorEvent::Coffee && Services) {
@@ -493,7 +485,7 @@ bool AMCGameDirector::TryStart(FTicket& T,const FMCGameDirectorState& S,double N
     T.bStarted=true; T.StartedAt=Now; T.WarningAt=-1; CurrentTitle=EventName(T.Kind);
     // Regular meals have their own cadence. They must not keep postponing the
     // coffee/other-special window while that event still fits the workload.
-    if(T.Kind!=EMCGameDirectorEvent::Food && T.Kind!=EMCGameDirectorEvent::Coffee) LastSpecialAt=Now;
+    if(T.Kind!=EMCGameDirectorEvent::Food) LastSpecialAt=Now;
     LastEventAt.Add(T.Kind,Now); ++DayEventCounts.FindOrAdd(T.Kind); RecentKinds.Add(T.Kind);
     if(RecentKinds.Num()>4) RecentKinds.RemoveAt(0);
     if(FoodKind(T.Kind)) NextFoodAt=Now+DaySettings.FoodInterval;
@@ -501,11 +493,6 @@ bool AMCGameDirector::TryStart(FTicket& T,const FMCGameDirectorState& S,double N
     if(T.Kind==EMCGameDirectorEvent::Reward) T.bDone=true;
     Record(FString::Printf(TEXT("Запуск: %s%s"),*EventName(T.Kind),FoodKind(T.Kind)?TEXT(" · 1 продукт"):TEXT("")));
     Record(FString::Printf(TEXT("Бюджет: %.2f → прогноз %.2f / %.2f"),S.Pressure,Forecast,DaySettings.PressureLimit));
-    if(FoodKind(T.Kind) || T.Kind==EMCGameDirectorEvent::Coffee) {
-        const auto Pipeline=MCMeasureFoodPipeline(GetWorld());
-        Record(FString::Printf(TEXT("Стопки: вместимость %d · свободно %d · полных %d · рейсов ≈ %d · еда ≈ %.1f чел·с"),
-            Pipeline.TeamStackCapacity,Pipeline.FreeStackSlots,Pipeline.FullStacks,Pipeline.EstimatedTrips,Pipeline.EstimatedWorkerSeconds));
-    }
     return true;
 }
 void AMCGameDirector::ResolveTickets(double Now)
@@ -516,7 +503,7 @@ void AMCGameDirector::ResolveTickets(double Now)
         bool Done=false;
         if(FoodKind(T.Kind)) {
             const auto Food=MCMeasureFoodPipeline(GetWorld(),T.Batch);
-            Done=Food.OutstandingActors==0 && Food.UnresolvedHazards==0 && MCCountDirectedFoodDirt(GetWorld(),T.Batch)==0;
+            Done=Food.OutstandingActors==0 && Food.UnresolvedHazards==0;
         } else if(T.Kind==EMCGameDirectorEvent::Coffee) Done=Seen.CleaningTasks==0;
         else if(T.Kind==EMCGameDirectorEvent::CoffeeFlood) {const auto* A=Cast<AMCCoffeeFlood>(T.Actor.Get());Done=!A || !A->IsActive();}
         else if(T.Kind==EMCGameDirectorEvent::ColdCola) {const auto* A=Cast<AMCColdColaEvent>(T.Actor.Get());Done=!A || A->IsComplete();}

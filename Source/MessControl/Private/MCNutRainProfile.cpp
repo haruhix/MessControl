@@ -35,8 +35,6 @@ void FMCNutRainSettings::Sanitize()
     SeriesRestSeconds=SafeNutValue(SeriesRestSeconds,4,4,8);
     LargeNutHeight=SafeNutValue(LargeNutHeight,180,150,220); Boss.Sanitize();
     ImpactDamageLimit=SafeNutValue(ImpactDamageLimit,18,0,40);
-    ImpactRadius=SafeNutValue(ImpactRadius,180,80,320);
-    ImpactPushSpeed=SafeNutValue(ImpactPushSpeed,260,0,500);
     RainSeconds=SafeNutValue(RainSeconds,40,bBossEncounter?40:3,60); Entry.Sanitize(); Enemy.Sanitize();
     ClusterRadius=SafeNutValue(ClusterRadius,260,60,650);
     LandingShadowOpacity=SafeNutValue(LandingShadowOpacity,.20f,.03f,.35f);
