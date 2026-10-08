@@ -54,7 +54,7 @@ public:
     double NextWallDiagnostic=0;
     float SprayPoseAlpha=0;
     float SawPoseAlpha=0;
-    float UpgradeIdleAlpha=0,UpgradeSupportAlpha=0;
+    float UpgradeIdleAlpha=0,UpgradeSupportAlpha=0,UpgradeCarryAlpha=0;
     EMCToolUpgrade GripUpgrade=EMCToolUpgrade::None;
     float CalculusPoseAlpha=0;
     FTransform LastCalculusHand=FTransform::Identity;
@@ -316,12 +316,15 @@ public:
     {
         const auto* Inventory=Tooth->Inventory.Get();const auto Kind=Inventory?Inventory->SelectedUpgrade():EMCToolUpgrade::None;
         if(Kind==EMCToolUpgrade::None || !Inventory->ShouldPresentTool() || !Tooth->ToothPhysics->CanAct()) {
-            UpgradeIdleAlpha=UpgradeSupportAlpha=0;GripUpgrade=EMCToolUpgrade::None;return;
+            UpgradeIdleAlpha=UpgradeSupportAlpha=UpgradeCarryAlpha=0;GripUpgrade=EMCToolUpgrade::None;return;
         }
-        if(GripUpgrade!=Kind) {UpgradeIdleAlpha=UpgradeSupportAlpha=0;GripUpgrade=Kind;}
+        if(GripUpgrade!=Kind) {UpgradeIdleAlpha=UpgradeSupportAlpha=UpgradeCarryAlpha=0;GripUpgrade=Kind;}
         const bool Active=Kind==EMCToolUpgrade::Chainsaw?Inventory->IsChainsawRunning():Kind==EMCToolUpgrade::Watergun?Inventory->IsUsingWatergun():
-            Kind==EMCToolUpgrade::MeshaBrush?Tooth->bBrushing:Tooth->GetToolSwingElapsed()<Inventory->SwingDuration();
+            Kind==EMCToolUpgrade::MeshaBrush?Tooth->bBrushing:Inventory->IsUsingBuffer();
         UpgradeIdleAlpha=FMath::FInterpTo(UpgradeIdleAlpha,Active?0.f:1.f,Dt,12.f);
+        const bool CarryingOnGround=!Active && !Tooth->IsDashing() && Tooth->GetCharacterMovement()->IsMovingOnGround();
+        const float CarryWeight=CarryingOnGround?FMath::Clamp((Tooth->AnimationSpeed-.12f)/.88f,0.f,1.f):0.f;
+        UpgradeCarryAlpha=FMath::FInterpTo(UpgradeCarryAlpha,CarryWeight,Dt,8.f);
         if(UpgradeIdleAlpha<.001f) return;
         const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r"))),Lower=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));
         if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) return;
@@ -330,6 +333,17 @@ public:
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
         FTransform Goal;
         if(!Inventory->UpgradeIdleGrip(Goal)) return;
+        if(UpgradeCarryAlpha>.001f) {
+            // Small, continuous gait motion keeps the carry alive without
+            // shaking the tool. The support hand follows this same wrist pose.
+            const float Phase=Tooth->AnimationGait,Weight=UpgradeCarryAlpha;
+            const FTransform ActorWorld=Tooth->GetActorTransform();
+            Goal=Goal.GetRelativeTransform(ActorWorld);
+            Goal.AddToTranslation(FVector(.4f*FMath::Sin(Phase+.4f),.8f*FMath::Sin(Phase),1.4f*FMath::Cos(Phase))*Weight);
+            const FQuat Sway=FRotator(.9f*FMath::Sin(Phase),.5f*FMath::Cos(Phase),1.f*FMath::Sin(Phase+.6f)).Quaternion();
+            Goal.SetRotation((FQuat::Slerp(FQuat::Identity,Sway,Weight)*Goal.GetRotation()).GetNormalized());
+            Goal=Goal*ActorWorld;
+        }
         Goal=Goal.GetRelativeTransform(World);
         FTransform Blended;Blended.Blend(CS[Hand],Goal,UpgradeIdleAlpha);
         const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;const int32 Parent=Ref.GetParentIndex(Lower);
@@ -728,20 +742,21 @@ public:
         Rotate(TEXT("gaze_head"),FRotator(-Tooth->AnimationInertia.X*3,Tooth->AnimationTurn*4,Tooth->AnimationInertia.Y*3));
         Rotate(TEXT("arm_l"),FRotator(-FMath::Sin(G-.25f)*24*Speed-Tooth->AnimationInertia.X*8,0,-10-Tooth->AnimationSlip*18));
         // Chopping tools move the wrist through an overhead arc below.
-        const bool WideSwing=Tooth->Inventory && (Tooth->Inventory->Selected==EMCToolSlot::Pickaxe || Tooth->Inventory->Selected==EMCToolSlot::Knife) && Tooth->Inventory->ShouldPresentTool();
+        const bool BufferTool=Tooth->Inventory && Tooth->Inventory->SelectedUpgrade()==EMCToolUpgrade::Buffer && Tooth->Inventory->ShouldPresentTool();
+        const bool WideSwing=Tooth->Inventory && !BufferTool && (Tooth->Inventory->Selected==EMCToolSlot::Pickaxe || Tooth->Inventory->Selected==EMCToolSlot::Knife) && Tooth->Inventory->ShouldPresentTool();
         FTransform CalculusHand; float CalculusBlend=0;
-        const bool CalculusAllowed=WideSwing && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct();
+        const bool CalculusAllowed=(WideSwing || BufferTool) && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct();
         const bool CalculusContact=CalculusAllowed
             && Tooth->Inventory->CalculusHandGoal(CalculusHand,CalculusBlend);
         if(CalculusContact) LastCalculusHand=CalculusHand.GetRelativeTransform(Tooth->GetActorTransform());
         const float PickaxePlayRate=UMCInventoryComponent::SwingPlayRate(EMCToolSlot::Pickaxe);
-        CalculusPoseAlpha=CalculusAllowed?FMath::FInterpConstantTo(CalculusPoseAlpha,CalculusContact?1.f:0.f,Dt,(CalculusContact?6.25f:3.33f)*PickaxePlayRate):0.f;
+        CalculusPoseAlpha=CalculusAllowed?FMath::FInterpConstantTo(CalculusPoseAlpha,CalculusContact?1.f:0.f,Dt,BufferTool?12.f:(CalculusContact?6.25f:3.33f)*PickaxePlayRate):0.f;
         CalculusHand=LastCalculusHand*Tooth->GetActorTransform(); CalculusBlend=CalculusPoseAlpha;
         // Hold the ready pose across repeated swings. Only losing the aimed
         // cycle fades to the normal grip, rather than dropping it every hit.
         const bool AimedCalculus=CalculusAllowed && (CalculusContact || CalculusBlend>.001f);
-        Rotate(TEXT("arm_r"),FRotator(FMath::Clamp((WideSwing?0:Tooth->AnimationBrushAngle)+FMath::Sin(G-.25f)*18*Speed-Tooth->AnimationInertia.X*8,-60.f,65.f),0,10+Tooth->AnimationSlip*18));
-        Rotate(TEXT("hand_r"),FRotator(FMath::Clamp((AimedCalculus?-12.f*A.Exaggeration:Tooth->AnimationBrushAngle)*(WideSwing?1.f:.3f),WideSwing?-115.f:-35.f,WideSwing?115.f:35.f),0,0));
+        Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(((WideSwing || BufferTool)?0:Tooth->AnimationBrushAngle)+FMath::Sin(G-.25f)*18*Speed-Tooth->AnimationInertia.X*8,-60.f,65.f),0,10+Tooth->AnimationSlip*18));
+        Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(((AimedCalculus || BufferTool)?-12.f*A.Exaggeration:Tooth->AnimationBrushAngle)*(WideSwing?1.f:.3f),WideSwing?-115.f:-35.f,WideSwing?115.f:35.f),0,0));
         // The current character has compact floating mittens. Move the wrist branch
         // through a visible overhead arc while preserving palm/finger proportions.
         if(WideSwing && !AimedCalculus && !Tooth->AnimationToolOffset.IsNearlyZero()) {
@@ -749,7 +764,7 @@ public:
             Rotate(TEXT("body"),FRotator(Tooth->AnimationToolOffset.X*.10f,0,-Tooth->AnimationToolOffset.Z*.04f));
             Rotate(TEXT("arm_l"),FRotator(-Tooth->AnimationToolOffset.Z*.22f,0,-Tooth->AnimationToolOffset.Z*.10f));
         }
-        if(AimedCalculus) {
+        if(AimedCalculus && !BufferTool) {
             const float T=Tooth->GetToolSwingElapsed()*PickaxePlayRate,Contact=Tooth->Inventory->SwingContactTime()*PickaxePlayRate;
             const float WindEnd=FMath::Max(.1f,Contact-.14f);
             const float Wind=FMath::SmoothStep(0.f,WindEnd,T)*(1-FMath::SmoothStep(WindEnd,Contact,T));
@@ -757,6 +772,7 @@ public:
             Rotate(TEXT("body"),FRotator((-6*Wind+4*Impact)*CalculusBlend,0,-2*Wind*CalculusBlend));
             Rotate(TEXT("arm_l"),FRotator((-12*Wind+6*Impact)*CalculusBlend,0,-4*Wind*CalculusBlend));
         }
+        if(BufferTool) Rotate(TEXT("body"),FRotator(4*CalculusBlend,0,0));
         // Blend a readable dog-paddle over locomotion; contact IK still owns a held hand.
         if (Tooth->AnimationSwim>.001f)
         {
@@ -814,7 +830,7 @@ public:
         ChainsawPose(Tooth,Ref,Dt);
         UpgradeIdlePose(Tooth,Ref,Dt);
         CollectionAndYawnPose(Tooth,Ref);
-        if(WideSwing && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct()) {
+        if((WideSwing || BufferTool) && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct()) {
             TArray<FTransform> CS; CS.SetNum(Pose.Num());
             for(int32 I=0;I<Pose.Num();++I) { const int32 Parent=Ref.GetParentIndex(I); CS[I]=Parent<0?Pose[I]:Pose[I]*CS[Parent]; }
             const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r"))),Arm=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));

@@ -177,8 +177,35 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
 {
     Blend=0;
     FVector Point,Normal;
-    if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe
-        || !Hero->GetCalculusSwingContact(Point,Normal)) return false;
+    if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe) return false;
+    if(HasUpgrade(EMCToolUpgrade::Buffer)) {
+        if(!IsUsingBuffer()) return false;
+        FTransform IdleHand;
+        if(!UpgradeIdleGrip(IdleHand)) return false;
+        const bool Contact=Hero->GetCalculusSwingContact(Point,Normal);
+        const FVector Forward=Contact?-Normal:Hero->GetActorForwardVector();
+        FVector Up=FVector::VectorPlaneProject(FVector::UpVector,Forward).GetSafeNormal();
+        if(Up.IsNearlyZero()) Up=FVector::VectorPlaneProject(Hero->GetActorForwardVector(),Forward).GetSafeNormal();
+        FQuat Rotation=FRotationMatrix::MakeFromXZ(Forward,Up).ToQuat();
+        const FVector Right=Rotation.GetAxisY();Up=Rotation.GetAxisZ();
+        const FTransform InHand=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
+        const FVector Scale=InHand.GetScale3D()*Hero->GetMesh()->GetComponentScale();
+        const FVector Tip=LocalPickaxeContactTip();
+        // Keep the bit pressed into the locked patch across repeated uses.
+        // A small axial feed and motor vibration replace the pickaxe windup.
+        FVector TipWorld=Contact?Point+Normal*.7f
+            :(InHand*IdleHand).TransformPosition(Tip)+Forward*18+Up*2;
+        const auto* GS=Hero->GetWorld()->GetGameState();
+        const float Time=GS?GS->GetServerWorldTimeSeconds():Hero->GetWorld()->GetTimeSeconds();
+        TipWorld+=Forward*(.35f*FMath::Sin(Time*67))+Right*(.2f*FMath::Sin(Time*53))+Up*(.15f*FMath::Cos(Time*59));
+        Rotation=(Rotation*FRotator(.25f*FMath::Sin(Time*43),.2f*FMath::Cos(Time*47),.4f*FMath::Sin(Time*61)).Quaternion()).GetNormalized();
+        const FTransform DrillWorld(Rotation,TipWorld-Rotation.RotateVector(Tip*Scale),Scale);
+        HandWorld=InHand.Inverse()*DrillWorld;
+        if(!Contact) HandWorld.AddToTranslation(ConstrainPickaxeGrip(HandWorld));
+        Blend=1;
+        return !HandWorld.ContainsNaN();
+    }
+    if(!Hero->GetCalculusSwingContact(Point,Normal)) return false;
     const float PlayRate=SwingPlayRate(Selected);
     const float T=Hero->GetToolSwingElapsed()*PlayRate;
     const float Contact=SwingContactTime()*PlayRate;

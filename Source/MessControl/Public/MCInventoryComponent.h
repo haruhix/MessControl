@@ -95,6 +95,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") double WaterShotReadyAt=0;
     UFUNCTION(BlueprintPure,Category="Tools") bool HasUpgrade(EMCToolUpgrade Kind) const;
     UFUNCTION(BlueprintPure,Category="Tools") bool IsChainsawRunning() const;
+    UFUNCTION(BlueprintPure,Category="Tools") bool IsUsingBuffer() const;
     UFUNCTION(BlueprintPure,Category="Tools") bool IsUsingWatergun() const;
     UFUNCTION(BlueprintPure,Category="Tools") EMCToolUpgrade SelectedUpgrade() const;
     bool UpgradeIdleGrip(FTransform& RightHandWorld) const;

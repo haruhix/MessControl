@@ -1,0 +1,38 @@
+{
+  "passed": true,
+  "poses": [
+    {
+      "case": "ReplicatedHeldFreeDrilling",
+      "authority": {
+        "actor": "BP_PlayerCharacter_C_2",
+        "support_error_cm": 2.1575241434403801e-13,
+        "axis_dot": 0.9999897981190792
+      },
+      "client": {
+        "actor": "BP_PlayerCharacter_C_0",
+        "support_error_cm": 1.3349885981068564e-13,
+        "axis_dot": 0.9999918484322409
+      }
+    },
+    {
+      "case": "ReplicatedContactDrilling",
+      "authority": {
+        "actor": "BP_PlayerCharacter_C_2",
+        "support_error_cm": 5.684341886080802e-14,
+        "axis_dot": 0.9999861904917968
+      },
+      "client": {
+        "actor": "BP_PlayerCharacter_C_0",
+        "support_error_cm": 1.214175959108492e-13,
+        "axis_dot": 0.9999968626119314
+      }
+    },
+    {
+      "case": "ReplicatedCalculusRemoval",
+      "initial_pieces": 39,
+      "authority_pieces": 0,
+      "client_pieces": 0
+    }
+  ],
+  "error": null
+}

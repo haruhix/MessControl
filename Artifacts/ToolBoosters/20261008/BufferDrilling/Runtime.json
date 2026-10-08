@@ -1,0 +1,4284 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "name": "HeldFreeDrilling",
+      "position_span_cm": [
+        0.7657154623784663,
+        1.010413426434809,
+        1.0776025870274069
+      ],
+      "samples": [
+        {
+          "tool_location": [
+            -765.1129131778385,
+            -134.00389511153594,
+            -26.832321604427914
+          ],
+          "axis_dot": 0.9999994069418747,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.409829545813355e-13
+        },
+        {
+          "tool_location": [
+            -764.9287495531601,
+            -134.05091661651713,
+            -26.760090773137307
+          ],
+          "axis_dot": 0.9999955491977133,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.245604331533737e-13
+        },
+        {
+          "tool_location": [
+            -764.7723865593748,
+            -134.11065736473455,
+            -26.67137647915522
+          ],
+          "axis_dot": 0.999989904793527,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.675879792612157e-13
+        },
+        {
+          "tool_location": [
+            -764.6927196565298,
+            -134.17435904232707,
+            -26.576420619005116
+          ],
+          "axis_dot": 0.9999854612061376,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.418195219212526e-13
+        },
+        {
+          "tool_location": [
+            -764.7149676026721,
+            -134.23165807280654,
+            -26.49195139491059
+          ],
+          "axis_dot": 0.9999845709982218,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.3944687251498116e-13
+        },
+        {
+          "tool_location": [
+            -764.8328882667447,
+            -134.27221457219486,
+            -26.437829082755933
+          ],
+          "axis_dot": 0.99998769846307,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.574737171657584e-13
+        },
+        {
+          "tool_location": [
+            -765.0105955312787,
+            -134.28755448788743,
+            -26.431971940490513
+          ],
+          "axis_dot": 0.9999931756122928,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.673581532754771e-13
+        },
+        {
+          "tool_location": [
+            -765.1933793905866,
+            -134.27274229175282,
+            -26.485222011474658
+          ],
+          "axis_dot": 0.9999980979809906,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.0837575196922105e-13
+        },
+        {
+          "tool_location": [
+            -765.3243595318949,
+            -134.2276417616233,
+            -26.59768441661835
+          ],
+          "axis_dot": 0.9999998760173789,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.978761754819353e-13
+        },
+        {
+          "tool_location": [
+            -765.3618463680627,
+            -134.15736623151443,
+            -26.757085055291462
+          ],
+          "axis_dot": 0.9999976068975034,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6128753927703334e-13
+        },
+        {
+          "tool_location": [
+            -765.29225245733,
+            -134.07191048938742,
+            -26.940044655687306
+          ],
+          "axis_dot": 0.9999925351010961,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.3824091911297917e-13
+        },
+        {
+          "tool_location": [
+            -765.1345399886733,
+            -133.98477094723293,
+            -27.115727766895542
+          ],
+          "axis_dot": 0.9999873652403999,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.3561863913480405e-13
+        },
+        {
+          "tool_location": [
+            -764.9348187046465,
+            -133.91085865263432,
+            -27.25139167812427
+          ],
+          "axis_dot": 0.9999848097146937,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.913225216616411e-13
+        },
+        {
+          "tool_location": [
+            -764.7526786158835,
+            -133.86396147021773,
+            -27.318988179523707
+          ],
+          "axis_dot": 0.9999861557841574,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.571978228294578e-13
+        },
+        {
+          "tool_location": [
+            -764.6432660249118,
+            -133.85421727932942,
+            -27.30153309458308
+          ],
+          "axis_dot": 0.999990614441364,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.7233408066822027e-13
+        },
+        {
+          "tool_location": [
+            -764.6405589957996,
+            -133.88601336561396,
+            -27.197399320949238
+          ],
+          "axis_dot": 0.9999957827891042,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.9023289090473154e-13
+        },
+        {
+          "tool_location": [
+            -764.7469232294584,
+            -133.9568049613644,
+            -27.02171408686897
+          ],
+          "axis_dot": 0.999998948289287,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.005002536907691e-13
+        },
+        {
+          "tool_location": [
+            -764.9321454980605,
+            -134.05698275857074,
+            -26.803787158157576
+          ],
+          "axis_dot": 0.9999985219947449,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.778905751080725e-13
+        },
+        {
+          "tool_location": [
+            -765.1422756590541,
+            -134.1710865864135,
+            -26.581575359724916
+          ],
+          "axis_dot": 0.9999948387546793,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.418414012553174e-13
+        },
+        {
+          "tool_location": [
+            -765.315715797043,
+            -134.28009303087154,
+            -26.394093054297116
+          ],
+          "axis_dot": 0.9999899196983912,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.753562034417803e-13
+        },
+        {
+          "tool_location": [
+            -765.4016108728604,
+            -134.36459320556767,
+            -26.273977844948597
+          ],
+          "axis_dot": 0.9999863558526976,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.1980935540366913e-13
+        },
+        {
+          "tool_location": [
+            -765.3750583206368,
+            -134.40823252450667,
+            -26.2413855924963
+          ],
+          "axis_dot": 0.9999859337992065,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.733743344153174e-13
+        },
+        {
+          "tool_location": [
+            -765.2445300439915,
+            -134.40087505957086,
+            -26.30043618572695
+          ],
+          "axis_dot": 0.999988737347125,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.849488993707263e-13
+        },
+        {
+          "tool_location": [
+            -765.0492604574416,
+            -134.34078891457278,
+            -26.438665659816976
+          ],
+          "axis_dot": 0.9999931786854526,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.1854965131365875e-13
+        },
+        {
+          "tool_location": [
+            -764.8473741775226,
+            -134.23550143596864,
+            -26.62964009488415
+          ],
+          "axis_dot": 0.9999969007141323,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.933778217080553e-13
+        },
+        {
+          "tool_location": [
+            -764.6984313080327,
+            -134.10098882490848,
+            -26.838276036824823
+          ],
+          "axis_dot": 0.9999980373266975,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.7254823535293363e-13
+        },
+        {
+          "tool_location": [
+            -764.6455595034042,
+            -133.95928881048818,
+            -27.02781405975704
+          ],
+          "axis_dot": 0.9999961515830869,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.3041340872738743e-13
+        },
+        {
+          "tool_location": [
+            -764.7026737224132,
+            -133.83495533376447,
+            -27.167287932399496
+          ],
+          "axis_dot": 0.9999923797087289,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5443482726634953e-13
+        },
+        {
+          "tool_location": [
+            -764.8505458807474,
+            -133.75075734348434,
+            -27.237226974776434
+          ],
+          "axis_dot": 0.9999887502103215,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.1645329030274947e-13
+        },
+        {
+          "tool_location": [
+            -765.042923072646,
+            -133.7235382140184,
+            -27.232649732713124
+          ],
+          "axis_dot": 0.9999870854251622,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.786974480050784e-13
+        },
+        {
+          "tool_location": [
+            -765.2207240938842,
+            -133.76083788200796,
+            -27.162600652055723
+          ],
+          "axis_dot": 0.9999880836184434,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.844168642415274e-13
+        },
+        {
+          "tool_location": [
+            -765.3300638183775,
+            -133.8590784988672,
+            -27.046696842346943
+          ],
+          "axis_dot": 0.9999910455336731,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.1288598296812143e-13
+        },
+        {
+          "tool_location": [
+            -765.3385294094924,
+            -134.00366326749574,
+            -26.9099747411025
+          ],
+          "axis_dot": 0.9999943401990599,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.248548236625802e-13
+        },
+        {
+          "tool_location": [
+            -765.2448406197466,
+            -134.171075522621,
+            -26.777326434556493
+          ],
+          "axis_dot": 0.9999963082714427,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.184918912462308e-13
+        },
+        {
+          "tool_location": [
+            -765.079027965149,
+            -134.33275852481668,
+            -26.668675609568943
+          ],
+          "axis_dot": 0.9999961008657292,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.826361808160812e-13
+        },
+        {
+          "tool_location": [
+            -764.8931080108713,
+            -134.46000673286773,
+            -26.595743945414956
+          ],
+          "axis_dot": 0.9999940277161414,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.150718272283514e-13
+        },
+        {
+          "tool_location": [
+            -764.7451018585923,
+            -134.52910305851486,
+            -26.560926960350603
+          ],
+          "axis_dot": 0.9999912836745173,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.823960457063847e-13
+        },
+        {
+          "tool_location": [
+            -764.681283504428,
+            -134.52578809730522,
+            -26.558493110220336
+          ],
+          "axis_dot": 0.9999892589007782,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.9154466963636657e-13
+        },
+        {
+          "tool_location": [
+            -764.7220208861336,
+            -134.44814192464074,
+            -26.577730416214575
+          ],
+          "axis_dot": 0.9999888313967757,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.997394963742864e-13
+        },
+        {
+          "tool_location": [
+            -764.8555044722713,
+            -134.30738020759017,
+            -26.607290756715308
+          ],
+          "axis_dot": 0.999990004286722,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.3779178330856897e-13
+        },
+        {
+          "tool_location": [
+            -765.0413028053385,
+            -134.12631255092674,
+            -26.638997084854175
+          ],
+          "axis_dot": 0.9999920246577123,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.308352016705507e-13
+        },
+        {
+          "tool_location": [
+            -765.2225789212597,
+            -133.93559143510547,
+            -26.670144387965074
+          ],
+          "axis_dot": 0.9999938567757867,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.4636680912872045e-13
+        },
+        {
+          "tool_location": [
+            -765.3434082541221,
+            -133.7684662137342,
+            -26.70338415330315
+          ],
+          "axis_dot": 0.999994715819382,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5903765864850473e-13
+        },
+        {
+          "tool_location": [
+            -765.3658407272538,
+            -133.65487751681198,
+            -26.74457215140635
+          ],
+          "axis_dot": 0.999994386228672,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.618234381391817e-13
+        },
+        {
+          "tool_location": [
+            -765.2815563456543,
+            -133.6159773742466,
+            -26.79929696123032
+          ],
+          "axis_dot": 0.9999932067722077,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.1714810555842817e-13
+        },
+        {
+          "tool_location": [
+            -765.1145382208186,
+            -133.66017642780307,
+            -26.86952512983906
+          ],
+          "axis_dot": 0.999991801131318,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5436660835539596e-13
+        },
+        {
+          "tool_location": [
+            -764.9139749869679,
+            -133.781360364408,
+            -26.951218520765504
+          ],
+          "axis_dot": 0.9999907458916228,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.376573542954194e-13
+        },
+        {
+          "tool_location": [
+            -764.7394905852447,
+            -133.95971728778284,
+            -27.033755947328807
+          ],
+          "axis_dot": 0.9999903534193071,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.1276493999651934e-13
+        },
+        {
+          "tool_location": [
+            -764.6432095782525,
+            -134.1650504446024,
+            -27.101185395133516
+          ],
+          "axis_dot": 0.9999906392844204,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.1176676967835175e-13
+        },
+        {
+          "tool_location": [
+            -764.6540474712996,
+            -134.3619679607342,
+            -27.135489854533308
+          ],
+          "axis_dot": 0.9999914176302283,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.6626134747560175e-13
+        },
+        {
+          "tool_location": [
+            -764.7690433896589,
+            -134.51609877781607,
+            -27.121061211426717
+          ],
+          "axis_dot": 0.9999924193428826,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5962170784759917e-13
+        },
+        {
+          "tool_location": [
+            -764.9542223082071,
+            -134.6002513491484,
+            -27.04974483877445
+          ],
+          "axis_dot": 0.9999933577096971,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.1926317294016645e-13
+        },
+        {
+          "tool_location": [
+            -765.1548766740857,
+            -134.59927434324862,
+            -26.924581526389012
+          ],
+          "axis_dot": 0.9999939497375601,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.1685446136304874e-13
+        },
+        {
+          "tool_location": [
+            -765.3119458543115,
+            -134.51285958497496,
+            -26.761264783681682
+          ],
+          "axis_dot": 0.999993950918034,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.47015815884398e-13
+        },
+        {
+          "tool_location": [
+            -765.3797497012359,
+            -134.35564285545678,
+            -26.586182552611437
+          ],
+          "axis_dot": 0.9999932484317298,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.64811109477256e-13
+        },
+        {
+          "tool_location": [
+            -765.3395801478174,
+            -134.15462926216316,
+            -26.431458283523984
+          ],
+          "axis_dot": 0.9999919819124425,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.9174782676875615e-13
+        },
+        {
+          "tool_location": [
+            -765.2050836942071,
+            -133.9444185900484,
+            -26.328299889933948
+          ],
+          "axis_dot": 0.9999905951154571,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.156679772130055e-13
+        },
+        {
+          "tool_location": [
+            -765.0179056334782,
+            -133.76109666707643,
+            -26.29995936826972
+          ],
+          "axis_dot": 0.9999897218349778,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.2517030910038933e-13
+        },
+        {
+          "tool_location": [
+            -764.8349002201905,
+            -133.63591067192934,
+            -26.356352043243437
+          ],
+          "axis_dot": 0.9999899026072829,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.005002536907691e-13
+        },
+        {
+          "tool_location": [
+            -764.7108095720595,
+            -133.5898379227136,
+            -26.49124107315745
+          ],
+          "axis_dot": 0.9999912538102624,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.074277920629802e-13
+        },
+        {
+          "tool_location": [
+            -764.6818067391981,
+            -133.63002968617172,
+            -26.68265862228284
+          ],
+          "axis_dot": 0.9999932910880946,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.330753469956438e-13
+        },
+        {
+          "tool_location": [
+            -765.2197832938474,
+            -133.67640315040344,
+            -26.65963969666699
+          ],
+          "axis_dot": 0.999986320705945,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.8546336281444334e-13
+        },
+        {
+          "tool_location": [
+            -765.3378962930103,
+            -133.73696427431398,
+            -26.759678953141293
+          ],
+          "axis_dot": 0.999987934641235,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.4629941861785996e-13
+        },
+        {
+          "tool_location": [
+            -765.3603248165367,
+            -133.8523652480032,
+            -26.837213496340553
+          ],
+          "axis_dot": 0.9999919212462327,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.9328852131274408e-13
+        },
+        {
+          "tool_location": [
+            -765.2789134519875,
+            -134.0017332843194,
+            -26.883625436034777
+          ],
+          "axis_dot": 0.9999962561278037,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.2016078093157249e-13
+        },
+        {
+          "tool_location": [
+            -765.1169426613917,
+            -134.15993246946883,
+            -26.901139763053617
+          ],
+          "axis_dot": 0.9999986221563075,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.323770786549067e-13
+        },
+        {
+          "tool_location": [
+            -764.9221775731521,
+            -134.30167872069796,
+            -26.900048573480216
+          ],
+          "axis_dot": 0.9999976522579697,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6626398042924013e-13
+        },
+        {
+          "tool_location": [
+            -764.7524850047917,
+            -134.40566544208775,
+            -26.894262427465094
+          ],
+          "axis_dot": 0.999993721650045,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.863628272306561e-13
+        },
+        {
+          "tool_location": [
+            -764.6583860165559,
+            -134.45767449871417,
+            -26.895834970822385
+          ],
+          "axis_dot": 0.9999888232472856,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.2986734451757403e-13
+        },
+        {
+          "tool_location": [
+            -764.6677879731785,
+            -134.4524536365106,
+            -26.91094953388915
+          ],
+          "axis_dot": 0.9999855514291569,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.921067458179039e-13
+        },
+        {
+          "tool_location": [
+            -764.7776265267016,
+            -134.3939730814377,
+            -26.93752987681005
+          ],
+          "axis_dot": 0.99998571959359,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.4722664832981724e-13
+        },
+        {
+          "tool_location": [
+            -764.9551503009233,
+            -134.2940005472421,
+            -26.96572634205652
+          ],
+          "axis_dot": 0.9999893568712688,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.8370593205202863e-13
+        },
+        {
+          "tool_location": [
+            -765.1465891376928,
+            -134.17050803368352,
+            -26.980342744278634
+          ],
+          "axis_dot": 0.9999946044322308,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.1929914780019954e-13
+        },
+        {
+          "tool_location": [
+            -765.2952112837796,
+            -134.04343653748634,
+            -26.965968961289924
+          ],
+          "axis_dot": 0.9999986994004892,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.62131532419072e-13
+        },
+        {
+          "tool_location": [
+            -765.3572896453888,
+            -133.93204653179262,
+            -26.912069081997114
+          ],
+          "axis_dot": 0.9999994239008105,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.673756359034027e-13
+        },
+        {
+          "tool_location": [
+            -765.3154765686004,
+            -133.85197043945533,
+            -26.817731949886635
+          ],
+          "axis_dot": 0.9999963167102404,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2132424545767925e-13
+        },
+        {
+          "tool_location": [
+            -765.1838897593458,
+            -133.8130397949465,
+            -26.693903321506546
+          ],
+          "axis_dot": 0.9999909618534144,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.439028676157775e-13
+        },
+        {
+          "tool_location": [
+            -765.003704967819,
+            -133.81827169056018,
+            -26.562273804893263
+          ],
+          "axis_dot": 0.9999861777227472,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.1436482767251642e-13
+        },
+        {
+          "tool_location": [
+            -764.83048542754,
+            -133.86390648760025,
+            -26.450816655514327
+          ],
+          "axis_dot": 0.9999845218504271,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.8342217319194556e-13
+        },
+        {
+          "tool_location": [
+            -764.7173155814577,
+            -133.94048192325346,
+            -26.38708393593634
+          ],
+          "axis_dot": 0.9999869151295124,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.547736393107905e-13
+        },
+        {
+          "tool_location": [
+            -764.6984782460931,
+            -134.03471053511575,
+            -26.39128273909801
+          ],
+          "axis_dot": 0.9999921264825125,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.564421971962579e-13
+        },
+        {
+          "tool_location": [
+            -764.7790669706284,
+            -134.1317510485592,
+            -26.470636643594425
+          ],
+          "axis_dot": 0.9999974090347126,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.659616131124146e-13
+        },
+        {
+          "tool_location": [
+            -764.93341893307,
+            -134.21758804815056,
+            -26.6168654352835
+          ],
+          "axis_dot": 0.9999999596281881,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.848879874139283e-13
+        },
+        {
+          "tool_location": [
+            -765.1129342513029,
+            -134.28098526720996,
+            -26.806775779018302
+          ],
+          "axis_dot": 0.9999984153474557,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.1979562978043634e-13
+        },
+        {
+          "tool_location": [
+            -765.2611290922661,
+            -134.3149128090529,
+            -27.00641540394393
+          ],
+          "axis_dot": 0.9999935886211435,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.457330759454591e-13
+        },
+        {
+          "tool_location": [
+            -765.3310174389148,
+            -134.31716713974737,
+            -27.177757793798264
+          ],
+          "axis_dot": 0.9999880350178563,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.335351955131386e-13
+        },
+        {
+          "tool_location": [
+            -765.2997159708473,
+            -134.29017234393402,
+            -27.286651308923506
+          ],
+          "axis_dot": 0.9999846927309703,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.582507625758445e-13
+        },
+        {
+          "tool_location": [
+            -765.1756876045662,
+            -134.24019596986741,
+            -27.310546614595154
+          ],
+          "axis_dot": 0.999985314829424,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.031487094061708e-13
+        },
+        {
+          "tool_location": [
+            -764.9964016548448,
+            -134.1760308909822,
+            -27.24369309539254
+          ],
+          "axis_dot": 0.9999895447442135,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.074277920629802e-13
+        },
+        {
+          "tool_location": [
+            -764.8169199250899,
+            -134.10744826155286,
+            -27.098640922479195
+          ],
+          "axis_dot": 0.9999951211529619,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.046514187099468e-13
+        },
+        {
+          "tool_location": [
+            -764.6931485541018,
+            -134.0437032601241,
+            -26.90341482638647
+          ],
+          "axis_dot": 0.9999990945433588,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.0984572316783255e-13
+        },
+        {
+          "tool_location": [
+            -764.6645928607601,
+            -133.99227145968436,
+            -26.695247630062422
+          ],
+          "axis_dot": 0.9999993995539829,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.2925328558047906e-13
+        },
+        {
+          "tool_location": [
+            -764.7420753112566,
+            -133.95807097174136,
+            -26.51242223058486
+          ],
+          "axis_dot": 0.9999959346531644,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.883667902882669e-13
+        },
+        {
+          "tool_location": [
+            -764.9041112521584,
+            -133.94320636977307,
+            -26.38658188794302
+          ],
+          "axis_dot": 0.999990584806761,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.117949045700019e-13
+        },
+        {
+          "tool_location": [
+            -765.1031911447565,
+            -133.94715926756928,
+            -26.33666461404441
+          ],
+          "axis_dot": 0.9999861877267584,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.0483546248987224e-13
+        },
+        {
+          "tool_location": [
+            -765.2799854981934,
+            -133.96738909881637,
+            -26.366016989991213
+          ],
+          "axis_dot": 0.999985018639528,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.366824678795506e-13
+        },
+        {
+          "tool_location": [
+            -765.3812060618645,
+            -134.00007029208058,
+            -26.462785548278287
+          ],
+          "axis_dot": 0.999987605888043,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.387582819715424e-13
+        },
+        {
+          "tool_location": [
+            -765.3758086917933,
+            -134.04082138518905,
+            -26.603294568700914
+          ],
+          "axis_dot": 0.9999924979681676,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.150492541435022e-13
+        },
+        {
+          "tool_location": [
+            -765.264439072711,
+            -134.08528844635984,
+            -26.757836715902158
+          ],
+          "axis_dot": 0.9999970814088504,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.883727082608642e-13
+        },
+        {
+          "tool_location": [
+            -765.0793614880229,
+            -134.12951274478723,
+            -26.897537728235662
+          ],
+          "axis_dot": 0.9999989877411926,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6813575461292554e-13
+        },
+        {
+          "tool_location": [
+            -764.8748765146439,
+            -134.17008683380257,
+            -27.000477610838303
+          ],
+          "axis_dot": 0.9999973241992299,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.597371452343714e-13
+        },
+        {
+          "tool_location": [
+            -764.711078702551,
+            -134.20405702674176,
+            -27.05564136325541
+          ],
+          "axis_dot": 0.9999930875219984,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.5429302454150493e-13
+        },
+        {
+          "tool_location": [
+            -764.6358954104819,
+            -134.228839146286,
+            -27.0637307842229
+          ],
+          "axis_dot": 0.9999885681847092,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.580613059308927e-13
+        },
+        {
+          "tool_location": [
+            -764.670797509783,
+            -134.24206705334905,
+            -27.034936202275436
+          ],
+          "axis_dot": 0.9999861053533663,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.6924729303649444e-13
+        },
+        {
+          "tool_location": [
+            -764.8044802919139,
+            -134.24168655575735,
+            -26.984548270586245
+          ],
+          "axis_dot": 0.999986866654947,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5668202664787205e-13
+        },
+        {
+          "tool_location": [
+            -764.9963392699859,
+            -134.2262337102113,
+            -26.928174350897617
+          ],
+          "axis_dot": 0.9999903008115374,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.47015815884398e-13
+        },
+        {
+          "tool_location": [
+            -765.1887863565562,
+            -134.1953354164544,
+            -26.877563597959785
+          ],
+          "axis_dot": 0.9999945111167281,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.304887172969727e-13
+        },
+        {
+          "tool_location": [
+            -765.3245217928803,
+            -134.15025493097923,
+            -26.83831376365695
+          ],
+          "axis_dot": 0.9999973099791604,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.2806650926133947e-13
+        },
+        {
+          "tool_location": [
+            -765.3637808333843,
+            -134.09434513523948,
+            -26.80930370054915
+          ],
+          "axis_dot": 0.9999973618652074,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.8287392741659777e-13
+        },
+        {
+          "tool_location": [
+            -765.2962111588722,
+            -134.03318185338082,
+            -26.784335430505983
+          ],
+          "axis_dot": 0.999994817412527,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2132424545767925e-13
+        },
+        {
+          "tool_location": [
+            -765.1438333955272,
+            -133.97426451609616,
+            -26.755156757367637
+          ],
+          "axis_dot": 0.9999911356752449,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.9111123187895525e-13
+        },
+        {
+          "tool_location": [
+            -764.9542445891198,
+            -133.92623973081913,
+            -26.715304754095907
+          ],
+          "axis_dot": 0.9999882461290903,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.558940523353088e-13
+        },
+        {
+          "tool_location": [
+            -764.7860409712815,
+            -133.89765025754102,
+            -26.66368008336685
+          ],
+          "axis_dot": 0.9999875300361221,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.4466816133644055e-13
+        },
+        {
+          "tool_location": [
+            -764.6909442143426,
+            -133.89544229002485,
+            -26.60625564730118
+          ],
+          "axis_dot": 0.9999891648831634,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.421064243293475e-13
+        },
+        {
+          "tool_location": [
+            -764.6980106514887,
+            -133.92341224151244,
+            -26.55553306389402
+          ],
+          "axis_dot": 0.9999921387438828,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.7997209679962864e-13
+        },
+        {
+          "tool_location": [
+            -764.8047995695638,
+            -133.98094834362462,
+            -26.52747604966799
+          ],
+          "axis_dot": 0.9999948688881106,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.1776437161565096e-13
+        },
+        {
+          "tool_location": [
+            -764.9781386379666,
+            -134.06240903958368,
+            -26.536839995040573
+          ],
+          "axis_dot": 0.9999960509808838,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.828872667145701e-13
+        },
+        {
+          "tool_location": [
+            -765.164181927603,
+            -134.1573466732196,
+            -26.592465397004386
+          ],
+          "axis_dot": 0.999995277085671,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.7583910533203415e-13
+        },
+        {
+          "tool_location": [
+            -765.3049845854293,
+            -134.25174536007202,
+            -26.693845830698024
+          ],
+          "axis_dot": 0.9999931359515322,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.1055368942047413e-13
+        },
+        {
+          "tool_location": [
+            -765.3561614589196,
+            -134.33005105164779,
+            -26.82981666316724
+          ],
+          "axis_dot": 0.9999908019852779,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.9171760147721954e-13
+        },
+        {
+          "tool_location": [
+            -765.30060986235,
+            -134.37780863234238,
+            -26.979757171829345
+          ],
+          "axis_dot": 0.999989386326275,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.729816047846405e-13
+        },
+        {
+          "tool_location": [
+            -765.153879153459,
+            -134.3843469434691,
+            -27.11693712475462
+          ],
+          "axis_dot": 0.9999894128428446,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.160165522166735e-13
+        },
+        {
+          "tool_location": [
+            -764.9596545655194,
+            -134.3450672069861,
+            -27.21364150755299
+          ],
+          "axis_dot": 0.9999906599580803,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.291706866638796e-13
+        },
+        {
+          "tool_location": [
+            -764.7765687104342,
+            -134.26287084299375,
+            -27.247150953463297
+          ],
+          "axis_dot": 0.9999923921099287,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2061149604142196e-13
+        },
+        {
+          "tool_location": [
+            -764.6605134856528,
+            -134.148338331661,
+            -27.205283611548513
+          ],
+          "axis_dot": 0.9999937922781581,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.4945641632849276e-13
+        },
+        {
+          "tool_location": [
+            -764.647611687996,
+            -134.01853444286456,
+            -27.09001682816395
+          ],
+          "axis_dot": 0.999994343273936,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.9945885082418896e-13
+        },
+        {
+          "tool_location": [
+            -764.7431743897345,
+            -133.89446660107996,
+            -26.918126044424564
+          ],
+          "axis_dot": 0.9999939827561308,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.035458955685274e-13
+        },
+        {
+          "tool_location": [
+            -764.9199264243282,
+            -133.79766411186762,
+            -26.71844658065002
+          ],
+          "axis_dot": 0.9999930115096853,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6987181070579545e-13
+        },
+        {
+          "tool_location": [
+            -765.1261294025367,
+            -133.7463007592016,
+            -26.526124983498196
+          ],
+          "axis_dot": 0.9999918741564622,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.221582626738141e-13
+        },
+        {
+          "tool_location": [
+            -765.3009812108011,
+            -133.75175775619726,
+            -26.375678521558026
+          ],
+          "axis_dot": 0.9999909590932659,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.8342217319194556e-13
+        },
+        {
+          "tool_location": [
+            -765.3928822392187,
+            -133.81613077479435,
+            -26.294158928912573
+          ],
+          "axis_dot": 0.9999905079220364,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.4346459376736244e-13
+        },
+        {
+          "tool_location": [
+            -765.3748038498475,
+            -133.9313298560987,
+            -26.295947934536176
+          ],
+          "axis_dot": 0.9999906176050888,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2267168719100537e-13
+        }
+      ]
+    },
+    {
+      "name": "IdleReturn",
+      "position_error_cm": 0.08009472768108324
+    },
+    {
+      "name": "SingleClickDrilling",
+      "initial_pieces": 39,
+      "final_pieces": 4,
+      "samples": [
+        {
+          "tool_location": [
+            -420.9202818892686,
+            -1361.5240484957637,
+            34.75119032529918
+          ],
+          "axis_dot": 0.9999963368007588,
+          "tip_enamel_distance_cm": 13.100328445434577,
+          "support_error_cm": 6.883468704889626e-13
+        },
+        {
+          "tool_location": [
+            -420.8773404323349,
+            -1361.5393754923036,
+            34.678942452676566
+          ],
+          "axis_dot": 0.9999936313783631,
+          "tip_enamel_distance_cm": 13.099546432495114,
+          "support_error_cm": 1.1457157353758233e-13
+        },
+        {
+          "tool_location": [
+            -420.8747651279442,
+            -1361.6453352691224,
+            34.682201856126895
+          ],
+          "axis_dot": 0.9999899438724559,
+          "tip_enamel_distance_cm": 12.996730804443466,
+          "support_error_cm": 1.5967462057804647e-13
+        },
+        {
+          "tool_location": [
+            -420.90648644749865,
+            -1361.8115726140973,
+            34.75377749555432
+          ],
+          "axis_dot": 0.9999871914445781,
+          "tip_enamel_distance_cm": 12.823071479797418,
+          "support_error_cm": 8.556067554929069e-14
+        },
+        {
+          "tool_location": [
+            -420.95895344262635,
+            -1361.9881377912347,
+            34.87477095897264
+          ],
+          "axis_dot": 0.9999869313772675,
+          "tip_enamel_distance_cm": 12.63131141662587,
+          "support_error_cm": 5.859285502108464e-14
+        },
+        {
+          "tool_location": [
+            -421.01548698731085,
+            -1362.1207220038539,
+            35.01948582040042
+          ],
+          "axis_dot": 0.9999894766695159,
+          "tip_enamel_distance_cm": 12.479696273803683,
+          "support_error_cm": 4.552466771099645e-13
+        },
+        {
+          "tool_location": [
+            -421.0239067323863,
+            -1361.948835506272,
+            34.93130973788834
+          ],
+          "axis_dot": 0.9999863283418955,
+          "tip_enamel_distance_cm": 12.652468681335572,
+          "support_error_cm": 4.637618324091114e-13
+        },
+        {
+          "tool_location": [
+            -420.94459639129593,
+            -1361.7721191184676,
+            34.87742583967632
+          ],
+          "axis_dot": 0.9999846244644368,
+          "tip_enamel_distance_cm": 12.845201492309574,
+          "support_error_cm": 1.764951541129878e-13
+        },
+        {
+          "tool_location": [
+            -420.8764662291636,
+            -1361.616601920702,
+            34.84388389496433
+          ],
+          "axis_dot": 0.9999869145069396,
+          "tip_enamel_distance_cm": 13.013110160827587,
+          "support_error_cm": 2.7783947297190753e-13
+        },
+        {
+          "tool_location": [
+            -420.8367070343133,
+            -1361.5301027798528,
+            34.843692429195094
+          ],
+          "axis_dot": 0.9999920380842366,
+          "tip_enamel_distance_cm": 13.105196952819888,
+          "support_error_cm": 5.362597410144533e-13
+        },
+        {
+          "tool_location": [
+            -420.836951164973,
+            -1361.5383933869082,
+            34.88599374588182
+          ],
+          "axis_dot": 0.9999973033963069,
+          "tip_enamel_distance_cm": 13.093500137329,
+          "support_error_cm": 1.399606873320082e-13
+        },
+        {
+          "tool_location": [
+            -420.88014628430653,
+            -1361.637337489136,
+            34.97271805215057
+          ],
+          "axis_dot": 0.9999999110965953,
+          "tip_enamel_distance_cm": 12.98159599304196,
+          "support_error_cm": 2.361953496943366e-13
+        },
+        {
+          "tool_location": [
+            -420.95952389759503,
+            -1361.7942085203467,
+            35.09656897330041
+          ],
+          "axis_dot": 0.9999984532442376,
+          "tip_enamel_distance_cm": 12.803530693054194,
+          "support_error_cm": 2.361953496943366e-13
+        },
+        {
+          "tool_location": [
+            -421.06009671623235,
+            -1361.9578912801464,
+            35.241185632845365
+          ],
+          "axis_dot": 0.9999936786783147,
+          "tip_enamel_distance_cm": 12.613267898559501,
+          "support_error_cm": 2.7408903977723625e-13
+        },
+        {
+          "tool_location": [
+            -421.16204875487773,
+            -1362.0747696442427,
+            35.3835100301296
+          ],
+          "axis_dot": 0.9999881067244626,
+          "tip_enamel_distance_cm": 12.468681335449164,
+          "support_error_cm": 2.669977196213713e-13
+        },
+        {
+          "tool_location": [
+            -421.2453577953893,
+            -1362.105679561439,
+            35.49800152599167
+          ],
+          "axis_dot": 0.9999846877499857,
+          "tip_enamel_distance_cm": 12.413644790649366,
+          "support_error_cm": 3.101256544766101e-13
+        },
+        {
+          "tool_location": [
+            -421.2941677112212,
+            -1362.0383127605778,
+            35.561771992947754
+          ],
+          "axis_dot": 0.9999852303104119,
+          "tip_enamel_distance_cm": 12.464838027954107,
+          "support_error_cm": 5.124289183442782e-13
+        },
+        {
+          "tool_location": [
+            -421.3000022408115,
+            -1361.8915300459582,
+            35.55950665702632
+          ],
+          "axis_dot": 0.9999894373987637,
+          "tip_enamel_distance_cm": 12.606730461120554,
+          "support_error_cm": 4.757984312045439e-13
+        },
+        {
+          "tool_location": [
+            -421.2631020536912,
+            -1361.709904171523,
+            35.48708715371992
+          ],
+          "axis_dot": 0.999995070645117,
+          "tip_enamel_distance_cm": 12.796282768249592,
+          "support_error_cm": 1.764951541129878e-13
+        },
+        {
+          "tool_location": [
+            -421.1916617170298,
+            -1361.5503626337536,
+            35.35306512040298
+          ],
+          "axis_dot": 0.9999991481227594,
+          "tip_enamel_distance_cm": 12.975850105285662,
+          "support_error_cm": 3.1166837572216805e-13
+        },
+        {
+          "tool_location": [
+            -421.09940347032165,
+            -1361.4645964339609,
+            35.17746808124685
+          ],
+          "axis_dot": 0.9999995367989839,
+          "tip_enamel_distance_cm": 13.090963363647424,
+          "support_error_cm": 1.0658141036401503e-13
+        },
+        {
+          "tool_location": [
+            -421.00232239279,
+            -1361.4830236247071,
+            34.98854002474941
+          ],
+          "axis_dot": 0.9999960735678923,
+          "tip_enamel_distance_cm": 13.106660842895387,
+          "support_error_cm": 2.7408903977723625e-13
+        },
+        {
+          "tool_location": [
+            -420.91546787492103,
+            -1361.6049554258823,
+            34.81743480025615
+          ],
+          "axis_dot": 0.9999906285633765,
+          "tip_enamel_distance_cm": 13.018093109130813,
+          "support_error_cm": 5.684341886080802e-14
+        },
+        {
+          "tool_location": [
+            -420.8506344644977,
+            -1361.7979505474239,
+            34.69286400597028
+          ],
+          "axis_dot": 0.9999860932793109,
+          "tip_enamel_distance_cm": 12.852239608764615,
+          "support_error_cm": 2.800115409973789e-13
+        },
+        {
+          "tool_location": [
+            -420.81503613185504,
+            -1362.0071977311095,
+            34.63553309544323
+          ],
+          "axis_dot": 0.9999848267630727,
+          "tip_enamel_distance_cm": 12.659401893615742,
+          "support_error_cm": 4.777574382050671e-13
+        },
+        {
+          "tool_location": [
+            -420.81139702491225,
+            -1362.1713995064672,
+            34.654729633292476
+          ],
+          "axis_dot": 0.9999874258750399,
+          "tip_enamel_distance_cm": 12.498178482055769,
+          "support_error_cm": 1.9895196601282805e-13
+        },
+        {
+          "tool_location": [
+            -420.8386905792411,
+            -1362.2410253048088,
+            34.7467391609306
+          ],
+          "axis_dot": 0.9999924443923638,
+          "tip_enamel_distance_cm": 12.417550086974957,
+          "support_error_cm": 3.3636525752583067e-13
+        },
+        {
+          "tool_location": [
+            -420.89315925406754,
+            -1362.1931813315853,
+            34.89581101536166
+          ],
+          "axis_dot": 0.9999972042683881,
+          "tip_enamel_distance_cm": 12.441987991333173,
+          "support_error_cm": 3.088205433542261e-13
+        },
+        {
+          "tool_location": [
+            -420.96906356174935,
+            -1362.038738722873,
+            35.07709282555791
+          ],
+          "axis_dot": 0.9999992321328812,
+          "tip_enamel_distance_cm": 12.564120292663716,
+          "support_error_cm": 2.1090076642815105e-13
+        },
+        {
+          "tool_location": [
+            -421.0589881811382,
+            -1361.8194649439201,
+            35.261311887015935
+          ],
+          "axis_dot": 0.9999975558716118,
+          "tip_enamel_distance_cm": 12.746844291687005,
+          "support_error_cm": 1.9328852131274408e-13
+        },
+        {
+          "tool_location": [
+            -421.1537329199053,
+            -1361.5961586178403,
+            35.41968280506803
+          ],
+          "axis_dot": 0.9999931658870287,
+          "tip_enamel_distance_cm": 12.934656143188331,
+          "support_error_cm": 3.0221045673978235e-13
+        },
+        {
+          "tool_location": [
+            -421.2422341118719,
+            -1361.431016819068,
+            35.528871629543325
+          ],
+          "axis_dot": 0.9999884314516005,
+          "tip_enamel_distance_cm": 13.070468902587793,
+          "support_error_cm": 4.941210434797571e-13
+        }
+      ]
+    },
+    {
+      "name": "HeldContactDrilling",
+      "initial_pieces": 39,
+      "final_pieces": 0,
+      "samples": [
+        {
+          "tool_location": [
+            -421.50371331109045,
+            -1362.0743449989768,
+            35.10900360868074
+          ],
+          "axis_dot": 0.9999943426608665,
+          "tip_enamel_distance_cm": 12.418708801269414,
+          "support_error_cm": 1.4210854715202004e-13
+        },
+        {
+          "tool_location": [
+            -421.4774862725437,
+            -1362.0723642382168,
+            34.926306337858506
+          ],
+          "axis_dot": 0.9999937826091856,
+          "tip_enamel_distance_cm": 12.439198493957669,
+          "support_error_cm": 4.614153139941158e-13
+        },
+        {
+          "tool_location": [
+            -421.3691568741984,
+            -1361.9851551480156,
+            34.76435025823264
+          ],
+          "axis_dot": 0.9999923763296698,
+          "tip_enamel_distance_cm": 12.558155059814323,
+          "support_error_cm": 4.689582056016661e-13
+        },
+        {
+          "tool_location": [
+            -421.1982959325249,
+            -1361.843394184738,
+            34.6530439966242
+          ],
+          "axis_dot": 0.9999906447313854,
+          "tip_enamel_distance_cm": 12.73952007293711,
+          "support_error_cm": 2.361953496943366e-13
+        },
+        {
+          "tool_location": [
+            -420.9974037392139,
+            -1361.6949872634473,
+            34.614936311546785
+          ],
+          "axis_dot": 0.9999894060557419,
+          "tip_enamel_distance_cm": 12.928204536437871,
+          "support_error_cm": 4.263256414560601e-14
+        },
+        {
+          "tool_location": [
+            -420.80506748756966,
+            -1361.5897587304335,
+            34.66021608745204
+          ],
+          "axis_dot": 0.9999893931956666,
+          "tip_enamel_distance_cm": 13.066821098327626,
+          "support_error_cm": 1.530555893832145e-13
+        },
+        {
+          "tool_location": [
+            -420.6579537249331,
+            -1361.563534787749,
+            34.783972886281546
+          ],
+          "axis_dot": 0.9999908209857941,
+          "tip_enamel_distance_cm": 13.113331794738817,
+          "support_error_cm": 4.602649920770331e-13
+        },
+        {
+          "tool_location": [
+            -420.5832542524312,
+            -1361.626617566697,
+            34.96652799579669
+          ],
+          "axis_dot": 0.999993158956229,
+          "tip_enamel_distance_cm": 13.053607940673846,
+          "support_error_cm": 2.604892696897332e-13
+        },
+        {
+          "tool_location": [
+            -420.59353720543305,
+            -1361.7601731485745,
+            35.17679970637312
+          ],
+          "axis_dot": 0.9999952921969503,
+          "tip_enamel_distance_cm": 12.905764579772875,
+          "support_error_cm": 2.4706052173987856e-13
+        },
+        {
+          "tool_location": [
+            -420.6847400291372,
+            -1361.9218975262877,
+            35.378221368655716
+          ],
+          "axis_dot": 0.9999960490720884,
+          "tip_enamel_distance_cm": 12.714715003967266,
+          "support_error_cm": 2.31335954426011e-13
+        },
+        {
+          "tool_location": [
+            -420.8377955385962,
+            -1362.058958638606,
+            35.535784780238885
+          ],
+          "axis_dot": 0.9999948490313831,
+          "tip_enamel_distance_cm": 12.538523674011229,
+          "support_error_cm": 2.49399488080602e-13
+        },
+        {
+          "tool_location": [
+            -421.0231891427661,
+            -1362.124614688524,
+            35.62292704834914
+          ],
+          "axis_dot": 0.9999921094500417,
+          "tip_enamel_distance_cm": 12.430696487426669,
+          "support_error_cm": 2.7408903977723625e-13
+        },
+        {
+          "tool_location": [
+            -421.20719035372747,
+            -1362.093189117775,
+            35.626584340301406
+          ],
+          "axis_dot": 0.9999891411384139,
+          "tip_enamel_distance_cm": 12.423939704895176,
+          "support_error_cm": 2.6812987050722663e-13
+        },
+        {
+          "tool_location": [
+            -421.35851563286064,
+            -1361.9687636418685,
+            35.54941666120227
+          ],
+          "axis_dot": 0.9999875251689998,
+          "tip_enamel_distance_cm": 12.520332336425955,
+          "support_error_cm": 4.627264660020084e-13
+        },
+        {
+          "tool_location": [
+            -421.4536770782886,
+            -1361.7848743310635,
+            35.40875838999213
+          ],
+          "axis_dot": 0.9999882644488217,
+          "tip_enamel_distance_cm": 12.690587043762166,
+          "support_error_cm": 5.060341497586722e-13
+        },
+        {
+          "tool_location": [
+            -421.4803547202178,
+            -1361.5949514046733,
+            35.23249066390471
+          ],
+          "axis_dot": 0.9999911696019732,
+          "tip_enamel_distance_cm": 12.882976531982465,
+          "support_error_cm": 4.689582056016661e-13
+        },
+        {
+          "tool_location": [
+            -421.4382698945295,
+            -1361.4567149405184,
+            35.053111255521635
+          ],
+          "axis_dot": 0.9999948494866511,
+          "tip_enamel_distance_cm": 13.039083480834924,
+          "support_error_cm": 1.2710574864626038e-13
+        },
+        {
+          "tool_location": [
+            -421.33784588217793,
+            -1361.4144426334683,
+            34.90086962204026
+          ],
+          "axis_dot": 0.9999973749120539,
+          "tip_enamel_distance_cm": 13.111500740051273,
+          "support_error_cm": 4.687428401686771e-13
+        },
+        {
+          "tool_location": [
+            -421.1973110723074,
+            -1361.4853663216431,
+            34.7981728354856
+          ],
+          "axis_dot": 0.999997295533694,
+          "tip_enamel_distance_cm": 13.07826042175295,
+          "support_error_cm": 4.743637797012786e-13
+        },
+        {
+          "tool_location": [
+            -421.0390731657116,
+            -1361.6536821556333,
+            34.75587342145247
+          ],
+          "axis_dot": 0.9999944750919878,
+          "tip_enamel_distance_cm": 12.949399948120222,
+          "support_error_cm": 7.105427357601002e-14
+        },
+        {
+          "tool_location": [
+            -420.8863051374665,
+            -1361.8744695197454,
+            34.77246883402538
+          ],
+          "axis_dot": 0.9999902613048859,
+          "tip_enamel_distance_cm": 12.76412487030043,
+          "support_error_cm": 4.602649920770331e-13
+        },
+        {
+          "tool_location": [
+            -420.75992370302066,
+            -1362.0863926903448,
+            34.83600133222835
+          ],
+          "axis_dot": 0.9999868449313223,
+          "tip_enamel_distance_cm": 12.578682899475115,
+          "support_error_cm": 1.1368683772161603e-13
+        },
+        {
+          "tool_location": [
+            -420.67659400415926,
+            -1362.2295196809162,
+            34.92810425234036
+          ],
+          "axis_dot": 0.9999861139535076,
+          "tip_enamel_distance_cm": 12.449336051941096,
+          "support_error_cm": 6.915300366811402e-13
+        },
+        {
+          "tool_location": [
+            -420.6472870364589,
+            -1362.262692941853,
+            35.02890226837624
+          ],
+          "axis_dot": 0.9999886042595075,
+          "tip_enamel_distance_cm": 12.415409088134776,
+          "support_error_cm": 5.859285502108464e-14
+        },
+        {
+          "tool_location": [
+            -420.676373339849,
+            -1362.1758295153895,
+            35.12161776363492
+          ],
+          "axis_dot": 0.9999931325692213,
+          "tip_enamel_distance_cm": 12.487225532531914,
+          "support_error_cm": 2.278173318171838e-13
+        },
+        {
+          "tool_location": [
+            -420.7611086235166,
+            -1361.9928172397097,
+            35.195638518846216
+          ],
+          "axis_dot": 0.9999973546178702,
+          "tip_enamel_distance_cm": 12.64294624328602,
+          "support_error_cm": 4.670703910262772e-13
+        },
+        {
+          "tool_location": [
+            -420.89146732533925,
+            -1361.7646289255313,
+            35.247564164586535
+          ],
+          "axis_dot": 0.999998986543702,
+          "tip_enamel_distance_cm": 12.83532142639167,
+          "support_error_cm": 2.3437142008433856e-13
+        },
+        {
+          "tool_location": [
+            -421.05053613955465,
+            -1361.5545891726722,
+            35.280033172122586
+          ],
+          "axis_dot": 0.9999970480082304,
+          "tip_enamel_distance_cm": 13.005914688110426,
+          "support_error_cm": 1.1457157353758233e-13
+        },
+        {
+          "tool_location": [
+            -421.2159115902211,
+            -1361.419839149678,
+            35.299072287358044
+          ],
+          "axis_dot": 0.9999924492115126,
+          "tip_enamel_distance_cm": 13.102869987487772,
+          "support_error_cm": 1.3406493525361332e-13
+        },
+        {
+          "tool_location": [
+            -421.3621625799785,
+            -1361.395197265761,
+            35.31075523577182
+          ],
+          "axis_dot": 0.99998756774122,
+          "tip_enamel_distance_cm": 13.096828460693343,
+          "support_error_cm": 2.5776155819154743e-13
+        },
+        {
+          "tool_location": [
+            -421.46442439358424,
+            -1361.4834909515782,
+            35.318376571014745
+          ],
+          "axis_dot": 0.9999850112293269,
+          "tip_enamel_distance_cm": 12.98946380615228,
+          "support_error_cm": 2.428351918216984e-13
+        },
+        {
+          "tool_location": [
+            -421.5026988319672,
+            -1361.6554308471134,
+            35.320864962988864
+          ],
+          "axis_dot": 0.9999862163252357,
+          "tip_enamel_distance_cm": 12.813520431518578,
+          "support_error_cm": 1.757785650632539e-13
+        },
+        {
+          "tool_location": [
+            -421.46618420092716,
+            -1361.8589464110148,
+            35.313066443455355
+          ],
+          "axis_dot": 0.9999906351354063,
+          "tip_enamel_distance_cm": 12.622346878051822,
+          "support_error_cm": 1.0247593068766006e-13
+        },
+        {
+          "tool_location": [
+            -421.35643957054447,
+            -1362.0350418183123,
+            35.287688991464634
+          ],
+          "axis_dot": 0.9999959802615739,
+          "tip_enamel_distance_cm": 12.474069595336813,
+          "support_error_cm": 7.105427357601002e-14
+        },
+        {
+          "tool_location": [
+            -421.188537627045,
+            -1362.1351557043702,
+            35.23833694474942
+          ],
+          "axis_dot": 0.9999994158560995,
+          "tip_enamel_distance_cm": 12.413711547851541,
+          "support_error_cm": 2.604892696897332e-13
+        },
+        {
+          "tool_location": [
+            -420.98966577028517,
+            -1362.1351817520358,
+            35.162764830778414
+          ],
+          "axis_dot": 0.9999990723943446,
+          "tip_enamel_distance_cm": 12.459626197815023,
+          "support_error_cm": 2.404323753877496e-13
+        },
+        {
+          "tool_location": [
+            -420.79478074645067,
+            -1362.0417976188799,
+            35.065153404660265
+          ],
+          "axis_dot": 0.9999950718838821,
+          "tip_enamel_distance_cm": 12.597875595092743,
+          "support_error_cm": 1.464821375527116e-13
+        },
+        {
+          "tool_location": [
+            -420.6402679690439,
+            -1361.88941424675,
+            34.9569092836101
+          ],
+          "axis_dot": 0.9999894944515788,
+          "tip_enamel_distance_cm": 12.786421775817765,
+          "support_error_cm": 1.0845964142784046e-13
+        },
+        {
+          "tool_location": [
+            -420.55663277643737,
+            -1361.7287444925116,
+            34.85527791944592
+          ],
+          "axis_dot": 0.9999852900929505,
+          "tip_enamel_distance_cm": 12.968049049377328,
+          "support_error_cm": 2.6812987050722663e-13
+        },
+        {
+          "tool_location": [
+            -420.56190174428826,
+            -1361.6108711909003,
+            34.78018232482813
+          ],
+          "axis_dot": 0.9999847068497805,
+          "tip_enamel_distance_cm": 13.087511062622132,
+          "support_error_cm": 2.604892696897332e-13
+        },
+        {
+          "tool_location": [
+            -420.65720924044825,
+            -1361.571346936992,
+            34.7499064157946
+          ],
+          "axis_dot": 0.9999880809651991,
+          "tip_enamel_distance_cm": 13.108553886413528,
+          "support_error_cm": 1.7053025658242404e-13
+        },
+        {
+          "tool_location": [
+            -420.8258779450512,
+            -1361.6194673197106,
+            34.776560073143116
+          ],
+          "axis_dot": 0.9999936417766475,
+          "tip_enamel_distance_cm": 13.02482604980478,
+          "support_error_cm": 5.022285747336438e-13
+        },
+        {
+          "tool_location": [
+            -421.0362867170835,
+            -1361.7358381550525,
+            34.8625760812417
+          ],
+          "axis_dot": 0.9999984478095145,
+          "tip_enamel_distance_cm": 12.861700057983418,
+          "support_error_cm": 2.7847474288855413e-13
+        },
+        {
+          "tool_location": [
+            -421.24811883261435,
+            -1361.8790690806109,
+            34.999133507256275
+          ],
+          "axis_dot": 0.9999999542217232,
+          "tip_enamel_distance_cm": 12.668790817260684,
+          "support_error_cm": 1.3406493525361332e-13
+        },
+        {
+          "tool_location": [
+            -421.42057335119836,
+            -1361.9990804374513,
+            35.16681827784274
+          ],
+          "axis_dot": 0.9999973686827739,
+          "tip_enamel_distance_cm": 12.504692077636843,
+          "support_error_cm": 1.0845964142784046e-13
+        },
+        {
+          "tool_location": [
+            -421.52100579876486,
+            -1362.053535068789,
+            35.33883484010881
+          ],
+          "axis_dot": 0.9999920724810876,
+          "tip_enamel_distance_cm": 12.41922378540026,
+          "support_error_cm": 2.428351918216984e-13
+        },
+        {
+          "tool_location": [
+            -421.29806134658486,
+            -1361.7613132142362,
+            35.05861661845064
+          ],
+          "axis_dot": 0.9999984947049247,
+          "tip_enamel_distance_cm": 12.769460678100637,
+          "support_error_cm": 2.4706052173987856e-13
+        },
+        {
+          "tool_location": [
+            -421.31386377406176,
+            -1361.556629468115,
+            35.2284838882843
+          ],
+          "axis_dot": 0.9999979735263732,
+          "tip_enamel_distance_cm": 12.95392513275141,
+          "support_error_cm": 2.7847474288855413e-13
+        },
+        {
+          "tool_location": [
+            -421.29006811388905,
+            -1361.4214030331195,
+            35.37490438124878
+          ],
+          "axis_dot": 0.9999945163727348,
+          "tip_enamel_distance_cm": 13.080615997314615,
+          "support_error_cm": 4.614153139941158e-13
+        },
+        {
+          "tool_location": [
+            -421.2370601285356,
+            -1361.3942129968477,
+            35.477643100977645
+          ],
+          "axis_dot": 0.9999900346247689,
+          "tip_enamel_distance_cm": 13.111000061035277,
+          "support_error_cm": 1.2789769243681803e-13
+        },
+        {
+          "tool_location": [
+            -377.1696644012144,
+            -1379.5334323405268,
+            -29.549919163867557
+          ],
+          "axis_dot": 0.9999868763251947,
+          "tip_enamel_distance_cm": 14.273176193237465,
+          "support_error_cm": 2.947682064685117e-13
+        },
+        {
+          "tool_location": [
+            -377.0971573685269,
+            -1379.7129846287912,
+            -29.540708046660157
+          ],
+          "axis_dot": 0.9999865851008221,
+          "tip_enamel_distance_cm": 14.115304946899398,
+          "support_error_cm": 2.7994391896998976e-13
+        },
+        {
+          "tool_location": [
+            -377.03022624344425,
+            -1379.9371541690618,
+            -29.578124772214764
+          ],
+          "axis_dot": 0.9999891486943873,
+          "tip_enamel_distance_cm": 13.922638893127383,
+          "support_error_cm": 1.3349885981068564e-13
+        },
+        {
+          "tool_location": [
+            -376.97381038670244,
+            -1380.1425331761827,
+            -29.656359798343104
+          ],
+          "axis_dot": 0.9999930943183554,
+          "tip_enamel_distance_cm": 13.753747940063539,
+          "support_error_cm": 4.263256414560601e-14
+        },
+        {
+          "tool_location": [
+            -376.93059585494274,
+            -1380.2727350702835,
+            -29.764415698814766
+          ],
+          "axis_dot": 0.9999963372023166,
+          "tip_enamel_distance_cm": 13.65994930267333,
+          "support_error_cm": 2.3504362768311314e-13
+        },
+        {
+          "tool_location": [
+            -376.9023928252761,
+            -1380.294583142568,
+            -29.887372044986513
+          ],
+          "axis_dot": 0.9999972903567219,
+          "tip_enamel_distance_cm": 13.669672012329258,
+          "support_error_cm": 9.664426065637204e-14
+        },
+        {
+          "tool_location": [
+            -376.89111346457474,
+            -1380.20719618571,
+            -30.00832961926414
+          ],
+          "axis_dot": 0.9999956389919189,
+          "tip_enamel_distance_cm": 13.780069351196248,
+          "support_error_cm": 3.243687902600336e-13
+        },
+        {
+          "tool_location": [
+            -376.8989024148182,
+            -1380.0416688246855,
+            -30.11085562139779
+          ],
+          "axis_dot": 0.999992407009505,
+          "tip_enamel_distance_cm": 13.95747661590572,
+          "support_error_cm": 2.5601733318860154e-13
+        },
+        {
+          "tool_location": [
+            -376.9273385380426,
+            -1379.851025408306,
+            -30.18164843707104
+          ],
+          "axis_dot": 0.9999893294243001,
+          "tip_enamel_distance_cm": 14.148116111755535,
+          "support_error_cm": 6.703246762680666e-14
+        },
+        {
+          "tool_location": [
+            -376.9760244579393,
+            -1379.694125265531,
+            -30.21265609811237
+          ],
+          "axis_dot": 0.9999879136390397,
+          "tip_enamel_distance_cm": 14.294028282165597,
+          "support_error_cm": 2.6128753927703334e-13
+        },
+        {
+          "tool_location": [
+            -377.04120640980614,
+            -1379.617757127649,
+            -30.202331077890534
+          ],
+          "axis_dot": 0.9999887031243344,
+          "tip_enamel_distance_cm": 14.35086250305175,
+          "support_error_cm": 5.24263064838144e-13
+        },
+        {
+          "tool_location": [
+            -377.115097198857,
+            -1379.6428632425102,
+            -30.15561502846421
+          ],
+          "axis_dot": 0.9999910981425986,
+          "tip_enamel_distance_cm": 14.301404953003024,
+          "support_error_cm": 4.777574382050671e-13
+        },
+        {
+          "tool_location": [
+            -377.18644285039625,
+            -1379.7584627561525,
+            -30.08258959425074
+          ],
+          "axis_dot": 0.9999937741716992,
+          "tip_enamel_distance_cm": 14.160680770873983,
+          "support_error_cm": 1.2393828926713304e-13
+        },
+        {
+          "tool_location": [
+            -377.2424338947996,
+            -1379.9255846542005,
+            -29.99606820335243
+          ],
+          "axis_dot": 0.9999954194648785,
+          "tip_enamel_distance_cm": 13.971414566039925,
+          "support_error_cm": 4.689582056016661e-13
+        },
+        {
+          "tool_location": [
+            -377.2714698230292,
+            -1380.0893891045241,
+            -29.908873892584495
+          ],
+          "axis_dot": 0.9999953765988102,
+          "tip_enamel_distance_cm": 13.791103363037037,
+          "support_error_cm": 2.947682064685117e-13
+        },
+        {
+          "tool_location": [
+            -377.26627853819275,
+            -1380.1963600350232,
+            -29.8312555496017
+          ],
+          "axis_dot": 0.999993878041335,
+          "tip_enamel_distance_cm": 13.674550056457596,
+          "support_error_cm": 1.8212639386627382e-13
+        },
+        {
+          "tool_location": [
+            -377.2262025240932,
+            -1380.2108434336778,
+            -29.769383527002546
+          ],
+          "axis_dot": 0.9999918081806426,
+          "tip_enamel_distance_cm": 13.657073974609544,
+          "support_error_cm": 2.3437142008433856e-13
+        },
+        {
+          "tool_location": [
+            -377.15800087772425,
+            -1380.1260589161632,
+            -29.72515990318565
+          ],
+          "axis_dot": 0.9999901824773193,
+          "tip_enamel_distance_cm": 13.744049072265513,
+          "support_error_cm": 2.7429618607694715e-13
+        },
+        {
+          "tool_location": [
+            -377.07479217635455,
+            -1379.9663739706405,
+            -29.697357501207087
+          ],
+          "axis_dot": 0.9999896501811851,
+          "tip_enamel_distance_cm": 13.909006118774554,
+          "support_error_cm": 2.929642751054232e-13
+        },
+        {
+          "tool_location": [
+            -376.9931762010463,
+            -1379.7799683783348,
+            -29.68355987536856
+          ],
+          "axis_dot": 0.9999902612856608,
+          "tip_enamel_distance_cm": 14.101905822754029,
+          "support_error_cm": 3.011226127173514e-13
+        },
+        {
+          "tool_location": [
+            -376.9293778075499,
+            -1379.624235510776,
+            -29.682309418290444
+          ],
+          "axis_dot": 0.9999915670992607,
+          "tip_enamel_distance_cm": 14.264078140258823,
+          "support_error_cm": 1.8758866506294801e-13
+        },
+        {
+          "tool_location": [
+            -376.8953114929201,
+            -1379.5482438739898,
+            -29.694506947889167
+          ],
+          "axis_dot": 0.9999929263363178,
+          "tip_enamel_distance_cm": 14.34632778167736,
+          "support_error_cm": 4.602649920770331e-13
+        },
+        {
+          "tool_location": [
+            -376.8957569830719,
+            -1379.5778433334533,
+            -29.72348910324903
+          ],
+          "axis_dot": 0.9999938196040895,
+          "tip_enamel_distance_cm": 14.323678016662626,
+          "support_error_cm": 4.721768995590352e-13
+        },
+        {
+          "tool_location": [
+            -376.9273815127224,
+            -1379.7075209161228,
+            -29.773664162390958
+          ],
+          "axis_dot": 0.9999940193323565,
+          "tip_enamel_distance_cm": 14.202985763549776,
+          "support_error_cm": 1.8758866506294801e-13
+        },
+        {
+          "tool_location": [
+            -376.97997415232686,
+            -1379.9018322472998,
+            -29.847961877959044
+          ],
+          "axis_dot": 0.9999935765196031,
+          "tip_enamel_distance_cm": 14.020919799804801,
+          "support_error_cm": 5.684341886080802e-14
+        },
+        {
+          "tool_location": [
+            -377.0394551721978,
+            -1380.1057700904605,
+            -29.944992901111014
+          ],
+          "axis_dot": 0.9999927095965003,
+          "tip_enamel_distance_cm": 13.832750320434542,
+          "support_error_cm": 1.797546735911271e-13
+        },
+        {
+          "tool_location": [
+            -377.09185803922986,
+            -1380.2609921671058,
+            -30.05683523555986
+          ],
+          "axis_dot": 0.9999916969025878,
+          "tip_enamel_distance_cm": 13.695669174194295,
+          "support_error_cm": 1.9742350317315248e-13
+        },
+        {
+          "tool_location": [
+            -377.12711306741096,
+            -1380.3230549087373,
+            -30.16863774311394
+          ],
+          "axis_dot": 0.9999908248192756,
+          "tip_enamel_distance_cm": 13.651285171508768,
+          "support_error_cm": 2.7047329795485495e-13
+        },
+        {
+          "tool_location": [
+            -377.14147275154994,
+            -1380.2744512505633,
+            -30.260247649908187
+          ],
+          "axis_dot": 0.9999903719290435,
+          "tip_enamel_distance_cm": 13.713107109069767,
+          "support_error_cm": 7.116875636470147e-13
+        },
+        {
+          "tool_location": [
+            -377.1379633684213,
+            -1380.1295697629268,
+            -30.310142603980935
+          ],
+          "axis_dot": 0.9999905585515494,
+          "tip_enamel_distance_cm": 13.862342834472733,
+          "support_error_cm": 2.089768879877275e-13
+        },
+        {
+          "tool_location": [
+            -377.1170187924921,
+            -1379.8193048847202,
+            -30.266925396524186
+          ],
+          "axis_dot": 0.9999921448496609,
+          "tip_enamel_distance_cm": 14.154572486877525,
+          "support_error_cm": 2.4116620165382783e-13
+        },
+        {
+          "tool_location": [
+            -377.10785803022907,
+            -1379.6475389830541,
+            -30.153323558584802
+          ],
+          "axis_dot": 0.9999935543699214,
+          "tip_enamel_distance_cm": 14.297800064086912,
+          "support_error_cm": 2.687176432992641e-13
+        },
+        {
+          "tool_location": [
+            -377.10958037968305,
+            -1379.5560988833952,
+            -29.98447668427464
+          ],
+          "axis_dot": 0.9999945716370497,
+          "tip_enamel_distance_cm": 14.350843429565392,
+          "support_error_cm": 1.2710574864626038e-13
+        },
+        {
+          "tool_location": [
+            -377.1219930093056,
+            -1379.5673159290484,
+            -29.78588536414309
+          ],
+          "axis_dot": 0.9999946124283872,
+          "tip_enamel_distance_cm": 14.297637939453274,
+          "support_error_cm": 1.9394042374125577e-13
+        },
+        {
+          "tool_location": [
+            -377.13876574143734,
+            -1379.673008604118,
+            -29.592301588762233
+          ],
+          "axis_dot": 0.9999934604219218,
+          "tip_enamel_distance_cm": 14.154267311096259,
+          "support_error_cm": 1.0845964142784046e-13
+        },
+        {
+          "tool_location": [
+            -377.1494115145342,
+            -1379.8377716371265,
+            -29.44103284639675
+          ],
+          "axis_dot": 0.9999914883729717,
+          "tip_enamel_distance_cm": 13.964319229125882,
+          "support_error_cm": 1.4210854715202004e-13
+        },
+        {
+          "tool_location": [
+            -377.14289872612653,
+            -1380.0102606760822,
+            -29.363697300111305
+          ],
+          "axis_dot": 0.9999895865901719,
+          "tip_enamel_distance_cm": 13.785500526428155,
+          "support_error_cm": 2.511142873668219e-13
+        },
+        {
+          "tool_location": [
+            -377.1118477635473,
+            -1380.139169044149,
+            -29.37893517879054
+          ],
+          "axis_dot": 0.9999887729094792,
+          "tip_enamel_distance_cm": 13.672080039978058,
+          "support_error_cm": 2.5895846738623505e-13
+        },
+        {
+          "tool_location": [
+            -377.0558536255265,
+            -1380.1886240490337,
+            -29.48750284889141
+          ],
+          "axis_dot": 0.9999896431222781,
+          "tip_enamel_distance_cm": 13.658537864685039,
+          "support_error_cm": 2.6702135505890897e-13
+        },
+        {
+          "tool_location": [
+            -376.9830090732378,
+            -1380.1487180081695,
+            -29.671204281281753
+          ],
+          "axis_dot": 0.9999919641174039,
+          "tip_enamel_distance_cm": 13.748941421508793,
+          "support_error_cm": 2.7408903977723625e-13
+        },
+        {
+          "tool_location": [
+            -376.90876180751104,
+            -1380.0377250788113,
+            -29.89632728595808
+          ],
+          "axis_dot": 0.9999946752082588,
+          "tip_enamel_distance_cm": 13.9158678054809,
+          "support_error_cm": 1.6848255343943742e-13
+        },
+        {
+          "tool_location": [
+            -376.8524473291319,
+            -1379.8955931155376,
+            -30.120492940938576
+          ],
+          "axis_dot": 0.9999963623381424,
+          "tip_enamel_distance_cm": 14.10864353179927,
+          "support_error_cm": 9.237055564881302e-14
+        },
+        {
+          "tool_location": [
+            -376.83220215683355,
+            -1379.7707876337681,
+            -30.301730184441652
+          ],
+          "axis_dot": 0.9999960000478803,
+          "tip_enamel_distance_cm": 14.268698692321772,
+          "support_error_cm": 1.1457157353758233e-13
+        },
+        {
+          "tool_location": [
+            -376.8596752546068,
+            -1379.7047226657012,
+            -30.407522433161212
+          ],
+          "axis_dot": 0.9999935711511512,
+          "tip_enamel_distance_cm": 14.347395896911634,
+          "support_error_cm": 1.2079226507921703e-13
+        },
+        {
+          "tool_location": [
+            -376.9360510635362,
+            -1379.7185945751348,
+            -30.42150912673027
+          ],
+          "axis_dot": 0.9999901882029332,
+          "tip_enamel_distance_cm": 14.320883750915538,
+          "support_error_cm": 2.6812987050722663e-13
+        },
+        {
+          "tool_location": [
+            -377.0505885673441,
+            -1379.8068281228266,
+            -30.346455408103147
+          ],
+          "axis_dot": 0.9999875937697494,
+          "tip_enamel_distance_cm": 14.197134971618818,
+          "support_error_cm": 2.4116620165382783e-13
+        },
+        {
+          "tool_location": [
+            -377.18212627117066,
+            -1379.9389582342646,
+            -30.202777280623593
+          ],
+          "axis_dot": 0.9999872591058456,
+          "tip_enamel_distance_cm": 14.013824462890522,
+          "support_error_cm": 1.1718571004216928e-13
+        },
+        {
+          "tool_location": [
+            -377.30355234332706,
+            -1380.0696667783088,
+            -30.023016583224567
+          ],
+          "axis_dot": 0.9999895450030502,
+          "tip_enamel_distance_cm": 13.826541900634659,
+          "support_error_cm": 1.367217905460468e-13
+        },
+        {
+          "tool_location": [
+            -377.3879008063209,
+            -1380.15330541312,
+            -29.8439430239589
+          ],
+          "axis_dot": 0.9999934113534282,
+          "tip_enamel_distance_cm": 13.692197799682454,
+          "support_error_cm": 1.7922727487913106e-13
+        },
+        {
+          "tool_location": [
+            -377.41472962994055,
+            -1380.1587727318417,
+            -29.698149382898627
+          ],
+          "axis_dot": 0.9999968782016414,
+          "tip_enamel_distance_cm": 13.65162849426281,
+          "support_error_cm": 1.4210854715202004e-13
+        },
+        {
+          "tool_location": [
+            -377.3752015937956,
+            -1380.0798887480996,
+            -29.607169357189946
+          ],
+          "axis_dot": 0.9999980469079963,
+          "tip_enamel_distance_cm": 13.717150688171433,
+          "support_error_cm": 1.7763568394002505e-13
+        },
+        {
+          "tool_location": [
+            -377.2744452657754,
+            -1379.9378617485186,
+            -29.578049461139003
+          ],
+          "axis_dot": 0.9999961452011146,
+          "tip_enamel_distance_cm": 13.868880271911546,
+          "support_error_cm": 2.5324145819918066e-13
+        },
+        {
+          "tool_location": [
+            -377.130671581528,
+            -1379.7752317385407,
+            -29.60363651036993
+          ],
+          "axis_dot": 0.9999920224163921,
+          "tip_enamel_distance_cm": 14.060707092285005,
+          "support_error_cm": 1.5106345774618504e-13
+        },
+        {
+          "tool_location": [
+            -376.97136530549716,
+            -1379.6429116827526,
+            -29.66641909000083
+          ],
+          "axis_dot": 0.9999877832346905,
+          "tip_enamel_distance_cm": 14.23438072204588,
+          "support_error_cm": 2.361953496943366e-13
+        },
+        {
+          "tool_location": [
+            -376.8272500452594,
+            -1379.5843964729297,
+            -29.744552514199235
+          ],
+          "axis_dot": 0.9999857058313311,
+          "tip_enamel_distance_cm": 14.337110519409226,
+          "support_error_cm": 2.669977196213713e-13
+        },
+        {
+          "tool_location": [
+            -376.7257976591563,
+            -1379.6219083702242,
+            -29.818385111298788
+          ],
+          "axis_dot": 0.9999870098865682,
+          "tip_enamel_distance_cm": 14.337730407714755,
+          "support_error_cm": 1.0247593068766006e-13
+        },
+        {
+          "tool_location": [
+            -376.6856744558514,
+            -1379.7488956814775,
+            -29.875420420796118
+          ],
+          "axis_dot": 0.9999911414070556,
+          "tip_enamel_distance_cm": 14.236006736755364,
+          "support_error_cm": 9.099386826154683e-14
+        },
+        {
+          "tool_location": [
+            -376.7131824895381,
+            -1379.9311722136413,
+            -29.912714308014415
+          ],
+          "axis_dot": 0.9999959936857863,
+          "tip_enamel_distance_cm": 14.062871932983418,
+          "support_error_cm": 2.604892696897332e-13
+        },
+        {
+          "tool_location": [
+            -376.80171136387236,
+            -1380.1166826646638,
+            -29.93593324973829
+          ],
+          "axis_dot": 0.9999989873895899,
+          "tip_enamel_distance_cm": 13.870916366577227,
+          "support_error_cm": 1.2710574864626038e-13
+        },
+        {
+          "tool_location": [
+            -376.93380999961465,
+            -1380.2507479128494,
+            -29.955831140379722
+          ],
+          "axis_dot": 0.9999984512266353,
+          "tip_enamel_distance_cm": 13.7184619903565,
+          "support_error_cm": 3.473856442587827e-13
+        },
+        {
+          "tool_location": [
+            -377.085261573402,
+            -1380.2925979323081,
+            -29.983148687034458
+          ],
+          "axis_dot": 0.999994559948859,
+          "tip_enamel_distance_cm": 13.65181922912589,
+          "support_error_cm": 2.4293912300207066e-13
+        },
+        {
+          "tool_location": [
+            -377.2301622522846,
+            -1380.2279109185074,
+            -30.02374401309777
+          ],
+          "axis_dot": 0.9999893004038766,
+          "tip_enamel_distance_cm": 13.691186904907129,
+          "support_error_cm": 4.98798976161204e-13
+        },
+        {
+          "tool_location": [
+            -377.3456479080991,
+            -1380.0736455414926,
+            -30.07548802200737
+          ],
+          "axis_dot": 0.9999854516490416,
+          "tip_enamel_distance_cm": 13.82463455200193,
+          "support_error_cm": 2.5191721279662483e-13
+        },
+        {
+          "tool_location": [
+            -377.41537459690073,
+            -1379.8734237697752,
+            -30.127919507437227
+          ],
+          "axis_dot": 0.999985106032466,
+          "tip_enamel_distance_cm": 14.011611938476664,
+          "support_error_cm": 4.689582056016661e-13
+        },
+        {
+          "tool_location": [
+            -377.43131711304693,
+            -1379.6850857919987,
+            -30.164736713958014
+          ],
+          "axis_dot": 0.9999885244215407,
+          "tip_enamel_distance_cm": 14.195275306701582,
+          "support_error_cm": 1.7112135109858138e-13
+        },
+        {
+          "tool_location": [
+            -377.39382674533977,
+            -1379.5633978568974,
+            -30.16868470323974
+          ],
+          "axis_dot": 0.999993954227,
+          "tip_enamel_distance_cm": 14.319906234741206,
+          "support_error_cm": 2.957300718500272e-13
+        },
+        {
+          "tool_location": [
+            -377.3103502685093,
+            -1379.5439241552413,
+            -30.12707503049647
+          ],
+          "axis_dot": 0.9999985338201179,
+          "tip_enamel_distance_cm": 14.347639083862264,
+          "support_error_cm": 2.574675893923972e-13
+        },
+        {
+          "tool_location": [
+            -377.1935540611198,
+            -1379.632182066844,
+            -30.036682012215557
+          ],
+          "axis_dot": 0.9999998095382989,
+          "tip_enamel_distance_cm": 14.270067214965744,
+          "support_error_cm": 1.2710574864626038e-13
+        },
+        {
+          "tool_location": [
+            -377.05920899036175,
+            -1379.8018776521255,
+            -29.906156895959427
+          ],
+          "axis_dot": 0.9999970624317457,
+          "tip_enamel_distance_cm": 14.110784530639691,
+          "support_error_cm": 1.7350196581950825e-13
+        },
+        {
+          "tool_location": [
+            -376.9244953822941,
+            -1380.0025899637621,
+            -29.755475464516785
+          ],
+          "axis_dot": 0.9999917120982128,
+          "tip_enamel_distance_cm": 13.918132781982507,
+          "support_error_cm": 2.4962712317618486e-13
+        },
+        {
+          "tool_location": [
+            -376.80665476125745,
+            -1380.1747512106704,
+            -29.612225269297753
+          ],
+          "axis_dot": 0.9999865819064855,
+          "tip_enamel_distance_cm": 13.750596046447859,
+          "support_error_cm": 2.5601733318860154e-13
+        },
+        {
+          "tool_location": [
+            -376.72155577021033,
+            -1380.2674299769901,
+            -29.505566202966463
+          ],
+          "axis_dot": 0.999984395464276,
+          "tip_enamel_distance_cm": 13.659086227417031,
+          "support_error_cm": 1.6077746776921858e-13
+        },
+        {
+          "tool_location": [
+            -376.6823820757329,
+            -1380.2535402630006,
+            -29.459590231629264
+          ],
+          "axis_dot": 0.9999863219897115,
+          "tip_enamel_distance_cm": 13.671345710754379,
+          "support_error_cm": 2.089768879877275e-13
+        },
+        {
+          "tool_location": [
+            -376.6978888656225,
+            -1380.1378644761833,
+            -29.487505119219392
+          ],
+          "axis_dot": 0.9999913470256024,
+          "tip_enamel_distance_cm": 13.783726692199737,
+          "support_error_cm": 8.038873388460929e-14
+        },
+        {
+          "tool_location": [
+            -376.7704550934706,
+            -1379.9556215942362,
+            -29.588250580532012
+          ],
+          "axis_dot": 0.9999968084225649,
+          "tip_enamel_distance_cm": 13.962044715881408,
+          "support_error_cm": 2.8457214390443806e-13
+        },
+        {
+          "tool_location": [
+            -376.8944034142007,
+            -1379.761780027042,
+            -29.746326843159927
+          ],
+          "axis_dot": 0.9999998188617917,
+          "tip_enamel_distance_cm": 14.152135848998975,
+          "support_error_cm": 2.7847474288855413e-13
+        },
+        {
+          "tool_location": [
+            -377.0551675127992,
+            -1379.6144794009817,
+            -29.934824718884194
+          ],
+          "axis_dot": 0.9999988020601066,
+          "tip_enamel_distance_cm": 14.296355247497587,
+          "support_error_cm": 2.7408903977723625e-13
+        },
+        {
+          "tool_location": [
+            -377.2300208412823,
+            -1379.557737919155,
+            -30.120967440170695
+          ],
+          "axis_dot": 0.9999943234128533,
+          "tip_enamel_distance_cm": 14.35087680816651,
+          "support_error_cm": 2.4706052173987856e-13
+        },
+        {
+          "tool_location": [
+            -540.8010176748518,
+            -1352.2384231307828,
+            -24.108854025361072
+          ],
+          "axis_dot": 0.9999887753195849,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.829932138727661e-13
+        },
+        {
+          "tool_location": [
+            -540.9339975724831,
+            -1352.232794731924,
+            -24.082104656605036
+          ],
+          "axis_dot": 0.9999850883498501,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.8618646827491045e-13
+        },
+        {
+          "tool_location": [
+            -541.0071012667719,
+            -1352.2538822116467,
+            -24.053453442660995
+          ],
+          "axis_dot": 0.9999851735773877,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.2555714368341094e-13
+        },
+        {
+          "tool_location": [
+            -540.9983385357978,
+            -1352.2944958098446,
+            -24.02856064736672
+          ],
+          "axis_dot": 0.9999889249859261,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.611177381030484e-13
+        },
+        {
+          "tool_location": [
+            -540.9001671745723,
+            -1352.3432966900482,
+            -24.017605192039046
+          ],
+          "axis_dot": 0.9999943088272754,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.564421971962579e-13
+        },
+        {
+          "tool_location": [
+            -540.7233092534606,
+            -1352.3887611013602,
+            -24.032183153161473
+          ],
+          "axis_dot": 0.9999984754316622,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.604892696897332e-13
+        },
+        {
+          "tool_location": [
+            -540.4965953669343,
+            -1352.4213867073584,
+            -24.081029169235215
+          ],
+          "axis_dot": 0.9999992758332531,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.694995474162855e-13
+        },
+        {
+          "tool_location": [
+            -540.262337903235,
+            -1352.4366799795896,
+            -24.16639079404695
+          ],
+          "axis_dot": 0.9999963784982292,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5436660835539596e-13
+        },
+        {
+          "tool_location": [
+            -540.0677020346521,
+            -1352.4348108540798,
+            -24.281726165870403
+          ],
+          "axis_dot": 0.9999913960998446,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.749255367575137e-13
+        },
+        {
+          "tool_location": [
+            -539.9544372203865,
+            -1352.42069139716,
+            -24.411781129544327
+          ],
+          "axis_dot": 0.9999869817200197,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2785214884425293e-13
+        },
+        {
+          "tool_location": [
+            -539.9490783021965,
+            -1352.4007574131324,
+            -24.534314468276108
+          ],
+          "axis_dot": 0.9999854072846335,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.4874801064094584e-13
+        },
+        {
+          "tool_location": [
+            -540.0562029784137,
+            -1352.3811838850859,
+            -24.62431534396965
+          ],
+          "axis_dot": 0.9999873870397291,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.3437142008433856e-13
+        },
+        {
+          "tool_location": [
+            -540.2564896189863,
+            -1352.3663683730965,
+            -24.659422721904335
+          ],
+          "axis_dot": 0.9999917606202899,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.263404441727346e-13
+        },
+        {
+          "tool_location": [
+            -540.5104522219782,
+            -1352.3572085006274,
+            -24.62535955254242
+          ],
+          "axis_dot": 0.999996173906524,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.687428401686771e-13
+        },
+        {
+          "tool_location": [
+            -540.7668062312391,
+            -1352.3524270144671,
+            -24.520678652407845
+          ],
+          "axis_dot": 0.9999983540961022,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.4210854715202004e-13
+        },
+        {
+          "tool_location": [
+            -540.9737034183619,
+            -1352.3493898998681,
+            -24.35854841525946
+          ],
+          "axis_dot": 0.9999972871203018,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.518733689731286e-13
+        },
+        {
+          "tool_location": [
+            -541.0902982717341,
+            -1352.3456587542912,
+            -24.165066487684022
+          ],
+          "axis_dot": 0.9999936834115504,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.440892098500626e-14
+        },
+        {
+          "tool_location": [
+            -541.0955907578674,
+            -1352.3392184731952,
+            -23.974218687662454
+          ],
+          "axis_dot": 0.9999895189366026,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.729816047846405e-13
+        },
+        {
+          "tool_location": [
+            -540.9924524739642,
+            -1352.3304183371574,
+            -23.82125812704857
+          ],
+          "axis_dot": 0.9999869454493915,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2820325849405994e-13
+        },
+        {
+          "tool_location": [
+            -540.8062465869042,
+            -1352.321568427901,
+            -23.735295362542722
+          ],
+          "axis_dot": 0.9999871722370242,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.534220669473221e-13
+        },
+        {
+          "tool_location": [
+            -540.5781116516107,
+            -1352.3165077789315,
+            -23.73331324513207
+          ],
+          "axis_dot": 0.9999899033077974,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.9472792812579195e-13
+        },
+        {
+          "tool_location": [
+            -540.355187076917,
+            -1352.3192247801219,
+            -23.81675483011911
+          ],
+          "axis_dot": 0.9999935910978577,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.129103168045173e-13
+        },
+        {
+          "tool_location": [
+            -540.180032664722,
+            -1352.3315744736476,
+            -23.970945026531606
+          ],
+          "axis_dot": 0.9999963172224287,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.4318141361532806e-13
+        },
+        {
+          "tool_location": [
+            -540.0818753559831,
+            -1352.3530474324787,
+            -24.167845906733266
+          ],
+          "axis_dot": 0.999996795528473,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.2080532582046504e-13
+        },
+        {
+          "tool_location": [
+            -540.0716013658417,
+            -1352.379287691152,
+            -24.371470604485758
+          ],
+          "axis_dot": 0.9999949742546377,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.248548236625802e-13
+        },
+        {
+          "tool_location": [
+            -540.1415007258724,
+            -1352.404020210525,
+            -24.545234775723458
+          ],
+          "axis_dot": 0.9999919537989665,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.309176867729496e-13
+        },
+        {
+          "tool_location": [
+            -540.2691498570523,
+            -1352.4207208139137,
+            -24.659585965219605
+          ],
+          "axis_dot": 0.9999893256221113,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 5.77381557639988e-13
+        },
+        {
+          "tool_location": [
+            -540.4241930646335,
+            -1352.4243710410224,
+            -24.697755097268
+          ],
+          "axis_dot": 0.9999883293994014,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.331272980451633e-13
+        },
+        {
+          "tool_location": [
+            -540.575894759359,
+            -1352.414771758288,
+            -24.658889296878037
+          ],
+          "axis_dot": 0.9999892726189333,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.441052996900607e-13
+        },
+        {
+          "tool_location": [
+            -540.6997041728168,
+            -1352.3944861650893,
+            -24.55665352413734
+          ],
+          "axis_dot": 0.9999914869403063,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.6203841016677545e-13
+        },
+        {
+          "tool_location": [
+            -540.7809592962576,
+            -1352.3694800766234,
+            -24.41527701417205
+          ],
+          "axis_dot": 0.9999937748618059,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.220452156626719e-13
+        },
+        {
+          "tool_location": [
+            -540.8156433418037,
+            -1352.3465624539986,
+            -24.263433768093055
+          ],
+          "axis_dot": 0.9999950635824629,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.322167237326582e-13
+        },
+        {
+          "tool_location": [
+            -540.8083506501238,
+            -1352.3310830645398,
+            -24.127872540694632
+          ],
+          "axis_dot": 0.9999949003461648,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2565519288703494e-13
+        },
+        {
+          "tool_location": [
+            -540.7685485137889,
+            -1352.325780150163,
+            -24.02834038976827
+          ],
+          "axis_dot": 0.9999935702480485,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.217315224523085e-13
+        },
+        {
+          "tool_location": [
+            -540.7068465536461,
+            -1352.3304365502365,
+            -23.974598824992057
+          ],
+          "axis_dot": 0.999991836813744,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.416106516409301e-13
+        },
+        {
+          "tool_location": [
+            -540.6323002877068,
+            -1352.3417003166514,
+            -23.965697182674578
+          ],
+          "axis_dot": 0.9999905025236234,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 6.955429491982925e-13
+        },
+        {
+          "tool_location": [
+            -540.5516216161354,
+            -1352.3543364312175,
+            -23.991840365506707
+          ],
+          "axis_dot": 0.9999900427181581,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.7047329795485495e-13
+        },
+        {
+          "tool_location": [
+            -540.4698802992234,
+            -1352.3628591222089,
+            -24.03847752218728
+          ],
+          "axis_dot": 0.9999904786595635,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.1859094492531964e-13
+        },
+        {
+          "tool_location": [
+            -540.3923692918628,
+            -1352.3631802892296,
+            -24.090930085437225
+          ],
+          "axis_dot": 0.9999914852460963,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.5106345774618504e-13
+        },
+        {
+          "tool_location": [
+            -540.3259420136451,
+            -1352.3550725898942,
+            -24.138959108902334
+          ],
+          "axis_dot": 0.999992616177243,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 5.086215585428499e-13
+        },
+        {
+          "tool_location": [
+            -540.2795440661531,
+            -1352.3418385841858,
+            -24.179037273807264
+          ],
+          "axis_dot": 0.9999934948284549,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 6.039613253960852e-14
+        },
+        {
+          "tool_location": [
+            -540.2630382426249,
+            -1352.3295126951937,
+            -24.213989954506733
+          ],
+          "axis_dot": 0.9999938947064757,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.796163466380676e-14
+        },
+        {
+          "tool_location": [
+            -540.2844707877189,
+            -1352.325171387181,
+            -24.250570978176718
+          ],
+          "axis_dot": 0.9999937308369176,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.1965052322472695e-13
+        },
+        {
+          "tool_location": [
+            -540.3468143611135,
+            -1352.3337850440269,
+            -24.295389172472298
+          ],
+          "axis_dot": 0.9999930368881093,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6987181070579545e-13
+        },
+        {
+          "tool_location": [
+            -540.4452593474209,
+            -1352.355912794558,
+            -24.351375917478205
+          ],
+          "axis_dot": 0.9999919749590537,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.220452156626719e-13
+        },
+        {
+          "tool_location": [
+            -540.5660525973025,
+            -1352.388274952505,
+            -24.415383219814377
+          ],
+          "axis_dot": 0.999990861766912,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.359812473041063e-13
+        },
+        {
+          "tool_location": [
+            -540.6881882304617,
+            -1352.4225206371968,
+            -24.47766531872815
+          ],
+          "axis_dot": 0.9999901316165639,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.3796244387938543e-13
+        },
+        {
+          "tool_location": [
+            -540.7872695704141,
+            -1352.4482934577927,
+            -24.523497834780823
+          ],
+          "axis_dot": 0.999990189286756,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.1381166927749112e-13
+        },
+        {
+          "tool_location": [
+            -540.8411617723796,
+            -1352.4565406262595,
+            -24.536637026737598
+          ],
+          "axis_dot": 0.999991184371344,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 6.925354447745104e-13
+        },
+        {
+          "tool_location": [
+            -540.8358200081072,
+            -1352.4416048454693,
+            -24.50374794934886
+          ],
+          "axis_dot": 0.9999928333998712,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.1480543543070017e-13
+        },
+        {
+          "tool_location": [
+            -540.7695428633041,
+            -1352.4047194744905,
+            -24.419325252110404
+          ],
+          "axis_dot": 0.9999944403522523,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.694020847408875e-13
+        },
+        {
+          "tool_location": [
+            -540.654458673266,
+            -1352.3523136123931,
+            -24.28883398154464
+          ],
+          "axis_dot": 0.9999951706370931,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.7922727487913106e-13
+        },
+        {
+          "tool_location": [
+            -540.5143658454681,
+            -1352.296450381501,
+            -24.129716563521242
+          ],
+          "axis_dot": 0.9999944876264222,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.546246950374953e-13
+        },
+        {
+          "tool_location": [
+            -540.3793263436112,
+            -1352.2515755864906,
+            -23.96889590196645
+          ],
+          "axis_dot": 0.9999925209313277,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.4318141361532806e-13
+        },
+        {
+          "tool_location": [
+            -540.278635682329,
+            -1352.229447496172,
+            -23.837354243230628
+          ],
+          "axis_dot": 0.999990121643477,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 5.229885357269795e-13
+        },
+        {
+          "tool_location": [
+            -540.2335327460281,
+            -1352.2369540680475,
+            -23.763399819005187
+          ],
+          "axis_dot": 0.9999885122745217,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6443862441483726e-13
+        },
+        {
+          "tool_location": [
+            -540.2519329073864,
+            -1352.273630422644,
+            -23.766087787932772
+          ],
+          "axis_dot": 0.9999886611380109,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.233896894832203e-13
+        },
+        {
+          "tool_location": [
+            -540.3265344031195,
+            -1352.33155757124,
+            -23.850497643520647
+          ],
+          "axis_dot": 0.999990701623512,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.191086668529821e-13
+        },
+        {
+          "tool_location": [
+            -540.4369608723134,
+            -1352.3970374633498,
+            -24.006047254563384
+          ],
+          "axis_dot": 0.9999937482613304,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.2265349195941547e-13
+        },
+        {
+          "tool_location": [
+            -540.555207555812,
+            -1352.4541363881872,
+            -24.20770330260327
+          ],
+          "axis_dot": 0.9999962608673024,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.218688008503854e-13
+        },
+        {
+          "tool_location": [
+            -540.6531242366968,
+            -1352.489084586341,
+            -24.42039681617809
+          ],
+          "axis_dot": 0.9999968284510821,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5501085777432956e-13
+        },
+        {
+          "tool_location": [
+            -540.7096965775233,
+            -1352.4934426266623,
+            -24.605689087459893
+          ],
+          "axis_dot": 0.9999949642206394,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.4221718197332137e-13
+        },
+        {
+          "tool_location": [
+            -540.7161523657095,
+            -1352.4663549371544,
+            -24.72944433993166
+          ],
+          "axis_dot": 0.9999914659872542,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.335351955131386e-13
+        },
+        {
+          "tool_location": [
+            -540.677572357231,
+            -1352.4152719233355,
+            -24.769018832536247
+          ],
+          "axis_dot": 0.9999880942667156,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.569339136675327e-13
+        },
+        {
+          "tool_location": [
+            -540.6105412380149,
+            -1352.3540650221353,
+            -24.718244313671203
+          ],
+          "axis_dot": 0.9999866814941187,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5663899683935937e-13
+        },
+        {
+          "tool_location": [
+            -540.5377749458487,
+            -1352.2988533364746,
+            -24.58839572602004
+          ],
+          "axis_dot": 0.999988130819169,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.3659032630814097e-13
+        },
+        {
+          "tool_location": [
+            -540.4811428023013,
+            -1352.2637981795938,
+            -24.40550008985713
+          ],
+          "axis_dot": 0.999991850158056,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.2837069025155467e-13
+        },
+        {
+          "tool_location": [
+            -540.4553666582307,
+            -1352.2573198057996,
+            -24.204323188697447
+          ],
+          "axis_dot": 0.9999959715791904,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.693113254347559e-13
+        },
+        {
+          "tool_location": [
+            -540.4639785917384,
+            -1352.2791994768604,
+            -24.020727715657817
+          ],
+          "axis_dot": 0.9999982951307502,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2238307421615337e-13
+        },
+        {
+          "tool_location": [
+            -540.4988558120472,
+            -1352.3217338962818,
+            -23.88488168305703
+          ],
+          "axis_dot": 0.9999974690763267,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.133533127768899e-13
+        },
+        {
+          "tool_location": [
+            -540.543330344502,
+            -1352.3716150180562,
+            -23.815698567503212
+          ],
+          "axis_dot": 0.9999937774009626,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.6587787186393757e-13
+        },
+        {
+          "tool_location": [
+            -540.5778947290928,
+            -1352.4138464245716,
+            -23.8184011303455
+          ],
+          "axis_dot": 0.9999890726222402,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2565519288703494e-13
+        },
+        {
+          "tool_location": [
+            -540.5866980913056,
+            -1352.436601258557,
+            -23.884533210945587
+          ],
+          "axis_dot": 0.9999858409354679,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.870067172091588e-13
+        },
+        {
+          "tool_location": [
+            -540.5629203062567,
+            -1352.43398381608,
+            -23.995121026972225
+          ],
+          "axis_dot": 0.9999858810772866,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.470039316390165e-13
+        },
+        {
+          "tool_location": [
+            -540.5112581565097,
+            -1352.407495908083,
+            -24.125393314440398
+          ],
+          "axis_dot": 0.9999892970515649,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6702135505890897e-13
+        },
+        {
+          "tool_location": [
+            -540.4467835872285,
+            -1352.3658684298107,
+            -24.250849012024716
+          ],
+          "axis_dot": 0.999994374010413,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.503027932697079e-13
+        },
+        {
+          "tool_location": [
+            -540.3903952628003,
+            -1352.3226542721857,
+            -24.352580485839795
+          ],
+          "axis_dot": 0.9999984431353502,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.4962712317618486e-13
+        },
+        {
+          "tool_location": [
+            -540.3625331787364,
+            -1352.2911771706513,
+            -24.420394750521858
+          ],
+          "axis_dot": 0.9999992939272812,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.6203841016677545e-13
+        },
+        {
+          "tool_location": [
+            -540.3766302993598,
+            -1352.281928362243,
+            -24.453440461303938
+          ],
+          "axis_dot": 0.9999963824011214,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.4609435063736735e-13
+        },
+        {
+          "tool_location": [
+            -540.4346105996963,
+            -1352.2984904730774,
+            -24.45809442112886
+          ],
+          "axis_dot": 0.9999911734435434,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.213861398741159e-13
+        },
+        {
+          "tool_location": [
+            -540.5256985701445,
+            -1352.3363480055823,
+            -24.444200402743153
+          ],
+          "axis_dot": 0.999986399943373,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.8069248613002413e-13
+        },
+        {
+          "tool_location": [
+            -540.6288946422212,
+            -1352.3846556358899,
+            -24.42142590623197
+          ],
+          "axis_dot": 0.9999846191033793,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 7.230645186293246e-13
+        },
+        {
+          "tool_location": [
+            -540.7183908028624,
+            -1352.4293795489275,
+            -24.39613400090892
+          ],
+          "axis_dot": 0.9999868338270731,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.3696390884519782e-13
+        },
+        {
+          "tool_location": [
+            -540.770616753456,
+            -1352.4574630012248,
+            -24.370006395477557
+          ],
+          "axis_dot": 0.9999919239812772,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.444163062921005e-13
+        },
+        {
+          "tool_location": [
+            -540.7706374574877,
+            -1352.4609352257403,
+            -24.340201260951616
+          ],
+          "axis_dot": 0.9999972160296882,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.167675977565693e-13
+        },
+        {
+          "tool_location": [
+            -540.7163423387806,
+            -1352.4381556296637,
+            -24.300956008587857
+          ],
+          "axis_dot": 0.9999998975745221,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.4210854715202004e-13
+        },
+        {
+          "tool_location": [
+            -540.6190550203046,
+            -1352.3951314088051,
+            -24.246738189077977
+          ],
+          "axis_dot": 0.9999985207622055,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.313417418639231e-13
+        },
+        {
+          "tool_location": [
+            -540.5005893919636,
+            -1352.3431461902146,
+            -24.17546172962448
+          ],
+          "axis_dot": 0.9999937919996633,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 5.110260947427094e-13
+        },
+        {
+          "tool_location": [
+            -540.3876040456053,
+            -1352.2950694388956,
+            -24.09111241713524
+          ],
+          "axis_dot": 0.9999882062159671,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.3166989564381633e-13
+        },
+        {
+          "tool_location": [
+            -540.3046815070217,
+            -1352.26318353652,
+            -24.00485764269542
+          ],
+          "axis_dot": 0.9999847199721714,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.268544854706314e-13
+        },
+        {
+          "tool_location": [
+            -540.2684760365623,
+            -1352.2553909459511,
+            -23.93344381535128
+          ],
+          "axis_dot": 0.9999851789252179,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.4889922580999827e-13
+        },
+        {
+          "tool_location": [
+            -540.284046189129,
+            -1352.2728742618158,
+            -23.895384179974567
+          ],
+          "axis_dot": 0.9999893297256637,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2785214884425293e-13
+        },
+        {
+          "tool_location": [
+            -540.3445338482608,
+            -1352.3100670212743,
+            -23.906087562873807
+          ],
+          "axis_dot": 0.9999949638467491,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5421149729252077e-13
+        },
+        {
+          "tool_location": [
+            -540.4338305347179,
+            -1352.3567692592128,
+            -23.973241035628785
+          ],
+          "axis_dot": 0.9999990986553061,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.3041340872738743e-13
+        },
+        {
+          "tool_location": [
+            -540.531513930807,
+            -1352.4005314516776,
+            -24.093691711257364
+          ],
+          "axis_dot": 0.9999995699376394,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.464821375527116e-13
+        },
+        {
+          "tool_location": [
+            -540.6181972067478,
+            -1352.4307233735146,
+            -24.2527772534257
+          ],
+          "axis_dot": 0.9999961709594574,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.4519874405777487e-13
+        },
+        {
+          "tool_location": [
+            -540.680020253779,
+            -1352.4414135157137,
+            -24.42609549004901
+          ],
+          "axis_dot": 0.9999907392235043,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.1101458019305013e-13
+        },
+        {
+          "tool_location": [
+            -540.7110064736152,
+            -1352.4323262515363,
+            -24.583362647036754
+          ],
+          "axis_dot": 0.9999861579632427,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.7565029002503855e-13
+        },
+        {
+          "tool_location": [
+            -540.7127882183237,
+            -1352.4085186693424,
+            -24.694282235476955
+          ],
+          "axis_dot": 0.9999848125070507,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6443862441483726e-13
+        },
+        {
+          "tool_location": [
+            -540.6921790351957,
+            -1352.378509321665,
+            -24.73481482881256
+          ],
+          "axis_dot": 0.9999873412700752,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.53347694475484e-13
+        },
+        {
+          "tool_location": [
+            -540.6576541387726,
+            -1352.3514549143272,
+            -24.692853577342436
+          ],
+          "axis_dot": 0.9999923362340473,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.296996774275561e-13
+        },
+        {
+          "tool_location": [
+            -540.6160655274201,
+            -1352.3344559889263,
+            -24.571761649788783
+          ],
+          "axis_dot": 0.9999971285995398,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.398927799289163e-13
+        },
+        {
+          "tool_location": [
+            -540.5707883825393,
+            -1352.3305638313122,
+            -24.39049878488445
+          ],
+          "axis_dot": 0.9999992279568763,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.903732236168525e-13
+        },
+        {
+          "tool_location": [
+            -540.5219169534854,
+            -1352.3382018495158,
+            -24.18009143287612
+          ],
+          "axis_dot": 0.9999976227010214,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.1535382849852894e-13
+        },
+        {
+          "tool_location": [
+            -540.4683207377678,
+            -1352.3520726911233,
+            -23.977583963288453
+          ],
+          "axis_dot": 0.9999932667367062,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.233896894832203e-13
+        },
+        {
+          "tool_location": [
+            -540.4104972209632,
+            -1352.3651312867091,
+            -23.818536756748625
+          ],
+          "axis_dot": 0.9999885132112953,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.9298581580433144e-13
+        },
+        {
+          "tool_location": [
+            -540.3531765673142,
+            -1352.370969859599,
+            -23.730239943246573
+          ],
+          "axis_dot": 0.9999858352500047,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 7.283063041541027e-14
+        },
+        {
+          "tool_location": [
+            -540.3061585592857,
+            -1352.3662531804684,
+            -23.72680449795288
+          ],
+          "axis_dot": 0.9999865310121309,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.2837069025155467e-13
+        },
+        {
+          "tool_location": [
+            -540.2828173911641,
+            -1352.3525345786536,
+            -23.806825679679555
+          ],
+          "axis_dot": 0.9999900951501259,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.728480396966672e-13
+        },
+        {
+          "tool_location": [
+            -540.2965845352625,
+            -1352.334836745188,
+            -23.953824431676534
+          ],
+          "axis_dot": 0.9999945638653359,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6443862441483726e-13
+        },
+        {
+          "tool_location": [
+            -540.3560855956865,
+            -1352.3207532126519,
+            -24.139751597718135
+          ],
+          "axis_dot": 0.9999976029459126,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 7.815970093361102e-14
+        },
+        {
+          "tool_location": [
+            -540.460686952535,
+            -1352.3165226315498,
+            -24.330605130475902
+          ],
+          "axis_dot": 0.9999977347395266,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 5.09427428743278e-13
+        },
+        {
+          "tool_location": [
+            -540.5978466000853,
+            -1352.3260741850454,
+            -24.493425145166636
+          ],
+          "axis_dot": 0.9999950562568202,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6757029041774825e-13
+        },
+        {
+          "tool_location": [
+            -540.7438377830615,
+            -1352.3481864607322,
+            -24.602818621501054
+          ],
+          "axis_dot": 0.9999910958623406,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.659556809051779e-13
+        },
+        {
+          "tool_location": [
+            -540.8677736675169,
+            -1352.378117953963,
+            -24.645626968920993
+          ],
+          "axis_dot": 0.9999879389609712,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.564421971962579e-13
+        },
+        {
+          "tool_location": [
+            -540.9385503347493,
+            -1352.4079196716882,
+            -24.622355659679272
+          ],
+          "axis_dot": 0.9999871228648476,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.248548236625802e-13
+        },
+        {
+          "tool_location": [
+            -540.9330262292386,
+            -1352.4287792233908,
+            -24.545350116539705
+          ],
+          "axis_dot": 0.999988888236382,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.792046465479047e-13
+        },
+        {
+          "tool_location": [
+            -540.8429019996111,
+            -1352.4348641362615,
+            -24.434924685275753
+          ],
+          "axis_dot": 0.9999921566496295,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.218688008503854e-13
+        },
+        {
+          "tool_location": [
+            -540.6788433374448,
+            -1352.4233030074363,
+            -24.313950922100986
+          ],
+          "axis_dot": 0.9999951803159932,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 4.791588810604935e-13
+        },
+        {
+          "tool_location": [
+            -540.4696352313088,
+            -1352.3970131021194,
+            -24.203109721849756
+          ],
+          "axis_dot": 0.9999964871819871,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.4989967986728757e-13
+        },
+        {
+          "tool_location": [
+            -540.2570234678657,
+            -1352.3625182627968,
+            -24.116929825744357
+          ],
+          "axis_dot": 0.9999955931399069,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.2481356158809243e-13
+        },
+        {
+          "tool_location": [
+            -540.0866307609151,
+            -1352.3288594361234,
+            -24.06201971592157
+          ],
+          "axis_dot": 0.9999931486659538,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.2392099543196693e-13
+        },
+        {
+          "tool_location": [
+            -539.997462924536,
+            -1352.3047212660958,
+            -24.036963580586235
+          ],
+          "axis_dot": 0.9999904963778966,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.4309448301754923e-13
+        },
+        {
+          "tool_location": [
+            -540.0123618581097,
+            -1352.2958016239552,
+            -24.034447196273945
+          ],
+          "axis_dot": 0.9999889286190233,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.467793789664406e-13
+        },
+        {
+          "tool_location": [
+            -540.1320277879325,
+            -1352.3029232388703,
+            -24.044768065653404
+          ],
+          "axis_dot": 0.999989058193688,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.5582005530672365e-13
+        },
+        {
+          "tool_location": [
+            -540.3341296801931,
+            -1352.323017137026,
+            -24.05986853308785
+          ],
+          "axis_dot": 0.9999906108585231,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.6443862441483726e-13
+        },
+        {
+          "tool_location": [
+            -540.5778523848373,
+            -1352.3490655067997,
+            -24.076150788899817
+          ],
+          "axis_dot": 0.9999926812881857,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 7.105427357601002e-14
+        },
+        {
+          "tool_location": [
+            -540.8130331659183,
+            -1352.3731208509428,
+            -24.09554207144172
+          ],
+          "axis_dot": 0.9999942619791004,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.8221720789975623e-13
+        },
+        {
+          "tool_location": [
+            -540.9913938048923,
+            -1352.3882914811647,
+            -24.12398947064265
+          ],
+          "axis_dot": 0.999994732575737,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.569339136675327e-13
+        },
+        {
+          "tool_location": [
+            -541.0772427127756,
+            -1352.3908176658113,
+            -24.16836834350106
+          ],
+          "axis_dot": 0.9999940722089847,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 1.5106345774618504e-13
+        },
+        {
+          "tool_location": [
+            -541.0552235346282,
+            -1352.3811327592564,
+            -24.233042863341314
+          ],
+          "axis_dot": 0.9999927481070725,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.375077994860476e-14
+        },
+        {
+          "tool_location": [
+            -540.9329041241537,
+            -1352.3647458923608,
+            -24.31681498300943
+          ],
+          "axis_dot": 0.9999914022480546,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 2.387531968608385e-13
+        },
+        {
+          "tool_location": [
+            -540.7382597196146,
+            -1352.3489860717254,
+            -24.411498410821473
+          ],
+          "axis_dot": 0.9999905410855235,
+          "tip_enamel_distance_cm": null,
+          "support_error_cm": 3.0125357090040625e-13
+        }
+      ]
+    }
+  ],
+  "error": null
+}

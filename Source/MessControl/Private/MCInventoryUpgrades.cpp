@@ -49,6 +49,13 @@ bool UMCInventoryComponent::IsUsingWatergun() const
     return Hero && Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun) && Hero->IsPrimaryHeld()
         && Hero->CanWork() && !Hero->bInCoffee && ShouldPresentTool();
 }
+bool UMCInventoryComponent::IsUsingBuffer() const
+{
+    if(!Hero || Selected!=EMCToolSlot::Pickaxe || !HasUpgrade(EMCToolUpgrade::Buffer)
+        || !Hero->CanWork() || Hero->bInCoffee || !ShouldPresentTool()) return false;
+    const float Elapsed=Hero->GetToolSwingElapsed();
+    return Hero->IsPrimaryHeld() || (Elapsed>=0 && Elapsed<SwingDuration());
+}
 EMCToolUpgrade UMCInventoryComponent::SelectedUpgrade() const
 {
     const auto Kind=Selected==EMCToolSlot::Brush?EMCToolUpgrade::MeshaBrush:Selected==EMCToolSlot::Pickaxe?EMCToolUpgrade::Buffer:
