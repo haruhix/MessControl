@@ -14,6 +14,7 @@ class AMCArenaTooth;
 class AMCMouthSurface;
 class AMCFoodActor;
 class AMCCoffeeFlood;
+class AMCToothpick;
 class UMCDayPlan;
 class UNiagaraComponent;
 class UNiagaraSystem;
@@ -31,7 +32,7 @@ public:
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-    void Start(UMCDayPlan* Plan=nullptr);
+    void Start(UMCDayPlan* Plan=nullptr,bool bUseShortFlow=false);
     void Stop();
     void SetLoaded(AMCPlayerState* Player);
     void SetReady(AMCPlayerState* Player,bool bReady);
@@ -46,6 +47,7 @@ public:
     int32 GetCompletedPlayers() const;
     int32 GetRequiredPlayers() const { return Players.Num(); }
     bool IsComplete() const { return Stage==EMCTutorialStage::Complete; }
+    bool UsesShortFlow() const { return bShortFlow; }
     FSimpleMulticastDelegate OnTutorialFinished;
 
     UPROPERTY(ReplicatedUsing=OnRep_Presentation,BlueprintReadOnly,Category="Tutorial") EMCTutorialStage Stage=EMCTutorialStage::Loading;
@@ -81,6 +83,9 @@ private:
     bool TargetIsOwn(const FMCTutorialPlayerProgress& Player,const AActor* Target) const;
     double Now() const;
     int32 CountTutorialFood() const;
+    void EnsureSharedToothpick();
+    UPROPERTY(Transient) TObjectPtr<AMCToothpick> LessonToothpick;
+    UPROPERTY(Transient) TObjectPtr<AMCMouthSurface> LessonUlcer;
 
     UPROPERTY(Transient) TObjectPtr<UMCDayPlan> Settings;
     UPROPERTY(Transient) TObjectPtr<AMCCoffeeFlood> Flood;
@@ -96,6 +101,7 @@ private:
     int32 PreviousStencil=0;
     FRandomStream Random;
     bool bStarted=false,bFinishedBroadcast=false,bRestored=false;
+    UPROPERTY(Replicated) bool bShortFlow=false;
     int32 BreakfastSpawned=0;
     float MaintenanceClock=0;
     FText DefaultFairyLine;

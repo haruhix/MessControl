@@ -3,6 +3,7 @@
 #include "MCPlayerState.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
+#include "MCProgressionComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
 #include "MCGripComponent.h"
@@ -26,6 +27,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Components/Border.h"
 #include "Components/SizeBox.h"
+#include "Components/VerticalBox.h"
 #include "HAL/IConsoleManager.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Styling/CoreStyle.h"
@@ -165,6 +167,25 @@ void UMCGameplayHUD::NativeOnInitialized()
         StaminaSlot->SetPosition(FVector2D(0,-138));StaminaSlot->SetSize(FVector2D(250,58));
     }
     EnsureDirectorMonitor();
+    EnsureProgressionPanel();
+}
+void UMCGameplayHUD::EnsureProgressionPanel()
+{
+    if(ProgressionPanel || !WidgetTree) return;
+    auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
+    if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
+    if(!Root) return;
+    ProgressionPanel=WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass(),TEXT("TeamProgression"));
+    ProgressionPanel->SetPadding(FMargin(14,8)); ProgressionPanel->SetBrushColor(MCGameplayHUDPrivate::Ink);
+    ProgressionPanel->SetVisibility(ESlateVisibility::Collapsed);
+    auto* Column=WidgetTree->ConstructWidget<UVerticalBox>(); ProgressionPanel->SetContent(Column);
+    ProgressionText=WidgetTree->ConstructWidget<UTextBlock>();
+    ProgressionText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),14));
+    ProgressionText->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::White)); Column->AddChildToVerticalBox(ProgressionText);
+    ProgressionBar=WidgetTree->ConstructWidget<UProgressBar>(); ProgressionBar->SetFillColorAndOpacity(MCGameplayHUDPrivate::Mint);
+    Column->AddChildToVerticalBox(ProgressionBar);
+    auto* XPPanelSlot=Root->AddChildToCanvas(ProgressionPanel); XPPanelSlot->SetAnchors(FAnchors(.5f,0));
+    XPPanelSlot->SetAlignment(FVector2D(.5f,0)); XPPanelSlot->SetPosition(FVector2D(0,116)); XPPanelSlot->SetSize(FVector2D(330,58));
 }
 void UMCGameplayHUD::EnsureDirectorMonitor()
 {
@@ -200,6 +221,7 @@ void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
     EnsureDirectorMonitor();
     if(!DirectorPanel || !DirectorText) return;
     const bool Debug=State.bEnabled && MCGameplayHUDPrivate::DirectorDebug.GetValueOnGameThread()>0;
+    const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
     DirectorPanel->SetVisibility(State.bEnabled?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(DirectorCandidatesPanel) DirectorCandidatesPanel->SetVisibility(Debug?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     if(auto* Events=Find(TEXT("EventsPanel")))
@@ -208,6 +230,13 @@ void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
     const float Width=Debug?306.f:280.f;
     DirectorPanelSize->SetWidthOverride(Width);DirectorText->SetWrapTextAt(Width);
     if(auto* PanelSlot=Cast<UCanvasPanelSlot>(DirectorPanel->Slot)) PanelSlot->SetPosition(FVector2D(-22,Debug?144:338));
+    if(GS && GS->bSingleDayLoop && !Debug) {
+        if(State.Instruction.IsEmpty()) DirectorPanel->SetVisibility(ESlateVisibility::Collapsed);
+        DirectorText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),14));
+        DirectorText->SetText(FText::FromString(State.Instruction));
+        return;
+    }
+    DirectorText->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),11));
     using namespace MCGameplayHUDPrivate;
     FString Value=PacingName(State.Pacing)+FString::Printf(TEXT(" · сложность %.2f\nНагрузка %.2f · цель %.2f"),State.Difficulty,State.Pressure,State.TargetPressure);
     if(!State.Instruction.IsEmpty()) Value+=TEXT("\n")+ShortLine(State.Instruction,92);
@@ -279,6 +308,17 @@ void UMCGameplayHUD::RefreshState()
     auto Show=[&](FName Name,bool Visible) { if(auto* W=Find(Name)) W->SetVisibility(Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed); };
     auto Color=[&](FName Name,FLinearColor Value) { if(auto* I=Cast<UImage>(Find(Name))) I->SetColorAndOpacity(Value); };
     const double Now=GS->GetServerWorldTimeSeconds();
+    EnsureProgressionPanel();
+    if(ProgressionPanel) {
+        ProgressionPanel->SetVisibility(GS->bSingleDayLoop && !GS->bTutorialActive?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+        if(GS->Progression) {
+            const auto* XP=GS->Progression.Get();
+            ProgressionText->SetText(FText::FromString(XP->ExperienceToNextLevel>0
+                ? FString::Printf(TEXT("КОМАНДА · УР. %d     %lld / %d XP"),XP->TeamLevel,XP->ExperienceInLevel,XP->ExperienceToNextLevel)
+                : FString::Printf(TEXT("КОМАНДА · УР. %d     МАКСИМУМ"),XP->TeamLevel)));
+            ProgressionBar->SetPercent(XP->ExperienceToNextLevel>0?FMath::Clamp(float(XP->ExperienceInLevel)/XP->ExperienceToNextLevel,0.f,1.f):1.f);
+        }
+    }
     const auto& Director=GS->DirectorState;const bool Directed=Director.bEnabled;
     RefreshDirectorMonitor(Director);
     const bool HasStep=!Directed && GS->DayPlan && GS->DayPlan->Steps.IsValidIndex(GS->StepIndex);
@@ -299,7 +339,7 @@ void UMCGameplayHUD::RefreshState()
     }
     Clean=Surfaces?Clean/Surfaces:1;
     const float Health=GS->MouthHealth/FMath::Max(1.f,GS->RunSettings.MaxMouthHealth);
-    Text(TEXT("TaskLabel"),Directed?TEXT("ЕДА ЗАВЕРШЕНА"):TEXT("ТЕКУЩАЯ ЗАДАЧА"));
+    Text(TEXT("TaskLabel"),Directed && !GS->bSingleDayLoop?TEXT("ЕДА ЗАВЕРШЕНА"):TEXT("ТЕКУЩАЯ ЗАДАЧА"));
     Text(TEXT("TaskValue"),Directed?FString::Printf(TEXT("%d/%d"),Director.FinishedFood,Director.SpawnedFood)
         :FString::Printf(TEXT("%d/%d"),FMath::Max(0,GS->TasksTotal-GS->TasksLeft),GS->TasksTotal)); Bar(TEXT("TaskProgress"),Done);
     Text(TEXT("CleanValue"),FString::Printf(TEXT("%d%%"),FMath::RoundToInt(Clean*100))); Bar(TEXT("CleanProgress"),Clean);
@@ -311,7 +351,7 @@ void UMCGameplayHUD::RefreshState()
     const float Progress=Directed && GS->Phase==EMCShiftPhase::Working?FMath::Clamp(Director.DayProgress,0.f,1.f)
         :Timed?FMath::Clamp(1-Remaining/Duration,0.f,1.f):Done;
     Text(TEXT("TimerValue"),Timed?FString::Printf(TEXT("%02d:%02d"),Seconds/60,Seconds%60):TEXT("--:--"));
-    Text(TEXT("TimerLabel"),Finished?TEXT("ИТОГИ ДНЯ"):Timed?Directed?GS->Phase==EMCShiftPhase::Working?TEXT("ДО КОНЦА ДНЯ"):TEXT("ДО НАЧАЛА ДНЯ"):TEXT("ДО СЛЕД. СОБЫТИЯ"):TEXT("БЕЗ ЛИМИТА ВРЕМЕНИ")); Bar(TEXT("TimerProgress"),Finished?1:Progress);
+    Text(TEXT("TimerLabel"),Finished?TEXT("ИТОГИ ДНЯ"):GS->bSingleDayLoop?Timed?TEXT("ДО СЛЕД. ЭВЕНТА"):TEXT("ПРОДЕРЖИСЬ И ПРОКАЧАЙСЯ"):Timed?Directed?GS->Phase==EMCShiftPhase::Working?TEXT("ДО КОНЦА ДНЯ"):TEXT("ДО НАЧАЛА ДНЯ"):TEXT("ДО СЛЕД. СОБЫТИЯ"):TEXT("БЕЗ ЛИМИТА ВРЕМЕНИ")); Bar(TEXT("TimerProgress"),Finished?1:Progress);
     if(auto* T=Cast<UTextBlock>(Find(TEXT("TimerValue")))) T->SetColorAndOpacity(FSlateColor(Timed && Seconds<10?HUD::Amber:HUD::White));
     TArray<APlayerState*> Players; for(const auto& Player:GS->PlayerArray) if(IsValid(Player)) Players.Add(Player.Get());
     Players.Sort([](const APlayerState& A,const APlayerState& B){return A.GetPlayerId()<B.GetPlayerId();});
@@ -343,7 +383,7 @@ void UMCGameplayHUD::RefreshState()
         {
             const bool Visible=I==0 || I==1 && !Director.NextTitle.IsEmpty();Show(FName(N),Visible);
             if(!Visible) continue;
-            Text(FName(N+TEXT("Label")),I==0?TEXT("СЕЙЧАС"):Director.bNextReserved?TEXT("ЗАРЕЗЕРВИРОВАНО"):TEXT("КАНДИДАТ"));
+            Text(FName(N+TEXT("Label")),I==0?TEXT("СЕЙЧАС"):GS->bSingleDayLoop?TEXT("ДАЛЕЕ"):Director.bNextReserved?TEXT("ЗАРЕЗЕРВИРОВАНО"):TEXT("КАНДИДАТ"));
             Text(FName(N+TEXT("Title")),I==0?Title:Director.NextTitle);
             Bar(FName(N+TEXT("Fill")),I==0?Finished?1:Progress:0);
             if(auto* B=Cast<UProgressBar>(Find(FName(N+TEXT("Fill"))))) B->SetFillColorAndOpacity(FLinearColor(.04f,.24f,.24f,.66f));

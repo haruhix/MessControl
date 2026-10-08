@@ -5,6 +5,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 #include "Components/Border.h"
+#include "Components/ButtonSlot.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
 #include "Components/Image.h"
@@ -72,17 +73,37 @@ void UMCPerkChoiceWidget::NativeOnInitialized()
     Size->SetContent(Main);
 
     Title = MCPerkCardPrivate::Label(WidgetTree, FText::GetEmpty(), 30);
-    Main->AddChildToVerticalBox(Title)->SetPadding(FMargin(0, 0, 0, 8));
+    Main->AddChildToVerticalBox(Title)->SetPadding(FMargin(0, 0, 0, 6));
     Subtitle = MCPerkCardPrivate::Label(WidgetTree, FText::GetEmpty(), 15, MCPerkCardPrivate::Muted);
-    Main->AddChildToVerticalBox(Subtitle)->SetPadding(FMargin(0, 0, 0, 24));
+    Main->AddChildToVerticalBox(Subtitle)->SetPadding(FMargin(0, 0, 0, 18));
     Cards = WidgetTree->ConstructWidget<UHorizontalBox>();
     Main->AddChildToVerticalBox(Cards)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
 
     Hint = MCPerkCardPrivate::Label(WidgetTree, FText::GetEmpty(), 14, MCPerkCardPrivate::Muted);
-    Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(0, 22, 0, 0));
+    Main->AddChildToVerticalBox(Hint)->SetPadding(FMargin(0, 18, 0, 0));
 }
 
 void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity Polarity)
+{
+    BuildChoices(IDs,Polarity,false);
+}
+
+void UMCPerkChoiceWidget::ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices)
+{
+    BuildChoices(IDs,EMCPerkPolarity::Positive,true);
+    UpdateLevelChoiceHeader(TeamLevel,PendingChoices);
+}
+
+void UMCPerkChoiceWidget::UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingChoices)
+{
+    if (!Title || !Subtitle) return;
+    Title->SetText(FText::FromString(FString::Printf(TEXT("КОМАНДА · УРОВЕНЬ %d"),TeamLevel)));
+    Subtitle->SetText(FText::FromString(PendingChoices>1
+        ? FString::Printf(TEXT("Выберите личный перк · осталось выборов: %d"),PendingChoices)
+        : FString(TEXT("Общие усилия открыли уровень. Выберите личный перк."))));
+}
+
+void UMCPerkChoiceWidget::BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal)
 {
     bShowingChoices = true;
     bSelectionPending = false;
@@ -110,21 +131,24 @@ void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity 
         Style.SetHovered(FSlateRoundedBoxBrush(FLinearColor(.044f, .085f, .093f), 16.f, Accent, 3.f));
         Style.SetPressed(FSlateRoundedBoxBrush(FLinearColor(.025f, .060f, .071f), 16.f, Accent, 3.f));
         Style.SetDisabled(FSlateRoundedBoxBrush(FLinearColor(.023f, .047f, .060f), 16.f, Accent.CopyWithNewOpacity(.25f), 2.f));
-        Style.SetNormalPadding(FMargin(22, 20));
-        Style.SetPressedPadding(FMargin(22, 20));
+        Style.SetNormalPadding(FMargin(0));
+        Style.SetPressedPadding(FMargin(0));
         Button->SetStyle(Style);
         auto* Column = WidgetTree->ConstructWidget<UVerticalBox>();
-        Button->SetContent(Column);
+        auto* ContentSlot=Cast<UButtonSlot>(Button->SetContent(Column));
+        ContentSlot->SetPadding(FMargin(16,14));
+        ContentSlot->SetHorizontalAlignment(HAlign_Fill);
+        ContentSlot->SetVerticalAlignment(VAlign_Fill);
         auto* Badge = MCPerkCardPrivate::Label(WidgetTree,
-            FText::FromString(Legendary?TEXT("ЛЕГЕНДАРНЫЙ · ВСЯ КОМАНДА"):Rare?TEXT("РЕДКИЙ · ТОЛЬКО ВАМ"):Positive ? TEXT("ПОЛОЖИТЕЛЬНЫЙ") : TEXT("НЕГАТИВНЫЙ")), 12, Accent);
-        Column->AddChildToVerticalBox(Badge)->SetPadding(FMargin(0, 0, 0, 24));
+            FText::FromString(Legendary?(bPersonal?TEXT("ЛЕГЕНДАРНЫЙ · ТОЛЬКО ВАМ"):TEXT("ЛЕГЕНДАРНЫЙ · ВСЯ КОМАНДА")):Rare?TEXT("РЕДКИЙ · ТОЛЬКО ВАМ"):bPersonal?TEXT("ЛИЧНЫЙ ПЕРК"):Positive ? TEXT("ПОЛОЖИТЕЛЬНЫЙ") : TEXT("НЕГАТИВНЫЙ")), 12, Accent);
+        Column->AddChildToVerticalBox(Badge)->SetPadding(FMargin(0, 0, 0, 10));
 
         auto* IconSize = WidgetTree->ConstructWidget<USizeBox>();
-        IconSize->SetWidthOverride(106);
-        IconSize->SetHeightOverride(106);
+        IconSize->SetWidthOverride(80);
+        IconSize->SetHeightOverride(80);
         auto* IconBorder = WidgetTree->ConstructWidget<UBorder>();
         IconBorder->SetBrush(FSlateRoundedBoxBrush(FLinearColor(.055f, .095f, .108f), 20.f));
-        IconBorder->SetPadding(FMargin(14));
+        IconBorder->SetPadding(FMargin(10));
         IconSize->SetContent(IconBorder);
         if (!Definition.Icon.IsNull())
         {
@@ -135,17 +159,28 @@ void UMCPerkChoiceWidget::ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity 
         else IconBorder->SetContent(MCPerkCardPrivate::Label(WidgetTree, FText::FromString(Definition.ToolUpgrade==EMCToolUpgrade::None?TEXT("?"):Definition.ToolUpgrade==EMCToolUpgrade::MeshaBrush?TEXT("1"):Definition.ToolUpgrade==EMCToolUpgrade::Buffer?TEXT("2"):Definition.ToolUpgrade==EMCToolUpgrade::Chainsaw?TEXT("3"):TEXT("4")), 44, Accent));
         auto* IconSlot = Column->AddChildToVerticalBox(IconSize);
         IconSlot->SetHorizontalAlignment(HAlign_Center);
-        IconSlot->SetPadding(FMargin(0, 0, 0, 24));
+        IconSlot->SetPadding(FMargin(0, 0, 0, 12));
         const FText Name = Definition.DisplayName.IsEmpty() ? FText::FromName(IDs[Index]) : Definition.DisplayName;
-        auto* NameLabel = MCPerkCardPrivate::Label(WidgetTree, Name, 21);
-        Column->AddChildToVerticalBox(NameLabel)->SetPadding(FMargin(0, 0, 0, 12));
+        auto* NameLabel = MCPerkCardPrivate::Label(WidgetTree, Name, 20);
+        Column->AddChildToVerticalBox(NameLabel)->SetPadding(FMargin(0, 0, 0, 8));
         auto* Description = MCPerkCardPrivate::Label(WidgetTree,
             FText::FromString(Definition.Description.ToString().Replace(TEXT("<br>"), TEXT("\n"))), 14, MCPerkCardPrivate::Muted);
-        auto* DescriptionSlot = Column->AddChildToVerticalBox(Description);
+        // Give wrapping a stable prepass width, then fit the complete description
+        // into its own flexible area. It cannot paint over the fixed choice footer.
+        Description->SetAutoWrapText(false);
+        Description->SetWrapTextAt(264);
+        auto* DescriptionSize=WidgetTree->ConstructWidget<USizeBox>();
+        DescriptionSize->SetWidthOverride(264); DescriptionSize->SetContent(Description);
+        auto* DescriptionFit=WidgetTree->ConstructWidget<UScaleBox>();
+        DescriptionFit->SetStretch(EStretch::ScaleToFit);
+        DescriptionFit->SetStretchDirection(EStretchDirection::DownOnly);
+        auto* FitSlot=Cast<UScaleBoxSlot>(DescriptionFit->SetContent(DescriptionSize));
+        FitSlot->SetVerticalAlignment(VAlign_Top);
+        auto* DescriptionSlot = Column->AddChildToVerticalBox(DescriptionFit);
         DescriptionSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-        DescriptionSlot->SetVerticalAlignment(VAlign_Top);
+        DescriptionSlot->SetVerticalAlignment(VAlign_Fill);
         Column->AddChildToVerticalBox(MCPerkCardPrivate::Label(WidgetTree,
-            FText::FromString(FString::Printf(TEXT("ВЫБРАТЬ   [%d]"), Index + 1)), 15, Accent));
+            FText::FromString(FString::Printf(TEXT("ВЫБРАТЬ   [%d]"), Index + 1)), 15, Accent))->SetPadding(FMargin(0,8,0,0));
         auto* CardSlot = Cards->AddChildToHorizontalBox(Button);
         CardSlot->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
         CardSlot->SetPadding(FMargin(10, 0));

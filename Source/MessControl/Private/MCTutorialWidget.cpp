@@ -179,7 +179,7 @@ bool UMCTutorialWidget::IsTutorialVisible() const
 bool UMCTutorialWidget::RequiresMenuInput() const
 {
     const auto* Director=AMCTutorialDirector::Find(GetWorld());
-    return Director && Director->IsComplete();
+    return Director && Director->IsComplete() && !Director->UsesShortFlow();
 }
 
 UWidget* UMCTutorialWidget::GetReadyFocusTarget() const
@@ -211,7 +211,7 @@ void UMCTutorialWidget::RefreshState()
     const bool Expanded=Complete || Director->Stage==EMCTutorialStage::Intro || Director->Stage==EMCTutorialStage::Loading;
     DesiredCardHeight=Expanded?310.f:230.f;
     CardSize->SetHeightOverride(DesiredCardHeight);
-    StageTitle->SetText(FText::FromString(FString::Printf(TEXT("ДЕНЬ 0  ·  ЗУБНАЯ ФЕЯ  ·  %s"),*Director->Title.ToString())));
+    StageTitle->SetText(FText::FromString(FString::Printf(TEXT("ОБУЧЕНИЕ  ·  ЗУБНАЯ ФЕЯ  ·  %s"),*Director->Title.ToString())));
     Dialogue->SetText(Director->FairyLine);
     Dialogue->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),Expanded?18:16));
     Dialogue->SetAutoWrapText(true);
@@ -219,18 +219,18 @@ void UMCTutorialWidget::RefreshState()
     Dialogue->SetToolTipText(Director->FairyLine);
     Dialogue->SetVisibility(ESlateVisibility::HitTestInvisible);
     Action->SetText(Director->Instruction);
-    ReadyButton->SetVisibility(Complete?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
-    MenuButton->SetVisibility(Complete?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    ReadyButton->SetVisibility(Complete && !Director->UsesShortFlow()?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
+    MenuButton->SetVisibility(Complete && !Director->UsesShortFlow()?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     const auto* PC=GetOwningPlayer<AMCPlayerController>();
     const auto* Personal=Director->GetPlayerProgress(PC?PC->GetPlayerState<APlayerState>():nullptr);
     const int32 Required=Personal?Personal->StageRequired:0;
     const int32 Done=Personal?FMath::Clamp(Personal->StageProgress,0,Required):0;
     const bool Ready=Personal && Personal->bReady;
     FString PersonalText;
-    if (Complete) PersonalText=Ready?TEXT("Ты готов. Ждём команду"):TEXT("Обучение пройдено. Подтверди готовность");
+    if (Complete) PersonalText=Director->UsesShortFlow()?TEXT("Обучение пройдено. Получаем первый личный перк"):Ready?TEXT("Ты готов. Ждём команду"):TEXT("Обучение пройдено. Подтверди готовность");
     else if (Required>0) PersonalText=FString::Printf(TEXT("Твой прогресс: %d/%d%s"),Done,Required,Done>=Required?TEXT("  ·  Ждём команду"):TEXT(""));
     else if (Director->Stage==EMCTutorialStage::Loading) PersonalText=Personal && Personal->bLoaded?TEXT("Ты на арене. Ждём загрузку команды"):TEXT("Загружаем арену…");
-    else PersonalText=TEXT("Работайте вместе");
+    else PersonalText=FMCTutorialProgressRules::IsSharedStage(Director->Stage)?TEXT("Одна общая задача для всей команды"):TEXT("Работайте вместе");
     OwnProgress->SetText(FText::FromString(PersonalText));
     FString TeamText;
     if (Complete || Director->Stage==EMCTutorialStage::Loading)
@@ -246,6 +246,10 @@ void UMCTutorialWidget::RefreshState()
     TeamProgress->SetText(FText::FromString(TeamText));
     const float SharedProgress=Director->TeamTasksTotal>0?FMath::Clamp(1.f-float(Director->TeamTasksLeft)/Director->TeamTasksTotal,0.f,1.f):0.f;
     Progress->SetPercent(Complete?1.f:Required>0?float(Done)/Required:SharedProgress);
+    if(FMCTutorialProgressRules::IsSharedStage(Director->Stage)) {
+        const float Pulse=.75f+.25f*FMath::Sin(GetWorld()->GetTimeSeconds()*5.f);
+        Action->SetColorAndOpacity(FSlateColor(FLinearColor(1,.88f,.48f,Pulse)));
+    } else Action->SetColorAndOpacity(FSlateColor(MCTutorialWidgetPrivate::Cream));
     Progress->SetVisibility(Required>0 || Complete || Director->TeamTasksTotal>0?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
     ReadyButton->SetIsEnabled(Complete && Personal && !Ready);
     ReadyLabel->SetText(FText::FromString(Ready?TEXT("Ты готов ✓"):TEXT("Готов к дню 1  ·  Enter")));

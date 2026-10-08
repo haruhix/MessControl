@@ -11,7 +11,8 @@ enum class EMCTutorialStage : uint8
 {
     Loading, Intro, BrushTooth, FoodCut, FreshSort, SpoiledSort, TrashSort,
     BreakfastRain, BreakfastCleanup, CoffeeWarning, CoffeeWaves, CoffeeCleanup,
-    Calculus, FoamParty, Complete, Finished
+    Calculus, FoamParty, Complete, Finished,
+    ToothpickPull, ToothpickBreak, ToothpickHeal
 };
 
 /** Only authoritative gameplay code reports these events; clients never submit lesson credit. */
@@ -39,6 +40,22 @@ struct MESSCONTROL_API FMCTutorialPlayerProgress
 /** Shared, world-independent progression rules, also used by focused automation checks. */
 struct MESSCONTROL_API FMCTutorialProgressRules
 {
+    static bool IsSharedStage(EMCTutorialStage Stage)
+    { return Stage==EMCTutorialStage::ToothpickPull || Stage==EMCTutorialStage::ToothpickBreak || Stage==EMCTutorialStage::ToothpickHeal; }
+    static EMCTutorialStage NextShortStage(EMCTutorialStage Stage)
+    {
+        switch(Stage) {
+        case EMCTutorialStage::Intro: return EMCTutorialStage::BrushTooth;
+        case EMCTutorialStage::BrushTooth: return EMCTutorialStage::FoodCut;
+        case EMCTutorialStage::FoodCut: return EMCTutorialStage::FreshSort;
+        case EMCTutorialStage::FreshSort: return EMCTutorialStage::CoffeeCleanup;
+        case EMCTutorialStage::CoffeeCleanup: return EMCTutorialStage::ToothpickPull;
+        case EMCTutorialStage::ToothpickPull: return EMCTutorialStage::ToothpickBreak;
+        case EMCTutorialStage::ToothpickBreak: return EMCTutorialStage::ToothpickHeal;
+        case EMCTutorialStage::ToothpickHeal: return EMCTutorialStage::Complete;
+        default: return EMCTutorialStage::Complete;
+        }
+    }
     static int32 ActionBit(EMCTutorialAction Action)
     { const uint8 Index=static_cast<uint8>(Action); return Index<=static_cast<uint8>(EMCTutorialAction::Anchored)?1 << Index:0; }
     static int32 RequiredActions(EMCTutorialStage Stage)

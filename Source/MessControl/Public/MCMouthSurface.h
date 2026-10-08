@@ -39,6 +39,8 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UTextRenderComponent> Label;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(Replicated, BlueprintReadOnly) bool bUlcer=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") bool bTreatmentBlocked=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tutorial") bool bTutorialLesion=false;
     UPROPERTY(Replicated, BlueprintReadOnly) float Healing=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Ulcer") double NumbUntil=0;
     UFUNCTION(BlueprintPure,Category="Ulcer") bool IsNumb() const;

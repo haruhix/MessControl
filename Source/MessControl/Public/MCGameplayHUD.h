@@ -6,6 +6,7 @@ class UMCStaminaWidget;
 class UBorder;
 class USizeBox;
 class UTextBlock;
+class UProgressBar;
 struct FMCGameDirectorState;
 
 UCLASS()
@@ -26,11 +27,15 @@ private:
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorText;
     UPROPERTY(Transient) TObjectPtr<UBorder> DirectorCandidatesPanel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorCandidatesText;
+    UPROPERTY(Transient) TObjectPtr<UBorder> ProgressionPanel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> ProgressionText;
+    UPROPERTY(Transient) TObjectPtr<UProgressBar> ProgressionBar;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UWidget>> Widgets;
     float RefreshElapsed=1;
     UWidget* Find(FName Name) const;
     void RefreshState();
     void EnsureDirectorMonitor();
+    void EnsureProgressionPanel();
     void RefreshDirectorMonitor(const FMCGameDirectorState& State);
 };
 

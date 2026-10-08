@@ -21,6 +21,8 @@ public:
     static AMCGameDirector* Find(UWorld* World);
     void InitializeRun(UMCDayPlan* Mechanics,UMCGameDirectorProfile* Profile);
     void BeginDay(int32 Day);
+    /** A bounded interval between authored events; its timeout never ends the run. */
+    void BeginInterlude(float Seconds);
     void Stop();
     bool IsManagingEvents() const;
     bool IsLaunchingEvent(EMCGameDirectorEvent Kind) const;
@@ -48,6 +50,7 @@ private:
     TArray<FTicket> Tickets;
     UPROPERTY() TObjectPtr<AMCDayDirector> Services;
     bool bManaging=false;
+    bool bInterlude=false;
     TOptional<EMCGameDirectorEvent> LaunchGrant;
     int32 NextId=0,PlannedFoodTotal=0,SpawnedFoodTotal=0,FinishedFoodTotal=0;
     double DayStartedAt=0,DayEndsAt=0,LastSpecialAt=-100,NextFoodAt=0,PhaseStartedAt=0,RestUntil=0,NextObserveAt=0;

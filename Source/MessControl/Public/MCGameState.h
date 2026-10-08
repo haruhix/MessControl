@@ -7,12 +7,18 @@
 #include "MCGameDirectorTypes.h"
 #include "MCGameState.generated.h"
 class AMCArenaTooth;
+class UMCProgressionComponent;
+class AMCSingleDayDirector;
 
 UCLASS()
 class MESSCONTROL_API AMCGameState : public AGameStateBase
 {
     GENERATED_BODY()
 public:
+    AMCGameState();
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Progression") TObjectPtr<UMCProgressionComponent> Progression;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") bool bSingleDayLoop=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") TObjectPtr<AMCSingleDayDirector> SingleDayDirector;
     /** Legendary tools belong to the run, including respawns and late team joins. */
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") uint8 TeamToolUpgrades=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Director") FMCGameDirectorState DirectorState;

@@ -47,6 +47,8 @@ struct MESSCONTROL_API FMCPerkDefinition : public FTableRowBase
     TSoftObjectPtr<UTexture2D> Icon;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk") EMCToolUpgrade ToolUpgrade=EMCToolUpgrade::None;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk") EMCPerkRarity Rarity=EMCPerkRarity::Standard;
+    /** Authored chest-only or placeholder rows may opt out of personal level cards. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Perk") bool bAvailableForLevelChoice=true;
 };
 
 USTRUCT(BlueprintType)

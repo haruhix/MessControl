@@ -1,4 +1,6 @@
 #include "MCGameMode.h"
+#include "MCSingleDayDirector.h"
+#include "MCProgressionComponent.h"
 #include "MCGameDirector.h"
 #include "MCColdCola.h"
 #include "MCHazardWave.h"
@@ -56,6 +58,7 @@ AMCGameMode::AMCGameMode()
     ArenaToothProfile = TSoftObjectPtr<UMCArenaToothProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_ArenaTooth.DA_ArenaTooth")));
     FirstDayPlan=TSoftObjectPtr<UMCDayPlan>(FSoftObjectPath(TEXT("/Game/Data/DA_Day01.DA_Day01")));
     DirectorProfile=TSoftObjectPtr<UMCGameDirectorProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_GameDirector.DA_GameDirector")));
+    SingleDayProfile=TSoftObjectPtr<UMCSingleDayProfile>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/DA_SingleDay.DA_SingleDay")));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Coffee(TEXT("/Game/Data/DA_Coffee"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Food(TEXT("/Game/Data/DA_Food"));
     static ConstructorHelpers::FObjectFinder<UMCDayEvent> Tooth(TEXT("/Game/Data/DA_LooseTooth"));
@@ -68,6 +71,9 @@ void AMCGameMode::BeginPlay()
     Super::BeginPlay();
     bTutorialRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCTutorial"));
     bLobbyRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCLobby"));
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCSingleDay"))) bUseSingleDayLoop=true;
+    if(FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays")) || FParse::Param(FCommandLine::Get(),TEXT("MCCore")) || FParse::Param(FCommandLine::Get(),TEXT("MCDayOne"))) bUseSingleDayLoop=false;
+    if(bUseSingleDayLoop) bTutorialRequested=true;
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays"))) { bUseDayOnePlan=false; bUseAdaptiveDirector=false; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCDayOne")) || FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) bUseAdaptiveDirector=false;
     EventPool.RemoveAll([](const TObjectPtr<UMCDayEvent>& Event) { return !IsValid(Event); });
@@ -116,6 +122,7 @@ void AMCGameMode::PostLogin(APlayerController* NewPlayer)
         const int32 Index=FMath::Max(0,GetNumPlayers()-1)%UE_ARRAY_COUNT(Palette);
         State->PlayerColor=Palette[Index]; State->ForceNetUpdate();
         if (auto* Hero=Cast<AMCToothCharacter>(NewPlayer->GetPawn())) Hero->ApplyPlayerColor(State->PlayerColor);
+        if(auto* GS=GetGameState<AMCGameState>(); GS && GS->Progression) GS->Progression->SynchronizePlayer(State);
     }
 }
 void AMCGameMode::AwardTask(AMCToothCharacter* Worker, EMCScoreTask Kind)
@@ -127,6 +134,8 @@ void AMCGameMode::AwardTaskToPlayerState(AMCPlayerState* Worker, EMCScoreTask Ki
     if (!HasAuthority() || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()) return;
     if (const auto* GS=GetGameState<AMCGameState>(); GS && (GS->bTutorialActive || GS->bLobbyWaiting)) return;
     Worker->AddPoints(ScoreRewards.ForTask(Kind));
+    if(auto* GS=GetGameState<AMCGameState>(); GS && GS->bSingleDayLoop && GS->Progression)
+        GS->Progression->AddExperience(ScoreRewards.ForTask(Kind));
 }
 void AMCGameMode::NotifyObjectiveCompleted(FName CompletionId)
 {
@@ -143,6 +152,9 @@ void AMCGameMode::RestartShift()
     }
     AMCGameState* State = GetGameState<AMCGameState>();
     if (!State) return;
+    if(IsValid(State->SingleDayDirector)) { State->SingleDayDirector->Stop(); State->SingleDayDirector->Destroy(); }
+    State->SingleDayDirector=nullptr; State->bSingleDayLoop=bUseSingleDayLoop;
+    if(bUseSingleDayLoop) bTutorialRequested=true;
     if (IsValid(TutorialDirector)) { TutorialDirector->OnTutorialFinished.RemoveAll(this); TutorialDirector->Stop(); TutorialDirector->Destroy(); }
     TutorialDirector=nullptr;
     State->bTutorialActive=bTutorialRequested;
@@ -219,6 +231,7 @@ void AMCGameMode::RestartShift()
         if (!RoguelikeDirector) RoguelikeDirector=GetWorld()->SpawnActor<AMCRoguelikeDirector>();
     }
     if (IsValid(RoguelikeDirector)) RoguelikeDirector->ResetRewards();
+    if(State->Progression) State->Progression->ResetProgression();
     for (TActorIterator<AMCRewardChest> It(GetWorld());It;++It) {
         if (It->ActorHasTag(TEXT("MC_DevMimic"))) It->Destroy();
         else if (It->bPlacedReward) It->ResetPlacedReward();
@@ -235,7 +248,11 @@ void AMCGameMode::RestartShift()
         State->bPhysicalBrushes=false;
     }
     State->StepStartedAt=State->GetServerWorldTimeSeconds(); State->PreviousStepFailed=false;
-    if(bUseAdaptiveDirector && !State->bTutorialActive && !State->bLobbyWaiting) {
+    if(bUseSingleDayLoop) {
+        State->SingleDayDirector=GetWorld()->SpawnActor<AMCSingleDayDirector>();
+        if(State->SingleDayDirector) State->SingleDayDirector->Initialize(FirstDayPlan.LoadSynchronous(),SingleDayProfile.LoadSynchronous(),DirectorProfile.LoadSynchronous());
+    }
+    else if(bUseAdaptiveDirector && !State->bTutorialActive && !State->bLobbyWaiting) {
         GameDirector=GetWorld()->SpawnActor<AMCGameDirector>();
         if(GameDirector) GameDirector->InitializeRun(FirstDayPlan.LoadSynchronous(),DirectorProfile.LoadSynchronous());
     }
@@ -268,7 +285,7 @@ void AMCGameMode::Tick(float DeltaSeconds)
             if (TutorialDirector)
             {
                 TutorialDirector->OnTutorialFinished.AddUObject(this,&AMCGameMode::FinishTutorial);
-                TutorialDirector->Start(FirstDayPlan.LoadSynchronous());
+                TutorialDirector->Start(FirstDayPlan.LoadSynchronous(),bUseSingleDayLoop);
             }
         }
         return;
@@ -278,6 +295,7 @@ void AMCGameMode::Tick(float DeltaSeconds)
     if (State->bDayOneComplete) return;
     if (State->MouthHealth<=0 || (GetGameplayParticipantCount()>0 && !HasLivingPlayers() && State->AvailableArenaTeeth()==0))
     { State->Phase=EMCShiftPhase::Lost; State->ForceNetUpdate(); return; }
+    if(State->bSingleDayLoop && IsValid(State->SingleDayDirector)) return;
     if (State->Phase==EMCShiftPhase::Working && IsValid(DayDirector)) return;
     if (State->Phase==EMCShiftPhase::Working && IsValid(GameDirector) && GameDirector->IsManagingEvents()) return;
     if (State->Phase==EMCShiftPhase::Working) UpdateObjectives();
@@ -308,6 +326,13 @@ void AMCGameMode::FinishTutorial()
     TutorialDirector->OnTutorialFinished.RemoveAll(this);
     TutorialDirector->Stop();
     bTutorialRequested=false;
+    if(auto* GS=GetGameState<AMCGameState>(); GS && GS->bSingleDayLoop && GS->SingleDayDirector) {
+        GS->bTutorialActive=false;
+        if(GS->Progression) GS->Progression->AddExperience(GS->Progression->GetExperienceToNextLevel());
+        GS->SingleDayDirector->BeginFirstPerk(); GS->ForceNetUpdate();
+        UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_FINISHED_FIRST_PERK"));
+        return;
+    }
     RestartShift();
     UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_FINISHED_NORMAL_LOOP"));
 }

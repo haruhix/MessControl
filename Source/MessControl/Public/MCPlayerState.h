@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
 #include "MCPresentationTypes.h"
+#include "MCLevelUpOffer.h"
 #include "MCPlayerState.generated.h"
 
 class UMCPerkComponent;
@@ -38,4 +39,20 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Perks") TObjectPtr<UMCPerkComponent> Perks;
     void AddPoints(int32 Amount);
     void ResetMatchScore();
+    /** Queue all unclaimed team levels; repeated synchronization cannot duplicate choices. */
+    void QueueChoicesThroughLevel(int32 TeamLevel);
+    void RefreshLevelUpOffer();
+    bool TryChooseLevelUpPerk(const FGuid& OfferId,int32 ChoiceIndex);
+    void ResetLevelUpChoices();
+    UFUNCTION(BlueprintPure,Category="Progression") bool HasPendingLevelChoices() const { return PendingLevelChoices>0; }
+    UPROPERTY(ReplicatedUsing=OnRep_LevelUpOffer,BlueprintReadOnly,Category="Progression") FMCLevelUpOffer LevelUpOffer;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Progression") int32 PendingLevelChoices=0;
+    /** Server-only consumption record accompanies perks when PlayerState is replaced. */
+    UPROPERTY(Transient) TMap<FName,int32> ConsumedRecoveryStacks;
+private:
+    UFUNCTION() void OnRep_LevelUpOffer();
+    UPROPERTY() TArray<int32> PendingLevels;
+    int32 LastQueuedTeamLevel=1;
+    bool bChoosingLevelPerk=false;
+    bool bWarnedEmptyLevelPool=false;
 };

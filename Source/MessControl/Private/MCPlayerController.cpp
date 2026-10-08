@@ -67,6 +67,7 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     Super::Tick(DeltaSeconds);
     if (!IsLocalController()) return;
     if (GetWorld()->GetTimeSeconds()>=NextFrontEndCheck) { NextFrontEndCheck=GetWorld()->GetTimeSeconds()+.1; RefreshFrontEnd(); }
+    if (GetWorld()->GetTimeSeconds()>=NextLevelChoiceCheck) { NextLevelChoiceCheck=GetWorld()->GetTimeSeconds()+.1; RefreshLevelPerkChoices(); }
     if (bBossIntroPlaying) return;
     // UI input mode can swallow the release event when a menu opens while Tab is held.
     if (ScoreboardWidget && ScoreboardWidget->IsVisible() && !IsInputKeyDown(EKeys::Tab)) HideScoreboard();
@@ -237,13 +238,15 @@ bool AMCPlayerController::IsRewardMenuOpen() const
 
 bool AMCPlayerController::IsRewardInteractionActive() const
 {
-    return ActiveRewardChest.IsValid() && RewardPawn.Get()==GetPawn();
+    const auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
+    return ActiveLevelOfferId.IsValid() || (HasAuthority() && ProgressPlayer && ProgressPlayer->LevelUpOffer.IsValid())
+        || (ActiveRewardChest.IsValid() && RewardPawn.Get()==GetPawn());
 }
 
 bool AMCPlayerController::PrepareRewardInteraction(AMCRewardChest* Chest)
 {
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
-    if (!IsLocalController() || !IsValid(Chest) || !Hero || !Hero->Status || !Hero->Status->IsAlive()) return false;
+    if (!IsLocalController() || ActiveLevelOfferId.IsValid() || !IsValid(Chest) || !Hero || !Hero->Status || !Hero->Status->IsAlive()) return false;
     ActiveRewardChest=Chest;
     RewardPawn=Hero;
     RewardShownAt=GetWorld()->GetTimeSeconds();
@@ -292,6 +295,11 @@ void AMCPlayerController::ChooseRewardPerk(int32 ChoiceIndex)
 {
     if (!IsLocalController() || !IsRewardMenuOpen() || !PerkChoiceWidget->IsShowingChoices()
         || bRewardChoicePending || ChoiceIndex<0 || ChoiceIndex>=3) return;
+    if (ActiveLevelOfferId.IsValid())
+    {
+        bRewardChoicePending=true; PerkChoiceWidget->SetSelectionPending(true);
+        ServerChooseLevelPerk(ActiveLevelOfferId,ChoiceIndex); return;
+    }
     auto* Chest=ActiveRewardChest.Get();
     if (!IsValid(Chest)) { CloseRewardUI(); return; }
     bRewardChoicePending=true;
@@ -312,7 +320,57 @@ void AMCPlayerController::ServerChooseRewardPerk_Implementation(AMCRewardChest* 
 
 void AMCPlayerController::ClientClosePerkChoices_Implementation(AMCRewardChest* Chest)
 {
+    if (ActiveLevelOfferId.IsValid()) return;
     if (!Chest || ActiveRewardChest.Get()==Chest) CloseRewardUI();
+}
+
+void AMCPlayerController::RefreshLevelPerkChoices()
+{
+    if (!IsLocalController()) return;
+    const auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
+    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+    const bool CanShow=ProgressPlayer && ProgressPlayer->LevelUpOffer.IsValid() && ProgressPlayer->LevelUpOffer.OfferId!=AcceptedLevelOfferId && Game && !Game->bLobbyWaiting
+        && !Game->bTutorialActive && !bPauseMenuOpen && !bTutorialMenuInput && !bBossIntroPlaying;
+    if (!CanShow)
+    {
+        if (ActiveLevelOfferId.IsValid()) CloseRewardUI();
+        return;
+    }
+    if (ActiveRewardChest.IsValid()) return; // Finish an existing chest before presenting queued levels.
+    const auto& Offer=ProgressPlayer->LevelUpOffer;
+    if (ActiveLevelOfferId==Offer.OfferId && IsRewardMenuOpen()) {
+        PerkChoiceWidget->UpdateLevelChoiceHeader(Offer.TeamLevel,ProgressPlayer->PendingLevelChoices);
+        return;
+    }
+    if (!PerkChoiceWidget) PerkChoiceWidget=CreateWidget<UMCPerkChoiceWidget>(this,UMCPerkChoiceWidget::StaticClass());
+    if (!PerkChoiceWidget) return;
+    ActiveLevelOfferId=Offer.OfferId; bRewardChoicePending=false;
+    if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed);
+    if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed);
+    if (PrototypeWidget) PrototypeWidget->ClosePanels();
+    HideScoreboard();
+    if (auto* Hero=Cast<AMCToothCharacter>(GetPawn())) Hero->CancelGameplayInput();
+    if (!PerkChoiceWidget->IsInViewport()) PerkChoiceWidget->AddToViewport(30);
+    PerkChoiceWidget->SetVisibility(ESlateVisibility::Visible);
+    PerkChoiceWidget->ShowLevelChoices(Offer.PerkIDs,Offer.TeamLevel,ProgressPlayer->PendingLevelChoices);
+    UpdateInputMode(); PerkChoiceWidget->SetUserFocus(this);
+}
+
+void AMCPlayerController::ServerChooseLevelPerk_Implementation(FGuid OfferId,int32 ChoiceIndex)
+{
+    auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
+    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+    const bool Accepted=ProgressPlayer && Game && !Game->bLobbyWaiting && !Game->bTutorialActive
+        && ChoiceIndex>=0 && ChoiceIndex<3 && ProgressPlayer->TryChooseLevelUpPerk(OfferId,ChoiceIndex);
+    ClientLevelPerkChoiceResolved(OfferId,Accepted);
+}
+
+void AMCPlayerController::ClientLevelPerkChoiceResolved_Implementation(FGuid OfferId,bool bAccepted)
+{
+    if (ActiveLevelOfferId!=OfferId) return;
+    if (bAccepted) { AcceptedLevelOfferId=OfferId; CloseRewardUI(); }
+    else { bRewardChoicePending=false; if (PerkChoiceWidget) PerkChoiceWidget->SetSelectionPending(false); }
+    RefreshLevelPerkChoices();
 }
 
 void AMCPlayerController::CheckRewardUI()
@@ -332,6 +390,7 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 {
     GetWorldTimerManager().ClearTimer(RewardUITimer);
     ActiveRewardChest.Reset();
+    ActiveLevelOfferId.Invalidate();
     RewardPawn.Reset();
     bRewardChoicePending=false;
     if (PerkChoiceWidget) PerkChoiceWidget->RemoveFromParent();
@@ -482,6 +541,10 @@ void AMCPlayerController::FinishBossIntroPresentation()
 void AMCPlayerController::RefreshBossHUD()
 {
     if (!BossHealthWidget || !IsLocalController()) return;
+    if(const auto* State=GetWorld()->GetGameState<AMCGameState>(); State && State->bSingleDayLoop
+        && (State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost)) {
+        BossHealthWidget->HideHealth(); return;
+    }
     const double Now=GetWorld()->GetTimeSeconds();
     auto* Boss=HealthBoss.Get();
     const auto Relevant=[](const AMCBossCharacter* Candidate)

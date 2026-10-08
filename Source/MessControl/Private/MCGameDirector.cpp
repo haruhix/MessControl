@@ -85,7 +85,7 @@ void AMCGameDirector::InitializeRun(UMCDayPlan* Plan,UMCGameDirectorProfile* Pro
     Throughput=1; PreviousWork=AddedWork=0; CandidateTitle.Empty(); WaitWeight=WaitProbability=0;
     PlannedFoodTotal=SpawnedFoodTotal=FinishedFoodTotal=0;
     GS->TasksLeft=GS->TasksTotal=0; DayStartedAt=GS->GetServerWorldTimeSeconds(); DayEndsAt=0;
-    GS->RunSettings.DaysToSurvive=7;
+    if(!GS->bSingleDayLoop) GS->RunSettings.DaysToSurvive=7;
     // Clients resolve saved assets by package path; the server-only run copy has
     // no network identity. Keep it private to event services and consequences.
     UMCDayPlan* SharedPlan=Plan && Plan->IsAsset()?Plan:nullptr;
@@ -127,6 +127,19 @@ void AMCGameDirector::BeginDay(int32 Day)
     PreviousWork=Observe().WorkSeconds; AddedWork=0;
     Record(FString::Printf(TEXT("Начат день %d · %.0f с · события выбираются в процессе"),Day,DaySettings.DaySeconds));
     Publish(Observe(),TEXT("Начальная работа и подготовка подачи"),DayStartedAt); GS->ForceNetUpdate();
+}
+void AMCGameDirector::BeginInterlude(float Seconds)
+{
+    if(!HasAuthority() || !Settings) return;
+    Settings->Days[0].InitialPatches=0;
+    for(auto& Rule:Settings->Events) if(Rule.Kind==EMCGameDirectorEvent::Boss || Rule.Kind==EMCGameDirectorEvent::Reward) Rule.Weight=0;
+    BeginDay(1); bInterlude=true;
+    auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    DayEndsAt=GS->GetServerWorldTimeSeconds()+FMath::Clamp(Seconds,5.f,300.f);
+    DaySettings.DaySeconds=FMath::Clamp(Seconds,5.f,300.f);
+    DaySettings.FinalCleanupSeconds=FMath::Min(8.f,DaySettings.DaySeconds*.25f);
+    GS->PhaseEndsAt=DayEndsAt;
+    GS->ForceNetUpdate();
 }
 FName AMCGameDirector::ChooseFoodRow(EMCGameDirectorEvent Kind,const FMCGameDirectorState& Seen) const
 {
@@ -530,7 +543,10 @@ void AMCGameDirector::Tick(float Dt)
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(GS->Phase!=EMCShiftPhase::Working) return;
     const double Now=GS->GetServerWorldTimeSeconds(); ResolveTickets(Now); auto Seen=Observe();
     UpdateAdaptation(Seen,Now,Dt); Seen=Observe();
-    if(Now>=DayEndsAt) {CancelReservation(TEXT("конец смены"),Now);Publish(Seen,TEXT("Окончание смены"),Now);FinishDay(Seen,Now);return;}
+    if(Now>=DayEndsAt) {
+        if(bInterlude) {CancelReservation(TEXT("следующий основной эвент"),Now);Stop();return;}
+        CancelReservation(TEXT("конец смены"),Now);Publish(Seen,TEXT("Окончание смены"),Now);FinishDay(Seen,Now);return;
+    }
     if(Now>=DayEndsAt-DaySettings.FinalCleanupSeconds) Pacing=EMCGameDirectorPacing::FinalCleanup;
     else if(Pacing==EMCGameDirectorPacing::Build && (Seen.Pressure>=TargetPressure*1.12f || Seen.Stress>.4f || Seen.bUrgent)) {
         Pacing=EMCGameDirectorPacing::Drain; PhaseStartedAt=Now;

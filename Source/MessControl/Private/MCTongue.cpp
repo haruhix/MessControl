@@ -467,7 +467,7 @@ void AMCTongue::Tick(float Dt)
     }
     const float Time=ServerTime();
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
-    const bool Playing=State && State->Phase==EMCShiftPhase::Working && !State->bDayOneComplete;
+    const bool Playing=State && State->Phase==EMCShiftPhase::Working && !State->bDayOneComplete && !State->bTutorialActive;
     if (HasAuthority() && Playing)
     {
         const auto* Director=AMCGameDirector::Find(GetWorld());

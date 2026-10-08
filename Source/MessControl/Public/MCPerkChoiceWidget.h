@@ -23,19 +23,22 @@ private:
     int32 ChoiceIndex = INDEX_NONE;
 };
 
-/** Three mutually exclusive reward cards, shown after the chest opens. */
+/** Three mutually exclusive personal level or chest reward cards. */
 UCLASS()
 class MESSCONTROL_API UMCPerkChoiceWidget : public UUserWidget
 {
     GENERATED_BODY()
 public:
     void ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity Polarity);
+    void ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices);
+    void UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingChoices);
     void SetSelectionPending(bool bPending);
     bool IsShowingChoices() const { return bShowingChoices; }
 protected:
     virtual void NativeOnInitialized() override;
     virtual FReply NativeOnKeyDown(const FGeometry& Geometry, const FKeyEvent& Event) override;
 private:
+    void BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal);
     UPROPERTY() TObjectPtr<UTextBlock> Title;
     UPROPERTY() TObjectPtr<UTextBlock> Subtitle;
     UPROPERTY() TObjectPtr<UHorizontalBox> Cards;

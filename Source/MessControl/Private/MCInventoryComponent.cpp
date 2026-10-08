@@ -273,7 +273,7 @@ AMCMouthSurface* UMCInventoryComponent::FindSprayTarget() const
     if(!ShouldPresentTool() || !Hero->CanWork() || Hero->bInCoffee || Selected!=EMCToolSlot::Spray || (bPressureMode && HasUpgrade(EMCToolUpgrade::Watergun))) return nullptr;
     AMCMouthSurface* Best=nullptr; float Distance=FMath::Square(SprayReach());
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) {
-        if(!It->bUlcer || It->IsHealed() || It->IsBurning() || It->IsActorBeingDestroyed()) continue;
+        if(!It->bUlcer || It->bTreatmentBlocked || It->IsHealed() || It->IsBurning() || It->IsActorBeingDestroyed()) continue;
         const FVector D=It->GetActorLocation()-Hero->GetActorLocation();
         if(D.SizeSquared()>Distance || FVector::DotProduct(D.GetSafeNormal2D(),Hero->GetActorForwardVector())<.15f) continue;
         FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCSpray),false,Hero); Q.AddIgnoredActor(*It);

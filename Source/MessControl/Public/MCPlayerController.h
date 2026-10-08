@@ -58,6 +58,10 @@ public:
     UFUNCTION(Server, Reliable) void ServerChooseRewardPerk(AMCRewardChest* Chest, int32 ChoiceIndex);
     UFUNCTION(Client, Reliable) void ClientClosePerkChoices(AMCRewardChest* Chest);
     UFUNCTION(BlueprintCallable, Category="Rewards") void ChooseRewardPerk(int32 ChoiceIndex);
+    /** Reconstructs a durable owner-only level offer without requiring a chest or pawn. */
+    void RefreshLevelPerkChoices();
+    UFUNCTION(Server, Reliable) void ServerChooseLevelPerk(FGuid OfferId,int32 ChoiceIndex);
+    UFUNCTION(Client, Reliable) void ClientLevelPerkChoiceResolved(FGuid OfferId,bool bAccepted);
     UFUNCTION(BlueprintPure, Category="Rewards") bool IsRewardMenuOpen() const;
     bool IsRewardInteractionActive() const;
     UFUNCTION(Client, Reliable) void ClientPlayBossIntro(AMCBossCharacter* Boss);
@@ -104,6 +108,9 @@ private:
     FTimerHandle RewardUITimer;
     double RewardShownAt=0;
     bool bRewardChoicePending=false;
+    FGuid ActiveLevelOfferId;
+    FGuid AcceptedLevelOfferId;
+    double NextLevelChoiceCheck=0;
     void UpdateDeathSpectating();
     void CycleSpectator(int32 Direction);
     TWeakObjectPtr<AMCToothCharacter> SpectatorTarget;

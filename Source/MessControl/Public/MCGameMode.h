@@ -15,6 +15,7 @@ class AMCDayDirector;
 class AMCTutorialDirector;
 class AMCGameDirector;
 class UMCGameDirectorProfile;
+class UMCSingleDayProfile;
 
 USTRUCT()
 struct FMCEventObjective
@@ -65,6 +66,9 @@ public:
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Director") bool bUseAdaptiveDirector=true;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Director") TSoftObjectPtr<UMCGameDirectorProfile> DirectorProfile;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Director") TObjectPtr<AMCGameDirector> GameDirector;
+    /** Saved game mode enables the new run; existing diagnostic fixtures can opt in explicitly. */
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Sequence") bool bUseSingleDayLoop=false;
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Sequence") TSoftObjectPtr<UMCSingleDayProfile> SingleDayProfile;
     UPROPERTY() TObjectPtr<AMCDayDirector> DayDirector;
     UPROPERTY() TObjectPtr<AMCTutorialDirector> TutorialDirector;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Roguelike") TObjectPtr<class AMCRoguelikeDirector> RoguelikeDirector;

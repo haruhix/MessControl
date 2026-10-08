@@ -8,6 +8,7 @@
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
+#include "MCToothpick.h"
 #include "MCCoffeeFlood.h"
 #include "MCDayPlan.h"
 #include "Components/BoxComponent.h"
@@ -87,10 +88,10 @@ int32 AMCTutorialDirector::GetCompletedPlayers() const
     return FMCTutorialProgressRules::CompletedPlayers(Players);
 }
 
-void AMCTutorialDirector::Start(UMCDayPlan* Plan)
+void AMCTutorialDirector::Start(UMCDayPlan* Plan,bool bUseShortFlow)
 {
     if (!HasAuthority() || bStarted) return;
-    bStarted=true; bRestored=false; Random.Initialize(7001);
+    bStarted=true; bRestored=false; bShortFlow=bUseShortFlow; Random.Initialize(7001);
     Settings=Plan?DuplicateObject<UMCDayPlan>(Plan,this):NewObject<UMCDayPlan>(this);
     Settings->Sanitize(); Settings->FloodHeight=120; Settings->FlowAcceleration=230;
     for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
@@ -298,6 +299,7 @@ AMCFoodActor* AMCTutorialDirector::SpawnFood(FName RowName,FVector Position,AMCP
 
 void AMCTutorialDirector::EnsureLessonTargets()
 {
+    if(FMCTutorialProgressRules::IsSharedStage(Stage)) {EnsureSharedToothpick();return;}
     if (FMCTutorialProgressRules::RequiredActions(Stage)==0) return;
     for (int32 I=0;I<Players.Num();++I)
     {
@@ -332,6 +334,7 @@ void AMCTutorialDirector::EnsureLessonTargets()
 
 void AMCTutorialDirector::ClearLessonTargets()
 {
+    if(IsValid(LessonToothpick)) LessonToothpick->Destroy(); LessonToothpick=nullptr; LessonUlcer=nullptr;
     for (auto& Player:Players) Player.GoalTarget=nullptr;
     TArray<AActor*> Remove;
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
@@ -339,6 +342,27 @@ void AMCTutorialDirector::ClearLessonTargets()
     for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if (It->Batch==TutorialFoodBatch) Remove.Add(*It);
     for (auto* Actor:Remove) Actor->Destroy();
     SpawnedActors.RemoveAll([](const auto& Actor){return !IsValid(Actor);});
+}
+
+void AMCTutorialDirector::EnsureSharedToothpick()
+{
+    if(!FMCTutorialProgressRules::IsSharedStage(Stage)) return;
+    if(!IsValid(LessonToothpick)) {
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It) {
+            const FVector Center=It->Surface->Bounds.GetBox().GetCenter(); FHitResult Floor;
+            if(!It->InteriorSurfacePoint(Center,85,Floor)) continue;
+            auto* Pick=GetWorld()->SpawnActor<AMCToothpick>(Floor.ImpactPoint,FRotator::ZeroRotator);
+            if(!Pick) continue;
+            if(!Pick->Impale(*It,Floor.ImpactPoint,true,TutorialFoodBatch)) {Pick->Destroy();continue;}
+            LessonToothpick=Pick; LessonUlcer=Pick->Ulcer; SpawnedActors.Add(Pick); SpawnedActors.Add(LessonUlcer);
+            break;
+        }
+    }
+    for(auto& Player:Players) {
+        Player.StageRequired=0;
+        Player.GoalTarget=Stage==EMCTutorialStage::ToothpickHeal?static_cast<AActor*>(LessonUlcer.Get()):static_cast<AActor*>(LessonToothpick.Get());
+    }
+    TeamTasksTotal=1; TeamTasksLeft=1; ForceNetUpdate();
 }
 
 int32 AMCTutorialDirector::CountTutorialFood() const
@@ -354,7 +378,8 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
     // Preserve serialized enum values while retiring the physical-tool lesson.
     if (NewStage==EMCTutorialStage::TrashSort) NewStage=EMCTutorialStage::BreakfastRain;
     // The rain's food stays for its cleanup; every other lesson owns its own examples.
-    if (NewStage!=EMCTutorialStage::BreakfastCleanup) ClearLessonTargets();
+    const bool KeepToothpick=FMCTutorialProgressRules::IsSharedStage(Stage) && FMCTutorialProgressRules::IsSharedStage(NewStage);
+    if (NewStage!=EMCTutorialStage::BreakfastCleanup && !KeepToothpick) ClearLessonTargets();
     if (Flood && NewStage!=EMCTutorialStage::CoffeeWaves) Flood->Stop();
     Stage=NewStage; StageStartedAt=Now(); StageEndsAt=0; FeedbackEndsAt=0;
     TeamTasksLeft=0; TeamTasksTotal=0;
@@ -373,6 +398,21 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
         Title=LOCTEXT("IntroTitle","ДЕНЬ 0 · ПЕРВАЯ СМЕНА");
         FairyLine=LOCTEXT("IntroFairy","Йоу! Я Зубная фея. Обычно забираю зубы, но сегодня попробуем их сохранить. Впереди семь дней. Сначала покажу, как здесь работать.");
         Instruction=LOCTEXT("IntroHint","WASD — движение, Space — прыжок. Инструменты уже с тобой: 1 — щётка, 2 — кирка, 3 — нож, 4 — спрей."); StageEndsAt=Now()+10; break;
+    case EMCTutorialStage::ToothpickPull:
+        Title=LOCTEXT("ToothpickPullTitle","05 · ЗУБОЧИСТКА В ЯЗЫКЕ");
+        FairyLine=LOCTEXT("ToothpickPullFairy","Зубочистка ранила язык — от язвы идёт волна боли. Сначала вытащите её вместе.");
+        Instruction=LOCTEXT("ToothpickPullHint","Подойди к центру языка и удерживай E у зубочистки, пока она не выйдет. Space — перепрыгнуть волну.");
+        TeamTasksTotal=1; TeamTasksLeft=1; break;
+    case EMCTutorialStage::ToothpickBreak:
+        Title=LOCTEXT("ToothpickBreakTitle","06 · СЛОМАТЬ ЗУБОЧИСТКУ");
+        FairyLine=LOCTEXT("ToothpickBreakFairy","Зубочистка извлечена. Теперь разбейте её киркой — после этого можно лечить рану.");
+        Instruction=LOCTEXT("ToothpickBreakHint","2 — кирка. ЛКМ или F — удар по извлечённой зубочистке.");
+        TeamTasksTotal=1; TeamTasksLeft=1; break;
+    case EMCTutorialStage::ToothpickHeal:
+        Title=LOCTEXT("ToothpickHealTitle","07 · ВЫЛЕЧИТЬ РАНУ");
+        FairyLine=LOCTEXT("ToothpickHealFairy","Осталась язва. Залечите её спреем; на время лечения волны боли остановятся.");
+        Instruction=LOCTEXT("ToothpickHealHint","4 — спрей. Удерживай ЛКМ у язвы до 100%. При отпускании прогресс сохраняется.");
+        TeamTasksTotal=1; TeamTasksLeft=1; break;
     case EMCTutorialStage::BrushTooth:
         Title=LOCTEXT("BrushTitle","01 · ОСВОЕНИЕ ЩЁТКИ");
         FairyLine=LOCTEXT("BrushFairy","Щётка всегда в первом слоте. Выбери её и очисти свой подсвеченный зуб. Каждый пробует сам — я подожду!");
@@ -436,6 +476,12 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
         Instruction=LOCTEXT("CompleteHint","Нажми «Готов к дню 1». Переход начнётся после готовности всей команды."); break;
     default: break;
     }
+    if(bShortFlow) {
+        if(Stage==EMCTutorialStage::Intro) {Title=LOCTEXT("ShortIntroTitle","ОБУЧЕНИЕ · ПЕРВАЯ СМЕНА");FairyLine=LOCTEXT("ShortIntroFairy","Я Зубная фея. Впереди один насыщенный день! Сначала потренируемся с едой, щёткой, киркой и спреем.");StageEndsAt=Now()+3;}
+        if(Stage==EMCTutorialStage::CoffeeCleanup) {Title=LOCTEXT("ShortTongueTitle","04 · ЧИСТКА ЯЗЫКА");FairyLine=LOCTEXT("ShortTongueFairy","Еда доставлена. Теперь очисти подсвеченное пятно щёткой — и перейдём к общей задаче.");}
+        if(Stage==EMCTutorialStage::FreshSort) Instruction=LOCTEXT("ShortFreshHint","1 — щётка. E — режим сбора; ЛКМ у кусочка — собрать. Отнеси стопку в THROAT и дождись глотания. E — закончить сбор.");
+        if(Stage==EMCTutorialStage::Complete) {FairyLine=LOCTEXT("ShortCompleteFairy","Обучение пройдено! Команда получает первый уровень. Каждый выбирает себе один из трёх перков.");Instruction=LOCTEXT("ShortCompleteHint","Выбери личный перк — затем начинается наш насыщенный день.");}
+    }
     DefaultFairyLine=FairyLine; EnsureLessonTargets(); OnRep_Presentation(); ForceNetUpdate();
     UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_STAGE %d %s"),static_cast<int32>(Stage),*Title.ToString());
 }
@@ -484,10 +530,20 @@ void AMCTutorialDirector::Tick(float DeltaSeconds)
     if (Stage==EMCTutorialStage::Loading) { EnterStage(EMCTutorialStage::Intro); return; }
     if (FMCTutorialProgressRules::RequiredActions(Stage)!=0)
     {
-        if (GetCompletedPlayers()==GetRequiredPlayers()) EnterStage(static_cast<EMCTutorialStage>(static_cast<uint8>(Stage)+1));
+        if (GetCompletedPlayers()==GetRequiredPlayers()) EnterStage(bShortFlow?FMCTutorialProgressRules::NextShortStage(Stage):static_cast<EMCTutorialStage>(static_cast<uint8>(Stage)+1));
         return;
     }
     const double Elapsed=Now()-StageStartedAt;
+    if(FMCTutorialProgressRules::IsSharedStage(Stage)) {
+        bool Complete=false;
+        if(IsValid(LessonToothpick)) {
+            if(Stage==EMCTutorialStage::ToothpickPull) Complete=LessonToothpick->State!=EMCToothpickState::Impaled;
+            if(Stage==EMCTutorialStage::ToothpickBreak) Complete=LessonToothpick->IsBroken();
+            if(Stage==EMCTutorialStage::ToothpickHeal) Complete=LessonToothpick->IsWoundHealed() || (IsValid(LessonUlcer) && LessonUlcer->IsHealed());
+        }
+        if(Complete) {TeamTasksLeft=0;EnterStage(FMCTutorialProgressRules::NextShortStage(Stage));}
+        return;
+    }
     if (Stage==EMCTutorialStage::BreakfastRain)
     {
         const FName Menu[]={TEXT("Broccoli"),TEXT("Egg"),TEXT("Bacon")};
@@ -518,11 +574,11 @@ void AMCTutorialDirector::Tick(float DeltaSeconds)
     }
     if (Stage==EMCTutorialStage::Complete)
     {
-        if (!bFinishedBroadcast && FMCTutorialProgressRules::AllReady(Players))
+        if (!bFinishedBroadcast && (bShortFlow || FMCTutorialProgressRules::AllReady(Players)))
         { bFinishedBroadcast=true; OnTutorialFinished.Broadcast(); }
         return;
     }
-    if (StageEndsAt>0 && Now()>=StageEndsAt) EnterStage(static_cast<EMCTutorialStage>(static_cast<uint8>(Stage)+1));
+    if (StageEndsAt>0 && Now()>=StageEndsAt) EnterStage(bShortFlow?FMCTutorialProgressRules::NextShortStage(Stage):static_cast<EMCTutorialStage>(static_cast<uint8>(Stage)+1));
 }
 
 void AMCTutorialDirector::OnRep_Presentation() { UpdatePresentation(); }
@@ -532,11 +588,12 @@ void AMCTutorialDirector::UpdatePresentation()
     if (GetNetMode()==NM_DedicatedServer) return;
     auto* PC=GetWorld()->GetFirstPlayerController();
     const auto* Progress=PC && PC->IsLocalController()?GetPlayerProgress(PC->PlayerState):nullptr;
-    auto* Target=Progress && Progress->StageProgress<Progress->StageRequired?Progress->GoalTarget.Get():nullptr;
+    auto* Target=Progress && (FMCTutorialProgressRules::IsSharedStage(Stage) || Progress->StageProgress<Progress->StageRequired)?Progress->GoalTarget.Get():nullptr;
     UPrimitiveComponent* Surface=nullptr;
     if (auto* Tooth=Cast<AMCArenaTooth>(Target)) Surface=Tooth->Visual;
     if (auto* Food=Cast<AMCFoodActor>(Target)) Surface=Food->Visual;
     if (auto* Patch=Cast<AMCMouthSurface>(Target)) Surface=Patch->Liquid;
+    if (auto* Pick=Cast<AMCToothpick>(Target)) Surface=Pick->Body;
     if (Highlighted.Get()!=Surface)
     {
         if (auto* Previous=Highlighted.Get()) { Previous->SetCustomDepthStencilValue(PreviousStencil); Previous->SetRenderCustomDepth(bPreviousCustomDepth); }
@@ -547,12 +604,14 @@ void AMCTutorialDirector::UpdatePresentation()
             Surface->SetCustomDepthStencilValue(250); Surface->SetRenderCustomDepth(true);
         }
     }
-    GoalLabel->SetVisibility(IsValid(Target));
+    // Shared toothpick stages already have their pulsing action widget and the tutorial card.
+    // The offline world font cannot render the Cyrillic target caption reliably.
+    GoalLabel->SetVisibility(IsValid(Target) && !FMCTutorialProgressRules::IsSharedStage(Stage));
     if (Target)
     {
         FVector Position=Target->GetActorLocation()+FVector(0,0,110);
         if (const auto* Tooth=Cast<AMCArenaTooth>(Target)) Position=Tooth->Visual->Bounds.Origin+FVector(0,0,Tooth->Visual->Bounds.BoxExtent.Z+30);
-        GoalLabel->SetWorldLocation(Position); GoalLabel->SetText(LOCTEXT("YourTarget","▼ ТВОЯ ЦЕЛЬ"));
+        GoalLabel->SetWorldLocation(Position); GoalLabel->SetText(FMCTutorialProgressRules::IsSharedStage(Stage)?LOCTEXT("SharedTarget","▼ ОБЩАЯ ЦЕЛЬ"):LOCTEXT("YourTarget","▼ ТВОЯ ЦЕЛЬ"));
         if (PC && PC->PlayerCameraManager) GoalLabel->SetWorldRotation((PC->PlayerCameraManager->GetCameraLocation()-Position).Rotation());
     }
     if (Stage!=EMCTutorialStage::FoamParty)
@@ -615,6 +674,7 @@ void AMCTutorialDirector::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCTutorialDirector,Stage); DOREPLIFETIME(AMCTutorialDirector,Title);
+    DOREPLIFETIME(AMCTutorialDirector,bShortFlow);
     DOREPLIFETIME(AMCTutorialDirector,FairyLine); DOREPLIFETIME(AMCTutorialDirector,Instruction);
     DOREPLIFETIME(AMCTutorialDirector,StageStartedAt); DOREPLIFETIME(AMCTutorialDirector,StageEndsAt);
     DOREPLIFETIME(AMCTutorialDirector,Players); DOREPLIFETIME(AMCTutorialDirector,TeamTasksLeft); DOREPLIFETIME(AMCTutorialDirector,TeamTasksTotal);

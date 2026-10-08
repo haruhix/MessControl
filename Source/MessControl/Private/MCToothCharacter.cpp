@@ -16,6 +16,8 @@
 #include "MCFoodActor.h"
 #include "MCGameMode.h"
 #include "MCTutorialDirector.h"
+#include "MCToothpick.h"
+#include "MCNutEnemy.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "MCPlayerController.h"
 #include "MCPlayerState.h"
@@ -508,6 +510,11 @@ void AMCToothCharacter::StartHandle()
         Nearby=*It; Nearest=Distance;
     }
     if(Nearby) { ServerBeginRewardOpening(Nearby); return; }
+    if(AMCToothpick::FindPullTarget(this)) {
+        FoodCollection->Stop(); StopPrimary();
+        CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false);
+        ServerSetWorking(false,true); return;
+    }
     if (CanWork() && !bInCoffee && !bSelfCare && !CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()
         && (FoodCollection->bCollecting || FoodCollection->HasCandidate()))
     { ServerToggleFoodCollection(); return; }
@@ -700,7 +707,7 @@ void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActiv
 {
     if(bActive && IsMimicCaptured()) return;
     if(bActive) Grip->ReleaseBrace();
-    if(!bBrush) CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(bActive);
+    if(!bBrush) CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(bActive && !AMCToothpick::FindPullTarget(this));
     if (!bBrush) { bWantsCling=bPrimaryHeld && Status->IsAlive(); if (!bActive) ClingTooth=nullptr; }
     if (bActive && (!CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-0.3f)) return;
     if ((bBrush?bBrushing:bHandling)==bActive) return;
@@ -723,6 +730,11 @@ void AMCToothCharacter::Landed(const FHitResult& Hit)
 }
 void AMCToothCharacter::FindWork(float DeltaSeconds)
 {
+    if(HasAuthority() && bHandling && !bPrimaryHeld && !bSelfCare)
+        if(auto* Pick=AMCToothpick::FindPullTarget(this)) {
+            CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false);
+            if(Pick->TryPull(this,DeltaSeconds)) {CareTarget=Pick;ContactProgress=Pick->PullProgress;ForceNetUpdate();return;}
+        }
     if(CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->IsClimbing()) { bBrushing=false; DropFood(); ResetContact(); return; }
     if(OrderJumpTarget) { bBrushing=false; bHandling=false; ResetContact(); return; }
     if (bPrimaryHeld) ResolvePrimaryAction();
@@ -1002,12 +1014,28 @@ void AMCToothCharacter::ResolveSwing()
             }
             return;
         }
+        AMCToothpick* BestPick=nullptr; float PickDistance=FMath::Square(180.f);
+        for(TActorIterator<AMCToothpick> It(GetWorld());It;++It) {
+            if(!It->CanReceivePickaxeHit(this)) continue;
+            const FVector Offset=It->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();
+            if(Offset.SizeSquared()<PickDistance) {BestPick=*It;PickDistance=Offset.SizeSquared();}
+        }
+        if(BestPick && BestPick->HitWithPickaxe(this,Inventory->Damage())) {++ConfirmedHitCount;MulticastHitSound(BestPick->GetActorLocation(),AudioTool,HitIntensity);return;}
         AMCIceBlock* BestIce=nullptr; float Distance=FMath::Square(180.f);
         for(TActorIterator<AMCIceBlock> It(GetWorld());It;++It) {
             const FVector D=It->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation())-GetActorLocation();
             if(!It->bBroken && D.SizeSquared()<Distance && FVector::DotProduct(D.GetSafeNormal2D(),GetActorForwardVector())>.25f && CanContact(*It)) { BestIce=*It; Distance=D.SizeSquared(); }
         }
         if(BestIce && BestIce->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestIce->GetActorLocation(),AudioTool,HitIntensity); if(BestIce->bBroken) NotifyTaskFeedback(true,BestIce->GetActorLocation()); return; }
+    }
+    if(!Inventory->IsCleaningTool()) {
+        AMCNutEnemy* BestNut=nullptr; float Distance=FMath::Square(180.f);
+        for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
+            if(!It->CanReceiveToolHit()) continue;
+            const FVector Offset=It->GetToolTargetPoint(GetActorLocation())-GetActorLocation();
+            if(Offset.SizeSquared()<Distance && FMath::Abs(Offset.Z)<120 && FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())>.15f && CanContact(*It)) {BestNut=*It;Distance=Offset.SizeSquared();}
+        }
+        if(BestNut && BestNut->ReceiveToolDamage(Inventory->Damage(),this)>0) {++ConfirmedHitCount;MulticastHitSound(BestNut->GetActorLocation(),AudioTool,HitIntensity);return;}
     }
     AMCFoodActor* FoodTarget=nullptr; float FoodDistance=FMath::Square(180.f);
     for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
@@ -1151,7 +1179,7 @@ bool AMCToothCharacter::CanWork() const
 {
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const auto* Player=Cast<AMCPlayerController>(GetController());
-    return (!Player || !Player->IsBossIntroPlaying()) && !IsValid(RewardInteraction) && !IsMimicCaptured() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
+    return (!Player || (!Player->IsBossIntroPlaying() && !Player->IsRewardInteractionActive())) && !IsValid(RewardInteraction) && !IsMimicCaptured() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
 }
 void AMCToothCharacter::ToggleSelfCare() { ServerToggleSelfCare(); }
 void AMCToothCharacter::ServerToggleSelfCare_Implementation()
@@ -1175,6 +1203,7 @@ bool AMCToothCharacter::CanContact(AActor* Target) const
     FVector Point=Target->GetActorLocation();
     if (auto* Primitive=Cast<UPrimitiveComponent>(Target->GetRootComponent()))
         Point=Primitive->Bounds.GetBox().GetClosestPointTo(GetActorLocation());
+    if(auto* Pick=Cast<AMCToothpick>(Target)) Point=Pick->Body->Bounds.GetBox().GetClosestPointTo(GetActorLocation());
     const FVector Offset=Point-GetActorLocation();
     if (Offset.Size()>Status->Settings.Reach || FVector::DotProduct(GetActorForwardVector(),Offset.GetSafeNormal2D())<-.25f) return false;
     FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCCareContact),false,this); Params.AddIgnoredActor(Target);

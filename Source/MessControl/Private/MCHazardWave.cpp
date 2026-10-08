@@ -75,6 +75,7 @@ bool AMCHazardWave::Crosses(float Before,float After,float R0,float R1,float Wid
 void AMCHazardWave::Tick(float Dt)
 {
     Super::Tick(Dt);
+    if(const auto* Lesion=Cast<AMCMouthSurface>(Source); Lesion && Lesion->bTutorialLesion && Lesion->IsActorBeingDestroyed()) {if(HasAuthority()) Destroy();return;}
     if(const auto* Ulcer=Cast<AMCMouthSurface>(Source); Ulcer && (Ulcer->IsNumb() || Ulcer->IsHealed() || !Ulcer->bUlcer)) { if(HasAuthority()) Destroy(); return; }
     Ring->SetVisibility(!Tongue);
     const float CurrentRadius=Radius();
@@ -99,7 +100,9 @@ void AMCHazardWave::Tick(float Dt)
             if(Sole-FloorZ>ClearHeight) continue;
             FVector Direction=(P-GetActorLocation()).GetSafeNormal2D();
             if(Direction.IsNearlyZero()) Direction=FVector::ForwardVector;
-            Hero->Status->Damage(Damage,Direction); Hero->NotifyTaskFeedback(false); ++HitCount;
+            const auto* Lesion=Cast<AMCMouthSurface>(Source);
+            if(!Lesion || !Lesion->bTutorialLesion) {Hero->Status->Damage(Damage,Direction);Hero->NotifyTaskFeedback(false);}
+            ++HitCount;
             Hero->ToothPhysics->ApplyHit(Direction*260+FVector(0,0,130),P);
         }
         if(bSpicy) for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)

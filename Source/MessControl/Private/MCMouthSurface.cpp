@@ -95,7 +95,7 @@ bool AMCMouthSurface::ApplyAnesthetic(float Seconds)
 }
 void AMCMouthSurface::Disturb()
 {
-    if (!HasAuthority() || !bUlcer || IsNumb()) return;
+    if (!HasAuthority() || !bUlcer || IsNumb() || bTutorialLesion) return;
     if (ContactCooldown<=0)
     {
         if (auto* GS=GetWorld()->GetGameState<AMCGameState>()) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DisturbDamage);
@@ -110,7 +110,7 @@ bool AMCMouthSurface::IsBurning() const
 }
 bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds,float Power)
 {
-    if(!HasAuthority() || !bUlcer || IsHealed() || IsBurning() || !IsValid(Worker) || !Worker->CanWork() || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
+    if(!HasAuthority() || !bUlcer || bTreatmentBlocked || IsHealed() || IsBurning() || !IsValid(Worker) || !Worker->CanWork() || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
     if(LastTreatmentFrame==GFrameCounter) return true; // Shared lesion cannot heal faster from duplicate calls or teammates.
     LastTreatmentFrame=GFrameCounter;
     const auto* GS=GetWorld()->GetGameState(); const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
@@ -119,7 +119,7 @@ bool AMCMouthSurface::Treat(AMCToothCharacter* Worker,float Seconds,float Power)
     Healing=FMath::Min(1.f,Healing+FMath::Min(Seconds,.2f)/HealSeconds*FMath::Clamp(Power,1.f,3.f));
     if(Healing>=.99999f) {
         Healing=1; NumbUntil=Now+1; SetLifeSpan(.4f); Worker->NotifyTaskFeedback(true,GetActorLocation());
-        if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,EMCScoreTask::Ulcer);
+        if(!bTutorialLesion) if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,EMCScoreTask::Ulcer);
     }
     ForceNetUpdate(); return true;
 }
@@ -170,16 +170,16 @@ void AMCMouthSurface::Tick(float Dt)
             if(Active<6) {
                 const FTransform T(GetActorRotation(),GetActorLocation());
                 auto* Wave=GetWorld()->SpawnActorDeferred<AMCHazardWave>(AMCHazardWave::StaticClass(),T);
-                if(Wave) { Wave->Source=this; Wave->MaxRadius=PulseRadius; Wave->Damage=PulseDamage; Wave->FinishSpawning(T); }
+                if(Wave) { Wave->Source=this; Wave->MaxRadius=PulseRadius; Wave->Damage=bTutorialLesion?0:PulseDamage; Wave->FinishSpawning(T); }
             }
         }
         if (bDisturbed) Disturb();
         auto* GS=GetWorld()->GetGameState<AMCGameState>();
-        if(!IsNumb()) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DamagePerSecond*Dt);
+        if(!IsNumb() && !bTutorialLesion) GS->MouthHealth=FMath::Max(0.f,GS->MouthHealth-DamagePerSecond*Dt);
     }
     UpdateLiquid(Dt);
     if(GetNetMode()!=NM_DedicatedServer) {
-        TreatmentIndicator->SetVisibility(bUlcer);
+        TreatmentIndicator->SetVisibility(bUlcer && !bTreatmentBlocked);
         if(bUlcer) {
             TreatmentIndicator->InitWidget();
             if(auto* Widget=Cast<UMCUlcerProgressWidget>(TreatmentIndicator->GetUserWidgetObject())) {
@@ -216,6 +216,7 @@ void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCMouthSurface,LiquidBornAt);
     DOREPLIFETIME(AMCMouthSurface,BrushUV); DOREPLIFETIME(AMCMouthSurface,BrushDirection); DOREPLIFETIME(AMCMouthSurface,BrushAt);
     DOREPLIFETIME(AMCMouthSurface,bUlcer); DOREPLIFETIME(AMCMouthSurface,Healing); DOREPLIFETIME(AMCMouthSurface,HealSeconds);
+    DOREPLIFETIME(AMCMouthSurface,bTreatmentBlocked); DOREPLIFETIME(AMCMouthSurface,bTutorialLesion);
     DOREPLIFETIME(AMCMouthSurface,NumbUntil);
     DOREPLIFETIME(AMCMouthSurface,PulseInterval); DOREPLIFETIME(AMCMouthSurface,PulseRadius); DOREPLIFETIME(AMCMouthSurface,PulseDamage);
     DOREPLIFETIME(AMCMouthSurface,DamagePerSecond); DOREPLIFETIME(AMCMouthSurface,DisturbDamage); DOREPLIFETIME(AMCMouthSurface,bDisturbed); DOREPLIFETIME(AMCMouthSurface,Batch);
