@@ -169,6 +169,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Mouth",meta=(ToolTip="Movement in centimetres allowed around the tracked point before the camera follows.")) FVector CameraDeadZone=FVector(110,80,90);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="0.02",ClampMax="1")) float CameraOrbitSensitivity=.18f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="10",ClampMax="300")) float CameraZoomStep=100.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Orbit",meta=(ClampMin="30",ClampMax="250",ToolTip="Height of the free-camera pivot above the character, in centimetres.")) float CameraOrbitHeight=100.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Walls") bool bCameraWallReveal=true;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Walls",meta=(ClampMin="60",ClampMax="500")) float CameraWallRevealRadius=500.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Camera|Walls",meta=(ClampMin="0.02",ClampMax="0.8")) float CameraWallRevealFeather=.25f;
@@ -215,6 +216,7 @@ private:
     void OrbitMouseY(const FInputActionValue& Value);
     void CameraMouseWheel(const FInputActionValue& Value);
     void InitializeCameraOrbit();
+    FVector OrbitCameraPivot() const;
     FVector2D WorldPaddleInput() const;
     void StartJump(); void StopJump();
     void StartSprint(); void StopSprint();

@@ -2085,9 +2085,10 @@ bool FMCOrbitCameraTest::RunTest(const FString&)
     Hero->ApplyCameraOrbitInput(FVector2D(1,0)); TickView();
     TestTrue(TEXT("Mouse movement enters orbit mode without a held button"),Hero->bManualCameraOrbit);
     Hero->ApplyCameraOrbitInput(FVector2D(500,5000)); TickView();
-    TestEqual(TEXT("Inverted vertical orbit clamps its upward input"),Hero->CameraOrbitPitch,-8.f);
+    TestEqual(TEXT("Free orbit can look almost vertically upward"),Hero->CameraOrbitPitch,85.f);
+    TestTrue(TEXT("Looking upward keeps the camera at the raised pivot height"),FMath::IsNearlyEqual(Hero->Camera->GetComponentLocation().Z,Hero->GetActorLocation().Z+100,1.));
     Hero->ApplyCameraOrbitInput(FVector2D(0,-5000)); TickView();
-    TestEqual(TEXT("Inverted vertical orbit clamps its downward input"),Hero->CameraOrbitPitch,-75.f);
+    TestEqual(TEXT("Free orbit can look almost vertically downward"),Hero->CameraOrbitPitch,-85.f);
     const float Yaw=Hero->CameraOrbitYaw;
     Hero->ApplyCameraOrbitInput(FVector2D::ZeroVector); TickView();
     TestEqual(TEXT("View stays at the selected yaw when the mouse stops"),Hero->CameraOrbitYaw,Yaw);
@@ -2102,6 +2103,12 @@ bool FMCOrbitCameraTest::RunTest(const FString&)
     Hero->ZoomCamera(1000); TestEqual(TEXT("Zoom has a near limit"),Hero->CameraOrbitDistance,250.f);
     TestEqual(TEXT("Zoom preserves view yaw"),Hero->CameraOrbitYaw,Yaw);
 
+    Hero->CameraOrbitYaw=0;Hero->CameraOrbitPitch=0;Hero->CameraOrbitDistance=900;TickView();
+    TestTrue(TEXT("The free camera sits at the raised pivot at a level viewing angle"),FMath::IsNearlyEqual(Hero->Camera->GetComponentLocation().Z,Hero->GetActorLocation().Z+100,1.));
+    Hero->CameraOrbitHeight=160;TickView();
+    TestTrue(TEXT("The editable orbit height raises the actual eye"),FMath::IsNearlyEqual(Hero->Camera->GetComponentLocation().Z,Hero->GetActorLocation().Z+160,1.));
+    Hero->CameraOrbitHeight=100;
+
     Hero->CameraOrbitYaw=0; Hero->CameraOrbitPitch=-30; Hero->CameraOrbitDistance=900; TickView();
     const FVector Pivot=Hero->CameraBoom->GetComponentLocation()+Hero->CameraBoom->TargetOffset;
     const FVector Direction=-Hero->CameraBoom->GetComponentRotation().Vector();
@@ -2114,7 +2121,8 @@ bool FMCOrbitCameraTest::RunTest(const FString&)
     Hero->ZoomCamera(-1); TickView();
     TestTrue(TEXT("Zooming out cannot move the camera through a wall"),Hero->CameraBoom->IsCollisionFixApplied() && FVector::Dist(Pivot,Hero->Camera->GetComponentLocation())<430);
     Box->SetCollisionEnabled(ECollisionEnabled::NoCollision); TickView();
-    TestTrue(TEXT("Camera recovers the zoomed distance after the wall is removed"),FMath::IsNearlyEqual(float(FVector::Dist(Pivot,Hero->Camera->GetComponentLocation())),1000.f,1.f));
+    const FVector RecoveredEye=Hero->GetCameraFocusLocation()-FRotator(-30,0,0).Vector()*1000;
+    TestTrue(TEXT("Camera recovers the selected orbit after the wall is removed"),Hero->Camera->GetComponentLocation().Equals(RecoveredEye,1.f));
 
     // The concave imported mouth shell has no simple hull; it must still block the camera's simple sweep.
     auto* Shell=ReadyCareTestMesh(TEXT("/Game/FromBlender3/SM_Plane_001.SM_Plane_001"));
