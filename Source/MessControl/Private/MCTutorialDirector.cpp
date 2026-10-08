@@ -186,6 +186,7 @@ void AMCTutorialDirector::NotifyAction(AMCToothCharacter* Worker,EMCTutorialActi
     if (const auto* Food=Cast<AMCFoodActor>(Target))
     {
         if (Food->Batch!=TutorialFoodBatch) return;
+        // ResolveSwing reports FoodCut after HitFood disposes the whole product; delivery is a separate legacy action.
         if (Action==EMCTutorialAction::FoodCut && (Food->bFragment || Food->Health>0)) return;
         if (Action==EMCTutorialAction::FoodDelivered && Food->IsWrongIngredient()) return;
         if (Action==EMCTutorialAction::SpoiledDiscarded && !Food->bSpoiled) return;
@@ -420,9 +421,9 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
         FairyLine=LOCTEXT("BrushFairy","Щётка всегда в первом слоте. Выбери её и очисти свой подсвеченный зуб. Каждый пробует сам — я подожду!");
         Instruction=LOCTEXT("BrushHint","1 — щётка. Держи ЛКМ у своего подсвеченного зуба до полной очистки. Без таймера."); break;
     case EMCTutorialStage::FoodCut:
-        Title=LOCTEXT("CutTitle","02 · МЯГКАЯ ЕДА");
-        FairyLine=LOCTEXT("CutFairy","Мягкую порцию сначала разделяем ножом. Попробуй на своей еде.");
-        Instruction=LOCTEXT("CutHint","3 — нож; ЛКМ или F — удар по еде. Раздели свою порцию на кусочки."); break;
+        Title=LOCTEXT("CutTitle","02 · РАЗБИТЬ ЕДУ");
+        FairyLine=LOCTEXT("CutFairy","Бей свою подсвеченную еду ножом, пока она не разрушится. Продукт исчезнет, и задача будет выполнена.");
+        Instruction=LOCTEXT("CutHint","3 — нож. ЛКМ или F — удары по подсвеченной еде до полного разрушения."); break;
     case EMCTutorialStage::FreshSort:
         Title=LOCTEXT("FreshTitle","03 · СВЕЖЕЕ — В ГЛОТКУ");
         FairyLine=LOCTEXT("FreshFairy","Съедобное отправляем назад. Собери свой кусочек и доставь его в глотку — затем дождись глотания.");
@@ -480,8 +481,10 @@ void AMCTutorialDirector::EnterStage(EMCTutorialStage NewStage)
     }
     if(bShortFlow) {
         if(Stage==EMCTutorialStage::Intro) {Title=LOCTEXT("ShortIntroTitle","ОБУЧЕНИЕ · ПЕРВАЯ СМЕНА");FairyLine=LOCTEXT("ShortIntroFairy","Я Зубная фея. Впереди один насыщенный день! Сначала потренируемся с едой, щёткой, киркой и спреем.");StageEndsAt=Now()+3;}
-        if(Stage==EMCTutorialStage::CoffeeCleanup) {Title=LOCTEXT("ShortTongueTitle","04 · ЧИСТКА ЯЗЫКА");FairyLine=LOCTEXT("ShortTongueFairy","Еда доставлена. Теперь очисти подсвеченное пятно щёткой — и перейдём к общей задаче.");}
-        if(Stage==EMCTutorialStage::FreshSort) Instruction=LOCTEXT("ShortFreshHint","1 — щётка. E — режим сбора; ЛКМ у кусочка — собрать. Отнеси стопку в THROAT и дождись глотания. E — закончить сбор.");
+        if(Stage==EMCTutorialStage::CoffeeCleanup) {Title=LOCTEXT("ShortTongueTitle","03 · ЧИСТКА ЯЗЫКА");FairyLine=LOCTEXT("ShortTongueFairy","Еда разбита. Теперь очисти подсвеченное пятно щёткой — и перейдём к общей задаче.");}
+        if(Stage==EMCTutorialStage::ToothpickPull) Title=LOCTEXT("ShortToothpickPullTitle","04 · ЗУБОЧИСТКА В ЯЗЫКЕ");
+        if(Stage==EMCTutorialStage::ToothpickBreak) Title=LOCTEXT("ShortToothpickBreakTitle","05 · СЛОМАТЬ ЗУБОЧИСТКУ");
+        if(Stage==EMCTutorialStage::ToothpickHeal) Title=LOCTEXT("ShortToothpickHealTitle","06 · ВЫЛЕЧИТЬ РАНУ");
         if(Stage==EMCTutorialStage::Complete) {FairyLine=LOCTEXT("ShortCompleteFairy","Обучение пройдено! Команда получает первый уровень. Каждый выбирает себе один из трёх перков.");Instruction=LOCTEXT("ShortCompleteHint","Выбери личный перк — затем начинается наш насыщенный день.");}
     }
     DefaultFairyLine=FairyLine; EnsureLessonTargets(); OnRep_Presentation(); ForceNetUpdate();

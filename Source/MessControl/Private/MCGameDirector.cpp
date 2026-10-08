@@ -25,6 +25,22 @@
 namespace {
 bool FoodKind(EMCGameDirectorEvent K) { return K==EMCGameDirectorEvent::Food || K==EMCGameDirectorEvent::Pepper || K==EMCGameDirectorEvent::StuckFood; }
 bool MovementKind(EMCGameDirectorEvent K) { return K==EMCGameDirectorEvent::Yawn || K==EMCGameDirectorEvent::CoffeeFlood || K==EMCGameDirectorEvent::ColdCola || K==EMCGameDirectorEvent::Boss; }
+bool BreakFoodKind(EMCGameDirectorEvent K) { return K==EMCGameDirectorEvent::Food || K==EMCGameDirectorEvent::StuckFood; }
+float SupportFoodDuration(UWorld* World,const UMCDayPlan* Plan,FName Row,bool Stuck,float CleaningSeconds)
+{
+    if(!Plan) return MAX_flt;
+    const float Work=MCForecastDirectedFoodWork(World,Plan,Row,Stuck,FMCFoodPipelineTuning(),CleaningSeconds);
+    const float Flight=Stuck?0.f:Plan->FoodEntry.FlightSeconds;
+    // The forecast already chooses one worker's approach. Its critical path
+    // cannot be divided by party size, unlike the aggregate pressure budget.
+    // Do not cap long estimates downward at a deadline; unavailable work fails closed.
+    return FMath::IsFinite(Work)?FMath::Max(3.f,Work+Flight):MAX_flt;
+}
+bool ArenaHasWork(const FMCGameDirectorState& S)
+{
+    return S.WorkSeconds>.01f || S.WholeFood>0 || S.Fragments>0 || S.CarriedFood>0 || S.CleaningTasks>0
+        || S.Ice>0 || S.Fires>0 || S.Ulcers>0 || S.bUrgent || S.bGlobalMovement;
+}
 const TCHAR* ShortEventName(EMCGameDirectorEvent K)
 {
     static const TCHAR* Names[]={TEXT("Еда"),TEXT("Кофе"),TEXT("Река"),TEXT("Кола"),TEXT("Зевание"),TEXT("Перец"),TEXT("Застр.еда"),TEXT("Зуб"),TEXT("Сундук"),TEXT("Босс")};
@@ -150,6 +166,14 @@ void AMCGameDirector::BeginSupport(float Seconds)
     Settings->Days[0].InitialPatches=0;
     for (auto& Rule:Settings->Events)
         if (Rule.Kind==EMCGameDirectorEvent::Boss || Rule.Kind==EMCGameDirectorEvent::Reward) Rule.Weight=0;
+        else if(Rule.Weight>0) {
+            // A saved support profile may still contain the older sparse menu.
+            // Adjust only this run's copy; explicitly disabled kinds stay disabled.
+            const float Minimum=Rule.Kind==EMCGameDirectorEvent::Food?6.f:
+                Rule.Kind==EMCGameDirectorEvent::Coffee?4.5f:
+                Rule.Kind==EMCGameDirectorEvent::Pepper || Rule.Kind==EMCGameDirectorEvent::CoffeeFlood?2.f:0.f;
+            Rule.Weight=FMath::Max(Rule.Weight,Minimum);
+        }
     BeginDay(1);
     bInterlude=true;
     auto* GS=GetWorld()->GetGameState<AMCGameState>();
@@ -158,7 +182,8 @@ void AMCGameDirector::BeginSupport(float Seconds)
     DaySettings.FinalCleanupSeconds=0;
     GS->PhaseEndsAt=DayEndsAt;
     Record(Duration>0?TEXT("Поддержка арены до следующего ключевого события"):TEXT("Поддержка арены: авторенный фрагмент завершён, дедлайна нет"));
-    Publish(Observe(),TEXT("Обычные задачи доступны без дневных гейтов и оценки дедлайна"),GS->GetServerWorldTimeSeconds());
+    Publish(Observe(),Duration>0?TEXT("Обычные задачи по нагрузке до следующего ключевого события"):
+        TEXT("Обычные задачи по нагрузке без дневного дедлайна"),GS->GetServerWorldTimeSeconds());
 }
 FName AMCGameDirector::ChooseFoodRow(EMCGameDirectorEvent Kind,const FMCGameDirectorState& Seen) const
 {
@@ -207,7 +232,9 @@ FMCGameDirectorState AMCGameDirector::Observe() const
     for(const auto& T:Tickets) S.QueuedEvents+=!T.bStarted && !T.bDone;
     const auto Pipeline=MCMeasureFoodPipeline(GetWorld());
     S.WholeFood=Pipeline.Whole; S.Fragments=Pipeline.Fragments; S.CarriedFood=Pipeline.Carried; S.ThroatQueued=Pipeline.ThroatQueued;
-    float Work=Pipeline.EstimatedWorkerSeconds;
+    // A live ingredient remains activity even when its current phase has no
+    // measurable tool effort (for example an automatic entry or swallow).
+    float Work=FMath::Max(Pipeline.EstimatedWorkerSeconds,Pipeline.OutstandingActors>0?1.f:0.f);
     int32 Occupied=0,Players=0; float HealthSum=0,StaminaSum=0;
     const float CleaningSeconds=(Settings?Settings->CleaningWorkerSeconds:8.f)
         /FMath::Max(1.f,MCResolveFoodPipelineTuning(GetWorld()).CleaningSpeedMultiplier);
@@ -291,6 +318,8 @@ void AMCGameDirector::UpdateAdaptation(const FMCGameDirectorState& Seen,double N
 }
 float AMCGameDirector::ComputeWaitWeight(const FMCGameDirectorState& Seen) const
 {
+    if(bSupportMode && !ArenaHasWork(Seen)
+        && !Tickets.ContainsByPredicate([](const FTicket& T){return T.bStarted && !T.bDone && T.Kind!=EMCGameDirectorEvent::Reward;})) return 0;
     const float Ratio=Seen.Pressure/FMath::Max(.05f,TargetPressure);
     return 1+FMath::Clamp(Ratio*Ratio*4,0.f,20.f)+Seen.Stress*8;
 }
@@ -343,6 +372,8 @@ TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGa
             if(!Tongue) C.BlockReason=TEXT("Нет языка / арены");
         }
         float Duration=FoodKind(Rule.Kind)?25.f:Rule.Kind==EMCGameDirectorEvent::Boss?90.f:15.f;
+        if(bSupportMode && DayEndsAt>0 && BreakFoodKind(Rule.Kind))
+            Duration=SupportFoodDuration(GetWorld(),Mechanics,T.FoodRow,Rule.Kind==EMCGameDirectorEvent::StuckFood,Settings->CleaningWorkerSeconds);
         if(Rule.Kind==EMCGameDirectorEvent::ColdCola) {const auto* Cola=Mechanics->ColdColaProfile.LoadSynchronous();Duration=Cola?Cola->ColdSeconds+Cola->ThawSeconds+15:55;}
         if(DayEndsAt>0 && C.BlockReason.IsEmpty() && Now+Duration+Settings->WarningSeconds>DayEndsAt)
             C.BlockReason=bSupportMode?TEXT("Не успеть до следующего ключевого события"):TEXT("Не успеть до конца дня");
@@ -353,6 +384,8 @@ TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGa
         if(Rule.Kind==EMCGameDirectorEvent::Food) C.EffectiveWeight*=Seen.WholeFood==0 && Seen.Fragments==0?1.8f:1.f;
         else if(Rule.Kind==EMCGameDirectorEvent::Reward) C.EffectiveWeight=Rule.Weight*(1+Seen.Stress*2);
         else C.EffectiveWeight*=FMath::Clamp(Difficulty,.25f,1.5f)*(1-Seen.Stress);
+        if(bSupportMode && Rule.Kind!=EMCGameDirectorEvent::Food && Rule.Kind!=EMCGameDirectorEvent::Coffee
+            && Rule.Kind!=EMCGameDirectorEvent::CoffeeFlood && Rule.Kind!=EMCGameDirectorEvent::Pepper) C.EffectiveWeight*=.35f;
         for(int32 I=RecentKinds.Num()-1;I>=0;--I) if(RecentKinds[I]==Rule.Kind) C.EffectiveWeight*=I==RecentKinds.Num()-1?.35f:.7f;
     }
     float Sum=ComputeWaitWeight(Seen); for(const auto& C:Out) Sum+=C.EffectiveWeight;
@@ -368,10 +401,11 @@ bool AMCGameDirector::SelectEvent(const FMCGameDirectorState& Seen,double Now)
 {
     CandidateScores=EvaluateCandidates(Seen,Now); WaitWeight=ComputeWaitWeight(Seen);
     float Sum=WaitWeight; for(const auto& C:CandidateScores) Sum+=C.EffectiveWeight;
-    WaitProbability=WaitWeight/Sum; CandidateTitle=TEXT("ПЕРЕДЫШКА");
+    WaitProbability=Sum>0?WaitWeight/Sum:1.f; CandidateTitle=TEXT("ПЕРЕДЫШКА");
     float Best=WaitProbability; for(const auto& C:CandidateScores) if(C.Probability>Best) {Best=C.Probability;CandidateTitle=EventName(C.Kind);}
     float Pick=Random.FRand()*Sum;
     NextDecisionAt=Now+Settings->DecisionInterval*Random.FRandRange(.8f,1.3f);
+    if(Sum<=0) return false; // cooldowns, capacity and deadlines still apply on an empty arena
     if(Pick<WaitWeight) {Record(FString::Printf(TEXT("Выбор: ждать %.0f%% · нагрузка %.2f / цель %.2f · темп %.2f"),WaitProbability*100,Seen.Pressure,TargetPressure,Throughput));return false;}
     Pick-=WaitWeight;
     for(const auto& C:CandidateScores) {
@@ -449,6 +483,14 @@ bool AMCGameDirector::TryStart(FTicket& T,const FMCGameDirectorState& S,double N
 {
     if(T.bDone || T.bStarted || T.RequestedAt>Now) return false;
     if(S.bUrgent || S.bGlobalMovement || S.AvailablePlayers<=0) {T.WarningAt=-1; return false;}
+    if(bSupportMode && DayEndsAt>0 && BreakFoodKind(T.Kind)) {
+        const float Duration=SupportFoodDuration(GetWorld(),Mechanics,T.FoodRow,T.Kind==EMCGameDirectorEvent::StuckFood,Settings->CleaningWorkerSeconds);
+        const double WarningLeft=T.WarningAt<0?double(Settings->WarningSeconds):
+            FMath::Max(0.,double(Settings->WarningSeconds)-(Now-T.WarningAt));
+        // Recheck the actual row and current workers, also for extra batch items
+        // that did not pass through candidate selection and delayed reservations.
+        if(Now+Duration+WarningLeft>DayEndsAt) {T.WarningAt=-1;return false;}
+    }
     if(S.Pressure>=DaySettings.PressureLimit) return false;
     const float Forecast=ForecastPressure(T,S);
     if(Forecast>DaySettings.PressureLimit || (T.Kind!=EMCGameDirectorEvent::Reward && S.Pressure>=TargetPressure)) {T.WarningAt=-1; return false;}
@@ -503,7 +545,9 @@ bool AMCGameDirector::TryStart(FTicket& T,const FMCGameDirectorState& S,double N
     Record(FString::Printf(TEXT("Бюджет: %.2f → прогноз %.2f / %.2f"),S.Pressure,Forecast,DaySettings.PressureLimit));
     if(FoodKind(T.Kind) || T.Kind==EMCGameDirectorEvent::Coffee) {
         const auto Pipeline=MCMeasureFoodPipeline(GetWorld());
-        Record(FString::Printf(TEXT("Стопки: вместимость %d · свободно %d · полных %d · рейсов ≈ %d · еда ≈ %.1f чел·с"),
+        if(bSupportMode) Record(FString::Printf(TEXT("Работа: еда %d · уборка %d · еда ≈ %.1f чел·с · перец нужно выбросить"),
+            Pipeline.OutstandingActors,Observe().CleaningTasks,Pipeline.EstimatedWorkerSeconds));
+        else Record(FString::Printf(TEXT("Стопки: вместимость %d · свободно %d · полных %d · рейсов ≈ %d · еда ≈ %.1f чел·с"),
             Pipeline.TeamStackCapacity,Pipeline.FreeStackSlots,Pipeline.FullStacks,Pipeline.EstimatedTrips,Pipeline.EstimatedWorkerSeconds));
     }
     return true;
@@ -516,14 +560,18 @@ void AMCGameDirector::ResolveTickets(double Now)
         bool Done=false;
         if(FoodKind(T.Kind)) {
             const auto Food=MCMeasureFoodPipeline(GetWorld(),T.Batch);
-            Done=Food.OutstandingActors==0 && Food.UnresolvedHazards==0 && MCCountDirectedFoodDirt(GetWorld(),T.Batch)==0;
+            // Destroying ordinary food completes its food task. Its stain is a
+            // separate observed cleaning task; pepper consequences still need clearing.
+            const bool RequireFoodStain=!bSupportMode || T.Kind==EMCGameDirectorEvent::Pepper;
+            Done=Food.OutstandingActors==0 && Food.UnresolvedHazards==0
+                && (!RequireFoodStain || MCCountDirectedFoodDirt(GetWorld(),T.Batch)==0);
         } else if(T.Kind==EMCGameDirectorEvent::Coffee) Done=Seen.CleaningTasks==0;
         else if(T.Kind==EMCGameDirectorEvent::CoffeeFlood) {const auto* A=Cast<AMCCoffeeFlood>(T.Actor.Get());Done=!A || !A->IsActive();}
         else if(T.Kind==EMCGameDirectorEvent::ColdCola) {const auto* A=Cast<AMCColdColaEvent>(T.Actor.Get());Done=!A || A->IsComplete();}
         else if(T.Kind==EMCGameDirectorEvent::Yawn) {const auto* A=Cast<AMCTongue>(T.Actor.Get());Done=!A || !A->IsYawnActive();}
         else if(T.Kind==EMCGameDirectorEvent::LooseTooth) {const auto* A=T.Actor.Get();const auto* Care=A?A->FindComponentByClass<UMCToothStatusComponent>():nullptr;Done=!Care || !Care->IsLoose();}
         else if(T.Kind==EMCGameDirectorEvent::Boss) {const auto* A=Cast<AMCBossCharacter>(T.Actor.Get());Done=!A || !A->IsBossAlive();}
-        if(Done) {T.bDone=true;if(FoodKind(T.Kind)) ++FinishedFoodTotal;Record(TEXT("Завершено: ")+EventName(T.Kind));}
+        if(Done) {T.bDone=true;if(FoodKind(T.Kind)) ++FinishedFoodTotal;Record(TEXT("Завершено: ")+EventName(T.Kind));if(bSupportMode) NextDecisionAt=Now;}
     }
 }
 bool AMCGameDirector::HasOutstandingWork() const
@@ -536,16 +584,17 @@ void AMCGameDirector::Publish(const FMCGameDirectorState& Seen,const FString& Re
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
     GS->DirectorState=Seen; auto& S=GS->DirectorState; S.CurrentTitle=CurrentTitle; S.DecisionReason=Reason;
-    S.Instruction=Pacing==EMCGameDirectorPacing::FinalCleanup?TEXT("Закончите сбор, доставку и уборку"):TEXT("Режьте, собирайте и доставляйте еду. Следите за предупреждениями.");
+    S.Instruction=TEXT("Разбивайте еду ради опыта, чистите пятна и зубы. Перец выбрасывайте.");
+    if(Pacing==EMCGameDirectorPacing::FinalCleanup) S.Instruction=TEXT("Разбейте оставшуюся еду, уберите перец и закончите уборку.");
     if(Seen.Fires>0) S.Instruction=TEXT("Сначала потушите огонь. Новые события ждут.");
     else if(Seen.Ulcers>0) S.Instruction=TEXT("Вылечите язвы: они остаются задачей после удаления еды.");
     else if(Seen.bUrgent) S.Instruction=TEXT("Сначала решите срочную угрозу: уберите перец, помогите пленнику или закончите бой.");
-    else if(Seen.Ice>0) S.Instruction=TEXT("Разбейте лёд киркой, затем возвращайтесь к доставке и уборке.");
+    else if(Seen.Ice>0) S.Instruction=TEXT("Разбейте лёд киркой, затем возвращайтесь к еде и уборке.");
     else if(Seen.bGlobalMovement) S.Instruction=TEXT("Заканчивается движение или глотание. Новые помехи ждут.");
-    else if(Seen.CleaningTasks>0) S.Instruction=TEXT("Очистите зубы и пятна. Еду режьте, собирайте и доставляйте к выходу.");
+    else if(Seen.CleaningTasks>0) S.Instruction=TEXT("Очистите зубы и пятна. Еду разбивайте ради опыта; перец выбрасывайте.");
     S.Candidates=EvaluateCandidates(Seen,Now); S.WaitWeight=ComputeWaitWeight(Seen);
     float Sum=S.WaitWeight;for(const auto& C:S.Candidates) Sum+=C.EffectiveWeight;
-    S.WaitProbability=S.WaitWeight/Sum; S.NextTitle=TEXT("ПЕРЕДЫШКА");
+    S.WaitProbability=Sum>0?S.WaitWeight/Sum:1.f; S.NextTitle=TEXT("ПЕРЕДЫШКА");
     float Best=S.WaitProbability; for(const auto& C:S.Candidates) if(C.Probability>Best) {Best=C.Probability;S.NextTitle=EventName(C.Kind);}
     for(const auto& T:Tickets) if(!T.bStarted && T.WarningAt>=0) {S.bNextReserved=true;S.NextTitle=EventName(T.Kind);break;}
     S.DecisionLog=GS->DirectorDecisionLog;
@@ -581,7 +630,15 @@ void AMCGameDirector::Tick(float Dt)
         if(bInterlude) {CancelReservation(TEXT("следующий основной эвент"),Now);Stop();return;}
         CancelReservation(TEXT("конец смены"),Now);Publish(Seen,TEXT("Окончание смены"),Now);FinishDay(Seen,Now);return;
     }
-    if(!bSupportMode && Now>=DayEndsAt-DaySettings.FinalCleanupSeconds) Pacing=EMCGameDirectorPacing::FinalCleanup;
+    const bool ActiveWork=ArenaHasWork(Seen)
+        || Tickets.ContainsByPredicate([](const FTicket& T){return T.bStarted && !T.bDone && T.Kind!=EMCGameDirectorEvent::Reward;});
+    if(bSupportMode && !ActiveWork && Seen.AvailablePlayers>0) {
+        if(Pacing!=EMCGameDirectorPacing::Build) {
+            Record(TEXT("Арена свободна: следующая подача без пустой передышки")); NextDecisionAt=Now;
+        }
+        Pacing=EMCGameDirectorPacing::Build; RestUntil=0;
+    }
+    else if(!bSupportMode && Now>=DayEndsAt-DaySettings.FinalCleanupSeconds) Pacing=EMCGameDirectorPacing::FinalCleanup;
     else if(Pacing==EMCGameDirectorPacing::Build && (Seen.Pressure>=TargetPressure*1.12f || Seen.Stress>.4f || Seen.bUrgent)) {
         Pacing=EMCGameDirectorPacing::Drain; PhaseStartedAt=Now;
     } else if(Pacing==EMCGameDirectorPacing::Drain && !Seen.bUrgent && !Seen.bGlobalMovement && Seen.Pressure<=TargetPressure*.45f) {
@@ -590,7 +647,7 @@ void AMCGameDirector::Tick(float Dt)
     } else if(Pacing==EMCGameDirectorPacing::Rest && Now>=RestUntil) {Pacing=EMCGameDirectorPacing::Build;PhaseStartedAt=Now;}
     Seen.Pacing=Pacing;
     if(Seen.bGlobalMovement || Seen.bUrgent || Seen.AvailablePlayers<=0 || Pacing!=EMCGameDirectorPacing::Build)
-        CancelReservation(TEXT("приоритет доставке и текущей работе"),Now);
+        CancelReservation(TEXT("приоритет текущим задачам и угрозам"),Now);
     FString Reason;
     if(Seen.bUrgent) Reason=TEXT("Пауза: команда решает срочную угрозу");
     else if(Seen.AvailablePlayers<=0) Reason=TEXT("Жду доступных игроков");

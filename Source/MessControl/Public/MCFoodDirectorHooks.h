@@ -42,8 +42,8 @@ struct MESSCONTROL_API FMCFoodPipelineLoad
     int32 UnresolvedHazards=0;
     int32 OutstandingActors=0;
     float EstimatedWorkerSeconds=0;
-    int32 EstimatedTrips=0;
-    int32 TeamStackCapacity=0;
+    int32 EstimatedTrips=0; // Spicy/foreign disposal only; ordinary food needs no trip.
+    int32 TeamStackCapacity=0; // Collection diagnostics, not ordinary destruction admission.
     int32 FreeStackSlots=0;
     int32 FullStacks=0;
     // Mouth counts/reservations are world-wide even when ingredients are filtered by Batch.
@@ -76,18 +76,20 @@ MESSCONTROL_API FMCFoodPipelineTuning MCResolveFoodPipelineTuning(UWorld* World,
     const FMCFoodPipelineTuning& Tuning=FMCFoodPipelineTuning());
 
 /** Conservative work for one configured row anywhere in the legal landing bands, including its ordinary stain.
- * Uses the same cutting, pickup and stack transport model as the actual pipeline.
- * Missing menu, tongue or matching delivery exit returns MAX_flt (cannot admit).
- * Ordinary whole food is assumed to require cutting, including small variants.
+ * Ordinary food budgets approach and tool damage until destruction: no fragments, pickup or delivery trips.
+ * Spicy/foreign objects retain their disposal route. Missing menu/tongue, or a missing
+ * disposal exit for those hazards, returns MAX_flt (cannot admit).
  */
 MESSCONTROL_API float MCForecastDirectedFoodWork(UWorld* World,const UMCDayPlan* Plan,
     FName RowName,bool bStuck=false,const FMCFoodPipelineTuning& Tuning=FMCFoodPipelineTuning(),
     float CleaningWorkerSeconds=8.f);
 
 /** Authority-only, observational snapshot; never blocks intake, changes input or moves food.
- * Delivery effort groups ordinary loose/future pieces into possible mixed stacks, using live
- * collection capacities, occupied slots, movement and personal tool perks. It ignores exact
- * pickup routes, collision and team assignment; tune against runtime/player telemetry.
+ * Ordinary food budgets remaining HP, real personal tools and approach to its visible bounds;
+ * collection capacity is diagnostic and does not imply future fragment/delivery work.
+ * Automatic swallowing/absorption remains outstanding without active destruction effort.
+ * Hazard transport retains its disposal route. Exact collision/navigation/team assignment
+ * is not predicted; tune against runtime/player telemetry.
  */
 MESSCONTROL_API FMCFoodPipelineLoad MCMeasureFoodPipeline(UWorld* World,int32 Batch=INDEX_NONE,
     const FMCFoodPipelineTuning& Tuning=FMCFoodPipelineTuning());

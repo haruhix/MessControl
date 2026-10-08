@@ -30,6 +30,17 @@
 #include "EngineUtils.h"
 #include "TimerManager.h"
 
+namespace {
+bool IsDestructionFood(const AMCFoodActor* Food)
+{
+    return IsValid(Food) && !Food->bBrushTool && Food->FoodData.Kind==EMCFoodKind::Food;
+}
+bool NeedsDiscard(const AMCFoodActor* Food)
+{
+    return IsValid(Food) && (Food->FoodData.Kind==EMCFoodKind::Spicy || Food->IsWrongIngredient());
+}
+}
+
 AMCPlaytestBotController::AMCPlaytestBotController()
 {
     bWantsPlayerState=true;
@@ -79,8 +90,9 @@ void AMCPlaytestBotController::ReleaseInputs(bool bDropCollection,bool bKeepSpri
     Hero->SetJumpInputHeld(false); if(!bKeepSprint) Hero->SetSprintInputHeld(false); JumpReleaseAt=0;
     Hero->SetSelfCareInput(false);
     if(bDropCollection && Hero->FoodCollection->bCollecting) {
-        // E is the same collection toggle used by a human; never dispose food from AI.
-        Hero->SetHandleInputHeld(true); Hero->SetHandleInputHeld(false);
+        // The player's E collection action, without accidentally opening a nearby
+        // chest or grabbing a toothpick through the contextual handle input.
+        Hero->SetFoodCollectionInput(false);
     }
 }
 
@@ -173,7 +185,7 @@ bool AMCPlaytestBotController::CanObserve(AActor* Actor) const
 bool AMCPlaytestBotController::IsTaskValid() const
 {
     AActor* Actor=Target.Get(); if(!IsValid(Actor)) return false;
-    if(Goal==EMCPlaytestBotGoal::Deliver) return Hero && (!Hero->FoodCollection->Pieces.IsEmpty() || IsValid(Hero->HeldFood));
+    if(Goal==EMCPlaytestBotGoal::Deliver) return Hero && IsValid(Hero->HeldFood) && !IsDestructionFood(Hero->HeldFood);
     if(Goal==EMCPlaytestBotGoal::Clean || Goal==EMCPlaytestBotGoal::Repair) {
         const auto* Status=Actor->FindComponentByClass<UMCToothStatusComponent>();
         const auto* Tooth=Cast<AMCArenaTooth>(Actor);
@@ -191,12 +203,17 @@ bool AMCPlaytestBotController::IsTaskValid() const
         const auto* Boss=Cast<AMCBossCharacter>(Actor); return Boss && Boss->CanReceiveWeaponHit() && Boss->Runtime.State!=EMCBossState::Dormant;
     }
     const auto* Food=Cast<AMCFoodActor>(Actor);
+    if(Goal==EMCPlaytestBotGoal::BreakFood && (!IsDestructionFood(Food) || !Food->Holders.IsEmpty())) return false;
     return Food && !Food->IsDisposed() && !Food->StackCarrier && Food->Phase!=EMCFoodPhase::Swallowing
         && Food->Phase!=EMCFoodPhase::Equipped && Food->Phase!=EMCFoodPhase::Absorbing;
 }
 
 void AMCPlaytestBotController::ChooseTask()
 {
+    // Ordinary ingredients end at destruction. Release an old/accidental load
+    // through the player's input before selecting tools; never take another player's stack.
+    if(Hero->FoodCollection->bCollecting || !Hero->FoodCollection->Pieces.IsEmpty() || IsDestructionFood(Hero->HeldFood))
+        ReleaseInputs(true);
     if(!IsValid(Hero->HeldFood)) ReleaseInputs();
     Target.Reset(); Goal=EMCPlaytestBotGoal::Idle;
     ResetApproach();
@@ -212,10 +229,10 @@ void AMCPlaytestBotController::ChooseTask()
         Score+=Random.FRandRange(0,Skill==EMCPlaytestBotSkill::Novice?240.f:50.f);
         if(Score<Best) { Best=Score; Target=Actor; Goal=Candidate; }
     };
-    if(!Hero->FoodCollection->Pieces.IsEmpty() || IsValid(Hero->HeldFood)) {
-        const AMCFoodActor* Piece=Hero->HeldFood?Hero->HeldFood.Get():Hero->FoodCollection->Pieces[0].Get();
+    if(IsValid(Hero->HeldFood)) {
+        const AMCFoodActor* Piece=Hero->HeldFood.Get();
         for(TActorIterator<AMCFoodDisposal> It(GetWorld());It;++It)
-            if(Piece && It->bBrushBin==Piece->IsWrongIngredient()) Consider(*It,EMCPlaytestBotGoal::Deliver,3000,true);
+            if(It->bBrushBin==NeedsDiscard(Piece)) Consider(*It,EMCPlaytestBotGoal::Deliver,3000,true);
     } else {
         if(Hero->Status->NeedsCare(false)) Consider(Hero,EMCPlaytestBotGoal::Repair,1800);
         if(Hero->Status->NeedsCare(true)) Consider(Hero,EMCPlaytestBotGoal::Clean,850);
@@ -236,10 +253,9 @@ void AMCPlaytestBotController::ChooseTask()
         for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
             if(It->bBrushTool || It->IsDisposed() || It->StackCarrier || !It->Holders.IsEmpty()
                 || (It->Phase!=EMCFoodPhase::Free && It->Phase!=EMCFoodPhase::Falling && It->Phase!=EMCFoodPhase::Stuck)) continue;
-            if(It->UsesLegacyGrip()) Consider(*It,EMCPlaytestBotGoal::PullFood,It->IsWrongIngredient()?850:650);
-            else if(It->Phase==EMCFoodPhase::Stuck || It->Body->GetScaledBoxExtent().GetMax()>55 || It->Visual->Bounds.SphereRadius>85)
-                Consider(*It,EMCPlaytestBotGoal::BreakFood,700);
-            else Consider(*It,EMCPlaytestBotGoal::CollectFood,850);
+            if(It->UsesLegacyGrip()) Consider(*It,EMCPlaytestBotGoal::PullFood,
+                It->FoodData.Kind==EMCFoodKind::Spicy?1600:NeedsDiscard(*It)?850:650);
+            else Consider(*It,EMCPlaytestBotGoal::BreakFood,850);
         }
         for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
             if(It->CanReceiveWeaponHit() && It->Runtime.State!=EMCBossState::Dormant) Consider(*It,EMCPlaytestBotGoal::Fight,1700);
@@ -638,7 +654,8 @@ void AMCPlaytestBotController::WorkAtTarget()
     EMCToolSlot Slot=EMCToolSlot::Brush;
     if(Goal==EMCPlaytestBotGoal::Spray) Slot=EMCToolSlot::Spray;
     else if(Goal==EMCPlaytestBotGoal::Calculus || Goal==EMCPlaytestBotGoal::Fight) Slot=EMCToolSlot::Pickaxe;
-    else if(Goal==EMCPlaytestBotGoal::BreakFood) Slot=CastChecked<AMCFoodActor>(Actor)->IsHardFood()?EMCToolSlot::Pickaxe:EMCToolSlot::Knife;
+    else if(Goal==EMCPlaytestBotGoal::BreakFood) Slot=CastChecked<AMCFoodActor>(Actor)->IsHardFood()
+        && !Hero->Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)?EMCToolSlot::Pickaxe:EMCToolSlot::Knife;
     if(Hero->Inventory->Selected!=Slot) {
         ReleaseInputs(); Hero->Inventory->ServerSelect(Slot);
         if(Hero->Inventory->Selected!=Slot) return;
@@ -696,9 +713,12 @@ void AMCPlaytestBotController::Decide()
         if(Stuck) {RecoverFromStall(); return;}
     }
     const bool FightingNut=Goal==EMCPlaytestBotGoal::Fight && Cast<AMCNutEnemy>(Target.Get()) && IsTaskValid();
-    const bool ReadyToDeliver=(!Hero->FoodCollection->Pieces.IsEmpty() || (IsValid(Hero->HeldFood) && Hero->HeldFood->Phase!=EMCFoodPhase::Stuck)) && Goal!=EMCPlaytestBotGoal::Deliver && !FightingNut;
+    const bool ReadyToDeliver=IsValid(Hero->HeldFood) && !IsDestructionFood(Hero->HeldFood)
+        && Hero->HeldFood->Phase!=EMCFoodPhase::Stuck && Goal!=EMCPlaytestBotGoal::Deliver && !FightingNut;
+    const bool DropOrdinaryLoad=(Hero->FoodCollection->bCollecting || !Hero->FoodCollection->Pieces.IsEmpty()
+        || IsDestructionFood(Hero->HeldFood)) && !FightingNut;
     const bool KeepNutFight=FightingNut && IsNutEncounterActive();
-    if(ReadyToDeliver || !IsTaskValid() || (!KeepNutFight && Now>=NextTaskAt && !Hero->IsPrimaryHeld() && !Hero->bHandling)) {
+    if(ReadyToDeliver || DropOrdinaryLoad || !IsTaskValid() || (!KeepNutFight && Now>=NextTaskAt && !Hero->IsPrimaryHeld() && !Hero->bHandling)) {
         if(Now<NextHesitationAt) return;
         if(Random.FRand()<Tuning.HesitationChance) { ReleaseInputs(); StopMovement(); NextHesitationAt=Now+Tuning.DecisionSeconds*2; return; }
         ChooseTask();

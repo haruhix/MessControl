@@ -90,7 +90,8 @@ public:
     FMCFoodEntryLanding OnEntryLanding;
     /** Entry flight is automatic transport, so work is measured at its planned landing. */
     FVector WorkPosition() const { return bMouthEntry && MouthEntryLanding.IsSet()?MouthEntryLanding.GetValue():GetActorLocation(); }
-    // Ordinary food is reserved for the new collection system. Tools and hazards retain the old grip.
+    // Ordinary food is destroyed for XP; collection remains available for future mechanics.
+    // Tools and hazards retain the old grip.
     bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
     bool TryGrab(AMCToothCharacter* Hero);
     bool FindGripSurface(FVector From,FHitResult& Hit) const;
@@ -106,7 +107,7 @@ public:
     void CancelSwallow();
     void ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment=false);
     void ConfigureBrush();
-    bool HitFood(float Damage,FVector Direction);
+    bool HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker=nullptr);
     bool IsHardFood() const;
     void AttendFood();
     /** A real river sweep preserves the new position even after the water leaves. */

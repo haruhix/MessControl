@@ -35,12 +35,12 @@ days[0] = day
 profile.set_editor_property('days', days)
 rules = []
 for kind, weight, cooldown, difficulty in (
-    (ue.MCGameDirectorEvent.FOOD, 4.5, 6.0, 0.0),
+    (ue.MCGameDirectorEvent.FOOD, 6.0, 6.0, 0.0),
     (ue.MCGameDirectorEvent.COFFEE, 4.5, 10.0, 0.0),
-    (ue.MCGameDirectorEvent.COFFEE_FLOOD, 0.45, 75.0, 0.75),
+    (ue.MCGameDirectorEvent.COFFEE_FLOOD, 2.0, 75.0, 0.75),
     (ue.MCGameDirectorEvent.COLD_COLA, 0.8, 70.0, 0.6),
     (ue.MCGameDirectorEvent.YAWN, 0.65, 45.0, 0.65),
-    (ue.MCGameDirectorEvent.PEPPER, 0.3, 60.0, 0.85),
+    (ue.MCGameDirectorEvent.PEPPER, 2.0, 60.0, 0.85),
     (ue.MCGameDirectorEvent.STUCK_FOOD, 0.75, 35.0, 0.0),
     (ue.MCGameDirectorEvent.LOOSE_TOOTH, 0.6, 45.0, 0.0),
     (ue.MCGameDirectorEvent.REWARD, 0.0, 65.0, 0.0),

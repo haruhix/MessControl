@@ -608,7 +608,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         if (Action==EMCDevAction::DropFood)
         {
             const auto* Food=DayDirector->SpawnMenuFoodEntry(2);
-            return FText::FromString(Food?TEXT("Один кусок еды влетает со стороны рта по дуге. Бей, хватай и тащи в глотку."):TEXT("В зоне приземления нет места для этой еды."));
+            return FText::FromString(Food?TEXT("Еда влетает со стороны рта по дуге. Обычную еду разбей до исчезновения — задача и XP сразу. Перец выбрасывай."):TEXT("В зоне приземления нет места для этой еды."));
         }
         const FVector Ahead=Hero->GetActorLocation()+Hero->GetActorForwardVector()*220;
         FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(MCDevFood),false,Hero);
@@ -628,7 +628,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
                 }
             }
         }
-        return FText::FromString(Food?(Action==EMCDevAction::Infection?TEXT("Порча за 3 секунды для проверки. Язвы появляются от огня и взрыва чили."):TEXT("Еда падает перед тобой. Бей, хватай и тащи в глотку.")):TEXT("Не удалось создать еду."));
+        return FText::FromString(Food?(Action==EMCDevAction::Infection?TEXT("Порча за 3 секунды для проверки. Язвы появляются от огня и взрыва чили."):TEXT("Еда падает перед тобой. Разбей обычную еду до исчезновения — задача и XP сразу.")):TEXT("Не удалось создать еду."));
     }
     case EMCDevAction::DropBrushes: DayDirector->DropBrushes(); break;
     case EMCDevAction::CoffeeDirt: DayDirector->DirtyMouth(true); DayDirector->DropBrushes(); break;

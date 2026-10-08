@@ -226,7 +226,7 @@ void UMCInventoryComponent::SawContact()
     }
     if(Best) {
         // Health is the authored full-food health, rather than remaining health: exactly two clean contacts.
-        if(Best->HitFood(FMath::Max(1.f,Best->FoodData.Health*.5f),Forward)) SawContacts.Add(Best,Now()+.45);
+        if(Best->HitFood(FMath::Max(1.f,Best->FoodData.Health*.5f),Forward,Hero)) SawContacts.Add(Best,Now()+.45);
     }
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
         auto* Other=*It;if(Other==Hero || !Other->Status->IsAlive() || Now()<SawContacts.FindRef(Other)) continue;
@@ -256,7 +256,7 @@ void UMCInventoryComponent::FireChargedWater(float Charge)
     FVector End=Origin+Direction*Reach;
     if(GetWorld()->SweepSingleByObjectType(Hit,Origin,End,FQuat::Identity,Objects,FCollisionShape::MakeSphere(FMath::Lerp(5.f,12.f,Charge)),Query)) {
         End=Hit.ImpactPoint;
-        if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) Food->HitFood(Power,Direction);
+        if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) Food->HitFood(Power,Direction,Hero);
         else if(auto* Boss=Cast<AMCBossCharacter>(Hit.GetActor())) Boss->ReceiveBossDamage(Power,Hero);
         else if(auto* Player=Cast<AMCToothCharacter>(Hit.GetActor())) {
             Player->Status->Damage(Power,Direction);Player->ToothPhysics->ApplyHit(Direction*FMath::Lerp(150.f,480.f,Charge)+FVector(0,0,50),End);

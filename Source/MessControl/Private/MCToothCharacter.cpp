@@ -586,6 +586,11 @@ void AMCToothCharacter::SetHandleInputHeld(bool Held)
     bSharedHandleInputHeld=Held;
     if(Held) StartHandle(); else StopHandle();
 }
+void AMCToothCharacter::SetFoodCollectionInput(bool Enabled)
+{
+    if((!HasAuthority() && !IsLocallyControlled()) || !FoodCollection || FoodCollection->bCollecting==Enabled) return;
+    ServerToggleFoodCollection();
+}
 void AMCToothCharacter::SetJumpInputHeld(bool Held)
 {
     if ((!HasAuthority() && !IsLocallyControlled()) || (Held && !CanWork()) || bSharedJumpInputHeld==Held) return;
@@ -612,7 +617,9 @@ void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
 {
     if(bActive && IsMimicCaptured()) return;
     if(bActive) Grip->ReleaseBrace();
-    if(bActive && CanWork() && !bInCoffee && !bSelfCare && Inventory->IsCleaningTool() && (FoodCollection->bCollecting || FoodCollection->HasCandidate())) {
+    // E explicitly enters the retained collection mode. Default brush input must
+    // keep cleaning beside food in the destruction loop instead of starting a stack.
+    if(bActive && CanWork() && !bInCoffee && !bSelfCare && Inventory->IsCleaningTool() && FoodCollection->bCollecting) {
         bPrimaryHeld=false;bBrushing=false;bHandling=false;DropFood();ResetContact();FoodCollection->Toggle();ForceNetUpdate();return;
     }
     bPrimaryHeld=bActive && Status->IsAlive();
@@ -1049,7 +1056,7 @@ void AMCToothCharacter::ResolveSwing()
     }
     if (FoodTarget)
     {
-        if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector()))
+        if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector(),this))
         {
             ++ConfirmedHitCount; MulticastHitSound(FoodTarget->GetActorLocation(),AudioTool,HitIntensity);
             if (FoodTarget->IsDisposed()) if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(this,EMCTutorialAction::FoodCut,FoodTarget);

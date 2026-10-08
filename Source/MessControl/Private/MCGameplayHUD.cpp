@@ -444,31 +444,46 @@ void UMCGameplayHUD::RefreshState()
         const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0 || Inv->bChargingWater);
         Text(TEXT("CooldownValue"),Inv->bChargingWater?FString::Printf(TEXT("%d%%"),FMath::RoundToInt(Inv->WaterChargeFraction()*100)):FString::Printf(TEXT("%.1f"),Cool));
         Bar(TEXT("CooldownProgress"),Inv->bChargingWater?Inv->WaterChargeFraction():1-Cool/Inv->CooldownSeconds());
-        FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ ТВЁРДОЕ"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РЕЗАТЬ МЯГКОЕ"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):TEXT("ЛКМ · ЧИСТИТЬ");
+        FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ · ЕДА → XP"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РАЗБИТЬ ЕДУ → XP"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):TEXT("ЛКМ · ЧИСТИТЬ");
         if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=TEXT("УДЕРЖИВАЙ ЛКМ · ПИЛИТЬ И ДВИГАТЬСЯ ВПЕРЁД");
         if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?TEXT("ЗАЖМИ ЛКМ · ЗАРЯДИТЬ, ОТПУСТИ · ВЫСТРЕЛ     4 · РЕЖИМ"):TEXT("УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ");
         Hint+=TEXT("     ПКМ · ДЕРЖАТЬСЯ");
+        const auto IsFreshOrdinaryFood=[](const AMCFoodActor* Food) {
+            return IsValid(Food) && Food->FoodData.Kind==EMCFoodKind::Food && !Food->bBrushTool && !Food->IsWrongIngredient();
+        };
+        bool HasOrdinaryPieces=false,HasExitPieces=false;
+        for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece)) {
+            HasOrdinaryPieces|=IsFreshOrdinaryFood(Piece);HasExitPieces|=!IsFreshOrdinaryFood(Piece);
+        }
+        const bool HeldNeedsExit=IsValid(Hero->HeldFood) && !IsFreshOrdinaryFood(Hero->HeldFood);
+        const bool ExplicitFoodTransport=GS->bSingleDayLoop
+            ?!HeldNeedsExit && !HasExitPieces && (IsFreshOrdinaryFood(Hero->HeldFood) || Hero->FoodCollection->bCollecting || HasOrdinaryPieces)
+            :IsValid(Hero->HeldFood) || Hero->FoodCollection->bCollecting || !Hero->FoodCollection->Pieces.IsEmpty();
         if(Hero->FoodCollection->bCollecting)
         {
-            bool HasWrong=false;
+            bool HasWrong=GS->bSingleDayLoop && HasExitPieces;
             for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece) && Piece->IsWrongIngredient()) { HasWrong=true; break; }
             Hint=HasWrong?FString::Printf(TEXT("СТОПКА %d/6 · В КРАСНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num())
                 :FString::Printf(TEXT("СТОПКА %d/6 · В ЗЕЛЁНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num());
         }
-        else if(Inv->IsCleaningTool() && Hero->FoodCollection->HasCandidate()) Hint=TEXT("КЛИК ЛКМ · СОБИРАТЬ СТОПКУ");
         if(Hero->IsYawning()) Hint=TEXT("ЗЕВАНИЕ · WASD + SHIFT · БЕГИ ПРОТИВ ПОТОКА");
-        if(Hero->HeldFood) Hint=Hero->HeldFood->IsWrongIngredient()?TEXT("МУСОР — В КРАСНУЮ · Q БРОСИТЬ"):TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
+        if(Hero->HeldFood) Hint=GS->bSingleDayLoop && Hero->HeldFood->FoodData.Kind==EMCFoodKind::Spicy?TEXT("ПЕРЕЦ — В КРАСНУЮ / ВЫХОД · Q БРОСИТЬ")
+            :Hero->HeldFood->IsWrongIngredient()?TEXT("МУСОР — В КРАСНУЮ · Q БРОСИТЬ"):TEXT("E · ДЕРЖАТЬ     Q · БРОСИТЬ");
         if(Hero->bInCoffee) Hint=ActiveFlood && ActiveFlood->bRiverFlood?
             TEXT("WASD + SHIFT · БЕЖАТЬ     ПКМ · ДЕРЖАТЬСЯ ЗА ОПОРУ"):
             TEXT("WASD · ПЛЫТЬ     ЛКМ · ЗАЦЕПИТЬСЯ");
         if(const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement()); Move && Move->IsClimbing()) Hint=TEXT("WASD · ЛАЗАТЬ     E · ДЕРЖАТЬСЯ     SPACE · ОТПРЫГНУТЬ");
         for(TActorIterator<AMCThroat> It(GetWorld());It;++It) {
-            if(It->CanOrderJump(Hero)) Hint=TEXT("SPACE · ПРЫГНУТЬ НА ЯЗЫЧОК");
+            if(It->CanOrderJump(Hero) && (!GS->bSingleDayLoop || ExplicitFoodTransport)) Hint=TEXT("SPACE · ПРЫГНУТЬ НА ЯЗЫЧОК");
             if(It->ContainsPlayer(Hero)) {
-                if(It->ThroatPhase==EMCThroatPhase::Anticipation)
-                    Hint=FString::Printf(TEXT("ДОСТАВЛЯЙ ЕЩЁ · ЗАСАСЫВАНИЕ ЧЕРЕЗ %.1f С"),FMath::Max(0.,It->PhaseStartedAt+It->AnticipationSeconds-Now));
-                else if(It->ThroatPhase==EMCThroatPhase::Swallowing) Hint=TEXT("ГЛОТКА ЗАСАСЫВАЕТ · СЛЕДУЮЩАЯ ПАРТИЯ ПРИНИМАЕТСЯ");
-                else if(It->ThroatPhase==EMCThroatPhase::Collecting) Hint=TEXT("ВНЕСИ СТОПКУ В ЗОНУ · ЕДА ОТПРАВИТСЯ САМА");
+                if(It->ThroatPhase==EMCThroatPhase::Anticipation) {
+                    const double UntilSuction=FMath::Max(0.,It->PhaseStartedAt+It->AnticipationSeconds-Now);
+                    Hint=GS->bSingleDayLoop && !ExplicitFoodTransport
+                        ?FString::Printf(TEXT("ЗАСАСЫВАНИЕ ЧЕРЕЗ %.1f С · ВЫЙДИ ИЗ ЗОНЫ"),UntilSuction)
+                        :FString::Printf(TEXT("ДОСТАВЛЯЙ ЕЩЁ · ЗАСАСЫВАНИЕ ЧЕРЕЗ %.1f С"),UntilSuction);
+                }
+                else if(It->ThroatPhase==EMCThroatPhase::Swallowing) Hint=GS->bSingleDayLoop && !ExplicitFoodTransport?TEXT("ГЛОТКА ЗАСАСЫВАЕТ · ДЕРЖИСЬ"):TEXT("ГЛОТКА ЗАСАСЫВАЕТ · СЛЕДУЮЩАЯ ПАРТИЯ ПРИНИМАЕТСЯ");
+                else if(It->ThroatPhase==EMCThroatPhase::Collecting && (!GS->bSingleDayLoop || ExplicitFoodTransport)) Hint=TEXT("ВНЕСИ СТОПКУ В ЗОНУ · ЕДА ОТПРАВИТСЯ САМА");
             }
         }
         if(Hero->Grip && Hero->Grip->IsBracing())

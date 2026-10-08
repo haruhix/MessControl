@@ -526,13 +526,14 @@ void AMCFoodActor::Tick(float Dt)
     }
     if(GetNetMode()==NM_DedicatedServer) return;
     FString Caption=Phase==EMCFoodPhase::Stuck?FString::Printf(TEXT("LMB + MOVE TO CENTRE\nPULL %.0f%% | %d GRIPS"),PullProgress*100,Holders.Num()):Phase==EMCFoodPhase::Carried?TEXT("RELEASE LMB: DROP | Q: THROW"):TEXT("HOLD LMB: PICK UP / DRAG");
-    if (!UsesLegacyGrip()) Caption=Phase==EMCFoodPhase::Stuck?TEXT("F: FREE / CUT FOOD"):StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):TEXT("LMB: COLLECT STACK | F: CUT");
+    if (!UsesLegacyGrip()) Caption=StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):
+        IsHardFood()?TEXT("PICKAXE: BREAK FOR XP"):TEXT("KNIFE: BREAK FOR XP");
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("SPOILED"):FoodData.Kind==EMCFoodKind::Spicy?*FString::Printf(TEXT("%.1fs %s"),FuseRemaining(),bFusePaused?TEXT("PAUSED"):TEXT("THROW INTO THROAT")):FoodData.Kind==EMCFoodKind::ForeignObject?TEXT("FOREIGN OBJECT"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
     if (bBrushTool) Caption=TEXT("LMB: PICK UP BRUSH\nQ: THROW OVERBOARD");
     if(FoodData.Kind==EMCFoodKind::Spicy) {
         Caption=FuseEndsAt>0 || bFusePaused
-            ?FString::Printf(TEXT("SPICY PEPPER | %.1fs%s\nTHROW TO THROAT OR EXIT"),FuseRemaining(),bFusePaused?TEXT(" [PAUSED]"):TEXT(""))
-            :FString::Printf(TEXT("SPICY PEPPER\n%.0fs AFTER LANDING"),FoodData.FuseSeconds);
+            ?FString::Printf(TEXT("SPICY PEPPER | %.1fs%s\nTHROW THROUGH EXIT"),FuseRemaining(),bFusePaused?TEXT(" [PAUSED]"):TEXT(""))
+            :FString::Printf(TEXT("SPICY PEPPER\nTHROW THROUGH EXIT | %.0fs AFTER LANDING"),FoodData.FuseSeconds);
         if(!FMath::IsNearlyEqual(Label->WorldSize,18.f)) Label->SetWorldSize(18);
         Label->SetTextRenderColor(FuseRemaining()<=3 && !bFusePaused?FColor(255,75,35):FColor(255,220,90));
         const FVector LabelLocation(0,0,Body->GetUnscaledBoxExtent().Z+30);
@@ -899,9 +900,11 @@ void AMCFoodActor::Throw(AMCToothCharacter* Hero)
     if (Phase!=EMCFoodPhase::Stuck) { Phase=EMCFoodPhase::Free; OnRep_Phase(); Body->SetPhysicsLinearVelocity(Body->GetPhysicsLinearVelocity()*.5+Hero->GetVelocity()*.5+Hero->GetActorForwardVector()*(WasTool?1000.f:420.f)+FVector(0,0,220)); }
     Hero->ForceNetUpdate(); ForceNetUpdate();
 }
-bool AMCFoodActor::HitFood(float Damage,FVector Direction)
+bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Worker)
 {
     if (!HasAuthority() || bBrushTool || IsDisposed() || Phase==EMCFoodPhase::Swallowing || !FMath::IsFinite(Damage) || Damage<=0 || Direction.ContainsNaN()) return false;
+    if(!IsValid(Worker) || Worker->GetWorld()!=GetWorld()) Worker=nullptr;
+    if(Worker) LastHandledBy=Worker->GetPlayerState<AMCPlayerState>();
     EndMouthEntry();
     if(StackCarrier) StackCarrier->FoodCollection->Spill(Direction.GetSafeNormal()*180+FVector(0,0,60));
     if(Phase==EMCFoodPhase::Stuck) {Phase=EMCFoodPhase::Free;StuckTooth=nullptr;OnRep_Phase();}
@@ -912,20 +915,17 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction)
         return true;
     }
     AttendFood(); Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();
-    if (Health>0 || bFragment) { Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
-    FRandomStream Random(FMath::Rand()); const FVector P=GetActorLocation();
-    for (int32 I=0;I<FoodData.Fragments;++I)
-    {
-        const float Angle=I*2*PI/FoodData.Fragments; const FVector Offset(FMath::Cos(Angle)*42,FMath::Sin(Angle)*42,20);
-        // A resized whole item produces equally resized fragments. Their mesh pivots
-        // and independent menu scales are still handled by ConfigureItem.
-        const FTransform T(GetActorQuat(),P+GetActorTransform().TransformVector(Offset),GetActorScale3D());
-        auto* Part=GetWorld()->SpawnActorDeferred<AMCFoodActor>(StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-        if (!Part) continue;
-        Part->ConfigureItem(ItemName,FoodData,Random,true); Part->Batch=Batch; Part->SpoilAt=SpoilAt; Part->bSpoiled=bSpoiled;
-        Part->bRiverSwept=bRiverSwept; Part->RiverEscapeZ=RiverEscapeZ;
-        if (AMCTutorialDirector::IsTutorialTarget(this)) { Part->SetOwner(GetOwner()); Part->Tags.AddUnique(TEXT("MCTutorial")); }
-        UGameplayStatics::FinishSpawningActor(Part,T); Part->Body->SetPhysicsLinearVelocity(Offset*3);
+    if (Health>0) { Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
+    // Completion is the final real tool hit, including on old fragment actors.
+    // Use the delivery guard as well so a later intake cannot reward this item twice.
+    // Spoiled ordinary food is still a destruction task; legacy sorting stays unchanged.
+    if(FoodData.Kind==EMCFoodKind::Food && !bDeliveryScored) {
+        bDeliveryScored=true;
+        if(Worker) {
+            if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>())
+                Mode->AwardTaskToPlayerState(Worker->GetPlayerState<AMCPlayerState>(),EMCScoreTask::Food);
+            Worker->NotifyTaskFeedback(true,GetActorLocation());
+        }
     }
     Dispose(); return true;
 }

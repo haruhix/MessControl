@@ -132,7 +132,7 @@ void AMCSingleDayDirector::BeginOpeningPause(bool bAfterMeal)
     Record(bAfterMeal?TEXT("Приём пищи завершён: короткая передышка перед орехами"):
         TEXT("Первый перк выбран: короткая передышка после обучения"));
     Publish(TEXT("ПЕРЕДЫШКА"),bAfterMeal?TEXT("Приготовьтесь уворачиваться от падающих орехов."):
-        TEXT("Обычная еда скоро появится. Подготовьте нож и место для переноски."));
+        TEXT("Обычная еда скоро появится. Подготовьте нож, кирку и щётку."));
     ForceNetUpdate();
 }
 void AMCSingleDayDirector::BeginFirstMeal()
@@ -147,8 +147,8 @@ void AMCSingleDayDirector::BeginFirstMeal()
     MealServices->SetOwner(this);
     MealServices->InitializeEventServices(Mechanics,GS?GS->RunSeed:41);
     NextMealDropAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
-    Record(TEXT("Обычный приём пищи: нарезка и доставка; ореховое событие ждёт завершения еды"));
-    Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Доставьте еду в горло и очистите оставшуюся грязь."),
+    Record(TEXT("Обычный приём пищи: разбивание еды за XP и чистка; ореховое событие ждёт завершения задач"));
+    Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Разбейте еду, получите XP и очистите оставшуюся грязь."),
         FMath::Clamp(Settings->OpeningMealItems,1,6),FMath::Clamp(Settings->OpeningMealItems,1,6));
     ForceNetUpdate();
 }
@@ -183,8 +183,8 @@ void AMCSingleDayDirector::TickFirstMeal()
         const float Configured=Settings->OpeningMealDropSeconds;
         NextMealDropAt=Time+(FMath::IsFinite(Configured)?FMath::Clamp(Configured,.5f,5.f):1.5f);
     }
-    // Fracture parents disappear before their fragments. The ordinary food pipeline
-    // keeps carried, loose and swallowing pieces outstanding until their work ends.
+    // Each ordinary item remains outstanding until destroyed. Retained transport
+    // and swallowing also stay outstanding until their existing work ends.
     const auto Food=MCMeasureFoodPipeline(GetWorld(),FirstMealBatch);
     const int32 Dirt=MCCountDirectedFoodDirt(GetWorld(),FirstMealBatch);
     if(MealSpawned>=Target && Food.OutstandingActors==0 && Food.UnresolvedHazards==0 && Dirt==0) {
@@ -192,7 +192,7 @@ void AMCSingleDayDirector::TickFirstMeal()
         BeginOpeningPause(true); return;
     }
     const int32 Left=Target-MealSpawned+Food.OutstandingActors+Dirt;
-    Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Доставьте еду в горло и очистите оставшуюся грязь."),
+    Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Разбейте еду, получите XP и очистите оставшуюся грязь."),
         Left,FMath::Max(GS->TasksTotal,Left));
 }
 void AMCSingleDayDirector::BeginNuts()
@@ -222,7 +222,7 @@ void AMCSingleDayDirector::BeginNuts()
     UMCNutRainProfile* Variant=Variants.IsValidIndex(VariantIndex)?Variants[VariantIndex].LoadSynchronous():nullptr;
     Record(FString::Printf(TEXT("Ключевое событие %d: ореховые серии и боссы; обычные события приостановлены"),KeyEventIndex+1));
     NutEvent->Start(Mechanics,Variant);
-    Publish(TEXT("ОРЕХОВЫЙ ДОЖДЬ"),TEXT("Продержитесь под дождём. Кирка разбивает твёрдые орехи; еду можно доставлять."));
+    Publish(TEXT("ОРЕХОВЫЙ ДОЖДЬ"),TEXT("Продержитесь под дождём. Разбивайте твёрдые орехи киркой и получайте XP."));
     UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY NUTS variant=%d"),VariantIndex);
     ForceNetUpdate();
 }

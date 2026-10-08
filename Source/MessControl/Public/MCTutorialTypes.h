@@ -47,7 +47,7 @@ struct MESSCONTROL_API FMCTutorialProgressRules
         switch(Stage) {
         case EMCTutorialStage::Intro: return EMCTutorialStage::BrushTooth;
         case EMCTutorialStage::BrushTooth: return EMCTutorialStage::FoodCut;
-        case EMCTutorialStage::FoodCut: return EMCTutorialStage::FreshSort;
+        case EMCTutorialStage::FoodCut: return EMCTutorialStage::CoffeeCleanup;
         case EMCTutorialStage::FreshSort: return EMCTutorialStage::CoffeeCleanup;
         case EMCTutorialStage::CoffeeCleanup: return EMCTutorialStage::ToothpickPull;
         case EMCTutorialStage::ToothpickPull: return EMCTutorialStage::ToothpickBreak;

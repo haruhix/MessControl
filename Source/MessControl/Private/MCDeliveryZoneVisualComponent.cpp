@@ -4,6 +4,8 @@
 #include "MCThroat.h"
 #include "MCTongue.h"
 #include "MCGameState.h"
+#include "MCToothCharacter.h"
+#include "MCFoodCollectionComponent.h"
 #include "MCDeliveryZoneCaptionWidget.h"
 #include "ProceduralMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -98,7 +100,23 @@ void UMCDeliveryZoneVisualComponent::TickComponent(float Dt,ELevelTick TickType,
     const auto* Viewer=GetWorld()->GetFirstPlayerController();
     const bool CloseView=Viewer && Viewer->PlayerCameraManager
         && FVector::DistSquared(Viewer->PlayerCameraManager->GetCameraLocation(),Caption->GetComponentLocation())<FMath::Square(2200.f);
-    Caption->SetVisibility(!Yawning && CloseView);
+    const auto* Hero=Viewer?Cast<AMCToothCharacter>(Viewer->GetPawn()):nullptr;
+    const auto IsFreshOrdinaryFood=[](const AMCFoodActor* Food) {
+        return IsValid(Food) && Food->FoodData.Kind==EMCFoodKind::Food && !Food->bBrushTool && !Food->IsWrongIngredient();
+    };
+    bool ExplicitFoodTransport=false;
+    if(Hero) {
+        bool HasOrdinaryPieces=false,HasExitPieces=false;
+        if(Hero->FoodCollection) for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece)) {
+            HasOrdinaryPieces|=IsFreshOrdinaryFood(Piece);HasExitPieces|=!IsFreshOrdinaryFood(Piece);
+        }
+        const bool HeldNeedsExit=IsValid(Hero->HeldFood) && !IsFreshOrdinaryFood(Hero->HeldFood);
+        ExplicitFoodTransport=!HeldNeedsExit && !HasExitPieces && (IsFreshOrdinaryFood(Hero->HeldFood)
+            || (Hero->FoodCollection && Hero->FoodCollection->bCollecting) || HasOrdinaryPieces);
+    }
+    // Keep the future delivery zone functional without making it an ordinary-food objective.
+    const bool ShowCaption=Zone->bBrushBin || !GS || !GS->bSingleDayLoop || ExplicitFoodTransport;
+    Caption->SetVisibility(!Yawning && CloseView && ShowCaption);
     bool Wrong=false;
     if(const auto* Throat=Cast<AMCThroat>(Zone.Get())) {Wrong=Throat->ThroatPhase==EMCThroatPhase::Spasm || Throat->ThroatPhase==EMCThroatPhase::Vomiting;Throat->ZoneRing->SetVisibility(false);}
     if(auto* Widget=Cast<UMCDeliveryZoneCaptionWidget>(Caption->GetUserWidgetObject())) Widget->SetDeliveryCaption(Zone->bBrushBin,Wrong);

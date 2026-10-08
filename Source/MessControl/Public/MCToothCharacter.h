@@ -124,6 +124,7 @@ public:
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetHandleInputHeld(bool Held);
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetJumpInputHeld(bool Held);
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetSelfCareInput(bool Enabled);
+    void SetFoodCollectionInput(bool Enabled);
     UFUNCTION(Server,Reliable) void ServerSetPrimary(bool bActive);
     bool CanContact(AActor* Target) const;
     void UpdateMouthCamera(float Dt);
