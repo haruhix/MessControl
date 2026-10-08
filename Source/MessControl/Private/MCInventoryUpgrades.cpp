@@ -46,8 +46,17 @@ bool UMCInventoryComponent::IsChainsawRunning() const
 }
 bool UMCInventoryComponent::IsUsingWatergun() const
 {
-    return Hero && Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun) && Hero->IsPrimaryHeld()
+    const double ShotAge=Now()-(WaterShotReadyAt-4.);
+    const bool Recovering=WaterShotReadyAt>0 && ShotAge>=0 && ShotAge<.42;
+    return Hero && Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun) && (Hero->IsPrimaryHeld() || Recovering)
         && Hero->CanWork() && !Hero->bInCoffee && ShouldPresentTool();
+}
+float UMCInventoryComponent::WaterRecoil() const
+{
+    if(WaterShotReadyAt<=0) return 0;
+    const float Age=Now()-(WaterShotReadyAt-4.);
+    if(Age<0 || Age>=.42f) return 0;
+    return FMath::SmoothStep(0.f,.045f,Age)*(1-FMath::SmoothStep(.055f,.42f,Age));
 }
 bool UMCInventoryComponent::IsUsingBuffer() const
 {
@@ -73,11 +82,52 @@ bool UMCInventoryComponent::UpgradeIdleGrip(FTransform& RightHandWorld) const
     case EMCToolUpgrade::Watergun:Attachment=Settings->WatergunTransform;Idle=Settings->WatergunIdlePose;break;
     default:return false;
     }
+    if(SelectedUpgrade()==EMCToolUpgrade::Buffer || SelectedUpgrade()==EMCToolUpgrade::Watergun) Attachment=UpgradeAttachment();
     const FTransform InHand=Attachment*Hero->BrushPivot->GetRelativeTransform();
     Idle.SetScale3D(InHand.GetScale3D());
     // Solve the wrist from the authored tool pose, retaining the artist's
     // attachment offset and the character rig's brush-pivot correction.
     RightHandWorld=InHand.Inverse()*Idle*Hero->GetActorTransform();
+    return !RightHandWorld.ContainsNaN();
+}
+FTransform UMCInventoryComponent::UpgradeAttachment() const
+{
+    if(!Settings) return FTransform::Identity;
+    const bool Buffer=SelectedUpgrade()==EMCToolUpgrade::Buffer;
+    const FTransform Idle=Buffer?Settings->BufferTransform:Settings->WatergunTransform;
+    if(!Settings->bUseWorkingToolPoses) return Idle;
+    FTransform Result;Result.Blend(Idle,Buffer?Settings->BufferWorkTransform:Settings->WatergunWorkTransform,WorkingGripAlpha);
+    return Result;
+}
+bool UMCInventoryComponent::UpgradeWorkToolPose(FTransform& ToolWorld) const
+{
+    if(!Hero || !Settings) return false;
+    const auto Kind=SelectedUpgrade();
+    if(Kind!=EMCToolUpgrade::Buffer && Kind!=EMCToolUpgrade::Watergun) return false;
+    FTransform Pose=Kind==EMCToolUpgrade::Buffer
+        ?(Settings->bUseWorkingToolPoses?Settings->BufferWorkPose:Settings->BufferIdlePose)
+        :(Settings->bUseWorkingToolPoses?Settings->WatergunWorkPose:Settings->WatergunIdlePose);
+    Pose.SetScale3D(UpgradeAttachment().GetScale3D()*Hero->BrushPivot->GetRelativeScale3D());
+    ToolWorld=Pose*Hero->GetActorTransform();
+    return !ToolWorld.ContainsNaN();
+}
+bool UMCInventoryComponent::WatergunHandGoal(FTransform& RightHandWorld) const
+{
+    FTransform ToolWorld;
+    if(!Tool || !UpgradeWorkToolPose(ToolWorld)) return false;
+    const FTransform InHand=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
+    const FVector Wrist=(InHand.Inverse()*ToolWorld).GetLocation();
+    FQuat Rotation=ToolWorld.GetRotation();
+    if(HealingTarget || FireTarget) {
+        const FVector Aim=(SprayAim()-Wrist).GetSafeNormal();
+        Rotation=(FQuat::FindBetweenNormals(ToolWorld.GetUnitAxis(EAxis::X),Aim)*Rotation).GetNormalized();
+    }
+    const float Recoil=WaterRecoil();
+    Rotation=(Rotation*FRotator(6*Recoil,0,0).Quaternion()).GetNormalized();
+    ToolWorld.SetRotation(Rotation);
+    const FVector LocalGrip=InHand.InverseTransformPosition(FVector::ZeroVector);
+    ToolWorld.SetLocation(Wrist-Rotation.RotateVector(LocalGrip*ToolWorld.GetScale3D())-Hero->GetActorForwardVector()*(6*Recoil));
+    RightHandWorld=InHand.Inverse()*ToolWorld;
     return !RightHandWorld.ContainsNaN();
 }
 bool UMCInventoryComponent::UpgradeSupportGrip(const FTransform& RightHandWorld,FTransform& LeftHandWorld) const
@@ -90,6 +140,12 @@ bool UMCInventoryComponent::UpgradeSupportGrip(const FTransform& RightHandWorld,
     case EMCToolUpgrade::Buffer:Attachment=Settings->BufferTransform;Point=Settings->BufferSupportGrip;Rotation=Settings->BufferSupportRotation;Mesh=Settings->BufferMesh.Get();break;
     case EMCToolUpgrade::Watergun:Attachment=Settings->WatergunTransform;Point=Settings->WatergunSupportGrip;Rotation=Settings->WatergunSupportRotation;Mesh=Settings->WatergunMesh.Get();break;
     default:return false;
+    }
+    if(Settings->bUseWorkingToolPoses && (SelectedUpgrade()==EMCToolUpgrade::Buffer || SelectedUpgrade()==EMCToolUpgrade::Watergun)) {
+        const bool Buffer=SelectedUpgrade()==EMCToolUpgrade::Buffer;
+        Attachment=UpgradeAttachment();
+        Point=FMath::Lerp(Point,Buffer?Settings->BufferWorkSupportGrip:Settings->WatergunWorkSupportGrip,WorkingGripAlpha);
+        Rotation=FQuat::Slerp(Rotation.Quaternion(),(Buffer?Settings->BufferWorkSupportRotation:Settings->WatergunWorkSupportRotation).Quaternion(),WorkingGripAlpha).Rotator();
     }
     if(Mesh) if(const auto* Socket=Mesh->FindSocket(TEXT("GripLeft"))) {Point=Socket->RelativeLocation;Rotation=Socket->RelativeRotation;}
     const FTransform ToolWorld=Attachment*Hero->BrushPivot->GetRelativeTransform()*RightHandWorld;
@@ -117,7 +173,6 @@ void UMCInventoryComponent::CancelUpgradeUse()
     bChargingWater=false;
     if(Hero && bSawMotionActive) Hero->GetCharacterMovement()->RemoveRootMotionSourceByID(SawMotionId);
     bSawMotionActive=false;
-    if(GetOwner()->HasAuthority() && WaterStream.IsValid()) WaterStream->Destroy();WaterStream.Reset();
 }
 void UMCInventoryComponent::EndPlay(const EEndPlayReason::Type Reason)
 {
@@ -208,25 +263,8 @@ void UMCInventoryComponent::FireChargedWater(float Charge)
         }
         AMCReactionVFX::Spawn(GetWorld(),End,EMCReactionEffect::WaterImpact,.5f,40+Charge*40,Hit.ImpactNormal);
     }
-    AMCReactionVFX::Spawn(GetWorld(),Origin,EMCReactionEffect::WaterShot,.25f,12+Charge*12,Direction,FVector::Distance(Origin,End));
+    AMCReactionVFX::Spawn(GetWorld(),Origin,EMCReactionEffect::WaterShot,.5f,12+Charge*12,Direction,FVector::Distance(Origin,End));
     WaterShotReadyAt=Now()+4.;LastSprayAt=Now();Hero->ForceNetUpdate();
-}
-void UMCInventoryComponent::UpdateWaterStream()
-{
-    if(!Hero->HasAuthority()) return;
-    const bool Active=Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun) && !bPressureMode
-        && Hero->IsPrimaryHeld() && Hero->CanWork() && !Hero->bInCoffee && ShouldPresentTool();
-    if(!Active) {if(WaterStream.IsValid()) WaterStream->Destroy();WaterStream.Reset();return;}
-    const FVector Origin=SprayOrigin(),Aim=SprayAim();
-    const FVector Direction=(HealingTarget || FireTarget)?(Aim-Origin).GetSafeNormal():Hero->GetActorForwardVector();
-    float Length=(HealingTarget || FireTarget)?FVector::Distance(Aim,Origin):SprayReach();
-    FHitResult Block;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCWaterCareVisual),false,Hero);
-    if(GetWorld()->LineTraceSingleByChannel(Block,Origin,Origin+Direction*Length,ECC_Visibility,Query)) Length=FVector::Distance(Origin,Block.ImpactPoint);
-    if(!WaterStream.IsValid()) {
-        WaterStream=AMCReactionVFX::Spawn(GetWorld(),Origin,EMCReactionEffect::WaterStream,0,12,Direction,Length);
-        if(WaterStream.IsValid()) WaterStream->SetOwner(Hero);
-    }
-    if(WaterStream.IsValid()) {WaterStream->SetActorLocation(Origin);WaterStream->Direction=Direction;WaterStream->FlowLength=Length;}
 }
 void UMCInventoryComponent::TickUpgrades(float Dt)
 {
@@ -240,5 +278,4 @@ void UMCInventoryComponent::TickUpgrades(float Dt)
         const float Charge=WaterChargeFraction();bChargingWater=false;
         if(Pressure && !Hero->IsPrimaryHeld()) FireChargedWater(Charge);Hero->ForceNetUpdate();
     }
-    UpdateWaterStream();
 }

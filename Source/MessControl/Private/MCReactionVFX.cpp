@@ -161,15 +161,51 @@ void AMCReactionVFX::Tick(float Dt)
     FireLight->SetVisibility(Effect==EMCReactionEffect::Fire);
     const FVector Axis=Direction.IsNearlyZero()?FVector::ForwardVector:Direction;
     const FVector R=FVector::CrossProduct(Axis,FVector::UpVector).GetSafeNormal(),V=FVector::CrossProduct(R,Axis).GetSafeNormal();
-    if(Effect==EMCReactionEffect::WaterStream || Effect==EMCReactionEffect::WaterShot) {
-        const bool Shot=Effect==EMCReactionEffect::WaterShot;
-        const float Span=FMath::Max(10.f,FlowLength),Width=Shot?Radius*.25f:2.5f;
-        Soft.Line(FVector::ZeroVector,Axis*Span,Width,FLinearColor(.10f,.55f,.90f,Shot?.85f:.4f));
-        Glow.Line(FVector::ZeroVector,Axis*Span,Width*.35f,FLinearColor(.45f,.85f,1.4f,Shot?.95f:.7f));
-        for(int32 I=0;I<(Shot?16:26);++I) {
+    if(Effect==EMCReactionEffect::WaterShot) {
+        const float Span=FMath::Max(10.f,FlowLength),Travel=.12f;
+        const float Head=Span*FMath::Clamp(Age/Travel,0.f,1.f);
+        const float Pulse=1-FMath::SmoothStep(Travel,Travel+.16f,Age);
+        const float Tail=FMath::Max(0.f,Head-FMath::Min(Span,240.f));
+        if(Pulse>.001f) {
+            // A fast water slug, a short foamy wake and pressure rings replace
+            // the stationary beam. Each peer samples the same server clock.
+            Soft.Stroke({Axis*Tail,Axis*(Head-12),Axis*Head},Radius*.24f,FLinearColor(.08f,.5f,.95f,.85f*Pulse),true,true);
+            Glow.Stroke({Axis*Tail,Axis*Head},Radius*.065f,FLinearColor(.65f,1.25f,1.8f,.85f*Pulse),true,true);
+            Soft.Disk(Axis*Head,Right,Up,Radius*.38f,FLinearColor(.35f,.85f,1.f,.65f*Pulse),16);
+            for(int32 I=0;I<24;++I) {
+                const float U=I/23.f,A=I*2.39996f;
+                const FVector P=Axis*FMath::Lerp(Tail,Head,U)+(R*FMath::Cos(A)+V*FMath::Sin(A))*Radius*(.2f+Age*1.6f);
+                const FVector Along=Axis*(5+U*12);
+                Soft.Stroke({P-Along,P},1.2f+U,FLinearColor(.28f,.75f,1.f,.6f*Pulse),true,true);
+            }
+            for(int32 I=0;I<3;++I) {
+                const float RingAge=Age-I*.025f;
+                if(RingAge<0 || RingAge>.18f) continue;
+                TArray<FVector> Ring;
+                const float Size=Radius*(.6f+RingAge*5),Center=Head*(I+1)/4.f;
+                for(int32 J=0;J<=32;++J) {
+                    const float A=J*2*PI/32;
+                    Ring.Add(Axis*Center+(R*FMath::Cos(A)+V*FMath::Sin(A))*Size);
+                }
+                Soft.Stroke(Ring,1.5f,FLinearColor(.38f,.85f,1.2f,.5f*(1-RingAge/.18f)),false,true);
+            }
+        }
+        const float Flash=1-FMath::SmoothStep(.025f,.11f,Age);
+        if(Flash>.001f) {
+            Glow.Disk(Axis*3,Right,Up,Radius*(1.1f+Age*5),FLinearColor(.8f,1.8f,2.6f,.9f*Flash),24);
+            for(int32 I=0;I<12;++I) {
+                const float A=I*2.39996f;const FVector Side=R*FMath::Cos(A)+V*FMath::Sin(A);
+                Soft.Stroke({Axis*2,Axis*(14+Age*140)+Side*Radius*(.7f+Age*5)},2.5f,FLinearColor(.3f,.85f,1.25f,.7f*Flash),true,true);
+            }
+        }
+    } else if(Effect==EMCReactionEffect::WaterStream) {
+        const float Span=FMath::Max(10.f,FlowLength),Width=2.5f;
+        Soft.Line(FVector::ZeroVector,Axis*Span,Width,FLinearColor(.10f,.55f,.90f,.4f));
+        Glow.Line(FVector::ZeroVector,Axis*Span,Width*.35f,FLinearColor(.45f,.85f,1.4f,.7f));
+        for(int32 I=0;I<26;++I) {
             const float U=FMath::Frac(Age*3+I/26.f),A=I*2.39996f;
             const FVector P=Axis*Span*U+(R*FMath::Cos(A)+V*FMath::Sin(A))*Radius*U*.45f;
-            Soft.Disk(P,Right,Up,Shot?3.5f:2.f,FLinearColor(.28f,.72f,1.f,.70f),8);
+            Soft.Disk(P,Right,Up,2.f,FLinearColor(.28f,.72f,1.f,.70f),8);
         }
     } else if(Effect==EMCReactionEffect::WaterImpact) {
         for(int32 I=0;I<16;++I) {
