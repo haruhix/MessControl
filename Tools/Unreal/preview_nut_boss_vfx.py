@@ -92,7 +92,8 @@ def main():
         return actor
 
     def boss(name, role, point, mesh_path, clip_path, phase):
-        body_radius = 90 if role == u.MCNutBossRole.MAGE else 100
+        height = float(boss_settings.get_editor_property("mage_height" if role == u.MCNutBossRole.MAGE else "tank_height"))
+        body_radius = max(60.0, min(260.0, height * (.45 if role == u.MCNutBossRole.MAGE else 100.0 / 220.0)))
         actor = spawn(u.MCNutBoss, name, point + u.Vector(0, 0, body_radius))
         actor.set_editor_property("tongue", tongue)
         actor.set_editor_property("boss_role", role)
@@ -163,14 +164,16 @@ def main():
         aim = floor(u.Vector(460, 240, 0))
         cue("Palm charge", mage, u.MCNutCombatCue.CAST_CHARGE, mage_origin, aim, 55, .9, .25, .65)
         cue("Directional release", mage, u.MCNutCombatCue.CAST_RELEASE, mage_origin, aim, 55, 0, .3, .08)
-        cue("Nut rain", mage, u.MCNutCombatCue.NUT_RAIN, mage_origin, aim, 270, 1.2, 4, 2.35)
+        cue("Nut rain", mage, u.MCNutCombatCue.NUT_RAIN, mage_origin, aim,
+            float(boss_settings.get_editor_property("rain_radius")), 1.2, 4, 2.35)
         portal = floor(u.Vector(170, 20, 0))
         cue("Summon portal", mage, u.MCNutCombatCue.SUMMON_TELL, portal, portal, 65, 1.1, .3, .8)
         slam = floor(u.Vector(260, -280, 0))
         cue("Tank slam", tank, u.MCNutCombatCue.SLAM_IMPACT, slam, slam, 200, 0, .6, .16)
 
         ball_floor = floor(u.Vector(-350, -220, 0))
-        ball = spawn(u.MCNutBoss, "Rolling ball", ball_floor + u.Vector(0, 0, 100))
+        ball_height = float(boss_settings.get_editor_property("tank_ball_height"))
+        ball = spawn(u.MCNutBoss, "Rolling ball", ball_floor + u.Vector(0, 0, ball_height * .5))
         ball.set_editor_property("attack_forward", u.Vector(1, 0, 0))
         for component in ball.get_components_by_class(u.PrimitiveComponent):
             component.set_visibility(False)
@@ -181,11 +184,11 @@ def main():
             raise RuntimeError("Generated Tank ball has not been imported")
         part.set_static_mesh(mesh)
         _, ball_extent, _ = u.SystemLibrary.get_component_bounds(part)
-        scale = 200. / max(1., ball_extent.z * 2)
+        scale = ball_height / max(1., ball_extent.z * 2)
         part.set_relative_scale3d(u.Vector(scale, scale, scale))
         part.set_visibility(True)
         cue("Rolling aura", ball, u.MCNutCombatCue.ROLL_TELL, ball_floor,
-            ball_floor + u.Vector(400, 0, 0), 105, 1.2, 5, 2.)
+            ball_floor + u.Vector(400, 0, 0), ball_height * .5 + 5, 1.2, 5, 2.)
 
         report = dict(created=True, cosmetic_only=True, actors=records, tongue=tongue.get_path_name(),
             recommended_camera=vector(anchor + u.Vector(-1050, -1300, 1050)),

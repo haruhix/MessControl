@@ -304,9 +304,10 @@ def measure_cast_anchor(context, sequence, boss):
     require(extent.z > 0, "Existing mage mesh bounds have no height")
     scale = height / (2 * extent.z)
     yaw = math.radians(float(boss.get_editor_property("mage_model_yaw")))
+    body_radius = max(60.0, min(260.0, height * .45))
     x, y = (palm.x - origin.x) * scale, (palm.y - origin.y) * scale
     local = [x * math.cos(yaw) - y * math.sin(yaw), x * math.sin(yaw) + y * math.cos(yaw),
-             (palm.z - origin.z) * scale + height * .5 - 90]
+             (palm.z - origin.z) * scale + height * .5 - body_radius]
     emitter = vec(boss.get_editor_property("mage_cast_offset"))
     return {"release_fraction": release, "palm_actor_local_cm": local,
             "preserved_gameplay_emitter_cm": emitter, "distance_to_emitter_cm": math.dist(local, emitter),

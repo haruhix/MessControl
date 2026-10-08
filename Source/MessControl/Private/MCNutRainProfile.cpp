@@ -14,14 +14,15 @@ void FMCNutEnemySettings::Sanitize()
     AttackDamage=SafeNutValue(AttackDamage,12,0,100);
     WindupSeconds=SafeNutValue(WindupSeconds,.55f,.25f,3);
     AttackCooldown=SafeNutValue(AttackCooldown,1.8f,.5f,8);
-    BodyRadius=SafeNutValue(BodyRadius,42,20,100);
+    if(FMath::IsNearlyEqual(BodyRadius,35.f) || FMath::IsNearlyEqual(BodyRadius,42.f)) BodyRadius=58.f;
+    BodyRadius=SafeNutValue(BodyRadius,58,20,260);
     HopHeight=SafeNutValue(HopHeight,14,0,40);
 }
 
 FMCNutRainSettings::FMCNutRainSettings()
 {
     Entry.FlightSeconds=1.65f; Entry.EntryHeight=650; Entry.OutsideDistance=150;
-    Enemy.MaxHealth=40; Enemy.MoveSpeed=135; Enemy.AttackDamage=8; Enemy.WindupSeconds=.75f; Enemy.AttackCooldown=2.3f; Enemy.BodyRadius=35;
+    Enemy.MaxHealth=40; Enemy.MoveSpeed=135; Enemy.AttackDamage=8; Enemy.WindupSeconds=.75f; Enemy.AttackCooldown=2.3f; Enemy.BodyRadius=58;
 }
 
 void FMCNutRainSettings::Sanitize()
@@ -35,7 +36,8 @@ void FMCNutRainSettings::Sanitize()
     SeriesRestSeconds=SafeNutValue(SeriesRestSeconds,4,4,8);
     LargeNutHeight=SafeNutValue(LargeNutHeight,180,150,220); Boss.Sanitize();
     ImpactDamageLimit=SafeNutValue(ImpactDamageLimit,18,0,40);
-    ImpactRadius=SafeNutValue(ImpactRadius,180,80,320);
+    if(FMath::IsNearlyEqual(ImpactRadius,180.f)) ImpactRadius=300.f;
+    ImpactRadius=SafeNutValue(ImpactRadius,300,80,480);
     ImpactPushSpeed=SafeNutValue(ImpactPushSpeed,260,0,500);
     RainSeconds=SafeNutValue(RainSeconds,40,bBossEncounter?40:3,60); Entry.Sanitize(); Enemy.Sanitize();
     ClusterRadius=SafeNutValue(ClusterRadius,260,60,650);

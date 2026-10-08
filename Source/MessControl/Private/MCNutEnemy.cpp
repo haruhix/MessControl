@@ -5,6 +5,8 @@
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCReactionVFX.h"
+#include "MCNutBoss.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -19,7 +21,7 @@ AMCNutEnemy::AMCNutEnemy()
     bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true); SetNetUpdateFrequency(20);
     PrimaryActorTick.bCanEverTick=true; PrimaryActorTick.TickInterval=.05f;
     Body=CreateDefaultSubobject<USphereComponent>(TEXT("NutBody")); SetRootComponent(Body);
-    Body->InitSphereRadius(42); Body->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    Body->InitSphereRadius(58); Body->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     Body->SetCollisionObjectType(ECC_WorldDynamic); Body->SetCollisionResponseToAllChannels(ECR_Ignore);
     Body->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
     Body->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Block);
@@ -52,7 +54,15 @@ void AMCNutEnemy::BeginPlay()
 void AMCNutEnemy::ConfigureFromFood(const AMCFoodActor* Food,AMCTongue* OnTongue,FMCNutEnemySettings InSettings)
 {
     if(!HasAuthority() || !IsValid(Food)) return;
-    ConfigureEnemy(OnTongue,Food->ItemMesh,Food->Visual->GetRelativeScale3D()*Food->GetActorScale3D(),InSettings);
+    InSettings.Sanitize();
+    FVector Scale=Food->Visual->GetRelativeScale3D()*Food->GetActorScale3D();
+    // Awakening uses a player's physical height, rather than retaining the much
+    // larger falling-food presentation. Explicit summoned creep scales are separate.
+    if(Food->ItemMesh) {
+        const double Height=Food->ItemMesh->GetBounds().BoxExtent.Z*2*FMath::Abs(Scale.Z);
+        if(FMath::IsFinite(Height) && Height>KINDA_SMALL_NUMBER) Scale*=InSettings.BodyRadius*2.f/Height;
+    }
+    ConfigureEnemy(OnTongue,Food->ItemMesh,Scale,InSettings);
 }
 
 void AMCNutEnemy::ConfigureEnemy(AMCTongue* OnTongue,UStaticMesh* Mesh,FVector Scale,FMCNutEnemySettings InSettings)
@@ -75,6 +85,8 @@ void AMCNutEnemy::RefreshPresentation()
     }
     LeftEye->SetRelativeLocation(FVector(Settings.BodyRadius*.88f,-Settings.BodyRadius*.3f,Settings.BodyRadius*.32f));
     RightEye->SetRelativeLocation(FVector(Settings.BodyRadius*.88f,Settings.BodyRadius*.3f,Settings.BodyRadius*.32f));
+    for(UStaticMeshComponent* Eye:{LeftEye.Get(),RightEye.Get()})
+        Eye->SetRelativeScale3D(FVector(.12,.12,.09)*(Settings.BodyRadius/42.f));
     LeftEye->SetVisibility(!bDefeated); RightEye->SetVisibility(!bDefeated);
     Label->SetRelativeLocation(FVector(0,0,Settings.BodyRadius+28));
     Label->SetText(FText::FromString(FString::Printf(TEXT("%d"),FMath::CeilToInt(Health))));
@@ -91,6 +103,11 @@ float AMCNutEnemy::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
     const float Applied=FMath::Min(Health,Damage); Health-=Applied; HitAt=GetWorld()->GetTimeSeconds();
+    // The boss supplies its shield-aware feedback after this shared health mutation.
+    if(!Cast<AMCNutBoss>(this)) {
+        const FVector From=Source?Source->GetActorLocation():GetActorLocation()-GetActorForwardVector()*Settings.BodyRadius*2;
+        AMCReactionVFX::SpawnHit(this,GetToolTargetPoint(From),(GetActorLocation()-From).GetSafeNormal(),Applied);
+    }
     if(IsValid(Source)) Target=Source;
     // A hit interrupts the telegraphed bite and gives the worker time to move.
     bAttackPending=false; AttackTarget.Reset(); AttackStartedAt=-100;

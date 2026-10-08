@@ -210,9 +210,11 @@ void AMCNutRainEvent::SpawnBossEncounter()
     TArray<FVector> Occupied;
     for(int32 Index=0;Index<2;++Index) {
         const EMCNutBossRole EncounterRole=Index==0?EMCNutBossRole::Tank:EMCNutBossRole::Mage;
-        const float Radius=EncounterRole==EMCNutBossRole::Tank?100.f:90.f;
+        const float Radius=Settings.Boss.BodyRadiusForRole(EncounterRole);
         FHitResult Floor;
-        if(!Tongue->RandomGameplaySpawnPoint(Random,Radius+20,340,Occupied,Floor)) { bFailed=true; break; }
+        const float BossSeparation=Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Tank)
+            +Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Mage)+40.f;
+        if(!Tongue->RandomGameplaySpawnPoint(Random,Radius+20,BossSeparation,Occupied,Floor)) { bFailed=true; break; }
         const FTransform Pose(FRotator(0,Random.FRandRange(-180,180),0),Floor.ImpactPoint+FVector(0,0,Radius+4));
         auto* Boss=GetWorld()->SpawnActorDeferred<AMCNutBoss>(AMCNutBoss::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Boss) { bFailed=true; break; }
@@ -228,8 +230,10 @@ void AMCNutRainEvent::SpawnBossEncounter()
     if(!Kernel) { bFailed=true; Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return; }
     const FVector Scale(Settings.Boss.CreepHeight/FMath::Max(.001,Kernel->GetBounds().BoxExtent.Z*2));
     FMCNutEnemySettings Creep=Settings.Enemy; Creep.MaxHealth=Settings.Boss.CreepHealth; Creep.Sanitize();
+    const float CreepSeparation=FMath::Max(Creep.BodyRadius*2.f+12.f,
+        FMath::Max(Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Tank),Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Mage))+Creep.BodyRadius+20.f);
     for(int32 Index=0;Index<EnemyTargetCount;++Index) {
-        FHitResult Floor; if(!Tongue->RandomGameplaySpawnPoint(Random,Creep.BodyRadius+10,80,Occupied,Floor)) continue;
+        FHitResult Floor; if(!Tongue->RandomGameplaySpawnPoint(Random,Creep.BodyRadius+10,CreepSeparation,Occupied,Floor)) continue;
         const FTransform Pose(Floor.ImpactPoint+FVector(0,0,Creep.BodyRadius+4));
         auto* Enemy=GetWorld()->SpawnActorDeferred<AMCNutEnemy>(AMCNutEnemy::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Enemy) continue;

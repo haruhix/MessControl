@@ -24,12 +24,12 @@ struct FMCNutBossAnimationSnapshot
     int32 VisualKey=0;
     double ServerTime=0;
     float BlendSeconds=.18f,ForwardSpeed=0,SideSpeed=0,AimYaw=0,AimPitch=0;
-    float Cast=0,CastProgress=0,Release=0,Channel=0,Guard=0,Hit=0,ShieldHit=0,Death=0,Airborne=0;
+    float Cast=0,CastProgress=0,Release=0,Channel=0,Guard=0,Hit=0,ShieldHit=0,Death=0,Airborne=0,Melee=0,MeleePhase=0;
     FVector HitDirection=FVector::ZeroVector;
     FVector CastEmitter=FVector::ZeroVector;
     FVector HandTipOffset=FVector(0,8,0);
     FQuat ActorToComponent=FQuat::Identity;
-    bool bMage=false,bHasDeathClip=false;
+    bool bMage=false,bHasDeathClip=false,bHasMeleeClip=false;
 };
 
 /** Native pose blending and small bounded overlays for both authored nut rigs. No Blueprint animation graph is required. */

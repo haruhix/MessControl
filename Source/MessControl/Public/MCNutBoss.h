@@ -28,6 +28,7 @@ public:
     virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source) override;
     bool IsShieldProtectingFrom(FVector SourcePoint) const;
     bool IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const;
+    UFUNCTION(BlueprintPure,Category="Nut Combat") float GetAttackCooldownRemaining(EMCNutBossAttack Ability) const;
     FVector GetCastOrigin() const;
     void BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCNutBossAnimationSnapshot& Snapshot) const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Shield;
@@ -51,6 +52,15 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) double VisualHitAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) double ShieldHitAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) FVector VisualHitDirection=FVector::ZeroVector;
+    // Absolute server-clock readiness is shared with clients and the diagnostic UI.
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextMeleeAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextChargeAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextJumpAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextRollAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextFireballAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextSummonAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextRainAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextTeleportAt=0;
 protected:
     virtual void RefreshPresentation() override;
     virtual void Defeat() override;
@@ -66,6 +76,12 @@ private:
     void PresentTankModel(double Time);
     void CacheBossAnimations();
     void DamageRollSegment(FVector Start,FVector End);
+    void PushPlayer(AMCToothCharacter* Hero,FVector Direction,float Speed);
+    bool IsMageFocused() const;
+    bool FindTeleportPoint(FVector& Result);
+    bool IsTeleportPointFree(FVector Point) const;
+    void BeginTeleport();
+    void TriggerRollToothPain(const FHitResult& Hit);
     void Recover(float Seconds);
     void DamageArea(FVector Center,float Radius,float Damage,float Push,TSet<TWeakObjectPtr<AMCToothCharacter>>* HitSet=nullptr);
     void DamageChargeSegment(FVector Start,FVector End);
@@ -76,8 +92,10 @@ private:
     int32 PartyPlayers=1;
     FRandomStream Random;
     FVector EntranceLanding=FVector::ZeroVector;
-    double NextTargetAt=0,NextMeleeAt=0,NextChargeAt=0,NextJumpAt=0,NextRollAt=0;
-    double NextFireballAt=0,NextSummonAt=0,NextRainAt=0;
+    double NextTargetAt=0,NextRollPainAt=0;
+    double FocusWindowStartedAt=-100;
+    int32 FocusHits=0;
+    bool bMeleeBetweenAbilities=true;
     bool bResolved=false;
     int32 RainDropsResolved=0;
     TSet<TWeakObjectPtr<AMCToothCharacter>> AttackHits;

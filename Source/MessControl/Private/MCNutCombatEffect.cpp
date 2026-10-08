@@ -95,7 +95,7 @@ AMCNutCombatEffect* AMCNutCombatEffect::Spawn(AActor* Source,AMCTongue* Surface,
     FVector Origin,FVector Target,float Radius,float Windup,float Active,int32 Seed,float DetailRadius,int32 DropCount,float DropCadence)
 {
     if(!IsValid(Source) || !Source->HasAuthority() || !IsValid(Surface) || Surface->GetWorld()!=Source->GetWorld()
-        || Origin.ContainsNaN() || Target.ContainsNaN() || uint8(Type)>uint8(EMCNutCombatCue::DeathBurst)) return nullptr;
+        || Origin.ContainsNaN() || Target.ContainsNaN() || uint8(Type)>uint8(EMCNutCombatCue::TeleportBurst)) return nullptr;
     const FTransform Pose(Target);
     auto* Effect=Source->GetWorld()->SpawnActorDeferred<AMCNutCombatEffect>(StaticClass(),Pose,Source,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Effect) return nullptr;
@@ -225,7 +225,7 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
     if(Transform || Roll || Motion || Shield || Death) {
         const FVector Base=Shield?Cue.Origin-GetActorLocation():Source-GetActorLocation();
         const float Expansion=Death?FMath::Lerp(.4f,1.65f,FMath::Clamp(Age/Total,0.f,1.f)):1.f;
-        const float Radius=FMath::Clamp(Cue.Radius,35.f,150.f)*Expansion;
+        const float Radius=FMath::Clamp(Cue.Radius,35.f,300.f)*Expansion;
         if(Shield) {
             const FVector Facing=(Cue.Origin-Cue.Target).GetSafeNormal(SMALL_NUMBER,Forward);
             const FVector Horizontal=FVector::CrossProduct(Facing,FVector::UpVector).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
@@ -299,6 +299,72 @@ void AMCNutCombatEffect::Present(float Age)
     const bool Rain=Cue.Type==EMCNutCombatCue::NutRain,Line=Cue.Type==EMCNutCombatCue::ChargeTell;
     const bool Roll=Cue.Type==EMCNutCombatCue::RollTell,Rolling=Roll && Age>=Cue.WindupSeconds;
     const float Total=FMath::Max(.2f,Cue.WindupSeconds+Cue.ActiveSeconds),T=FMath::Clamp(Age/Total,0.f,1.f);
+    const bool Melee=Cue.Type==EMCNutCombatCue::MeleeTell || Cue.Type==EMCNutCombatCue::MeleeSlash;
+    const bool Teleport=Cue.Type==EMCNutCombatCue::TeleportTell || Cue.Type==EMCNutCombatCue::TeleportBurst;
+    if(Melee || Teleport) {
+        const bool Release=Cue.Type==EMCNutCombatCue::MeleeSlash || Cue.Type==EMCNutCombatCue::TeleportBurst;
+        const float Fade=1-FMath::SmoothStep(Release?.12f:.88f,1.f,T);
+        FMesh Detail,Area;
+        Warning->SetVisibility(false);Flames->SetVisibility(false);Storm->SetVisibility(false);
+        DropWarnings->SetVisibility(false);DropShadows->SetVisibility(false);RainNuts->SetVisibility(false);Debris->SetVisibility(false);
+        if(MagicMID) {
+            MagicMID->SetScalarParameterValue(TEXT("Age"),Age);MagicMID->SetScalarParameterValue(TEXT("Beam"),Melee?1:0);
+            MagicMID->SetVectorParameterValue(TEXT("Tint"),Melee?FLinearColor(1,.60f,.12f):FLinearColor(.33f,.68f,1.f));
+        }
+        FHitResult Floor;
+        if(Melee && Tongue->SurfacePoint(Cue.Origin,Floor)) {
+            const FVector Normal=Floor.ImpactNormal;
+            const FVector Forward=FVector::VectorPlaneProject(Cue.Target-Cue.Origin,Normal).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
+            const FVector Side=FVector::CrossProduct(Normal,Forward).GetSafeNormal();
+            const FVector Center=(Release?Cue.Origin:Floor.ImpactPoint+Normal*7)-GetActorLocation();
+            constexpr int32 Segments=20;
+            for(int32 I=0;I<Segments;++I) {
+                const float Fraction=(I+.5f)/Segments;
+                const float Angle=FMath::DegreesToRadians(-65.f+Fraction*130.f);
+                const FVector Radial=Forward*FMath::Cos(Angle)+Side*FMath::Sin(Angle);
+                const FVector Tangent=-Forward*FMath::Sin(Angle)+Side*FMath::Cos(Angle);
+                const float Sweep=Release?FMath::Clamp(1-FMath::Abs(Fraction-T)*3,0.f,1.f):1;
+                Detail.Quad(Center+Radial*Cue.Radius*.82f,Radial,Tangent,Release?12.f:3.5f,Cue.Radius*.06f,FLinearColor(1,1,1,Fade*Sweep));
+            }
+            if(!Release) {
+                // A textured warm footprint and curved leading edge distinguish the close-range tell from spell circles.
+                Area.Quad(Center+Forward*Cue.Radius*.44f,Forward,Side,Cue.Radius*.53f,Cue.Radius*.58f,FLinearColor(1,1,1,Fade*.55f));
+                Area.Upload(Warning);Warning->SetVisibility(Age<=Total && WarningMID);
+                if(WarningMID) {
+                    WarningMID->SetScalarParameterValue(TEXT("Age"),Age);WarningMID->SetScalarParameterValue(TEXT("Progress"),FMath::Clamp(Age/FMath::Max(.1f,Cue.WindupSeconds),0.f,1.f));
+                    WarningMID->SetScalarParameterValue(TEXT("IsLine"),1);WarningMID->SetScalarParameterValue(TEXT("Impact"),0);
+                    WarningMID->SetVectorParameterValue(TEXT("Tint"),FLinearColor(1,.58f,.12f));
+                }
+            }
+        }
+        if(Teleport) {
+            for(const FVector Point:{Cue.Origin,Cue.Target}) if(Tongue->SurfacePoint(Point,Floor)) {
+                const FVector Normal=Floor.ImpactNormal;
+                const FVector Right=FVector::VectorPlaneProject(FVector::ForwardVector,Normal).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
+                const FVector Side=FVector::CrossProduct(Normal,Right).GetSafeNormal();
+                const FVector Base=Floor.ImpactPoint-GetActorLocation()+Normal*7;
+                const float Radius=Cue.Radius*(Release?FMath::Lerp(.45f,1.35f,T):1.f);
+                for(int32 I=0;I<24;++I) {
+                    const float Angle=I*2*PI/24+Age*1.7f;
+                    const FVector Radial=Right*FMath::Cos(Angle)+Side*FMath::Sin(Angle);
+                    Detail.Quad(Base+Radial*Radius,Right,Normal,4.f,5.f,FLinearColor(1,1,1,Fade*.8f));
+                    if(I%4==0) Detail.Quad(Base+Radial*Radius*.8f+Normal*(20+FMath::Frac(Age*.9f+I/24.f)*Radius*1.5f),Right,Normal,3.f,7.f,FLinearColor(1,1,1,Fade));
+                }
+            }
+            // Sparse blue motes connect immutable endpoints; this is a movement cue, not a damage zone.
+            for(int32 I=0;I<8;++I) {
+                const float U=FMath::Frac(I/8.f+Age*.65f);
+                const FVector Point=FMath::Lerp(Cue.Origin,Cue.Target,U)-GetActorLocation()+FVector(0,0,FMath::Sin(U*PI)*65);
+                Detail.Quad(Point,FVector::RightVector,FVector::UpVector,3.f,5.f,FLinearColor(1,1,1,Fade*.65f));
+            }
+            if(Release && !bReleasePresented) {
+                bReleasePresented=true;
+                if(Age<.2f) for(const FVector Point:{Cue.Origin,Cue.Target}) PlayBurst(ArcaneBurstSystem.LoadSynchronous(),Point,FVector::UpVector,.7f);
+            }
+        }
+        Detail.Upload(Magic);Magic->SetVisibility(Age<=Total && MagicMID);
+        return;
+    }
     const float Fade=Impact || Cue.Type==EMCNutCombatCue::ShieldHit || Cue.Type==EMCNutCombatCue::CastRelease
         ?1-FMath::SmoothStep(.15f,1.f,T):1-FMath::SmoothStep(.88f,1.f,T);
     FHitResult Ground;const FVector Center=(Roll || Cue.Type==EMCNutCombatCue::Transform || Cue.Type==EMCNutCombatCue::DeathBurst) && IsValid(SourceActor)

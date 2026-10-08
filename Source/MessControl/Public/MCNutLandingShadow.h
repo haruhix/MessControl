@@ -32,7 +32,7 @@ public:
     UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) FVector SurfaceAnchor=FVector::ZeroVector;
     UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) double ImpactAt=0;
     UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) float FlightSeconds=1.65f;
-    UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) float Radius=70;
+    UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) float Radius=300;
     UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) float MaxOpacity=.20f;
     UPROPERTY(ReplicatedUsing=RefreshShadow,BlueprintReadOnly) bool bImpacted=false;
 private:

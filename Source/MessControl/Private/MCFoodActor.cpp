@@ -927,6 +927,8 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
             Worker->NotifyTaskFeedback(true,GetActorLocation());
         }
     }
+    if(FoodData.Kind==EMCFoodKind::Food)
+        AMCReactionVFX::Spawn(GetWorld(),Visual->Bounds.Origin,EMCReactionEffect::FoodBreak,.65f,FMath::Clamp(float(Visual->Bounds.SphereRadius),35.f,150.f),Direction);
     Dispose(); return true;
 }
 bool AMCFoodActor::IsHardFood() const

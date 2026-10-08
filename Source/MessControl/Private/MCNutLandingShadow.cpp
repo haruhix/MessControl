@@ -38,7 +38,7 @@ void AMCNutLandingShadow::Configure(AMCTongue* OnTongue,AMCFoodActor* Food,FVect
     Tongue=OnTongue; TrackedFood=Food;
     SurfaceAnchor=Tongue->GetActorTransform().InverseTransformPosition(Landing);
     FlightSeconds=FMath::IsFinite(InFlightSeconds)?FMath::Clamp(InFlightSeconds,.75f,3.f):1.65f;
-    Radius=FMath::IsFinite(InRadius)?FMath::Clamp(InRadius,35.f,320.f):180.f;
+    Radius=FMath::IsFinite(InRadius)?FMath::Clamp(InRadius,35.f,480.f):300.f;
     MaxOpacity=FMath::IsFinite(InOpacity)?FMath::Clamp(InOpacity,.03f,.35f):.20f;
     ImpactDamage=FMath::IsFinite(InDamage)?FMath::Clamp(InDamage,0.f,40.f):18.f;
     ImpactPushSpeed=FMath::IsFinite(InPushSpeed)?FMath::Clamp(InPushSpeed,0.f,500.f):260.f;

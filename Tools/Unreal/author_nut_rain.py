@@ -15,6 +15,67 @@ from pathlib import Path
 import unreal as u
 
 
+def update_encounter_sizes(profile=None, save=True):
+    """Resize only the existing profile; safe with the previous native DLL.
+
+    No imports, mesh/material/animation edits, table changes or collision bake.
+    Call directly for a targeted migration; main also uses it before full authoring.
+    """
+    if "-run=" not in u.SystemLibrary.get_command_line().lower():
+        editor = u.get_editor_subsystem(u.LevelEditorSubsystem)
+        if editor and editor.is_in_play_in_editor():
+            raise RuntimeError("Stop PIE before resizing the nut encounter")
+    if profile is None:
+        profile = u.load_asset("/Game/Gameplay/CoreLoop/DA_NutRain")
+    if not isinstance(profile, u.MCNutRainProfile):
+        raise RuntimeError("Existing DA_NutRain is required for targeted resizing")
+    settings = profile.get_editor_property("settings")
+    enemy = settings.get_editor_property("enemy")
+    boss = settings.get_editor_property("boss")
+    before, requested = {}, {}
+
+    def assign(obj, prefix, key, value):
+        before[prefix + key] = float(obj.get_editor_property(key))
+        obj.set_editor_property(key, value)
+        requested[prefix + key] = value
+
+    old_mage_height = float(boss.get_editor_property("mage_height"))
+    old_offset = boss.get_editor_property("mage_cast_offset")
+    before["boss.mage_cast_offset"] = [old_offset.x, old_offset.y, old_offset.z]
+    ratio = 400.0 / old_mage_height if math.isfinite(old_mage_height) and old_mage_height > 0 else 1.0
+    offset = u.Vector(old_offset.x * ratio, old_offset.y * ratio, old_offset.z * ratio)
+    if not all(math.isfinite(v) for v in (offset.x, offset.y, offset.z)):
+        offset = u.Vector(240, -44, 130)
+    for key, value in dict(tank_height=440.0, mage_height=400.0, tank_ball_height=400.0,
+                           creep_height=116.0, melee_range=380.0, jump_radius=460.0,
+                           rain_radius=300.0 * math.sqrt(5.5), roll_push=620.0).items():
+        assign(boss, "boss.", key, value)
+    boss.set_editor_property("mage_cast_offset", offset)
+    requested["boss.mage_cast_offset"] = [offset.x, offset.y, offset.z]
+    assign(enemy, "enemy.", "body_radius", 58.0)
+    assign(settings, "settings.", "impact_radius", 300.0)
+    settings.set_editor_property("enemy", enemy)
+    settings.set_editor_property("boss", boss)
+    profile.set_editor_property("settings", settings)
+    saved = False
+    if save:
+        saved = bool(u.EditorAssetLibrary.save_loaded_asset(profile, only_if_is_dirty=False))
+        if not saved:
+            raise RuntimeError("Could not save resized DA_NutRain")
+    # Re-read the nested values instead of reporting only the requested assignments.
+    actual = profile.get_editor_property("settings")
+    groups = {"settings.": actual, "enemy.": actual.get_editor_property("enemy"),
+              "boss.": actual.get_editor_property("boss")}
+    readback = {}
+    for path, expected in requested.items():
+        prefix, key = path.split(".", 1)
+        value = groups[prefix + "."].get_editor_property(key)
+        readback[path] = [value.x, value.y, value.z] if key == "mage_cast_offset" else float(value)
+    return dict(complete=True, profile=profile.get_path_name(), saved=saved,
+                scope="Existing profile dimensions and emitter only", previous=before,
+                requested=requested, readback=readback)
+
+
 def migrate_boss_health(boss):
     """Replace only known generated health values; preserve designer tuning."""
     migrated = {}
@@ -61,6 +122,7 @@ def main():
         profile = tools.create_asset("DA_NutRain", folder, u.MCNutRainProfile, factory)
     if not isinstance(profile, u.MCNutRainProfile):
         raise RuntimeError("Nut profile path has an unexpected asset type")
+    size_migration = update_encounter_sizes(profile, save=False)
     # Migrate this authored first encounter from the old dense 12-second storm.
     settings = profile.get_editor_property("settings")
     for key, value in dict(boss_encounter=True, minimum_series=4, maximum_series=8,
@@ -71,7 +133,7 @@ def main():
         settings.set_editor_property(key, value)
     enemy = settings.get_editor_property("enemy")
     for key, value in dict(max_health=40.0, move_speed=135.0, attack_damage=8.0,
-                           windup_seconds=.75, attack_cooldown=2.3, body_radius=35.0).items():
+                           windup_seconds=.75, attack_cooldown=2.3, body_radius=58.0).items():
         enemy.set_editor_property(key, value)
     settings.set_editor_property("enemy", enemy)
     boss = settings.get_editor_property("boss")
@@ -204,6 +266,7 @@ def main():
     report = dict(complete=True, profile=profile.get_path_name(), menu=table.get_path_name(),
                   source_unchanged=True, migrated_collection_row=migrated,
                   migrated_boss_health=health_migrations,
+                  size_migration=size_migration,
                   meshes={name:asset.get_path_name() for name,asset in isolated.items()},
                   settings=str(profile.get_editor_property("settings")))
     report_path = Path(u.Paths.project_saved_dir()) / "NutRain" / "Authoring.json"

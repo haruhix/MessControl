@@ -2,6 +2,7 @@
 #include "MCArenaTooth.h"
 #include "MCToothCharacter.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCReactionVFX.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCTutorialDirector.h"
@@ -79,10 +80,14 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction)
     if (const auto* Game=GetWorld()->GetGameState<AMCGameState>(); Game && (Game->bTutorialActive || Game->bLobbyWaiting)) return false;
     if (!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0 || Direction.ContainsNaN()) return false;
     if (const auto* Hero=Cast<AMCToothCharacter>(GetOwner()); Hero && Hero->MimicCaptor) return false;
+    const float HealthBefore=State.Health;
     LastDamageDirection=Direction.GetSafeNormal(); State.Health=FMath::Max(0.f,State.Health-Amount);
     const auto* GS=GetWorld()->GetGameState();
     State.DamageAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
-    if(auto* Hero=Cast<AMCToothCharacter>(GetOwner())) Hero->FoodCollection->Spill(LastDamageDirection*180+FVector(0,0,50));
+    if(auto* Hero=Cast<AMCToothCharacter>(GetOwner())) {
+        Hero->FoodCollection->Spill(LastDamageDirection*180+FVector(0,0,50));
+        AMCReactionVFX::SpawnHit(Hero,Hero->GetActorLocation()-LastDamageDirection*30+FVector(0,0,35),LastDamageDirection,HealthBefore-State.Health);
+    }
     if (State.Health<=State.MaxHealth*Settings.LooseHealthFraction) State.RepairLeft=FMath::Max(State.RepairLeft,Settings.RepairContacts);
     Changed(false); return true;
 }
