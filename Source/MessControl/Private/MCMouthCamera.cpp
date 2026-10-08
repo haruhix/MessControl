@@ -79,7 +79,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
             if(Destination==this) {Viewer=PC;break;}
         }
     if (auto* Arm=Cast<UMCOrbitSpringArmComponent>(CameraBoom)) {
-        Arm->SetSurfaceProbeActive(Viewer!=nullptr);
+        Arm->SetWallProbeActive(Viewer!=nullptr);
         Arm->SetIgnoredViewActor(Viewer?MimicCaptor.Get():nullptr);
     }
     if(!Viewer) { ClearCameraWallReveal(); return; }

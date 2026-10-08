@@ -1,0 +1,383 @@
+{
+  "passed": true,
+  "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+  "in_pie": true,
+  "counts": {
+    "players": 1,
+    "gameplay_teeth": 8,
+    "placed_meshes": 31
+  },
+  "components": [
+    {
+      "actor": "StaticMeshActor_218",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Gum.SM_Gum",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "StaticMeshActor_220",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth.SM_Teeth",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "StaticMeshActor_221",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_Forwart.SM_Teeth_Forwart",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "StaticMeshActor_229",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_R_05.SM_Teeth_R_05",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "StaticMeshActor_230",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_R_WTooth.SM_Teeth_R_WTooth",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "StaticMeshActor_232",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_l_05.SM_Teeth_l_05",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaToothSocket_0",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaToothSocket_1",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaToothSocket_2",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaToothSocket_3",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaToothSocket_4",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaToothSocket_5",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaToothSocket_6",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaToothSocket_7",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "StaticMeshActor_1",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_R_WTooth.SM_Teeth_R_WTooth",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "BP_PlayerCharacter_C_1",
+      "component": "CollisionCylinder",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "BP_PlayerCharacter_C_1",
+      "component": "CharacterMesh0",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    },
+    {
+      "actor": "MCArenaTooth_0",
+      "component": "PhysicalBody",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_0",
+      "component": "AnimatedEnamel",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_0",
+      "component": "BrushSurface",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_ONLY: 1>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    },
+    {
+      "actor": "MCArenaTooth_1",
+      "component": "PhysicalBody",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_1",
+      "component": "AnimatedEnamel",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_1",
+      "component": "BrushSurface",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_ONLY: 1>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    },
+    {
+      "actor": "MCArenaTooth_2",
+      "component": "PhysicalBody",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_2",
+      "component": "AnimatedEnamel",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_2",
+      "component": "BrushSurface",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_ONLY: 1>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    },
+    {
+      "actor": "MCArenaTooth_3",
+      "component": "PhysicalBody",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_3",
+      "component": "AnimatedEnamel",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_3",
+      "component": "BrushSurface",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_ONLY: 1>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    },
+    {
+      "actor": "MCArenaTooth_4",
+      "component": "PhysicalBody",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_4",
+      "component": "AnimatedEnamel",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_4",
+      "component": "BrushSurface",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_ONLY: 1>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    },
+    {
+      "actor": "MCArenaTooth_5",
+      "component": "PhysicalBody",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_5",
+      "component": "AnimatedEnamel",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_5",
+      "component": "BrushSurface",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_ONLY: 1>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    },
+    {
+      "actor": "MCArenaTooth_6",
+      "component": "PhysicalBody",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_6",
+      "component": "AnimatedEnamel",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_6",
+      "component": "BrushSurface",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_ONLY: 1>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    },
+    {
+      "actor": "MCArenaTooth_7",
+      "component": "PhysicalBody",
+      "mesh": null,
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_7",
+      "component": "AnimatedEnamel",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.NO_COLLISION: 0>",
+      "pawn": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "physics": "<CollisionResponseType.ECR_BLOCK: 2>"
+    },
+    {
+      "actor": "MCArenaTooth_7",
+      "component": "BrushSurface",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04",
+      "camera": "Ignore",
+      "collision": "<CollisionEnabled.QUERY_ONLY: 1>",
+      "pawn": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "physics": "<CollisionResponseType.ECR_IGNORE: 0>"
+    }
+  ],
+  "dirty_maps": [],
+  "dirty_assets": []
+}

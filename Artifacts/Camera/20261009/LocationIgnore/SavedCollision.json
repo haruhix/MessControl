@@ -1,0 +1,141 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "saved": true,
+  "components": [
+    {
+      "actor": "SM_Gum",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Gum.SM_Gum",
+      "camera_before": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "SM_Teeth",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth.SM_Teeth",
+      "camera_before": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "SM_Teeth_Forwart",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_Forwart.SM_Teeth_Forwart",
+      "camera_before": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "SM_Teeth_R_05",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_R_05.SM_Teeth_R_05",
+      "camera_before": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "SM_Teeth_R_WTooth",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_R_WTooth.SM_Teeth_R_WTooth",
+      "camera_before": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "SM_Teeth_l_05",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_l_05.SM_Teeth_l_05",
+      "camera_before": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "ARENA | Tooth 01",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+      "camera_before": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.NO_COLLISION: 0>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "ARENA | Tooth 03",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+      "camera_before": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.NO_COLLISION: 0>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "ARENA | Tooth 05",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+      "camera_before": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.NO_COLLISION: 0>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "ARENA | Tooth 07",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+      "camera_before": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.NO_COLLISION: 0>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "ARENA | Tooth 02",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+      "camera_before": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.NO_COLLISION: 0>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "ARENA | Tooth 04",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+      "camera_before": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.NO_COLLISION: 0>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "ARENA | Tooth 06",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+      "camera_before": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.NO_COLLISION: 0>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "ARENA | Tooth 08",
+      "component": "ToothPlacement",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04",
+      "camera_before": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.NO_COLLISION: 0>",
+      "other_channels_preserved": true
+    },
+    {
+      "actor": "SM_Teeth_R_WTooth4",
+      "component": "StaticMeshComponent0",
+      "mesh": "/Game/FromBlender2/SM_Teeth_R_WTooth.SM_Teeth_R_WTooth",
+      "camera_before": "<CollisionResponseType.ECR_BLOCK: 2>",
+      "camera_after": "<CollisionResponseType.ECR_IGNORE: 0>",
+      "collision_enabled": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+      "other_channels_preserved": true
+    }
+  ]
+}

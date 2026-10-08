@@ -1,0 +1,1541 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "062AD17042EBF912F06B518A5E7A8C73",
+			"instanceName": "VB-8752",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.08-19.19.20",
+	"succeeded": 0,
+	"succeededWithWarnings": 2,
+	"failed": 1,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.70925050973892212,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "CharacterAndToothTransparency",
+			"fullTestPath": "MessControl.Camera.CharacterAndToothTransparency",
+			"tags": [],
+			"state": "Fail",
+			"deviceInstance": [
+				"062AD17042EBF912F06B518A5E7A8C73"
+			],
+			"duration": 0.60732150077819824,
+			"dateTime": "2026.10.08-19.19.19",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "LogStreaming: FlushAsyncLoading(412): 1 QueuedPackages, 0 AsyncPackages",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.19"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "The teammate enters ragdoll: The two values are not equal.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCGameplayTests.cpp",
+					"lineNumber": 2248,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_1",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				}
+			],
+			"warnings": 48,
+			"errors": 1,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "FoodTransparency",
+			"fullTestPath": "MessControl.Camera.FoodTransparency",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"062AD17042EBF912F06B518A5E7A8C73"
+			],
+			"duration": 0.065688200294971466,
+			"dateTime": "2026.10.08-19.19.20",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				}
+			],
+			"warnings": 48,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "OrbitAndWallCollision",
+			"fullTestPath": "MessControl.Camera.OrbitAndWallCollision",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"062AD17042EBF912F06B518A5E7A8C73"
+			],
+			"duration": 0.036240801215171814,
+			"dateTime": "2026.10.08-19.19.20",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-19.19.20"
+				}
+			],
+			"warnings": 24,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

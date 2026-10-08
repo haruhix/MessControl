@@ -37,10 +37,12 @@ AMCArenaTooth::AMCArenaTooth()
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
     Body=CreateDefaultSubobject<UBoxComponent>(TEXT("PhysicalBody")); SetRootComponent(Body);
     Body->SetBoxExtent(FVector(48,48,78)); Body->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+    Body->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     Body->SetNotifyRigidBodyCollision(true); Body->SetLinearDamping(0.6f); Body->SetAngularDamping(1.5f);
     Body->BodyInstance.bUseCCD=true;
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AnimatedEnamel")); Visual->SetupAttachment(Body);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    Visual->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     BrushSurface=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BrushSurface")); BrushSurface->SetupAttachment(Visual);
     BrushSurface->SetVisibility(false); BrushSurface->SetHiddenInGame(true); BrushSurface->SetCastShadow(false);
     BrushSurface->SetCollisionEnabled(ECollisionEnabled::QueryOnly); BrushSurface->SetCollisionResponseToAllChannels(ECR_Ignore);
@@ -76,6 +78,8 @@ void AMCArenaTooth::Initialize(int32 Id,const FMCArenaToothSettings& Defaults)
 void AMCArenaTooth::BeginPlay()
 {
     Super::BeginPlay();
+    TInlineComponentArray<UPrimitiveComponent*> Colliders(this);
+    for (auto* Collider:Colliders) Collider->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     Body->OnComponentHit.AddDynamic(this,&AMCArenaTooth::OnBodyHit);
     Body->SetMassOverrideInKg(NAME_None,14,true);
     ApplyAppearance();

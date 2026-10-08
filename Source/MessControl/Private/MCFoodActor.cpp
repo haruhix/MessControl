@@ -45,12 +45,14 @@ AMCFoodActor::AMCFoodActor()
     PrimaryActorTick.bCanEverTick=true;
     Body=CreateDefaultSubobject<UMCFoodBodyComponent>(TEXT("FoodBody")); SetRootComponent(Body);
     Body->SetBoxExtent(FVector(48,32,30)); Body->SetCollisionProfileName(TEXT("PhysicsActor"));
+    Body->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     // Impacts use OnComponentHit. Per-shape overlap queries are unnecessary for food.
     Body->SetGenerateOverlapEvents(false);
     Body->SetNotifyRigidBodyCollision(true); Body->BodyInstance.bUseCCD=true;
     Body->SetLinearDamping(.7f); Body->SetAngularDamping(2.f);
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FoodMesh")); Visual->SetupAttachment(Body);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetRelativeLocation(FVector(0,0,-25)); Visual->SetRelativeScale3D(FVector(1.5));
+    Visual->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Mesh(TEXT("/Game/Stylized_Vegetables/Meshes/SM_Broccoli"));
     if (Mesh.Succeeded()) Visual->SetStaticMesh(Mesh.Object);
     GripSurface=CreateDefaultSubobject<UMCFoodGripComponent>(TEXT("GripSurface")); GripSurface->SetupAttachment(Visual);
@@ -856,6 +858,10 @@ void AMCFoodActor::OnRep_Item()
     else if(UStaticMesh* Mesh=Visual->GetStaticMesh()) {Visual->SetRelativeLocation(-Mesh->GetBounds().Origin*Visual->GetRelativeScale3D());MeshBody->SetCollisionMesh(Mesh,Visual->GetRelativeScale3D());}
     Label->SetRelativeLocation(FVector(0,0,Body->GetUnscaledBoxExtent().Z+28));
     GripSurface->SetStaticMesh(Visual->GetStaticMesh());
+    // Construction scripts can add colliders or restore a saved collision profile.
+    // Apply on startup and item replication too, preserving all gameplay channels.
+    TInlineComponentArray<UPrimitiveComponent*> Colliders(this);
+    for (auto* Collider:Colliders) Collider->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
 }
 void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream& Random,bool Fragment)
 {

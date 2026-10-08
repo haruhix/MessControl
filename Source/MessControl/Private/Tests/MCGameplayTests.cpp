@@ -14,6 +14,7 @@
 #include "MCArenaToothSocket.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCFoodBodyComponent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCFirePatch.h"
 #include "MCReactionVFX.h"
@@ -2158,6 +2159,99 @@ bool FMCOrbitCameraTest::RunTest(const FString&)
     TestEqual(TEXT("Menus prevent mouse rotation"),Hero->CameraOrbitYaw,0.f);
     TestEqual(TEXT("Menus prevent mouse wheel zoom"),Hero->CameraOrbitDistance,MenuDistance);
     PC->ResetIgnoreLookInput();
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCameraFoodTest,"MessControl.Camera.FoodTransparency",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCameraFoodTest::RunTest(const FString&)
+{
+    if (!TestNotNull(TEXT("Food fixture mesh is available"),ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Cube.Cube")))) return false;
+    for (const bool Fragment:{false,true}) {
+        FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+        auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->SetAsLocalPlayerController();
+        auto* Hero=Mouth.Worker(FVector(0,0,2000)); PC->Possess(Hero);
+        Hero->bManualCameraOrbit=true; Hero->CameraOrbitYaw=0; Hero->CameraOrbitPitch=-30; Hero->CameraOrbitDistance=900;
+        const FVector Pivot=Hero->GetActorLocation()+FVector(0,0,30);
+        const FVector WantedEye=Hero->GetCameraFocusLocation()-FRotator(-30,0,0).Vector()*900;
+        const FVector Ray=(WantedEye-Pivot).GetSafeNormal();
+        const FTransform Pose(FRotator::ZeroRotator,Pivot+Ray*450,FVector(3));
+        auto* Food=Mouth.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose);
+        auto* ExtraBox=NewObject<UBoxComponent>(Food); ExtraBox->SetupAttachment(Food->Body);
+        ExtraBox->SetBoxExtent(FVector(60)); ExtraBox->SetCollisionProfileName(TEXT("BlockAll")); ExtraBox->RegisterComponent();
+        FMCFoodRow Row; Row.Mass=4; Row.Scale=Row.FragmentScale=FVector::OneVector;
+        Row.WholeMeshes.Add(TSoftObjectPtr<UStaticMesh>(FSoftObjectPath(TEXT("/Engine/BasicShapes/Cube.Cube"))));
+        Row.FragmentMeshes=Row.WholeMeshes;
+        FRandomStream Random(1); Food->ConfigureItem(TEXT("CameraFixture"),Row,Random,Fragment);
+        // Mimic saved Blueprint overrides applied after native construction.
+        Food->Body->SetCollisionProfileName(TEXT("PhysicsActor"));
+        Food->Visual->SetCollisionResponseToChannel(ECC_Camera,ECR_Block);
+        ExtraBox->SetCollisionResponseToChannel(ECC_Camera,ECR_Block);
+        Food->FinishSpawning(Pose); Food->Body->SetSimulatePhysics(false);
+
+        FHitResult DetailedHit;
+        TestTrue(TEXT("Visible food really crosses the camera path"),Food->GripSurface->SweepComponent(DetailedHit,Pivot,WantedEye,FQuat::Identity,FCollisionShape::MakeSphere(24),true));
+        Hero->UpdateMouthCamera(1.f); Hero->CameraBoom->TickComponent(1.f,LEVELTICK_All,nullptr);
+        TestTrue(TEXT("Food does not retract the camera, including detailed mesh probes"),Hero->Camera->GetComponentLocation().Equals(WantedEye,1.f));
+        TestTrue(TEXT("SpringArm still tests the Camera channel"),Hero->CameraBoom->bDoCollisionTest && Hero->CameraBoom->ProbeChannel==ECC_Camera);
+        TInlineComponentArray<UPrimitiveComponent*> Colliders(Food);
+        for (auto* Collider:Colliders) TestEqual(TEXT("Every food collider ignores Camera"),Collider->GetCollisionResponseToChannel(ECC_Camera),ECR_Ignore);
+        TestEqual(TEXT("Food retains player collisions"),Food->Body->GetCollisionResponseToChannel(ECC_Pawn),ECR_Block);
+        TestEqual(TEXT("Food retains world collisions"),Food->Body->GetCollisionResponseToChannel(ECC_WorldStatic),ECR_Block);
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCFoodCamera),false,Hero); FHitResult Hit;
+        TestFalse(TEXT("Camera channel sweeps pass through food"),Mouth.World->SweepSingleByChannel(Hit,Pivot,WantedEye,FQuat::Identity,ECC_Camera,FCollisionShape::MakeSphere(24),Query));
+        TestTrue(TEXT("Gameplay sweeps still collide with food"),Mouth.World->SweepSingleByChannel(Hit,Pivot,WantedEye,FQuat::Identity,ECC_PhysicsBody,FCollisionShape::MakeSphere(24),Query) && Hit.GetActor()==Food);
+
+        auto* Wall=Mouth.World->SpawnActor<AActor>(); auto* Box=NewObject<UBoxComponent>(Wall);
+        Wall->SetRootComponent(Box); Box->SetBoxExtent(FVector(25,300,300)); Box->SetCollisionProfileName(TEXT("BlockAll")); Box->RegisterComponent();
+        Wall->SetActorLocationAndRotation(Pivot+Ray*700,Ray.Rotation());
+        Hero->UpdateMouthCamera(1.f); Hero->CameraBoom->TickComponent(1.f,LEVELTICK_All,nullptr);
+        const float Distance=FVector::Dist(Pivot,Hero->Camera->GetComponentLocation());
+        TestTrue(TEXT("A wall behind ignored food still retracts the camera"),Distance>550 && Distance<680);
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCCameraActorsTest,"MessControl.Camera.CharacterAndToothTransparency",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCCameraActorsTest::RunTest(const FString&)
+{
+    auto* Cube=ReadyCareTestMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+    if (!TestNotNull(TEXT("Tooth fixture mesh is available"),Cube)) return false;
+    FTestMouth Mouth; Mouth.Mode->SetActorTickEnabled(false); Mouth.State->Phase=EMCShiftPhase::Working;
+    auto* PC=Mouth.World->SpawnActor<APlayerController>(); PC->SetAsLocalPlayerController();
+    auto* Hero=Mouth.Worker(FVector(0,0,2000)); PC->Possess(Hero);
+    Hero->bManualCameraOrbit=true; Hero->CameraOrbitYaw=0; Hero->CameraOrbitPitch=-30; Hero->CameraOrbitDistance=900;
+    const FVector Pivot=Hero->GetActorLocation()+FVector(0,0,30);
+    const FVector WantedEye=Hero->GetCameraFocusLocation()-FRotator(-30,0,0).Vector()*900;
+    const FVector Ray=(WantedEye-Pivot).GetSafeNormal();
+    const FTransform OtherPose(Pivot+Ray*300);
+    auto* Other=Mouth.World->SpawnActorDeferred<AMCToothCharacter>(AMCToothCharacter::StaticClass(),OtherPose);
+    Other->GetCapsuleComponent()->SetCollisionProfileName(TEXT("Pawn"));
+    Other->GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+    auto* ExtraBox=NewObject<UBoxComponent>(Other); ExtraBox->SetupAttachment(Other->GetCapsuleComponent());
+    ExtraBox->SetBoxExtent(FVector(20)); ExtraBox->SetCollisionProfileName(TEXT("BlockAll")); ExtraBox->RegisterComponent();
+    Other->FinishSpawning(OtherPose); Other->GetCharacterMovement()->DisableMovement();
+    const FTransform ToothPose(Pivot+Ray*550);
+    auto* Tooth=Mouth.World->SpawnActorDeferred<AMCArenaTooth>(AMCArenaTooth::StaticClass(),ToothPose);
+    Tooth->SetAppearance(Cube,FVector(2)); Tooth->Body->SetCollisionProfileName(TEXT("BlockAllDynamic"));
+    Tooth->FinishSpawning(ToothPose);
+    auto TickView=[&] { Hero->UpdateMouthCamera(1.f); Hero->CameraBoom->TickComponent(1.f,LEVELTICK_All,nullptr); };
+    TickView();
+    TestTrue(TEXT("Another character and a tooth do not retract the camera"),Hero->Camera->GetComponentLocation().Equals(WantedEye,1.f));
+    TestEqual(TEXT("A teammate still blocks player movement"),Other->GetCapsuleComponent()->GetCollisionResponseToChannel(ECC_Pawn),ECR_Block);
+    TestEqual(TEXT("Teeth retain physical collision"),Tooth->Body->GetCollisionResponseToChannel(ECC_Pawn),ECR_Block);
+    TestEqual(TEXT("A Blueprint collider ignores Camera"),ExtraBox->GetCollisionResponseToChannel(ECC_Camera),ECR_Ignore);
+    FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCCharacterCamera),false,Hero);
+    TestFalse(TEXT("Camera sweeps pass through characters and teeth"),Mouth.World->SweepSingleByChannel(Hit,Pivot,WantedEye,FQuat::Identity,ECC_Camera,FCollisionShape::MakeSphere(24),Query));
+    TestTrue(TEXT("Pawn sweeps still hit a teammate"),Mouth.World->SweepSingleByChannel(Hit,Pivot,WantedEye,FQuat::Identity,ECC_Pawn,FCollisionShape::MakeSphere(24),Query) && Hit.GetActor()==Other);
+    TestTrue(TEXT("Tooth interaction queries still see its detailed mesh"),Tooth->BrushSurface->SweepComponent(Hit,Pivot,WantedEye,FQuat::Identity,FCollisionShape::MakeSphere(24),true));
+    Mouth.Step(.7f); // Leave spawn invulnerability before forcing the knockdown.
+    Other->ToothPhysics->Settings.FallThreshold=100.f;
+    Other->ToothPhysics->ApplyHit(FVector(900,0,200),Other->GetActorLocation());
+    TestEqual(TEXT("The teammate enters ragdoll"),Other->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
+    TestEqual(TEXT("Ragdoll mesh ignores Camera"),Other->GetMesh()->GetCollisionResponseToChannel(ECC_Camera),ECR_Ignore);
+    TickView();
+    TestTrue(TEXT("A fallen teammate does not retract the camera"),Hero->Camera->GetComponentLocation().Equals(Hero->CameraBoom->GetUnfixedCameraPosition(),1.f));
+    TestFalse(TEXT("Camera sweeps still ignore a fallen teammate"),Mouth.World->SweepSingleByChannel(Hit,Hero->GetActorLocation()+FVector(0,0,30),Hero->CameraBoom->GetUnfixedCameraPosition(),FQuat::Identity,ECC_Camera,FCollisionShape::MakeSphere(24),Query));
     return true;
 }
 

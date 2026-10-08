@@ -58,6 +58,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     PrimaryActorTick.bCanEverTick = true;
     bReplicates = true;
     GetCapsuleComponent()->InitCapsuleSize(34.f, 58.f);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     // Food movement is driven by grip strength, not CharacterMovement's large automatic push force.
     GetCharacterMovement()->bEnablePhysicsInteraction=false;
     GetCharacterMovement()->MaxWalkSpeed = 440.f;
@@ -74,6 +75,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
     GetMesh()->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
     GetMesh()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Ignore);
+    GetMesh()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     GetMesh()->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
     GetMesh()->bEnableUpdateRateOptimizations=false;
     GetMesh()->SetAnimInstanceClass(UMCToothAnimInstance::StaticClass());
@@ -152,6 +154,9 @@ void AMCToothCharacter::ApplyAppearance()
 void AMCToothCharacter::BeginPlay()
 {
     Super::BeginPlay();
+    // Include Blueprint colliders and the skeletal bodies used by ragdolls.
+    TInlineComponentArray<UPrimitiveComponent*> Colliders(this);
+    for (auto* Collider:Colliders) Collider->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
     // Choose once on the server; owning clients, proxies and late joiners share it.
     if (HasAuthority())
         if (const auto* Identity=GetPlayerState<AMCPlayerState>()) ApplyPlayerColor(Identity->PlayerColor);
