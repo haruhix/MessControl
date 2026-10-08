@@ -259,7 +259,8 @@ public:
         // A delayed target packet must not take back a hand already owned by
         // swimming, climbing or a food grip. Reset the old aiming blend too.
         if(!Inventory || Inventory->Selected!=EMCToolSlot::Spray || !Inventory->ShouldPresentTool() || !Tooth->ToothPhysics->CanAct()) {SprayPoseAlpha=0;return;}
-        const bool Active=Tooth->CanWork() && (HasTarget || Tooth->IsPrimaryHeld());
+        const bool Watergun=Inventory->HasUpgrade(EMCToolUpgrade::Watergun);
+        const bool Active=Watergun?Inventory->IsUsingWatergun():Tooth->CanWork() && (HasTarget || Tooth->IsPrimaryHeld());
         SprayPoseAlpha=FMath::FInterpTo(SprayPoseAlpha,Active?1.f:0.f,Dt,10.f);
         if(SprayPoseAlpha<.001f) return;
         const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r"))),Lower=Ref.FindBoneIndex(Tooth->RigBone(TEXT("forearm_r")));
@@ -267,6 +268,14 @@ public:
         TArray<FTransform> CS;CS.SetNum(Pose.Num());
         for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
         const auto World=Tooth->GetMesh()->GetComponentTransform();
+        if(Watergun) {
+            FTransform Goal;
+            if(!Inventory->WatergunHandGoal(Goal)) return;
+            FTransform Blended;Blended.Blend(CS[Hand],Goal.GetRelativeTransform(World),SprayPoseAlpha);
+            const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;const int32 Parent=Ref.GetParentIndex(Lower);
+            Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];
+            return;
+        }
         // Follow the posed face so artist rig changes and body lean retain an
         // eye-height spray grip, with room beside the face for the can.
         FVector Face=FVector::ZeroVector;int32 EyeCount=0;
@@ -772,7 +781,19 @@ public:
             Rotate(TEXT("body"),FRotator((-6*Wind+4*Impact)*CalculusBlend,0,-2*Wind*CalculusBlend));
             Rotate(TEXT("arm_l"),FRotator((-12*Wind+6*Impact)*CalculusBlend,0,-4*Wind*CalculusBlend));
         }
-        if(BufferTool) Rotate(TEXT("body"),FRotator(4*CalculusBlend,0,0));
+        if(BufferTool) {
+            const auto* GS=Tooth->GetWorld()->GetGameState();
+            const float Time=GS?GS->GetServerWorldTimeSeconds():Tooth->GetWorld()->GetTimeSeconds();
+            const float Kick=FMath::Sin(Time*67)*CalculusBlend;
+            Rotate(TEXT("body"),FRotator(4*CalculusBlend+.8f*Kick,0,.35f*FMath::Sin(Time*53)*CalculusBlend));
+            Translate(TEXT("body"),Tooth->StandingMeshTransform().InverseTransformVectorNoScale(FVector(-.25f*Kick,0,.12f*FMath::Cos(Time*59)*CalculusBlend)));
+            Rotate(TEXT("gaze_head"),FRotator(-.3f*Kick,0,0));
+        }
+        if(Tooth->Inventory && Tooth->Inventory->SelectedUpgrade()==EMCToolUpgrade::Watergun && Tooth->Inventory->ShouldPresentTool()) {
+            const float Recoil=Tooth->Inventory->WaterRecoil();
+            Rotate(TEXT("body"),FRotator(-5*Recoil,0,-1.5f*Recoil));
+            Translate(TEXT("body"),Tooth->StandingMeshTransform().InverseTransformVectorNoScale(FVector(-1.2f*Recoil,0,0)));
+        }
         // Blend a readable dog-paddle over locomotion; contact IK still owns a held hand.
         if (Tooth->AnimationSwim>.001f)
         {

@@ -75,6 +75,35 @@ def main():
         enemy.set_editor_property(key, value)
     settings.set_editor_property("enemy", enemy)
     boss = settings.get_editor_property("boss")
+    tank_folder = folder + "/NutTank"
+    tank_model = u.load_asset(tank_folder + "/SK_NutTank")
+    if not tank_model:
+        tank_model = u.load_asset("/Game/FromBlender8/SM_Nut_Tank")
+    if not isinstance(tank_model, u.SkeletalMesh):
+        raise RuntimeError("Required authored melee-boss model is missing: /Game/FromBlender8/SM_Nut_Tank")
+    # Persist the generated animation-compatible rig in the event profile.
+    boss.set_editor_property("tank_skeletal_mesh", tank_model)
+    ball = u.load_asset(tank_folder + "/SM_NutTank_Ball")
+    if ball:
+        boss.set_editor_property("tank_ball_mesh", ball)
+    for key, suffix in (("idle", "Idle"), ("walk", "Walk"),
+                        ("walk_left", "WalkLeft"), ("walk_right", "WalkRight"),
+                        ("melee", "Melee"), ("jump", "Jump"),
+                        ("transform", "Transform")):
+        clip = u.load_asset(tank_folder + "/Animations/A_NutTank_" + suffix)
+        if clip:
+            boss.set_editor_property("tank_" + key + "_animation", clip)
+    mage_folder = folder + "/NutWizard"
+    mage_model = u.load_asset(mage_folder + "/SK_NutWizard")
+    if isinstance(mage_model, u.SkeletalMesh):
+        boss.set_editor_property("mage_skeletal_mesh", mage_model)
+        for key, suffix in (("idle", "Idle"), ("walk", "Walk"),
+                            ("cast", "Cast"), ("heavy_cast", "HeavyCast"),
+                            ("summon", "Summon"), ("rain", "Rain"),
+                            ("hit", "Hit"), ("death", "Death")):
+            clip = u.load_asset(mage_folder + "/Animations/A_NutWizard_" + suffix)
+            if clip:
+                boss.set_editor_property("mage_" + key + "_animation", clip)
     health_migrations = migrate_boss_health(boss)
     boss.set_editor_property("creep_health", 40.0)
     boss.set_editor_property("whole_mesh", whole)

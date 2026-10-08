@@ -8,6 +8,8 @@
 class AMCNutRainEvent;
 class AMCNutCombatEffect;
 class AMCNutSpellProjectile;
+class USkeletalMeshComponent;
+struct FMCNutBossAnimationSnapshot;
 
 /** Two complementary bosses share tool contact, but own distinct server attack schedules. */
 UCLASS(Blueprintable)
@@ -26,9 +28,14 @@ public:
     virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source) override;
     bool IsShieldProtectingFrom(FVector SourcePoint) const;
     bool IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const;
+    FVector GetCastOrigin() const;
+    void BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCNutBossAnimationSnapshot& Snapshot) const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Shield;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Kernel;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> OpenShell;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> TankModel;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> MageModel;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> TankBall;
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCNutRainEvent> EncounterOwner;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly) FMCNutBossSettings BossSettings;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly) EMCNutBossRole BossRole=EMCNutBossRole::Tank;
@@ -41,6 +48,9 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) FVector LockedTarget=FVector::ZeroVector;
     UPROPERTY(Replicated, BlueprintReadOnly) FVector AttackForward=FVector::ForwardVector;
     UPROPERTY(Replicated, BlueprintReadOnly) int32 AttackSeed=0;
+    UPROPERTY(Replicated, BlueprintReadOnly) double VisualHitAt=-100;
+    UPROPERTY(Replicated, BlueprintReadOnly) double ShieldHitAt=-100;
+    UPROPERTY(Replicated, BlueprintReadOnly) FVector VisualHitDirection=FVector::ZeroVector;
 protected:
     virtual void RefreshPresentation() override;
     virtual void Defeat() override;
@@ -52,6 +62,10 @@ private:
     bool LockSurfacePoint(FVector Candidate,float Margin,FVector& Result) const;
     void BeginAttack(EMCNutBossAttack Next);
     void ExecuteAttack(float Dt);
+    void ExecuteRoll(float Dt);
+    void PresentTankModel(double Time);
+    void CacheBossAnimations();
+    void DamageRollSegment(FVector Start,FVector End);
     void Recover(float Seconds);
     void DamageArea(FVector Center,float Radius,float Damage,float Push,TSet<TWeakObjectPtr<AMCToothCharacter>>* HitSet=nullptr);
     void DamageChargeSegment(FVector Start,FVector End);
@@ -62,12 +76,25 @@ private:
     int32 PartyPlayers=1;
     FRandomStream Random;
     FVector EntranceLanding=FVector::ZeroVector;
-    double NextTargetAt=0,NextMeleeAt=0,NextChargeAt=0,NextJumpAt=0;
+    double NextTargetAt=0,NextMeleeAt=0,NextChargeAt=0,NextJumpAt=0,NextRollAt=0;
     double NextFireballAt=0,NextSummonAt=0,NextRainAt=0;
     bool bResolved=false;
     int32 RainDropsResolved=0;
     TSet<TWeakObjectPtr<AMCToothCharacter>> AttackHits;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RainHitAt;
+    TMap<TWeakObjectPtr<AMCToothCharacter>,double> RollHitAt;
+    FVector TankModelScale=FVector::OneVector;
+    FVector TankModelCenter=FVector::ZeroVector;
+    FVector TankBallScale=FVector::OneVector,TankBallCenter=FVector::ZeroVector;
+    FVector MageModelScale=FVector::OneVector,MageModelCenter=FVector::ZeroVector;
+    UPROPERTY(Transient) TArray<TObjectPtr<UAnimSequence>> BossAnimations;
+    UPROPERTY(Transient) TObjectPtr<USkeletalMesh> FallbackTankMesh;
+    bool bFallbackTankMeshLoaded=false;
+    TArray<FSoftObjectPath> CachedBossAnimationPaths;
+    EMCNutBossRole CachedAnimationRole=EMCNutBossRole::Tank;
+    FVector LastTankPresentationLocation=FVector::ZeroVector,TankPresentationMotion=FVector::ZeroVector;
+    double LastTankPresentationAt=-1;
+    bool bTankWasBall=false;
     TArray<TWeakObjectPtr<AActor>> ActiveAttacks;
     TArray<FVector> SummonPositions;
 };

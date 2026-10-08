@@ -15,7 +15,7 @@ TArray<FMCGameDirectorEventRule> DefaultEventRules()
         Rule.MinimumDifficulty=MinimumDifficulty; Rule.MaxPerDay=MaxPerDay;
     };
     Add(EMCGameDirectorEvent::Food,5,8,1,0);
-    Add(EMCGameDirectorEvent::Coffee,1.2f,45,1,0);
+    Add(EMCGameDirectorEvent::Coffee,4.5f,10,1,0);
     Add(EMCGameDirectorEvent::CoffeeFlood,.6f,75,2,.8f);
     Add(EMCGameDirectorEvent::ColdCola,.7f,85,1,.7f);
     Add(EMCGameDirectorEvent::Yawn,1,45,1,.65f);
