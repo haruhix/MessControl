@@ -177,6 +177,7 @@ public:
     bool bMouthCameraInitialized=false;
     bool bMouthCameraHeld=false;
     FVector MouthCameraFocus=FVector::ZeroVector, MouthCameraEye=FVector::ZeroVector;
+    FVector SprayCameraOffset=FVector::ZeroVector;
     TWeakObjectPtr<AActor> MouthCameraBounds;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TObjectPtr<UMCAnimationProfile> AnimationProfile;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") TObjectPtr<UMCSoundPalette> SoundPalette;

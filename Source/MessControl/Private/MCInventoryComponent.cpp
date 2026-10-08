@@ -306,14 +306,12 @@ FVector UMCInventoryComponent::PickaxeContactTip() const
 AMCMouthSurface* UMCInventoryComponent::FindSprayTarget() const
 {
     if(!ShouldPresentTool() || !Hero->CanWork() || Hero->bInCoffee || Selected!=EMCToolSlot::Spray || (bPressureMode && HasUpgrade(EMCToolUpgrade::Watergun))) return nullptr;
-    AMCMouthSurface* Best=nullptr; float Distance=FMath::Square(SprayReach());
+    AMCMouthSurface* Best=nullptr;float Distance=SprayReach();
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) {
         if(!It->bUlcer || It->bTreatmentBlocked || It->IsHealed() || It->IsBurning() || It->IsActorBeingDestroyed()) continue;
-        const FVector D=It->GetActorLocation()-Hero->GetActorLocation();
-        if(D.SizeSquared()>Distance || FVector::DotProduct(D.GetSafeNormal2D(),Hero->GetActorForwardVector())<.15f) continue;
-        FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCSpray),false,Hero); Q.AddIgnoredActor(*It);
-        if(GetWorld()->LineTraceSingleByChannel(Hit,Hero->GetActorLocation(),It->GetActorLocation()+FVector(0,0,12),ECC_Visibility,Q)) continue;
-        Best=*It; Distance=D.SizeSquared();
+        float Along;
+        if(!SprayTargetDistance(*It,It->GetActorLocation()+FVector(0,0,10),62,Along) || Along>Distance) continue;
+        Best=*It;Distance=Along;
     }
     return Best;
 }
@@ -326,19 +324,15 @@ void UMCInventoryComponent::ServerSpray_Implementation()
 AMCFirePatch* UMCInventoryComponent::FindFireTarget() const
 {
     if(!ShouldPresentTool() || !Hero->CanWork() || Hero->bInCoffee || Selected!=EMCToolSlot::Spray || (bPressureMode && HasUpgrade(EMCToolUpgrade::Watergun))) return nullptr;
-    AMCFirePatch* Best=nullptr;float Distance=FMath::Square(SprayReach());
+    AMCFirePatch* Best=nullptr;float Distance=SprayReach();
     for(TActorIterator<AMCFirePatch> It(GetWorld());It;++It) {
         if(!It->IsBurning()) continue;
-        const FVector D=It->GetActorLocation()-Hero->GetActorLocation();
-        if(D.SizeSquared()>Distance || FVector::DotProduct(D.GetSafeNormal2D(),Hero->GetActorForwardVector())<.15f) continue;
-        FHitResult Hit;FCollisionQueryParams Q(SCENE_QUERY_STAT(MCFireSpray),false,Hero);Q.AddIgnoredActor(*It);
-        if(GetWorld()->LineTraceSingleByChannel(Hit,Hero->GetActorLocation(),It->GetActorLocation()+FVector(0,0,20),ECC_Visibility,Q)) continue;
-        Best=*It;Distance=D.SizeSquared();
+        float Along;
+        if(!SprayTargetDistance(*It,It->GetActorLocation()+FVector(0,0,20),It->BurnRadius,Along) || Along>Distance) continue;
+        Best=*It;Distance=Along;
     }
     return Best;
 }
-FVector UMCInventoryComponent::SprayAim() const
-{return FireTarget?FireTarget->GetActorLocation()+FVector(0,0,20):HealingTarget?HealingTarget->GetActorLocation()+FVector(0,0,10):Hero?Hero->GetActorLocation()+Hero->GetActorForwardVector()*180:FVector::ZeroVector;}
 FVector UMCInventoryComponent::SprayOrigin() const
 {
     if(!Hero) return FVector::ZeroVector;
@@ -354,7 +348,7 @@ FVector UMCInventoryComponent::SprayOrigin() const
 }
 FVector UMCInventoryComponent::SprayDirection() const
 {
-    return HealingTarget || FireTarget?(SprayAim()-SprayOrigin()).GetSafeNormal():Hero?Hero->GetActorForwardVector():FVector::ForwardVector;
+    return (SprayAim()-SprayOrigin()).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
 }
 void UMCInventoryComponent::ReactPlayersToSpray()
 {
@@ -437,6 +431,7 @@ void UMCInventoryComponent::RefreshMesh()
 void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
     Super::TickComponent(Dt,Type,Tick);
+    UpdateSprayAim();
     TickUpgrades(Dt);
     if(Hero && GetOwner()->HasAuthority()) {
         auto* Fire=Hero->IsPrimaryHeld()?FindFireTarget():nullptr;
@@ -482,4 +477,7 @@ void UMCInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
     DOREPLIFETIME(UMCInventoryComponent,HealingTarget);DOREPLIFETIME(UMCInventoryComponent,FireTarget);
     DOREPLIFETIME(UMCInventoryComponent,bPressureMode);DOREPLIFETIME(UMCInventoryComponent,bChargingWater);
     DOREPLIFETIME(UMCInventoryComponent,WaterChargeStartedAt);DOREPLIFETIME(UMCInventoryComponent,WaterShotReadyAt);
+    DOREPLIFETIME_CONDITION(UMCInventoryComponent,SprayViewOrigin,COND_SkipOwner);
+    DOREPLIFETIME_CONDITION(UMCInventoryComponent,SprayViewDirection,COND_SkipOwner);
+    DOREPLIFETIME_CONDITION(UMCInventoryComponent,bHasSprayView,COND_SkipOwner);
 }

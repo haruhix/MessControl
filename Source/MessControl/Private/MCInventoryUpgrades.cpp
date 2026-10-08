@@ -118,10 +118,8 @@ bool UMCInventoryComponent::WatergunHandGoal(FTransform& RightHandWorld) const
     const FTransform InHand=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
     const FVector Wrist=(InHand.Inverse()*ToolWorld).GetLocation();
     FQuat Rotation=ToolWorld.GetRotation();
-    if(HealingTarget || FireTarget) {
-        const FVector Aim=(SprayAim()-Wrist).GetSafeNormal();
-        Rotation=(FQuat::FindBetweenNormals(ToolWorld.GetUnitAxis(EAxis::X),Aim)*Rotation).GetNormalized();
-    }
+    const FVector Aim=(SprayAim()-Wrist).GetSafeNormal();
+    Rotation=(FQuat::FindBetweenNormals(ToolWorld.GetUnitAxis(EAxis::X),Aim)*Rotation).GetNormalized();
     const float Recoil=WaterRecoil();
     Rotation=(Rotation*FRotator(6*Recoil,0,0).Quaternion()).GetNormalized();
     ToolWorld.SetRotation(Rotation);
@@ -246,16 +244,26 @@ void UMCInventoryComponent::SawContact()
     }
     if(SawContacts.Num()>64) for(auto It=SawContacts.CreateIterator();It;++It) if(!It.Key().IsValid() || It.Value()<Now()-2) It.RemoveCurrent();
 }
+bool UMCInventoryComponent::TraceWaterShot(float Charge,const FVector& Origin,FVector& End,FHitResult& Hit) const
+{
+    if(!Hero) return false;
+    const FVector Aim=SprayAim();
+    End=Origin+(Aim-Origin).GetSafeNormal()*FMath::Min(float(FVector::Distance(Origin,Aim)),FMath::Lerp(600.f,1400.f,Charge));
+    FCollisionObjectQueryParams Objects;for(auto Type:{ECC_WorldStatic,ECC_WorldDynamic,ECC_PhysicsBody,ECC_Pawn}) Objects.AddObjectTypesToQuery(Type);
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCWatergunShot),true,Hero);
+    if(GetWorld()->SweepSingleByObjectType(Hit,Origin,End,FQuat::Identity,Objects,FCollisionShape::MakeSphere(FMath::Lerp(5.f,12.f,Charge)),Query)) {
+        End=Hit.ImpactPoint;
+        return true;
+    }
+    return false;
+}
 void UMCInventoryComponent::FireChargedWater(float Charge)
 {
     if(!Hero->HasAuthority() || Now()<WaterShotReadyAt) return;
-    const FVector Origin=SprayOrigin(),Direction=Hero->GetActorForwardVector().GetSafeNormal();
-    const float Reach=FMath::Lerp(600.f,1400.f,Charge),Power=FMath::Lerp(.75f,3.f,Charge)*FMath::Max(1.f,Settings?Settings->PickaxeDamage:40.f);
-    FCollisionObjectQueryParams Objects;for(auto Type:{ECC_WorldStatic,ECC_WorldDynamic,ECC_PhysicsBody,ECC_Pawn}) Objects.AddObjectTypesToQuery(Type);
-    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCWatergunShot),true,Hero);FHitResult Hit;
-    FVector End=Origin+Direction*Reach;
-    if(GetWorld()->SweepSingleByObjectType(Hit,Origin,End,FQuat::Identity,Objects,FCollisionShape::MakeSphere(FMath::Lerp(5.f,12.f,Charge)),Query)) {
-        End=Hit.ImpactPoint;
+    const FVector Direction=SprayDirection();
+    const float Power=FMath::Lerp(.75f,3.f,Charge)*FMath::Max(1.f,Settings?Settings->PickaxeDamage:40.f);
+    const FVector Origin=SprayOrigin();FVector End;FHitResult Hit;
+    if(TraceWaterShot(Charge,Origin,End,Hit)) {
         if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) Food->HitFood(Power,Direction,Hero);
         else if(auto* Boss=Cast<AMCBossCharacter>(Hit.GetActor())) Boss->ReceiveBossDamage(Power,Hero);
         else if(auto* Player=Cast<AMCToothCharacter>(Hit.GetActor())) {

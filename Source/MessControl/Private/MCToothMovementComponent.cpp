@@ -477,6 +477,11 @@ FRotator UMCToothMovementComponent::ComputeOrientToMovementRotation(const FRotat
     if(IsDashing()) return FRotator(0,FVector(DashDirection).Rotation().Yaw,0);
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     FRotator Desired=Super::ComputeOrientToMovementRotation(Current,Dt,Delta);
+    if(Hero && Hero->Inventory && Hero->Inventory->Selected==EMCToolSlot::Spray && Hero->IsPrimaryHeld()
+        && Hero->CanWork() && !Hero->bInCoffee && Hero->Inventory->ShouldPresentTool()) {
+        const FVector Aim=(Hero->Inventory->SprayAim()-Hero->GetActorLocation()).GetSafeNormal2D();
+        if(!Aim.IsNearlyZero()) return FRotator(0,Aim.Rotation().Yaw,0);
+    }
     FVector BrushDirection;
     if(Hero && ((Hero->BrushContact && Hero->BrushContact->WantsFacing(BrushDirection)) || Hero->WantsCalculusFacing(BrushDirection)))
         return FRotator(0,BrushDirection.Rotation().Yaw,0);

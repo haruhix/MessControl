@@ -3,6 +3,7 @@
 #include "MCTongue.h"
 #include "MCThroat.h"
 #include "MCRewardChest.h"
+#include "MCInventoryComponent.h"
 #include "MCOrbitSpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Camera/PlayerCameraManager.h"
@@ -72,6 +73,11 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         Arm->SetIgnoredViewActor(Viewer?MimicCaptor.Get():nullptr);
     }
     if(!Viewer) { ClearCameraWallReveal(); return; }
+    const bool Aiming=Inventory && Inventory->Selected==EMCToolSlot::Spray && CanWork() && !bInCoffee && Inventory->ShouldPresentTool();
+    // Keep the centre ray beside the avatar, with the ordinary collision sweep
+    // still beginning at the avatar instead of beyond the shoulder offset.
+    const FVector Shoulder=Camera->GetRightVector()*140+FVector::UpVector*75;
+    SprayCameraOffset=FMath::VInterpTo(SprayCameraOffset,Aiming?Shoulder:FVector::ZeroVector,Dt,8.f);
     const FVector P=GetActorLocation();
     float Suction=0;
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It)
@@ -127,7 +133,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         CameraBoom->bEnableCameraLag=false;
         CameraBoom->bDoCollisionTest=true; CameraBoom->ProbeChannel=ECC_Camera;
         CameraOrbitViewDistance=Reset?CameraOrbitDistance:FMath::Lerp(CameraOrbitViewDistance,CameraOrbitDistance,Blend);
-        MouthCameraEye=MouthCameraFocus+OrbitPivotOffset-View.Vector()*CameraOrbitViewDistance;
+        MouthCameraEye=MouthCameraFocus+OrbitPivotOffset+SprayCameraOffset-View.Vector()*CameraOrbitViewDistance;
         // Trace from the actual pawn, so follow lag cannot put the sweep origin inside a wall at a corner.
         const FVector Arm=P+OrbitPivotOffset-MouthCameraEye;
         CameraBoom->TargetOffset=OrbitPivotOffset;
@@ -165,7 +171,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
         const double Delta=TrackedP[Axis]-MouthCameraFocus[Axis],Zone=FMath::Max(0.,CameraDeadZone[Axis]);
         MouthCameraFocus[Axis]+=Delta-FMath::Clamp(Delta,-Zone,Zone);
     }
-    const FVector Focus=MouthCameraFocus+CameraFocusOffset;
+    const FVector Focus=MouthCameraFocus+CameraFocusOffset+SprayCameraOffset;
     const FVector Offset(-FMath::Clamp(FollowDistance,400.f,1600.f),(CenterY-MouthCameraFocus.Y)*.70,0);
     FVector WantedEye=ClampEye(MouthCameraFocus+Offset+FVector(0,0,FMath::Clamp(FollowHeight,150.f,700.f)));
     // At the front rim preserve the view height; shrinking height with distance

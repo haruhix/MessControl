@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "input_source": "owning client camera crosses the RPC channel from the native inventory tick; authority drives press/release and client presentation/state is checked after replication",
+  "cases": [
+    {
+      "case": "ClientCameraReplication",
+      "authority_aim_screen_error_px": 0.03506230677332138
+    },
+    {
+      "case": "ClientCareInputAndMist",
+      "alignment_authority_client": [
+        0.9999999999996809,
+        0.9999999999996816
+      ]
+    },
+    {
+      "case": "ClientPressureShotHitsSideTarget",
+      "health_authority_client": [
+        880.0,
+        880.0
+      ],
+      "recoil_authority_client": [
+        1.0,
+        1.0
+      ],
+      "effects_authority_client": [
+        true,
+        true
+      ]
+    },
+    {
+      "case": "ObstacleBlocksShot",
+      "target_health": 880.0
+    }
+  ],
+  "error": null
+}

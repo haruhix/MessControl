@@ -126,6 +126,23 @@ bool FMCToolBoosterMechanics::RunTest(const FString&) {
     Ulcer->Destroy();auto* Target=T.Worker(I->SprayOrigin()+Shooter->GetActorForwardVector()*450);
     I->WaterShotReadyAt=0;I->FireChargedWater(0);TestEqual(TEXT("An uncharged water shot damages its swept target"),Target->Status->State.Health,970.f);
     I->WaterShotReadyAt=0;I->FireChargedWater(1);TestEqual(TEXT("Holding to full charge increases actual damage fourfold"),Target->Status->State.Health,850.f);
+    // A camera looking sideways must aim independently of the body's facing.
+    const FVector View=Shooter->GetActorLocation()+FVector(-300,0,100);
+    Target->SetActorLocation(Shooter->GetActorLocation()+FVector(0,400,0));
+    I->ServerCommitSprayView(View,(Target->GetActorLocation()-View).GetSafeNormal());
+    I->WaterShotReadyAt=0;I->FireChargedWater(1);
+    TestEqual(TEXT("Camera-centre water shot hits a target beside the character"),Target->Status->State.Health,730.f);
+    const FVector Aim=I->SprayAim();
+    I->ServerCommitSprayView(View+FVector(10000,0,0),FVector::UpVector);
+    TestTrue(TEXT("Out-of-range camera origins cannot replace the accepted aim"),I->SprayAim().Equals(Aim,1.f));
+    Target->Destroy();I->bPressureMode=false;
+    auto* AimedUlcer=T.W->SpawnActor<AMCMouthSurface>(Shooter->GetActorLocation()+FVector(0,500,-40),FRotator::ZeroRotator);AimedUlcer->bUlcer=true;
+    auto* OffAimUlcer=T.W->SpawnActor<AMCMouthSurface>(Shooter->GetActorLocation()+FVector(180,0,-40),FRotator::ZeroRotator);OffAimUlcer->bUlcer=true;
+    I->ServerCommitSprayView(View,(AimedUlcer->GetActorLocation()+FVector(0,0,10)-View).GetSafeNormal());
+    Shooter->ServerSetPrimary(true);T.Step(.3f);
+    TestTrue(TEXT("Care follows the aimed ulcer beside the body"),AimedUlcer->Healing>.09f);
+    TestEqual(TEXT("A closer ulcer outside the crosshair receives no treatment"),OffAimUlcer->Healing,0.f);
+    Shooter->ServerSetPrimary(false);
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCToolBrushRates,"MessControl.ToolBoosters.BrushRateAcrossFrames",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

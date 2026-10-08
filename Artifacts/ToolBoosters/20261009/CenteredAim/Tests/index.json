@@ -1,0 +1,481 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "231B47724D35E5029C448D852B498B09",
+			"instanceName": "VB-35436",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.08-17.03.01",
+	"succeeded": 0,
+	"succeededWithWarnings": 0,
+	"failed": 2,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.4297713041305542,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "HoldSprayAndPreserveProgress",
+			"fullTestPath": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+			"tags": [],
+			"state": "Fail",
+			"deviceInstance": [
+				"231B47724D35E5029C448D852B498B09"
+			],
+			"duration": 0.20557469129562378,
+			"dateTime": "2026.10.08-17.03.01",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "LogStreaming: FlushAsyncLoading(412): 1 QueuedPackages, 0 AsyncPackages",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "LogTemp: MC_DIRECTOR Д0 00:00  Director включён: выбор по состоянию команды, без квот событий",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Two seconds of held spray heals two sevenths' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCInventoryTests.cpp",
+					"lineNumber": 151,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Treatment numbs the ulcer' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCInventoryTests.cpp",
+					"lineNumber": 152,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Leaving traversal and moving dropped food aside reacquires the same ulcer: The two values are not equal.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCInventoryTests.cpp",
+					"lineNumber": 221,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Protected lesion does no mouth damage' to be 100.000000, but it was 98.824997 and outside tolerance 0.000100.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCInventoryTests.cpp",
+					"lineNumber": 224,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Resumed treatment completes after seven effective seconds' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCInventoryTests.cpp",
+					"lineNumber": 233,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Completed treatment stays at one' to be 1.000000, but it was 0.000000 and outside tolerance 0.000100.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCInventoryTests.cpp",
+					"lineNumber": 235,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				}
+			],
+			"warnings": 24,
+			"errors": 6,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "Mechanics",
+			"fullTestPath": "MessControl.ToolBoosters.Mechanics",
+			"tags": [],
+			"state": "Fail",
+			"deviceInstance": [
+				"231B47724D35E5029C448D852B498B09"
+			],
+			"duration": 0.22419659793376923,
+			"dateTime": "2026.10.08-17.03.01",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: MCFoodActor_0.FoodBody has to have 'Simulate Physics' enabled if you'd like to AddImpulse. ",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "LogStreaming: FlushAsyncLoading(429): 1 QueuedPackages, 0 AsyncPackages",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.08-17.03.01"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Care follows the aimed ulcer beside the body' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCToolBoosterTests.cpp",
+					"lineNumber": 144,
+					"timestamp": "2026.10.08-17.03.01"
+				}
+			],
+			"warnings": 1,
+			"errors": 1,
+			"artifacts": []
+		}
+	]
+}

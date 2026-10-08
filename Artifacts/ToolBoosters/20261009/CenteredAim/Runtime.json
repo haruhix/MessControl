@@ -1,0 +1,231 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "SprayIdle",
+      "aim": [
+        267.8641040113232,
+        191.5362318845831,
+        -39.78221130371085
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.NONE: 0>",
+      "cursor": false
+    },
+    {
+      "case": "SprayUse",
+      "aim": [
+        268.18389101939886,
+        191.71680492544945,
+        -39.775512695312415
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.NONE: 0>",
+      "cursor": false,
+      "mist_alignment": 0.9999999999999999,
+      "body_alignment": 0.9999999999999999
+    },
+    {
+      "case": "WatergunCareIdle",
+      "aim": [
+        268.18389101939886,
+        191.71680492544945,
+        -39.775512695312415
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.WATERGUN: 4>",
+      "cursor": false
+    },
+    {
+      "case": "WatergunCareUse",
+      "aim": [
+        268.18389101939886,
+        191.71680492544945,
+        -39.775512695312415
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.WATERGUN: 4>",
+      "cursor": false,
+      "mist_alignment": 0.9999999999999999,
+      "body_alignment": 0.9999999999999999
+    },
+    {
+      "case": "PressureReady",
+      "aim": [
+        268.18389101939886,
+        191.71680492544945,
+        -39.775512695312415
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.WATERGUN: 4>",
+      "cursor": false
+    },
+    {
+      "case": "PressureCharged",
+      "aim": [
+        268.18389101939886,
+        191.71680492544945,
+        -39.775512695312415
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.WATERGUN: 4>",
+      "cursor": false
+    },
+    {
+      "case": "PressureFired",
+      "aim": [
+        268.18389101939886,
+        191.71680492544945,
+        -39.775512695312415
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.WATERGUN: 4>",
+      "cursor": false,
+      "visual_axis_alignment": 0.9921480214930123
+    },
+    {
+      "case": "Cooldown",
+      "aim": [
+        268.18389101939886,
+        191.71680492544945,
+        -39.775512695312415
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.WATERGUN: 4>",
+      "cursor": false
+    },
+    {
+      "case": "OtherTool",
+      "aim": [
+        -146.6530663250437,
+        -73.884510844456,
+        -48.29627990722659
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.PICKAXE: 1>",
+      "upgrade": "<MCToolUpgrade.BUFFER: 3>",
+      "cursor": false
+    },
+    {
+      "case": "MenuHidden",
+      "aim": [
+        267.62412620630766,
+        191.348734357511,
+        -39.792175292968665
+      ],
+      "screen": [
+        738.9999389648438,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 6.103515625e-05,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.WATERGUN: 4>",
+      "cursor": true
+    },
+    {
+      "case": "MenuClosed",
+      "aim": [
+        268.17920926918646,
+        191.71516579215267,
+        -39.775512695312415
+      ],
+      "screen": [
+        739.0,
+        431.0
+      ],
+      "viewport": [
+        1478.0,
+        862.0
+      ],
+      "centre_error_px": 0.0,
+      "tool": "<MCToolSlot.SPRAY: 3>",
+      "upgrade": "<MCToolUpgrade.WATERGUN: 4>",
+      "cursor": false
+    }
+  ],
+  "error": null
+}

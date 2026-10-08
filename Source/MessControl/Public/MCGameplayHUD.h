@@ -21,6 +21,8 @@ protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
+    virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+        FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;
 private:
     UPROPERTY(Transient) TObjectPtr<UMCStaminaWidget> StaminaWidget;
     UPROPERTY(Transient) TObjectPtr<UBorder> DirectorPanel;
@@ -35,6 +37,7 @@ private:
     UPROPERTY(Transient) TObjectPtr<UProgressBar> ProgressionBar;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UWidget>> Widgets;
     float RefreshElapsed=1;
+    bool bHadSprayReticle=false;
     UWidget* Find(FName Name) const;
     void RefreshState();
     void EnsureDirectorMonitor();

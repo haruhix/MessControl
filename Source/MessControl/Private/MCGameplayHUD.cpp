@@ -21,6 +21,7 @@
 #include "EngineUtils.h"
 #include "Rendering/DrawElements.h"
 #include "Blueprint/WidgetTree.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Components/Image.h"
@@ -327,7 +328,52 @@ UWidget* UMCGameplayHUD::Find(FName Name) const
 void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
 {
     Super::NativeTick(Geometry,Dt); RefreshElapsed+=Dt;
+    const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+    const bool Spray=Hero && Hero->Inventory && Hero->Inventory->Selected==EMCToolSlot::Spray;
+    // Charge and cooldown animate every frame; ordinary HUD data remains at 10 Hz.
+    if(Spray || bHadSprayReticle) if(const auto Cached=GetCachedWidget()) Cached->Invalidate(EInvalidateWidgetReason::Paint);
+    bHadSprayReticle=Spray;
     if(RefreshElapsed>=.1f) { RefreshElapsed=0; RefreshState(); }
+}
+int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
+    FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
+{
+    const int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());
+    const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
+    const auto* Inv=Hero?Hero->Inventory.Get():nullptr;
+    if(!PC || !PC->IsLocalController() || PC->bShowMouseCursor || PC->IsLookInputIgnored() || PC->IsSpectating()
+        || !Inv || Inv->Selected!=EMCToolSlot::Spray || !Hero->CanWork() || Hero->bInCoffee || !Inv->ShouldPresentTool()) return Top;
+    const auto PlayerGeometry=UWidgetLayoutLibrary::GetPlayerScreenWidgetGeometry(GetOwningPlayer());
+    const FVector2D Center=Geometry.AbsoluteToLocal(PlayerGeometry.LocalToAbsolute(PlayerGeometry.GetLocalSize()*.5f));
+    const bool Pressure=Inv->SelectedUpgrade()==EMCToolUpgrade::Watergun && Inv->bPressureMode;
+    const float Charge=Inv->WaterChargeFraction(),Cool=Pressure?Inv->SpraySecondsLeft():0;
+    const FLinearColor Tint=Cool>0?FLinearColor(.48f,.58f,.65f):Pressure?FLinearColor(.86f,.97f,1):FLinearColor(.20f,.80f,1);
+    auto Stroke=[&](const TArray<FVector2D>& Points,FLinearColor Color,float Width=2.f) {
+        FSlateDrawElement::MakeLines(Elements,Top+1,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,FLinearColor(.005f,.015f,.025f,.8f),true,Width+2);
+        FSlateDrawElement::MakeLines(Elements,Top+2,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,Color,true,Width);
+    };
+    auto Arc=[&](float Radius,float Fraction,FLinearColor Color) {
+        if(Fraction<=0) return;
+        TArray<FVector2D> Points;
+        const int32 Steps=FMath::Max(2,FMath::CeilToInt(40*Fraction));
+        for(int32 I=0;I<=Steps;++I) {
+            const float A=-PI/2+2*PI*Fraction*I/Steps;
+            Points.Add(Center+FVector2D(FMath::Cos(A),FMath::Sin(A))*Radius);
+        }
+        Stroke(Points,Color);
+    };
+    const float Radius=Pressure?7.f:10.f;
+    Arc(Radius,1,Tint);
+    for(const FVector2D Axis:{FVector2D(1,0),FVector2D(-1,0),FVector2D(0,1),FVector2D(0,-1)})
+        Stroke({Center+Axis*(Radius+4),Center+Axis*(Radius+9)},Tint);
+    const FSlateRoundedBoxBrush Dot(FLinearColor::White,2.f);
+    FSlateDrawElement::MakeBox(Elements,Top+2,Geometry.ToPaintGeometry(FVector2D(4,4),FSlateLayoutTransform(Center-FVector2D(2,2))),&Dot,ESlateDrawEffect::None,Tint);
+    if(Pressure) {
+        Arc(18,1,FLinearColor(.22f,.32f,.40f,.65f));
+        Arc(18,Cool>0?1-Cool/4.f:Charge,FLinearColor(.20f,.85f,1));
+    }
+    return Top+3;
 }
 void UMCGameplayHUD::RefreshState()
 {

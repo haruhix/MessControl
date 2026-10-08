@@ -285,7 +285,7 @@ public:
         }
         Face=EyeCount?Face/EyeCount:Tooth->GetActorLocation()+FVector(0,0,25);
         const FVector Palm=Face+Tooth->GetActorForwardVector()*45+Tooth->GetActorRightVector()*30;
-        const FVector Aim=HasTarget?(Inventory->SprayAim()-Palm).GetSafeNormal():Tooth->GetActorForwardVector();
+        const FVector Aim=(Inventory->SprayAim()-Palm).GetSafeNormal();
         const FQuat CanRotation=FRotationMatrix::MakeFromXZ(Aim,FVector::UpVector).ToQuat();
         FTransform Goal=CS[Hand];
         Goal.SetLocation(World.InverseTransformPosition(Palm));

@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataAsset.h"
+#include "Engine/NetSerialization.h"
 #include "MCPerkTypes.h"
 #include "MCInventoryComponent.generated.h"
 
@@ -84,6 +85,7 @@ class MESSCONTROL_API UMCInventoryComponent : public UActorComponent
 #endif
 #if WITH_DEV_AUTOMATION_TESTS
     friend class FMCToolBoosterMechanics;
+    friend class FMCSprayProtection;
 #endif
 public:
     UMCInventoryComponent();
@@ -114,6 +116,9 @@ public:
     FQuat ToolHandRotation(const FQuat& ToolWorldRotation) const;
     bool UpgradeSupportGrip(const FTransform& RightHandWorld,FTransform& LeftHandWorld) const;
     UFUNCTION(BlueprintPure,Category="Tools|Watergun") float WaterChargeFraction() const;
+    /** Camera-centre target shared by spray, watergun and their working poses. */
+    UFUNCTION(BlueprintPure,Category="Tools|Watergun") FVector WatergunAimPoint() const;
+    void UpdateSprayAim(bool Commit=false);
     float MovementMultiplier() const;
     float CleaningSpeedMultiplier() const;
     float CleaningRadius(float DirtRadius=36.f) const;
@@ -121,7 +126,7 @@ public:
     float SprayReach() const;
     void HandleChainsawCollision(AActor* Other,const FHitResult& Hit);
     void CancelUpgradeUse();
-    FVector SprayAim() const;
+    UFUNCTION(BlueprintPure,Category="Tools") FVector SprayAim() const;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSelect(EMCToolSlot Slot);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSpray();
     // Called by the authoritative upgrade/shop system. Clients cannot grant upgrades.
@@ -156,6 +161,15 @@ private:
     bool bWaterEmitting=false;
     float WorkingGripAlpha=0;
     double NextSocialSprayAt=0;
+    UPROPERTY(Replicated) FVector_NetQuantize SprayViewOrigin;
+    UPROPERTY(Replicated) FVector_NetQuantizeNormal SprayViewDirection=FVector::ForwardVector;
+    UPROPERTY(Replicated) bool bHasSprayView=false;
+    double NextSprayViewAt=0;
+    bool LocalSprayView(FVector& Origin,FVector& Direction) const;
+    void StoreSprayView(FVector Origin,FVector Direction);
+    UFUNCTION(Server,Unreliable) void ServerUpdateSprayView(FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);
+    UFUNCTION(Server,Reliable) void ServerCommitSprayView(FVector_NetQuantize Origin,FVector_NetQuantizeNormal Direction);
+    bool SprayTargetDistance(AActor* Target,FVector Point,float Radius,float& Distance) const;
     EMCToolSlot Presented=EMCToolSlot::Brush;
     bool bPresentedUpgrade=false;
     bool bPresentedFallback=false;
@@ -170,6 +184,7 @@ private:
     void TickChainsaw(float Dt);
     void SawContact();
     void FireChargedWater(float Charge);
+    bool TraceWaterShot(float Charge,const FVector& Origin,FVector& End,FHitResult& Hit) const;
     FTransform UpgradeAttachment() const;
     uint8 UpgradeMask() const;
     void RefreshMesh();

@@ -145,6 +145,8 @@ bool FMCSprayProtection::RunTest(const FString&) {
     FInventoryWorld T; auto* I=T.H->Inventory.Get(); I->ServerSelect(EMCToolSlot::Spray);
     auto* Patch=T.W->SpawnActor<AMCMouthSurface>(FVector(-470,0,25),FRotator::ZeroRotator); Patch->bUlcer=true;
     Patch->HealSeconds=7;
+    const FVector View=T.H->GetActorLocation()+FVector(-300,0,100);
+    I->ServerCommitSprayView(View,(Patch->GetActorLocation()+FVector(0,0,10)-View).GetSafeNormal());
     auto Tick=[&](int32 Count) { for(int32 N=0;N<Count;++N) { ++GFrameCounter; I->TickComponent(.1f,LEVELTICK_All,nullptr); } };
     T.H->ServerSetPrimary(true); Tick(20);
     TestTrue(TEXT("Two seconds of held spray heals two sevenths"),FMath::IsNearlyEqual(Patch->Healing,2.f/7,.0001f));

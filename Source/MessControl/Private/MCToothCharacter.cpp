@@ -547,6 +547,7 @@ void AMCToothCharacter::StartPrimary()
 {
     if(IsMimicCaptured()) return;
     if (!Status->IsAlive()) { if (auto* PC=Cast<AMCPlayerController>(Controller)) PC->NextSpectator(); return; }
+    Inventory->UpdateSprayAim(true);
     ServerSetPrimary(true);
 }
 void AMCToothCharacter::ServerToggleFoodCollection_Implementation()
@@ -570,7 +571,7 @@ void AMCToothCharacter::NotifyTaskFeedback(bool Success,FVector Point)
     (Success?TaskSuccessAt:TaskFailureAt)=Now; ForceNetUpdate();
     if(Success) AMCReactionVFX::Spawn(GetWorld(),Point.IsNearlyZero()?GetActorLocation()+FVector(0,0,90):Point+FVector(0,0,110),EMCReactionEffect::Stars,2.5f,155);
 }
-void AMCToothCharacter::StopPrimary() { ServerSetPrimary(false); }
+void AMCToothCharacter::StopPrimary() { Inventory->UpdateSprayAim(true); ServerSetPrimary(false); }
 void AMCToothCharacter::SetPrimaryInputHeld(bool Held)
 {
     if ((!HasAuthority() && !IsLocallyControlled()) || (Held && !CanWork())) return;
