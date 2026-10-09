@@ -65,8 +65,15 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Work") bool bUseWorkingToolPoses=false;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FVector WatergunNozzle=FVector(102,0,12);
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") float WatergunCareReach=1000;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") float WatergunChargeSeconds=1.5f;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") float WatergunShotCooldown=4.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Watergun",meta=(ClampMin="0.01")) float WatergunFireInterval=.1f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Watergun",meta=(ClampMin="1",ClampMax="300")) int32 WatergunMagazineSize=30;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Watergun",meta=(ClampMin="0.1")) float WatergunReloadSeconds=2.f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Watergun",meta=(ClampMin="0.001")) float WatergunShotDamage=.5f;
+    // Retained only for loading equipment assets authored with the old charged attack.
+    UPROPERTY() float WatergunChargeSeconds=1.5f;
+    UPROPERTY() float WatergunShotCooldown=4.f;
+    UPROPERTY() float WatergunTapSeconds=.25f;
+    UPROPERTY() float WatergunNormalShotCooldown=.4f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UMaterialInterface> UpgradeFallbackMaterial;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="0.1")) float PickaxeDamage=40;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Balance",meta=(ClampMin="0.1")) float KnifeDamage=25;
@@ -101,9 +108,14 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<AMCMouthSurface> HealingTarget;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") TObjectPtr<class AMCFirePatch> FireTarget;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") bool bPressureMode=false;
-    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") bool bChargingWater=false;
-    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") double WaterChargeStartedAt=-100;
+    // Legacy Blueprint reads remain valid, but charging is no longer an action.
+    UPROPERTY(BlueprintReadOnly,Category="Tools|Watergun",meta=(DeprecatedProperty,DeprecationMessage="Watergun now uses automatic fire.")) bool bChargingWater=false;
+    UPROPERTY() double WaterChargeStartedAt=-100;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") double WaterShotReadyAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") double LastWaterShotAt=-100;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") int32 WaterAmmo=30;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") bool bWaterReloading=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Watergun") double WaterReloadReadyAt=0;
     UFUNCTION(BlueprintPure,Category="Tools") bool HasUpgrade(EMCToolUpgrade Kind) const;
     UFUNCTION(BlueprintPure,Category="Tools") bool IsChainsawRunning() const;
     UFUNCTION(BlueprintPure,Category="Tools") bool IsUsingBuffer() const;
@@ -115,7 +127,8 @@ public:
     UFUNCTION(BlueprintPure,Category="Tools|Watergun") float WaterRecoil() const;
     FQuat ToolHandRotation(const FQuat& ToolWorldRotation) const;
     bool UpgradeSupportGrip(const FTransform& RightHandWorld,FTransform& LeftHandWorld) const;
-    UFUNCTION(BlueprintPure,Category="Tools|Watergun") float WaterChargeFraction() const;
+    UFUNCTION(BlueprintPure,Category="Tools|Watergun",meta=(DeprecatedFunction,DeprecationMessage="Watergun now uses automatic fire.")) float WaterChargeFraction() const;
+    UFUNCTION(BlueprintPure,Category="Tools|Watergun") int32 WaterMagazineCapacity() const;
     /** Camera-centre target shared by spray, watergun and their working poses. */
     UFUNCTION(BlueprintPure,Category="Tools|Watergun") FVector WatergunAimPoint() const;
     void UpdateSprayAim(bool Commit=false);
@@ -126,6 +139,8 @@ public:
     float SprayReach() const;
     void HandleChainsawCollision(AActor* Other,const FHitResult& Hit);
     void CancelUpgradeUse();
+    // Starts fire on the press edge; authority ticks sustain fire and finish reloads.
+    void UpdateWatergunInput();
     UFUNCTION(BlueprintPure,Category="Tools") FVector SprayAim() const;
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSelect(EMCToolSlot Slot);
     UFUNCTION(Server,Reliable,BlueprintCallable,Category="Tools") void ServerSpray();
@@ -183,8 +198,10 @@ private:
     void TickUpgrades(float Dt);
     void TickChainsaw(float Dt);
     void SawContact();
-    void FireChargedWater(float Charge);
-    bool TraceWaterShot(float Charge,const FVector& Origin,FVector& End,FHitResult& Hit) const;
+    bool bWaterTriggerActive=false;
+    float WaterFireInterval() const;
+    void FireWaterShot();
+    bool TraceWaterShot(const FVector& Origin,FVector& End,FHitResult& Hit) const;
     FTransform UpgradeAttachment() const;
     uint8 UpgradeMask() const;
     void RefreshMesh();

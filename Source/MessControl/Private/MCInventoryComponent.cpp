@@ -33,6 +33,7 @@ void UMCInventoryComponent::BeginPlay()
 {
     Super::BeginPlay(); Hero=Cast<AMCToothCharacter>(GetOwner()); Settings=Profile.LoadSynchronous();
     if(!Settings) Settings=NewObject<UMCEquipmentProfile>(this);
+    if(GetOwner()->HasAuthority()) WaterAmmo=WaterMagazineCapacity();
     if(Hero) {OriginalBrushMesh=Hero->Brush->GetStaticMesh();OriginalBrushTransform=Hero->Brush->GetRelativeTransform();}
     // Socket data also belongs to authority-only servers without a visual Tool.
     if(!Settings->SprayMesh.IsNull()) Settings->SprayMesh.LoadSynchronous();
@@ -72,8 +73,18 @@ void UMCInventoryComponent::ServerSelect_Implementation(EMCToolSlot Slot)
 }
 void UMCInventoryComponent::UnlockWaterJet()
 { if(GetOwner()->HasAuthority()) { bWaterJetUnlocked=true; GetOwner()->ForceNetUpdate(); } }
-float UMCInventoryComponent::CooldownSeconds() const { return HasUpgrade(EMCToolUpgrade::Watergun)?4.f:FMath::Max(1.f,Settings?Settings->SprayCooldown:8.f); }
-float UMCInventoryComponent::SpraySecondsLeft() const { return FMath::Max(0.f,float((HasUpgrade(EMCToolUpgrade::Watergun) && bPressureMode?WaterShotReadyAt:SprayReadyAt)-Now())); }
+float UMCInventoryComponent::CooldownSeconds() const
+{
+    if(HasUpgrade(EMCToolUpgrade::Watergun)) {
+        return FMath::Max(.1f,Settings?Settings->WatergunReloadSeconds:2.f);
+    }
+    return FMath::Max(1.f,Settings?Settings->SprayCooldown:8.f);
+}
+float UMCInventoryComponent::SpraySecondsLeft() const
+{
+    if(HasUpgrade(EMCToolUpgrade::Watergun) && bPressureMode) return bWaterReloading?FMath::Max(0.f,float(WaterReloadReadyAt-Now())):0.f;
+    return FMath::Max(0.f,float(SprayReadyAt-Now()));
+}
 bool UMCInventoryComponent::CanBreak(const AMCFoodActor* Food) const
 {
     if(IsValid(Food) && Selected==EMCToolSlot::Knife && HasUpgrade(EMCToolUpgrade::Chainsaw)
@@ -475,8 +486,10 @@ void UMCInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCInventoryComponent,Selected);
     DOREPLIFETIME(UMCInventoryComponent,bWaterJetUnlocked); DOREPLIFETIME(UMCInventoryComponent,SprayReadyAt); DOREPLIFETIME(UMCInventoryComponent,LastSprayAt);
     DOREPLIFETIME(UMCInventoryComponent,HealingTarget);DOREPLIFETIME(UMCInventoryComponent,FireTarget);
-    DOREPLIFETIME(UMCInventoryComponent,bPressureMode);DOREPLIFETIME(UMCInventoryComponent,bChargingWater);
-    DOREPLIFETIME(UMCInventoryComponent,WaterChargeStartedAt);DOREPLIFETIME(UMCInventoryComponent,WaterShotReadyAt);
+    DOREPLIFETIME(UMCInventoryComponent,bPressureMode);DOREPLIFETIME(UMCInventoryComponent,WaterShotReadyAt);
+    DOREPLIFETIME(UMCInventoryComponent,LastWaterShotAt);
+    DOREPLIFETIME(UMCInventoryComponent,WaterAmmo);DOREPLIFETIME(UMCInventoryComponent,bWaterReloading);
+    DOREPLIFETIME(UMCInventoryComponent,WaterReloadReadyAt);
     DOREPLIFETIME_CONDITION(UMCInventoryComponent,SprayViewOrigin,COND_SkipOwner);
     DOREPLIFETIME_CONDITION(UMCInventoryComponent,SprayViewDirection,COND_SkipOwner);
     DOREPLIFETIME_CONDITION(UMCInventoryComponent,bHasSprayView,COND_SkipOwner);

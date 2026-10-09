@@ -1,0 +1,117 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "8FEFE1C74D4165D11221999661E515A3",
+			"instanceName": "VB-24420",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.09-14.00.35",
+	"succeeded": 0,
+	"succeededWithWarnings": 0,
+	"failed": 1,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 1.016493558883667,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "Mechanics",
+			"fullTestPath": "MessControl.ToolBoosters.Mechanics",
+			"tags": [],
+			"state": "Fail",
+			"deviceInstance": [
+				"8FEFE1C74D4165D11221999661E515A3"
+			],
+			"duration": 1.016493558883667,
+			"dateTime": "2026.10.09-14.00.34",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "LogStreaming: FlushAsyncLoading(419): 1 QueuedPackages, 0 AsyncPackages",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.09-14.00.34"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: MCFoodActor_0.FoodBody has to have 'Simulate Physics' enabled if you'd like to AddImpulse. ",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.09-14.00.34"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Every round in the burst deals exactly half damage' to be 997.000000, but it was 997.500000 and outside tolerance 0.000100.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCToolBoosterTests.cpp",
+					"lineNumber": 137,
+					"timestamp": "2026.10.09-14.00.34"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'The complete magazine deals fifteen damage' to be 985.000000, but it was 986.500000 and outside tolerance 0.000100.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCToolBoosterTests.cpp",
+					"lineNumber": 145,
+					"timestamp": "2026.10.09-14.00.35"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Held input cannot shoot during reload' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCToolBoosterTests.cpp",
+					"lineNumber": 150,
+					"timestamp": "2026.10.09-14.00.35"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Held input automatically resumes after reload' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCToolBoosterTests.cpp",
+					"lineNumber": 153,
+					"timestamp": "2026.10.09-14.00.35"
+				}
+			],
+			"warnings": 1,
+			"errors": 4,
+			"artifacts": []
+		}
+	]
+}

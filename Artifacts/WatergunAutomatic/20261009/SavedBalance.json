@@ -1,0 +1,6 @@
+{
+  "watergun_fire_interval": 0.10000000149011612,
+  "watergun_magazine_size": 30,
+  "watergun_reload_seconds": 2.0,
+  "watergun_shot_damage": 0.5
+}

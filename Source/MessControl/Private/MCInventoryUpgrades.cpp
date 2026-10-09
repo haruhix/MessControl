@@ -46,17 +46,17 @@ bool UMCInventoryComponent::IsChainsawRunning() const
 }
 bool UMCInventoryComponent::IsUsingWatergun() const
 {
-    const double ShotAge=Now()-(WaterShotReadyAt-4.);
-    const bool Recovering=WaterShotReadyAt>0 && ShotAge>=0 && ShotAge<.42;
+    const double ShotAge=Now()-LastWaterShotAt;
+    const bool Recovering=LastWaterShotAt>=0 && ShotAge>=0 && ShotAge<.09;
     return Hero && Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun) && (Hero->IsPrimaryHeld() || Recovering)
         && Hero->CanWork() && !Hero->bInCoffee && ShouldPresentTool();
 }
 float UMCInventoryComponent::WaterRecoil() const
 {
-    if(WaterShotReadyAt<=0) return 0;
-    const float Age=Now()-(WaterShotReadyAt-4.);
-    if(Age<0 || Age>=.42f) return 0;
-    return FMath::SmoothStep(0.f,.045f,Age)*(1-FMath::SmoothStep(.055f,.42f,Age));
+    if(LastWaterShotAt<0) return 0;
+    const float Age=Now()-LastWaterShotAt;
+    if(Age<0 || Age>=.09f) return 0;
+    return .25f*FMath::SmoothStep(0.f,.015f,Age)*(1-FMath::SmoothStep(.025f,.09f,Age));
 }
 bool UMCInventoryComponent::IsUsingBuffer() const
 {
@@ -164,11 +164,13 @@ float UMCInventoryComponent::MovementMultiplier() const
 }
 float UMCInventoryComponent::WaterChargeFraction() const
 {
-    return bChargingWater?FMath::Clamp(float(Now()-WaterChargeStartedAt)/FMath::Max(.1f,Settings?Settings->WatergunChargeSeconds:1.5f),0.f,1.f):0.f;
+    return 0.f;
 }
+int32 UMCInventoryComponent::WaterMagazineCapacity() const {return FMath::Clamp(Settings?Settings->WatergunMagazineSize:30,1,300);}
+float UMCInventoryComponent::WaterFireInterval() const {return FMath::Max(.01f,Settings?Settings->WatergunFireInterval:.1f);}
 void UMCInventoryComponent::CancelUpgradeUse()
 {
-    bChargingWater=false;
+    bChargingWater=false;bWaterTriggerActive=false;
     if(Hero && bSawMotionActive) Hero->GetCharacterMovement()->RemoveRootMotionSourceByID(SawMotionId);
     bSawMotionActive=false;
 }
@@ -244,46 +246,62 @@ void UMCInventoryComponent::SawContact()
     }
     if(SawContacts.Num()>64) for(auto It=SawContacts.CreateIterator();It;++It) if(!It.Key().IsValid() || It.Value()<Now()-2) It.RemoveCurrent();
 }
-bool UMCInventoryComponent::TraceWaterShot(float Charge,const FVector& Origin,FVector& End,FHitResult& Hit) const
+bool UMCInventoryComponent::TraceWaterShot(const FVector& Origin,FVector& End,FHitResult& Hit) const
 {
     if(!Hero) return false;
     const FVector Aim=SprayAim();
-    End=Origin+(Aim-Origin).GetSafeNormal()*FMath::Min(float(FVector::Distance(Origin,Aim)),FMath::Lerp(600.f,1400.f,Charge));
+    End=Origin+(Aim-Origin).GetSafeNormal()*FMath::Min(float(FVector::Distance(Origin,Aim)),1400.f);
     FCollisionObjectQueryParams Objects;for(auto Type:{ECC_WorldStatic,ECC_WorldDynamic,ECC_PhysicsBody,ECC_Pawn}) Objects.AddObjectTypesToQuery(Type);
     FCollisionQueryParams Query(SCENE_QUERY_STAT(MCWatergunShot),true,Hero);
-    if(GetWorld()->SweepSingleByObjectType(Hit,Origin,End,FQuat::Identity,Objects,FCollisionShape::MakeSphere(FMath::Lerp(5.f,12.f,Charge)),Query)) {
+    if(GetWorld()->SweepSingleByObjectType(Hit,Origin,End,FQuat::Identity,Objects,FCollisionShape::MakeSphere(5.f),Query)) {
         End=Hit.ImpactPoint;
         return true;
     }
     return false;
 }
-void UMCInventoryComponent::FireChargedWater(float Charge)
+void UMCInventoryComponent::FireWaterShot()
 {
-    if(!Hero->HasAuthority() || Now()<WaterShotReadyAt) return;
+    if(!Hero || !Hero->HasAuthority() || bWaterReloading || WaterAmmo<=0 || Now()<WaterShotReadyAt) return;
+    const float Power=FMath::Max(.001f,Settings?Settings->WatergunShotDamage:.5f);
     const FVector Direction=SprayDirection();
-    const float Power=FMath::Lerp(.75f,3.f,Charge)*FMath::Max(1.f,Settings?Settings->PickaxeDamage:40.f);
     const FVector Origin=SprayOrigin();FVector End;FHitResult Hit;
-    if(TraceWaterShot(Charge,Origin,End,Hit)) {
+    if(TraceWaterShot(Origin,End,Hit)) {
         if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) Food->HitFood(Power,Direction,Hero);
         else if(auto* Boss=Cast<AMCBossCharacter>(Hit.GetActor())) Boss->ReceiveBossDamage(Power,Hero);
-        else if(auto* Player=Cast<AMCToothCharacter>(Hit.GetActor())) {
-            Player->Status->Damage(Power,Direction);Player->ToothPhysics->ApplyHit(Direction*FMath::Lerp(150.f,480.f,Charge)+FVector(0,0,50),End);
-        }
-        AMCReactionVFX::Spawn(GetWorld(),End,EMCReactionEffect::WaterImpact,.5f,40+Charge*40,Hit.ImpactNormal);
+        else if(auto* Player=Cast<AMCToothCharacter>(Hit.GetActor())) Player->Status->Damage(Power,Direction);
+        AMCReactionVFX::Spawn(GetWorld(),End,EMCReactionEffect::WaterImpact,.15f,40,Hit.ImpactNormal);
     }
-    AMCReactionVFX::Spawn(GetWorld(),Origin,EMCReactionEffect::WaterShot,.5f,12+Charge*12,Direction,FVector::Distance(Origin,End));
-    WaterShotReadyAt=Now()+4.;LastSprayAt=Now();Hero->ForceNetUpdate();
+    AMCReactionVFX::Spawn(GetWorld(),Origin,EMCReactionEffect::WaterShot,.1f,12,Direction,FVector::Distance(Origin,End));
+    LastWaterShotAt=Now();LastSprayAt=LastWaterShotAt;
+    --WaterAmmo;WaterShotReadyAt+=WaterFireInterval();
+    if(WaterAmmo==0) {
+        bWaterReloading=true;WaterReloadReadyAt=LastWaterShotAt+CooldownSeconds();
+        WaterShotReadyAt=WaterReloadReadyAt;
+    }
+    Hero->ForceNetUpdate();
 }
 void UMCInventoryComponent::TickUpgrades(float Dt)
 {
     if(!Hero) return;TickChainsaw(Dt);
-    if(!Hero->HasAuthority()) return;
+    UpdateWatergunInput();
+}
+void UMCInventoryComponent::UpdateWatergunInput()
+{
+    if(!Hero || !Hero->HasAuthority()) return;
+    const double Time=Now();
+    // Reload finishes even after releasing LMB or stowing the weapon.
+    if(bWaterReloading && Time>=WaterReloadReadyAt) {
+        bWaterReloading=false;WaterAmmo=WaterMagazineCapacity();
+        WaterShotReadyAt=FMath::Max(WaterShotReadyAt,WaterReloadReadyAt);Hero->ForceNetUpdate();
+    }
     const bool Pressure=Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun) && bPressureMode
         && Hero->CanWork() && !Hero->bInCoffee && ShouldPresentTool();
-    if(Pressure && Hero->IsPrimaryHeld() && Now()>=WaterShotReadyAt) {
-        if(!bChargingWater) {bChargingWater=true;WaterChargeStartedAt=Now();Hero->ForceNetUpdate();}
-    } else if(bChargingWater) {
-        const float Charge=WaterChargeFraction();bChargingWater=false;
-        if(Pressure && !Hero->IsPrimaryHeld()) FireChargedWater(Charge);Hero->ForceNetUpdate();
+    if(!Pressure || !Hero->IsPrimaryHeld()) {bWaterTriggerActive=false;return;}
+    // A new press starts now, without accumulating shots from idle time.
+    if(!bWaterTriggerActive) {bWaterTriggerActive=true;WaterShotReadyAt=FMath::Max(WaterShotReadyAt,Time);}
+    if(bWaterReloading) return;
+    // Catch up the fixed firing cadence on slow frames, bounded by one magazine.
+    for(int32 Shots=0;Shots<WaterMagazineCapacity() && WaterAmmo>0 && Time>=WaterShotReadyAt;++Shots) {
+        FireWaterShot();
     }
 }

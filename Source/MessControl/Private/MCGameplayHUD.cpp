@@ -348,7 +348,7 @@ int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geomet
     const auto PlayerGeometry=UWidgetLayoutLibrary::GetPlayerScreenWidgetGeometry(GetOwningPlayer());
     const FVector2D Center=Geometry.AbsoluteToLocal(PlayerGeometry.LocalToAbsolute(PlayerGeometry.GetLocalSize()*.5f));
     const bool Pressure=Inv->SelectedUpgrade()==EMCToolUpgrade::Watergun && Inv->bPressureMode;
-    const float Charge=Inv->WaterChargeFraction(),Cool=Pressure?Inv->SpraySecondsLeft():0;
+    const float Cool=Pressure?Inv->SpraySecondsLeft():0;
     const FLinearColor Tint=Cool>0?FLinearColor(.48f,.58f,.65f):Pressure?FLinearColor(.86f,.97f,1):FLinearColor(.20f,.80f,1);
     auto Stroke=[&](const TArray<FVector2D>& Points,FLinearColor Color,float Width=2.f) {
         FSlateDrawElement::MakeLines(Elements,Top+1,Geometry.ToPaintGeometry(),Points,ESlateDrawEffect::None,FLinearColor(.005f,.015f,.025f,.8f),true,Width+2);
@@ -372,7 +372,7 @@ int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geomet
     FSlateDrawElement::MakeBox(Elements,Top+2,Geometry.ToPaintGeometry(FVector2D(4,4),FSlateLayoutTransform(Center-FVector2D(2,2))),&Dot,ESlateDrawEffect::None,Tint);
     if(Pressure) {
         Arc(18,1,FLinearColor(.22f,.32f,.40f,.65f));
-        Arc(18,Cool>0?1-Cool/4.f:Charge,FLinearColor(.20f,.85f,1));
+        Arc(18,Inv->bWaterReloading?1-Cool/Inv->CooldownSeconds():float(Inv->WaterAmmo)/Inv->WaterMagazineCapacity(),FLinearColor(.20f,.85f,1));
     }
     return Top+3;
 }
@@ -488,12 +488,13 @@ void UMCGameplayHUD::RefreshState()
             Color(FName(N+TEXT("Frame")),Selected?HUD::Mint:FLinearColor(.15f,.23f,.29f,.8f));
             Color(FName(N+TEXT("KeyBG")),Selected?HUD::Mint:HUD::White);
         }
-        const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Cool>0 || Inv->bChargingWater);
-        Text(TEXT("CooldownValue"),Inv->bChargingWater?FString::Printf(TEXT("%d%%"),FMath::RoundToInt(Inv->WaterChargeFraction()*100)):FString::Printf(TEXT("%.1f"),Cool));
-        Bar(TEXT("CooldownProgress"),Inv->bChargingWater?Inv->WaterChargeFraction():1-Cool/Inv->CooldownSeconds());
+        const bool Automatic=Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun) && Inv->bPressureMode;
+        const float Cool=Inv->SpraySecondsLeft(); Show(TEXT("SprayCooldown"),Automatic || Cool>0);
+        Text(TEXT("CooldownValue"),Automatic?(Inv->bWaterReloading?FString::Printf(TEXT("%.1f с"),Cool):FString::Printf(TEXT("%d/%d"),Inv->WaterAmmo,Inv->WaterMagazineCapacity())):FString::Printf(TEXT("%.1f"),Cool));
+        Bar(TEXT("CooldownProgress"),Automatic && !Inv->bWaterReloading?float(Inv->WaterAmmo)/Inv->WaterMagazineCapacity():1-Cool/Inv->CooldownSeconds());
         FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ · ЕДА → XP"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РАЗБИТЬ ЕДУ → XP"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):TEXT("ЛКМ · ЧИСТИТЬ");
         if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=TEXT("УДЕРЖИВАЙ ЛКМ · ПИЛИТЬ И ДВИГАТЬСЯ ВПЕРЁД");
-        if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?TEXT("ЗАЖМИ ЛКМ · ЗАРЯДИТЬ, ОТПУСТИ · ВЫСТРЕЛ     4 · РЕЖИМ"):TEXT("УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ");
+        if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?(Inv->bWaterReloading?TEXT("ПЕРЕЗАРЯДКА · УДЕРЖИВАЙ ЛКМ ДЛЯ ПРОДОЛЖЕНИЯ     4 · РЕЖИМ"):TEXT("УДЕРЖИВАЙ ЛКМ · АВТОМАТИЧЕСКАЯ СТРЕЛЬБА     4 · РЕЖИМ")):TEXT("УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ");
         Hint+=TEXT("     ПКМ · ДЕРЖАТЬСЯ");
         const auto IsFreshOrdinaryFood=[](const AMCFoodActor* Food) {
             return IsValid(Food) && Food->FoodData.Kind==EMCFoodKind::Food && !Food->bBrushTool && !Food->IsWrongIngredient();

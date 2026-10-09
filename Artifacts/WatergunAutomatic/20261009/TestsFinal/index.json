@@ -1,0 +1,57 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "7DC584ED4EA1CD82B7DCED89C7358086",
+			"instanceName": "VB-10492",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.09-14.02.58",
+	"succeeded": 0,
+	"succeededWithWarnings": 1,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.86821162700653076,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "Mechanics",
+			"fullTestPath": "MessControl.ToolBoosters.Mechanics",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"7DC584ED4EA1CD82B7DCED89C7358086"
+			],
+			"duration": 0.86821162700653076,
+			"dateTime": "2026.10.09-14.02.57",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "PIE: MCFoodActor_0.FoodBody has to have 'Simulate Physics' enabled if you'd like to AddImpulse. ",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.10.09-14.02.57"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

@@ -648,6 +648,7 @@ void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
         ClingTooth=nullptr; bBrushing=false; bHandling=false; DropFood(); ResetContact();
     }
     else ResolvePrimaryAction();
+    Inventory->UpdateWatergunInput();
     ForceNetUpdate();
 }
 void AMCToothCharacter::ResolvePrimaryAction()

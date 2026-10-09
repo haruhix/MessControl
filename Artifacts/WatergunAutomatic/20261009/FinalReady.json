@@ -1,0 +1,11 @@
+{
+  "ready": true,
+  "mode": "Watergun automatic",
+  "ammo": 30,
+  "magazine_size": 30,
+  "shot_damage": 0.5,
+  "reload_seconds": 2,
+  "runtime_passed": true,
+  "mechanics_tests_passed": true,
+  "editor_restarted": true
+}

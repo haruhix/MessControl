@@ -1,0 +1,33 @@
+{
+  "map": "/Game/Maps/L_Mouth",
+  "had_pie": true,
+  "dirty_packages": [],
+  "editor_camera": [
+    [
+      -2440.9689301059525,
+      779.0205630600703,
+      585.9299474907218
+    ],
+    [
+      0.0,
+      -13.011825561523438,
+      -5.118756294250488
+    ]
+  ],
+  "player": {
+    "location": [
+      160.94350391264382,
+      -1314.2433559199221,
+      69.23517549563508
+    ],
+    "rotation": [
+      -0.0,
+      0.0,
+      56.995208740234375
+    ],
+    "slot": "<MCToolSlot.BRUSH: 0>",
+    "pressure": false,
+    "watergun": true
+  },
+  "game_paused": false
+}

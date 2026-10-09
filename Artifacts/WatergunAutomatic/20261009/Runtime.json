@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "balance": {
+    "watergun_fire_interval": 0.10000000149011612,
+    "watergun_magazine_size": 30,
+    "watergun_reload_seconds": 2.0,
+    "watergun_shot_damage": 0.5
+  },
+  "cases": [
+    {
+      "case": "ImmediatePressHalfDamageNoReleaseAttack",
+      "time": 156.58873894065619,
+      "ammo": 29,
+      "reloading": false,
+      "reload_remaining": 0,
+      "target_health": 999.5
+    },
+    {
+      "case": "ThirtyRoundsDealFifteenDamage",
+      "time": 159.6636926420033,
+      "ammo": 0,
+      "reloading": true,
+      "reload_remaining": 2.0,
+      "target_health": 985.0
+    },
+    {
+      "case": "HeldInputResumesAfterTwoSecondReload",
+      "time": 161.87116694822907,
+      "ammo": 27,
+      "reloading": false,
+      "reload_remaining": 0,
+      "target_health": 983.5
+    },
+    {
+      "case": "ReleaseStopsAutomaticFire",
+      "time": 162.17117004841566,
+      "ammo": 27,
+      "reloading": false,
+      "reload_remaining": 0,
+      "target_health": 983.5
+    }
+  ],
+  "error": null
+}
