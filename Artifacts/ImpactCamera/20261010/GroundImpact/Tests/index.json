@@ -1,0 +1,59 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "A30900A048F80C495ACFDDB0A75DA2DF",
+			"instanceName": "VB-7352",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.09-17.23.43",
+	"succeeded": 2,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.27305549383163452,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "HeavyPropGroundImpact",
+			"fullTestPath": "MessControl.Camera.HeavyPropGroundImpact",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"A30900A048F80C495ACFDDB0A75DA2DF"
+			],
+			"duration": 0.19389930367469788,
+			"dateTime": "2026.10.09-17.23.43",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PhysicalImpactFeedback",
+			"fullTestPath": "MessControl.Camera.PhysicalImpactFeedback",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"A30900A048F80C495ACFDDB0A75DA2DF"
+			],
+			"duration": 0.079156197607517242,
+			"dateTime": "2026.10.09-17.23.43",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

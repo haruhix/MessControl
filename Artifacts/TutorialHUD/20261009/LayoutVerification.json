@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "BrushLesson",
+      "viewport": [
+        1559.0,
+        862.0
+      ],
+      "widget_class": "MCTutorialWidget",
+      "verification": "rendered screenshots for visual review"
+    },
+    {
+      "case": "LongInstructions",
+      "viewport": [
+        1559.0,
+        862.0
+      ],
+      "widget_class": "MCTutorialWidget",
+      "verification": "rendered screenshots for visual review"
+    }
+  ],
+  "error": null,
+  "visual_review_passed": true,
+  "final_layout": {
+    "bottom_inset": 200,
+    "card_width": 920,
+    "lesson_height": 180,
+    "dialogue_font": 14,
+    "instruction_font": 15
+  }
+}

@@ -746,6 +746,7 @@ void AMCToothCharacter::ServerSetWorking_Implementation(bool bBrush, bool bActiv
 void AMCToothCharacter::OnRep_Working() { WorkStartedAt = GetWorld()->GetTimeSeconds(); }
 void AMCToothCharacter::Landed(const FHitResult& Hit)
 {
+    NotifyCameraImpact(float(FMath::Max(0.,-FVector::DotProduct(GetVelocity(),Hit.ImpactNormal))),Hit.ImpactNormal);
     auto* Key=Cast<AMCArenaTooth>(Hit.GetActor());
     if (Key) Key->NotifyPianoLanding(this,Hit,-GetVelocity().Z);
     const bool PianoLanding=Key && Key->Settings.bPianoEnabled && Key->IsAvailable()
@@ -1149,8 +1150,45 @@ void AMCToothCharacter::ResolveSwing()
     Target->Status->Damage(Inventory->IsCleaningTool()?25.f:Inventory->Damage(),Direction);
     MulticastHitSound(Target->GetActorLocation(),AudioTool,HitIntensity);
 }
+void AMCToothCharacter::NotifyCameraImpact(float ImpactSpeed,const FVector& Direction)
+{
+    if(!HasAuthority() || !Cast<APlayerController>(Controller) || !Status->IsAlive() || IsMimicCaptured()
+        || !FMath::IsFinite(ImpactSpeed) || ImpactSpeed<=120.f || Direction.ContainsNaN()) return;
+    const double Now=GetWorld()->GetTimeSeconds();
+    // Mesh/capsule contacts and an explicit knockback can describe the same impact.
+    if(Now-LastCameraImpactAt<.1 && ImpactSpeed<=LastCameraImpactSpeed*1.25f) return;
+    LastCameraImpactAt=Now; LastCameraImpactSpeed=ImpactSpeed;
+    ClientCameraImpact(FMath::Min(ImpactSpeed,1000.f),Direction.GetSafeNormal());
+}
+
+void AMCToothCharacter::ClientCameraImpact_Implementation(float ImpactSpeed,FVector_NetQuantizeNormal Direction)
+{
+    if(IsLocallyControlled()) if(auto* PlayerCamera=Cast<UMCPlayerCameraComponent>(Camera))
+        PlayerCamera->AddImpact(ImpactSpeed,Direction);
+}
+
+void AMCToothCharacter::NotifyGroundImpact(float Strength,const FVector& Source)
+{
+    if(HasAuthority() && Cast<APlayerController>(Controller) && Status->IsAlive()) ClientGroundImpact(Strength,Source);
+}
+
+void AMCToothCharacter::ClientGroundImpact_Implementation(float Strength,FVector_NetQuantize Source)
+{
+    if(IsLocallyControlled()) if(auto* PlayerCamera=Cast<UMCPlayerCameraComponent>(Camera))
+        PlayerCamera->AddGroundImpact(Strength,Source);
+}
+
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {
+    if(HasAuthority() && HitComponent && OtherComponent && OtherActor!=this) {
+        const FVector OwnVelocity=HitComponent->IsSimulatingPhysics(Hit.MyBoneName)
+            ?HitComponent->GetPhysicsLinearVelocity(Hit.MyBoneName):GetVelocity();
+        const FVector OtherVelocity=OtherComponent->IsSimulatingPhysics(Hit.BoneName)
+            ?OtherComponent->GetPhysicsLinearVelocity(Hit.BoneName):OtherComponent->GetComponentVelocity();
+        const float ClosingSpeed=float(FMath::Max(0.,-FVector::DotProduct(OwnVelocity-OtherVelocity,Hit.ImpactNormal)));
+        const float ImpulseSpeed=float(NormalImpulse.Size())/FMath::Max(1.f,HitComponent->GetMass());
+        NotifyCameraImpact(FMath::Max(ClosingSpeed,ImpulseSpeed),Hit.ImpactNormal);
+    }
     if(Inventory) Inventory->HandleChainsawCollision(OtherActor,Hit);
     if(HasAuthority()) FoodCollection->HandleCarrierCollision(OtherActor,OtherComponent,NormalImpulse,Hit);
     if(auto* OtherPlayer=Cast<AMCToothCharacter>(OtherActor)) {

@@ -1,0 +1,96 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "18578AEF4F7C370937E1298FD3F4F3D6",
+			"instanceName": "VB-4844",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.09-17.06.43",
+	"succeeded": 1,
+	"succeededWithWarnings": 0,
+	"failed": 1,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.1744408905506134,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "BlueprintDefaultsReachPlayerView",
+			"fullTestPath": "MessControl.Camera.BlueprintDefaultsReachPlayerView",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"18578AEF4F7C370937E1298FD3F4F3D6"
+			],
+			"duration": 0.083074100315570831,
+			"dateTime": "2026.10.09-17.06.43",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PhysicalImpactFeedback",
+			"fullTestPath": "MessControl.Camera.PhysicalImpactFeedback",
+			"tags": [],
+			"state": "Fail",
+			"deviceInstance": [
+				"18578AEF4F7C370937E1298FD3F4F3D6"
+			],
+			"duration": 0.091366797685623169,
+			"dateTime": "2026.10.09-17.06.43",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Accepted physical hits shake the owning player's view' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCPlayerCameraTests.cpp",
+					"lineNumber": 71,
+					"timestamp": "2026.10.09-17.06.43"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'Higher kinetic energy gives stronger feedback' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCPlayerCameraTests.cpp",
+					"lineNumber": 76,
+					"timestamp": "2026.10.09-17.06.43"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Expected 'A physical landing also triggers feedback' to be true.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Source\\MessControl\\Private\\Tests\\MCPlayerCameraTests.cpp",
+					"lineNumber": 84,
+					"timestamp": "2026.10.09-17.06.43"
+				}
+			],
+			"warnings": 0,
+			"errors": 3,
+			"artifacts": []
+		}
+	]
+}

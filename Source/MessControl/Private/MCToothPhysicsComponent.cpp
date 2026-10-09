@@ -312,6 +312,7 @@ void UMCToothPhysicsComponent::ApplyHit(FVector VelocityChange,FVector HitLocati
     if (!Tooth || !Tooth->HasAuthority() || Tooth->IsMimicCaptured() || LocalState==EMCBodyState::Recovering || ServerTime()<RecoveryInvulnerableUntil) return;
     if (VelocityChange.ContainsNaN() || HitLocation.ContainsNaN()) return;
     VelocityChange=VelocityChange.GetClampedToMaxSize(1400.f);
+    Tooth->NotifyCameraImpact(float(VelocityChange.Size()),VelocityChange);
     if(!VelocityChange.IsNearlyZero()) Tooth->FoodCollection->Spill(VelocityChange*.45f);
     if (Tooth->Gaze) Tooth->Gaze->NoticePoint(HitLocation-VelocityChange.GetSafeNormal2D()*140+FVector(0,0,40),1);
     if (LocalState==EMCBodyState::Standing && VelocityChange.Size()<Settings.FallThreshold)

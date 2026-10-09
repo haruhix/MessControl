@@ -1,0 +1,21 @@
+{
+  "map": "/Game/Maps/L_Mouth",
+  "camera": [
+    [
+      1791.2346568098535,
+      -88.97218423354909,
+      590.8461290433452
+    ],
+    [
+      0.0,
+      -10.031171798706055,
+      366.34600830078125
+    ]
+  ],
+  "dirty_packages": [
+    "/Game/Maps/L_Mouth"
+  ],
+  "selected_actors": [
+    "StaticMeshActor_2"
+  ]
+}

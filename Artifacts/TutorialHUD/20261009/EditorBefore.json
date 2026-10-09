@@ -1,0 +1,25 @@
+{
+  "map": "/Game/Maps/L_Mouth",
+  "camera": [
+    [
+      -466.9775305908036,
+      1139.5542607030625,
+      375.73559872213633
+    ],
+    [
+      0.0,
+      -9.324577331542969,
+      -84.2462158203125
+    ]
+  ],
+  "dirty_packages": [
+    "/Game/Art/Materials/MI_Candy",
+    "/Game/Art/Texture/Candy/candy_low_DefaultMaterial_OcclusionRoughnessMetallic",
+    "/Game/Art/Texture/Candy/candy_low_DefaultMaterial_BaseColor",
+    "/Game/Art/Texture/Candy/candy_low_DefaultMaterial_Normal",
+    "/Game/Maps/L_Mouth"
+  ],
+  "selected_actors": [
+    "StaticMeshActor_6"
+  ]
+}

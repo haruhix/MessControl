@@ -1,0 +1,8 @@
+{
+  "native_camera_class": "/Script/MessControl.MCPlayerCameraComponent",
+  "player_camera_class": "/Script/MessControl.MCPlayerCameraComponent",
+  "impact_shake_scale": 1.0,
+  "blueprint_player_class": "/Game/Blueprints/BP_PlayerCharacter.BP_PlayerCharacter_C",
+  "editor_world": "/Game/Maps/L_Mouth.L_Mouth",
+  "passed": true
+}

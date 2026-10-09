@@ -96,11 +96,7 @@ void AMCToothCharacter::UpdateMouthCamera(float Dt)
     const double Now=State?State->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     // A gentle lens pulse makes the whole room's intake readable while keeping
     // the player's chosen aim and the collision sweep steady.
-    const float DamageAge=Status?float(Now-Status->State.DamageAt):-1.f;
-    const float HitLens=IsLocallyControlled() && DamageAge>=0 && DamageAge<.26f
-        ?3.2f*FMath::Sin(DamageAge/.26f*PI)*(1-DamageAge/.26f):0.f;
-    // The short owner-only hit pulse changes the lens, preserving orbit, aim and wall collision.
-    Camera->FieldOfView=FMath::Clamp(FollowFOV,45.f,95.f)+Suction*(2.4f+.35f*FMath::Sin(float(Now*10)))+HitLens;
+    Camera->FieldOfView=FMath::Clamp(FollowFOV,45.f,95.f)+Suction*(2.4f+.35f*FMath::Sin(float(Now*10)));
     if(IsValid(MimicCaptor)) {
         const FVector Focus=GetCameraFocusLocation();
         const float Blend=1-FMath::Exp(-FMath::Max(1.f,FollowSpeed)*FMath::Max(0.f,Dt));

@@ -1,0 +1,44 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "DAC055774BCD2FB05475A3B008532239",
+			"instanceName": "VB-15200",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.09-17.09.13",
+	"succeeded": 1,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.16662450134754181,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "PhysicalImpactFeedback",
+			"fullTestPath": "MessControl.Camera.PhysicalImpactFeedback",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"DAC055774BCD2FB05475A3B008532239"
+			],
+			"duration": 0.16662450134754181,
+			"dateTime": "2026.10.09-17.09.12",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}
