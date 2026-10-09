@@ -46,7 +46,8 @@ $taskManifest = [ordered]@{
     'MessControl.Inventory' = @('SelectionAndMaterial','PermanentToolsNeverDrop','HiddenPickaxePreservesHandContacts','HoldSprayAndPreserveProgress')
     'MessControl.Camera' = @(
         'BlueprintDefaultsReachPlayerView','OrbitAndWallCollision','FoodTransparency',
-        'CharacterAndToothTransparency','MovementAndCollisionStability','RadialWallReveal'
+        'CharacterAndToothTransparency','MovementAndCollisionStability','RadialWallReveal',
+        'PhysicalImpactFeedback','HeavyPropGroundImpact'
     )
 }
 $taskSuites = @($Suites | Select-Object -Unique)

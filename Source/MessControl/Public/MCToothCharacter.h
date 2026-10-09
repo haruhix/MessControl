@@ -136,6 +136,8 @@ public:
     void UpdateMouthCamera(float Dt);
     UFUNCTION(BlueprintCallable,Category="Camera") void ApplyCameraOrbitInput(FVector2D Delta);
     UFUNCTION(BlueprintCallable,Category="Camera") void ZoomCamera(float ScrollDelta);
+    void NotifyCameraImpact(float ImpactSpeed,const FVector& Direction);
+    void NotifyGroundImpact(float Strength,const FVector& Source);
     FVector CameraMoveDirection(bool Right) const;
     void UpdateCameraWallReveal(float Dt,const FVector& Eye,const FVector& Focus);
     void ClearCameraWallReveal();
@@ -268,6 +270,8 @@ private:
     UFUNCTION(Server,Reliable) void ServerSwingBrush();
     UFUNCTION(NetMulticast,Reliable) void MulticastSwing(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot);
     UFUNCTION(NetMulticast,Unreliable) void MulticastHitSound(FVector Location,uint8 ToolSlot,float Intensity);
+    UFUNCTION(Client,Unreliable) void ClientCameraImpact(float ImpactSpeed,FVector_NetQuantizeNormal Direction);
+    UFUNCTION(Client,Unreliable) void ClientGroundImpact(float Strength,FVector_NetQuantize Source);
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit);
     void ResolveSwing();
     AMCArenaTooth* FindCalculusTarget(FVector& Point,FVector& Normal) const;
@@ -298,6 +302,8 @@ private:
     UPROPERTY(Replicated) double SwingStartedAt=-100;
     float SwingContactEndsAt=0.f;
     float LastEnvironmentHit=-10.f;
+    double LastCameraImpactAt=-10.;
+    float LastCameraImpactSpeed=0.f;
     FTimerHandle SwingTimer;
     float Gait = 0.f;
     float LandingImpulse = 0.f;

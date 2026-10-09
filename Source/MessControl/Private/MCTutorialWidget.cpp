@@ -29,6 +29,7 @@
 namespace MCTutorialWidgetPrivate
 {
     const FLinearColor Cream(.98f,.97f,.92f), Mint(.30f,.91f,.73f), Muted(.66f,.75f,.79f);
+    constexpr float CardWidth=920.f, LessonHeight=180.f, ExpandedHeight=260.f, BottomInset=200.f;
 
     UTextBlock* Label(UWidgetTree* Tree,int32 Size,FLinearColor Color=Cream)
     {
@@ -82,15 +83,16 @@ void UMCTutorialWidget::NativeOnInitialized()
     CardSlot=Root->AddChildToCanvas(Scale);
     CardSlot->SetAnchors(FAnchors(.5f,1.f));
     CardSlot->SetAlignment(FVector2D(.5f,1.f));
-    CardSlot->SetPosition(FVector2D(0,-290));
-    CardSlot->SetSize(FVector2D(980,230));
+    DesiredCardHeight=MCTutorialWidgetPrivate::LessonHeight;
+    CardSlot->SetPosition(FVector2D(0,-MCTutorialWidgetPrivate::BottomInset));
+    CardSlot->SetSize(FVector2D(MCTutorialWidgetPrivate::CardWidth,DesiredCardHeight));
     CardSize=WidgetTree->ConstructWidget<USizeBox>();
-    CardSize->SetWidthOverride(980);
-    CardSize->SetHeightOverride(230);
+    CardSize->SetWidthOverride(MCTutorialWidgetPrivate::CardWidth);
+    CardSize->SetHeightOverride(DesiredCardHeight);
     Scale->SetContent(CardSize);
     Card=WidgetTree->ConstructWidget<UBorder>();
     Card->SetBrush(FSlateRoundedBoxBrush(FLinearColor(.012f,.025f,.037f,.96f),18.f,MCTutorialWidgetPrivate::Mint.CopyWithNewOpacity(.5f),2.f));
-    Card->SetPadding(FMargin(20,16));
+    Card->SetPadding(FMargin(14,10));
     Card->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
     Card->SetClipping(EWidgetClipping::ClipToBounds);
     CardSize->SetContent(Card);
@@ -98,9 +100,9 @@ void UMCTutorialWidget::NativeOnInitialized()
     Card->SetContent(Row);
 
     auto* PortraitSize=WidgetTree->ConstructWidget<USizeBox>();
-    PortraitSize->SetWidthOverride(102); PortraitSize->SetHeightOverride(102);
+    PortraitSize->SetWidthOverride(74); PortraitSize->SetHeightOverride(74);
     auto* PortraitBorder=WidgetTree->ConstructWidget<UBorder>();
-    PortraitBorder->SetBrush(FSlateRoundedBoxBrush(FLinearColor(.04f,.12f,.13f),20.f));
+    PortraitBorder->SetBrush(FSlateRoundedBoxBrush(FLinearColor(.04f,.12f,.13f),14.f));
     PortraitBorder->SetPadding(FMargin(6)); PortraitSize->SetContent(PortraitBorder);
     auto* PortraitOverlay=WidgetTree->ConstructWidget<UOverlay>(); PortraitBorder->SetContent(PortraitOverlay);
     PortraitImage=WidgetTree->ConstructWidget<UImage>();
@@ -110,45 +112,45 @@ void UMCTutorialWidget::NativeOnInitialized()
     PortraitFallback=WidgetTree->ConstructWidget<UVerticalBox>();
     auto* FallbackSlot=PortraitOverlay->AddChildToOverlay(PortraitFallback);
     FallbackSlot->SetHorizontalAlignment(HAlign_Center); FallbackSlot->SetVerticalAlignment(VAlign_Center);
-    auto* Star=MCTutorialWidgetPrivate::Label(WidgetTree,38,MCTutorialWidgetPrivate::Mint);
+    auto* Star=MCTutorialWidgetPrivate::Label(WidgetTree,30,MCTutorialWidgetPrivate::Mint);
     Star->SetText(FText::FromString(TEXT("✦"))); Star->SetJustification(ETextJustify::Center);
     PortraitFallback->AddChildToVerticalBox(Star);
-    auto* Fairy=MCTutorialWidgetPrivate::Label(WidgetTree,14,MCTutorialWidgetPrivate::Cream);
+    auto* Fairy=MCTutorialWidgetPrivate::Label(WidgetTree,11,MCTutorialWidgetPrivate::Cream);
     Fairy->SetText(FText::FromString(TEXT("ФЕЯ"))); Fairy->SetJustification(ETextJustify::Center);
     PortraitFallback->AddChildToVerticalBox(Fairy);
     auto* PortraitSlot=Row->AddChildToHorizontalBox(PortraitSize);
-    PortraitSlot->SetVerticalAlignment(VAlign_Center); PortraitSlot->SetPadding(FMargin(0,0,20,0));
+    PortraitSlot->SetVerticalAlignment(VAlign_Center); PortraitSlot->SetPadding(FMargin(0,0,14,0));
 
     auto* Body=WidgetTree->ConstructWidget<UVerticalBox>();
     Body->SetClipping(EWidgetClipping::ClipToBounds);
     Row->AddChildToHorizontalBox(Body)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    StageTitle=MCTutorialWidgetPrivate::Label(WidgetTree,15,MCTutorialWidgetPrivate::Mint);
-    Body->AddChildToVerticalBox(StageTitle)->SetPadding(FMargin(0,0,0,6));
-    Dialogue=MCTutorialWidgetPrivate::Label(WidgetTree,18);
-    Body->AddChildToVerticalBox(Dialogue)->SetPadding(FMargin(0,0,0,8));
-    Action=MCTutorialWidgetPrivate::Label(WidgetTree,19);
-    Body->AddChildToVerticalBox(Action)->SetPadding(FMargin(0,0,0,8));
+    StageTitle=MCTutorialWidgetPrivate::Label(WidgetTree,13,MCTutorialWidgetPrivate::Mint);
+    Body->AddChildToVerticalBox(StageTitle)->SetPadding(FMargin(0,0,0,4));
+    Dialogue=MCTutorialWidgetPrivate::Label(WidgetTree,14);
+    Body->AddChildToVerticalBox(Dialogue)->SetPadding(FMargin(0,0,0,6));
+    Action=MCTutorialWidgetPrivate::Label(WidgetTree,15);
+    Body->AddChildToVerticalBox(Action)->SetPadding(FMargin(0,0,0,6));
 
     auto* StatusRow=WidgetTree->ConstructWidget<UHorizontalBox>();
-    Body->AddChildToVerticalBox(StatusRow)->SetPadding(FMargin(0,0,0,6));
-    OwnProgress=MCTutorialWidgetPrivate::Label(WidgetTree,14,MCTutorialWidgetPrivate::Muted);
+    Body->AddChildToVerticalBox(StatusRow)->SetPadding(FMargin(0,0,0,4));
+    OwnProgress=MCTutorialWidgetPrivate::Label(WidgetTree,12,MCTutorialWidgetPrivate::Muted);
     OwnProgress->SetAutoWrapText(false);
     OwnProgress->SetTextOverflowPolicy(ETextOverflowPolicy::Ellipsis);
     OwnProgress->SetClipping(EWidgetClipping::ClipToBounds);
     StatusRow->AddChildToHorizontalBox(OwnProgress)->SetSize(FSlateChildSize(ESlateSizeRule::Fill));
-    TeamProgress=MCTutorialWidgetPrivate::Label(WidgetTree,14,MCTutorialWidgetPrivate::Mint);
+    TeamProgress=MCTutorialWidgetPrivate::Label(WidgetTree,12,MCTutorialWidgetPrivate::Mint);
     TeamProgress->SetAutoWrapText(false);
     auto* TeamSlot=StatusRow->AddChildToHorizontalBox(TeamProgress);
     TeamSlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
     TeamSlot->SetPadding(FMargin(20,0,0,0));
-    Timer=MCTutorialWidgetPrivate::Label(WidgetTree,14,MCTutorialWidgetPrivate::Muted);
+    Timer=MCTutorialWidgetPrivate::Label(WidgetTree,12,MCTutorialWidgetPrivate::Muted);
     Timer->SetAutoWrapText(false);
     auto* TimerSlot=StatusRow->AddChildToHorizontalBox(Timer);
     TimerSlot->SetSize(FSlateChildSize(ESlateSizeRule::Automatic));
     TimerSlot->SetPadding(FMargin(20,0,0,0));
     Progress=WidgetTree->ConstructWidget<UProgressBar>();
     Progress->SetFillColorAndOpacity(MCTutorialWidgetPrivate::Mint);
-    auto* BarSize=WidgetTree->ConstructWidget<USizeBox>(); BarSize->SetHeightOverride(6); BarSize->SetContent(Progress);
+    auto* BarSize=WidgetTree->ConstructWidget<USizeBox>(); BarSize->SetHeightOverride(4); BarSize->SetContent(Progress);
     Body->AddChildToVerticalBox(BarSize)->SetPadding(FMargin(0,0,0,4));
 
     auto* Buttons=WidgetTree->ConstructWidget<UHorizontalBox>();
@@ -209,16 +211,18 @@ void UMCTutorialWidget::RefreshState()
     UpdatePortrait();
     const bool Complete=Director->IsComplete();
     const bool Expanded=Complete || Director->Stage==EMCTutorialStage::Intro || Director->Stage==EMCTutorialStage::Loading;
-    DesiredCardHeight=Expanded?310.f:230.f;
+    DesiredCardHeight=Expanded?MCTutorialWidgetPrivate::ExpandedHeight:MCTutorialWidgetPrivate::LessonHeight;
     CardSize->SetHeightOverride(DesiredCardHeight);
     StageTitle->SetText(FText::FromString(FString::Printf(TEXT("ОБУЧЕНИЕ  ·  ЗУБНАЯ ФЕЯ  ·  %s"),*Director->Title.ToString())));
+    StageTitle->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),Expanded?14:13));
     Dialogue->SetText(Director->FairyLine);
-    Dialogue->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),Expanded?18:16));
+    Dialogue->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),Expanded?16:14));
     Dialogue->SetAutoWrapText(true);
     Dialogue->SetTextOverflowPolicy(ETextOverflowPolicy::Clip);
     Dialogue->SetToolTipText(Director->FairyLine);
     Dialogue->SetVisibility(ESlateVisibility::HitTestInvisible);
     Action->SetText(Director->Instruction);
+    Action->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),Expanded?17:15));
     ReadyButton->SetVisibility(Complete && !Director->UsesShortFlow()?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     MenuButton->SetVisibility(Complete && !Director->UsesShortFlow()?ESlateVisibility::Visible:ESlateVisibility::Collapsed);
     const auto* PC=GetOwningPlayer<AMCPlayerController>();
@@ -265,10 +269,10 @@ void UMCTutorialWidget::NativeTick(const FGeometry& Geometry,float DeltaSeconds)
     const FVector2D Area=Geometry.GetLocalSize();
     if (CardSlot && Area.X>0 && Area.Y>0)
     {
-        const float Width=FMath::Min(980.f,FMath::Max(280.f,float(Area.X)-32.f));
-        const float Scale=Width/980.f;
-        // Leave the lower 278 px for the inventory, stamina and action hints.
-        const float BottomInset=FMath::Min(290.f,float(Area.Y)*.55f);
+        const float Width=FMath::Min(MCTutorialWidgetPrivate::CardWidth,FMath::Max(280.f,float(Area.X)-32.f));
+        const float Scale=Width/MCTutorialWidgetPrivate::CardWidth;
+        // The compact lesson sits just above stamina and controls, below the player.
+        const float BottomInset=FMath::Min(MCTutorialWidgetPrivate::BottomInset,float(Area.Y)*.55f);
         CardSlot->SetPosition(FVector2D(0,-BottomInset));
         CardSlot->SetSize(FVector2D(Width,DesiredCardHeight*Scale));
     }
