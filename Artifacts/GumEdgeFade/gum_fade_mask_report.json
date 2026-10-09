@@ -1,0 +1,10 @@
+{
+  "mesh": "/Game/FromBlender2/SM_Gum.SM_Gum",
+  "source": "D:/PROJECT/GAME/WaifuTD/MessControl/ArtSource/MouthV4/Textures/Gum/SM_Gum_OuterEdgeDistance.png",
+  "size": 1024,
+  "maximum_distance": 200.0,
+  "boundary_segments": 256,
+  "uv_coverage": 0.7183246612548828,
+  "texture_min": 1,
+  "texture_max": 255
+}

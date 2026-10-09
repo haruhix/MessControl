@@ -8,6 +8,7 @@ class AMCToothCharacter;
 class AMCTongue;
 class AMCLocomotionSurface;
 class UStaticMeshComponent;
+class USkeletalMeshComponent;
 class UProceduralMeshComponent;
 class UWidgetComponent;
 class UStaticMesh;
@@ -63,6 +64,7 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> CandyFace;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> FloorGuides;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> FrostSurface;
+    UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Ice|Appearance") TObjectPtr<UMaterialInterface> PlayerIceMaterial;
     UPROPERTY(ReplicatedUsing=OnRep_State,BlueprintReadOnly) EMCIceEventStage Stage=EMCIceEventStage::Idle;
     UPROPERTY(Replicated,BlueprintReadOnly) bool bFailed=false;
     UPROPERTY(Replicated,BlueprintReadOnly) float CandyHealth=960;
@@ -104,6 +106,7 @@ private:
     void RefreshFloorGuides();
     void RefreshFrostSurface();
     void RefreshFreezeBars();
+    void RefreshIceCoatings();
     void PublishManualHUD();
     void BuildCandyFace();
     void SetClimate();
@@ -114,6 +117,7 @@ private:
     UPROPERTY() TObjectPtr<UMaterialParameterCollection> Climate;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> IcicleMeshes;
     UPROPERTY(Transient) TArray<TObjectPtr<UWidgetComponent>> FreezeBars;
+    UPROPERTY(Transient) TArray<TObjectPtr<USkeletalMeshComponent>> IceCoatings;
     TArray<TWeakObjectPtr<AMCToothCharacter>> BarHeroes;
     FRandomStream Random;
     double NextIcicleAt=0;

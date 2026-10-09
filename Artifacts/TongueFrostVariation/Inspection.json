@@ -1,0 +1,528 @@
+{
+  "material": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost",
+  "blend": "<BlendMode.BLEND_MASKED: 1>",
+  "nodes": [
+    {
+      "class": "MaterialExpressionMaterialFunctionCall",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_2",
+      "desc": "",
+      "inputs": [
+        "Alpha Threshold",
+        "Random"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_5",
+        null
+      ],
+      "function": "/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA.DitherTemporalAA"
+    },
+    {
+      "class": "MaterialExpressionMultiply",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_2",
+      "desc": "",
+      "inputs": [
+        "A",
+        "B"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVertexNormalWS_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_1"
+      ]
+    },
+    {
+      "class": "MaterialExpressionMaterialFunctionCall",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_0",
+      "desc": "",
+      "inputs": [
+        "Base Color",
+        "Metallic",
+        "Specular",
+        "Roughness",
+        "Normal",
+        "Emissive Color",
+        "Opacity"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_1",
+        null,
+        null,
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_2",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_0",
+        null,
+        null
+      ],
+      "function": "/Engine/Functions/Substrate/SMF_UE4Legacy.SMF_UE4Legacy"
+    },
+    {
+      "class": "MaterialExpressionTextureCoordinate",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_0",
+      "desc": "",
+      "inputs": [],
+      "sources": []
+    },
+    {
+      "class": "MaterialExpressionStaticSwitchParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionStaticSwitchParameter_0",
+      "desc": "",
+      "inputs": [
+        "True",
+        "False"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_1",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_0"
+      ],
+      "parameter": "Normal ro use POM UVs"
+    },
+    {
+      "class": "MaterialExpressionVectorParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_0",
+      "desc": "",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Tint_Depth"
+    },
+    {
+      "class": "MaterialExpressionConstant4Vector",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionConstant4Vector_0",
+      "desc": "",
+      "inputs": [],
+      "sources": []
+    },
+    {
+      "class": "MaterialExpressionTextureCoordinate",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_1",
+      "desc": "",
+      "inputs": [],
+      "sources": []
+    },
+    {
+      "class": "MaterialExpressionMaterialFunctionCall",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_1",
+      "desc": "",
+      "inputs": [
+        "Heightmap Texture",
+        "Height Ratio",
+        "Min Steps",
+        "Max Steps",
+        "UVs",
+        "Heightmap Channel",
+        "Reference Plane",
+        "-----------------------------",
+        "Use World Coordinates",
+        "Specify Manual Texture Size",
+        "Manual Texture Size",
+        "------------------------------",
+        "Render Shadows (Occlusion Mapping)",
+        "Light Vector",
+        "Shadow Steps",
+        "Shadow Penumbra",
+        "Transform To VertexNormal"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureObject_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_0",
+        null,
+        null,
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_1",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionConstant4Vector_0",
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "function": "/Engine/Functions/Engine_MaterialFunctions01/Texturing/ParallaxOcclusionMapping.ParallaxOcclusionMapping"
+    },
+    {
+      "class": "MaterialExpressionTextureSample",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_1",
+      "desc": "",
+      "inputs": [
+        "UVs",
+        "Tex",
+        "Apply View MipBias"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_1",
+        null,
+        null
+      ]
+    },
+    {
+      "class": "MaterialExpressionTextureObject",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureObject_0",
+      "desc": "",
+      "inputs": [],
+      "sources": []
+    },
+    {
+      "class": "MaterialExpressionConstant",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionConstant_1",
+      "desc": "",
+      "inputs": [],
+      "sources": []
+    },
+    {
+      "class": "MaterialExpressionMultiply",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_0",
+      "desc": "",
+      "inputs": [
+        "A",
+        "B"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_1",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_2"
+      ]
+    },
+    {
+      "class": "MaterialExpressionLinearInterpolate",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_0",
+      "desc": "",
+      "inputs": [
+        "A",
+        "B",
+        "Alpha"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_1"
+      ]
+    },
+    {
+      "class": "MaterialExpressionVectorParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_2",
+      "desc": "",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Tint_Surface"
+    },
+    {
+      "class": "MaterialExpressionTextureSample",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_0",
+      "desc": "",
+      "inputs": [
+        "UVs",
+        "Tex",
+        "Apply View MipBias"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionStaticSwitchParameter_0",
+        null,
+        null
+      ]
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_0",
+      "desc": "",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Depth"
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_1",
+      "desc": "Driven by the winter event arrival: zero clears the tongue, one reveals the frost.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "IceAmount"
+    },
+    {
+      "class": "MaterialExpressionCustom",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_0",
+      "desc": "",
+      "inputs": [
+        "Frost",
+        "Amount",
+        "Softness"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_1",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_4"
+      ],
+      "description": "Frost crystals grow with the replicated freeze meter",
+      "code": "float a=saturate(Amount);\nif(a<=0.001) return 0.0;\nfloat threshold=lerp(0.89,0.04,a);\nfloat crystals=smoothstep(threshold,threshold+clamp(Softness,0.005,0.30),saturate(Frost));\nreturn crystals*smoothstep(0.0,0.12,a);"
+    },
+    {
+      "class": "MaterialExpressionVertexNormalWS",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVertexNormalWS_0",
+      "desc": "",
+      "inputs": [],
+      "sources": []
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_2",
+      "desc": "The native coating already follows the tongue with a surface-normal offset.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "IceThickness"
+    },
+    {
+      "class": "MaterialExpressionMultiply",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_1",
+      "desc": "",
+      "inputs": [
+        "A",
+        "B"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_1",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_2"
+      ]
+    },
+    {
+      "class": "MaterialExpressionTextureCoordinate",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_2",
+      "desc": "",
+      "inputs": [],
+      "sources": []
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_3",
+      "desc": "Crystal repeats in the tongue UVs; the pattern follows its deformation.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Frost Tiling"
+    },
+    {
+      "class": "MaterialExpressionMultiply",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_3",
+      "desc": "",
+      "inputs": [
+        "A",
+        "B"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_2",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_3"
+      ]
+    },
+    {
+      "class": "MaterialExpressionTextureSampleParameter2D",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0",
+      "desc": "White frost crystals appear first; darker filaments fill in as IceAmount increases. Black gaps remain clear.",
+      "inputs": [
+        "UVs",
+        "Apply View MipBias"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_3",
+        null
+      ],
+      "texture": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask"
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_4",
+      "desc": "Width of the gradual crystal reveal. No effect on gameplay freeze timing.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Frost Softness"
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_5",
+      "desc": "White matte frost over the original M_Ice shading. Zero keeps the original ice color and roughness.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Frost Strength"
+    },
+    {
+      "class": "MaterialExpressionVectorParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_1",
+      "desc": "",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Frost Tint"
+    },
+    {
+      "class": "MaterialExpressionMultiply",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_4",
+      "desc": "",
+      "inputs": [
+        "A",
+        "B"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_5"
+      ]
+    },
+    {
+      "class": "MaterialExpressionLinearInterpolate",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_1",
+      "desc": "Bright fern crystals over the original ice color.",
+      "inputs": [
+        "A",
+        "B",
+        "Alpha"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_1",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_4"
+      ]
+    },
+    {
+      "class": "MaterialExpressionLinearInterpolate",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_2",
+      "desc": "The crystal branches are rougher than the ice below.",
+      "inputs": [
+        "A",
+        "B",
+        "Alpha"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionConstant_1",
+        null,
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_4"
+      ]
+    },
+    {
+      "class": "MaterialExpressionWorldPosition",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionWorldPosition_0",
+      "desc": "",
+      "inputs": [],
+      "sources": []
+    },
+    {
+      "class": "MaterialExpressionVectorParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_3",
+      "desc": "",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Warm Center"
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_6",
+      "desc": "Current gameplay-safe radius, updated by the winter event.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Warm Radius"
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_7",
+      "desc": "The event enables the current safe circle.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Warm Enabled"
+    },
+    {
+      "class": "MaterialExpressionVectorParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_4",
+      "desc": "",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Next Warm Center"
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_8",
+      "desc": "Safe radius during the circle handover.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Next Warm Radius"
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_9",
+      "desc": "Enabled only while both circles provide warmth.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Next Warm Enabled"
+    },
+    {
+      "class": "MaterialExpressionScalarParameter",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_10",
+      "desc": "Soft fade in centimetres outside each safe circle. The entire safe area stays free of frost.",
+      "inputs": [],
+      "sources": [],
+      "parameter": "Warm Fade Width"
+    },
+    {
+      "class": "MaterialExpressionCustom",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_1",
+      "desc": "",
+      "inputs": [
+        "P",
+        "Center",
+        "Radius",
+        "Enabled",
+        "NextCenter",
+        "NextRadius",
+        "NextEnabled",
+        "Width"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionWorldPosition_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_3",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_6",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_7",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_4",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_8",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_9",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_10"
+      ],
+      "description": "Smooth frost fade outside the current and next warm circles",
+      "code": "float w=max(Width,1.0);\nfloat r=max(Radius,0.0);\nfloat nr=max(NextRadius,0.0);\nfloat outside=smoothstep(r,r+w,length(P.xy-Center.xy));\nfloat nextOutside=smoothstep(nr,nr+w,length(P.xy-NextCenter.xy));\nreturn lerp(1.0,outside,saturate(Enabled))*lerp(1.0,nextOutside,saturate(NextEnabled));"
+    },
+    {
+      "class": "MaterialExpressionMultiply",
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_5",
+      "desc": "The same growing crystal mask, softened by warmth before temporal dithering.",
+      "inputs": [
+        "A",
+        "B"
+      ],
+      "sources": [
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_0",
+        "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_1"
+      ]
+    }
+  ],
+  "front": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_0",
+  "native_substrate_classes": [
+    "MaterialExpressionSubstrateAdd",
+    "MaterialExpressionSubstrateBSDF",
+    "MaterialExpressionSubstrateConvertMaterialAttributes",
+    "MaterialExpressionSubstrateConvertToDecal",
+    "MaterialExpressionSubstrateEyeBSDF",
+    "MaterialExpressionSubstrateHairBSDF",
+    "MaterialExpressionSubstrateHazinessToSecondaryRoughness",
+    "MaterialExpressionSubstrateHorizontalMixing",
+    "MaterialExpressionSubstrateLightFunction",
+    "MaterialExpressionSubstrateMetalnessToDiffuseAlbedoF0",
+    "MaterialExpressionSubstratePostProcess",
+    "MaterialExpressionSubstrateSelect",
+    "MaterialExpressionSubstrateShadingModels",
+    "MaterialExpressionSubstrateSimpleClearCoatBSDF",
+    "MaterialExpressionSubstrateSingleLayerWaterBSDF",
+    "MaterialExpressionSubstrateSlabBSDF",
+    "MaterialExpressionSubstrateThinFilm",
+    "MaterialExpressionSubstrateToonBSDF",
+    "MaterialExpressionSubstrateTransmittanceToMFP",
+    "MaterialExpressionSubstrateUI",
+    "MaterialExpressionSubstrateUnlitBSDF",
+    "MaterialExpressionSubstrateUtilityBase",
+    "MaterialExpressionSubstrateVerticalLayering",
+    "MaterialExpressionSubstrateVolumetricFogCloudBSDF",
+    "MaterialExpressionSubstrateWeight"
+  ],
+  "MaterialExpressionSubstrateSlabBSDF": "Substrate Slab\r\n\r\n**C++ Source:**\r\n\r\n- **Module**: Engine\r\n- **File**: MaterialExpressionSubstrate.h\r\n\r\n**Editor Properties:** (see get_editor_property/set_editor_property)\r\n\r\n- ``desc`` (str):  [Read-Write] A description that level designers can add (shows in the material editor UI).\r\n- ``material_expression_editor_x`` (int32):  [Read-Write]\r\n- ``material_expression_editor_y`` (int32):  [Read-Write]\r\n- ``specular_profile`` (SpecularProfile):  [Read-Write] SpecularProfile, for modulating specular appearance and simulating more complex visuals such as iridescence.\r\n- ``sub_surface_type`` (MaterialSubSurfaceType):  [Read-Write] Define sub-subsurface used behavior of the slab. This option trades quality over performance and will result into visual differences.\r\n   * For slab not sitting at the bottom of the topology (e.g. slabs stacked with a vertial operator), only the SimpleVolume SSS type is available.\r\n   * In non-opaque blend modes, SSS Diffusion and SSS Diffusion Profile are not available and will fallback onto Wrap mode.\r\n- ``subsurface_profile`` (SubsurfaceProfile):  [Read-Write] SubsurfaceProfile, for Screen Space Subsurface Scattering. The profile needs to be set up on both the Substrate diffuse node, and the material node at the moment.",
+  "MaterialExpressionSubstrateHorizontalMixing": "/\n Operator nodes\r\n\r\n**C++ Source:**\r\n\r\n- **Module**: Engine\r\n- **File**: MaterialExpressionSubstrate.h\r\n\r\n**Editor Properties:** (see get_editor_property/set_editor_property)\r\n\r\n- ``desc`` (str):  [Read-Write] A description that level designers can add (shows in the material editor UI).\r\n- ``material_expression_editor_x`` (int32):  [Read-Write]\r\n- ``material_expression_editor_y`` (int32):  [Read-Write]\r\n- ``use_parameter_blending`` (bool):  [Read-Write] Merge Background and Foreground into a single material by mixing their inputs rather than their evaluation. This makes lighting evaluation cheaper (Default: off)",
+  "MaterialExpressionSubstrateSimpleClearCoatBSDF": "Substrate Simple Clear Coat\r\n\r\n**C++ Source:**\r\n\r\n- **Module**: Engine\r\n- **File**: MaterialExpressionSubstrate.h\r\n\r\n**Editor Properties:** (see get_editor_property/set_editor_property)\r\n\r\n- ``desc`` (str):  [Read-Write] A description that level designers can add (shows in the material editor UI).\r\n- ``material_expression_editor_x`` (int32):  [Read-Write]\r\n- ``material_expression_editor_y`` (int32):  [Read-Write]"
+}

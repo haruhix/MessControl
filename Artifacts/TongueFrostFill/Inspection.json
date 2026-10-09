@@ -1,0 +1,97 @@
+{
+  "material": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost",
+  "custom_nodes": [
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_0",
+      "description": "Frost crystals grow with the replicated freeze meter",
+      "code": "float a=saturate(Amount);\nif(a<=0.001) return 0.0;\nfloat threshold=lerp(0.89,0.04,a);\nfloat crystals=smoothstep(threshold,threshold+clamp(Softness,0.005,0.30),saturate(Frost));\nreturn crystals*smoothstep(0.0,0.12,a);"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_1",
+      "description": "Uneven thaw fringe with locally varying softness, outside both gameplay-safe circles",
+      "code": "float edge=max(Variation,0.0);\nfloat variation=saturate(edge/65.0);\nfloat w=max(Width,1.0)*lerp(1.0,lerp(0.40,1.35,Fields.b),variation);\nfloat fringe=edge*(0.12+0.88*Fields.g);\nfloat r=max(Radius,0.0), nr=max(NextRadius,0.0);\nfloat outside=smoothstep(r+fringe,r+fringe+w,length(P.xy-Center.xy));\nfloat nextOutside=smoothstep(nr+fringe,nr+fringe+w,length(P.xy-NextCenter.xy));\nreturn lerp(1.0,outside,saturate(Enabled))*lerp(1.0,nextOutside,saturate(NextEnabled));"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_4",
+      "description": "Stable UV field: ice islands, frost clumps, thaw breakup and gloss variation",
+      "code": "struct TongueIceField\n{\n    float hash(float2 p)\n    {\n        float3 q=frac(float3(p.x,p.y,p.x)*0.1031);\n        q+=dot(q,q.yzx+33.33);\n        return frac((q.x+q.y)*q.z);\n    }\n    float noise(float2 p)\n    {\n        float2 i=floor(p), f=frac(p);\n        float2 u=f*f*(3.0-2.0*f);\n        return lerp(lerp(hash(i),hash(i+float2(1,0)),u.x),\n                    lerp(hash(i+float2(0,1)),hash(i+1.0),u.x),u.y);\n    }\n    float fbm(float2 p)\n    {\n        return noise(p)*0.65+noise(p*2.07+13.4)*0.25+noise(p*4.13-8.7)*0.10;\n    }\n};\nTongueIceField f;\nfloat2 p=UV*max(Scale,0.1)+Offset.xy;\nfloat2 warp=float2(f.noise(p*0.83+6.2),f.noise(p*0.91-5.4))-0.5;\nfloat2 q=p+warp*1.8;\nreturn float4(f.fbm(q),f.noise(q*2.6+13.4),f.fbm(q*1.42-5.3),f.noise(q*7.0+22.1));"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_5",
+      "description": "Growing ice plates with clustered frost and exposed tissue between them",
+      "code": "float a=saturate(Amount);\nif(a<=0.001) return float4(0,0,0,0);\nfloat threshold=lerp(1.08,1.0-clamp(Density,0.02,0.98),a);\nfloat plate=smoothstep(threshold,threshold+max(Softness,0.005),Fields.r);\nfloat region=smoothstep(1.0-saturate(Clumps),1.18-saturate(Clumps),Fields.g);\nfloat rim=4.0*plate*(1.0-plate);\nfloat cluster=smoothstep(0.24,0.57,Fields.r)*saturate(region*0.85+rim*0.65);\nfloat frost=saturate(Crystals)*cluster;\nfloat total=max(plate,frost);\nfloat mix=saturate(frost*1.85/max(total,0.001))*saturate(FrostStrength);\nreturn float4(total,mix,plate,region);"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_6",
+      "description": "Blue ice changes density and tint across each plate",
+      "code": "return Tint*lerp(0.60,1.40,saturate(Shade));"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_7",
+      "description": "White frost varies from translucent-looking blue to dense white clusters",
+      "code": "return Tint*lerp(0.58,1.0,saturate(Shade));"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_8",
+      "description": "Smooth ice with small roughness changes",
+      "code": "return clamp(Rough+(Shade-0.5)*0.12,0.025,0.45);"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_9",
+      "description": "Variable matte frost crystals",
+      "code": "return clamp(Rough+(Shade-0.5)*0.20,0.35,0.95);"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_10",
+      "description": "Original M_Ice surface relief on glossy plates",
+      "code": "return normalize(lerp(float3(0,0,1),Normal,0.65));"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_11",
+      "description": "Softer relief under rough frost",
+      "code": "return normalize(lerp(float3(0,0,1),Normal,0.25));"
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_12",
+      "description": "Vertex-safe uneven plate thickness, reduced by warmth",
+      "code": "return smoothstep(0.32,0.68,Fields.r)*saturate(Amount)*max(Thickness,0.0)*Warmth;"
+    }
+  ],
+  "parameters": {
+    "Depth": 0.05000000074505806,
+    "IceAmount": 0.0,
+    "IceThickness": 1.600000023841858,
+    "Frost Tiling": 6.0,
+    "Frost Softness": 0.10000000149011612,
+    "Frost Strength": 0.8500000238418579,
+    "Warm Radius": 330.0,
+    "Warm Enabled": 0.0,
+    "Next Warm Radius": 330.0,
+    "Next Warm Enabled": 0.0,
+    "Warm Fade Width": 120.0,
+    "Ice Patch Scale": 24.0,
+    "Ice Patch Coverage": 0.5199999809265137,
+    "Ice Patch Softness": 0.07500000298023224,
+    "Frost Clump Coverage": 0.6700000166893005,
+    "Warm Edge Variation": 65.0,
+    "Ice Roughness": 0.11999999731779099,
+    "Frost Roughness": 0.7200000286102295,
+    "Ice F0": 0.03999999910593033,
+    "Ice Detail Tiling": 10.0
+  },
+  "pie": [
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCIceEvent_0",
+      "stage": "<MCIceEventStage.COMPLETE: 3>",
+      "sections": 0,
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCIceEvent_0.FrozenTongue.MID_M_TongueFrost_0",
+      "parameters": {
+        "IceAmount": 1.0,
+        "Warm Radius": 218.7284698486328,
+        "Warm Enabled": 1.0,
+        "Warm Fade Width": 120.0,
+        "Warm Edge Variation": 65.0
+      }
+    }
+  ]
+}

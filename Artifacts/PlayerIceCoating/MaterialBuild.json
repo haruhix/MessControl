@@ -1,0 +1,9 @@
+{
+  "source": "/Game/Art/Materials/ice/M_Ice.M_Ice",
+  "material": "/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating",
+  "compile_errors": [],
+  "source_substrate_graph_preserved": true,
+  "amount": 0.0,
+  "thickness_cm": 1.2,
+  "presentation": "masked ice shell following the character pose"
+}

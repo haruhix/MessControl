@@ -1,0 +1,9 @@
+Built-in image_gen tool; mode: generate.
+
+Use case: photorealistic-natural.
+Asset type: square tileable grayscale frost opacity and growth mask for an Unreal Engine game character material.
+Primary request: a dense organic pattern of hoarfrost with delicate fern-shaped dendritic ice crystals like naturally frozen window frost. White branching crystals emerge from a pure black background. Vary from fine needle-like white branches to larger overlapping feathery crystal clusters, with gray transitional frost filaments so a shader can gradually reveal the pattern. The frost should occupy about 65 percent of the image, with black irregular gaps between clusters.
+Style: high-detail realistic frost microstructure, flat technical texture, no scene or photographic lighting.
+Composition: uniform distribution across the entire square, no central focal point, seamlessly tileable on both axes, branches continue across opposite edges.
+Color palette: achromatic grayscale only, white ice coverage on black empty space. Opaque raster, not transparent.
+Constraints: square 1024 by 1024, crisp fine branching crystals at several scales, no blue tint, no bevel, no shadows, no reflections, no gradients of overall lighting, no window frame, no vignette, no border, no letters or watermark.

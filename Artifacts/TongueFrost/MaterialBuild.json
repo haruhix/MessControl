@@ -1,0 +1,13 @@
+{
+  "material": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost",
+  "shared_mask": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask",
+  "source": "/Game/Gameplay/Cold/Frost/M_PlayerIceCoating_BeforeMotionFix",
+  "compile_errors": [],
+  "warm_fade_width_cm": 120.0,
+  "frost_tiling": 6.0,
+  "warm_fade_code": "float w=max(Width,1.0);\nfloat r=max(Radius,0.0);\nfloat nr=max(NextRadius,0.0);\nfloat outside=smoothstep(r,r+w,length(P.xy-Center.xy));\nfloat nextOutside=smoothstep(nr,nr+w,length(P.xy-NextCenter.xy));\nreturn lerp(1.0,outside,saturate(Enabled))*lerp(1.0,nextOutside,saturate(NextEnabled));",
+  "opacity_mask_input": "OpacityMask=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_TongueFrost:MaterialExpressionMaterialFunctionCall_2'\")",
+  "safe_circle_clear": true,
+  "both_warm_zones_supported": true,
+  "character_deformation_included": false
+}

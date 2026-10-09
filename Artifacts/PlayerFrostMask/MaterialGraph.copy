@@ -1,0 +1,449 @@
+Begin Object Class=/Script/Engine.Material Name="M_PlayerIceCoating" ExportPath="/Script/Engine.Material'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating'"
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_2" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_1" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_2" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexNormalWS Name="MaterialExpressionVertexNormalWS_0" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionVertexNormalWS_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_2" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionCustom_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSample Name="MaterialExpressionTextureSample_0" ExportPath="/Script/Engine.MaterialExpressionTextureSample'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureSample_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionVectorParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionLinearInterpolate Name="MaterialExpressionLinearInterpolate_0" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionLinearInterpolate_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_0" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_1" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionConstant_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureObject Name="MaterialExpressionTextureObject_0" ExportPath="/Script/Engine.MaterialExpressionTextureObject'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureObject_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSample Name="MaterialExpressionTextureSample_1" ExportPath="/Script/Engine.MaterialExpressionTextureSample'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureSample_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_1" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureCoordinate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant4Vector Name="MaterialExpressionConstant4Vector_0" ExportPath="/Script/Engine.MaterialExpressionConstant4Vector'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionConstant4Vector_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionStaticSwitchParameter Name="MaterialExpressionStaticSwitchParameter_0" ExportPath="/Script/Engine.MaterialExpressionStaticSwitchParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionStaticSwitchParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureCoordinate_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_PlayerIceCoatingEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:M_PlayerIceCoatingEditorOnlyData'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionLinearInterpolate Name="MaterialExpressionLinearInterpolate_2" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionLinearInterpolate_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionLinearInterpolate Name="MaterialExpressionLinearInterpolate_1" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionLinearInterpolate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_4" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureSampleParameter2D_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_3" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_3" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_2" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureCoordinate_2'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_2" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_2'"
+      A=(Expression="/Script/Engine.MaterialExpressionVertexNormalWS'M_PlayerIceCoating:MaterialExpressionVertexNormalWS_0'")
+      B=(Expression="/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_1'")
+      MaterialExpressionEditorX=-990
+      MaterialExpressionEditorY=2200
+      MaterialExpressionGuid=144AF041472730DEB5FD3E89F2DA705F
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_1" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_2'")
+      MaterialExpressionEditorX=-1290
+      MaterialExpressionEditorY=2330
+      MaterialExpressionGuid=6E364736453A61525CF78D970F4780A6
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_2" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_2'"
+      DefaultValue=1.200000
+      SliderMax=4.000000
+      ParameterName="IceThickness"
+      ExpressionGUID=73F9AEF54444D2B3FA54D28F953E0B87
+      Group="Player Freeze"
+      MaterialExpressionEditorX=-1550
+      MaterialExpressionEditorY=2330
+      MaterialExpressionGuid=B247876E4D70B97EB33736912FEB1045
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Desc="Shell expansion in world centimetres at full freeze. Does not affect collision."
+   End Object
+   Begin Object Name="MaterialExpressionVertexNormalWS_0" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionVertexNormalWS_0'"
+      MaterialExpressionEditorX=-1550
+      MaterialExpressionEditorY=2130
+      MaterialExpressionGuid=B616B515424F0372E802359710620D37
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_2" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_2'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA.DitherTemporalAA'"
+      FunctionInputs(0)=(ExpressionInputId=982BCAE7401F814CDC0AE2955DEE46F3,Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_PlayerIceCoating:MaterialExpressionCustom_0'",InputName="Alpha Threshold"))
+      FunctionInputs(1)=(ExpressionInputId=E8A932AF4299B0D6C16EDB8B1E912796,Input=(OutputIndex=-1,InputName="Random"))
+      FunctionOutputs(0)=(ExpressionOutputId=9BC32B084665F3D2D59A90AA45CA8A9F,Output=(OutputName="Result"))
+      MaterialExpressionEditorX=-630
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=ECC546E84F0E09923AF22999DF1C9AB1
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Outputs(0)=(OutputName="Result")
+   End Object
+   Begin Object Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionCustom_0'"
+      Code="float a=saturate(Amount);\nif(a<=0.001) return 0.0;\nfloat threshold=lerp(0.89,0.04,a);\nfloat crystals=smoothstep(threshold,threshold+clamp(Softness,0.005,0.30),saturate(Frost));\nreturn crystals*smoothstep(0.0,0.12,a);"
+      OutputType=CMOT_Float1
+      Description="Frost crystals grow with the replicated freeze meter"
+      Inputs(0)=(InputName="Frost",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_PlayerIceCoating:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=1,Mask=1,MaskR=1))
+      Inputs(1)=(InputName="Amount",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_1'"))
+      Inputs(2)=(InputName="Softness",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_4'"))
+      MaterialExpressionEditorX=-990
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=D57A6A5140DE0AF7EBCDC39FF5B8E4E0
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_1'"
+      SliderMax=1.000000
+      ParameterName="IceAmount"
+      ExpressionGUID=9ED2B2664DCF3CA849A85E919728FAE6
+      Group="Player Freeze"
+      MaterialExpressionEditorX=-1550
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=E55661FF45E3647ED23DFFBAADA99C24
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Desc="Driven by the replicated player freeze meter. 0 is clear, 1 is fully iced."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_0'"
+      DefaultValue=0.050000
+      ParameterName="Depth"
+      ExpressionGUID=D8DBF54C4DFC1B925BB33B96160627D3
+      MaterialExpressionEditorX=240
+      MaterialExpressionEditorY=192
+      MaterialExpressionGuid=7E1599954D3C18C7CA0CF3BA98D77F75
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSample_0" ExportPath="/Script/Engine.MaterialExpressionTextureSample'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureSample_0'"
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionStaticSwitchParameter'M_PlayerIceCoating:MaterialExpressionStaticSwitchParameter_0'")
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_N.T_GemSurface002_N'"
+      SamplerType=SAMPLERTYPE_Normal
+      MaterialExpressionEditorX=1760
+      MaterialExpressionEditorY=416
+      MaterialExpressionGuid=14AAFA89413CFE49199F6982547EDF27
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionVectorParameter_2'"
+      DefaultValue=(R=0.140350,G=0.333077,B=0.500000,A=1.000000)
+      ParameterName="Tint_Surface"
+      ExpressionGUID=38063E58451B54EB29162EB591A06E45
+      MaterialExpressionEditorX=1328
+      MaterialExpressionEditorY=288
+      MaterialExpressionGuid=6AC5F8CB462ECCBE2635338B76FE930C
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionLinearInterpolate_0" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionLinearInterpolate_0'"
+      A=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_PlayerIceCoating:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      B=(Expression="/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_0'")
+      Alpha=(Expression="/Script/Engine.MaterialExpressionTextureSample'M_PlayerIceCoating:MaterialExpressionTextureSample_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=1600
+      MaterialExpressionEditorY=-64
+      MaterialExpressionGuid=87B6B27847175AD8445607874D0EF5E1
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_0" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_0'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSample'M_PlayerIceCoating:MaterialExpressionTextureSample_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      B=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_PlayerIceCoating:MaterialExpressionVectorParameter_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=1648
+      MaterialExpressionEditorY=256
+      MaterialExpressionGuid=095F57F64A2C8DB8C8566EBE31775F56
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_1" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionConstant_1'"
+      R=0.100000
+      MaterialExpressionEditorX=1776
+      MaterialExpressionEditorY=64
+      MaterialExpressionGuid=292636F3401AF3252742BCB4E06992EC
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureObject_0" ExportPath="/Script/Engine.MaterialExpressionTextureObject'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureObject_0'"
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_M.T_GemSurface002_M'"
+      MaterialExpressionEditorX=256
+      MaterialExpressionEditorY=-16
+      MaterialExpressionGuid=C50A44EB443A0DC42B12A7A539ACA6D8
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSample_1" ExportPath="/Script/Engine.MaterialExpressionTextureSample'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureSample_1'"
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_1'")
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_M.T_GemSurface002_M'"
+      MaterialExpressionEditorX=1152
+      MaterialExpressionGuid=F0504CE64DE96D2B4C8C38880CA6E287
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_1" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_1'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Engine_MaterialFunctions01/Texturing/ParallaxOcclusionMapping.ParallaxOcclusionMapping'"
+      FunctionInputs(0)=(ExpressionInputId=D3CD700647D7EF6A57FF4EB239783FD9,Input=(Expression="/Script/Engine.MaterialExpressionTextureObject'M_PlayerIceCoating:MaterialExpressionTextureObject_0'",InputName="Heightmap Texture"))
+      FunctionInputs(1)=(ExpressionInputId=87508BD245D6CCD2972534BB5478DF07,Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_0'",InputName="Height Ratio"))
+      FunctionInputs(2)=(ExpressionInputId=C6EB5A304CEDCCB94B51698214927D75,Input=(OutputIndex=-1,InputName="Min Steps"))
+      FunctionInputs(3)=(ExpressionInputId=38DC91194340C3172D478F8134871AAC,Input=(OutputIndex=-1,InputName="Max Steps"))
+      FunctionInputs(4)=(ExpressionInputId=5DD7ACAE4E3F667915F3AFB368F146B7,Input=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_PlayerIceCoating:MaterialExpressionTextureCoordinate_1'",InputName="UVs"))
+      FunctionInputs(5)=(ExpressionInputId=9AC5B0694B7F9A6A4A7A4EB4AC2E4AD8,Input=(Expression="/Script/Engine.MaterialExpressionConstant4Vector'M_PlayerIceCoating:MaterialExpressionConstant4Vector_0'",InputName="Heightmap Channel",Mask=1,MaskR=1,MaskG=1,MaskB=1,MaskA=1))
+      FunctionInputs(6)=(ExpressionInputId=F8D34C5E4F5BD1CE31CBE78F4FA30D00,Input=(OutputIndex=-1,InputName="Reference Plane"))
+      FunctionInputs(7)=(ExpressionInputId=ED8CD290413B44C28DA13AB9277D307B,Input=(OutputIndex=-1,InputName="-----------------------------"))
+      FunctionInputs(8)=(ExpressionInputId=0E56245349503209844EEF91A46BA555,Input=(OutputIndex=-1,InputName="Use World Coordinates"))
+      FunctionInputs(9)=(ExpressionInputId=FD746ECC45EE787213C5DEA274BD2906,Input=(OutputIndex=-1,InputName="Specify Manual Texture Size"))
+      FunctionInputs(10)=(ExpressionInputId=E33AB7C14CCCC01624FE409E7479A4A5,Input=(OutputIndex=-1,InputName="Manual Texture Size"))
+      FunctionInputs(11)=(ExpressionInputId=3AFFFA8E44372B48C9EEDCA807C10DB9,Input=(OutputIndex=-1,InputName="------------------------------"))
+      FunctionInputs(12)=(ExpressionInputId=742B79554E19CE37969C35B9BF7A13E5,Input=(OutputIndex=-1,InputName="Render Shadows (Occlusion Mapping)"))
+      FunctionInputs(13)=(ExpressionInputId=B312F88640D8CD07BA718987D2F68798,Input=(OutputIndex=-1,InputName="Light Vector"))
+      FunctionInputs(14)=(ExpressionInputId=3FE0DA4A4B2DE19C9C9672AD9653A18F,Input=(OutputIndex=-1,InputName="Shadow Steps"))
+      FunctionInputs(15)=(ExpressionInputId=0DD23D2047334724A697448DB16DAA07,Input=(OutputIndex=-1,InputName="Shadow Penumbra"))
+      FunctionInputs(16)=(ExpressionInputId=0067A30244E1A74141403EA795E800A3,Input=(OutputIndex=-1,InputName="Transform To VertexNormal"))
+      FunctionOutputs(0)=(ExpressionOutputId=4ADDA7A84E423550062B76AE7C6E11CB,Output=(OutputName="Parallax UVs"))
+      FunctionOutputs(1)=(ExpressionOutputId=8258927B4F3A106ACC7FAA9AC9C32CAE,Output=(OutputName="Offset Only"))
+      FunctionOutputs(2)=(ExpressionOutputId=0D45CD6D49F3025A6699408D7CB08A5F,Output=(OutputName="Shadow"))
+      FunctionOutputs(3)=(ExpressionOutputId=E3AD423344E244638874F9AF6D79749D,Output=(OutputName="Pixel Depth Offset"))
+      FunctionOutputs(4)=(ExpressionOutputId=994E0D0A4904AABAE4E7AFAA8A55B61F,Output=(OutputName="World Position"))
+      FunctionOutputs(5)=(ExpressionOutputId=0422E21C46F047C08010108CE9080F67,Output=(OutputName="Tangent Light Vector"))
+      FunctionOutputs(6)=(ExpressionOutputId=94349DAC4478EF16DDD1109EC23B0DED,Output=(OutputName="Material Complexity - Steps Debug"))
+      MaterialExpressionEditorX=528
+      MaterialExpressionEditorY=16
+      MaterialExpressionGuid=DDD8A6D149BFDF2285BF90BB396C8249
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Outputs(0)=(OutputName="Parallax UVs")
+      Outputs(1)=(OutputName="Offset Only")
+      Outputs(2)=(OutputName="Shadow")
+      Outputs(3)=(OutputName="Pixel Depth Offset")
+      Outputs(4)=(OutputName="World Position")
+      Outputs(5)=(OutputName="Tangent Light Vector")
+      Outputs(6)=(OutputName="Material Complexity - Steps Debug")
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureCoordinate_1'"
+      MaterialExpressionEditorX=176
+      MaterialExpressionEditorY=288
+      MaterialExpressionGuid=AAE6861B445F54A993D802965E539FC7
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant4Vector_0" ExportPath="/Script/Engine.MaterialExpressionConstant4Vector'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionConstant4Vector_0'"
+      Constant=(R=1.000000,G=0.000000,B=0.000000,A=0.000000)
+      MaterialExpressionEditorX=240
+      MaterialExpressionEditorY=400
+      MaterialExpressionGuid=FF6BC6284B7880A9B18F7B93A8EB5ABC
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.044569,G=0.107341,B=0.161458,A=1.000000)
+      ParameterName="Tint_Depth"
+      ExpressionGUID=4091D2524D3948A9D6FA928BCF471C28
+      MaterialExpressionEditorX=1184
+      MaterialExpressionEditorY=-256
+      MaterialExpressionGuid=D2AA784248CB61915D2280B702B8A34C
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionStaticSwitchParameter_0" ExportPath="/Script/Engine.MaterialExpressionStaticSwitchParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionStaticSwitchParameter_0'"
+      A=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_PlayerIceCoating:MaterialExpressionTextureCoordinate_0'")
+      ParameterName="Normal ro use POM UVs"
+      ExpressionGUID=ADC5CA6F432B8ECCF90D14902E6D2CD8
+      MaterialExpressionEditorX=1536
+      MaterialExpressionEditorY=608
+      MaterialExpressionGuid=D4A3C7A04213CF0CFD2367B91E4F439B
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureCoordinate_0'"
+      MaterialExpressionEditorX=1152
+      MaterialExpressionEditorY=688
+      MaterialExpressionGuid=EA7B2CD84EA739048FE93895E804405B
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Substrate/SMF_UE4Legacy.SMF_UE4Legacy'"
+      FunctionInputs(0)=(ExpressionInputId=A3FC01BD40397229098642BBC4C0DB4B,Input=(Expression="/Script/Engine.MaterialExpressionLinearInterpolate'M_PlayerIceCoating:MaterialExpressionLinearInterpolate_1'",InputName="Base Color"))
+      FunctionInputs(1)=(ExpressionInputId=366AF2F641B1DB602145F78AA0AA3ACC,Input=(OutputIndex=-1,InputName="Metallic"))
+      FunctionInputs(2)=(ExpressionInputId=80CE548641B2B6674069CB8ADE4070BC,Input=(OutputIndex=-1,InputName="Specular"))
+      FunctionInputs(3)=(ExpressionInputId=9CA7E3FC456267FE1D4635A40A3F0040,Input=(Expression="/Script/Engine.MaterialExpressionLinearInterpolate'M_PlayerIceCoating:MaterialExpressionLinearInterpolate_2'",InputName="Roughness"))
+      FunctionInputs(4)=(ExpressionInputId=D45D2AB24DE012477D1A358896674ED2,Input=(Expression="/Script/Engine.MaterialExpressionTextureSample'M_PlayerIceCoating:MaterialExpressionTextureSample_0'",InputName="Normal",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      FunctionInputs(5)=(ExpressionInputId=C4CC96874DC30861960BB6B2EE924392,Input=(InputName="Emissive Color",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      FunctionInputs(6)=(ExpressionInputId=60DC2F264B5B5FEC69FAE2A3B05EB2DB,Input=(OutputIndex=-1,InputName="Opacity"))
+      FunctionOutputs(0)=(ExpressionOutputId=70EE6502413E7CF5BE1FC2876954B54B,Output=(OutputName="Result"))
+      MaterialExpressionEditorX=2016
+      MaterialExpressionEditorY=-32
+      MaterialExpressionGuid=5333AA974813BAD6C2A53B9DFCD3F784
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Outputs(0)=(OutputName="Result")
+   End Object
+   Begin Object Name="M_PlayerIceCoatingEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:M_PlayerIceCoatingEditorOnlyData'"
+      BaseColor=(UseConstant=True,Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Metallic=(UseConstant=True)
+      Specular=(UseConstant=True)
+      Roughness=(UseConstant=True)
+      Normal=(UseConstant=True,Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Tangent=(UseConstant=True)
+      EmissiveColor=(UseConstant=True)
+      Opacity=(UseConstant=True)
+      OpacityMask=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_2'")
+      WorldPositionOffset=(Expression="/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_2'")
+      SubsurfaceColor=(UseConstant=True)
+      ClearCoat=(UseConstant=True)
+      ClearCoatRoughness=(UseConstant=True)
+      AmbientOcclusion=(UseConstant=True)
+      Refraction=(UseConstant=True)
+      CustomizedUVs(0)=(UseConstant=True)
+      CustomizedUVs(1)=(UseConstant=True)
+      CustomizedUVs(2)=(UseConstant=True)
+      CustomizedUVs(3)=(UseConstant=True)
+      CustomizedUVs(4)=(UseConstant=True)
+      CustomizedUVs(5)=(UseConstant=True)
+      CustomizedUVs(6)=(UseConstant=True)
+      CustomizedUVs(7)=(UseConstant=True)
+      SurfaceThickness=(UseConstant=True)
+      FrontMaterial=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionMaterialFunctionCall'M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_2'","/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_2'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_0'","/Script/Engine.MaterialExpressionTextureCoordinate'M_PlayerIceCoating:MaterialExpressionTextureCoordinate_0'","/Script/Engine.MaterialExpressionStaticSwitchParameter'M_PlayerIceCoating:MaterialExpressionStaticSwitchParameter_0'","/Script/Engine.MaterialExpressionVectorParameter'M_PlayerIceCoating:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant4Vector'M_PlayerIceCoating:MaterialExpressionConstant4Vector_0'","/Script/Engine.MaterialExpressionTextureCoordinate'M_PlayerIceCoating:MaterialExpressionTextureCoordinate_1'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_1'","/Script/Engine.MaterialExpressionTextureSample'M_PlayerIceCoating:MaterialExpressionTextureSample_1'","/Script/Engine.MaterialExpressionTextureObject'M_PlayerIceCoating:MaterialExpressionTextureObject_0'","/Script/Engine.MaterialExpressionConstant'M_PlayerIceCoating:MaterialExpressionConstant_1'","/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_0'","/Script/Engine.MaterialExpressionLinearInterpolate'M_PlayerIceCoating:MaterialExpressionLinearInterpolate_0'","/Script/Engine.MaterialExpressionVectorParameter'M_PlayerIceCoating:MaterialExpressionVectorParameter_2'","/Script/Engine.MaterialExpressionTextureSample'M_PlayerIceCoating:MaterialExpressionTextureSample_0'","/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_0'","/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_1'","/Script/Engine.MaterialExpressionCustom'M_PlayerIceCoating:MaterialExpressionCustom_0'","/Script/Engine.MaterialExpressionVertexNormalWS'M_PlayerIceCoating:MaterialExpressionVertexNormalWS_0'","/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_2'","/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_1'","/Script/Engine.MaterialExpressionTextureCoordinate'M_PlayerIceCoating:MaterialExpressionTextureCoordinate_2'","/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_3'","/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_3'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_PlayerIceCoating:MaterialExpressionTextureSampleParameter2D_0'","/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_4'","/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_5'","/Script/Engine.MaterialExpressionVectorParameter'M_PlayerIceCoating:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_4'","/Script/Engine.MaterialExpressionLinearInterpolate'M_PlayerIceCoating:MaterialExpressionLinearInterpolate_1'","/Script/Engine.MaterialExpressionLinearInterpolate'M_PlayerIceCoating:MaterialExpressionLinearInterpolate_2'"))
+      ParameterGroupData(0)=(GroupName="Player Freeze")
+      SubstrateConversionVersion=0
+      SubstrateVersion=0
+   End Object
+   Begin Object Name="MaterialExpressionLinearInterpolate_2" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionLinearInterpolate_2'"
+      A=(Expression="/Script/Engine.MaterialExpressionConstant'M_PlayerIceCoating:MaterialExpressionConstant_1'")
+      Alpha=(Expression="/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_4'")
+      ConstB=0.650000
+      MaterialExpressionEditorX=-950
+      MaterialExpressionEditorY=2870
+      MaterialExpressionGuid=E48F668B445AC5BEEEFBF386F53A2BA6
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Desc="The crystal branches are rougher than the ice below."
+   End Object
+   Begin Object Name="MaterialExpressionLinearInterpolate_1" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionLinearInterpolate_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionLinearInterpolate'M_PlayerIceCoating:MaterialExpressionLinearInterpolate_0'")
+      B=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_PlayerIceCoating:MaterialExpressionVectorParameter_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Alpha=(Expression="/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_4'")
+      MaterialExpressionEditorX=-950
+      MaterialExpressionEditorY=2670
+      MaterialExpressionGuid=6BBFC4A24E62348D4847A2BD8C14A1B5
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Desc="Bright fern crystals over the original ice color."
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_4" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_4'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_PlayerIceCoating:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=1,Mask=1,MaskR=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_5'")
+      MaterialExpressionEditorX=-1250
+      MaterialExpressionEditorY=2670
+      MaterialExpressionGuid=6905414F408275181EF1EAB0A940D682
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=0.720000,G=0.880000,B=1.000000,A=1.000000)
+      ParameterName="Frost Tint"
+      ExpressionGUID=7D3766E949701754B3E8EDBAF25427E4
+      Group="Player Freeze"
+      MaterialExpressionEditorX=-1250
+      MaterialExpressionEditorY=2850
+      MaterialExpressionGuid=FD32A1C547C4DD7BFCC2FB8195352EB9
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_5'"
+      DefaultValue=0.850000
+      SliderMax=1.000000
+      ParameterName="Frost Strength"
+      ExpressionGUID=23A50174459FE58EDD6900B2B662A37B
+      Group="Player Freeze"
+      MaterialExpressionEditorX=-1500
+      MaterialExpressionEditorY=2670
+      MaterialExpressionGuid=A0D9AA8E421D3111F7BAC0B939EE9E48
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Desc="White matte frost over the original M_Ice shading. Zero keeps the original ice color and roughness."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_4'"
+      DefaultValue=0.100000
+      SliderMin=0.010000
+      SliderMax=0.300000
+      ParameterName="Frost Softness"
+      ExpressionGUID=95F283AF484672E9A4BAE297B5308919
+      Group="Player Freeze"
+      MaterialExpressionEditorX=-1500
+      MaterialExpressionEditorY=1900
+      MaterialExpressionGuid=B28F53A04DF570BAE19F81AA2B4699F7
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Desc="Width of the gradual crystal reveal. No effect on gameplay freeze timing."
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureSampleParameter2D_0'"
+      ParameterName="Frost Mask Texture"
+      ExpressionGUID=8C0E4F8C4C4A2D1071CDF7AFD411F21D
+      Group="Player Freeze"
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'M_PlayerIceCoating:MaterialExpressionMultiply_3'")
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+      SamplerType=SAMPLERTYPE_LinearGrayscale
+      MaterialExpressionEditorX=-1860
+      MaterialExpressionEditorY=1650
+      MaterialExpressionGuid=E35C844341A02FABF429198006B09278
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Desc="White frost crystals appear first; darker filaments fill in as IceAmount increases. Black gaps remain clear."
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_3" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionMultiply_3'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_PlayerIceCoating:MaterialExpressionTextureCoordinate_2'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_PlayerIceCoating:MaterialExpressionScalarParameter_3'")
+      MaterialExpressionEditorX=-2120
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=F21D9C354594467D13C5E79F0531B94F
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_3" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionScalarParameter_3'"
+      DefaultValue=1.000000
+      SliderMin=0.250000
+      SliderMax=4.000000
+      ParameterName="Frost Tiling"
+      ExpressionGUID=25304DC744F5C5029E11448E06213281
+      Group="Player Freeze"
+      MaterialExpressionEditorX=-2350
+      MaterialExpressionEditorY=1880
+      MaterialExpressionGuid=F3AB1A8D46A9A669B5DA0384CC17348B
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+      Desc="Crystal pattern repetitions in character UV0. Lower values make larger crystals."
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_2" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating:MaterialExpressionTextureCoordinate_2'"
+      MaterialExpressionEditorX=-2350
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=7DC44797442FAC636F816F8FE00AEE24
+      Material="/Script/Engine.Material'M_PlayerIceCoating'"
+   End Object
+   BlendMode=BLEND_Masked
+   bUsedWithSkeletalMesh=True
+   EditorX=2368
+   EditorY=32
+   StateId=A96ED1424B992C6CFE2D09897CF02322
+   ReferencedTextureGuids(0)=670619CD48696888D492F08383AE80CE
+   ReferencedTextureGuids(1)=307757E1458E615C7D97A39E32219707
+   ReferencedTextureGuids(2)=8C6D98CE431C305533E507AA35579C82
+   ReferencedTextureGuids(3)=60A943644F2103C2A35BD7A31E0919B0
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_PlayerIceCoatingEditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="Good64x64TilingNoiseHighFreq",TextureReference="/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq.Good64x64TilingNoiseHighFreq")
+   TextureStreamingData(1)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_GemSurface002_M",TextureReference="/Game/Art/Texture/ice/T_GemSurface002_M.T_GemSurface002_M")
+   TextureStreamingData(2)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_GemSurface002_N",TextureReference="/Game/Art/Texture/ice/T_GemSurface002_N.T_GemSurface002_N")
+   TextureStreamingData(3)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_PlayerFrostMask",TextureReference="/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq.Good64x64TilingNoiseHighFreq'"
+   ReferencedDefaultTextures(1)="/Script/Engine.Texture2D'/Engine/EngineVolumetrics/Fogsheet/Materials/T_EV_BlankWhite_01.T_EV_BlankWhite_01'"
+   ReferencedDefaultTextures(2)="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_M.T_GemSurface002_M'"
+   ReferencedDefaultTextures(3)="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_N.T_GemSurface002_N'"
+   ReferencedDefaultTextures(4)="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+   ParameterOverviewExpansion=(("-12Global", True),("-12Global Player Freeze", True))
+   LightingGuid=D66607EA4D949DAB78AAECAFC533FAA1
+End Object

@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "samples": [
+    {
+      "stage": "low",
+      "amount": 0.2634791433811188,
+      "mask": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask"
+    },
+    {
+      "stage": "high",
+      "amount": 0.7935197353363037,
+      "mask": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask"
+    },
+    {
+      "stage": "warm",
+      "coatings": 0
+    }
+  ],
+  "camera": {
+    "location": [
+      -490.00000517493646,
+      5.000008751854509,
+      152.64897155761722
+    ],
+    "rotation": [
+      1.1654239351344131e-08,
+      -7.544438362121582,
+      11.458752632141113
+    ]
+  },
+  "error": null
+}

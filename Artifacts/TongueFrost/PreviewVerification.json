@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "samples": [
+    {
+      "stage": "low",
+      "amount": 0.33333349227905273,
+      "warm_radius": 330.0,
+      "warm_enabled": 1.0,
+      "next_warm_enabled": 0.0,
+      "fade_width": 120.0,
+      "vertices": 7305,
+      "triangles": 14336,
+      "max_surface_offset_error_cm": 1.4210854715202004e-14,
+      "authored_uvs_preserved": true
+    },
+    {
+      "stage": "full",
+      "amount": 1.0,
+      "warm_radius": 327.8333435058594,
+      "warm_enabled": 1.0,
+      "next_warm_enabled": 0.0,
+      "fade_width": 120.0,
+      "vertices": 7305,
+      "triangles": 14336,
+      "max_surface_offset_error_cm": 7.105427357601002e-15,
+      "authored_uvs_preserved": true
+    },
+    {
+      "stage": "two_zones",
+      "amount": 1.0,
+      "warm_radius": 205.12777709960938,
+      "warm_enabled": 1.0,
+      "next_warm_enabled": 1.0,
+      "fade_width": 120.0,
+      "vertices": 7305,
+      "triangles": 14336,
+      "max_surface_offset_error_cm": 7.105427357601002e-15,
+      "authored_uvs_preserved": true
+    }
+  ],
+  "original_tongue_material": "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
+  "camera": {
+    "location": [
+      -831.3750305175781,
+      56.00808906555176,
+      1543.918701171875
+    ],
+    "target": [
+      -511.3750305175781,
+      56.00808906555176,
+      43.918701171875
+    ]
+  },
+  "cleanup": "Frost section removed; original tongue material preserved",
+  "error": null
+}

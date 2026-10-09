@@ -1,0 +1,117 @@
+{
+  "passed": true,
+  "samples": [
+    {
+      "stage": "walking",
+      "frame_count": 11,
+      "last": {
+        "slots": [
+          {
+            "BodyStretch": 0.0,
+            "Damage": 0.0,
+            "DamageChipDepth": 2.799999952316284
+          },
+          {
+            "BodyStretch": -0.0119310412555933,
+            "Damage": 0.0,
+            "DamageChipDepth": 2.799999952316284
+          }
+        ],
+        "speed": 144.47480198228874,
+        "body_state": "<MCBodyState.STANDING: 0>",
+        "animation_settings": "<Struct 'MCAnimationSettings' (0x00000245D83BCB30) {squash: 0.220000, stretch: 0.180000, bob: 7.000000, lean: 14.000000, follow_through: 0.400000, tempo: 1.000000, anticipation: 0.160000, exaggeration: 1.000000}>",
+        "source_materials": [
+          "/Game/Gameplay/CharacterCurrent/Materials/MI_Character.MI_Character",
+          "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.CharacterMesh0.MID_MI_Bag_0"
+        ],
+        "squash_morph": 0.042610861361026764,
+        "stretch_morph": 0.0
+      }
+    },
+    {
+      "stage": "jumping",
+      "last": {
+        "slots": [
+          {
+            "BodyStretch": 0.0,
+            "Damage": 0.0,
+            "DamageChipDepth": 2.799999952316284
+          },
+          {
+            "BodyStretch": 0.17265821993350983,
+            "Damage": 0.0,
+            "DamageChipDepth": 2.799999952316284
+          }
+        ],
+        "speed": 500.93460050938984,
+        "body_state": "<MCBodyState.STANDING: 0>",
+        "animation_settings": "<Struct 'MCAnimationSettings' (0x00000245D83BCB30) {squash: 0.220000, stretch: 0.180000, bob: 7.000000, lean: 14.000000, follow_through: 0.400000, tempo: 1.000000, anticipation: 0.160000, exaggeration: 1.000000}>",
+        "source_materials": [
+          "/Game/Gameplay/CharacterCurrent/Materials/MI_Character.MI_Character",
+          "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.CharacterMesh0.MID_MI_Bag_0"
+        ],
+        "squash_morph": 5.422794129117392e-05,
+        "stretch_morph": 0.6166907548904419
+      }
+    },
+    {
+      "stage": "warm",
+      "coatings": 0
+    }
+  ],
+  "max_parameter_error": 0.0,
+  "walking_stretch": [
+    0.0,
+    -0.004702398553490639,
+    -0.02023986168205738,
+    0.004925515502691269,
+    0.0028608471620827913,
+    -0.0010813636472448707,
+    0.017661981284618378,
+    0.0141011793166399,
+    0.0017060766695067286,
+    0.0026547706220299006,
+    -0.0119310412555933
+  ],
+  "walking_speed": [
+    0.0,
+    112.0000547447097,
+    224.00007925062047,
+    87.93184146480826,
+    29.708807516612033,
+    83.21445560681616,
+    195.2144802196506,
+    307.2145349979462,
+    159.68174650212617,
+    32.474747343223186,
+    144.47480198228874
+  ],
+  "jump_stretch": [
+    0.015061012469232082,
+    0.17265821993350983
+  ],
+  "last_walk": {
+    "slots": [
+      {
+        "BodyStretch": 0.0,
+        "Damage": 0.0,
+        "DamageChipDepth": 2.799999952316284
+      },
+      {
+        "BodyStretch": -0.0119310412555933,
+        "Damage": 0.0,
+        "DamageChipDepth": 2.799999952316284
+      }
+    ],
+    "speed": 144.47480198228874,
+    "body_state": "<MCBodyState.STANDING: 0>",
+    "animation_settings": "<Struct 'MCAnimationSettings' (0x00000245D83BCB30) {squash: 0.220000, stretch: 0.180000, bob: 7.000000, lean: 14.000000, follow_through: 0.400000, tempo: 1.000000, anticipation: 0.160000, exaggeration: 1.000000}>",
+    "source_materials": [
+      "/Game/Gameplay/CharacterCurrent/Materials/MI_Character.MI_Character",
+      "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2.CharacterMesh0.MID_MI_Bag_0"
+    ],
+    "squash_morph": 0.042610861361026764,
+    "stretch_morph": 0.0
+  },
+  "error": null
+}

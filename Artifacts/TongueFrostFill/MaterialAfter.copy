@@ -1,0 +1,977 @@
+Begin Object Class=/Script/Engine.Material Name="M_TongueFrost" ExportPath="/Script/Engine.Material'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost'"
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_24" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_24'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_7" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_7'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_23" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_23'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_5" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_6" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_6'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_12" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_12'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSubstrateHorizontalMixing Name="MaterialExpressionSubstrateHorizontalMixing_0" ExportPath="/Script/Engine.MaterialExpressionSubstrateHorizontalMixing'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionSubstrateHorizontalMixing_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSubstrateSlabBSDF Name="MaterialExpressionSubstrateSlabBSDF_1" ExportPath="/Script/Engine.MaterialExpressionSubstrateSlabBSDF'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionSubstrateSlabBSDF_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSubstrateSlabBSDF Name="MaterialExpressionSubstrateSlabBSDF_0" ExportPath="/Script/Engine.MaterialExpressionSubstrateSlabBSDF'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionSubstrateSlabBSDF_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_11" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_11'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_10" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_10'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_9" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_9'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_8" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_8'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_7" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_7'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_6" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_6'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_22" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_22'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_21" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_21'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_20" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_20'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_7" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_7'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_19" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_19'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_3" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionComponentMask_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_2" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionComponentMask_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_1" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionComponentMask_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_5" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_18" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_18'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_17" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_17'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_16" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_16'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_4" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_6" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_6'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_15" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_15'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_4" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_5" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_10" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_10'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_9" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_9'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_8" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_8'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_4" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_7" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_7'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_6" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_6'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_0" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionWorldPosition_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionLinearInterpolate Name="MaterialExpressionLinearInterpolate_2" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionLinearInterpolate Name="MaterialExpressionLinearInterpolate_1" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_4" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_3" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_3" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_2" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_1" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_2" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexNormalWS Name="MaterialExpressionVertexNormalWS_0" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVertexNormalWS_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSample Name="MaterialExpressionTextureSample_0" ExportPath="/Script/Engine.MaterialExpressionTextureSample'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionLinearInterpolate Name="MaterialExpressionLinearInterpolate_0" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_0" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_1" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionConstant_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureObject Name="MaterialExpressionTextureObject_0" ExportPath="/Script/Engine.MaterialExpressionTextureObject'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureObject_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSample Name="MaterialExpressionTextureSample_1" ExportPath="/Script/Engine.MaterialExpressionTextureSample'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_1" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant4Vector Name="MaterialExpressionConstant4Vector_0" ExportPath="/Script/Engine.MaterialExpressionConstant4Vector'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionConstant4Vector_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionStaticSwitchParameter Name="MaterialExpressionStaticSwitchParameter_0" ExportPath="/Script/Engine.MaterialExpressionStaticSwitchParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionStaticSwitchParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_2" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_2" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_TongueFrostEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:M_TongueFrostEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_24" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_24'"
+      DefaultValue=1.000000
+      SliderMax=1.000000
+      ParameterName="Frost Fill"
+      ExpressionGUID=9B93C1BC4C556F3FFE70EEB5F82DEBBF
+      Group="Frost Surface"
+      MaterialExpressionEditorX=-4350
+      MaterialExpressionEditorY=5810
+      MaterialExpressionGuid=E48E6FD54669F194309303B3469877E4
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Continuous frost between ice plates outside warmth. One fills all gaps at full cold."
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_7" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_7'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_5'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_23'")
+      MaterialExpressionEditorX=-2450
+      MaterialExpressionEditorY=6410
+      MaterialExpressionGuid=D96AEA3B4AF22DAB68F9B5A25F7E7E11
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_23" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_23'"
+      DefaultValue=10.000000
+      SliderMin=1.000000
+      SliderMax=24.000000
+      ParameterName="Ice Detail Tiling"
+      ExpressionGUID=AE888C2D4A21AA4357DEEDAF5A2ECBAE
+      Group="Ice Surface"
+      MaterialExpressionEditorX=-2750
+      MaterialExpressionEditorY=6590
+      MaterialExpressionGuid=EE40E65145B7FEF4634B9FA755377923
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Repeats the original M_Ice normal texture across the tongue. Higher values give finer cracks."
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_5" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_5'"
+      MaterialExpressionEditorX=-2750
+      MaterialExpressionEditorY=6410
+      MaterialExpressionGuid=FB60484D45C051D18EADACB08D14DC58
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_6" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_6'"
+      A=(Expression="/Script/Engine.MaterialExpressionVertexNormalWS'M_TongueFrost:MaterialExpressionVertexNormalWS_0'")
+      B=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_12'")
+      MaterialExpressionEditorX=-970
+      MaterialExpressionEditorY=6730
+      MaterialExpressionGuid=F435D04D41DFD26E0C265186927A175F
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Small local relief makes the patches sit above the tongue."
+   End Object
+   Begin Object Name="MaterialExpressionCustom_12" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_12'"
+      Code="return smoothstep(0.32,0.68,Fields.r)*saturate(Amount)*max(Thickness,0.0)*Warmth;"
+      OutputType=CMOT_Float1
+      Description="Vertex-safe uneven plate thickness, reduced by warmth"
+      Inputs(0)=(InputName="Fields",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_4'"))
+      Inputs(1)=(InputName="Amount",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_1'"))
+      Inputs(2)=(InputName="Thickness",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_2'"))
+      Inputs(3)=(InputName="Warmth",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_1'"))
+      MaterialExpressionEditorX=-1460
+      MaterialExpressionEditorY=6730
+      MaterialExpressionGuid=6A51CE7A4D579F3FBF74719F7F7D5D82
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionSubstrateHorizontalMixing_0" ExportPath="/Script/Engine.MaterialExpressionSubstrateHorizontalMixing'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionSubstrateHorizontalMixing_0'"
+      Background=(Expression="/Script/Engine.MaterialExpressionSubstrateSlabBSDF'M_TongueFrost:MaterialExpressionSubstrateSlabBSDF_0'")
+      Foreground=(Expression="/Script/Engine.MaterialExpressionSubstrateSlabBSDF'M_TongueFrost:MaterialExpressionSubstrateSlabBSDF_1'")
+      Mix=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_2'")
+      bUseParameterBlending=True
+      MaterialExpressionEditorX=-850
+      MaterialExpressionEditorY=5130
+      MaterialExpressionGuid=62E292344476E1880C7C2AA58FC3AB41
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Mix glossy ice and clumped frost as native Substrate slabs. Parameter blending keeps one lighting evaluation."
+   End Object
+   Begin Object Name="MaterialExpressionSubstrateSlabBSDF_1" ExportPath="/Script/Engine.MaterialExpressionSubstrateSlabBSDF'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionSubstrateSlabBSDF_1'"
+      DiffuseAlbedo=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_7'")
+      F0=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_22'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_9'")
+      Normal=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_11'")
+      MaterialExpressionEditorX=-1400
+      MaterialExpressionEditorY=5590
+      MaterialExpressionGuid=71AF60BB4C439D7AD78A84B7A236FFEA
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Matte white frost collects unevenly on and around the ice plates."
+   End Object
+   Begin Object Name="MaterialExpressionSubstrateSlabBSDF_0" ExportPath="/Script/Engine.MaterialExpressionSubstrateSlabBSDF'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionSubstrateSlabBSDF_0'"
+      DiffuseAlbedo=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_6'")
+      F0=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_22'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_8'")
+      Normal=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_10'")
+      MaterialExpressionEditorX=-1400
+      MaterialExpressionEditorY=4930
+      MaterialExpressionGuid=9D7077014EA88438900E748A2DCC1EF0
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Smooth reflective ice plates with the original M_Ice normal relief."
+   End Object
+   Begin Object Name="MaterialExpressionCustom_11" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_11'"
+      Code="return normalize(lerp(float3(0,0,1),Normal,0.25));"
+      Description="Softer relief under rough frost"
+      Inputs(0)=(InputName="Normal",Input=(Expression="/Script/Engine.MaterialExpressionTextureSample'M_TongueFrost:MaterialExpressionTextureSample_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      MaterialExpressionEditorX=-1990
+      MaterialExpressionEditorY=6350
+      MaterialExpressionGuid=71C70B734057F6EA71707DA3A6AD48DB
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_10" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_10'"
+      Code="return normalize(lerp(float3(0,0,1),Normal,0.65));"
+      Description="Original M_Ice surface relief on glossy plates"
+      Inputs(0)=(InputName="Normal",Input=(Expression="/Script/Engine.MaterialExpressionTextureSample'M_TongueFrost:MaterialExpressionTextureSample_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      MaterialExpressionEditorX=-1990
+      MaterialExpressionEditorY=6150
+      MaterialExpressionGuid=3743E0D04B66A85929795B96A121836B
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_9" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_9'"
+      Code="return clamp(Rough+(Shade-0.5)*0.20,0.35,0.95);"
+      OutputType=CMOT_Float1
+      Description="Variable matte frost crystals"
+      Inputs(0)=(InputName="Rough",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_21'"))
+      Inputs(1)=(InputName="Shade",Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_3'"))
+      MaterialExpressionEditorX=-1990
+      MaterialExpressionEditorY=5920
+      MaterialExpressionGuid=71CD1CE34A3707416B109CAFD4623B64
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_8" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_8'"
+      Code="return clamp(Rough+(Shade-0.5)*0.12,0.025,0.45);"
+      OutputType=CMOT_Float1
+      Description="Smooth ice with small roughness changes"
+      Inputs(0)=(InputName="Rough",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_20'"))
+      Inputs(1)=(InputName="Shade",Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_3'"))
+      MaterialExpressionEditorX=-1980
+      MaterialExpressionEditorY=5290
+      MaterialExpressionGuid=205DA4284B9ABBB6CA1CAC9CC62D0159
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_7" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_7'"
+      Code="return Tint*lerp(0.82,1.0,saturate(Shade))*lerp(0.70,1.03,saturate(Crystals));"
+      Description="Visible fern crystal detail on a continuous pale frost bed"
+      Inputs(0)=(InputName="Tint",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Shade",Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_3'"))
+      Inputs(2)=(InputName="Crystals",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=1,Mask=1,MaskR=1))
+      MaterialExpressionEditorX=-1990
+      MaterialExpressionEditorY=5720
+      MaterialExpressionGuid=2330D2F34A0BCD1EF5B949A86AEF9F75
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_6" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_6'"
+      Code="return Tint*lerp(0.60,1.40,saturate(Shade));"
+      Description="Blue ice changes density and tint across each plate"
+      Inputs(0)=(InputName="Tint",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_7'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Shade",Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_3'"))
+      MaterialExpressionEditorX=-1990
+      MaterialExpressionEditorY=5010
+      MaterialExpressionGuid=DFF11F9045DAEEC2AC6F289522FC8253
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_22" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_22'"
+      DefaultValue=0.040000
+      SliderMin=0.020000
+      SliderMax=0.080000
+      ParameterName="Ice F0"
+      ExpressionGUID=0CBCEB08404AAA7F156B749154061A25
+      Group="Ice Surface"
+      MaterialExpressionEditorX=-1980
+      MaterialExpressionEditorY=5520
+      MaterialExpressionGuid=8E398B6842E9C6528438728ADBC1D1DE
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Dielectric specular reflectance of the ice and frost."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_21" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_21'"
+      DefaultValue=0.720000
+      SliderMin=0.350000
+      SliderMax=0.950000
+      ParameterName="Frost Roughness"
+      ExpressionGUID=787EB2AC4D6D754797FDA29A9FE31B91
+      Group="Frost Surface"
+      MaterialExpressionEditorX=-2520
+      MaterialExpressionEditorY=5540
+      MaterialExpressionGuid=F8D998B146C525981599DCA1C0F8EC85
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Matte roughness of the white crystals."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_20" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_20'"
+      DefaultValue=0.120000
+      SliderMin=0.020000
+      SliderMax=0.450000
+      ParameterName="Ice Roughness"
+      ExpressionGUID=51F412CC438903CD4BECB6A4D07B9FA3
+      Group="Ice Surface"
+      MaterialExpressionEditorX=-2520
+      MaterialExpressionEditorY=5320
+      MaterialExpressionGuid=E48C480D499F9FF7BA3E56A7AB804D6C
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Gloss of the smoother ice islands."
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_7" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_7'"
+      DefaultValue=(R=0.120000,G=0.300000,B=0.420000,A=1.000000)
+      ParameterName="Ice Plate Tint"
+      ExpressionGUID=9B9322104FDF9108C328E19553A34D48
+      Group="Ice Surface"
+      MaterialExpressionEditorX=-2520
+      MaterialExpressionEditorY=5000
+      MaterialExpressionGuid=290F594C4E3CD9120F150186C2F0A595
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_19" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_19'"
+      DefaultValue=12.000000
+      SliderMax=220.000000
+      ParameterName="Warm Edge Variation"
+      ExpressionGUID=E4E8874D4CE66B76087DC0B5867A5092
+      Group="Warm Zone"
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=4550
+      MaterialExpressionGuid=AF5E3FF64C49008D6EE58B9D8EC89135
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Local variation in fade width, without pushing the frost boundary away from the safe circle."
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_3" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionComponentMask_3'"
+      Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_4'")
+      A=True
+      MaterialExpressionEditorX=-3490
+      MaterialExpressionEditorY=5470
+      MaterialExpressionGuid=BA1FEEA34D915967511CC493A2720011
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_2" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionComponentMask_2'"
+      Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_5'")
+      G=True
+      MaterialExpressionEditorX=-2990
+      MaterialExpressionEditorY=4910
+      MaterialExpressionGuid=812E87464297206E8CB3CD9434F75759
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_1" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionComponentMask_1'"
+      Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_5'")
+      R=True
+      MaterialExpressionEditorX=-2990
+      MaterialExpressionEditorY=4710
+      MaterialExpressionGuid=79A9FEEA49C46D728C7E5C9A24494747
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_5" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_5'"
+      Code="float a=saturate(Amount);\nif(a<=0.001) return float4(0,0,0,0);\nfloat threshold=lerp(1.08,1.0-clamp(Density,0.02,0.98),a);\nfloat plate=smoothstep(threshold,threshold+max(Softness,0.005),Fields.r);\nfloat region=smoothstep(1.0-saturate(Clumps),1.18-saturate(Clumps),Fields.g);\nfloat rim=4.0*plate*(1.0-plate);\nfloat cluster=smoothstep(0.24,0.57,Fields.r)*saturate(region*0.85+rim*0.65);\nfloat crystals=saturate(Crystals)*cluster;\nfloat bed=smoothstep(0.06,0.65,a)*saturate(Fill);\nfloat total=max(plate,max(crystals,bed));\nfloat plateFrost=saturate(crystals*0.85*saturate(FrostStrength));\nfloat mix=lerp(1.0,plateFrost,plate);\nreturn float4(total,mix,plate,region);"
+      OutputType=CMOT_Float4
+      Description="Ice plates over a continuous frost bed outside the warm circles"
+      Inputs(0)=(InputName="Fields",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_4'"))
+      Inputs(1)=(InputName="Amount",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_1'"))
+      Inputs(2)=(InputName="Density",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_16'"))
+      Inputs(3)=(InputName="Softness",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_17'"))
+      Inputs(4)=(InputName="Clumps",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_18'"))
+      Inputs(5)=(InputName="Crystals",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_0'"))
+      Inputs(6)=(InputName="FrostStrength",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_5'"))
+      Inputs(7)=(InputName="Fill",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_24'"))
+      MaterialExpressionEditorX=-3460
+      MaterialExpressionEditorY=4760
+      MaterialExpressionGuid=98F3ED54495EDA1D92E3D5ADB9FD00EF
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_18" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_18'"
+      DefaultValue=0.670000
+      SliderMin=0.050000
+      SliderMax=0.950000
+      ParameterName="Frost Clump Coverage"
+      ExpressionGUID=F480A15248A8D3B641E95193042BA52B
+      Group="Patch Coverage"
+      MaterialExpressionEditorX=-4350
+      MaterialExpressionEditorY=5600
+      MaterialExpressionGuid=BEF9DD3D4C56E28CB30913A9120540ED
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Controls where white frost clusters gather; independent from the glossy ice islands."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_17" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_17'"
+      DefaultValue=0.075000
+      SliderMin=0.010000
+      SliderMax=0.250000
+      ParameterName="Ice Patch Softness"
+      ExpressionGUID=26238577475FBD16EDFE25BF7AC60C7F
+      Group="Patch Coverage"
+      MaterialExpressionEditorX=-4350
+      MaterialExpressionEditorY=5430
+      MaterialExpressionGuid=F2D5561C4375A971346863BD69FC6C6B
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Soft feather around individual ice plates."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_16" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_16'"
+      DefaultValue=0.520000
+      SliderMin=0.050000
+      SliderMax=0.950000
+      ParameterName="Ice Patch Coverage"
+      ExpressionGUID=9BD4835E4B8729D2BF7B189D749A438E
+      Group="Patch Coverage"
+      MaterialExpressionEditorX=-4350
+      MaterialExpressionEditorY=5270
+      MaterialExpressionGuid=6BFAC7B944D2A46C00B8AA99F2F277CF
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Amount of smooth ice islands at full cold. Open tongue remains between islands."
+   End Object
+   Begin Object Name="MaterialExpressionCustom_4" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_4'"
+      Code="struct TongueIceField\n{\n    float hash(float2 p)\n    {\n        float3 q=frac(float3(p.x,p.y,p.x)*0.1031);\n        q+=dot(q,q.yzx+33.33);\n        return frac((q.x+q.y)*q.z);\n    }\n    float noise(float2 p)\n    {\n        float2 i=floor(p), f=frac(p);\n        float2 u=f*f*(3.0-2.0*f);\n        return lerp(lerp(hash(i),hash(i+float2(1,0)),u.x),\n                    lerp(hash(i+float2(0,1)),hash(i+1.0),u.x),u.y);\n    }\n    float fbm(float2 p)\n    {\n        return noise(p)*0.65+noise(p*2.07+13.4)*0.25+noise(p*4.13-8.7)*0.10;\n    }\n};\nTongueIceField f;\nfloat2 p=UV*max(Scale,0.1)+Offset.xy;\nfloat2 warp=float2(f.noise(p*0.83+6.2),f.noise(p*0.91-5.4))-0.5;\nfloat2 q=p+warp*1.8;\nreturn float4(f.fbm(q),f.noise(q*2.6+13.4),f.fbm(q*1.42-5.3),f.noise(q*7.0+22.1));"
+      OutputType=CMOT_Float4
+      Description="Stable UV field: ice islands, frost clumps, thaw breakup and gloss variation"
+      Inputs(0)=(InputName="UV",Input=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_4'"))
+      Inputs(1)=(InputName="Scale",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_15'"))
+      Inputs(2)=(InputName="Offset",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_6'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      MaterialExpressionEditorX=-3950
+      MaterialExpressionEditorY=4710
+      MaterialExpressionGuid=2F1B50C748A690F1DF02F990E11B2E29
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_6" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_6'"
+      DefaultValue=(R=0.310000,G=4.700000,B=0.000000,A=1.000000)
+      ParameterName="Pattern Offset"
+      ExpressionGUID=0B1169E5439AB36CD80EF999A6A63D9E
+      Group="Patch Coverage"
+      MaterialExpressionEditorX=-4350
+      MaterialExpressionEditorY=5020
+      MaterialExpressionGuid=CC05CF854BB21373EBF6D1BA4E34A76C
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_15" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_15'"
+      DefaultValue=24.000000
+      SliderMin=0.500000
+      SliderMax=48.000000
+      ParameterName="Ice Patch Scale"
+      ExpressionGUID=2DBEC5594A131E9D3FF164A2BF896E26
+      Group="Patch Coverage"
+      MaterialExpressionEditorX=-4350
+      MaterialExpressionEditorY=4850
+      MaterialExpressionGuid=03D567F645D0D2258CC416B3750524B2
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Large organic islands in the authored tongue UVs. Lower values make wider ice patches."
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_4" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_4'"
+      MaterialExpressionEditorX=-4350
+      MaterialExpressionEditorY=4700
+      MaterialExpressionGuid=F87F1FAF483249A5EA55C9B79810A40D
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_5" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_5'"
+      A=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_1'")
+      MaterialExpressionEditorX=-1660
+      MaterialExpressionEditorY=3190
+      MaterialExpressionGuid=801C15214FDBB5CDD4118FB4A644958C
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Irregular ice plates and clumped crystals, softened by the local warmth field."
+   End Object
+   Begin Object Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_1'"
+      Code="float spread=clamp(Variation,0.0,25.0);\nfloat w=max(8.0,max(Width,1.0)+(Fields.b-0.5)*2.0*spread);\nfloat r=max(Radius,0.0), nr=max(NextRadius,0.0);\nfloat outside=smoothstep(r,r+w,length(P.xy-Center.xy));\nfloat nextOutside=smoothstep(nr,nr+w,length(P.xy-NextCenter.xy));\nreturn lerp(1.0,outside,saturate(Enabled))*lerp(1.0,nextOutside,saturate(NextEnabled));"
+      OutputType=CMOT_Float1
+      Description="Short varied fade beginning at the exact warm-circle boundary"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_TongueFrost:MaterialExpressionWorldPosition_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Center",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_3'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(2)=(InputName="Radius",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_6'"))
+      Inputs(3)=(InputName="Enabled",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_7'"))
+      Inputs(4)=(InputName="NextCenter",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_4'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(5)=(InputName="NextRadius",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_8'"))
+      Inputs(6)=(InputName="NextEnabled",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_9'"))
+      Inputs(7)=(InputName="Width",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_10'"))
+      Inputs(8)=(InputName="Fields",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_4'"))
+      Inputs(9)=(InputName="Variation",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_19'"))
+      MaterialExpressionEditorX=-2110
+      MaterialExpressionEditorY=3320
+      MaterialExpressionGuid=E82A77EE4AADCA5F2A9A36B679D8833A
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_10" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_10'"
+      DefaultValue=45.000000
+      SliderMin=10.000000
+      SliderMax=300.000000
+      ParameterName="Warm Fade Width"
+      ExpressionGUID=AACB874C46CD4DB5C5372F95D12D15BB
+      Group="Warm Zone"
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=4360
+      MaterialExpressionGuid=5AEF7B9F4D018988952BCEBCB00DF4EC
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Short soft fade immediately outside the actual safe circle, keeping the gameplay boundary legible."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_9" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_9'"
+      ParameterName="Next Warm Enabled"
+      ExpressionGUID=6E3646134F15A7CEFB4680A1EB5FB02D
+      Group="Warm Zone"
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=4190
+      MaterialExpressionGuid=82D58FC146BC5308EF1FE4B0C73E089B
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Enabled only while both circles provide warmth."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_8" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_8'"
+      DefaultValue=330.000000
+      ParameterName="Next Warm Radius"
+      ExpressionGUID=F9880A5C4B7D203BEF5852B768FC161C
+      Group="Warm Zone"
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=4020
+      MaterialExpressionGuid=089797C648D2B633456634A8B6BEDC72
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Safe radius during the circle handover."
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_4" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_4'"
+      DefaultValue=(R=0.000000,G=0.000000,B=0.000000,A=1.000000)
+      ParameterName="Next Warm Center"
+      ExpressionGUID=0CF104BC432DF128E580168833D192F5
+      Group="Warm Zone"
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=3840
+      MaterialExpressionGuid=C50670E642E1ECD2F682EE95A67AC449
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_7" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_7'"
+      ParameterName="Warm Enabled"
+      ExpressionGUID=A81D29294840C329146423939438A243
+      Group="Warm Zone"
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=3650
+      MaterialExpressionGuid=1AA8DE71465D1F631289E289B218CD6F
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="The event enables the current safe circle."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_6" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_6'"
+      DefaultValue=330.000000
+      ParameterName="Warm Radius"
+      ExpressionGUID=2FBF7E0D451EA6F6F8539A95B60DAE01
+      Group="Warm Zone"
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=3480
+      MaterialExpressionGuid=4A5F2017447AB969222C0F90E11C800B
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Current gameplay-safe radius, updated by the winter event."
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_3'"
+      DefaultValue=(R=0.000000,G=0.000000,B=0.000000,A=1.000000)
+      ParameterName="Warm Center"
+      ExpressionGUID=B7B5B0B641F2581A9F700E933856A9E7
+      Group="Warm Zone"
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=3300
+      MaterialExpressionGuid=325059904180757BD8758580A53B3978
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_0" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionWorldPosition_0'"
+      WorldPositionShaderOffset=WPT_ExcludeAllShaderOffsets
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=3150
+      MaterialExpressionGuid=A7B7C8FC4681D04887E651842BF14260
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionLinearInterpolate_2" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_2'"
+      A=(Expression="/Script/Engine.MaterialExpressionConstant'M_TongueFrost:MaterialExpressionConstant_1'")
+      Alpha=(Expression="/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_4'")
+      ConstB=0.650000
+      MaterialExpressionEditorX=-950
+      MaterialExpressionEditorY=2870
+      MaterialExpressionGuid=E48F668B445AC5BEEEFBF386F53A2BA6
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="The crystal branches are rougher than the ice below."
+   End Object
+   Begin Object Name="MaterialExpressionLinearInterpolate_1" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionLinearInterpolate'M_TongueFrost:MaterialExpressionLinearInterpolate_0'")
+      B=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Alpha=(Expression="/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_4'")
+      MaterialExpressionEditorX=-950
+      MaterialExpressionEditorY=2670
+      MaterialExpressionGuid=6BBFC4A24E62348D4847A2BD8C14A1B5
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Bright fern crystals over the original ice color."
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_4" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_4'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=1,Mask=1,MaskR=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_5'")
+      MaterialExpressionEditorX=-1250
+      MaterialExpressionEditorY=2670
+      MaterialExpressionGuid=6905414F408275181EF1EAB0A940D682
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=0.720000,G=0.880000,B=1.000000,A=1.000000)
+      ParameterName="Frost Tint"
+      ExpressionGUID=7D3766E949701754B3E8EDBAF25427E4
+      Group="Player Freeze"
+      MaterialExpressionEditorX=-1250
+      MaterialExpressionEditorY=2850
+      MaterialExpressionGuid=FD32A1C547C4DD7BFCC2FB8195352EB9
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_5'"
+      DefaultValue=0.850000
+      SliderMax=1.000000
+      ParameterName="Frost Strength"
+      ExpressionGUID=23A50174459FE58EDD6900B2B662A37B
+      Group="Tongue Frost"
+      MaterialExpressionEditorX=-1500
+      MaterialExpressionEditorY=2670
+      MaterialExpressionGuid=A0D9AA8E421D3111F7BAC0B939EE9E48
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="White matte frost over the original M_Ice shading. Zero keeps the original ice color and roughness."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_4'"
+      DefaultValue=0.100000
+      SliderMin=0.010000
+      SliderMax=0.300000
+      ParameterName="Frost Softness"
+      ExpressionGUID=95F283AF484672E9A4BAE297B5308919
+      Group="Tongue Frost"
+      MaterialExpressionEditorX=-1500
+      MaterialExpressionEditorY=1900
+      MaterialExpressionGuid=B28F53A04DF570BAE19F81AA2B4699F7
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Width of the gradual crystal reveal. No effect on gameplay freeze timing."
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0'"
+      ParameterName="Frost Mask Texture"
+      ExpressionGUID=8C0E4F8C4C4A2D1071CDF7AFD411F21D
+      Group="Player Freeze"
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_3'")
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+      SamplerType=SAMPLERTYPE_LinearGrayscale
+      MaterialExpressionEditorX=-1860
+      MaterialExpressionEditorY=1650
+      MaterialExpressionGuid=E35C844341A02FABF429198006B09278
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="White frost crystals appear first; darker filaments fill in as IceAmount increases. Black gaps remain clear."
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_3" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_3'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_2'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_3'")
+      MaterialExpressionEditorX=-2120
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=F21D9C354594467D13C5E79F0531B94F
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_3" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_3'"
+      DefaultValue=6.000000
+      SliderMin=1.000000
+      SliderMax=12.000000
+      ParameterName="Frost Tiling"
+      ExpressionGUID=25304DC744F5C5029E11448E06213281
+      Group="Tongue Frost"
+      MaterialExpressionEditorX=-2350
+      MaterialExpressionEditorY=1880
+      MaterialExpressionGuid=F3AB1A8D46A9A669B5DA0384CC17348B
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Crystal repeats in the tongue UVs; the pattern follows its deformation."
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_2" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_2'"
+      MaterialExpressionEditorX=-2350
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=7DC44797442FAC636F816F8FE00AEE24
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_1" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_2'")
+      MaterialExpressionEditorX=-1290
+      MaterialExpressionEditorY=2330
+      MaterialExpressionGuid=6E364736453A61525CF78D970F4780A6
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_2" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_2'"
+      DefaultValue=1.600000
+      SliderMax=4.000000
+      ParameterName="IceThickness"
+      ExpressionGUID=73F9AEF54444D2B3FA54D28F953E0B87
+      Group="Ice Surface"
+      MaterialExpressionEditorX=-1550
+      MaterialExpressionEditorY=2330
+      MaterialExpressionGuid=B247876E4D70B97EB33736912FEB1045
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Uneven plate relief in centimetres above the existing tongue coating. Does not affect collision."
+   End Object
+   Begin Object Name="MaterialExpressionVertexNormalWS_0" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVertexNormalWS_0'"
+      MaterialExpressionEditorX=-1550
+      MaterialExpressionEditorY=2130
+      MaterialExpressionGuid=B616B515424F0372E802359710620D37
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionCustom_0'"
+      Code="float a=saturate(Amount);\nif(a<=0.001) return 0.0;\nfloat threshold=lerp(0.89,0.04,a);\nfloat crystals=smoothstep(threshold,threshold+clamp(Softness,0.005,0.30),saturate(Frost));\nreturn crystals*smoothstep(0.0,0.12,a);"
+      OutputType=CMOT_Float1
+      Description="Frost crystals grow with the replicated freeze meter"
+      Inputs(0)=(InputName="Frost",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=1,Mask=1,MaskR=1))
+      Inputs(1)=(InputName="Amount",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_1'"))
+      Inputs(2)=(InputName="Softness",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_4'"))
+      MaterialExpressionEditorX=-990
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=D57A6A5140DE0AF7EBCDC39FF5B8E4E0
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_1'"
+      SliderMax=1.000000
+      ParameterName="IceAmount"
+      ExpressionGUID=9ED2B2664DCF3CA849A85E919728FAE6
+      Group="Tongue Frost"
+      MaterialExpressionEditorX=-1550
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=E55661FF45E3647ED23DFFBAADA99C24
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Desc="Driven by the winter event arrival: zero clears the tongue, one reveals the frost."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionScalarParameter_0'"
+      DefaultValue=0.050000
+      ParameterName="Depth"
+      ExpressionGUID=D8DBF54C4DFC1B925BB33B96160627D3
+      Group="Tongue Frost"
+      MaterialExpressionEditorX=240
+      MaterialExpressionEditorY=192
+      MaterialExpressionGuid=7E1599954D3C18C7CA0CF3BA98D77F75
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSample_0" ExportPath="/Script/Engine.MaterialExpressionTextureSample'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_0'"
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_7'")
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_N.T_GemSurface002_N'"
+      SamplerType=SAMPLERTYPE_Normal
+      MaterialExpressionEditorX=1760
+      MaterialExpressionEditorY=416
+      MaterialExpressionGuid=14AAFA89413CFE49199F6982547EDF27
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_2'"
+      DefaultValue=(R=0.140350,G=0.333077,B=0.500000,A=1.000000)
+      ParameterName="Tint_Surface"
+      ExpressionGUID=38063E58451B54EB29162EB591A06E45
+      MaterialExpressionEditorX=1328
+      MaterialExpressionEditorY=288
+      MaterialExpressionGuid=6AC5F8CB462ECCBE2635338B76FE930C
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionLinearInterpolate_0" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionLinearInterpolate_0'"
+      A=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      B=(Expression="/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_0'")
+      Alpha=(Expression="/Script/Engine.MaterialExpressionTextureSample'M_TongueFrost:MaterialExpressionTextureSample_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=1600
+      MaterialExpressionEditorY=-64
+      MaterialExpressionGuid=87B6B27847175AD8445607874D0EF5E1
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_0" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_0'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSample'M_TongueFrost:MaterialExpressionTextureSample_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      B=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=1648
+      MaterialExpressionEditorY=256
+      MaterialExpressionGuid=095F57F64A2C8DB8C8566EBE31775F56
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_1" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionConstant_1'"
+      R=0.100000
+      MaterialExpressionEditorX=1776
+      MaterialExpressionEditorY=64
+      MaterialExpressionGuid=292636F3401AF3252742BCB4E06992EC
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureObject_0" ExportPath="/Script/Engine.MaterialExpressionTextureObject'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureObject_0'"
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_M.T_GemSurface002_M'"
+      MaterialExpressionEditorX=256
+      MaterialExpressionEditorY=-16
+      MaterialExpressionGuid=C50A44EB443A0DC42B12A7A539ACA6D8
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSample_1" ExportPath="/Script/Engine.MaterialExpressionTextureSample'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureSample_1'"
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_TongueFrost:MaterialExpressionMaterialFunctionCall_1'")
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_M.T_GemSurface002_M'"
+      MaterialExpressionEditorX=1152
+      MaterialExpressionGuid=F0504CE64DE96D2B4C8C38880CA6E287
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_1" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_1'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Engine_MaterialFunctions01/Texturing/ParallaxOcclusionMapping.ParallaxOcclusionMapping'"
+      FunctionInputs(0)=(ExpressionInputId=D3CD700647D7EF6A57FF4EB239783FD9,Input=(Expression="/Script/Engine.MaterialExpressionTextureObject'M_TongueFrost:MaterialExpressionTextureObject_0'",InputName="Heightmap Texture"))
+      FunctionInputs(1)=(ExpressionInputId=87508BD245D6CCD2972534BB5478DF07,Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_0'",InputName="Height Ratio"))
+      FunctionInputs(2)=(ExpressionInputId=C6EB5A304CEDCCB94B51698214927D75,Input=(OutputIndex=-1,InputName="Min Steps"))
+      FunctionInputs(3)=(ExpressionInputId=38DC91194340C3172D478F8134871AAC,Input=(OutputIndex=-1,InputName="Max Steps"))
+      FunctionInputs(4)=(ExpressionInputId=5DD7ACAE4E3F667915F3AFB368F146B7,Input=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_1'",InputName="UVs"))
+      FunctionInputs(5)=(ExpressionInputId=9AC5B0694B7F9A6A4A7A4EB4AC2E4AD8,Input=(Expression="/Script/Engine.MaterialExpressionConstant4Vector'M_TongueFrost:MaterialExpressionConstant4Vector_0'",InputName="Heightmap Channel",Mask=1,MaskR=1,MaskG=1,MaskB=1,MaskA=1))
+      FunctionInputs(6)=(ExpressionInputId=F8D34C5E4F5BD1CE31CBE78F4FA30D00,Input=(OutputIndex=-1,InputName="Reference Plane"))
+      FunctionInputs(7)=(ExpressionInputId=ED8CD290413B44C28DA13AB9277D307B,Input=(OutputIndex=-1,InputName="-----------------------------"))
+      FunctionInputs(8)=(ExpressionInputId=0E56245349503209844EEF91A46BA555,Input=(OutputIndex=-1,InputName="Use World Coordinates"))
+      FunctionInputs(9)=(ExpressionInputId=FD746ECC45EE787213C5DEA274BD2906,Input=(OutputIndex=-1,InputName="Specify Manual Texture Size"))
+      FunctionInputs(10)=(ExpressionInputId=E33AB7C14CCCC01624FE409E7479A4A5,Input=(OutputIndex=-1,InputName="Manual Texture Size"))
+      FunctionInputs(11)=(ExpressionInputId=3AFFFA8E44372B48C9EEDCA807C10DB9,Input=(OutputIndex=-1,InputName="------------------------------"))
+      FunctionInputs(12)=(ExpressionInputId=742B79554E19CE37969C35B9BF7A13E5,Input=(OutputIndex=-1,InputName="Render Shadows (Occlusion Mapping)"))
+      FunctionInputs(13)=(ExpressionInputId=B312F88640D8CD07BA718987D2F68798,Input=(OutputIndex=-1,InputName="Light Vector"))
+      FunctionInputs(14)=(ExpressionInputId=3FE0DA4A4B2DE19C9C9672AD9653A18F,Input=(OutputIndex=-1,InputName="Shadow Steps"))
+      FunctionInputs(15)=(ExpressionInputId=0DD23D2047334724A697448DB16DAA07,Input=(OutputIndex=-1,InputName="Shadow Penumbra"))
+      FunctionInputs(16)=(ExpressionInputId=0067A30244E1A74141403EA795E800A3,Input=(OutputIndex=-1,InputName="Transform To VertexNormal"))
+      FunctionOutputs(0)=(ExpressionOutputId=4ADDA7A84E423550062B76AE7C6E11CB,Output=(OutputName="Parallax UVs"))
+      FunctionOutputs(1)=(ExpressionOutputId=8258927B4F3A106ACC7FAA9AC9C32CAE,Output=(OutputName="Offset Only"))
+      FunctionOutputs(2)=(ExpressionOutputId=0D45CD6D49F3025A6699408D7CB08A5F,Output=(OutputName="Shadow"))
+      FunctionOutputs(3)=(ExpressionOutputId=E3AD423344E244638874F9AF6D79749D,Output=(OutputName="Pixel Depth Offset"))
+      FunctionOutputs(4)=(ExpressionOutputId=994E0D0A4904AABAE4E7AFAA8A55B61F,Output=(OutputName="World Position"))
+      FunctionOutputs(5)=(ExpressionOutputId=0422E21C46F047C08010108CE9080F67,Output=(OutputName="Tangent Light Vector"))
+      FunctionOutputs(6)=(ExpressionOutputId=94349DAC4478EF16DDD1109EC23B0DED,Output=(OutputName="Material Complexity - Steps Debug"))
+      MaterialExpressionEditorX=528
+      MaterialExpressionEditorY=16
+      MaterialExpressionGuid=DDD8A6D149BFDF2285BF90BB396C8249
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Outputs(0)=(OutputName="Parallax UVs")
+      Outputs(1)=(OutputName="Offset Only")
+      Outputs(2)=(OutputName="Shadow")
+      Outputs(3)=(OutputName="Pixel Depth Offset")
+      Outputs(4)=(OutputName="World Position")
+      Outputs(5)=(OutputName="Tangent Light Vector")
+      Outputs(6)=(OutputName="Material Complexity - Steps Debug")
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_1'"
+      MaterialExpressionEditorX=176
+      MaterialExpressionEditorY=288
+      MaterialExpressionGuid=AAE6861B445F54A993D802965E539FC7
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant4Vector_0" ExportPath="/Script/Engine.MaterialExpressionConstant4Vector'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionConstant4Vector_0'"
+      Constant=(R=1.000000,G=0.000000,B=0.000000,A=0.000000)
+      MaterialExpressionEditorX=240
+      MaterialExpressionEditorY=400
+      MaterialExpressionGuid=FF6BC6284B7880A9B18F7B93A8EB5ABC
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.044569,G=0.107341,B=0.161458,A=1.000000)
+      ParameterName="Tint_Depth"
+      ExpressionGUID=4091D2524D3948A9D6FA928BCF471C28
+      MaterialExpressionEditorX=1184
+      MaterialExpressionEditorY=-256
+      MaterialExpressionGuid=D2AA784248CB61915D2280B702B8A34C
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionStaticSwitchParameter_0" ExportPath="/Script/Engine.MaterialExpressionStaticSwitchParameter'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionStaticSwitchParameter_0'"
+      A=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_TongueFrost:MaterialExpressionMaterialFunctionCall_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_0'")
+      ParameterName="Normal ro use POM UVs"
+      ExpressionGUID=ADC5CA6F432B8ECCF90D14902E6D2CD8
+      MaterialExpressionEditorX=1536
+      MaterialExpressionEditorY=608
+      MaterialExpressionGuid=D4A3C7A04213CF0CFD2367B91E4F439B
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionTextureCoordinate_0'"
+      MaterialExpressionEditorX=1152
+      MaterialExpressionEditorY=688
+      MaterialExpressionGuid=EA7B2CD84EA739048FE93895E804405B
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Substrate/SMF_UE4Legacy.SMF_UE4Legacy'"
+      FunctionInputs(0)=(ExpressionInputId=A3FC01BD40397229098642BBC4C0DB4B,Input=(Expression="/Script/Engine.MaterialExpressionLinearInterpolate'M_TongueFrost:MaterialExpressionLinearInterpolate_1'",InputName="Base Color"))
+      FunctionInputs(1)=(ExpressionInputId=366AF2F641B1DB602145F78AA0AA3ACC,Input=(OutputIndex=-1,InputName="Metallic"))
+      FunctionInputs(2)=(ExpressionInputId=80CE548641B2B6674069CB8ADE4070BC,Input=(OutputIndex=-1,InputName="Specular"))
+      FunctionInputs(3)=(ExpressionInputId=9CA7E3FC456267FE1D4635A40A3F0040,Input=(Expression="/Script/Engine.MaterialExpressionLinearInterpolate'M_TongueFrost:MaterialExpressionLinearInterpolate_2'",InputName="Roughness"))
+      FunctionInputs(4)=(ExpressionInputId=D45D2AB24DE012477D1A358896674ED2,Input=(Expression="/Script/Engine.MaterialExpressionTextureSample'M_TongueFrost:MaterialExpressionTextureSample_0'",InputName="Normal",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      FunctionInputs(5)=(ExpressionInputId=C4CC96874DC30861960BB6B2EE924392,Input=(InputName="Emissive Color",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      FunctionInputs(6)=(ExpressionInputId=60DC2F264B5B5FEC69FAE2A3B05EB2DB,Input=(OutputIndex=-1,InputName="Opacity"))
+      FunctionOutputs(0)=(ExpressionOutputId=70EE6502413E7CF5BE1FC2876954B54B,Output=(OutputName="Result"))
+      MaterialExpressionEditorX=2016
+      MaterialExpressionEditorY=-32
+      MaterialExpressionGuid=5333AA974813BAD6C2A53B9DFCD3F784
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Outputs(0)=(OutputName="Result")
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_2" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMultiply_2'"
+      A=(Expression="/Script/Engine.MaterialExpressionVertexNormalWS'M_TongueFrost:MaterialExpressionVertexNormalWS_0'")
+      B=(Expression="/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_1'")
+      MaterialExpressionEditorX=-990
+      MaterialExpressionEditorY=2200
+      MaterialExpressionGuid=144AF041472730DEB5FD3E89F2DA705F
+      Material="/Script/Engine.Material'M_TongueFrost'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_2" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:MaterialExpressionMaterialFunctionCall_2'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA.DitherTemporalAA'"
+      FunctionInputs(0)=(ExpressionInputId=982BCAE7401F814CDC0AE2955DEE46F3,Input=(Expression="/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_5'",InputName="Alpha Threshold"))
+      FunctionInputs(1)=(ExpressionInputId=E8A932AF4299B0D6C16EDB8B1E912796,Input=(OutputIndex=-1,InputName="Random"))
+      FunctionOutputs(0)=(ExpressionOutputId=9BC32B084665F3D2D59A90AA45CA8A9F,Output=(OutputName="Result"))
+      MaterialExpressionEditorX=-630
+      MaterialExpressionEditorY=1700
+      MaterialExpressionGuid=ECC546E84F0E09923AF22999DF1C9AB1
+      Material="/Script/Engine.Material'M_TongueFrost'"
+      Outputs(0)=(OutputName="Result")
+   End Object
+   Begin Object Name="M_TongueFrostEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost:M_TongueFrostEditorOnlyData'"
+      BaseColor=(UseConstant=True,Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Metallic=(UseConstant=True)
+      Specular=(UseConstant=True)
+      Roughness=(UseConstant=True)
+      Normal=(UseConstant=True,Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Tangent=(UseConstant=True)
+      EmissiveColor=(UseConstant=True)
+      Opacity=(UseConstant=True)
+      OpacityMask=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_TongueFrost:MaterialExpressionMaterialFunctionCall_2'")
+      WorldPositionOffset=(Expression="/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_6'")
+      SubsurfaceColor=(UseConstant=True)
+      ClearCoat=(UseConstant=True)
+      ClearCoatRoughness=(UseConstant=True)
+      AmbientOcclusion=(UseConstant=True)
+      Refraction=(UseConstant=True)
+      CustomizedUVs(0)=(UseConstant=True)
+      CustomizedUVs(1)=(UseConstant=True)
+      CustomizedUVs(2)=(UseConstant=True)
+      CustomizedUVs(3)=(UseConstant=True)
+      CustomizedUVs(4)=(UseConstant=True)
+      CustomizedUVs(5)=(UseConstant=True)
+      CustomizedUVs(6)=(UseConstant=True)
+      CustomizedUVs(7)=(UseConstant=True)
+      SurfaceThickness=(UseConstant=True)
+      FrontMaterial=(Expression="/Script/Engine.MaterialExpressionSubstrateHorizontalMixing'M_TongueFrost:MaterialExpressionSubstrateHorizontalMixing_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionMaterialFunctionCall'M_TongueFrost:MaterialExpressionMaterialFunctionCall_2'","/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_2'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_TongueFrost:MaterialExpressionMaterialFunctionCall_0'","/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_0'","/Script/Engine.MaterialExpressionStaticSwitchParameter'M_TongueFrost:MaterialExpressionStaticSwitchParameter_0'","/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant4Vector'M_TongueFrost:MaterialExpressionConstant4Vector_0'","/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_1'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_TongueFrost:MaterialExpressionMaterialFunctionCall_1'","/Script/Engine.MaterialExpressionTextureSample'M_TongueFrost:MaterialExpressionTextureSample_1'","/Script/Engine.MaterialExpressionTextureObject'M_TongueFrost:MaterialExpressionTextureObject_0'","/Script/Engine.MaterialExpressionConstant'M_TongueFrost:MaterialExpressionConstant_1'","/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_0'","/Script/Engine.MaterialExpressionLinearInterpolate'M_TongueFrost:MaterialExpressionLinearInterpolate_0'","/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_2'","/Script/Engine.MaterialExpressionTextureSample'M_TongueFrost:MaterialExpressionTextureSample_0'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_0'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_1'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_0'","/Script/Engine.MaterialExpressionVertexNormalWS'M_TongueFrost:MaterialExpressionVertexNormalWS_0'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_2'","/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_1'","/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_2'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_3'","/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_3'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_TongueFrost:MaterialExpressionTextureSampleParameter2D_0'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_4'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_5'","/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_4'","/Script/Engine.MaterialExpressionLinearInterpolate'M_TongueFrost:MaterialExpressionLinearInterpolate_1'","/Script/Engine.MaterialExpressionLinearInterpolate'M_TongueFrost:MaterialExpressionLinearInterpolate_2'","/Script/Engine.MaterialExpressionWorldPosition'M_TongueFrost:MaterialExpressionWorldPosition_0'","/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_3'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_6'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_7'","/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_4'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_8'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_9'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_10'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_1'","/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_5'","/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_4'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_15'","/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_6'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_4'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_16'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_17'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_18'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_5'","/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_1'","/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_2'","/Script/Engine.MaterialExpressionComponentMask'M_TongueFrost:MaterialExpressionComponentMask_3'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_19'","/Script/Engine.MaterialExpressionVectorParameter'M_TongueFrost:MaterialExpressionVectorParameter_7'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_20'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_21'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_22'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_6'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_7'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_8'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_9'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_10'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_11'","/Script/Engine.MaterialExpressionSubstrateSlabBSDF'M_TongueFrost:MaterialExpressionSubstrateSlabBSDF_0'","/Script/Engine.MaterialExpressionSubstrateSlabBSDF'M_TongueFrost:MaterialExpressionSubstrateSlabBSDF_1'","/Script/Engine.MaterialExpressionSubstrateHorizontalMixing'M_TongueFrost:MaterialExpressionSubstrateHorizontalMixing_0'","/Script/Engine.MaterialExpressionCustom'M_TongueFrost:MaterialExpressionCustom_12'","/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_6'","/Script/Engine.MaterialExpressionTextureCoordinate'M_TongueFrost:MaterialExpressionTextureCoordinate_5'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_23'","/Script/Engine.MaterialExpressionMultiply'M_TongueFrost:MaterialExpressionMultiply_7'","/Script/Engine.MaterialExpressionScalarParameter'M_TongueFrost:MaterialExpressionScalarParameter_24'"))
+      ParameterGroupData(0)=(GroupName="Player Freeze")
+      SubstrateConversionVersion=0
+      SubstrateVersion=0
+   End Object
+   BlendMode=BLEND_Masked
+   bUsedWithSkeletalMesh=True
+   EditorX=2368
+   EditorY=32
+   StateId=4685CDEF43267631336684B4DBB6723A
+   ReferencedTextureGuids(0)=670619CD48696888D492F08383AE80CE
+   ReferencedTextureGuids(1)=307757E1458E615C7D97A39E32219707
+   ReferencedTextureGuids(2)=8C6D98CE431C305533E507AA35579C82
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_TongueFrostEditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="Good64x64TilingNoiseHighFreq",TextureReference="/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq.Good64x64TilingNoiseHighFreq")
+   TextureStreamingData(1)=(SamplingScale=10.000000,UVChannelIndex=0,TextureName="T_GemSurface002_N",TextureReference="/Game/Art/Texture/ice/T_GemSurface002_N.T_GemSurface002_N")
+   TextureStreamingData(2)=(SamplingScale=6.000000,UVChannelIndex=0,TextureName="T_PlayerFrostMask",TextureReference="/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq.Good64x64TilingNoiseHighFreq'"
+   ReferencedDefaultTextures(1)="/Script/Engine.Texture2D'/Engine/EngineVolumetrics/Fogsheet/Materials/T_EV_BlankWhite_01.T_EV_BlankWhite_01'"
+   ReferencedDefaultTextures(2)="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_M.T_GemSurface002_M'"
+   ReferencedDefaultTextures(3)="/Script/Engine.Texture2D'/Game/Art/Texture/ice/T_GemSurface002_N.T_GemSurface002_N'"
+   ReferencedDefaultTextures(4)="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+   ParameterOverviewExpansion=(("-12Global", True),("-12Global Player Freeze", True),("-12Global Tongue Frost", True),("-12Global Warm Zone", True),("-12Global Frost Surface", True),("-12Global Ice Surface", True),("-12Global Patch Coverage", True))
+   LightingGuid=CD20DE4A4B0915B0A81EBBB5F77E9022
+End Object

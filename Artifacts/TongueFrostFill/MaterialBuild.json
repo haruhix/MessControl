@@ -1,0 +1,16 @@
+{
+  "material": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost",
+  "backup": "/Game/Gameplay/Cold/Frost/M_TongueFrost_BeforeFrostFill",
+  "compile_errors": [],
+  "frost_fill": 1.0,
+  "warm_fade_width_cm": 45.0,
+  "warm_width_variation_cm": 12.0,
+  "warm_boundary_outward_offset_cm": 0.0,
+  "full_cold_gap_coverage": 1.0,
+  "native_substrate_slabs_preserved": 2,
+  "glossy_ice_islands_preserved": true,
+  "crystal_texture_detail_in_frost_color": true,
+  "both_warm_zones_supported": true,
+  "player_material_unchanged": true,
+  "pie_was_running": false
+}

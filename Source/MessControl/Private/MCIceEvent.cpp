@@ -11,11 +11,13 @@
 #include "MCToothStatusComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialParameterCollection.h"
 #include "Materials/MaterialParameterCollectionInstance.h"
 #include "Net/UnrealNetwork.h"
@@ -74,8 +76,11 @@ AMCIceEvent::AMCIceEvent()
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Cone(TEXT("/Engine/BasicShapes/Cone.Cone"));
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> Colors(TEXT("/Engine/EngineDebugMaterials/VertexColorMaterial.VertexColorMaterial"));
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> Ice(TEXT("/Game/Gameplay/Cold/M_StylizedIce.M_StylizedIce"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> Coating(TEXT("/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> TongueFrost(TEXT("/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost"));
     static ConstructorHelpers::FObjectFinder<UMaterialParameterCollection> MouthClimate(TEXT("/Game/Gameplay/Cold/MPC_MouthClimate.MPC_MouthClimate"));
     Body->SetStaticMesh(Cylinder.Object); ConeMesh=Cone.Object; GuideMaterial=Colors.Object; IcicleMaterial=Ice.Object; Climate=MouthClimate.Object;
+    PlayerIceMaterial=Coating.Object;
     Body->SetCollisionProfileName(TEXT("BlockAllDynamic")); Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Body->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore); Body->SetVisibility(false);
     CandyFace=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("MintStripes")); CandyFace->SetupAttachment(Body);
@@ -86,7 +91,7 @@ AMCIceEvent::AMCIceEvent()
     FloorGuides->SetMaterial(0,GuideMaterial);
     FrostSurface=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("FrozenTongue")); FrostSurface->SetupAttachment(Body);
     FrostSurface->SetAbsolute(true,true,true); FrostSurface->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    FrostSurface->SetCastShadow(false); FrostSurface->SetMaterial(0,GuideMaterial);
+    FrostSurface->SetCastShadow(false); FrostSurface->SetMaterial(0,TongueFrost.Object);
 }
 
 void AMCIceEvent::BeginPlay()
@@ -419,44 +424,128 @@ void AMCIceEvent::RefreshFreezeBars()
     }
 }
 
+void AMCIceEvent::RefreshIceCoatings()
+{
+    // This is local presentation of the existing replicated freeze meter.
+    // A leader-pose shell shares the final animated/ragdoll pose and leaves all
+    // body materials (including the player's dirt and face) in place.
+    for(int32 I=IceCoatings.Num()-1;I>=0;--I)
+    {
+        auto* Part=IceCoatings[I].Get();
+        auto* Source=IsValid(Part)?Cast<USkeletalMeshComponent>(Part->GetAttachParent()):nullptr;
+        auto* Hero=Source?Cast<AMCToothCharacter>(Source->GetOwner()):nullptr;
+        if(!IsValid(Hero) || Hero->IsActorBeingDestroyed() || !Hero->Status || !Hero->Status->IsAlive()
+            || Source!=Hero->GetMesh() || !Source->GetSkeletalMeshAsset() || FreezeAmount(Hero)<=.002f)
+        {
+            if(IsValid(Hero)) RemoveTickPrerequisiteActor(Hero);
+            if(IsValid(Part)) Part->DestroyComponent();
+            IceCoatings.RemoveAt(I);
+        }
+    }
+    if(!PlayerIceMaterial) return;
+    for(const auto& Player:Players)
+    {
+        auto* Hero=Player.Hero.Get();
+        if(!IsValid(Hero) || Hero->IsActorBeingDestroyed() || !Hero->Status || !Hero->Status->IsAlive()
+            || !FMath::IsFinite(Player.Amount) || Player.Amount<=.002f) continue;
+        auto* Source=Hero->GetMesh();
+        if(!Source || !Source->GetSkeletalMeshAsset()) continue;
+        auto* Found=IceCoatings.FindByPredicate([Source](const TObjectPtr<USkeletalMeshComponent>& Part)
+            { return IsValid(Part.Get()) && Part->GetAttachParent()==Source; });
+        USkeletalMeshComponent* Part=Found?Found->Get():nullptr;
+        if(!Part)
+        {
+            Part=NewObject<USkeletalMeshComponent>(this);
+            Part->ComponentTags.Add(TEXT("MC_PlayerIceCoating"));
+            Part->SetupAttachment(Source);
+            Part->SetSkeletalMeshAsset(Source->GetSkeletalMeshAsset());
+            Part->SetLeaderPoseComponent(Source,true);
+            Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+            Part->SetGenerateOverlapEvents(false); Part->SetCastShadow(false);
+            Part->bReceivesDecals=false;
+            Part->PrimaryComponentTick.bCanEverTick=false;
+            AddTickPrerequisiteActor(Hero);
+            Part->RegisterComponent(); AddInstanceComponent(Part); IceCoatings.Add(Part);
+        }
+        if(Part->GetSkeletalMeshAsset()!=Source->GetSkeletalMeshAsset())
+            Part->SetSkeletalMeshAsset(Source->GetSkeletalMeshAsset());
+        Part->SetVisibility(Source->IsVisible() && !Source->bHiddenInGame && !Hero->IsHidden());
+        for(int32 Slot=0;Slot<Source->GetNumMaterials();++Slot)
+        {
+            auto* Material=Cast<UMaterialInstanceDynamic>(Part->GetMaterial(Slot));
+            if(!Material || !Material->IsChildOf(PlayerIceMaterial))
+            {
+                Material=UMaterialInstanceDynamic::Create(PlayerIceMaterial,Part);
+                Part->SetMaterial(Slot,Material);
+            }
+            Material->SetScalarParameterValue(TEXT("IceAmount"),FMath::Clamp(Player.Amount,0.f,1.f));
+            // Leader pose already carries bones and morphs. Shader deformation
+            // must also match the body, after its locomotion update this frame.
+            static const FName ShapeParameters[]={TEXT("BodyStretch"),TEXT("Damage"),TEXT("DamageChipDepth")};
+            const auto* SourceMaterial=Source->GetMaterial(Slot);
+            for(FName Parameter:ShapeParameters)
+            {
+                float Value=0.f;
+                if(SourceMaterial) SourceMaterial->GetScalarParameterValue(FMaterialParameterInfo(Parameter),Value);
+                Material->SetScalarParameterValue(Parameter,Value);
+            }
+        }
+    }
+}
+
 void AMCIceEvent::RefreshFrostSurface()
 {
     if(!IsActive() || !IsValid(Tongue)) { FrostSurface->ClearAllMeshSections(); return; }
-    // Copy the rendered tongue, with no extra collision or permanent material edits.
-    // Native vertex colors keep the prototype readable with any saved pressure material.
-    const auto& WorldVertices=Tongue->CurrentWorldVertices();
+    const FProcMeshSection* SourceSection=Tongue->Surface->GetProcMeshSection(0);
     const auto& SourceIndices=Tongue->TriangleIndices();
-    if(WorldVertices.IsEmpty() || SourceIndices.IsEmpty()) return;
-    FIceGuideMesh Mesh;
-    Mesh.Vertices.Reserve(WorldVertices.Num()); Mesh.Normals.Reserve(WorldVertices.Num());
-    Mesh.UV.Reserve(WorldVertices.Num()); Mesh.Colors.Reserve(WorldVertices.Num()); Mesh.Tangents.Reserve(WorldVertices.Num());
-    const FTransform Transform=FrostSurface->GetComponentTransform();
-    for(int32 I=0;I<WorldVertices.Num();++I)
+    if(!SourceSection || SourceSection->ProcVertexBuffer.IsEmpty() || SourceIndices.IsEmpty())
+    { FrostSurface->ClearAllMeshSections(); return; }
+    AddTickPrerequisiteActor(Tongue);
+
+    auto* Material=Cast<UMaterialInstanceDynamic>(FrostSurface->GetMaterial(0));
+    if(!Material)
     {
-        const FVector Point=WorldVertices[I];
-        const float Grain=((uint32(I)*2654435761u)>>24)/255.f;
-        Mesh.Vertices.Add(Transform.InverseTransformPosition(Point+FVector(0,0,2.5f)));
-        Mesh.Normals.Add(FVector::UpVector); Mesh.UV.Add(FVector2D(Point.X/400,Point.Y/400));
-        Mesh.Colors.Add(FMath::Lerp(FLinearColor(.30f,.62f,.83f),FLinearColor(.78f,.95f,1.f),Grain));
-        Mesh.Tangents.Add(FProcMeshTangent(FVector::ForwardVector,false));
+        // Loading also supports existing editor instances after Live Coding;
+        // the constructor holds the saved material reference for cooked games.
+        auto* Parent=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost"));
+        if(!Parent) return;
+        Material=FrostSurface->CreateDynamicMaterialInstance(0,Parent);
     }
+    if(!Material) return;
     FHitResult SafeFloor,NextFloor;
     const bool bSafe=AnchorFloor(SafeAnchor,SafeFloor),bNext=bNextCircle && AnchorFloor(NextSafeAnchor,NextFloor);
-    const float SafeSquared=FMath::Square(SafeRadius()),NextSquared=FMath::Square(CircleRadius),Frost=FrostAmount();
-    Mesh.Indices.Reserve(SourceIndices.Num());
-    for(int32 I=0;I+2<SourceIndices.Num();I+=3)
+    Material->SetScalarParameterValue(TEXT("IceAmount"),FrostAmount());
+    Material->SetScalarParameterValue(TEXT("Warm Enabled"),bSafe?1.f:0.f);
+    Material->SetScalarParameterValue(TEXT("Warm Radius"),SafeRadius());
+    Material->SetVectorParameterValue(TEXT("Warm Center"),FLinearColor(bSafe?SafeFloor.ImpactPoint:FVector::ZeroVector));
+    Material->SetScalarParameterValue(TEXT("Next Warm Enabled"),bNext?1.f:0.f);
+    Material->SetScalarParameterValue(TEXT("Next Warm Radius"),CircleRadius);
+    Material->SetVectorParameterValue(TEXT("Next Warm Center"),FLinearColor(bNext?NextFloor.ImpactPoint:FVector::ZeroVector));
+
+    // Copy the current surface pose, normals and authored UVs so the frost
+    // follows breathing/pressure without sliding across the tongue.
+    // The material fades warmth per pixel; triangle-sized cutouts are unnecessary.
+    FIceGuideMesh Mesh;
+    const int32 Count=SourceSection->ProcVertexBuffer.Num();
+    Mesh.Vertices.Reserve(Count); Mesh.Normals.Reserve(Count);
+    Mesh.UV.Reserve(Count); Mesh.Colors.Reserve(Count); Mesh.Tangents.Reserve(Count);
+    const FTransform Transform=FrostSurface->GetComponentTransform();
+    const FTransform TongueTransform=Tongue->Surface->GetComponentTransform();
+    for(const FProcMeshVertex& Vertex:SourceSection->ProcVertexBuffer)
     {
-        const int32 A=SourceIndices[I],B=SourceIndices[I+1],C=SourceIndices[I+2];
-        if(!WorldVertices.IsValidIndex(A) || !WorldVertices.IsValidIndex(B) || !WorldVertices.IsValidIndex(C)) continue;
-        const FVector Center=(WorldVertices[A]+WorldVertices[B]+WorldVertices[C])/3;
-        if((bSafe && FVector::DistSquaredXY(Center,SafeFloor.ImpactPoint)<=SafeSquared)
-            || (bNext && FVector::DistSquaredXY(Center,NextFloor.ImpactPoint)<=NextSquared)) continue;
-        const float Growth=((uint32(I/3)*2246822519u)>>24)/255.f;
-        if(Growth>Frost) continue;
-        Mesh.Indices.Append({A,B,C});
+        const FVector Normal=TongueTransform.TransformVectorNoScale(Vertex.Normal).GetSafeNormal();
+        const FVector Point=TongueTransform.TransformPosition(Vertex.Position)+Normal*2.5f;
+        Mesh.Vertices.Add(Transform.InverseTransformPosition(Point));
+        Mesh.Normals.Add(Transform.InverseTransformVectorNoScale(Normal).GetSafeNormal());
+        Mesh.UV.Add(Vertex.UV0); Mesh.Colors.Add(FLinearColor::White);
+        const FVector Tangent=TongueTransform.TransformVectorNoScale(Vertex.Tangent.TangentX);
+        Mesh.Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(Tangent).GetSafeNormal(),Vertex.Tangent.bFlipTangentY));
     }
-    if(Mesh.Indices.IsEmpty()) { FrostSurface->ClearAllMeshSections(); return; }
-    FrostSurface->CreateMeshSection_LinearColor(0,Mesh.Vertices,Mesh.Indices,Mesh.Normals,Mesh.UV,Mesh.Colors,Mesh.Tangents,false);
+    const FProcMeshSection* Existing=FrostSurface->GetProcMeshSection(0);
+    if(Existing && Existing->ProcVertexBuffer.Num()==Count && Existing->ProcIndexBuffer.Num()==SourceIndices.Num())
+        FrostSurface->UpdateMeshSection_LinearColor(0,Mesh.Vertices,Mesh.Normals,Mesh.UV,Mesh.Colors,Mesh.Tangents);
+    else
+        FrostSurface->CreateMeshSection_LinearColor(0,Mesh.Vertices,SourceIndices,Mesh.Normals,Mesh.UV,Mesh.Colors,Mesh.Tangents,false);
 }
 
 void AMCIceEvent::RefreshPresentation(float DeltaSeconds)
@@ -474,8 +563,9 @@ void AMCIceEvent::RefreshPresentation(float DeltaSeconds)
     Body->SetCollisionEnabled(bCandyFloor && Stage==EMCIceEventStage::Active?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision);
     if(GetNetMode()==NM_DedicatedServer) return;
     const bool bVisible=IsActive(); Body->SetVisibility(bVisible); CandyFace->SetVisibility(bVisible);
+    RefreshFrostSurface();
     GuideElapsed+=DeltaSeconds;
-    if(GuideElapsed>=.1f) { GuideElapsed=0; RefreshFrostSurface(); RefreshFloorGuides(); }
+    if(GuideElapsed>=.1f) { GuideElapsed=0; RefreshFloorGuides(); }
     while(IcicleMeshes.Num()<Strikes.Num())
     {
         auto* Part=NewObject<UStaticMeshComponent>(this); Part->SetupAttachment(Body);
@@ -494,6 +584,7 @@ void AMCIceEvent::RefreshPresentation(float DeltaSeconds)
         Part->SetWorldScale3D(FVector(1.1f,1.1f,4.4f));
     }
     RefreshFreezeBars();
+    RefreshIceCoatings();
 }
 
 void AMCIceEvent::SetClimate()
@@ -532,10 +623,18 @@ void AMCIceEvent::ClearGameplay()
 
 void AMCIceEvent::ClearPresentation()
 {
+    if(IsValid(Tongue)) RemoveTickPrerequisiteActor(Tongue);
     Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Body->SetVisibility(false); CandyFace->SetVisibility(false); FloorGuides->ClearAllMeshSections(); FrostSurface->ClearAllMeshSections();
     for(UStaticMeshComponent* Part:IcicleMeshes) if(IsValid(Part)) Part->DestroyComponent(); IcicleMeshes.Reset();
     for(UWidgetComponent* Bar:FreezeBars) if(IsValid(Bar)) Bar->DestroyComponent(); FreezeBars.Reset(); BarHeroes.Reset();
+    for(USkeletalMeshComponent* Part:IceCoatings) if(IsValid(Part))
+    {
+        if(auto* Source=Part->GetAttachParent())
+            if(auto* Hero=Source->GetOwner()) RemoveTickPrerequisiteActor(Hero);
+        Part->DestroyComponent();
+    }
+    IceCoatings.Reset();
     SetClimate();
 }
 

@@ -1,0 +1,29 @@
+{
+  "material": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost",
+  "backup": "/Game/Gameplay/Cold/Frost/M_TongueFrost_BeforePatchVariation",
+  "compile_errors": [],
+  "front": "MaterialExpressionSubstrateHorizontalMixing",
+  "native_slabs": 2,
+  "parameter_blending": true,
+  "ice_patch_coverage": 0.52,
+  "ice_patch_scale": 24.0,
+  "ice_patch_softness": 0.075,
+  "frost_clump_coverage": 0.67,
+  "warm_fade_width_cm": 120,
+  "warm_edge_variation_cm": 65.0,
+  "plate_relief_cm": 1.6,
+  "shared_frost_mask": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask",
+  "warm_gameplay_areas_remain_clear": true,
+  "both_warm_zones_supported": true,
+  "stable_authored_uvs": true,
+  "zero_amount_clears_all": true,
+  "uv_extent": [
+    0.00390625,
+    0.99609375,
+    0.00390625,
+    0.99609375
+  ],
+  "ice_detail_tiling": 10.0,
+  "original_ice_normal_texture": "/Game/Art/Texture/ice/T_GemSurface002_N.T_GemSurface002_N",
+  "parallax_height_loop_used_in_active_graph": false
+}

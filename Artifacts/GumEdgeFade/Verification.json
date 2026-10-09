@@ -1,0 +1,24 @@
+{
+  "mesh": "/Game/FromBlender2/SM_Gum",
+  "material": "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2",
+  "mask": "/Game/Art/Materials/ThroatEdgeFade/T_GumOuterEdgeDistance.T_GumOuterEdgeDistance",
+  "changed_parameter": "Edge Distance Texture",
+  "previous_mask": "/Game/Art/Materials/ThroatEdgeFade/T_ExitOuterEdgeDistance.T_ExitOuterEdgeDistance",
+  "scalar_settings": {
+    "Param_1": 0.0,
+    "Param": 148.64498901367188,
+    "Metalic": 0.0,
+    "Roughness Strength": 1.0,
+    "Normal Strength": 1.0,
+    "Saturate": 0.0,
+    "lightning": 1.0,
+    "Spec": 0.25520598888397217,
+    "Tile": 1.0,
+    "Mask": 1.0,
+    "Blending": 26.916114807128906,
+    "Edge Fade Width": 100.0,
+    "Edge Fade Amount": 1.0
+  },
+  "existing_material_settings_preserved": true,
+  "backup": "/Game/Art/Materials/ThroatEdgeFade/MI_Gum_v2_BeforeEdgeMask"
+}

@@ -1,0 +1,98 @@
+{
+  "passed": true,
+  "world_count": 2,
+  "material": "/Game/Gameplay/Cold/M_PlayerIceCoating",
+  "original_materials": {
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5": [
+      "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5.MID_MI_Character_0",
+      "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5.CharacterMesh0.MID_MI_Bag_0"
+    ],
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6": [
+      "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6.MID_MI_Character_0",
+      "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6.CharacterMesh0.MID_MI_Bag_0"
+    ]
+  },
+  "samples": [
+    {
+      "stage": "cold_host_and_client",
+      "worlds": [
+        {
+          "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+          "coatings": [
+            {
+              "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5.CharacterMesh0",
+              "amount": 0.7255555987358093,
+              "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCIceEvent_1.SkeletalMeshComponent_0.MID_M_PlayerIceCoating_0",
+              "collision": "<CollisionEnabled.NO_COLLISION: 0>"
+            },
+            {
+              "parent": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_6.CharacterMesh0",
+              "amount": 0.7255555987358093,
+              "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCIceEvent_1.SkeletalMeshComponent_1.MID_M_PlayerIceCoating_0",
+              "collision": "<CollisionEnabled.NO_COLLISION: 0>"
+            }
+          ]
+        },
+        {
+          "world": "/Game/Maps/UEDPIE_1_L_Mouth.L_Mouth",
+          "coatings": [
+            {
+              "parent": "/Game/Maps/UEDPIE_1_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_5.CharacterMesh0",
+              "amount": 0.7255555987358093,
+              "material": "/Game/Maps/UEDPIE_1_L_Mouth.L_Mouth:PersistentLevel.MCIceEvent_1.SkeletalMeshComponent_0.MID_M_PlayerIceCoating_0",
+              "collision": "<CollisionEnabled.NO_COLLISION: 0>"
+            },
+            {
+              "parent": "/Game/Maps/UEDPIE_1_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_4.CharacterMesh0",
+              "amount": 0.7255555987358093,
+              "material": "/Game/Maps/UEDPIE_1_L_Mouth.L_Mouth:PersistentLevel.MCIceEvent_1.SkeletalMeshComponent_1.MID_M_PlayerIceCoating_0",
+              "collision": "<CollisionEnabled.NO_COLLISION: 0>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "stage": "warmth_removes_coating",
+      "worlds": [
+        {
+          "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+          "coating_count": 0
+        },
+        {
+          "world": "/Game/Maps/UEDPIE_1_L_Mouth.L_Mouth",
+          "coating_count": 0
+        }
+      ],
+      "health_unchanged": true,
+      "original_body_materials_preserved": true
+    },
+    {
+      "stage": "stopped_event_has_no_coating",
+      "worlds": [
+        {
+          "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+          "coating_count": 0
+        },
+        {
+          "world": "/Game/Maps/UEDPIE_1_L_Mouth.L_Mouth",
+          "coating_count": 0
+        }
+      ]
+    },
+    {
+      "stage": "cancel_while_iced_clears_host_and_client",
+      "worlds": [
+        {
+          "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+          "coating_count": 0
+        },
+        {
+          "world": "/Game/Maps/UEDPIE_1_L_Mouth.L_Mouth",
+          "coating_count": 0
+        }
+      ]
+    }
+  ],
+  "error": null
+}

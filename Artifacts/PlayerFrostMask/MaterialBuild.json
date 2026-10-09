@@ -1,0 +1,21 @@
+{
+  "material": "/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating",
+  "mask": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask",
+  "backup": "/Game/Gameplay/Cold/Frost/M_PlayerIceCoating_BeforeFrostMask.M_PlayerIceCoating_BeforeFrostMask",
+  "compile_errors": [],
+  "original_ice_shading_preserved": "Original graph retained under adjustable frost color and roughness blends",
+  "driver": "Existing replicated IceAmount",
+  "tiling": 1.0,
+  "softness": 0.1,
+  "transparent_at_zero": true,
+  "crystal_growth_code": "float a=saturate(Amount);\nif(a<=0.001) return 0.0;\nfloat threshold=lerp(0.89,0.04,a);\nfloat crystals=smoothstep(threshold,threshold+clamp(Softness,0.005,0.30),saturate(Frost));\nreturn crystals*smoothstep(0.0,0.12,a);",
+  "frost_strength": 0.85,
+  "frost_tint": [
+    0.72,
+    0.88,
+    1.0
+  ],
+  "effective_blend_mode": "Masked",
+  "opacity_mask_inline_constant_disabled": true,
+  "opacity_mask_saved_input": "OpacityMask=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_PlayerIceCoating:MaterialExpressionMaterialFunctionCall_2'\")"
+}

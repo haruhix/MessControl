@@ -1,0 +1,14 @@
+{
+  "material": "/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating",
+  "source_deformation": "/Game/Art/Materials/M_TeethGameplay.M_TeethGameplay",
+  "backup": "/Game/Gameplay/Cold/Frost/M_PlayerIceCoating_BeforeMotionFix",
+  "compile_errors": [],
+  "copied_nodes": 11,
+  "parameters": [
+    "BodyStretch",
+    "Damage",
+    "DamageChipDepth"
+  ],
+  "growth_mask_preserved": true,
+  "shell_offset_preserved": true
+}
