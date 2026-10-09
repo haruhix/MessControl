@@ -1,0 +1,2162 @@
+{
+  "status": "PASS_WITH_WARNINGS",
+  "exitCode": 0,
+  "timedOut": false,
+  "expectedCount": 30,
+  "succeeded": 8,
+  "succeededWithWarnings": 22,
+  "failed": 0,
+  "notRun": 0,
+  "inProcess": 0,
+  "warningEntryCount": 276,
+  "startedAt": "2026-10-10T02:57:46.1984978+09:00",
+  "finishedAt": "2026-10-10T02:59:31.8124972+09:00",
+  "report": "E:\\DEVGAME\\MessControl\\Saved\\IceVFX\\Automation\\20261010_025746_136\\report\\index.json",
+  "log": "E:\\DEVGAME\\MessControl\\Saved\\IceVFX\\Automation\\20261010_025746_136\\Automation.log",
+  "errors": [],
+  "suites": [
+    {
+      "suite": "MessControl.IceEvent",
+      "expected": 13,
+      "reported": 13,
+      "passed": 13,
+      "warningEntries": 26,
+      "tests": [
+        {
+          "fullTestPath": "MessControl.IceEvent.CancelReplaceAndCompleteRestoreArena",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.ClientCannotStartOrApplyGameplay",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.FrostWindTelegraphsAConicalFootFreeze",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.FrozenPlayerCanBreakOwnFeetWithNativePickaxe",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.IcicleDamagesMarkedAreaOnlyOnce",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.IcicleWarningStaysFixedAndAllowsDodge",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.MeterWarmsCoolsAndKillsAtFull",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.MissingTongueFailsWithoutLeakingGameplay",
+          "state": "Success",
+          "warnings": 0,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.NativePickaxeRestoresOnlyTheBlockedWarmZone",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.PeripheralZonesOverlapAndCountLifetimeFromSpawn",
+          "state": "Success",
+          "warnings": 4,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.RuntimeCrystalTemporarilyDisablesItsWarmZone",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.ThreeStrikeSeriesUsesRandomPlayerAndTwelveSecondCooldown",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.IceEvent.WarmZoneLifetimeAcceleratesToTwentySeconds",
+          "state": "Success",
+          "warnings": 2,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "suite": "MessControl.SingleDay",
+      "expected": 13,
+      "reported": 13,
+      "passed": 13,
+      "warningEntries": 154,
+      "tests": [
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.CompletedFogSlotOpensSupportWithoutFinalBoss",
+          "state": "Success",
+          "warnings": 0,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.FailedFogSetupTerminatesAndCleansEvent",
+          "state": "Success",
+          "warnings": 0,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.FailedIceSetupTerminatesAndCleansEvent",
+          "state": "Success",
+          "warnings": 0,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+          "state": "Success",
+          "warnings": 26,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+          "state": "Success",
+          "warnings": 26,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+          "state": "Success",
+          "warnings": 26,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+          "state": "Success",
+          "warnings": 26,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.SharedHistoryIsBoundedAndSurvivesKeyEventPublish",
+          "state": "Success",
+          "warnings": 0,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+          "state": "Success",
+          "warnings": 26,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.Sequence.SupportSurvivesOldFinaleDayAndRunTargets",
+          "state": "Success",
+          "warnings": 0,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.FailedNutSetupTerminatesRun",
+          "state": "Success",
+          "warnings": 0,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.LegacyFinalBossDeathEndsRun",
+          "state": "Success",
+          "warnings": 0,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+          "state": "Success",
+          "warnings": 24,
+          "errors": 0
+        }
+      ]
+    },
+    {
+      "suite": "MessControl.Inventory",
+      "expected": 4,
+      "reported": 4,
+      "passed": 4,
+      "warningEntries": 96,
+      "tests": [
+        {
+          "fullTestPath": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+          "state": "Success",
+          "warnings": 24,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+          "state": "Success",
+          "warnings": 24,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.Inventory.PermanentToolsNeverDrop",
+          "state": "Success",
+          "warnings": 24,
+          "errors": 0
+        },
+        {
+          "fullTestPath": "MessControl.Inventory.SelectionAndMaterial",
+          "state": "Success",
+          "warnings": 24,
+          "errors": 0
+        }
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "test": "MessControl.IceEvent.CancelReplaceAndCompleteRestoreArena",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.27"
+    },
+    {
+      "test": "MessControl.IceEvent.CancelReplaceAndCompleteRestoreArena",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.27"
+    },
+    {
+      "test": "MessControl.IceEvent.ClientCannotStartOrApplyGameplay",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.ClientCannotStartOrApplyGameplay",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.FrostWindTelegraphsAConicalFootFreeze",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.FrostWindTelegraphsAConicalFootFreeze",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.FrozenPlayerCanBreakOwnFeetWithNativePickaxe",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.FrozenPlayerCanBreakOwnFeetWithNativePickaxe",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.IcicleDamagesMarkedAreaOnlyOnce",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.IcicleDamagesMarkedAreaOnlyOnce",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.IcicleWarningStaysFixedAndAllowsDodge",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.IcicleWarningStaysFixedAndAllowsDodge",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.MeterWarmsCoolsAndKillsAtFull",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.MeterWarmsCoolsAndKillsAtFull",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.NativePickaxeRestoresOnlyTheBlockedWarmZone",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.NativePickaxeRestoresOnlyTheBlockedWarmZone",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.PeripheralZonesOverlapAndCountLifetimeFromSpawn",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.PeripheralZonesOverlapAndCountLifetimeFromSpawn",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.PeripheralZonesOverlapAndCountLifetimeFromSpawn",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.PeripheralZonesOverlapAndCountLifetimeFromSpawn",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.RuntimeCrystalTemporarilyDisablesItsWarmZone",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.RuntimeCrystalTemporarilyDisablesItsWarmZone",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.ThreeStrikeSeriesUsesRandomPlayerAndTwelveSecondCooldown",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.ThreeStrikeSeriesUsesRandomPlayerAndTwelveSecondCooldown",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.WarmZoneLifetimeAcceleratesToTwentySeconds",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.IceEvent.WarmZoneLifetimeAcceleratesToTwentySeconds",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.28"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HiddenPickaxePreservesHandContacts",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.HoldSprayAndPreserveProgress",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.PermanentToolsNeverDrop",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_1",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.Inventory.SelectionAndMaterial",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.29"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.IceIntervalDispatchesFogAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.NutIntervalDispatchesIceAndStopsSupport",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutIceProfileAppendsFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SavedNutOnlyProfileAppendsIceAndFogWithoutChangingSavedSettings",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "PIE: Calling GetSectionFromStaticMesh on Plane but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for BP_PlayerCharacter_C_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.30"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_l_forearm_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_l_hand_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_arm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name arm_stretch_r_forearm_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name forearm_stretch_r_hand_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_l_leg_stretch_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_l_foot_l for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name root_x_thigh_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name thigh_stretch_r_leg_stretch_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    },
+    {
+      "test": "MessControl.SingleDay.TutorialExperiencePreservesPawnAndChoices",
+      "message": "LogPhysicsControl: SetControlTargetPoses - invalid control name leg_stretch_r_foot_r for MCToothCharacter_0",
+      "file": "",
+      "line": -1,
+      "timestamp": "2026.10.09-17.59.31"
+    }
+  ],
+  "testErrors": [],
+  "scope": "Editor -nullrhi focused automation; does not validate rendered smoke, live networking or cooked packages. Warnings are retained without suppression."
+}

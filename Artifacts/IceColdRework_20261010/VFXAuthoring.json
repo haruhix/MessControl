@@ -1,0 +1,188 @@
+{
+  "complete": true,
+  "materials": [
+    {
+      "path": "/Game/Gameplay/Cold/VFX/M_IceWindWisp.M_IceWindWisp",
+      "created": true,
+      "rebuilt": false,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/M_IceSnowStreak.M_IceSnowStreak",
+      "created": true,
+      "rebuilt": false,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/M_IceImpactMist.M_IceImpactMist",
+      "created": true,
+      "rebuilt": false,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/M_IceChargeMote.M_IceChargeMote",
+      "created": true,
+      "rebuilt": false,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/M_IceWindSheet.M_IceWindSheet",
+      "created": true,
+      "rebuilt": false,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/M_IceShard.M_IceShard",
+      "created": true,
+      "rebuilt": false,
+      "compile_errors": []
+    }
+  ],
+  "niagara": [
+    {
+      "path": "/Game/Gameplay/Cold/VFX/NS_IceWindWisps.NS_IceWindWisps",
+      "parameters": [
+        {
+          "name": "ParticleColor",
+          "type": "LinearColor"
+        },
+        {
+          "name": "SpeedScale",
+          "type": "NiagaraFloat"
+        },
+        {
+          "name": "SpawnRate",
+          "type": "NiagaraFloat"
+        },
+        {
+          "name": "ParticleSize",
+          "type": "Vector2f"
+        },
+        {
+          "name": "FXMaterial",
+          "type": "MaterialInterface"
+        }
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/NS_IceWindSnow.NS_IceWindSnow",
+      "parameters": [
+        {
+          "name": "ParticleColor",
+          "type": "LinearColor"
+        },
+        {
+          "name": "SpeedScale",
+          "type": "NiagaraFloat"
+        },
+        {
+          "name": "SpawnRate",
+          "type": "NiagaraFloat"
+        },
+        {
+          "name": "ParticleSize",
+          "type": "Vector2f"
+        },
+        {
+          "name": "FXMaterial",
+          "type": "MaterialInterface"
+        }
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/NS_IceImpactMist.NS_IceImpactMist",
+      "parameters": [
+        {
+          "name": "ParticleColor",
+          "type": "LinearColor"
+        },
+        {
+          "name": "SpeedScale",
+          "type": "NiagaraFloat"
+        },
+        {
+          "name": "ParticleSize",
+          "type": "Vector2f"
+        },
+        {
+          "name": "FXMaterial",
+          "type": "MaterialInterface"
+        }
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/NS_IceShardBurst.NS_IceShardBurst",
+      "parameters": [
+        {
+          "name": "ParticleColor",
+          "type": "LinearColor"
+        },
+        {
+          "name": "SpeedScale",
+          "type": "NiagaraFloat"
+        },
+        {
+          "name": "MeshScale",
+          "type": "Vector3f"
+        }
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Cold/VFX/NS_IceChargeMotes.NS_IceChargeMotes",
+      "parameters": [
+        {
+          "name": "ParticleColor",
+          "type": "LinearColor"
+        },
+        {
+          "name": "SpeedScale",
+          "type": "NiagaraFloat"
+        },
+        {
+          "name": "SpawnRate",
+          "type": "NiagaraFloat"
+        },
+        {
+          "name": "ParticleSize",
+          "type": "Vector2f"
+        },
+        {
+          "name": "FXMaterial",
+          "type": "MaterialInterface"
+        }
+      ]
+    }
+  ],
+  "shard": {
+    "path": "/Game/Gameplay/Cold/VFX/SM_IceShard.SM_IceShard",
+    "imported": true,
+    "source": "..\\..\\..\\..\\..\\DEVGAME\\MessControl\\ArtSource\\VFX\\Ice\\SM_IceShard.obj",
+    "triangles": 12,
+    "bounds_min_cm": [
+      -36.0,
+      -31.0,
+      -62.0
+    ],
+    "bounds_max_cm": [
+      38.0,
+      29.0,
+      72.0
+    ],
+    "dimensions_cm": [
+      74.0,
+      60.0,
+      134.0
+    ],
+    "dominant_axis": "Z"
+  },
+  "budgets": {
+    "wind_wisp_rate": 28,
+    "wind_snow_rate": 42,
+    "impact_mist_burst": 18,
+    "shard_burst": 22,
+    "charge_rate": 14,
+    "system_pool_size": 16
+  },
+  "preserved_dirty_packages": [],
+  "additional_marketplace_assets_required": false
+}

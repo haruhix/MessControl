@@ -1,6 +1,7 @@
 #include "MCToothMovementComponent.h"
 #include "MCCoffeeFlood.h"
 #include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
 #include "MCBrushContactComponent.h"
 #include "MCToothPhysicsComponent.h"
@@ -45,6 +46,50 @@ void UMCToothMovementComponent::BeginPlay()
 {
     Super::BeginPlay();
     StaminaState.Value=GetMaxStamina(); ServerStaminaSnapshot=StaminaState;
+}
+void UMCToothMovementComponent::SetFrozenLegs(bool Frozen)
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(Frozen)
+    {
+        bWantsToSprint=false; bWantsToClimb=false; bWantsDash=false; bSprintActive=false;
+        MovementIntent=FVector::ZeroVector; Acceleration=FVector::ZeroVector;
+        CancelDash(); ClearAccumulatedForces(); CurrentRootMotion.Clear(); RootMotionParams.Clear();
+        PendingSuction=PendingRiver=FVector::ZeroVector; bHasSuctionSample=bHasRiverSample=false;
+        if(Hero && Hero->ToothPhysics && Hero->ToothPhysics->CanAct() && !Hero->SwallowedBy && !Hero->IsMimicCaptured())
+        {
+            if(!bIceMovementLocked)
+            {
+                IcePreviousMovementMode=MovementMode; bIceMovementLocked=true;
+            }
+            StopMovementImmediately(); Super::SetMovementMode(MOVE_None);
+        }
+        return;
+    }
+    if(!bIceMovementLocked) return;
+    bIceMovementLocked=false;
+    // Death, recovery and captures can take movement ownership while ice exists.
+    // Never turn their MOVE_None back into a standing character here.
+    if(MovementMode!=MOVE_None || !Hero || !Hero->Status || !Hero->Status->IsAlive()
+        || !Hero->ToothPhysics || !Hero->ToothPhysics->CanAct() || Hero->SwallowedBy || Hero->IsMimicCaptured()) return;
+    const EMovementMode Restored=IcePreviousMovementMode==MOVE_None || IcePreviousMovementMode==MOVE_Custom
+        ?MOVE_Falling:IcePreviousMovementMode;
+    Super::SetMovementMode(Restored);
+}
+void UMCToothMovementComponent::SetMovementMode(EMovementMode NewMode,uint8 NewCustomMode)
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(Hero && Hero->HasFrozenLegs() && Hero->ToothPhysics && Hero->ToothPhysics->CanAct()
+        && !Hero->SwallowedBy && !Hero->IsMimicCaptured())
+    {
+        SetFrozenLegs(true); return;
+    }
+    Super::SetMovementMode(NewMode,NewCustomMode);
+}
+void UMCToothMovementComponent::SimulateMovement(float Dt)
+{
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) SetFrozenLegs(true);
+    Super::SimulateMovement(Dt);
 }
 void FMCStaminaMoveResponse::ServerFillResponseData(const UCharacterMovementComponent& Movement,const FClientAdjustment& Adjustment)
 {
@@ -235,14 +280,14 @@ bool UMCToothMovementComponent::HasHeavyGrip() const
 bool UMCToothMovementComponent::CanSprintAction() const
 {
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
-    return Hero && Hero->CanWork() && !Hero->ClingTooth && !Hero->OrderJumpTarget && !Hero->bBrushing && !HasHeavyGrip() && !IsSwimming() && !IsClimbing() && !IsDashing();
+    return Hero && Hero->CanWork() && !Hero->HasFrozenLegs() && !Hero->ClingTooth && !Hero->OrderJumpTarget && !Hero->bBrushing && !HasHeavyGrip() && !IsSwimming() && !IsClimbing() && !IsDashing();
 }
 bool UMCToothMovementComponent::CanSprint() const { return CanSprintAction() && !StaminaState.Exhausted && GetStamina()>0; }
 bool UMCToothMovementComponent::CanDashAction() const
 {
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     const float Incoming=bHasBraceSample?BraceMovement.IncomingMass:Hero && Hero->Grip?Hero->Grip->IncomingChainMass():0;
-    return Hero && Hero->CanWork() && !Hero->ClingTooth && !Hero->OrderJumpTarget && !Hero->bBrushing && !HasHeavyGrip()
+    return Hero && Hero->CanWork() && !Hero->HasFrozenLegs() && !Hero->ClingTooth && !Hero->OrderJumpTarget && !Hero->bBrushing && !HasHeavyGrip()
         && Incoming<=.1f && !Hero->Grip->IsBracing() && !bWantsToClimb && !IsSwimming() && !IsClimbing() && (IsMovingOnGround() || IsFalling());
 }
 bool UMCToothMovementComponent::CanDash() const
@@ -431,6 +476,7 @@ FVector UMCToothMovementComponent::Intent() const
 }
 float UMCToothMovementComponent::GetMaxSpeed() const
 {
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) return 0.f;
     if(IsClimbing()) return ClimbSpeed;
     if (!IsMovingOnGround() && !IsFalling()) return Super::GetMaxSpeed();
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
@@ -446,6 +492,7 @@ float UMCToothMovementComponent::GetMaxSpeed() const
 }
 float UMCToothMovementComponent::GetMaxAcceleration() const
 {
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) return 0.f;
     if (!IsMovingOnGround()) return Super::GetMaxAcceleration();
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     const float Load=bHasBraceSample?BraceMovement.LoadMass:Hero && Hero->Grip?Hero->Grip->LoadMass():0;
@@ -518,6 +565,7 @@ AMCCoffeeFlood* UMCToothMovementComponent::DeepWaterAt(FVector P,bool Continuing
 }
 void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
 {
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) {SetFrozenLegs(true);return;}
     Super::UpdateCharacterStateBeforeMovement(Dt);
     // Simulated peers receive the movement mode; they have no local E input.
     if(CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy) return;
@@ -552,6 +600,14 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
 void UMCToothMovementComponent::PerformMovement(float Dt)
 {
     bStaminaSprintRequested=false; bStaminaDashCharged=false;
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs())
+    {
+        // Applied on the server for every received move as well as owner replay.
+        // MOVE_None consumes root motion without moving the capsule; hands still tick.
+        SetFrozenLegs(true); bReplayDashCharge=false;
+        AdvanceStaminaPrediction(Dt,false,false);
+        Super::PerformMovement(Dt); bHasBraceSample=false; return;
+    }
     if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy) {
         if(!bHasBraceSample) CaptureBraceForMove();
         DashCooldownRemaining=FMath::Max(0.f,DashCooldownRemaining-Dt);
@@ -601,6 +657,7 @@ void UMCToothMovementComponent::CalcVelocity(float Dt,float Friction,bool bFluid
 }
 void UMCToothMovementComponent::ApplyRootMotionToVelocity(float Dt)
 {
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) {Velocity=FVector::ZeroVector;return;}
     Super::ApplyRootMotionToVelocity(Dt);
     if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy)
         Velocity=BraceMovement.ConstrainVelocity(Velocity,UpdatedComponent->GetComponentLocation(),Dt);

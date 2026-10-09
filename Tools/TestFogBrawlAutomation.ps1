@@ -2,7 +2,7 @@ param(
     [string]$EngineRoot = 'E:\UE\UE_5.8',
     [string]$OutputDirectory = '',
     [ValidateRange(30,1800)][int]$TimeoutSeconds = 600,
-    [ValidateSet('MessControl.FogBrawl','MessControl.SingleDay','MessControl.Grip.Brace','MessControl.Development','MessControl.IceEvent','MessControl.Inventory','MessControl.Camera')]
+    [ValidateSet('MessControl.FogBrawl','MessControl.SingleDay','MessControl.Grip.Brace','MessControl.Development','MessControl.IceEvent','MessControl.Inventory','MessControl.Camera','MessControl.Dash')]
     [string[]]$Suites = @('MessControl.FogBrawl','MessControl.SingleDay','MessControl.Grip.Brace','MessControl.Development','MessControl.IceEvent','MessControl.Inventory','MessControl.Camera')
 )
 $ErrorActionPreference = 'Stop'
@@ -33,10 +33,15 @@ $taskManifest = [ordered]@{
         'Sequence.SupportAdmitsFoodColaAndRepairWithoutDayOrDeadlineGates','Sequence.SharedHistoryIsBoundedAndSurvivesKeyEventPublish'
     )
     'MessControl.Grip.Brace' = @('ContactChain','RiverAndReplay','DynamicFoodLoad')
+    'MessControl.Dash' = @('PressHoldCooldownAndCancellation','CollisionAndActionRestrictions','AmbientWindPreservesControlAndReplaySource','ProxyPresentationFreshReceiptAndStaleReset')
     'MessControl.Development' = @('EventSandbox')
     'MessControl.IceEvent' = @(
         'MeterWarmsCoolsAndKillsAtFull','IcicleWarningStaysFixedAndAllowsDodge','IcicleDamagesMarkedAreaOnlyOnce',
-        'CancelReplaceAndCompleteRestoreArena','ClientCannotStartOrApplyGameplay','MissingTongueFailsWithoutLeakingGameplay'
+        'CancelReplaceAndCompleteRestoreArena','ClientCannotStartOrApplyGameplay','MissingTongueFailsWithoutLeakingGameplay',
+        'WarmZoneLifetimeAcceleratesToTwentySeconds','PeripheralZonesOverlapAndCountLifetimeFromSpawn',
+        'RuntimeCrystalTemporarilyDisablesItsWarmZone','NativePickaxeRestoresOnlyTheBlockedWarmZone',
+        'ThreeStrikeSeriesUsesRandomPlayerAndTwelveSecondCooldown','FrostWindTelegraphsAConicalFootFreeze',
+        'FrozenPlayerCanBreakOwnFeetWithNativePickaxe'
     )
     'MessControl.Inventory' = @('SelectionAndMaterial','PermanentToolsNeverDrop','HiddenPickaxePreservesHandContacts','HoldSprayAndPreserveProgress')
     'MessControl.Camera' = @(

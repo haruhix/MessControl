@@ -86,6 +86,12 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
     bool CanWork() const;
+    // Leg ice roots locomotion only; tool use and self rescue remain available.
+    UPROPERTY(ReplicatedUsing=OnRep_IceLegHealth,BlueprintReadOnly,Category="Ice") float IceLegHealth=0.f;
+    UFUNCTION(BlueprintPure,Category="Ice") bool HasFrozenLegs() const { return IceLegHealth>0.f; }
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Ice") void FreezeLegs(float Health);
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Ice") void ClearFrozenLegs();
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Ice") bool HitFrozenLegsWithPickaxe(AMCToothCharacter* Worker,float Damage);
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") TObjectPtr<AMCRewardChest> RewardInteraction;
     UFUNCTION(Server,Reliable) void ServerBeginRewardOpening(AMCRewardChest* Chest);
     UPROPERTY(ReplicatedUsing=OnRep_MimicCapture,BlueprintReadOnly,Category="Rewards|Mimic") TObjectPtr<AMCRewardChest> MimicCaptor;
@@ -237,6 +243,9 @@ private:
     UFUNCTION(Server, Reliable) void ServerToggleSelfCare();
     UFUNCTION() void OnRep_Working();
     UFUNCTION() void OnRep_BagColor();
+    UFUNCTION() void OnRep_IceLegHealth();
+    void UpdateIceLegVisuals();
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> IceLegParts;
     UFUNCTION() void OnRep_Yawn();
     UFUNCTION() void OnRep_ThroatCapture();
     UFUNCTION() void OnRep_MimicCapture();

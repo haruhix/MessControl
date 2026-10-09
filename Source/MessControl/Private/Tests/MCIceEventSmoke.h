@@ -36,6 +36,14 @@ private:
     void TickClient();
     void Capture();
     void FrameCamera();
+    void TickColdRework(float Dt);
+    void TickColdClient();
+    void ColdPrimaryKey(bool Held);
+    bool ColdWarmPoint(FVector& Point,bool bAvoidStrikes=true) const;
+    void ColdParkPeers();
+    void ColdObserve();
+    void ColdObserveVFX(const AMCIceEvent& Event);
+    bool ColdShouldCapture() const;
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
     UPROPERTY() TObjectPtr<AMCTongue> Tongue;
     UPROPERTY() TObjectPtr<AMCIceEvent> Ice;
@@ -49,5 +57,13 @@ private:
     float InitialHealth=0,FreezePeak=0,ThawStart=0;
     int32 Stage=0,CaseIndex=0,StepCase=0,StrikeId=-1,ExpectedPlayers=1,InitialSwings=0,InitialHits=0,Frame=0;
     uint32 ClientSeen=0;
+    int32 ColdSerial=0,ColdCircleIndex=-1,ColdCrystalZone=-1,ColdInputPresses=0;
+    uint32 ColdCircleMask=0;
+    int32 ColdBurstPeak=0;
+    double ColdBurstAt=0,ColdPreviousWarningAt=0,ColdNextSpawn=0;
+    bool bColdRework=false,bColdKeyHeld=false,bColdClientHadFeet=false,bColdClientOwnFeet=false;
+    bool bColdDodge=false,bColdHit=false,bColdBlocker=false,bColdNova=false,bColdRescue=false;
+    bool bColdOverlap=false,bColdMinimum=false,bColdSeries=false;
+    bool bRequireColdVFX=false,bColdVFXSeen=false,bColdCompletionVFXSeen=false;
     bool bPrepared=false,bFinished=false,bCapture=false,bSawNextCircle=false,bSawTransfer=false,bResting=false,bPanelOpen=false;
 };

@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "mode": "Visual",
+  "expectedPlayers": 2,
+  "timeoutSeconds": 1000,
+  "port": 7801,
+  "requireVFX": true,
+  "startedAt": "2026-10-10T03:07:31.9389383+09:00",
+  "finishedAt": "2026-10-10T03:11:54.4635047+09:00",
+  "processes": [
+    {
+      "pid": 53296,
+      "exitCode": 0
+    },
+    {
+      "pid": 45264,
+      "exitCode": 0
+    }
+  ],
+  "logs": [
+    "E:\\DEVGAME\\MessControl\\Saved\\IceVFX\\VisualNetwork\\Visual_20261010_030731_930\\Peer0.log",
+    "E:\\DEVGAME\\MessControl\\Saved\\IceVFX\\VisualNetwork\\Visual_20261010_030731_930\\Peer1.log"
+  ],
+  "checks": [
+    "[2026.10.09-18.11.52:244][  2]LogTemp: Display: MC_ICE_COLD_PASS role=authority zones=45,40,35,30,25,20 overlap=10 series=3 cooldown=12 blocker_native=1 cone_native=1 self_axe_native=1 dodge=1 hit=1 complete_native=1 cancel_pending=1 native_lmb_presses=35 frames=368 vfx=1 bursts_peak=8",
+    "[2026.10.09-18.11.49:285][449]LogTemp: Display: MC_ICE_COLD_PASS role=client remote_seen=8191 native_lmb_presses=7 vfx=1 bursts_peak=0 completion_vfx=1"
+  ],
+  "frames": 368,
+  "captureDirectory": "E:\\DEVGAME\\MessControl\\Saved\\IceVFX\\VisualNetwork\\Visual_20261010_030731_930\\Frames",
+  "error": null,
+  "scope": "Focused saved L_Mouth cold rework with production timers and native Enhanced Input axe contacts. Network checks include remote own foot freeze and rescue. Visual uses real-time selected PNG stages. No cook/package or unrelated F3 event coverage."
+}

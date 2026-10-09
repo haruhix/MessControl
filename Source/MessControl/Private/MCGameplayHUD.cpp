@@ -603,6 +603,10 @@ void UMCGameplayHUD::RefreshState()
             else Hint=TEXT("ТУМАН СГУЩАЕТСЯ · ИЩИ ПУЛЬСИРУЮЩИЙ КРАСНЫМ ЗУБ");
             break;
         }
+        if(Hero->HasFrozenLegs() && Hero->CanWork())
+            Hint=Inv->Selected==EMCToolSlot::Pickaxe
+                ?TEXT("НОГИ ВО ЛЬДУ · УДЕРЖИВАЙ ЛКМ КИРКОЙ")
+                :TEXT("НОГИ ВО ЛЬДУ · 2 — КИРКА · УДЕРЖИВАЙ ЛКМ");
         Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
     }
     if(auto* Results=Find(TEXT("ResultsPanel")))

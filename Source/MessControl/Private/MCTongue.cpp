@@ -1,4 +1,5 @@
 #include "MCTongue.h"
+#include "Components/CapsuleComponent.h"
 #include "MCGameDirector.h"
 #include "MCFogBrawlEvent.h"
 #include "MCSingleDayDirector.h"
@@ -473,9 +474,18 @@ void AMCTongue::Tick(float Dt)
     {
         auto* Hero=*It; auto* Move=Hero->GetCharacterMovement();
         Move->AddTickPrerequisiteActor(this);
-        if ((HasAuthority() || Hero->IsLocallyControlled()) && Hero->ToothPhysics->CanAct() && Move->IsMovingOnGround() && Move->CurrentFloor.HitResult.GetComponent()==Surface)
+        const bool bGroundRider=Move->IsMovingOnGround() && Move->CurrentFloor.HitResult.GetComponent()==Surface;
+        const bool bFrozenRider=Hero->HasFrozenLegs() && !Hero->SwallowedBy && !Hero->IsMimicCaptured();
+        if ((HasAuthority() || Hero->IsLocallyControlled()) && Hero->ToothPhysics->CanAct() && (bGroundRider || bFrozenRider))
         {
-            FHitResult Hit; if (SurfacePoint(Hero->GetActorLocation(),Hit)) Riders.Emplace(Hero,Hit.ImpactPoint.Z);
+            FHitResult Hit;
+            if (SurfacePoint(Hero->GetActorLocation(),Hit))
+            {
+                const float SoleZ=Hero->GetActorLocation().Z-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+                // MOVE_None clears CurrentFloor. Supported frozen feet still
+                // follow breathing vertically without allowing locomotion.
+                if(bGroundRider || FMath::Abs(SoleZ-Hit.ImpactPoint.Z)<=30) Riders.Emplace(Hero,Hit.ImpactPoint.Z);
+            }
         }
     }
     const float Time=ServerTime();

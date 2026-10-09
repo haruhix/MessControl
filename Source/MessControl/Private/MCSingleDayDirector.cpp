@@ -275,9 +275,9 @@ void AMCSingleDayDirector::BeginIce()
     IceEvent=GetWorld()->SpawnActor<AMCIceEvent>();
     if(!IceEvent) {Fail(TEXT("Не удалось создать ледяное событие."));return;}
     IceEvent->SetOwner(this);
-    Record(FString::Printf(TEXT("Ключевое событие %d: мятный леденец замораживает арену; обычные события приостановлены"),KeyEventIndex+1));
+    Record(FString::Printf(TEXT("Ключевое событие %d: ледяной кристалл замораживает арену; обычные события приостановлены"),KeyEventIndex+1));
     IceEvent->Start();
-    Publish(TEXT("ЗИМА БЛИЗКО"),TEXT("Разбейте мятный леденец киркой. Отогревайтесь в круге; выбегайте из отметок сосулек."),
+    Publish(TEXT("ЗИМА БЛИЗКО"),TEXT("Разбейте центральный кристалл киркой. Перебегайте между тёплыми зонами, разбивайте мешающие кристаллы и лёд на ногах; уклоняйтесь от трёх сосулек и конуса бури."),
         FMath::CeilToInt(IceEvent->CandyHealth),FMath::CeilToInt(IceEvent->MaxCandyHealth));
     ForceNetUpdate();
 }
@@ -308,7 +308,13 @@ void AMCSingleDayDirector::BeginDirector()
     const bool Legacy=IsLegacyTimedFinale();
     const auto* CompletedSlot=Settings->KeyEvents.IsValidIndex(KeyEventIndex)?&Settings->KeyEvents[KeyEventIndex]:nullptr;
     if(GS->Progression && (Legacy || CompletedSlot)) GS->Progression->AddExperience(FMath::Max(0,Legacy?Settings->NutEventExperience:CompletedSlot->CompletionExperience));
-    if(IsValid(IceEvent)) {IceEvent->Stop();IceEvent->Destroy();} IceEvent=nullptr;
+    if(IsValid(IceEvent)) {
+        // A completed event has already cleared gameplay. Let its short local
+        // shatter finish while removing the replicated event for the next slot.
+        if(!IceEvent->IsComplete()) IceEvent->Stop();
+        IceEvent->Destroy();
+    }
+    IceEvent=nullptr;
     if(IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();} FogEvent=nullptr;
     const bool HasNext=!Legacy && Settings->KeyEvents.IsValidIndex(KeyEventIndex+1);
     bAuthoredFragmentComplete=!Legacy && !HasNext;
@@ -366,10 +372,10 @@ void AMCSingleDayDirector::Tick(float Dt)
     else if(Stage==EMCSingleDayStage::Ice && IsValid(IceEvent)) {
         if(IceEvent->bFailed) {Fail(TEXT("Не удалось запустить ледяное событие. Проверьте поверхность языка."));return;}
         if(IceEvent->IsComplete()) {
-            Record(TEXT("Мятный леденец разбит: ледяное событие завершено, арена оттаивает"));
+            Record(TEXT("Центральный ледяной кристалл разбит: событие завершено, арена оттаивает"));
             BeginDirector();
         }
-        else Publish(TEXT("ЗИМА БЛИЗКО"),TEXT("Разбейте мятный леденец киркой. Отогревайтесь в круге; выбегайте из отметок сосулек."),
+        else Publish(TEXT("ЗИМА БЛИЗКО"),TEXT("Разбейте центральный кристалл киркой. Перебегайте между тёплыми зонами, разбивайте мешающие кристаллы и лёд на ногах; уклоняйтесь от трёх сосулек и конуса бури."),
             FMath::CeilToInt(IceEvent->CandyHealth),FMath::CeilToInt(IceEvent->MaxCandyHealth));
     }
     else if(Stage==EMCSingleDayStage::FogBrawl && IsValid(FogEvent)) {

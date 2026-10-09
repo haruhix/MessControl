@@ -53,6 +53,10 @@ public:
     virtual float GetMaxBrakingDeceleration() const override;
     virtual void UpdateFromCompressedFlags(uint8 Flags) override;
     virtual void PerformMovement(float Dt) override;
+    virtual void SimulateMovement(float Dt) override;
+    virtual void SetMovementMode(EMovementMode NewMode,uint8 NewCustomMode=0) override;
+    // Owns MOVE_None only while the living standing character has leg ice.
+    void SetFrozenLegs(bool Frozen);
     virtual FNetworkPredictionData_Client* GetPredictionData_Client() const override;
     virtual bool ClientUpdatePositionAfterServerUpdate() override;
     virtual void ClientHandleMoveResponse(const FCharacterMoveResponseDataContainer& Response) override;
@@ -124,6 +128,8 @@ public:
     bool WantsClimb() const { return bWantsToClimb; }
     void JumpFromWall();
 private:
+    bool bIceMovementLocked=false;
+    EMovementMode IcePreviousMovementMode=MOVE_Walking;
     FMCStaminaPredictionState StaminaState,ServerStaminaSnapshot,PendingStaminaCorrection;
     FMCStaminaMoveResponse StaminaMoveResponse;
     bool bPendingStaminaCorrection=false,bReplayingAuthoritativeStamina=false;

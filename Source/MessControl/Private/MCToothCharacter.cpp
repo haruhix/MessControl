@@ -42,6 +42,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
@@ -121,6 +122,19 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     if (AnimAsset.Succeeded()) AnimationProfile = AnimAsset.Object;
     if (SoundAsset.Succeeded()) SoundPalette = SoundAsset.Object;
     if (AppearanceAsset.Succeeded()) Appearance=AppearanceAsset.Object;
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> LegIceMesh(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
+    static ConstructorHelpers::FObjectFinder<UMaterialInterface> LegIceMaterial(TEXT("/Game/Art/Materials/ice/MI_Ice.MI_Ice"));
+    for(int32 Side=0;Side<2;++Side)
+    {
+        auto* Part=CreateDefaultSubobject<UStaticMeshComponent>(Side==0?TEXT("IceLowerLegL"):TEXT("IceLowerLegR"));
+        Part->SetupAttachment(GetMesh());
+        Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Part->SetGenerateOverlapEvents(false); Part->SetCanEverAffectNavigation(false);
+        Part->SetVisibility(false); Part->SetCastShadow(false);
+        if(LegIceMesh.Succeeded()) Part->SetStaticMesh(LegIceMesh.Object);
+        if(LegIceMaterial.Succeeded()) Part->SetMaterial(0,LegIceMaterial.Object);
+        IceLegParts.Add(Part);
+    }
 }
 FName AMCToothCharacter::RigBone(FName BoneRole) const
 {
@@ -196,7 +210,79 @@ void AMCToothCharacter::BeginPlay()
             }
         }
     }
+    if(GetNetMode()!=NM_DedicatedServer)
+        if(auto* FootIce=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/Cold/VFX/SM_IceShard.SM_IceShard")))
+            for(UStaticMeshComponent* Part:IceLegParts) if(Part) Part->SetStaticMesh(FootIce);
     OnRep_BagColor();
+    OnRep_IceLegHealth();
+}
+void AMCToothCharacter::FreezeLegs(float Health)
+{
+    if(!HasAuthority() || !FMath::IsFinite(Health) || Health<=0 || !Status->IsAlive()
+        || IsMimicCaptured() || SwallowedBy || !ToothPhysics->CanAct()) return;
+    // A second gust cannot replace partially broken ice with less health.
+    IceLegHealth=FMath::Max(IceLegHealth,FMath::Clamp(Health,1.f,10000.f));
+    ClearOrderJump(); ClingTooth=nullptr; bWantsCling=false;
+    OnRep_IceLegHealth(); ForceNetUpdate();
+}
+void AMCToothCharacter::ClearFrozenLegs()
+{
+    if(!HasAuthority() || IceLegHealth<=0) return;
+    IceLegHealth=0.f; OnRep_IceLegHealth(); ForceNetUpdate();
+}
+bool AMCToothCharacter::HitFrozenLegsWithPickaxe(AMCToothCharacter* Worker,float Damage)
+{
+    if(!HasAuthority() || !HasFrozenLegs() || !Status->IsAlive() || !IsValid(Worker)
+        || Worker->GetWorld()!=GetWorld() || !Worker->CanWork() || !Worker->Inventory
+        || Worker->Inventory->Selected!=EMCToolSlot::Pickaxe || !FMath::IsFinite(Damage) || Damage<=0) return false;
+    // Self rescue uses the ordinary pickaxe swing without requiring a downward camera.
+    if(Worker!=this)
+    {
+        const FVector Offset=GetActorLocation()-Worker->GetActorLocation();
+        if(Offset.SizeSquared()>FMath::Square(180.f)
+            || FVector::DotProduct(Offset.GetSafeNormal2D(),Worker->GetActorForwardVector())<.25f) return false;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIceLegRescue),false,Worker); Query.AddIgnoredActor(this);
+        FHitResult Block;
+        if(GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation(),GetActorLocation(),ECC_Visibility,Query)) return false;
+    }
+    IceLegHealth=FMath::Max(0.f,IceLegHealth-Damage); OnRep_IceLegHealth(); ForceNetUpdate();
+    if(!HasFrozenLegs()) Worker->NotifyTaskFeedback(true,GetActorLocation()-FVector(0,0,35));
+    return true;
+}
+void AMCToothCharacter::OnRep_IceLegHealth()
+{
+    auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
+    Move->SetFrozenLegs(HasFrozenLegs() && !IsMimicCaptured() && !SwallowedBy && Status->IsAlive());
+    if(HasFrozenLegs())
+    {
+        CancelSprintInput(); StopJumping(); ConsumeMovementInputVector();
+        LocalPaddle=FVector2D::ZeroVector; PaddleInput=FVector2D::ZeroVector; SwimIntent=FVector::ZeroVector;
+    }
+    UpdateIceLegVisuals();
+}
+void AMCToothCharacter::UpdateIceLegVisuals()
+{
+    const bool Visible=HasFrozenLegs() && Status->IsAlive() && !IsMimicCaptured() && !SwallowedBy;
+    for(int32 Side=0;Side<IceLegParts.Num();++Side)
+    {
+        auto* Part=IceLegParts[Side].Get(); if(!Part) continue;
+        Part->SetVisibility(Visible);
+        if(!Visible) continue;
+        const FName FootBone=RigBone(Side==0?TEXT("foot_l"):TEXT("foot_r"));
+        const FName KneeBone=RigBone(Side==0?TEXT("knee_l"):TEXT("knee_r"));
+        FVector Foot=GetActorLocation()+GetActorRightVector()*(Side==0?-16.f:16.f)-FVector(0,0,48);
+        FVector Knee=Foot+FVector(0,0,32);
+        if(GetMesh()->GetBoneIndex(FootBone)!=INDEX_NONE) Foot=GetMesh()->GetSocketLocation(FootBone);
+        if(GetMesh()->GetBoneIndex(KneeBone)!=INDEX_NONE) Knee=GetMesh()->GetSocketLocation(KneeBone);
+        const FVector Axis=Knee-Foot;
+        const FQuat Rotation=FQuat::FindBetweenNormals(FVector::UpVector,Axis.GetSafeNormal(UE_SMALL_NUMBER,FVector::UpVector));
+        const FBox Bounds=Part->GetStaticMesh()->GetBoundingBox();
+        const FVector Size=Bounds.GetSize();
+        const FVector Scale(44.f/FMath::Max(1.,Size.X),44.f/FMath::Max(1.,Size.Y),
+            FMath::Clamp(float(Axis.Size())+25.f,35.f,75.f)/FMath::Max(1.,Size.Z));
+        Part->SetWorldLocationAndRotation((Foot+Knee)*.5f-Rotation.RotateVector(Bounds.GetCenter()*Scale),Rotation);
+        Part->SetWorldScale3D(Scale);
+    }
 }
 void AMCToothCharacter::OnRep_BagColor()
 {
@@ -308,8 +394,8 @@ void AMCToothCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
     Input->BindAction(ForwardAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveForward);
     Input->BindAction(RightAction,ETriggerEvent::Completed,this,&AMCToothCharacter::MoveRight);
 }
-void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=IsMimicCaptured()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false), LocalPaddle.X); }
-void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=IsMimicCaptured()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
+void AMCToothCharacter::MoveForward(const FInputActionValue& Value) { LocalPaddle.X=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::UpVector:CameraMoveDirection(false), LocalPaddle.X); }
+void AMCToothCharacter::MoveRight(const FInputActionValue& Value) { LocalPaddle.Y=IsMimicCaptured() || HasFrozenLegs()?0:Value.Get<float>(); const auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement()); if (!IsMimicCaptured() && !HasFrozenLegs() && !ClingTooth && !OrderJumpTarget) AddMovementInput(Move->IsClimbing()?FVector::CrossProduct(FVector(Move->ClimbNormal),FVector::UpVector).GetSafeNormal():CameraMoveDirection(true), LocalPaddle.Y); }
 void AMCToothCharacter::OrbitMouseX(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(Value.Get<float>(),0)); }
 void AMCToothCharacter::OrbitMouseY(const FInputActionValue& Value) { ApplyCameraOrbitInput(FVector2D(0,Value.Get<float>())); }
 void AMCToothCharacter::CameraMouseWheel(const FInputActionValue& Value) { ZoomCamera(Value.Get<float>()); }
@@ -320,7 +406,7 @@ FVector2D AMCToothCharacter::WorldPaddleInput() const
 }
 void AMCToothCharacter::StartJump()
 {
-    if(!CanWork() || OrderJumpTarget) return;
+    if(!CanWork() || HasFrozenLegs() || OrderJumpTarget) return;
     auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
     if(Move->IsClimbing()) { Jump(); return; }
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It) if(It->CanOrderJump(this)) { ServerOrderJump(*It); return; }
@@ -328,7 +414,7 @@ void AMCToothCharacter::StartJump()
 }
 void AMCToothCharacter::ServerOrderJump_Implementation(AMCThroat* Throat)
 {
-    if(IsValid(Throat)) Throat->LaunchToUvula(this);
+    if(!HasFrozenLegs() && IsValid(Throat)) Throat->LaunchToUvula(this);
 }
 void AMCToothCharacter::ClientOrderLaunch_Implementation(FVector Velocity)
 {
@@ -351,6 +437,7 @@ void AMCToothCharacter::ClientUvulaHop_Implementation(FVector Velocity) { Launch
 void AMCToothCharacter::SetThroatCapture(AMCThroat* Throat)
 {
     if(!HasAuthority() || SwallowedBy==Throat) return;
+    if(Throat) ClearFrozenLegs();
     CancelGameplayInput(); ClearOrderJump(); if(Throat) ThroatCaptureStart=GetActorLocation(); SwallowedBy=Throat; OnRep_ThroatCapture(); ForceNetUpdate();
 }
 void AMCToothCharacter::ClientThroatExit_Implementation(FVector Location,FVector Velocity)
@@ -385,6 +472,7 @@ bool AMCToothCharacter::IsMimicCaptured() const { return IsValid(MimicCaptor) ||
 void AMCToothCharacter::BeginMimicCapture(AMCRewardChest* Chest)
 {
     if(!HasAuthority() || !IsValid(Chest) || Chest->GetWorld()!=GetWorld() || !Status->IsAlive() || SwallowedBy || MimicCaptor) return;
+    ClearFrozenLegs();
     CancelGameplayInput(); ClearOrderJump(); DropFood(); FoodCollection->Stop(); ResetContact();
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(*It!=this && It->Grip) {
         if(It->Grip->BraceTarget()==this) It->Grip->ReleaseBrace();
@@ -466,7 +554,7 @@ void AMCToothCharacter::StopJump() { StopJumping(); }
 void AMCToothCharacter::SetSprintInputHeld(bool Held) { if(Held) StartSprint(); else StopSprint(); }
 void AMCToothCharacter::StartSprint()
 {
-    if(bSprintInputHeld || !CanWork()) return;
+    if(bSprintInputHeld || !CanWork() || HasFrozenLegs()) return;
     bSprintInputHeld=true;
     auto* Move=CastChecked<UMCToothMovementComponent>(GetCharacterMovement());
     Move->SetSprinting(true);
@@ -785,13 +873,15 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if(HasAuthority() && HasFrozenLegs() && (!Status->IsAlive() || IsMimicCaptured() || SwallowedBy)) ClearFrozenLegs();
+    if(HasFrozenLegs()) UpdateIceLegVisuals();
     UpdateMimicCapture(DeltaSeconds);
     if(HasAuthority() && MimicRescueTarget && (!IsValid(MimicRescueTarget) || MimicRescueTarget->RescuePlayer!=this || !MimicRescueTarget->CanRescue(this))) {
         if(IsValid(MimicRescueTarget)) MimicRescueTarget->EndRescue(this);
         MimicRescueTarget=nullptr; ForceNetUpdate();
     }
     if(IsLocallyControlled() && bSprintInputHeld) {
-        if(!CanWork()) CancelSprintInput();
+        if(!CanWork() || HasFrozenLegs()) CancelSprintInput();
         else CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetSprinting(true);
     }
     UpdateYawn(DeltaSeconds);
@@ -1025,6 +1115,31 @@ void AMCToothCharacter::ResolveSwing()
     const uint8 AudioTool=uint8(Inventory->Selected);
     const float HitIntensity=FMath::Clamp(Inventory->Damage()/60.f,.25f,1.f);
     if(Inventory->Selected==EMCToolSlot::Pickaxe) {
+        if(HasFrozenLegs() && HitFrozenLegsWithPickaxe(this,Inventory->Damage()))
+        {
+            ++ConfirmedHitCount; MulticastHitSound(GetActorLocation()-FVector(0,0,35),AudioTool,HitIntensity); return;
+        }
+        AMCToothCharacter* FrozenAlly=nullptr; float IceDistance=FMath::Square(180.f);
+        for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+        {
+            if(*It==this || !It->HasFrozenLegs() || !It->Status->IsAlive()) continue;
+            const FVector Offset=It->GetActorLocation()-GetActorLocation();
+            if(Offset.SizeSquared()>=IceDistance || FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())<.25f) continue;
+            FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIceLegSwing),false,this); Query.AddIgnoredActor(*It);
+            FHitResult Block;
+            if(GetWorld()->LineTraceSingleByChannel(Block,GetActorLocation(),It->GetActorLocation(),ECC_Visibility,Query)) continue;
+            FrozenAlly=*It; IceDistance=Offset.SizeSquared();
+        }
+        if(FrozenAlly && FrozenAlly->HitFrozenLegsWithPickaxe(this,Inventory->Damage()))
+        {
+            ++ConfirmedHitCount; MulticastHitSound(FrozenAlly->GetActorLocation()-FVector(0,0,35),AudioTool,HitIntensity); return;
+        }
+        for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+        {
+            FVector Point;
+            if(It->IsActive() && It->HitObstructionWithPickaxe(this,Inventory->Damage(),Point))
+            { ++ConfirmedHitCount; MulticastHitSound(Point,AudioTool,HitIntensity); return; }
+        }
         // An aimed swing never falls through to the tooth or a player if
         // another worker already broke its patch during the wind-up.
         if(CalculusTarget) {
@@ -1193,6 +1308,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCToothCharacter,bBrushing); DOREPLIFETIME(AMCToothCharacter,bHandling);
     DOREPLIFETIME(AMCToothCharacter,bPrimaryHeld);
+    DOREPLIFETIME(AMCToothCharacter,IceLegHealth);
     DOREPLIFETIME(AMCToothCharacter,CalculusTarget); DOREPLIFETIME(AMCToothCharacter,CalculusContactLocal);
     DOREPLIFETIME(AMCToothCharacter,CalculusNormalLocal); DOREPLIFETIME(AMCToothCharacter,SwingStartedAt);
     DOREPLIFETIME(AMCToothCharacter,BagColor);
@@ -1331,6 +1447,7 @@ bool AMCToothCharacter::FindPlayerBrushContact(const AMCToothCharacter* Worker,F
 void AMCToothCharacter::StatusChanged()
 {
     if (!HasAuthority() || Status->IsAlive() || bDeathReported) return;
+    ClearFrozenLegs();
     StopMimicRescue();
     if(IsMimicCaptured()) EndMimicCapture(MimicCaptureStart);
     Grip->ReleaseBrace();
@@ -1344,6 +1461,7 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
     if (!HasAuthority()) return;
     if (AMCTutorialDirector::IsSafeTutorial(GetWorld()))
     {
+        ClearFrozenLegs();
         CancelGameplayInput(); DropFood();
         SetActorLocation(FVector(-700,0,180),false,nullptr,ETeleportType::TeleportPhysics);
         GetCharacterMovement()->Velocity=FVector::ZeroVector;
@@ -1353,6 +1471,8 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 }
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
+    if(HasAuthority()) ClearFrozenLegs();
+    for(UStaticMeshComponent* Part:IceLegParts) if(Part) Part->SetVisibility(false);
     StopMimicRescue();
     if(HasAuthority() && IsMimicCaptured()) EndMimicCapture(MimicCaptureStart);
     if(MimicTickPrerequisite.IsValid()) RemoveTickPrerequisiteActor(MimicTickPrerequisite.Get());
@@ -1382,6 +1502,6 @@ void AMCToothCharacter::ServerThrowItem_Implementation()
 }
 void AMCToothCharacter::ServerPaddle_Implementation(FVector2D Direction)
 {
-    if (!bInCoffee || IsMimicCaptured() || !Status->IsAlive() || Direction.ContainsNaN()) return;
+    if (!bInCoffee || IsMimicCaptured() || HasFrozenLegs() || !Status->IsAlive() || Direction.ContainsNaN()) return;
     PaddleInput=Direction.GetClampedToMaxSize(1); LastPaddleAt=GetWorld()->GetTimeSeconds();
 }

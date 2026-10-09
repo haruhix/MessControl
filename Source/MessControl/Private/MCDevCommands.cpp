@@ -261,7 +261,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
         if (Action==EMCDevAction::FogEventStop)
             return FText::FromString(TEXT("Тест потасовки остановлен: туман и предупреждения убраны."));
         return FText::FromString(Action==EMCDevAction::StopIceEvent?
-            TEXT("Тест зимы остановлен: леденец, сосульки, зоны и заморозка убраны."):
+            TEXT("Тест зимы остановлен: кристаллы, сосульки, зоны, буря и заморозка ног убраны."):
             TEXT("Тест орехового события остановлен: орехи, боссы и осколки убраны."));
     }
     if (Action==EMCDevAction::NutEncounter || Action==EMCDevAction::IceEvent || Action==EMCDevAction::FogEvent)
@@ -293,10 +293,10 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             Ice->Tags.AddUnique(TEXT("MC_DevKeyEvent")); Ice->Tags.AddUnique(TEXT("DayOne")); Ice->Start();
             if (Ice->bFailed) { Ice->Stop(); Ice->Destroy(); return FText::FromString(TEXT("Для ледяного события нужен доступный язык и место для леденца.")); }
             GS->DirectorState.CurrentTitle=TEXT("ЗИМА БЛИЗКО");
-            GS->DirectorState.Instruction=TEXT("Разбей мятный леденец киркой (слот 2). Отогревайся в круге; выбегай из отметки сосульки.");
+            GS->DirectorState.Instruction=TEXT("Разбей центральный кристалл киркой (слот 2). Перебегай между тёплыми зонами, разбивай мешающие кристаллы и лёд на ногах; уклоняйся от трёх сосулек и конуса бури.");
             GS->RecordDirectorDecision(TEXT("F3: чистый тест ледяного события, автоматическая последовательность остановлена"));
             GS->ForceNetUpdate();
-            return FText::FromString(TEXT("Зима близко: разбивай леденец киркой (слот 2), отогревайся в круге. Сосулька целится туда, где стоят игроки: выбегай из отметки. F3 — играть."));
+            return FText::FromString(TEXT("Зима близко: центральный кристалл, тёплые зоны у края, серии сосулек и ледяная буря. Кирка (слот 2) разбивает кристаллы и лёд на ногах. F3 — играть."));
         }
         auto* Nuts=GetWorld()->SpawnActor<AMCNutRainEvent>();
         if (!Nuts) return FText::FromString(TEXT("Не удалось создать ореховое событие."));

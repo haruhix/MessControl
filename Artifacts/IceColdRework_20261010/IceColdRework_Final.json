@@ -1,0 +1,139 @@
+{
+  "sourceTimeline": "E:\\DEVGAME\\MessControl\\Saved\\IceVFX\\VisualNetwork\\Visual_20261010_030731_930\\Frames\\FrameTimes.csv",
+  "samples": 368,
+  "gameStart": 11.533151,
+  "gameEnd": 217.999632,
+  "sampledGameSeconds": 105.73535000000007,
+  "mediaSeconds": 105.833333,
+  "cuts": [
+    {
+      "after": {
+        "frame": "Frame00175.png",
+        "server_time": "61.225108",
+        "stage": "COLD_HAZARDS"
+      },
+      "before": {
+        "frame": "Frame00176.png",
+        "server_time": "149.321266",
+        "stage": "COLD_CORE_COMBAT"
+      },
+      "removedSeconds": 87.976158
+    },
+    {
+      "after": {
+        "frame": "Frame00245.png",
+        "server_time": "170.388211",
+        "stage": "COLD_CORE_COMBAT"
+      },
+      "before": {
+        "frame": "Frame00246.png",
+        "server_time": "175.850428",
+        "stage": "COLD_CORE_COMBAT"
+      },
+      "removedSeconds": 5.342216999999981
+    },
+    {
+      "after": {
+        "frame": "Frame00293.png",
+        "server_time": "190.036604",
+        "stage": "COLD_CORE_COMBAT"
+      },
+      "before": {
+        "frame": "Frame00294.png",
+        "server_time": "191.640912",
+        "stage": "COLD_CORE_COMBAT"
+      },
+      "removedSeconds": 1.4843079999999746
+    },
+    {
+      "after": {
+        "frame": "Frame00329.png",
+        "server_time": "201.496451",
+        "stage": "COLD_CORE_COMBAT"
+      },
+      "before": {
+        "frame": "Frame00330.png",
+        "server_time": "207.664899",
+        "stage": "COLD_CORE_COMBAT"
+      },
+      "removedSeconds": 6.048447999999984
+    }
+  ],
+  "streams": [
+    {
+      "index": 0,
+      "codec_name": "h264",
+      "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+      "profile": "High",
+      "codec_type": "video",
+      "codec_tag_string": "avc1",
+      "codec_tag": "0x31637661",
+      "width": 1600,
+      "height": 1000,
+      "coded_width": 1600,
+      "coded_height": 1000,
+      "has_b_frames": 2,
+      "pix_fmt": "yuv420p",
+      "level": 40,
+      "chroma_location": "left",
+      "field_order": "progressive",
+      "refs": 1,
+      "is_avc": "true",
+      "nal_length_size": "4",
+      "id": "0x1",
+      "r_frame_rate": "30/1",
+      "avg_frame_rate": "30/1",
+      "time_base": "1/15360",
+      "start_pts": 0,
+      "start_time": "0.000000",
+      "duration_ts": 1625600,
+      "duration": "105.833333",
+      "bit_rate": "1480071",
+      "bits_per_raw_sample": "8",
+      "nb_frames": "3175",
+      "extradata_size": 47,
+      "disposition": {
+        "default": 1,
+        "dub": 0,
+        "original": 0,
+        "comment": 0,
+        "lyrics": 0,
+        "karaoke": 0,
+        "forced": 0,
+        "hearing_impaired": 0,
+        "visual_impaired": 0,
+        "clean_effects": 0,
+        "attached_pic": 0,
+        "timed_thumbnails": 0,
+        "non_diegetic": 0,
+        "captions": 0,
+        "descriptions": 0,
+        "metadata": 0,
+        "dependent": 0,
+        "still_image": 0,
+        "multilayer": 0
+      },
+      "tags": {
+        "language": "und",
+        "handler_name": "VideoHandler",
+        "encoder": "Lavc62.21.100 libx264"
+      }
+    }
+  ],
+  "stages": [
+    "COLD_F3_ARRIVAL",
+    "COLD_METER_RISE",
+    "COLD_WARMING",
+    "COLD_HAZARDS",
+    "COLD_FIXED_ICICLE_DODGE",
+    "COLD_STATIONARY_ICICLE_HIT",
+    "COLD_BLOCKED_ZONE_AXE",
+    "COLD_CONE_WARNING",
+    "COLD_SELF_AXE_RESCUE",
+    "COLD_CORE_COMBAT",
+    "COLD_CORE_COMPLETE"
+  ],
+  "timing": "Game timestamp intervals preserved; uncaptured idle gaps cut. No time rescaling; audio omitted.",
+  "fullDecode": "PASS",
+  "video": "E:\\DEVGAME\\MessControl\\Artifacts\\IceColdRework_20261010\\IceColdRework_Final.mp4"
+}
