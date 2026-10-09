@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "pid_after_restart": 3340,
+  "native_default_tongue_material": "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost",
+  "native_player_material": "/Game/Gameplay/Cold/M_PlayerIceCoating.M_PlayerIceCoating",
+  "frost_fill": 1.0,
+  "warm_fade_width_cm": 45.0,
+  "warm_edge_variation_cm": 12.0,
+  "material_file_unchanged": true,
+  "base_dll": "D:/PROJECT/GAME/WaifuTD/MessControl/Binaries/Win64/UnrealEditor-MessControl.dll",
+  "base_dll_hash": "91f87e928af535ca60abf6cfadd6297aed9723d56a695c2a9647ee50b1eae268",
+  "camera_restored": true
+}

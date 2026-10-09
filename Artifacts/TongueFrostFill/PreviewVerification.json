@@ -1,9 +1,9 @@
 {
-  "passed": true,
+  "passed": false,
   "samples": [
     {
       "stage": "low",
-      "amount": 0.2666667401790619,
+      "amount": 0.2704276144504547,
       "warm_radius": 330.0,
       "warm_enabled": 1.0,
       "next_warm_enabled": 0.0,
@@ -12,51 +12,22 @@
       "warm_edge_variation": 12.0,
       "vertices": 7305,
       "triangles": 14336,
-      "max_surface_offset_error_cm": 7.105427357601002e-15,
-      "authored_uvs_preserved": true
-    },
-    {
-      "stage": "full",
-      "amount": 1.0,
-      "warm_radius": 327.6888732910156,
-      "warm_enabled": 1.0,
-      "next_warm_enabled": 0.0,
-      "fade_width": 45.0,
-      "frost_fill": 1.0,
-      "warm_edge_variation": 12.0,
-      "vertices": 7305,
-      "triangles": 14336,
-      "max_surface_offset_error_cm": 7.105427357601002e-15,
-      "authored_uvs_preserved": true
-    },
-    {
-      "stage": "two_zones",
-      "amount": 1.0,
-      "warm_radius": 205.12777709960938,
-      "warm_enabled": 1.0,
-      "next_warm_enabled": 1.0,
-      "fade_width": 45.0,
-      "frost_fill": 1.0,
-      "warm_edge_variation": 12.0,
-      "vertices": 7305,
-      "triangles": 14336,
-      "max_surface_offset_error_cm": 8.881784197001252e-16,
+      "max_surface_offset_error_cm": 2.842170943040401e-14,
       "authored_uvs_preserved": true
     }
   ],
   "original_tongue_material": "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
   "camera": {
     "location": [
-      -830.5927886962891,
-      -64.23249626159668,
-      1542.1845779418945
+      -1040.0,
+      80.00001525878906,
+      1282.8627319335938
     ],
     "target": [
-      -510.59278869628906,
-      -64.23249626159668,
-      42.18457794189453
+      -720.0,
+      80.00001525878906,
+      32.86273193359375
     ]
   },
-  "cleanup": "Frost section removed; original tongue material preserved",
-  "error": null
+  "error": "Traceback (most recent call last):\n  File \"<string>\", line 89, in tick\nException: ProceduralMeshComponent: Internal Error - ObjectInstance is null!\n"
 }

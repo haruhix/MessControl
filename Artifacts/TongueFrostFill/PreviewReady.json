@@ -1,0 +1,14 @@
+{
+  "stage": "low",
+  "amount": 0.2704276144504547,
+  "warm_radius": 330.0,
+  "warm_enabled": 1.0,
+  "next_warm_enabled": 0.0,
+  "fade_width": 45.0,
+  "frost_fill": 1.0,
+  "warm_edge_variation": 12.0,
+  "vertices": 7305,
+  "triangles": 14336,
+  "max_surface_offset_error_cm": 2.842170943040401e-14,
+  "authored_uvs_preserved": true
+}

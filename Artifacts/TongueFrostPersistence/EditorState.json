@@ -1,0 +1,16 @@
+{
+  "project": "D:/PROJECT/GAME/WaifuTD/MessControl",
+  "map": "/Game/Maps/L_Mouth",
+  "camera_location": [
+    -1200.7667679040558,
+    1271.653205412191,
+    438.8316164521776
+  ],
+  "camera_rotation": [
+    0.0,
+    -10.115530014038086,
+    -68.5435791015625
+  ],
+  "material_hash_before": "a8ab982dee90072459ecf46efa4d15d31909f6e80232bc05f204a2ac83fec59d",
+  "dirty_packages_before_close": []
+}
