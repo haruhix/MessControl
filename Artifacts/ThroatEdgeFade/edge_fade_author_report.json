@@ -1,0 +1,11 @@
+{
+  "material": "/Game/Gameplay/Cold/M_ExitClimate.M_ExitClimate",
+  "master": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade",
+  "backup": "/Game/Art/Materials/ThroatEdgeFade/MI_ExitClimate_BeforeEdgeFade",
+  "parameters": {
+    "Edge Fade Width": 100.0,
+    "Edge Fade Amount": 1.0
+  },
+  "compile_errors": [],
+  "selected_model_uses_material": true
+}

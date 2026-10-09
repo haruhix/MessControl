@@ -1,0 +1,31 @@
+{
+  "original_parameters_preserved": {
+    "scalar": [
+      "Param_1",
+      "Param",
+      "Metalic",
+      "Roughness Strength",
+      "Normal Strength",
+      "Saturate",
+      "lightning",
+      "Spec",
+      "Tile",
+      "Mask",
+      "Blending"
+    ],
+    "vector": [
+      "Albedo Color",
+      "GragientTint"
+    ],
+    "texture": [
+      "ARM",
+      "Albedo Texture",
+      "Normal Texture"
+    ]
+  },
+  "actor_material": "/Game/Gameplay/Cold/M_ExitClimate.M_ExitClimate",
+  "master": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade",
+  "width": 100,
+  "amount": 1,
+  "status": "saved and compiled; editor visual check complete"
+}
