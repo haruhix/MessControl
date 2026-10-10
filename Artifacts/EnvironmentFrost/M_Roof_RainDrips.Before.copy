@@ -1,0 +1,970 @@
+Begin Object Class=/Script/Engine.Material Name="M_Roof_RainDrips" ExportPath="/Script/Engine.Material'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips'"
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_2" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionWorldPosition_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_1" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionWorldPosition_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_0" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionWorldPosition_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexNormalWS Name="MaterialExpressionVertexNormalWS_1" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVertexNormalWS_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVectorParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVectorParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTransform Name="MaterialExpressionTransform_0" ExportPath="/Script/Engine.MaterialExpressionTransform'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTransform_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTime Name="MaterialExpressionTime_1" ExportPath="/Script/Engine.MaterialExpressionTime'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTime_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureObjectParameter Name="MaterialExpressionTextureObjectParameter_3" ExportPath="/Script/Engine.MaterialExpressionTextureObjectParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureObjectParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureObjectParameter Name="MaterialExpressionTextureObjectParameter_2" ExportPath="/Script/Engine.MaterialExpressionTextureObjectParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureObjectParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureCoordinate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSubtract Name="MaterialExpressionSubtract_1" ExportPath="/Script/Engine.MaterialExpressionSubtract'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionSubtract_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_9" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_9'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_26" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_26'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_25" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_25'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_24" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_24'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_23" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_23'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_22" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_22'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_21" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_21'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_20" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_20'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_19" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_19'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_18" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_18'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_17" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_17'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_16" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_16'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_15" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_15'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_14" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_14'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_13" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_13'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_12" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_12'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_11" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_11'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_10" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_10'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSaturate Name="MaterialExpressionSaturate_3" ExportPath="/Script/Engine.MaterialExpressionSaturate'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionSaturate_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSaturate Name="MaterialExpressionSaturate_2" ExportPath="/Script/Engine.MaterialExpressionSaturate'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionSaturate_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionReroute Name="MaterialExpressionReroute_1" ExportPath="/Script/Engine.MaterialExpressionReroute'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionReroute_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionPower Name="MaterialExpressionPower_1" ExportPath="/Script/Engine.MaterialExpressionPower'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionPower_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionObjectPositionWS Name="MaterialExpressionObjectPositionWS_1" ExportPath="/Script/Engine.MaterialExpressionObjectPositionWS'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionObjectPositionWS_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionNormalize Name="MaterialExpressionNormalize_1" ExportPath="/Script/Engine.MaterialExpressionNormalize'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionNormalize_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_21" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_21'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_20" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_20'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_2" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_19" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_19'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_18" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_18'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_17" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_17'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_16" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_16'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_15" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_15'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_14" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_14'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_13" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_13'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_12" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_12'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_11" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_11'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_0" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_1" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionLinearInterpolate Name="MaterialExpressionLinearInterpolate_1" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionLinearInterpolate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionDivide Name="MaterialExpressionDivide_1" ExportPath="/Script/Engine.MaterialExpressionDivide'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionDivide_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionDesaturation Name="MaterialExpressionDesaturation_1" ExportPath="/Script/Engine.MaterialExpressionDesaturation'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionDesaturation_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_5" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_4" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_3" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_1" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionConstant_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_5" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComponentMask_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_4" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComponentMask_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_3" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComponentMask_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_2" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComponentMask_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_5" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_4" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_3" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_2" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_1" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_0" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCameraPositionWS Name="MaterialExpressionCameraPositionWS_0" ExportPath="/Script/Engine.MaterialExpressionCameraPositionWS'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCameraPositionWS_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionAppendVector Name="MaterialExpressionAppendVector_1" ExportPath="/Script/Engine.MaterialExpressionAppendVector'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionAppendVector_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Roof_RainDripsEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:M_Roof_RainDripsEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_2" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionWorldPosition_2'"
+      MaterialExpressionEditorX=-2550
+      MaterialExpressionEditorY=1800
+      MaterialExpressionGuid=573516C541B066DE46A5A2AFC3626269
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_1" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionWorldPosition_1'"
+      MaterialExpressionEditorX=1360
+      MaterialExpressionEditorY=-816
+      MaterialExpressionGuid=DA84CDE940421989EAE591B0F5B1B8FA
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_0" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionWorldPosition_0'"
+      MaterialExpressionEditorX=1400
+      MaterialExpressionEditorY=700
+      MaterialExpressionGuid=7A9D16A841E98319A4ACDDAEEB93AADC
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexNormalWS_1" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVertexNormalWS_1'"
+      MaterialExpressionEditorX=-2550
+      MaterialExpressionEditorY=1960
+      MaterialExpressionGuid=7C364B574F7A76D49ACBE2BB93408A5D
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVectorParameter_3'"
+      DefaultValue=(R=0.000000,G=0.000000,B=0.000000,A=1.000000)
+      ParameterName="GragientTint"
+      ExpressionGUID=5DEA5D2740F233F33114DE835CBA5952
+      MaterialExpressionEditorX=928
+      MaterialExpressionEditorY=-624
+      MaterialExpressionGuid=8399141E4F332DF0E20636B47C256369
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVectorParameter_2'"
+      DefaultValue=(R=0.000000,G=140.000000,B=0.250000,A=0.000000)
+      bUseCustomPrimitiveData=True
+      PrimitiveDataIndex=24
+      ParameterName="CameraRevealSettings"
+      ExpressionGUID=8FB7A5C643C0C9B445D81090ADED52C2
+      Group="Camera Reveal"
+      MaterialExpressionEditorX=1400
+      MaterialExpressionEditorY=700
+      MaterialExpressionGuid=B685BFB04991B4286FD781B31511A443
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=1.000000,G=1.000000,B=1.000000,A=1.000000)
+      ParameterName="Albedo Color"
+      ExpressionGUID=F96A59A14418EF02AF7B47A98DAF94AE
+      Group="01 - Albedo"
+      SortPriority=1
+      MaterialExpressionEditorX=-896
+      MaterialExpressionEditorY=16
+      MaterialExpressionGuid=5C95B5A940254C296C07B2AC1D95BFEB
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionVectorParameter_0'"
+      bUseCustomPrimitiveData=True
+      PrimitiveDataIndex=20
+      ParameterName="CameraRevealFocus"
+      ExpressionGUID=DD9BBEED47891DAFA190F09EBA1DDF2A
+      Group="Camera Reveal"
+      MaterialExpressionEditorX=1400
+      MaterialExpressionEditorY=700
+      MaterialExpressionGuid=3A415F164E5D4A3C7E4A45BB4DF179F6
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionTransform_0" ExportPath="/Script/Engine.MaterialExpressionTransform'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTransform_0'"
+      Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_5'")
+      TransformSourceType=TRANSFORMSOURCE_World
+      TransformType=TRANSFORM_Tangent
+      MaterialExpressionEditorX=-650
+      MaterialExpressionEditorY=1830
+      MaterialExpressionGuid=4297AD0F43295623135D62990150C53E
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionTime_1" ExportPath="/Script/Engine.MaterialExpressionTime'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTime_1'"
+      MaterialExpressionEditorX=-2550
+      MaterialExpressionEditorY=2120
+      MaterialExpressionGuid=074CA9404FA56925372433A8228253FF
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_2'"
+      ParameterName="Normal Texture"
+      ExpressionGUID=1EE83D994324F21F78C1DBA17E33214C
+      Group="02 - Normal"
+      SortPriority=0
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_19'")
+      Texture="/Script/Engine.Texture2D'/Engine/EngineMaterials/DefaultNormal.DefaultNormal'"
+      SamplerType=SAMPLERTYPE_Normal
+      MaterialExpressionEditorX=-880
+      MaterialExpressionEditorY=608
+      MaterialExpressionGuid=62FD39854832C71F5725A5A4690CE5D6
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_1'"
+      ParameterName="Albedo Texture"
+      ExpressionGUID=6BFB3B7C4D7639CD6D983396715F5D04
+      Group="01 - Albedo"
+      SortPriority=0
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_19'")
+      Texture="/Script/Engine.Texture2D'/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture'"
+      MaterialExpressionEditorX=-1312
+      MaterialExpressionEditorY=-336
+      MaterialExpressionGuid=1104065549AF7CFCA0B1A98003450FB3
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_0'"
+      ParameterName="ARM"
+      ExpressionGUID=44FDBEDE414706C0F779F0A6829F6C64
+      Group="03 - ARM"
+      SortPriority=0
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_19'")
+      Texture="/Script/Engine.Texture2D'/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture'"
+      MaterialExpressionEditorX=1280
+      MaterialExpressionEditorY=128
+      MaterialExpressionGuid=34006E104C2BD1B10BA579892FFF0ED4
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureObjectParameter_3" ExportPath="/Script/Engine.MaterialExpressionTextureObjectParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureObjectParameter_3'"
+      ParameterName="Rain Animation Mask"
+      ExpressionGUID=936B72D04555503CD135FEAA9CDB1118
+      Group="Rain Drips"
+      Texture="/Script/Engine.Texture2D'/Game/Art/Materials/Arena/RainDrips/Textures/rain_drip_mask.rain_drip_mask'"
+      SamplerType=SAMPLERTYPE_LinearColor
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=2560
+      MaterialExpressionGuid=3CBD4F7F4EB660EE7BFB46BD0FF40C9D
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureObjectParameter_2" ExportPath="/Script/Engine.MaterialExpressionTextureObjectParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureObjectParameter_2'"
+      ParameterName="Rain Drips Texture"
+      ExpressionGUID=088EEDA94AC11BE3FE3D3ABA6E3807B2
+      Group="Rain Drips"
+      Texture="/Script/Engine.Texture2D'/Game/Art/Materials/Arena/RainDrips/Textures/rain_drips.rain_drips'"
+      SamplerType=SAMPLERTYPE_LinearColor
+      MaterialExpressionEditorX=-2600
+      MaterialExpressionEditorY=2340
+      MaterialExpressionGuid=A031962D4C71CC43C920E3A7AA430267
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionTextureCoordinate_1'"
+      MaterialExpressionEditorX=-1376
+      MaterialExpressionEditorY=208
+      MaterialExpressionGuid=BC23A6B74768FCE1E7ACD097C5BA69C1
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionSubtract_1" ExportPath="/Script/Engine.MaterialExpressionSubtract'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionSubtract_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionObjectPositionWS'M_Roof_RainDrips:MaterialExpressionObjectPositionWS_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_Roof_RainDrips:MaterialExpressionWorldPosition_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=1696
+      MaterialExpressionEditorY=-800
+      MaterialExpressionGuid=BD4BFD2E4DEA8AD9123F4A8686377B72
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_9" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_9'"
+      SliderMax=1.000000
+      ParameterName="Rain Amount"
+      ExpressionGUID=25FD4E7741F6D0BE0AC8568E522F18EB
+      Group="Rain Drips"
+      MaterialExpressionEditorX=-2200
+      MaterialExpressionEditorY=1780
+      MaterialExpressionGuid=0C4B038B4C340B9E077D42A089C43CC8
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Desc="0 restores the original surface; 1 enables flowing water."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_4'"
+      ParameterName="Blending"
+      ExpressionGUID=C7737E254002BAFCFDBDC3AC37C970FC
+      MaterialExpressionEditorX=2544
+      MaterialExpressionEditorY=1168
+      MaterialExpressionGuid=2C7D3FF04CD45DE44460EB950F226B1A
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_26" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_26'"
+      SliderMax=1.000000
+      ParameterName="Rain Permeability"
+      ExpressionGUID=BF800F4B4D8FA05052A8D5830257EE8D
+      Group="Rain Drips"
+      MaterialExpressionEditorX=-2200
+      MaterialExpressionEditorY=2480
+      MaterialExpressionGuid=EA6E47B84F471966059782A682F29D75
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Desc="0: long, fast streams. 1: slower drips soaking into the surface."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_25" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_25'"
+      DefaultValue=0.120000
+      SliderMax=1.000000
+      ParameterName="Rain Darkening"
+      ExpressionGUID=7C9DEC244955017AF299BFB3F2968CAB
+      Group="Rain Drips"
+      MaterialExpressionEditorX=-2200
+      MaterialExpressionEditorY=2380
+      MaterialExpressionGuid=3E60D8364BB8F35E44153E9E14DDE731
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_24" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_24'"
+      DefaultValue=0.025000
+      SliderMax=1.000000
+      ParameterName="Rain Roughness"
+      ExpressionGUID=3EDE1DCB41B7850F26EAB7B75FDE7B6D
+      Group="Rain Drips"
+      MaterialExpressionEditorX=-2200
+      MaterialExpressionEditorY=2280
+      MaterialExpressionGuid=781A699146F51188B41E1D8B86F48497
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_23" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_23'"
+      DefaultValue=1.800000
+      SliderMax=5.000000
+      ParameterName="Rain Normal Strength"
+      ExpressionGUID=384367AE4BC4885FE8F695A5FDFA2BC9
+      Group="Rain Drips"
+      MaterialExpressionEditorX=-2200
+      MaterialExpressionEditorY=2180
+      MaterialExpressionGuid=805E047440FD58DA72EA6792D7E47BAD
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Desc="Strength of moving water ridges."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_22" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_22'"
+      DefaultValue=360.000000
+      SliderMin=50.000000
+      SliderMax=1000.000000
+      ParameterName="Rain Height (cm)"
+      ExpressionGUID=0F5BBBA844AA34FCD6A9CFAA574EC14C
+      Group="Rain Drips"
+      MaterialExpressionEditorX=-2200
+      MaterialExpressionEditorY=2080
+      MaterialExpressionGuid=1FC5B84B423C53B583945B935A5D1A2D
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Desc="World height of one drip animation tile."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_21" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_21'"
+      DefaultValue=420.000000
+      SliderMin=50.000000
+      SliderMax=1000.000000
+      ParameterName="Rain Width (cm)"
+      ExpressionGUID=4504496D42B954B2BCE9A18B387AB05E
+      Group="Rain Drips"
+      MaterialExpressionEditorX=-2200
+      MaterialExpressionEditorY=1980
+      MaterialExpressionGuid=0928E92E49AAFF0C7A101FA51EFD3E57
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Desc="World width of one eight-rivulet texture tile."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_20" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_20'"
+      DefaultValue=0.450000
+      SliderMax=2.000000
+      ParameterName="Rain Speed"
+      ExpressionGUID=EF9E5FAD48FEC2334F7F61992FD43D59
+      Group="Rain Drips"
+      MaterialExpressionEditorX=-2200
+      MaterialExpressionEditorY=1880
+      MaterialExpressionGuid=997282B1482A0FD12B588F86BB175162
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Desc="Cycles per second. Positive values run downward along world Z."
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_19" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_19'"
+      DefaultValue=1.000000
+      ParameterName="Mask"
+      ExpressionGUID=B8CB0A52410A1C86C59E90A4F99240FB
+      MaterialExpressionEditorX=32
+      MaterialExpressionEditorY=976
+      MaterialExpressionGuid=AA6985034DD3F872324DDB98A910C02A
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_18" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_18'"
+      DefaultValue=1.000000
+      ParameterName="Tile"
+      ExpressionGUID=D074317949C9BE5E93FA7BBFC32EEFF6
+      Group="00 - Base"
+      MaterialExpressionEditorX=-1376
+      MaterialExpressionEditorY=336
+      MaterialExpressionGuid=72DB37D94DFD2A89735BBF8ED000F7E9
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_17" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_17'"
+      DefaultValue=0.500000
+      ParameterName="Spec"
+      ExpressionGUID=6A002FDE4A8A173C35E33598BA9A7E66
+      Group="03 - ARM"
+      MaterialExpressionEditorX=848
+      MaterialExpressionEditorY=384
+      MaterialExpressionGuid=3D90376D48C675F426D8558B5FF34F13
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_16" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_16'"
+      DefaultValue=1.000000
+      ParameterName="lightning"
+      ExpressionGUID=EABCD3A84668D5EE522BABA130052D65
+      Group="01 - Albedo"
+      MaterialExpressionEditorX=-592
+      MaterialExpressionEditorY=-80
+      MaterialExpressionGuid=333A9D0B430F1CE844EF44BC1E99B197
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_15" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_15'"
+      ParameterName="Saturate"
+      ExpressionGUID=6DDCBD1B4003D42338B9928FE9E3A111
+      Group="01 - Albedo"
+      MaterialExpressionEditorX=-688
+      MaterialExpressionEditorY=144
+      MaterialExpressionGuid=247A120943A60928BC95C6A5B935093A
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_14" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_14'"
+      DefaultValue=1.000000
+      SliderMax=2.000000
+      ParameterName="Normal Strength"
+      ExpressionGUID=7022F59A43BDE33708D2E9A5D01C8304
+      Group="02 - Normal"
+      SortPriority=1
+      MaterialExpressionEditorX=-544
+      MaterialExpressionEditorY=672
+      MaterialExpressionGuid=D6EC56794E6A5D47F0589AAB309A716E
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_13" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_13'"
+      DefaultValue=0.500000
+      SliderMax=1.000000
+      ParameterName="Roughness Strength"
+      ExpressionGUID=32118E2447006A3AEEB247A83B529023
+      Group="03 - ARM"
+      SortPriority=1
+      MaterialExpressionEditorX=-512
+      MaterialExpressionEditorY=208
+      MaterialExpressionGuid=2F44CC4B49B4C587D8DC05B09E9CEBC2
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_12" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_12'"
+      ParameterName="Metalic"
+      ExpressionGUID=C1FC9A27479FA7C9EF4E7C877137D0E6
+      Group="03 - ARM"
+      MaterialExpressionEditorX=1360
+      MaterialExpressionEditorY=-48
+      MaterialExpressionGuid=5BAF2CE94748AA42FF78E4A6C8DCC184
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_11" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_11'"
+      DefaultValue=148.644989
+      ExpressionGUID=0694880A414F14558B3B0AB2B40CBE36
+      MaterialExpressionEditorX=2032
+      MaterialExpressionEditorY=-624
+      MaterialExpressionGuid=DF3F445E4EDBBBAD1057DD8C6BF97FC6
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_10" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_10'"
+      ParameterName="Param_1"
+      ExpressionGUID=156F43BA432D3441EE31A89CD86DB6C1
+      MaterialExpressionEditorX=2304
+      MaterialExpressionEditorY=-656
+      MaterialExpressionGuid=ACE27A1C4A021250899B8E8650934C39
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionScalarParameter_0'"
+      DefaultValue=1.000000
+      ParameterName="CameraRevealEnabled"
+      ExpressionGUID=A51650944BC4DFD5720693A012CAE835
+      Group="Camera Reveal"
+      MaterialExpressionEditorX=1400
+      MaterialExpressionEditorY=700
+      MaterialExpressionGuid=C22F618346D3D9844EA4658BEA24B7CA
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionSaturate_3" ExportPath="/Script/Engine.MaterialExpressionSaturate'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionSaturate_3'"
+      MaterialExpressionEditorX=-64
+      MaterialExpressionEditorY=-224
+      MaterialExpressionGuid=CFBF323B4AE804B2DDB02F85B946DB77
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionSaturate_2" ExportPath="/Script/Engine.MaterialExpressionSaturate'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionSaturate_2'"
+      Input=(Expression="/Script/Engine.MaterialExpressionDivide'M_Roof_RainDrips:MaterialExpressionDivide_1'")
+      MaterialExpressionEditorX=2320
+      MaterialExpressionEditorY=-768
+      MaterialExpressionGuid=4223BA3449C05AC4B7DBB2997484BAAF
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionReroute_1" ExportPath="/Script/Engine.MaterialExpressionReroute'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionReroute_1'"
+      Input=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_16'")
+      MaterialExpressionEditorX=1024
+      MaterialExpressionEditorY=-256
+      MaterialExpressionGuid=5C4447A84B6E07D7E6262E9A4F3F1821
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionPower_1" ExportPath="/Script/Engine.MaterialExpressionPower'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionPower_1'"
+      Base=(OutputIndex=3,Mask=1,MaskB=1)
+      Exponent=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_12'")
+      MaterialExpressionEditorX=1776
+      MaterialExpressionEditorY=-160
+      MaterialExpressionGuid=6C0E34AC4D8526447DB0869FF7FC144A
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionObjectPositionWS_1" ExportPath="/Script/Engine.MaterialExpressionObjectPositionWS'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionObjectPositionWS_1'"
+      MaterialExpressionEditorX=1360
+      MaterialExpressionEditorY=-928
+      MaterialExpressionGuid=7AFD290E4A64582E1361FD9D4F38ACB1
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionNormalize_1" ExportPath="/Script/Engine.MaterialExpressionNormalize'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionNormalize_1'"
+      VectorInput=(Expression="/Script/Engine.MaterialExpressionAppendVector'M_Roof_RainDrips:MaterialExpressionAppendVector_1'")
+      MaterialExpressionEditorX=1040
+      MaterialExpressionEditorY=1136
+      MaterialExpressionGuid=52DE3C7741BA75758270639F16DD7AD4
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_21" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_21'"
+      A=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Roof_RainDrips:MaterialExpressionVectorParameter_3'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      B=(Expression="/Script/Engine.MaterialExpressionReroute'M_Roof_RainDrips:MaterialExpressionReroute_1'")
+      MaterialExpressionEditorX=1232
+      MaterialExpressionEditorY=-464
+      MaterialExpressionGuid=7B9E346E4BCDD624898813AC1EFFDFE0
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_20" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_20'"
+      MaterialExpressionEditorX=160
+      MaterialExpressionEditorY=224
+      MaterialExpressionGuid=E58DDE77413646A53EECBCB15A573077
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_2" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_2'"
+      A=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_4'")
+      MaterialExpressionEditorX=2768
+      MaterialExpressionEditorY=1056
+      MaterialExpressionGuid=3DFAA66E48A06594FAB871B8563DAFBF
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_19" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_19'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_Roof_RainDrips:MaterialExpressionTextureCoordinate_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_18'")
+      MaterialExpressionEditorX=-1104
+      MaterialExpressionEditorY=272
+      MaterialExpressionGuid=437527654DF6ED22F66EB1899BDE1B76
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_18" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_18'"
+      A=(Expression="/Script/Engine.MaterialExpressionDesaturation'M_Roof_RainDrips:MaterialExpressionDesaturation_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_16'")
+      MaterialExpressionEditorX=-400
+      MaterialExpressionEditorY=-304
+      MaterialExpressionGuid=4DDE5088413FD1EC735133A3F2582C19
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_17" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_17'"
+      A=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_3'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_14'")
+      MaterialExpressionEditorX=-240
+      MaterialExpressionEditorY=624
+      MaterialExpressionGuid=4E1CDBC942A0142B4E09E2BDB93AD4A2
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_16" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_16'"
+      A=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_18'")
+      B=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Roof_RainDrips:MaterialExpressionVectorParameter_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=-208
+      MaterialExpressionEditorY=-96
+      MaterialExpressionGuid=A591B4D844464F4A684379B72810A41D
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_15" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_15'"
+      A=(Expression="/Script/Engine.MaterialExpressionSaturate'M_Roof_RainDrips:MaterialExpressionSaturate_2'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_10'")
+      MaterialExpressionEditorX=2544
+      MaterialExpressionEditorY=-752
+      MaterialExpressionGuid=9F02DDCB4C7E6756BB2E7386AD31EFFA
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_14" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_14'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_1'",OutputIndex=4,Mask=1,MaskA=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_19'")
+      MaterialExpressionEditorX=1936
+      MaterialExpressionEditorY=1072
+      MaterialExpressionGuid=F77C544145A9B9D785E66994F4699381
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_13" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_13'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=2,Mask=1,MaskG=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_13'")
+      MaterialExpressionEditorX=1872
+      MaterialExpressionEditorY=640
+      MaterialExpressionGuid=F440D0754D2D83621071C5AB06780D0E
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_12" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_12'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_1'",OutputIndex=1,Mask=1,MaskR=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_17'")
+      MaterialExpressionEditorX=1872
+      MaterialExpressionEditorY=448
+      MaterialExpressionGuid=DA28107E4F1C3C1326DBDD8573CAA471
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_11" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_11'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=3,Mask=1,MaskB=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_12'")
+      MaterialExpressionEditorX=2112
+      MaterialExpressionEditorY=128
+      MaterialExpressionGuid=7771E343407ADFFB446C52A4E853A28A
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_0" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_0'"
+      A=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_14'")
+      B=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_0'")
+      MaterialExpressionEditorX=1400
+      MaterialExpressionEditorY=700
+      MaterialExpressionGuid=3EC1FAF343DA119E0681749E8120731C
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Desc="MC Camera: preserve authored coverage"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_1" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_1'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA.DitherTemporalAA'"
+      FunctionInputs(0)=(ExpressionInputId=982BCAE7401F814CDC0AE2955DEE46F3,Input=(OutputIndex=-1,InputName="Alpha Threshold"))
+      FunctionInputs(1)=(ExpressionInputId=E8A932AF4299B0D6C16EDB8B1E912796,Input=(OutputIndex=-1,InputName="Random"))
+      FunctionOutputs(0)=(ExpressionOutputId=9BC32B084665F3D2D59A90AA45CA8A9F,Output=(OutputName="Result"))
+      MaterialExpressionEditorX=2480
+      MaterialExpressionEditorY=1024
+      MaterialExpressionGuid=CDCA4BAF4261B1149DBBDF91FDB79523
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Outputs(0)=(OutputName="Result")
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA.DitherTemporalAA'"
+      FunctionInputs(0)=(ExpressionInputId=982BCAE7401F814CDC0AE2955DEE46F3,Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_0'",InputName="Alpha Threshold"))
+      FunctionInputs(1)=(ExpressionInputId=E8A932AF4299B0D6C16EDB8B1E912796,Input=(OutputIndex=-1,InputName="Random"))
+      FunctionOutputs(0)=(ExpressionOutputId=9BC32B084665F3D2D59A90AA45CA8A9F,Output=(OutputName="Result"))
+      MaterialExpressionEditorX=1400
+      MaterialExpressionEditorY=700
+      MaterialExpressionGuid=7E0811D848B7D8B991F859A6FB3CA384
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+      Desc="MC Camera: soft radial edge"
+      Outputs(0)=(OutputName="Result")
+   End Object
+   Begin Object Name="MaterialExpressionLinearInterpolate_1" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionLinearInterpolate_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionReroute'M_Roof_RainDrips:MaterialExpressionReroute_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_21'")
+      Alpha=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_15'")
+      MaterialExpressionEditorX=2544
+      MaterialExpressionEditorY=-400
+      MaterialExpressionGuid=880F6009473733FE8B5F01B76CD3E0AB
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionDivide_1" ExportPath="/Script/Engine.MaterialExpressionDivide'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionDivide_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_2'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_11'")
+      MaterialExpressionEditorX=2144
+      MaterialExpressionEditorY=-784
+      MaterialExpressionGuid=DFEDEB954D675DB86E2AB0B7E79A2B09
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionDesaturation_1" ExportPath="/Script/Engine.MaterialExpressionDesaturation'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionDesaturation_1'"
+      Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Fraction=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_15'")
+      MaterialExpressionEditorX=-464
+      MaterialExpressionEditorY=32
+      MaterialExpressionGuid=107223984E3B2C4213193EA09AA9E4EC
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_5" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_5'"
+      Code="return lerp(Spec,max(Spec,0.5),saturate(Mask));"
+      OutputType=CMOT_Float1
+      Description="Water dielectric specular over original surface"
+      Inputs(0)=(InputName="Spec",Input=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_12'"))
+      Inputs(1)=(InputName="Mask",Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_4'"))
+      MaterialExpressionEditorX=-320
+      MaterialExpressionEditorY=2540
+      MaterialExpressionGuid=F127B02E4A2B04ED872675948F0F993A
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_4" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_4'"
+      Code="return lerp(Rough, saturate(WaterRough), saturate(pow(max(Mask,0.0),0.55)));"
+      OutputType=CMOT_Float1
+      Description="Moving water has a smooth reflective finish"
+      Inputs(0)=(InputName="Rough",Input=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_13'"))
+      Inputs(1)=(InputName="Mask",Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_4'"))
+      Inputs(2)=(InputName="WaterRough",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_24'"))
+      MaterialExpressionEditorX=-320
+      MaterialExpressionEditorY=2340
+      MaterialExpressionGuid=24D948CF45D5FF70236F9885532B219F
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_3" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_3'"
+      Code="return Base * (1.0 - saturate(Mask)*saturate(Darkening));"
+      Description="Wet rivulets subtly darken original albedo"
+      Inputs(0)=(InputName="Base",Input=(Expression="/Script/Engine.MaterialExpressionLinearInterpolate'M_Roof_RainDrips:MaterialExpressionLinearInterpolate_1'"))
+      Inputs(1)=(InputName="Mask",Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_4'"))
+      Inputs(2)=(InputName="Darkening",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_25'"))
+      MaterialExpressionEditorX=-320
+      MaterialExpressionEditorY=2120
+      MaterialExpressionGuid=DECE12594A0E6F3C56A726BED54AB562
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_2'"
+      Code="float3 b=normalize(Base); b.xy *= 1.0-saturate(Mask)*0.75; return normalize(b+Delta);"
+      Description="Blend water ridges with original roof normal"
+      Inputs(0)=(InputName="Base",Input=(Expression="/Script/Engine.MaterialExpressionNormalize'M_Roof_RainDrips:MaterialExpressionNormalize_1'"))
+      Inputs(1)=(InputName="Delta",Input=(Expression="/Script/Engine.MaterialExpressionTransform'M_Roof_RainDrips:MaterialExpressionTransform_0'"))
+      Inputs(2)=(InputName="Mask",Input=(Expression="/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_4'"))
+      MaterialExpressionEditorX=-320
+      MaterialExpressionEditorY=1800
+      MaterialExpressionGuid=EC2CB6134A54372A19B07CB5C2EFEFF9
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_1'"
+      Code="\nfloat3 n = normalize(N);\nfloat2 weights = pow(abs(n.xy), 4.0);\nweights /= max(weights.x + weights.y, 0.0001);\nfloat wall = saturate((1.0 - abs(n.z) - 0.08) / 0.72);\nwall = wall * wall * (3.0 - 2.0 * wall);\nfloat2 uvX = float2(P.y / max(Width,1.0), -P.z / max(Height,1.0));\nfloat2 uvY = float2(P.x / max(Width,1.0), -P.z / max(Height,1.0));\nfloat4 dx = Texture2DSample(Drips, DripsSampler, uvX);\nfloat4 dy = Texture2DSample(Drips, DripsSampler, uvY);\nfloat permeability = saturate(Permeability);\nfloat vx = max(Speed,0.0) * lerp(0.55 + dx.a * 0.9, 0.10 + dx.a * 0.18, permeability);\nfloat vy = max(Speed,0.0) * lerp(0.55 + dy.a * 0.9, 0.10 + dy.a * 0.18, permeability);\n// World Z plus time moves the head downward, with its fading trail above it.\nfloat4 rx = Texture2DSampleLevel(Ramp, RampSampler, float2(0.5, frac(-uvX.y + T*vx + dx.a)), 0);\nfloat4 ry = Texture2DSampleLevel(Ramp, RampSampler, float2(0.5, frac(-uvY.y + T*vy + dy.a)), 0);\nfloat mx = saturate(dx.b * lerp(rx.a, rx.r, permeability));\nfloat my = saturate(dy.b * lerp(ry.a, ry.r, permeability));\nfloat mask = saturate((mx * weights.x + my * weights.y) * wall * saturate(Amount));\nfloat2 sx = (dx.rg * 2.0 - 1.0) * lerp(rx.a,rx.r,permeability);\nfloat2 sy = (dy.rg * 2.0 - 1.0) * lerp(ry.a,ry.r,permeability);\n// RGB normal channels remain linear data. Project slopes onto the curved wall.\nfloat3 slope = float3(sy.x*weights.y, sx.x*weights.x,\n                    -sx.y*weights.x - sy.y*weights.y);\nslope -= n * dot(slope,n);\nfloat3 delta = slope * Strength * wall * saturate(Amount);\nreturn float4(delta,mask);\n"
+      OutputType=CMOT_Float4
+      Description="Rain rivulets | RG normal, B path, A timing | world Z down"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_Roof_RainDrips:MaterialExpressionWorldPosition_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="N",Input=(Expression="/Script/Engine.MaterialExpressionVertexNormalWS'M_Roof_RainDrips:MaterialExpressionVertexNormalWS_1'"))
+      Inputs(2)=(InputName="T",Input=(Expression="/Script/Engine.MaterialExpressionTime'M_Roof_RainDrips:MaterialExpressionTime_1'"))
+      Inputs(3)=(InputName="Drips",Input=(Expression="/Script/Engine.MaterialExpressionTextureObjectParameter'M_Roof_RainDrips:MaterialExpressionTextureObjectParameter_2'"))
+      Inputs(4)=(InputName="Ramp",Input=(Expression="/Script/Engine.MaterialExpressionTextureObjectParameter'M_Roof_RainDrips:MaterialExpressionTextureObjectParameter_3'"))
+      Inputs(5)=(InputName="Amount",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_9'"))
+      Inputs(6)=(InputName="Speed",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_20'"))
+      Inputs(7)=(InputName="Width",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_21'"))
+      Inputs(8)=(InputName="Height",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_22'"))
+      Inputs(9)=(InputName="Strength",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_23'"))
+      Inputs(10)=(InputName="Permeability",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_26'"))
+      MaterialExpressionEditorX=-1400
+      MaterialExpressionEditorY=1800
+      MaterialExpressionGuid=C5DFC4E342ACE541335BFD94321393FA
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_0'"
+      Code="\nfloat3 toFocus=Focus-Camera;\nfloat viewDistance=max(length(toFocus),1.0);\nfloat3 axis=toFocus/viewDistance;\nfloat3 surface=P-Camera;\nfloat depth=dot(surface,axis);\n// A circular aperture on the camera-to-avatar ray; far walls stay opaque.\nfloat radial=length(surface-axis*depth);\nfloat radius=max(Settings.y*max(depth,0.0)/viewDistance,1.0);\nfloat feather=clamp(Settings.z,.02,.8);\nfloat circle=1.0-smoothstep(radius*(1.0-feather),radius,radial);\nfloat inFront=step(-2.0,depth)*(1.0-smoothstep(viewDistance-15.0,viewDistance+15.0,depth));\nreturn 1.0-saturate(Settings.x)*saturate(Enabled)*circle*inFront;\n"
+      OutputType=CMOT_Float1
+      Description="MC Camera: radial wall coverage"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_Roof_RainDrips:MaterialExpressionWorldPosition_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Camera",Input=(Expression="/Script/Engine.MaterialExpressionCameraPositionWS'M_Roof_RainDrips:MaterialExpressionCameraPositionWS_0'"))
+      Inputs(2)=(InputName="Focus",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Roof_RainDrips:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(3)=(InputName="Settings",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Roof_RainDrips:MaterialExpressionVectorParameter_2'",OutputIndex=5,Mask=1,MaskR=1,MaskG=1,MaskB=1,MaskA=1))
+      Inputs(4)=(InputName="Enabled",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_0'"))
+      MaterialExpressionEditorX=1400
+      MaterialExpressionEditorY=700
+      MaterialExpressionGuid=868A79B343B588D655FEB0B694762B0A
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_1" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionConstant_1'"
+      R=1.000000
+      MaterialExpressionEditorX=-224
+      MaterialExpressionEditorY=784
+      MaterialExpressionGuid=29CB41834B9FDB85A90D1FA5B454D424
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_5" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComponentMask_5'"
+      Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_1'")
+      R=True
+      G=True
+      B=True
+      MaterialExpressionEditorX=-950
+      MaterialExpressionEditorY=1820
+      MaterialExpressionGuid=846436A54D26E5189E4AA08144A7AB4E
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_4" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComponentMask_4'"
+      Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_1'")
+      A=True
+      MaterialExpressionEditorX=-950
+      MaterialExpressionEditorY=2120
+      MaterialExpressionGuid=2E5E1543426AB247D8929A8C59D1D32E
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_3" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComponentMask_3'"
+      Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      R=True
+      G=True
+      MaterialExpressionEditorX=-528
+      MaterialExpressionEditorY=576
+      MaterialExpressionGuid=5BC48A1841C121F4308067BD95C456DD
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_2" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComponentMask_2'"
+      Input=(Expression="/Script/Engine.MaterialExpressionSubtract'M_Roof_RainDrips:MaterialExpressionSubtract_1'")
+      B=True
+      MaterialExpressionEditorX=1888
+      MaterialExpressionEditorY=-768
+      MaterialExpressionGuid=289F788F4A343FA9B1BC2EAFD6606E14
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_5" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_5'"
+      SizeX=213
+      SizeY=192
+      Text="Roushness"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=1808
+      MaterialExpressionEditorY=576
+      MaterialExpressionGuid=C21C8824425140421DC7668A69225AEA
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_4" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_4'"
+      SizeX=207
+      SizeY=218
+      Text="Basecolor"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=2496
+      MaterialExpressionEditorY=-448
+      MaterialExpressionGuid=9DC8CA774BC93DA8DA543CAE6651FD0D
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_3" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_3'"
+      SizeX=240
+      SizeY=176
+      Text="Normal"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=992
+      MaterialExpressionEditorY=1056
+      MaterialExpressionGuid=3F81C91B4ADF5EDC0D90B689B8B0962B
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_2" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_2'"
+      SizeX=217
+      SizeY=188
+      Text="Specular"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=1808
+      MaterialExpressionEditorY=384
+      MaterialExpressionGuid=0E6D45FE45C99EA37BF676A447AFFE3E
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_1" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_1'"
+      SizeX=224
+      SizeY=192
+      Text="Metalic"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=2048
+      MaterialExpressionEditorY=64
+      MaterialExpressionGuid=3ECDE7F7464B3958D94CB68CD120B75A
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_0" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionComment_0'"
+      SizeX=224
+      SizeY=224
+      Text="OPACITY_MASK"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=1872
+      MaterialExpressionEditorY=976
+      MaterialExpressionGuid=7FB7E7E149A2306045B8B5B144832D59
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionCameraPositionWS_0" ExportPath="/Script/Engine.MaterialExpressionCameraPositionWS'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCameraPositionWS_0'"
+      MaterialExpressionEditorX=1400
+      MaterialExpressionEditorY=700
+      MaterialExpressionGuid=EB4581524957A790095A98869773C6C5
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="MaterialExpressionAppendVector_1" ExportPath="/Script/Engine.MaterialExpressionAppendVector'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionAppendVector_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_17'")
+      B=(Expression="/Script/Engine.MaterialExpressionConstant'M_Roof_RainDrips:MaterialExpressionConstant_1'")
+      MaterialExpressionEditorX=-48
+      MaterialExpressionEditorY=672
+      MaterialExpressionGuid=B487129149316ECB2B00E18A54826E49
+      Material="/Script/Engine.Material'M_Roof_RainDrips'"
+   End Object
+   Begin Object Name="M_Roof_RainDripsEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:M_Roof_RainDripsEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_3'")
+      Metallic=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_11'")
+      Specular=(Expression="/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_5'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_4'")
+      Normal=(Expression="/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_2'")
+      Tangent=(UseConstant=True)
+      EmissiveColor=(UseConstant=True)
+      Opacity=(UseConstant=True)
+      OpacityMask=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_0'")
+      SubsurfaceColor=(UseConstant=True)
+      ClearCoat=(UseConstant=True)
+      ClearCoatRoughness=(UseConstant=True)
+      AmbientOcclusion=(UseConstant=True)
+      Refraction=(UseConstant=True)
+      CustomizedUVs(0)=(UseConstant=True)
+      CustomizedUVs(1)=(UseConstant=True)
+      CustomizedUVs(2)=(UseConstant=True)
+      CustomizedUVs(3)=(UseConstant=True)
+      CustomizedUVs(4)=(UseConstant=True)
+      CustomizedUVs(5)=(UseConstant=True)
+      CustomizedUVs(6)=(UseConstant=True)
+      CustomizedUVs(7)=(UseConstant=True)
+      PixelDepthOffset=(Expression="/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_2'")
+      SurfaceThickness=(UseConstant=True)
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionLinearInterpolate'M_Roof_RainDrips:MaterialExpressionLinearInterpolate_1'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_11'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_12'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_13'","/Script/Engine.MaterialExpressionNormalize'M_Roof_RainDrips:MaterialExpressionNormalize_1'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_14'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_2'","/Script/Engine.MaterialExpressionDivide'M_Roof_RainDrips:MaterialExpressionDivide_1'","/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_2'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_0'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_10'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_15'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_11'","/Script/Engine.MaterialExpressionSaturate'M_Roof_RainDrips:MaterialExpressionSaturate_2'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_16'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_12'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_Roof_RainDrips:MaterialExpressionTextureSampleParameter2D_2'","/Script/Engine.MaterialExpressionVectorParameter'M_Roof_RainDrips:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_13'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_14'","/Script/Engine.MaterialExpressionPower'M_Roof_RainDrips:MaterialExpressionPower_1'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_17'","/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_3'","/Script/Engine.MaterialExpressionDesaturation'M_Roof_RainDrips:MaterialExpressionDesaturation_1'","/Script/Engine.MaterialExpressionAppendVector'M_Roof_RainDrips:MaterialExpressionAppendVector_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_15'","/Script/Engine.MaterialExpressionSaturate'M_Roof_RainDrips:MaterialExpressionSaturate_3'","/Script/Engine.MaterialExpressionTextureCoordinate'M_Roof_RainDrips:MaterialExpressionTextureCoordinate_1'","/Script/Engine.MaterialExpressionConstant'M_Roof_RainDrips:MaterialExpressionConstant_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_16'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_18'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_17'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_19'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_18'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_20'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_19'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_21'","/Script/Engine.MaterialExpressionReroute'M_Roof_RainDrips:MaterialExpressionReroute_1'","/Script/Engine.MaterialExpressionVectorParameter'M_Roof_RainDrips:MaterialExpressionVectorParameter_3'","/Script/Engine.MaterialExpressionWorldPosition'M_Roof_RainDrips:MaterialExpressionWorldPosition_1'","/Script/Engine.MaterialExpressionObjectPositionWS'M_Roof_RainDrips:MaterialExpressionObjectPositionWS_1'","/Script/Engine.MaterialExpressionSubtract'M_Roof_RainDrips:MaterialExpressionSubtract_1'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_4'","/Script/Engine.MaterialExpressionWorldPosition'M_Roof_RainDrips:MaterialExpressionWorldPosition_2'","/Script/Engine.MaterialExpressionVertexNormalWS'M_Roof_RainDrips:MaterialExpressionVertexNormalWS_1'","/Script/Engine.MaterialExpressionTime'M_Roof_RainDrips:MaterialExpressionTime_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_9'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_20'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_21'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_22'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_23'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_24'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_25'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_26'","/Script/Engine.MaterialExpressionTextureObjectParameter'M_Roof_RainDrips:MaterialExpressionTextureObjectParameter_2'","/Script/Engine.MaterialExpressionTextureObjectParameter'M_Roof_RainDrips:MaterialExpressionTextureObjectParameter_3'","/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_1'","/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_4'","/Script/Engine.MaterialExpressionComponentMask'M_Roof_RainDrips:MaterialExpressionComponentMask_5'","/Script/Engine.MaterialExpressionTransform'M_Roof_RainDrips:MaterialExpressionTransform_0'","/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_2'","/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_3'","/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_4'","/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_5'","/Script/Engine.MaterialExpressionVectorParameter'M_Roof_RainDrips:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionVectorParameter'M_Roof_RainDrips:MaterialExpressionVectorParameter_2'","/Script/Engine.MaterialExpressionScalarParameter'M_Roof_RainDrips:MaterialExpressionScalarParameter_0'","/Script/Engine.MaterialExpressionWorldPosition'M_Roof_RainDrips:MaterialExpressionWorldPosition_0'","/Script/Engine.MaterialExpressionCameraPositionWS'M_Roof_RainDrips:MaterialExpressionCameraPositionWS_0'","/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_0'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_0'","/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_0'"),EditorComments=("/Script/Engine.MaterialExpressionComment'M_Roof_RainDrips:MaterialExpressionComment_5'","/Script/Engine.MaterialExpressionComment'M_Roof_RainDrips:MaterialExpressionComment_4'","/Script/Engine.MaterialExpressionComment'M_Roof_RainDrips:MaterialExpressionComment_0'","/Script/Engine.MaterialExpressionComment'M_Roof_RainDrips:MaterialExpressionComment_1'","/Script/Engine.MaterialExpressionComment'M_Roof_RainDrips:MaterialExpressionComment_2'","/Script/Engine.MaterialExpressionComment'M_Roof_RainDrips:MaterialExpressionComment_3'"))
+      ParameterGroupData(0)=(GroupName="00 - Base")
+      ParameterGroupData(1)=(GroupName="01 - Albedo")
+      ParameterGroupData(2)=(GroupName="02 - Normal")
+      ParameterGroupData(3)=(GroupName="03 - ARM")
+   End Object
+   BlendMode=BLEND_Masked
+   ShadingModel=MSM_SubsurfaceProfile
+   ShadingModels=(ShadingModelField=32)
+   TwoSided=True
+   EditorX=2912
+   EditorY=432
+   StateId=329554424D2882333620558969D75839
+   ReferencedTextureGuids(0)=3C9868FC412CA5EF29C70C98A29E0B6B
+   ReferencedTextureGuids(1)=07E7A47349CFA0B862A0D5BE898830B0
+   ReferencedTextureGuids(2)=BC1713664A97B2D1822FC19FA4215A59
+   ReferencedTextureGuids(4)=307757E1458E615C7D97A39E32219707
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Roof_RainDripsEditorOnlyData'"
+   SubsurfaceProfile="/Script/Engine.SubsurfaceProfile'/Game/NewSubsurfaceProfile.NewSubsurfaceProfile'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="DefaultNormal",TextureReference="/Engine/EngineMaterials/DefaultNormal.DefaultNormal")
+   TextureStreamingData(1)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="Good64x64TilingNoiseHighFreq",TextureReference="/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq.Good64x64TilingNoiseHighFreq")
+   TextureStreamingData(2)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="WhiteSquareTexture",TextureReference="/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture'"
+   ReferencedDefaultTextures(1)="/Script/Engine.Texture2D'/Engine/EngineMaterials/DefaultNormal.DefaultNormal'"
+   ReferencedDefaultTextures(2)="/Script/Engine.Texture2D'/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq.Good64x64TilingNoiseHighFreq'"
+   ReferencedDefaultTextures(3)="/Script/Engine.Texture2D'/Game/Art/Materials/Arena/RainDrips/Textures/rain_drips.rain_drips'"
+   ReferencedDefaultTextures(4)="/Script/Engine.Texture2D'/Game/Art/Materials/Arena/RainDrips/Textures/rain_drip_mask.rain_drip_mask'"
+   ParameterOverviewExpansion=(("-12Global", True),("-12Global 00 - Base", True),("-12Global 01 - Albedo", True),("-12Global 02 - Normal", True),("-12Global 03 - ARM", True))
+   LightingGuid=196F85F9409B1E0A5188D9BEC7937917
+End Object

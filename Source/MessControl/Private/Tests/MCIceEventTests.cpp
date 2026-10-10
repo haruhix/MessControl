@@ -135,7 +135,13 @@ bool FMCIceFreezeMeterTest::RunTest(const FString&)
     F.Event->Tick(1);
     TestEqual(TEXT("Continued warmth clears the meter"),F.Event->FreezeAmount(F.Hero),0.f);
     F.Place(Safe+FVector(600,0,0));F.Event->Tick(4.1f);
-    TestFalse(TEXT("A full cold meter kills the exposed player"),F.Hero->Status->IsAlive());
+    TestTrue(TEXT("A full cold meter locks the exposed player inside an ice cube"),F.Hero->IsFreezingToDeath());
+    TestTrue(TEXT("The cube hold precedes fatal damage"),F.Hero->Status->IsAlive());
+    TestFalse(TEXT("A fully frozen player can no longer use tools"),F.Hero->CanWork());
+    TestFalse(TEXT("Other damage cannot bypass the cube hold"),F.Hero->Status->Damage(100));
+    F.Clock(F.Hero->FreezeDeathStartedAt+AMCToothCharacter::FreezeDeathHoldSeconds+.05f);
+    F.Hero->Tick(.01f);
+    TestFalse(TEXT("The player dies when the frozen cube shatters"),F.Hero->Status->IsAlive());
     return true;
 }
 

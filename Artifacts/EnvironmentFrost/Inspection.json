@@ -1,0 +1,992 @@
+{
+  "project": "D:/PROJECT/GAME/WaifuTD/MessControl/",
+  "world": "/Game/Maps/L_Mouth.L_Mouth",
+  "actors": [
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_76",
+      "label": "COLLISION | Front boundary",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_76.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+              "chain": [
+                "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_3",
+      "label": "COLLISION | Artist mouth",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_3.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+              "chain": [
+                "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.CameraActor_0",
+      "label": "LOOK | Reference camera",
+      "class": "CameraActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.CameraActor_0.CameraProxyMeshComponent_0",
+          "class": "CameraProxyMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat",
+              "chain": [
+                "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.CameraActor_1",
+      "label": "LOOK | Throat detail",
+      "class": "CameraActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.CameraActor_1.CameraProxyMeshComponent_0",
+          "class": "CameraProxyMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat",
+              "chain": [
+                "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_218",
+      "label": "SM_Gum",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_218.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2",
+              "chain": [
+                "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2",
+                "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_220",
+      "label": "SM_Teeth",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_220.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/Arena/MI_Teeth_v2.MI_Teeth_v2",
+              "chain": [
+                "/Game/Art/Materials/Arena/MI_Teeth_v2.MI_Teeth_v2",
+                "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_221",
+      "label": "SM_Teeth_Forwart",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_221.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_229",
+      "label": "SM_Teeth_R_05",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_229.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_230",
+      "label": "SM_Teeth_R_WTooth",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_230.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_232",
+      "label": "SM_Teeth_l_05",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_232.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_0",
+      "label": "ARENA | Tooth 01",
+      "class": "MCArenaToothSocket",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_0.ToothPlacement",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_1",
+      "label": "ARENA | Tooth 03",
+      "class": "MCArenaToothSocket",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_1.ToothPlacement",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_2",
+      "label": "ARENA | Tooth 05",
+      "class": "MCArenaToothSocket",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_2.ToothPlacement",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_3",
+      "label": "ARENA | Tooth 07",
+      "class": "MCArenaToothSocket",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_3.ToothPlacement",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_4",
+      "label": "ARENA | Tooth 02",
+      "class": "MCArenaToothSocket",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_4.ToothPlacement",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_5",
+      "label": "ARENA | Tooth 04",
+      "class": "MCArenaToothSocket",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_5.ToothPlacement",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_6",
+      "label": "ARENA | Tooth 06",
+      "class": "MCArenaToothSocket",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_6.ToothPlacement",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_7",
+      "label": "ARENA | Tooth 08",
+      "class": "MCArenaToothSocket",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCArenaToothSocket_7.ToothPlacement",
+          "class": "StaticMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_1",
+      "label": "SM_Teeth_R_WTooth4",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_1.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_0",
+      "label": "SM_Exit",
+      "class": "SkeletalMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.SkeletalMeshActor_0.SkeletalMeshComponent0",
+          "class": "SkeletalMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/Arena/M_Exit.M_Exit",
+              "chain": [
+                "/Game/Art/Materials/Arena/M_Exit.M_Exit",
+                "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_2",
+      "label": "SM_Plane_001",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_2.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/Arena/MI_Roof_0.MI_Roof_0",
+              "chain": [
+                "/Game/Art/Materials/Arena/MI_Roof_0.MI_Roof_0",
+                "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_32",
+      "label": "SM_Gum5",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_32.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2",
+              "chain": [
+                "/Game/Art/Materials/Arena/MI_Gum_v2.MI_Gum_v2",
+                "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_33",
+      "label": "SM_Teeth5",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_33.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+              "chain": [
+                "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_34",
+      "label": "SM_Teeth_Forwart5",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_34.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_35",
+      "label": "SM_Teeth_L_17",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_35.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+              "chain": [
+                "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_36",
+      "label": "SM_Teeth_L_18",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_36.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+              "chain": [
+                "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_37",
+      "label": "SM_Teeth_L_19",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_37.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+              "chain": [
+                "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_38",
+      "label": "SM_Teeth_l_20",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_38.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+              "chain": [
+                "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_39",
+      "label": "SM_Teeth_l_21",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_39.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+              "chain": [
+                "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_40",
+      "label": "SM_Teeth_R_18",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_40.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_41",
+      "label": "SM_Teeth_R_19",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_41.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_42",
+      "label": "SM_Teeth_R_20",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_42.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_43",
+      "label": "SM_Teeth_R_21",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_43.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_44",
+      "label": "SM_Teeth_R_WTooth5",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_44.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_45",
+      "label": "SM_Teeth_R_22",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_45.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+              "chain": [
+                "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_0",
+      "label": "Sphere",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_0.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/ice/MI_Ice.MI_Ice",
+              "chain": [
+                "/Game/Art/Materials/ice/MI_Ice.MI_Ice",
+                "/Game/Art/Materials/ice/M_Ice.M_Ice"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_6",
+      "label": "SM_Candy",
+      "class": "StaticMeshActor",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_6.StaticMeshComponent0",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/MI_Candy.MI_Candy",
+              "chain": [
+                "/Game/Art/Materials/MI_Candy.MI_Candy",
+                "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCTongue_0",
+      "label": "GAMEPLAY | Moving tongue",
+      "class": "MCTongue",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCTongue_0.TongueSurface",
+          "class": "ProceduralMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
+              "chain": [
+                "/Game/Gameplay/Arena/Pressure/MI_Pressure_Soft.MI_Pressure_Soft",
+                "/Game/Gameplay/Arena/M_TonguePain.M_TonguePain"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0",
+      "label": "GAMEPLAY | Living throat",
+      "class": "MCThroat",
+      "meshes": [
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0.LivingTissue",
+          "class": "ProceduralMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/MI_LivingThroat.MI_LivingThroat",
+              "chain": [
+                "/Game/Art/Materials/MI_LivingThroat.MI_LivingThroat",
+                "/Game/Art/Materials/M_ThroatSculpt.M_ThroatSculpt"
+              ]
+            }
+          ]
+        },
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0.SculptedTissue",
+          "class": "SkeletalMeshComponent",
+          "visible": false,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/MI_LivingThroat.MI_LivingThroat",
+              "chain": [
+                "/Game/Art/Materials/MI_LivingThroat.MI_LivingThroat",
+                "/Game/Art/Materials/M_ThroatSculpt.M_ThroatSculpt"
+              ]
+            }
+          ]
+        },
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0.AuthoredMouth",
+          "class": "SkeletalMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Gameplay/Cold/M_ExitClimate.M_ExitClimate",
+              "chain": [
+                "/Game/Gameplay/Cold/M_ExitClimate.M_ExitClimate",
+                "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade"
+              ]
+            }
+          ]
+        },
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0.Uvula",
+          "class": "StaticMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate",
+              "chain": [
+                "/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate",
+                "/Game/Art/Materials/M_LivingTissue.M_LivingTissue"
+              ]
+            },
+            {
+              "slot": 1,
+              "material": "/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate",
+              "chain": [
+                "/Game/Art/Materials/MI_MouthPalate.MI_MouthPalate",
+                "/Game/Art/Materials/M_LivingTissue.M_LivingTissue"
+              ]
+            }
+          ]
+        },
+        {
+          "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0.FoodZoneRing",
+          "class": "ProceduralMeshComponent",
+          "visible": true,
+          "materials": [
+            {
+              "slot": 0,
+              "material": "/Game/Art/Materials/MI_ThroatRing.MI_ThroatRing",
+              "chain": [
+                "/Game/Art/Materials/MI_ThroatRing.MI_ThroatRing",
+                "/Game/Art/Materials/M_ThroatRing.M_ThroatRing"
+              ]
+            },
+            {
+              "slot": 1,
+              "material": "/Game/Art/Materials/MI_ThroatRing.MI_ThroatRing",
+              "chain": [
+                "/Game/Art/Materials/MI_ThroatRing.MI_ThroatRing",
+                "/Game/Art/Materials/M_ThroatRing.M_ThroatRing"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "masters": {
+    "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial": {
+      "blend": "<BlendMode.BLEND_OPAQUE: 0>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": null,
+      "node_count": 36
+    },
+    "/Engine/EditorMaterials/MatineeCam_mat.MatineeCam_mat": {
+      "blend": "<BlendMode.BLEND_OPAQUE: 0>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": null,
+      "node_count": 3
+    },
+    "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade": {
+      "blend": "<BlendMode.BLEND_MASKED: 1>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade:MaterialExpressionMultiply_0",
+      "node_count": 57
+    },
+    "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS": {
+      "blend": "<BlendMode.BLEND_MASKED: 1>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS:MaterialExpressionMultiply_14",
+      "node_count": 45
+    },
+    "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2": {
+      "blend": "<BlendMode.BLEND_OPAQUE: 0>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": null,
+      "node_count": 39
+    },
+    "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips": {
+      "blend": "<BlendMode.BLEND_MASKED: 1>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_0",
+      "node_count": 74
+    },
+    "/Game/Art/Materials/ice/M_Ice.M_Ice": {
+      "blend": "<BlendMode.BLEND_MASKED: 1>",
+      "front_class": "MaterialExpressionMaterialFunctionCall",
+      "front_path": "/Game/Art/Materials/ice/M_Ice.M_Ice:MaterialExpressionMaterialFunctionCall_0",
+      "opacity_mask": null,
+      "node_count": 15
+    },
+    "/Game/Gameplay/Arena/M_TonguePain.M_TonguePain": {
+      "blend": "<BlendMode.BLEND_MASKED: 1>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": "/Game/Gameplay/Arena/M_TonguePain.M_TonguePain:MaterialExpressionMultiply_14",
+      "node_count": 50
+    },
+    "/Game/Art/Materials/M_ThroatSculpt.M_ThroatSculpt": {
+      "blend": "<BlendMode.BLEND_OPAQUE: 0>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": null,
+      "node_count": 27
+    },
+    "/Game/Art/Materials/M_LivingTissue.M_LivingTissue": {
+      "blend": "<BlendMode.BLEND_OPAQUE: 0>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": null,
+      "node_count": 27
+    },
+    "/Game/Art/Materials/M_ThroatRing.M_ThroatRing": {
+      "blend": "<BlendMode.BLEND_TRANSLUCENT: 2>",
+      "front_class": null,
+      "front_path": null,
+      "opacity_mask": null,
+      "node_count": 3
+    }
+  },
+  "dirty_content": [],
+  "dirty_maps": [],
+  "function_factory_available": true
+}

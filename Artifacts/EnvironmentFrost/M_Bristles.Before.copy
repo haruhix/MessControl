@@ -1,0 +1,33 @@
+Begin Object Class=/Script/Engine.Material Name="M_Bristles" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Bristles.M_Bristles'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Bristles.M_Bristles:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_Bristles.M_Bristles:MaterialExpressionScalarParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_BristlesEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Bristles.M_Bristles:M_BristlesEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Bristles.M_Bristles:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=0.530000,G=0.890000,B=0.810000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=74C8D3F64F76E652C9F1308A5390B1E5
+      MaterialExpressionEditorX=-350
+      MaterialExpressionGuid=153140EE49881DC2E69585916BE4BED1
+      Material="/Script/Engine.Material'M_Bristles'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_Bristles.M_Bristles:MaterialExpressionScalarParameter_1'"
+      DefaultValue=0.450000
+      ParameterName="Roughness"
+      ExpressionGUID=7643A836418EC825C5EDBDAA28AFF4B8
+      MaterialExpressionEditorX=-350
+      MaterialExpressionEditorY=160
+      MaterialExpressionGuid=3C639AA4446AF4CC9B52A0AF0D29708B
+      Material="/Script/Engine.Material'M_Bristles'"
+   End Object
+   Begin Object Name="M_BristlesEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Bristles.M_Bristles:M_BristlesEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Bristles:MaterialExpressionVectorParameter_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Bristles:MaterialExpressionScalarParameter_1'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Bristles:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Bristles:MaterialExpressionScalarParameter_1'"))
+   End Object
+   StateId=B4DBDAC441277F6F678BDBBBB80309E7
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_BristlesEditorOnlyData'"
+   LightingGuid=96EC0E0F425DCD429E65969C2E4B5994
+End Object

@@ -86,6 +86,12 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") double RespawnAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Life") int32 RespawnSourceId=0;
     bool CanWork() const;
+    // Fatal frost holds the visible pose in a glass cube before both fragment.
+    static constexpr float FreezeDeathHoldSeconds=1.6f;
+    UPROPERTY(ReplicatedUsing=OnRep_FreezeDeath,BlueprintReadOnly,Category="Ice|Death") double FreezeDeathStartedAt=-1;
+    UFUNCTION(BlueprintPure,Category="Ice|Death") bool IsFreezingToDeath() const {return FreezeDeathStartedAt>=0;}
+    UFUNCTION(BlueprintPure,Category="Ice|Death") float FreezeDeathAge() const;
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Ice|Death") bool BeginFreezeDeath();
     // Leg ice roots locomotion only; tool use and self rescue remain available.
     UPROPERTY(ReplicatedUsing=OnRep_IceLegHealth,BlueprintReadOnly,Category="Ice") float IceLegHealth=0.f;
     UFUNCTION(BlueprintPure,Category="Ice") bool HasFrozenLegs() const { return IceLegHealth>0.f; }
@@ -315,6 +321,8 @@ private:
     float BrushAngle = 0.f;
     bool bLoadedLocalTuning = false;
     bool bDeathReported=false;
+    UFUNCTION() void OnRep_FreezeDeath();
+    UPROPERTY(Transient) TObjectPtr<class AMCFreezeDeathVFX> FreezeDeathVisual;
     bool bLastContactBrush=false;
     UPROPERTY(Replicated) bool bPrimaryHeld=false;
     float ContactElapsed=0;

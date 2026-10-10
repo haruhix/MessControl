@@ -1,0 +1,16 @@
+{
+  "pid": 9048,
+  "project": "D:/PROJECT/GAME/WaifuTD/MessControl/MessControl.uproject",
+  "map": "/Game/Maps/L_Mouth",
+  "camera_location": [
+    -1767.7144902050343,
+    -36.00202048884199,
+    657.890642141692
+  ],
+  "camera_rotation": [
+    0.0,
+    -33.62727355957031,
+    -2.6368889808654785
+  ],
+  "dirty_packages": []
+}

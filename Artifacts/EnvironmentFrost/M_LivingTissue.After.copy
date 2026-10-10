@@ -1,0 +1,368 @@
+Begin Object Class=/Script/Engine.Material Name="M_LivingTissue" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_LivingTissue.M_LivingTissue'"
+   Begin Object Class=/Script/Engine.MaterialExpressionCollectionParameter Name="MaterialExpressionCollectionParameter_0" ExportPath="/Script/Engine.MaterialExpressionCollectionParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCollectionParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_LivingTissueEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:M_LivingTissueEditorOnlyData'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_10" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_10'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_11" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_11'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_3" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_8" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_8'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_9" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_9'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_1" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionMaterialFunctionCall_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_2" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionMultiply_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_10" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_10'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_11" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_11'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_8" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_8'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_9" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_9'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_3" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTextureCoordinate_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_7" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTextureSampleParameter2D_7'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_8" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTextureSampleParameter2D_8'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_9" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTextureSampleParameter2D_9'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTransform Name="MaterialExpressionTransform_0" ExportPath="/Script/Engine.MaterialExpressionTransform'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTransform_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionVectorParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexNormalWS Name="MaterialExpressionVertexNormalWS_0" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionVertexNormalWS_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_0" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionWorldPosition_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_1" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionWorldPosition_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_2" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionWorldPosition_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Name="MaterialExpressionCollectionParameter_0" ExportPath="/Script/Engine.MaterialExpressionCollectionParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCollectionParameter_0'"
+      Collection="/Script/Engine.MaterialParameterCollection'/Game/Gameplay/Cold/MPC_MouthClimate.MPC_MouthClimate'"
+      ParameterName="ColdAmount"
+      ParameterId=E38A7DE7433F83CE89B0EDB76C640A39
+      MaterialExpressionGuid=7279A09B44130553DF2BCF8417291F76
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="M_LivingTissueEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:M_LivingTissueEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_LivingTissue:MaterialExpressionMaterialFunctionCall_0'")
+      Metallic=(UseConstant=True)
+      Specular=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_LivingTissue:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=3)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_LivingTissue:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=1)
+      Normal=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_3'")
+      Tangent=(UseConstant=True)
+      EmissiveColor=(UseConstant=True)
+      Opacity=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_11'")
+      OpacityMask=(UseConstant=True)
+      SubsurfaceColor=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_11'")
+      ClearCoat=(UseConstant=True)
+      ClearCoatRoughness=(UseConstant=True)
+      AmbientOcclusion=(UseConstant=True)
+      Refraction=(UseConstant=True)
+      CustomizedUVs(0)=(UseConstant=True)
+      CustomizedUVs(1)=(UseConstant=True)
+      CustomizedUVs(2)=(UseConstant=True)
+      CustomizedUVs(3)=(UseConstant=True)
+      CustomizedUVs(4)=(UseConstant=True)
+      CustomizedUVs(5)=(UseConstant=True)
+      CustomizedUVs(6)=(UseConstant=True)
+      CustomizedUVs(7)=(UseConstant=True)
+      PixelDepthOffset=(Expression="/Script/Engine.MaterialExpressionMultiply'M_LivingTissue:MaterialExpressionMultiply_2'")
+      SurfaceThickness=(UseConstant=True)
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_1'","/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_9'","/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_2'","/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_3'","/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_11'","/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_11'","/Script/Engine.MaterialExpressionTextureCoordinate'M_LivingTissue:MaterialExpressionTextureCoordinate_3'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_LivingTissue:MaterialExpressionTextureSampleParameter2D_7'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_LivingTissue:MaterialExpressionTextureSampleParameter2D_8'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_LivingTissue:MaterialExpressionTextureSampleParameter2D_9'","/Script/Engine.MaterialExpressionWorldPosition'M_LivingTissue:MaterialExpressionWorldPosition_2'","/Script/Engine.MaterialExpressionVectorParameter'M_LivingTissue:MaterialExpressionVectorParameter_2'","/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_8'","/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_8'","/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_9'","/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_10'","/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_10'","/Script/Engine.MaterialExpressionCollectionParameter'M_LivingTissue:MaterialExpressionCollectionParameter_0'","/Script/Engine.MaterialExpressionWorldPosition'M_LivingTissue:MaterialExpressionWorldPosition_0'","/Script/Engine.MaterialExpressionVertexNormalWS'M_LivingTissue:MaterialExpressionVertexNormalWS_0'","/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_0'","/Script/Engine.MaterialExpressionTransform'M_LivingTissue:MaterialExpressionTransform_0'","/Script/Engine.MaterialExpressionWorldPosition'M_LivingTissue:MaterialExpressionWorldPosition_1'","/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_0'","/Script/Engine.MaterialExpressionMultiply'M_LivingTissue:MaterialExpressionMultiply_2'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_LivingTissue:MaterialExpressionMaterialFunctionCall_1'","/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_4'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_LivingTissue:MaterialExpressionMaterialFunctionCall_0'"))
+      ParameterGroupData(0)=(GroupName="Appearance")
+   End Object
+   Begin Object Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_0'"
+      Code="\nfloat grains=frac(sin(dot(floor(P*.9),float3(12.9898,78.233,45.164)))*43758.5453);\nfloat wisps=.5+.5*sin(P.x*.021+sin(P.y*.018)*2+P.z*.015);\nfloat coat=saturate(.38+.50*saturate(N.z)+.28*wisps+.12*grains);\nreturn saturate(Cold)*coat;\n"
+      OutputType=CMOT_Float1
+      Description="Mouth climate frost crystal coverage"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_LivingTissue:MaterialExpressionWorldPosition_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="N",Input=(Expression="/Script/Engine.MaterialExpressionVertexNormalWS'M_LivingTissue:MaterialExpressionVertexNormalWS_0'"))
+      Inputs(2)=(InputName="Cold",Input=(Expression="/Script/Engine.MaterialExpressionCollectionParameter'M_LivingTissue:MaterialExpressionCollectionParameter_0'"))
+      MaterialExpressionGuid=BCE3578D413B125BD9EF46A8BEC6F7F7
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_1'"
+      Code="return lerp(Base,float3(.65,.82,.93),Frost*.84);"
+      Description="Mouth climate frost color"
+      Inputs(0)=(InputName="Base",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_8'"))
+      Inputs(1)=(InputName="Frost",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_0'"))
+      MaterialExpressionGuid=09F9E3064619D583B7622399D1E87142
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_10" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_10'"
+      Code="return normalize(float3(N.xy*Strength,N.z));"
+      Description="Gentle normal"
+      Inputs(0)=(InputName="N",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_LivingTissue:MaterialExpressionTextureSampleParameter2D_8'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Strength",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_10'"))
+      MaterialExpressionEditorX=100
+      MaterialExpressionEditorY=1020
+      MaterialExpressionGuid=0FF894184089776558C9DFBF871E3EFD
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_11" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_11'"
+      Code="return Base.rgb*float3(.8,.30,.40);"
+      Description="Soft red scatter"
+      Inputs(0)=(InputName="Base",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_8'"))
+      MaterialExpressionEditorX=100
+      MaterialExpressionEditorY=1105
+      MaterialExpressionGuid=81C662F048CB0ED9075436830F47B97C
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_2'"
+      Code="return lerp(Rough,.58,Frost);"
+      OutputType=CMOT_Float1
+      Description="Mouth climate rough crystalline finish"
+      Inputs(0)=(InputName="Rough",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_9'"))
+      Inputs(1)=(InputName="Frost",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_0'"))
+      MaterialExpressionGuid=8CA4B7B54E571815BFF4DBB58DCD957A
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_3" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_3'"
+      Code="\nfloat3 q=P*.075;\nfloat a=q.x+1.8*sin(q.y*.81)+.8*sin(q.z*.57);\nfloat b=q.y+1.6*sin(q.z*.92)+.6*sin(q.x*.73);\nfloat c=q.z+1.4*sin(q.x*.84)+.8*sin(q.y*.67);\nfloat3 g=float3(cos(a),cos(b),cos(c));\nfloat3 pores=sin(P.yzx*.57+sin(P.xyz*.29)*2.1);\nfloat3 grain=g+pores*.23;\nfloat3 nn=normalize(N); grain-=nn*dot(grain,nn);\nreturn normalize(nn-grain*Strength);\n"
+      Description="V4 mucosa fine creases"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_LivingTissue:MaterialExpressionWorldPosition_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="N",Input=(Expression="/Script/Engine.MaterialExpressionTransform'M_LivingTissue:MaterialExpressionTransform_0'"))
+      Inputs(2)=(InputName="Strength",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_0'"))
+      MaterialExpressionGuid=025C699848EB1405631F7EB0441E7754
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_8" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_8'"
+      Code="float n=sin(P.x*.011+sin(P.y*.019))*sin(P.z*.016+P.y*.008); return Base.rgb*Tint.rgb*(.98+.04*n);"
+      Description="Subtle vascular mottling"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_LivingTissue:MaterialExpressionWorldPosition_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Base",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_LivingTissue:MaterialExpressionTextureSampleParameter2D_7'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(2)=(InputName="Tint",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_LivingTissue:MaterialExpressionVectorParameter_2'",OutputIndex=5,Mask=1,MaskR=1,MaskG=1,MaskB=1,MaskA=1))
+      MaterialExpressionEditorX=100
+      MaterialExpressionEditorY=595
+      MaterialExpressionGuid=BA66B45C4FC1ED2F41AE319657B3BBDC
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_9" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_9'"
+      Code="return clamp(.14+ORM.g*.18+Bias*.15,.17,.28);"
+      OutputType=CMOT_Float1
+      Description="Wet film"
+      Inputs(0)=(InputName="ORM",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_LivingTissue:MaterialExpressionTextureSampleParameter2D_9'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Bias",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_8'"))
+      MaterialExpressionEditorX=100
+      MaterialExpressionEditorY=765
+      MaterialExpressionGuid=918719DB4F841E1D1D34CD8094BF77D8
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_1" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionMaterialFunctionCall_1'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Engine/Functions/Engine_MaterialFunctions02/Utility/DitherTemporalAA.DitherTemporalAA'"
+      FunctionInputs(0)=(ExpressionInputId=982BCAE7401F814CDC0AE2955DEE46F3,Input=(OutputIndex=-1,InputName="Alpha Threshold"))
+      FunctionInputs(1)=(ExpressionInputId=E8A932AF4299B0D6C16EDB8B1E912796,Input=(OutputIndex=-1,InputName="Random"))
+      FunctionOutputs(0)=(ExpressionOutputId=9BC32B084665F3D2D59A90AA45CA8A9F,Output=(OutputName="Result"))
+      MaterialExpressionEditorX=720
+      MaterialExpressionEditorY=720
+      MaterialExpressionGuid=EA52692447F54EEF682929AD7325AF96
+      Material="/Script/Engine.Material'M_LivingTissue'"
+      Outputs(0)=(OutputName="Result")
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_2" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionMultiply_2'"
+      A=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_LivingTissue:MaterialExpressionMaterialFunctionCall_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_4'")
+      MaterialExpressionEditorX=1008
+      MaterialExpressionEditorY=752
+      MaterialExpressionGuid=DA5130FC4F9EB1ACD835E59B75036FE0
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_0'"
+      DefaultValue=0.025000
+      ParameterName="MicroCreaseStrength"
+      ExpressionGUID=8C3A9CF44F1F9E83D1EB2F84CE272105
+      MaterialExpressionGuid=C9D7AD6B4A15A8335B9338A7B7D2A58E
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_10" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_10'"
+      DefaultValue=0.220000
+      ParameterName="MicroNormalStrength"
+      ExpressionGUID=ED07E4674F173D9674AE4AA007D9C220
+      Group="Appearance"
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=935
+      MaterialExpressionGuid=3D2319CB486C758C79BD57AB0682DA3C
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_11" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_11'"
+      DefaultValue=0.600000
+      ParameterName="ScatterDensity"
+      ExpressionGUID=8FA5180B46CA675FF8E342892D7C14C3
+      Group="Appearance"
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=1190
+      MaterialExpressionGuid=8189AD9F4AEF5AA7B37909AADCFF2765
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_4'"
+      ParameterName="Blending"
+      ExpressionGUID=CCEDE59A4D6DEE50090C50B17330825F
+      MaterialExpressionEditorX=784
+      MaterialExpressionEditorY=864
+      MaterialExpressionGuid=08FC14CA4473B8A2914BCEB285A91679
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_8" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_8'"
+      ParameterName="RoughnessBias"
+      ExpressionGUID=EB2F82694488FC40B645B4937DF5B6FA
+      Group="Appearance"
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=680
+      MaterialExpressionGuid=8B9BDACE4C6520121376A4A52F03688F
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_9" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_9'"
+      DefaultValue=0.440000
+      ParameterName="Specular"
+      ExpressionGUID=BEFF4DA440D34F3244730DB82FFEC485
+      Group="Appearance"
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=850
+      MaterialExpressionGuid=8A6522C44AD6AF7225F97F985549463A
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_3" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTextureCoordinate_3'"
+      UTiling=3.000000
+      VTiling=3.000000
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=85
+      MaterialExpressionGuid=2F6BB2C645747ED3D30B54B40DA8BAA9
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_7" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTextureSampleParameter2D_7'"
+      ParameterName="BaseColor"
+      ExpressionGUID=A6DB781843EEF2592E941DA7261BFAF3
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_LivingTissue:MaterialExpressionTextureCoordinate_3'")
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_BaseColor.TissueSwatch_Tissue_BaseColor'"
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=170
+      MaterialExpressionGuid=767DC091481B0735002768B630FFF6A0
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_8" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTextureSampleParameter2D_8'"
+      ParameterName="Normal"
+      ExpressionGUID=916BA0654EE5F119F90A618D55D8D4B0
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_LivingTissue:MaterialExpressionTextureCoordinate_3'")
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_Normal.TissueSwatch_Tissue_Normal'"
+      SamplerType=SAMPLERTYPE_Normal
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=255
+      MaterialExpressionGuid=7F76D0F94C8E8A744F3498A63DE2546C
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_9" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTextureSampleParameter2D_9'"
+      ParameterName="OcclusionRoughnessMetallic"
+      ExpressionGUID=54FD91F3459E3B8F218160B46478720B
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_LivingTissue:MaterialExpressionTextureCoordinate_3'")
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_OcclusionRoughnessMetallic.TissueSwatch_Tissue_OcclusionRoughnessMetallic'"
+      SamplerType=SAMPLERTYPE_Masks
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=340
+      MaterialExpressionGuid=D61323684085CE3ADC5AE8A74EDBBB10
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionTransform_0" ExportPath="/Script/Engine.MaterialExpressionTransform'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionTransform_0'"
+      Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_10'")
+      MaterialExpressionGuid=CCE8A1C5476C4E22FA25B394EF978F23
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionVectorParameter_2'"
+      DefaultValue=(R=1.000000,G=1.000000,B=1.000000,A=1.000000)
+      ParameterName="TissueTint"
+      ExpressionGUID=D8863E674D0905F373C3FD8367CC98F5
+      Group="Appearance"
+      MaterialExpressionEditorX=-1450
+      MaterialExpressionEditorY=510
+      MaterialExpressionGuid=88C4F0134E7224F76D70C599FAC2839A
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexNormalWS_0" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionVertexNormalWS_0'"
+      MaterialExpressionGuid=C25941E44D6BE1E94D068D8C591F279A
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_0" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionWorldPosition_0'"
+      MaterialExpressionGuid=B4BD99E24948366D7B272E84BE2C5532
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_1" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionWorldPosition_1'"
+      MaterialExpressionGuid=8429D9244E33399080410DA10D46B7F1
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_2" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionWorldPosition_2'"
+      MaterialExpressionEditorX=-1100
+      MaterialExpressionEditorY=425
+      MaterialExpressionGuid=E562B31246295B2E42E985A391BBB6B4
+      Material="/Script/Engine.Material'M_LivingTissue'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Game/Gameplay/Cold/Frost/MF_EnvironmentFrost.MF_EnvironmentFrost'"
+      FunctionInputs(0)=(ExpressionInputId=3A54F02640C0A77971B1918F96C7D6C0,Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_1'",InputName="BaseColor"))
+      FunctionInputs(1)=(ExpressionInputId=EB6F9D1A4286FB636375C49D30400786,Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_2'",InputName="Roughness"))
+      FunctionInputs(2)=(ExpressionInputId=2FCC08B443F25B99AB6737B1E05BA1B8,Input=(OutputIndex=-1,InputName="Metallic"))
+      FunctionInputs(3)=(ExpressionInputId=63D907F14E0A6881F594C596059D0340,Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_9'",InputName="Specular"))
+      FunctionOutputs(0)=(ExpressionOutputId=8F875B7B424B3496B8CCA09360FE3470,Output=(OutputName="BaseColor"))
+      FunctionOutputs(1)=(ExpressionOutputId=FA1559FA48055BA4FB63DDA8EABF5D30,Output=(OutputName="Roughness"))
+      FunctionOutputs(2)=(ExpressionOutputId=A94B89EA49249E426712AA8F1FAC637B,Output=(OutputName="Metallic"))
+      FunctionOutputs(3)=(ExpressionOutputId=96DB59FB47E22DC2FAE2F1B5415FEA8C,Output=(OutputName="Specular"))
+      FunctionOutputs(4)=(ExpressionOutputId=C843F3E745D7730425AC8EAC28D55A4F,Output=(OutputName="Coverage"))
+      MaterialExpressionEditorX=2600
+      MaterialExpressionEditorY=1600
+      MaterialExpressionGuid=F89DAB8B4C5AA99B64FECCB8B97B0C6F
+      Material="/Script/Engine.Material'M_LivingTissue'"
+      Desc="Shared matte fern frost; existing climate ColdAmount"
+      Outputs(0)=(OutputName="BaseColor")
+      Outputs(1)=(OutputName="Roughness")
+      Outputs(2)=(OutputName="Metallic")
+      Outputs(3)=(OutputName="Specular")
+      Outputs(4)=(OutputName="Coverage")
+   End Object
+   ShadingModel=MSM_SubsurfaceProfile
+   ShadingModels=(ShadingModelField=32)
+   TwoSided=True
+   bTangentSpaceNormal=False
+   bUsedWithSkeletalMesh=True
+   bUsedWithMorphTargets=True
+   EditorX=960
+   EditorY=-64
+   StateId=CBA18B7749C7E0061588D4B88E388B63
+   ReferencedTextureGuids(0)=6EF674924098E8072D1E119D92A5609D
+   ReferencedTextureGuids(1)=E5A04C2F432AFEABFD0A578C2BCAE396
+   ReferencedTextureGuids(2)=670619CD48696888D492F08383AE80CE
+   ReferencedTextureGuids(3)=379493864727F8A272EB5695E5408F3A
+   ReferencedTextureGuids(4)=307757E1458E615C7D97A39E32219707
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_LivingTissueEditorOnlyData'"
+   SubsurfaceProfile="/Script/Engine.SubsurfaceProfile'/Game/Gameplay/MouthV3/SP_Mucosa.SP_Mucosa'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="Good64x64TilingNoiseHighFreq",TextureReference="/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq.Good64x64TilingNoiseHighFreq")
+   TextureStreamingData(1)=(SamplingScale=0.781250,UVChannelIndex=0,TextureName="T_PlayerFrostMask",TextureReference="/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask")
+   TextureStreamingData(2)=(SamplingScale=3.000000,UVChannelIndex=0,TextureName="TissueSwatch_Tissue_BaseColor",TextureReference="/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_BaseColor.TissueSwatch_Tissue_BaseColor")
+   TextureStreamingData(3)=(SamplingScale=3.000000,UVChannelIndex=0,TextureName="TissueSwatch_Tissue_Normal",TextureReference="/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_Normal.TissueSwatch_Tissue_Normal")
+   TextureStreamingData(4)=(SamplingScale=3.000000,UVChannelIndex=0,TextureName="TissueSwatch_Tissue_OcclusionRoughnessMetallic",TextureReference="/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_OcclusionRoughnessMetallic.TissueSwatch_Tissue_OcclusionRoughnessMetallic")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_BaseColor.TissueSwatch_Tissue_BaseColor'"
+   ReferencedDefaultTextures(1)="/Script/Engine.Texture2D'/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_Normal.TissueSwatch_Tissue_Normal'"
+   ReferencedDefaultTextures(2)="/Script/Engine.Texture2D'/Game/Gameplay/Throat/Textures/TissueSwatch_Tissue_OcclusionRoughnessMetallic.TissueSwatch_Tissue_OcclusionRoughnessMetallic'"
+   ReferencedDefaultTextures(3)="/Script/Engine.Texture2D'/Engine/EngineMaterials/Good64x64TilingNoiseHighFreq.Good64x64TilingNoiseHighFreq'"
+   ReferencedDefaultTextures(4)="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+   LightingGuid=0AE0209F4DEFBA10006EA0A83403BD36
+End Object

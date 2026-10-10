@@ -1,0 +1,35 @@
+Begin Object Class=/Script/Engine.Material Name="M_Mango" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Mango.M_Mango'"
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_MangoEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Mango.M_Mango:M_MangoEditorOnlyData'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_Mango.M_Mango:MaterialExpressionScalarParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Mango.M_Mango:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Name="M_MangoEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Mango.M_Mango:M_MangoEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Mango:MaterialExpressionVectorParameter_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Mango:MaterialExpressionScalarParameter_1'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Mango:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Mango:MaterialExpressionScalarParameter_1'"))
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_Mango.M_Mango:MaterialExpressionScalarParameter_1'"
+      DefaultValue=0.500000
+      ParameterName="Roughness"
+      ExpressionGUID=CB5C42B143906990589706804902A904
+      MaterialExpressionEditorX=-350
+      MaterialExpressionEditorY=160
+      MaterialExpressionGuid=6492160340532582F3BAC4A2C68202B3
+      Material="/Script/Engine.Material'M_Mango'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Mango.M_Mango:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=1.000000,G=0.480000,B=0.065000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=D98B58DB49EF9C6F698F2FB6C94BCE71
+      MaterialExpressionEditorX=-350
+      MaterialExpressionGuid=B82BF6554658C6EB9E9127AF70FBCCC2
+      Material="/Script/Engine.Material'M_Mango'"
+   End Object
+   bUsedWithSkeletalMesh=True
+   bUsedWithMorphTargets=True
+   StateId=BB0870AA446E2C7D4344CE8BF8B47735
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_MangoEditorOnlyData'"
+   LightingGuid=3EAE4A2C4ECFC205E0647C866D9D63A2
+End Object

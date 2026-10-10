@@ -1,0 +1,61 @@
+Begin Object Class=/Script/Engine.Material Name="M_Broccoli" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Broccoli.M_Broccoli'"
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionScalarParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_BroccoliEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Broccoli.M_Broccoli:M_BroccoliEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Game/Gameplay/Cold/Frost/MF_EnvironmentFrost.MF_EnvironmentFrost'"
+      FunctionInputs(0)=(ExpressionInputId=3A54F02640C0A77971B1918F96C7D6C0,Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Broccoli:MaterialExpressionVectorParameter_1'",InputName="BaseColor",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      FunctionInputs(1)=(ExpressionInputId=EB6F9D1A4286FB636375C49D30400786,Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Broccoli:MaterialExpressionScalarParameter_1'",InputName="Roughness"))
+      FunctionInputs(2)=(ExpressionInputId=2FCC08B443F25B99AB6737B1E05BA1B8,Input=(OutputIndex=-1,InputName="Metallic"))
+      FunctionInputs(3)=(ExpressionInputId=63D907F14E0A6881F594C596059D0340,Input=(OutputIndex=-1,InputName="Specular"))
+      FunctionOutputs(0)=(ExpressionOutputId=8F875B7B424B3496B8CCA09360FE3470,Output=(OutputName="BaseColor"))
+      FunctionOutputs(1)=(ExpressionOutputId=FA1559FA48055BA4FB63DDA8EABF5D30,Output=(OutputName="Roughness"))
+      FunctionOutputs(2)=(ExpressionOutputId=A94B89EA49249E426712AA8F1FAC637B,Output=(OutputName="Metallic"))
+      FunctionOutputs(3)=(ExpressionOutputId=96DB59FB47E22DC2FAE2F1B5415FEA8C,Output=(OutputName="Specular"))
+      FunctionOutputs(4)=(ExpressionOutputId=C843F3E745D7730425AC8EAC28D55A4F,Output=(OutputName="Coverage"))
+      MaterialExpressionEditorX=2600
+      MaterialExpressionEditorY=1600
+      MaterialExpressionGuid=FD93FBFC48E1F869907BBA960E6F2A9D
+      Material="/Script/Engine.Material'M_Broccoli'"
+      Desc="Shared matte fern frost; existing climate ColdAmount"
+      Outputs(0)=(OutputName="BaseColor")
+      Outputs(1)=(OutputName="Roughness")
+      Outputs(2)=(OutputName="Metallic")
+      Outputs(3)=(OutputName="Specular")
+      Outputs(4)=(OutputName="Coverage")
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=0.210000,G=0.340000,B=0.055000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=12BB2C7647A895E7572501BBE17F370B
+      MaterialExpressionEditorX=-350
+      MaterialExpressionGuid=8F2C2AF94C542FAD138A2596441DD56E
+      Material="/Script/Engine.Material'M_Broccoli'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionScalarParameter_1'"
+      DefaultValue=0.700000
+      ParameterName="Roughness"
+      ExpressionGUID=936C47C74AD78456CEE980895BC7A425
+      MaterialExpressionEditorX=-350
+      MaterialExpressionEditorY=160
+      MaterialExpressionGuid=073E86D24D9E0D975F25A6B051467A2A
+      Material="/Script/Engine.Material'M_Broccoli'"
+   End Object
+   Begin Object Name="M_BroccoliEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Broccoli.M_Broccoli:M_BroccoliEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Broccoli:MaterialExpressionMaterialFunctionCall_0'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Broccoli:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=1)
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Broccoli:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Broccoli:MaterialExpressionScalarParameter_1'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Broccoli:MaterialExpressionMaterialFunctionCall_0'"))
+   End Object
+   StateId=112074054A7325C016F64B97320C7D1A
+   ReferencedTextureGuids(0)=670619CD48696888D492F08383AE80CE
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_BroccoliEditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=0.781250,UVChannelIndex=0,TextureName="T_PlayerFrostMask",TextureReference="/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+   LightingGuid=A1A837D94AD29C58EEC95BA494876E66
+End Object

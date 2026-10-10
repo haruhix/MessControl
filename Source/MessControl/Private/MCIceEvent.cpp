@@ -444,6 +444,7 @@ void AMCIceEvent::UpdateFreeze(float DeltaSeconds)
         if(!IsParticipant(Hero) || !Hero->GetController() || !Hero->Status || !Hero->Status->IsAlive() || Hero->IsActorBeingDestroyed()
             || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
         auto& Player=Updated.AddDefaulted_GetRef(); Player.Hero=Hero;
+        if(Hero->IsFreezingToDeath()) {Player.Amount=1.f;Player.bSafe=false;continue;}
         const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
         Player.bSafe=IsSafePoint(Feet);
         const bool NearBoss=bBossFloor && FVector::DistSquared2D(Feet,BossFloor.ImpactPoint)<=FMath::Square(BossFrostRadius)
@@ -453,8 +454,7 @@ void AMCIceEvent::UpdateFreeze(float DeltaSeconds)
         Player.Amount=FMath::Clamp(FreezeAmount(Hero)+DeltaSeconds*Rate,0.f,1.f);
         if(Player.Amount>=1)
         {
-            Hero->NotifyTaskFeedback(false,Hero->GetActorLocation());
-            Hero->Status->Damage(Hero->Status->State.MaxHealth,FVector::UpVector);
+            Hero->BeginFreezeDeath();
         }
     }
     Players=MoveTemp(Updated);
@@ -795,7 +795,7 @@ void AMCIceEvent::RefreshIceCoatings()
         auto* Part=IceCoatings[I].Get();
         auto* Source=IsValid(Part)?Cast<USkeletalMeshComponent>(Part->GetAttachParent()):nullptr;
         auto* Hero=Source?Cast<AMCToothCharacter>(Source->GetOwner()):nullptr;
-        if(!IsValid(Hero) || Hero->IsActorBeingDestroyed() || !Hero->Status || !Hero->Status->IsAlive()
+        if(!IsValid(Hero) || Hero->IsActorBeingDestroyed() || Hero->IsFreezingToDeath() || !Hero->Status || !Hero->Status->IsAlive()
             || Source!=Hero->GetMesh() || !Source->GetSkeletalMeshAsset() || FreezeAmount(Hero)<=.002f)
         {
             if(IsValid(Hero)) RemoveTickPrerequisiteActor(Hero);
@@ -807,7 +807,7 @@ void AMCIceEvent::RefreshIceCoatings()
     for(const auto& Player:Players)
     {
         auto* Hero=Player.Hero.Get();
-        if(!IsValid(Hero) || Hero->IsActorBeingDestroyed() || !Hero->Status || !Hero->Status->IsAlive()
+        if(!IsValid(Hero) || Hero->IsActorBeingDestroyed() || Hero->IsFreezingToDeath() || !Hero->Status || !Hero->Status->IsAlive()
             || !FMath::IsFinite(Player.Amount) || Player.Amount<=.002f) continue;
         auto* Source=Hero->GetMesh();
         if(!Source || !Source->GetSkeletalMeshAsset()) continue;

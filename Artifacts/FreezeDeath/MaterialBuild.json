@@ -1,0 +1,7 @@
+{
+  "materials": [
+    "/Game/Gameplay/Cold/Death/M_FrozenDeathBody.M_FrozenDeathBody",
+    "/Game/Gameplay/Cold/Death/M_FrozenDeathBag.M_FrozenDeathBag",
+    "/Game/Gameplay/Cold/Death/M_FrozenDeathGlass.M_FrozenDeathGlass"
+  ]
+}

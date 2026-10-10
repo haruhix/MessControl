@@ -1,0 +1,144 @@
+Begin Object Class=/Script/Engine.Material Name="M_ArenaTooth" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexInterpolator Name="MaterialExpressionVertexInterpolator_0" ExportPath="/Script/Engine.MaterialExpressionVertexInterpolator'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionVertexInterpolator_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionVectorParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionVectorParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_7" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_7'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_6" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_6'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionPreSkinnedPosition Name="MaterialExpressionPreSkinnedPosition_1" ExportPath="/Script/Engine.MaterialExpressionPreSkinnedPosition'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionPreSkinnedPosition_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionCustom_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionCustom_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_ArenaToothEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:M_ArenaToothEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexInterpolator_0" ExportPath="/Script/Engine.MaterialExpressionVertexInterpolator'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionVertexInterpolator_0'"
+      Input=(Expression="/Script/Engine.MaterialExpressionPreSkinnedPosition'M_ArenaTooth:MaterialExpressionPreSkinnedPosition_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=-420
+      MaterialExpressionEditorY=-200
+      MaterialExpressionGuid=DE6AA2B74C6DBBE9270027B71AF8A0C3
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionVectorParameter_3'"
+      DefaultValue=(R=0.180000,G=0.052000,B=0.008000,A=1.000000)
+      ParameterName="CoffeeColor"
+      ExpressionGUID=0F97B1724345725FC51FCFBA7482024E
+      MaterialExpressionEditorX=-700
+      MaterialExpressionEditorY=450
+      MaterialExpressionGuid=444B428F4F9F4C9AD5FBDCAA2E7A2387
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionVectorParameter_2'"
+      DefaultValue=(R=0.940000,G=0.880000,B=0.720000,A=1.000000)
+      ParameterName="EnamelColor"
+      ExpressionGUID=19DA3E2B4CDC2C4488EAF79DE2E53C3C
+      MaterialExpressionEditorX=-700
+      MaterialExpressionEditorY=300
+      MaterialExpressionGuid=7AF7D1494C4A194742938582F67DD87E
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.940000,G=0.880000,B=0.720000,A=1.000000)
+      ParameterName="EnamelColor"
+      ExpressionGUID=3A2986BA422795FF629E9DA0A48712A5
+      MaterialExpressionEditorX=-700
+      MaterialExpressionEditorY=300
+      MaterialExpressionGuid=4FF949D343D0DF201C5C27B69DC1EB4F
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_7" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_7'"
+      DefaultValue=0.220000
+      ParameterName="EnamelRoughness"
+      ExpressionGUID=744E788F4D9EB877D0B0F391B68564B3
+      MaterialExpressionEditorX=-700
+      MaterialExpressionEditorY=600
+      MaterialExpressionGuid=6303EA164BF8267303927D964B825FAF
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_6" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_6'"
+      ParameterName="HitFlash"
+      ExpressionGUID=1E77CA634EEDD05DBA421B8DA95E15B0
+      MaterialExpressionEditorX=-700
+      MaterialExpressionEditorY=200
+      MaterialExpressionGuid=E938B752496CEF94E32733B03672F5B1
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_5'"
+      ParameterName="Damage"
+      ExpressionGUID=76715A7F4F2C569AD70355A5BA4F0713
+      MaterialExpressionEditorX=-700
+      MaterialExpressionEditorY=100
+      MaterialExpressionGuid=41D087504A47462277DF1DA9AD0C665D
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_4'"
+      ParameterName="Coffee"
+      ExpressionGUID=0517CB66464A6DEB180D8EBA5C09DC62
+      MaterialExpressionEditorX=-700
+      MaterialExpressionGuid=CABD6D1A4954B916948D84A0D8576CE3
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_1'"
+      ParameterName="Damage"
+      ExpressionGUID=6565E2F14316E79166F24E8DE34279D5
+      MaterialExpressionEditorX=-700
+      MaterialExpressionEditorY=100
+      MaterialExpressionGuid=FDB9737D47487A27FDE8D9831650E117
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionPreSkinnedPosition_1" ExportPath="/Script/Engine.MaterialExpressionPreSkinnedPosition'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionPreSkinnedPosition_1'"
+      MaterialExpressionEditorX=-700
+      MaterialExpressionEditorY=-200
+      MaterialExpressionGuid=9EF41AB04B93F1D905055BB12AF63334
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionCustom_1'"
+      Code="\nfloat waves = sin(P.y*.16 + sin(P.z*.09)*1.8) + sin(P.x*.18 + P.z*.115) + .55*cos(P.z*.26-P.y*.11);\nfloat patch = smoothstep(.05,.35,waves) * Coffee;\nfloat3 base = lerp(Enamel,Stain*(.8+.2*sin(P.z*.3)),patch);\nfloat crack = 1-smoothstep(.025,.075,abs(sin(P.z*.13+P.y*.085+sin(P.y*.16)*.8)));\ncrack *= smoothstep(.15,.65,Damage) * smoothstep(25,65,P.z);\nbase = lerp(base, float3(.075,.024,.012), crack*.85);\nbase = lerp(base,float3(1,.3,.08),Flash*.55);\nreturn base;\n"
+      Description="Enamel + surface coffee + damage cracks"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaTooth:MaterialExpressionVertexInterpolator_0'"))
+      Inputs(1)=(InputName="Coffee",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_4'"))
+      Inputs(2)=(InputName="Damage",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_5'"))
+      Inputs(3)=(InputName="Flash",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_6'"))
+      Inputs(4)=(InputName="Enamel",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ArenaTooth:MaterialExpressionVectorParameter_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(5)=(InputName="Stain",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ArenaTooth:MaterialExpressionVectorParameter_3'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      MaterialExpressionEditorX=-100
+      MaterialExpressionGuid=4A23B13D45F68A0B79A62F919FFF0399
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionCustom_0'"
+      Code="\nfloat waves = sin(P.y*.16 + sin(P.z*.09)*1.8) + sin(P.x*.18 + P.z*.115) + .55*cos(P.z*.26-P.y*.11);\nfloat patch = smoothstep(.05,.35,waves) * Coffee;\nfloat3 base = lerp(Enamel,Stain*(.8+.2*sin(P.z*.3)),patch);\nfloat crack = 1-smoothstep(.025,.075,abs(sin(P.z*.13+P.y*.085+sin(P.y*.16)*.8)));\ncrack *= smoothstep(.15,.65,Damage) * smoothstep(25,65,P.z);\nbase = lerp(base, float3(.075,.024,.012), crack*.85);\nbase = lerp(base,float3(1,.3,.08),Flash*.55);\nreturn base;\n"
+      Description="Enamel + surface coffee + damage cracks"
+      Inputs(0)=(InputName="P",Input=(Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Coffee")
+      Inputs(2)=(InputName="Damage",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_1'"))
+      Inputs(3)=(InputName="Flash")
+      Inputs(4)=(InputName="Enamel",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ArenaTooth:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(5)=(InputName="Stain",Input=(Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      MaterialExpressionEditorX=-100
+      MaterialExpressionGuid=E1AB4931497FA1D885A465B6E37054F1
+      Material="/Script/Engine.Material'M_ArenaTooth'"
+   End Object
+   Begin Object Name="M_ArenaToothEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:M_ArenaToothEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaTooth:MaterialExpressionCustom_1'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_7'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionCustom'M_ArenaTooth:MaterialExpressionCustom_0'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_1'","/Script/Engine.MaterialExpressionVectorParameter'M_ArenaTooth:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionPreSkinnedPosition'M_ArenaTooth:MaterialExpressionPreSkinnedPosition_1'","/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaTooth:MaterialExpressionVertexInterpolator_0'","/Script/Engine.MaterialExpressionCustom'M_ArenaTooth:MaterialExpressionCustom_1'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_4'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_5'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_6'","/Script/Engine.MaterialExpressionVectorParameter'M_ArenaTooth:MaterialExpressionVectorParameter_2'","/Script/Engine.MaterialExpressionVectorParameter'M_ArenaTooth:MaterialExpressionVectorParameter_3'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_7'"))
+   End Object
+   bUsedWithSkeletalMesh=True
+   bUsedWithMorphTargets=True
+   StateId=001991F44F4CDF344CDFC5BA8A628538
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_ArenaToothEditorOnlyData'"
+   LightingGuid=E1915E6C42BB9E990A80E9A28CF88486
+End Object

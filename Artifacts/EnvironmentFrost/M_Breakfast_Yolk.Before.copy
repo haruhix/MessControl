@@ -1,0 +1,31 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_Yolk" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_YolkEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:M_Breakfast_YolkEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=1.000000,G=0.400000,B=0.015000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=A67BC6B3448EB561589A7EA0BF9D3598
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=7EA781874FB2237CBE6ADA833DD39245
+      Material="/Script/Engine.Material'M_Breakfast_Yolk'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=CC3B86B948B497439A2FC9994532D8A7
+      Material="/Script/Engine.Material'M_Breakfast_Yolk'"
+   End Object
+   Begin Object Name="M_Breakfast_YolkEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:M_Breakfast_YolkEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_Yolk:MaterialExpressionConstant_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_Yolk:MaterialExpressionConstant_0'"))
+   End Object
+   StateId=91100B964D7E36953FAF32AAAC1DEF4A
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_YolkEditorOnlyData'"
+   LightingGuid=499ADB924BD2D299D69DF682CD4C8519
+End Object

@@ -1,0 +1,19 @@
+{
+  "dirty_content": [],
+  "dirty_maps": [],
+  "background_throttle_restored": true,
+  "saved_assets": {
+    "/Game/Gameplay/Cold/Death/M_FrozenDeathGlass.M_FrozenDeathGlass": {
+      "bytes": 18436,
+      "sha256": "2609ca8a8c2c06bde5e0cc2e138e11f8da1c6818ab84196bd8dd18b13c159eea"
+    },
+    "/Game/Gameplay/Cold/Death/M_FrozenDeathBody.M_FrozenDeathBody": {
+      "bytes": 85129,
+      "sha256": "aa2693784fc38c881aa57fe05d30740d3fd572231ecfea4c920fd501d097faa1"
+    },
+    "/Game/Gameplay/Cold/Death/M_FrozenDeathBag.M_FrozenDeathBag": {
+      "bytes": 71366,
+      "sha256": "cebf12653db812002e081c374169feb253bbe8c4d350e9c1af5ac0ba23509af1"
+    }
+  }
+}

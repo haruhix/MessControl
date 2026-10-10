@@ -1,0 +1,42 @@
+Begin Object Class=/Script/Engine.Material Name="M_SprayNozzle" ExportPath="/Script/Engine.Material'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle'"
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionTextureCoordinate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionTextureCoordinate_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionCustom_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_SprayNozzleEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:M_SprayNozzleEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionTextureCoordinate_1'"
+      MaterialExpressionGuid=DEED67C5424397863EF0CE942D94E82F
+      Material="/Script/Engine.Material'M_SprayNozzle'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionTextureCoordinate_0'"
+      MaterialExpressionGuid=3739934D45BA17E4039838957952DC0D
+      Material="/Script/Engine.Material'M_SprayNozzle'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionScalarParameter_0'"
+      DefaultValue=0.260000
+      ParameterName="Roughness"
+      ExpressionGUID=E02A677742356C9EAD3988888CC0BCE2
+      MaterialExpressionGuid=E2DDD1784F2D4F79A3BF5C9657322AF5
+      Material="/Script/Engine.Material'M_SprayNozzle'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionCustom_2'"
+      Code="return float3(.055,.12,.14);"
+      Description="Spray can: clinic label"
+      Inputs(0)=(InputName="UV",Input=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayNozzle:MaterialExpressionTextureCoordinate_0'"))
+      MaterialExpressionGuid=CC12D49A4CED81C9DDFA67BEECDC216B
+      Material="/Script/Engine.Material'M_SprayNozzle'"
+   End Object
+   Begin Object Name="M_SprayNozzleEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:M_SprayNozzleEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionCustom'M_SprayNozzle:MaterialExpressionCustom_2'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_SprayNozzle:MaterialExpressionScalarParameter_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayNozzle:MaterialExpressionTextureCoordinate_1'","/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayNozzle:MaterialExpressionTextureCoordinate_0'","/Script/Engine.MaterialExpressionCustom'M_SprayNozzle:MaterialExpressionCustom_2'","/Script/Engine.MaterialExpressionScalarParameter'M_SprayNozzle:MaterialExpressionScalarParameter_0'"))
+   End Object
+   StateId=5BBC8D304A9B1EC7BA317DBFB4FBF121
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_SprayNozzleEditorOnlyData'"
+   LightingGuid=4B1706694313620AB8B5B995CD50B8D7
+End Object

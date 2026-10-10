@@ -1,0 +1,31 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_Fibre" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_FibreEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre:M_Breakfast_FibreEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.560000,G=0.340000,B=0.100000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=4FA02C644F287FF448FECAA6937E120A
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=B8CAE6004BBFB17905C927BD9783ACE5
+      Material="/Script/Engine.Material'M_Breakfast_Fibre'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=33E0898C442B04FD25C23992851C5179
+      Material="/Script/Engine.Material'M_Breakfast_Fibre'"
+   End Object
+   Begin Object Name="M_Breakfast_FibreEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre:M_Breakfast_FibreEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Fibre:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_Fibre:MaterialExpressionConstant_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Fibre:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_Fibre:MaterialExpressionConstant_0'"))
+   End Object
+   StateId=1D2611EE4E80348C60F3E08BB2324088
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_FibreEditorOnlyData'"
+   LightingGuid=CEDE7B2846EA26D10E65E28545613F67
+End Object

@@ -1,0 +1,31 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_EggWhite" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_EggWhiteEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite:M_Breakfast_EggWhiteEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.950000,G=0.860000,B=0.640000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=FBCB335347E4EF79346C299AEE57510F
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=56F24A714B3A850A4A28968EBB0D0C2D
+      Material="/Script/Engine.Material'M_Breakfast_EggWhite'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=A63ED0184B83E98875AE8AB8646B2EB6
+      Material="/Script/Engine.Material'M_Breakfast_EggWhite'"
+   End Object
+   Begin Object Name="M_Breakfast_EggWhiteEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite:M_Breakfast_EggWhiteEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_EggWhite:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_EggWhite:MaterialExpressionConstant_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_EggWhite:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_EggWhite:MaterialExpressionConstant_0'"))
+   End Object
+   StateId=8D858DBA45747520F25FE989AC29FF45
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_EggWhiteEditorOnlyData'"
+   LightingGuid=FA2255C44D4F7F4F1F8973BB1971DAD2
+End Object

@@ -1,0 +1,248 @@
+{
+  "materials": [
+    {
+      "material": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_2'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Roof_RainDrips:MaterialExpressionMaterialFunctionCall_2'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 69254,
+      "sha256": "d2cf15f91c44835338ef132b2d3005defb6754b3c51df84a39cd70682f599d16"
+    },
+    {
+      "material": "/Game/Art/Materials/MM_Standart.MM_Standart",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_Standart:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_Standart:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 42789,
+      "sha256": "7f90786fd44e91275c884b9c718f3798eb47288f1c01e6eeb3f7432674d35708"
+    },
+    {
+      "material": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_Standart_SSS:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_Standart_SSS:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 46551,
+      "sha256": "329ab100d59c84c7c688f5922c36ffc1d71c9b63de5c0844fd725fbcbe3baf1a"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Bacon:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Bacon:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16030,
+      "sha256": "5b09319265d251571f44d412c7d015eba0c6f6cfa434ba9a4e8ba694d2bf5f81"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Carrot:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Carrot:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16421,
+      "sha256": "628c4701ce0372ab74984e3e61eb67e7c5f2b68def14b286873c8bea4bba01b2"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_EggWhite:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_EggWhite:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16027,
+      "sha256": "a2ea51a0a986e9128dd69b4691507adab8696864cd6de8174054f4b7f8aef076"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Fat:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Fat:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16143,
+      "sha256": "a916c0f4c2192b2043854075f7f70bdbd87c321da0d9dfedf2ce041f73d0be24"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Fibre:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Fibre:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16208,
+      "sha256": "d692b784211d462d61fedb8149e4c56e7a1e16f98c4c4122e09506764659ac80"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Green:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Green:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16217,
+      "sha256": "b18c8e78a739731750323c9c4a98b69c8da24d599a06630af9c3a69a2654e119"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Stem:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Stem:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16180,
+      "sha256": "557fa9085935bcc9be84f14633a1fdabb01f203c00a9a816384e9b2ea36c280a"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Yolk:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Yolk:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16481,
+      "sha256": "7a33153572cdd240fb384f1ab83bb0662a92e2417cb5f3b6b20e96d3dc7e3d13"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Bristles.M_Bristles",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Bristles:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Bristles:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16122,
+      "sha256": "a89d0d10bfa74f51d640be0a9e2c14e5605d81b9a08674ccef9c95320f86c6e7"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Broccoli.M_Broccoli",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Broccoli:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Broccoli:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16013,
+      "sha256": "64106a5088e08e71b695b40391bfb29ca6798e6c922360e6cbc1a8e839e3b18d"
+    },
+    {
+      "material": "/Game/Art/Materials/M_LivingTissue.M_LivingTissue",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_LivingTissue:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_LivingTissue:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 37755,
+      "sha256": "6f68465c664641d1ef8765759c3b0493da9e967b9f6a1459e9d6ab59519af57f"
+    },
+    {
+      "material": "/Game/Art/Materials/M_Mango.M_Mango",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Mango:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Mango:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16472,
+      "sha256": "838b7b6eb1051d763053813f6ceaa071db4cf0922ec3dbcbe7fc610fc2a9966f"
+    },
+    {
+      "material": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ExitClimate_EdgeFade:MaterialExpressionMaterialFunctionCall_2'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ExitClimate_EdgeFade:MaterialExpressionMaterialFunctionCall_2'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 58306,
+      "sha256": "ae77396998b8dcb435f3a8fee52c8ac9b4736c7ff206eb7bdcd094e48f8ef1db"
+    },
+    {
+      "material": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ArenaToothCareV2:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ArenaToothCareV2:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 44964,
+      "sha256": "3ebd2a59cb33be494878cd77d06af0c500dff73bfab02851e0811988f7e16f03"
+    },
+    {
+      "material": "/Game/Gameplay/Care/M_SprayCan.M_SprayCan",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_SprayCan:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_SprayCan:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 17774,
+      "sha256": "b9684929b3b318b5ca02f0fdd7af7721639db6119b0789b31a6296199f897dda"
+    },
+    {
+      "material": "/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_SprayNozzle:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_SprayNozzle:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 16743,
+      "sha256": "b5db542c4fd1e50591d6f6e6d6f158d676b3c00276dfd1270e7c4ab76f06eaf2"
+    },
+    {
+      "material": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Constant=(R=0.501961,G=0.501961,B=0.501961,A=1.000000),Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_StylizedVegetables:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_StylizedVegetables:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 20190,
+      "sha256": "88fabc703b3227ef26cf0c24919f23762973dc30823b7fdb2abccc71ad27837b"
+    },
+    {
+      "material": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity.MM_StylizedVegetablesOpacity",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Constant=(R=0.501961,G=0.501961,B=0.501961,A=1.000000),Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_StylizedVegetablesOpacity:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_StylizedVegetablesOpacity:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 23066,
+      "sha256": "9ff11f790398aec3831976b94368c0dbc16bb42ea863be7852d52c4b45707863"
+    },
+    {
+      "material": "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 25631,
+      "sha256": "15e2ec3bb2d3679d16ddfb4136a8f2748905b3ed7cf285ef53f06cae4a7e0a96"
+    },
+    {
+      "material": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ArenaToothRelief:MaterialExpressionMaterialFunctionCall_1'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ArenaToothRelief:MaterialExpressionMaterialFunctionCall_1'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 58239,
+      "sha256": "f3cb92236c4fe52f19959c0e51a538e28cbdc44083332b891b6bf0455261f287"
+    },
+    {
+      "material": "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth",
+      "original_inputs_preserved": true,
+      "active_root_inputs": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ArenaTooth:MaterialExpressionMaterialFunctionCall_0'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ArenaTooth:MaterialExpressionMaterialFunctionCall_0'\",OutputIndex=1)"
+      ],
+      "saved_bytes": 23180,
+      "sha256": "bf99c0c6d42e13d36706eebe8d8bb5c0ccb8739f5cd3cd61565c7cd8f97a75b7"
+    }
+  ],
+  "function": "/Game/Gameplay/Cold/Frost/MF_EnvironmentFrost.MF_EnvironmentFrost",
+  "ColdAmount_after_preview": 0.0,
+  "dirty_content": [],
+  "dirty_maps": []
+}

@@ -1,0 +1,7 @@
+{
+  "mesh": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+  "CPU_access_enabled_with_editor_subsystem": true,
+  "freeze_component_property_present": true,
+  "cube_class_present": true,
+  "map": "/Game/Maps/L_Mouth.L_Mouth"
+}

@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "MCColdCola.h"
 #include "MCIceEvent.h"
+#include "MCFreezeDeathVFX.h"
 #include "MCFogBrawlEvent.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
@@ -265,6 +266,7 @@ void AMCToothCharacter::OnRep_IceLegHealth()
         LocalPaddle=FVector2D::ZeroVector; PaddleInput=FVector2D::ZeroVector; SwimIntent=FVector::ZeroVector;
     }
     UpdateIceLegVisuals();
+    if(IsFreezingToDeath()) GetCharacterMovement()->DisableMovement();
 }
 void AMCToothCharacter::UpdateIceLegVisuals()
 {
@@ -882,6 +884,14 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if(IsFreezingToDeath())
+    {
+        ConsumeMovementInputVector();GetCharacterMovement()->StopMovementImmediately();
+        UpdateMouthCamera(DeltaSeconds);
+        if(HasAuthority() && Status->IsAlive() && FreezeDeathAge()>=FreezeDeathHoldSeconds)
+            Status->Damage(Status->State.MaxHealth,FVector::UpVector);
+        return;
+    }
     if(HasAuthority() && HasFrozenLegs() && (!Status->IsAlive() || IsMimicCaptured() || SwallowedBy)) ClearFrozenLegs();
     if(HasFrozenLegs()) UpdateIceLegVisuals();
     UpdateMimicCapture(DeltaSeconds);
@@ -1360,6 +1370,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCToothCharacter,bBrushing); DOREPLIFETIME(AMCToothCharacter,bHandling);
     DOREPLIFETIME(AMCToothCharacter,bPrimaryHeld);
     DOREPLIFETIME(AMCToothCharacter,IceLegHealth);
+    DOREPLIFETIME(AMCToothCharacter,FreezeDeathStartedAt);
     DOREPLIFETIME(AMCToothCharacter,CalculusTarget); DOREPLIFETIME(AMCToothCharacter,CalculusContactLocal);
     DOREPLIFETIME(AMCToothCharacter,CalculusNormalLocal); DOREPLIFETIME(AMCToothCharacter,SwingStartedAt);
     DOREPLIFETIME(AMCToothCharacter,BagColor);
@@ -1379,6 +1390,7 @@ void AMCToothCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 
 bool AMCToothCharacter::CanWork() const
 {
+    if(IsFreezingToDeath()) return false;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const auto* Player=Cast<AMCPlayerController>(GetController());
     return (!Player || (!Player->IsBossIntroPlaying() && !Player->IsRewardInteractionActive())) && !IsValid(RewardInteraction) && !IsMimicCaptured() && !SwallowedBy && Status->IsAlive() && ToothPhysics->CanAct() && (!GS || (!GS->bLobbyWaiting && GS->Phase!=EMCShiftPhase::Won && GS->Phase!=EMCShiftPhase::Lost));
@@ -1495,6 +1507,38 @@ bool AMCToothCharacter::FindPlayerBrushContact(const AMCToothCharacter* Worker,F
     FHitResult Block; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCPlayerBrushOcclusion),false,Worker); Query.AddIgnoredActor(this);
     return !GetWorld()->LineTraceSingleByChannel(Block,From,Point-Normal*2,ECC_Visibility,Query);
 }
+float AMCToothCharacter::FreezeDeathAge() const
+{
+    if(!IsFreezingToDeath()) return 0;
+    const auto* GS=GetWorld()->GetGameState();
+    const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    return FMath::Max(0.f,float(Now-FreezeDeathStartedAt));
+}
+bool AMCToothCharacter::BeginFreezeDeath()
+{
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    if(!HasAuthority() || !Status->IsAlive() || IsFreezingToDeath() || IsMimicCaptured() || SwallowedBy
+        || (GS && (GS->bTutorialActive || GS->bLobbyWaiting))) return false;
+    FreezeDeathStartedAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    CancelGameplayInput();ClearOrderJump();ClearFrozenLegs();Grip->ReleaseBrace();DropFood();ResetContact();
+    ClingTooth=nullptr;bWantsCling=false;NotifyTaskFeedback(false,GetActorLocation());
+    OnRep_FreezeDeath();ForceNetUpdate();return true;
+}
+void AMCToothCharacter::OnRep_FreezeDeath()
+{
+    if(!IsFreezingToDeath()) return;
+    if(!IsValid(FreezeDeathVisual)) FreezeDeathVisual=AMCFreezeDeathVFX::SpawnLocal(this,FreezeDeathStartedAt);
+    GetCharacterMovement()->StopMovementImmediately();GetCharacterMovement()->DisableMovement();
+    ConsumeMovementInputVector();
+    ToothPhysics->SetThroatCaptured(true);ToothPhysics->SetComponentTickEnabled(false);
+    Muscles->SetComponentTickEnabled(false);
+    GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    GetMesh()->SetAllBodiesSimulatePhysics(false);GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    GetMesh()->SetComponentTickEnabled(false);
+    // Replace only the rendered body. The pawn remains the camera/view target until the usual respawn.
+    if(IsValid(FreezeDeathVisual) || GetNetMode()==NM_DedicatedServer) GetMesh()->SetHiddenInGame(true,true);
+    if(Brush) Brush->SetHiddenInGame(true);
+}
 void AMCToothCharacter::StatusChanged()
 {
     if (!HasAuthority() || Status->IsAlive() || bDeathReported) return;
@@ -1504,7 +1548,7 @@ void AMCToothCharacter::StatusChanged()
     Grip->ReleaseBrace();
     bDeathReported=true; bBrushing=false; bHandling=false; DropFood(); ResetContact();
     ClingTooth=nullptr; bWantsCling=false;
-    ToothPhysics->EnterDeath();
+    if(!IsFreezingToDeath()) ToothPhysics->EnterDeath();
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->PlayerDied(this);
 }
 void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
@@ -1522,6 +1566,7 @@ void AMCToothCharacter::FellOutOfWorld(const UDamageType&)
 }
 void AMCToothCharacter::EndPlay(const EEndPlayReason::Type Reason)
 {
+    if(IsValid(FreezeDeathVisual)) FreezeDeathVisual->Destroy();
     if(HasAuthority()) ClearFrozenLegs();
     for(UStaticMeshComponent* Part:IceLegParts) if(Part) Part->SetVisibility(false);
     StopMimicRescue();

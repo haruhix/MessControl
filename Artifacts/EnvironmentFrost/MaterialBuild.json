@@ -1,0 +1,285 @@
+{
+  "function": "/Game/Gameplay/Cold/Frost/MF_EnvironmentFrost.MF_EnvironmentFrost",
+  "driver": "/Game/Gameplay/Cold/MPC_MouthClimate.MPC_MouthClimate:ColdAmount",
+  "mask": "/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask",
+  "materials": [
+    {
+      "path": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Roof_RainDrips_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Metallic",
+        "Specular"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/MM_Standart.MM_Standart",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/MM_Standart_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Metallic",
+        "Specular"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/MM_Standart_SSS_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Metallic",
+        "Specular"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Breakfast_Bacon_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Breakfast_Carrot_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Breakfast_EggWhite_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Breakfast_Fat_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Breakfast_Fibre_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Breakfast_Green_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Breakfast_Stem_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Breakfast_Yolk_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Bristles.M_Bristles",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Bristles_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Broccoli.M_Broccoli",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Broccoli_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_LivingTissue.M_LivingTissue",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_LivingTissue_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Specular"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/M_Mango.M_Mango",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_Mango_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_ExitClimate_EdgeFade_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Metallic",
+        "Specular"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_ArenaToothCareV2_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Specular"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_SprayCan.M_SprayCan",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_SprayCan_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_SprayNozzle_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/MM_StylizedVegetables_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Metallic"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity.MM_StylizedVegetablesOpacity",
+      "already_installed": true,
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/MM_StylizedVegetablesOpacity_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Metallic"
+      ],
+      "protected_inputs_preserved": true,
+      "compile_errors": []
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus",
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_ToothCalculus_BeforeEnvironmentFrost.M_ToothCalculus_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Metallic",
+        "Specular"
+      ],
+      "compile_errors": [],
+      "protected_inputs_preserved": true
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief",
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_ArenaToothRelief_BeforeEnvironmentFrost.M_ArenaToothRelief_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness",
+        "Specular"
+      ],
+      "compile_errors": [],
+      "protected_inputs_preserved": true
+    },
+    {
+      "path": "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth",
+      "backup": "/Game/Gameplay/Cold/Frost/EnvironmentBackups/M_ArenaTooth_BeforeEnvironmentFrost.M_ArenaTooth_BeforeEnvironmentFrost",
+      "connected_outputs": [
+        "BaseColor",
+        "Roughness"
+      ],
+      "compile_errors": [],
+      "protected_inputs_preserved": true
+    }
+  ],
+  "dirty_content": [],
+  "dirty_maps": []
+}

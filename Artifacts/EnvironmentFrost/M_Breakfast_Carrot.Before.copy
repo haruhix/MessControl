@@ -1,0 +1,31 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_Carrot" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_CarrotEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot:M_Breakfast_CarrotEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.950000,G=0.200000,B=0.015000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=3DE4C8C74BA0A4F7FA2AF18F59FEBB43
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=F6E62825409ADE334027A5AFDDE2E44B
+      Material="/Script/Engine.Material'M_Breakfast_Carrot'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=F4E5812144A936382F78B1B78C148A1F
+      Material="/Script/Engine.Material'M_Breakfast_Carrot'"
+   End Object
+   Begin Object Name="M_Breakfast_CarrotEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot:M_Breakfast_CarrotEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Carrot:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_Carrot:MaterialExpressionConstant_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Carrot:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_Carrot:MaterialExpressionConstant_0'"))
+   End Object
+   StateId=6D4270A744F21EC51506DBB260E339AB
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_CarrotEditorOnlyData'"
+   LightingGuid=6F26682A49E7777815133F9A3C374DF8
+End Object

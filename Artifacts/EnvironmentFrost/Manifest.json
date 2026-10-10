@@ -1,0 +1,1095 @@
+{
+  "targets": [
+    {
+      "path": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips",
+      "sources": [
+        "SM_Plane_001"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_3",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_4",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_11",
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_5",
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionCustom_2",
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips:MaterialExpressionMultiply_0",
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_3'\")",
+        "Metallic=(Expression=\"/Script/Engine.MaterialExpressionMultiply'M_Roof_RainDrips:MaterialExpressionMultiply_11'\")",
+        "Specular=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_5'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_4'\")",
+        "Normal=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_Roof_RainDrips:MaterialExpressionCustom_2'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/MM_Standart.MM_Standart",
+      "sources": [
+        "/Game/Art/Materials/Buster/MI_Chest",
+        "/Game/Art/Materials/Equipment/MI_Brush",
+        "/Game/Art/Materials/Equipment/MI_MegaBrush",
+        "/Game/Art/Materials/Equipment/MI_Pick",
+        "/Game/Art/Materials/Equipment/MI_WaterGun",
+        "/Game/Art/Materials/MI_Food",
+        "/Game/Gameplay/CharacterCurrent/Tools/Materials/MI_Brush",
+        "/Game/Gameplay/CharacterCurrent/Tools/Materials/MI_Knife",
+        "/Game/Gameplay/CharacterCurrent/Tools/Materials/MI_Pick",
+        "/Game/Gameplay/CharacterCurrent/Tools/Materials/MI_Spray"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionLinearInterpolate_1",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_13",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": "/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_11",
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": "/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_12",
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionNormalize_1",
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": "/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_14",
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionLinearInterpolate'MM_Standart:MaterialExpressionLinearInterpolate_1'\")",
+        "Metallic=(Expression=\"/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_11'\")",
+        "Specular=(Expression=\"/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_12'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_13'\")",
+        "Normal=(Expression=\"/Script/Engine.MaterialExpressionNormalize'MM_Standart:MaterialExpressionNormalize_1'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS",
+      "sources": [
+        "/Game/Art/Materials/Breakfast/MI_Egg",
+        "SM_Candy",
+        "SM_Teeth"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS:MaterialExpressionLinearInterpolate_1",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS:MaterialExpressionMultiply_13",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS:MaterialExpressionMultiply_11",
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS:MaterialExpressionMultiply_12",
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS:MaterialExpressionNormalize_1",
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS:MaterialExpressionMultiply_14",
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionLinearInterpolate'MM_Standart_SSS:MaterialExpressionLinearInterpolate_1'\")",
+        "Metallic=(Expression=\"/Script/Engine.MaterialExpressionMultiply'MM_Standart_SSS:MaterialExpressionMultiply_11'\")",
+        "Specular=(Expression=\"/Script/Engine.MaterialExpressionMultiply'MM_Standart_SSS:MaterialExpressionMultiply_12'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionMultiply'MM_Standart_SSS:MaterialExpressionMultiply_13'\")",
+        "Normal=(Expression=\"/Script/Engine.MaterialExpressionNormalize'MM_Standart_SSS:MaterialExpressionNormalize_1'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon",
+      "sources": [
+        "/Game/Art/Materials/M_Breakfast_Bacon"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon:MaterialExpressionVectorParameter_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon:MaterialExpressionConstant_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Bacon:MaterialExpressionVectorParameter_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionConstant'M_Breakfast_Bacon:MaterialExpressionConstant_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot",
+      "sources": [
+        "/Game/Art/Materials/M_Breakfast_Carrot"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot:MaterialExpressionVectorParameter_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Carrot.M_Breakfast_Carrot:MaterialExpressionConstant_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Carrot:MaterialExpressionVectorParameter_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionConstant'M_Breakfast_Carrot:MaterialExpressionConstant_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite",
+      "sources": [
+        "/Game/Art/Materials/M_Breakfast_EggWhite"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite:MaterialExpressionVectorParameter_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Breakfast_EggWhite.M_Breakfast_EggWhite:MaterialExpressionConstant_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_EggWhite:MaterialExpressionVectorParameter_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionConstant'M_Breakfast_EggWhite:MaterialExpressionConstant_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat",
+      "sources": [
+        "/Game/Art/Materials/M_Breakfast_Fat"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat:MaterialExpressionVectorParameter_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat:MaterialExpressionConstant_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Fat:MaterialExpressionVectorParameter_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionConstant'M_Breakfast_Fat:MaterialExpressionConstant_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre",
+      "sources": [
+        "/Game/Art/Materials/M_Breakfast_Fibre"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre:MaterialExpressionVectorParameter_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Fibre.M_Breakfast_Fibre:MaterialExpressionConstant_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Fibre:MaterialExpressionVectorParameter_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionConstant'M_Breakfast_Fibre:MaterialExpressionConstant_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green",
+      "sources": [
+        "/Game/Art/Materials/M_Breakfast_Green"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green:MaterialExpressionVectorParameter_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green:MaterialExpressionConstant_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Green:MaterialExpressionVectorParameter_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionConstant'M_Breakfast_Green:MaterialExpressionConstant_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem",
+      "sources": [
+        "/Game/Art/Materials/M_Breakfast_Stem"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem:MaterialExpressionVectorParameter_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem:MaterialExpressionConstant_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Stem:MaterialExpressionVectorParameter_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionConstant'M_Breakfast_Stem:MaterialExpressionConstant_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk",
+      "sources": [
+        "/Game/Art/Materials/M_Breakfast_Yolk"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionVectorParameter_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionConstant_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionConstant'M_Breakfast_Yolk:MaterialExpressionConstant_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Bristles.M_Bristles",
+      "sources": [
+        "/Game/Art/Materials/M_Bristles"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Bristles.M_Bristles:MaterialExpressionVectorParameter_1",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Bristles.M_Bristles:MaterialExpressionScalarParameter_1",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Bristles:MaterialExpressionVectorParameter_1'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_Bristles:MaterialExpressionScalarParameter_1'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Broccoli.M_Broccoli",
+      "sources": [
+        "/Game/Art/Materials/M_Broccoli"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionVectorParameter_1",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionScalarParameter_1",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Broccoli:MaterialExpressionVectorParameter_1'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_Broccoli:MaterialExpressionScalarParameter_1'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_LivingTissue.M_LivingTissue",
+      "sources": [
+        "GAMEPLAY | Living throat"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_1",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_2",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": "/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionScalarParameter_9",
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Art/Materials/M_LivingTissue.M_LivingTissue:MaterialExpressionCustom_3",
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_1'\")",
+        "Metallic=(UseConstant=True)",
+        "Specular=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_LivingTissue:MaterialExpressionScalarParameter_9'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_2'\")",
+        "Normal=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_LivingTissue:MaterialExpressionCustom_3'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_Mango.M_Mango",
+      "sources": [
+        "/Game/Art/Materials/M_Mango"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_Mango.M_Mango:MaterialExpressionVectorParameter_1",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_Mango.M_Mango:MaterialExpressionScalarParameter_1",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionVectorParameter'M_Mango:MaterialExpressionVectorParameter_1'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_Mango:MaterialExpressionScalarParameter_1'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade",
+      "sources": [
+        "GAMEPLAY | Living throat",
+        "SM_Gum",
+        "SM_Gum5"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade:MaterialExpressionCustom_1",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade:MaterialExpressionCustom_2",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade:MaterialExpressionMultiply_11",
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade:MaterialExpressionMultiply_12",
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade:MaterialExpressionNormalize_1",
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade:MaterialExpressionMultiply_0",
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ExitClimate_EdgeFade:MaterialExpressionCustom_1'\")",
+        "Metallic=(Expression=\"/Script/Engine.MaterialExpressionMultiply'M_ExitClimate_EdgeFade:MaterialExpressionMultiply_11'\")",
+        "Specular=(Expression=\"/Script/Engine.MaterialExpressionMultiply'M_ExitClimate_EdgeFade:MaterialExpressionMultiply_12'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ExitClimate_EdgeFade:MaterialExpressionCustom_2'\")",
+        "Normal=(Expression=\"/Script/Engine.MaterialExpressionNormalize'M_ExitClimate_EdgeFade:MaterialExpressionNormalize_1'\")"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2",
+      "sources": [
+        "SM_Teeth_Forwart",
+        "SM_Teeth_Forwart5",
+        "SM_Teeth_R_05",
+        "SM_Teeth_R_18",
+        "SM_Teeth_R_19",
+        "SM_Teeth_R_20",
+        "SM_Teeth_R_21",
+        "SM_Teeth_R_22",
+        "SM_Teeth_R_WTooth",
+        "SM_Teeth_R_WTooth4",
+        "SM_Teeth_R_WTooth5",
+        "SM_Teeth_l_05"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_7",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_8",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_7",
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_5",
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_7'\")",
+        "Metallic=(UseConstant=True)",
+        "Specular=(UseConstant=True,Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_7'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_8'\")",
+        "Normal=(UseConstant=True,Expression=\"/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_5'\")"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_SprayCan.M_SprayCan",
+      "sources": [
+        "/Game/Gameplay/Care/M_SprayCan"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionCustom_2",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionScalarParameter_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_SprayCan:MaterialExpressionCustom_2'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_SprayCan:MaterialExpressionScalarParameter_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle",
+      "sources": [
+        "/Game/Gameplay/Care/M_SprayNozzle"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionCustom_2",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Gameplay/Care/M_SprayNozzle.M_SprayNozzle:MaterialExpressionScalarParameter_0",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_SprayNozzle:MaterialExpressionCustom_2'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_SprayNozzle:MaterialExpressionScalarParameter_0'\")"
+      ]
+    },
+    {
+      "path": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables",
+      "sources": [
+        "/Game/Stylized_Vegetables/Materials/MI_Asparagus",
+        "/Game/Stylized_Vegetables/Materials/MI_Beetroot",
+        "/Game/Stylized_Vegetables/Materials/MI_BellpepperGreen",
+        "/Game/Stylized_Vegetables/Materials/MI_BellpepperOrange",
+        "/Game/Stylized_Vegetables/Materials/MI_BellpepperRed",
+        "/Game/Stylized_Vegetables/Materials/MI_BellpepperYellow",
+        "/Game/Stylized_Vegetables/Materials/MI_Broccoli",
+        "/Game/Stylized_Vegetables/Materials/MI_ButternutPumpkin",
+        "/Game/Stylized_Vegetables/Materials/MI_CabbageGreen",
+        "/Game/Stylized_Vegetables/Materials/MI_CabbageRed",
+        "/Game/Stylized_Vegetables/Materials/MI_Carrot",
+        "/Game/Stylized_Vegetables/Materials/MI_Cauliflower",
+        "/Game/Stylized_Vegetables/Materials/MI_Chili",
+        "/Game/Stylized_Vegetables/Materials/MI_Corn",
+        "/Game/Stylized_Vegetables/Materials/MI_Cucumber",
+        "/Game/Stylized_Vegetables/Materials/MI_Eggplant",
+        "/Game/Stylized_Vegetables/Materials/MI_Garlic",
+        "/Game/Stylized_Vegetables/Materials/MI_Ginger",
+        "/Game/Stylized_Vegetables/Materials/MI_Jalapeno",
+        "/Game/Stylized_Vegetables/Materials/MI_KingOysterMushroom",
+        "/Game/Stylized_Vegetables/Materials/MI_Leek",
+        "/Game/Stylized_Vegetables/Materials/MI_Mushroom",
+        "/Game/Stylized_Vegetables/Materials/MI_Onion",
+        "/Game/Stylized_Vegetables/Materials/MI_Potato",
+        "/Game/Stylized_Vegetables/Materials/MI_Pumpkin",
+        "/Game/Stylized_Vegetables/Materials/MI_Radish",
+        "/Game/Stylized_Vegetables/Materials/MI_SavoyCabbage",
+        "/Game/Stylized_Vegetables/Materials/MI_SweetPotato",
+        "/Game/Stylized_Vegetables/Materials/MI_Tomato",
+        "/Game/Stylized_Vegetables/Materials/MI_Zucchini",
+        "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2",
+          "output": "G"
+        },
+        "MP_METALLIC": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2",
+          "output": "B"
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_1",
+          "output": "RGB"
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Constant=(R=0.501961,G=0.501961,B=0.501961,A=1.000000),Expression=\"/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Metallic=(Expression=\"/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2'\",OutputIndex=3,Mask=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2'\",OutputIndex=2,Mask=1,MaskG=1)",
+        "Normal=(Constant=(X=0.000000,Y=0.000000,Z=0.000000),Expression=\"/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_1'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)"
+      ]
+    },
+    {
+      "path": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity.MM_StylizedVegetablesOpacity",
+      "sources": [
+        "/Game/Stylized_Vegetables/Materials/MI_CarrotLeaves",
+        "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity.MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_0",
+          "output": "RGB"
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity.MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_2",
+          "output": "G"
+        },
+        "MP_METALLIC": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity.MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_2",
+          "output": "B"
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity.MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_1",
+          "output": "RGB"
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": "/Game/Stylized_Vegetables/Materials/MM_StylizedVegetablesOpacity.MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_0",
+          "output": "A"
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Constant=(R=0.501961,G=0.501961,B=0.501961,A=1.000000),Expression=\"/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_0'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)",
+        "Metallic=(Expression=\"/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_2'\",OutputIndex=3,Mask=1,MaskB=1)",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_2'\",OutputIndex=2,Mask=1,MaskG=1)",
+        "Normal=(Constant=(X=0.000000,Y=0.000000,Z=0.000000),Expression=\"/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetablesOpacity:MaterialExpressionTextureSampleParameter2D_1'\",Mask=1,MaskR=1,MaskG=1,MaskB=1)"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus",
+      "sources": [
+        "Native gameplay care surfaces"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_0",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_1",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_6",
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_5",
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_2",
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_0'\")",
+        "Metallic=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_6'\")",
+        "Specular=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_5'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_1'\")",
+        "Normal=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_2'\")"
+      ]
+    },
+    {
+      "path": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief",
+      "sources": [
+        "Native gameplay care surfaces"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_5",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_6",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionScalarParameter_5",
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionCustom_8",
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": "/Game/Gameplay/Care/M_ArenaToothRelief.M_ArenaToothRelief:MaterialExpressionMaterialFunctionCall_0",
+          "output": "Result"
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ArenaToothRelief:MaterialExpressionCustom_5'\")",
+        "Specular=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothRelief:MaterialExpressionScalarParameter_5'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ArenaToothRelief:MaterialExpressionCustom_6'\")",
+        "Normal=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ArenaToothRelief:MaterialExpressionCustom_8'\")"
+      ]
+    },
+    {
+      "path": "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth",
+      "sources": [
+        "Native gameplay care surfaces"
+      ],
+      "front": null,
+      "use_material_attributes": false,
+      "roots": {
+        "MP_BASE_COLOR": {
+          "expression": "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionCustom_1",
+          "output": ""
+        },
+        "MP_ROUGHNESS": {
+          "expression": "/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth:MaterialExpressionScalarParameter_7",
+          "output": ""
+        },
+        "MP_METALLIC": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_SPECULAR": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_NORMAL": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_WORLD_POSITION_OFFSET": {
+          "expression": null,
+          "output": ""
+        },
+        "MP_OPACITY_MASK": {
+          "expression": null,
+          "output": ""
+        }
+      },
+      "root_serialized_lines": [
+        "BaseColor=(Expression=\"/Script/Engine.MaterialExpressionCustom'M_ArenaTooth:MaterialExpressionCustom_1'\")",
+        "Roughness=(Expression=\"/Script/Engine.MaterialExpressionScalarParameter'M_ArenaTooth:MaterialExpressionScalarParameter_7'\")"
+      ]
+    }
+  ],
+  "excluded": []
+}

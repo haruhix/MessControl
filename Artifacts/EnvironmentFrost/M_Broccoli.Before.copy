@@ -1,0 +1,33 @@
+Begin Object Class=/Script/Engine.Material Name="M_Broccoli" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Broccoli.M_Broccoli'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionScalarParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_BroccoliEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Broccoli.M_Broccoli:M_BroccoliEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=0.210000,G=0.340000,B=0.055000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=12BB2C7647A895E7572501BBE17F370B
+      MaterialExpressionEditorX=-350
+      MaterialExpressionGuid=8F2C2AF94C542FAD138A2596441DD56E
+      Material="/Script/Engine.Material'M_Broccoli'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/M_Broccoli.M_Broccoli:MaterialExpressionScalarParameter_1'"
+      DefaultValue=0.700000
+      ParameterName="Roughness"
+      ExpressionGUID=936C47C74AD78456CEE980895BC7A425
+      MaterialExpressionEditorX=-350
+      MaterialExpressionEditorY=160
+      MaterialExpressionGuid=073E86D24D9E0D975F25A6B051467A2A
+      Material="/Script/Engine.Material'M_Broccoli'"
+   End Object
+   Begin Object Name="M_BroccoliEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Broccoli.M_Broccoli:M_BroccoliEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Broccoli:MaterialExpressionVectorParameter_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_Broccoli:MaterialExpressionScalarParameter_1'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Broccoli:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionScalarParameter'M_Broccoli:MaterialExpressionScalarParameter_1'"))
+   End Object
+   StateId=73C5E5314BB4905374A110AA0843CFD0
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_BroccoliEditorOnlyData'"
+   LightingGuid=2F05F88B40114D769C8C1EA8CA6B4D45
+End Object

@@ -1,0 +1,31 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_Stem" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_StemEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem:M_Breakfast_StemEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.300000,G=0.480000,B=0.080000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=AFB6D3B34A1EF8F07EBE43A13ED78405
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=2823BBE14FD9408DF9234C9015E4A946
+      Material="/Script/Engine.Material'M_Breakfast_Stem'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=DAAE140F4D2EBFCE661E2F9C360D4E74
+      Material="/Script/Engine.Material'M_Breakfast_Stem'"
+   End Object
+   Begin Object Name="M_Breakfast_StemEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Stem.M_Breakfast_Stem:M_Breakfast_StemEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Stem:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_Stem:MaterialExpressionConstant_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Stem:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_Stem:MaterialExpressionConstant_0'"))
+   End Object
+   StateId=4D8762A54A22C9C813E15B90D78215FE
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_StemEditorOnlyData'"
+   LightingGuid=239F89FA448AF882AA2C6394E99EE8CF
+End Object
