@@ -9,6 +9,8 @@
 #include "MCGripComponent.h"
 #include "MCTongue.h"
 #include "MCArenaTooth.h"
+#include "MCMouthSurface.h"
+#include "MCCoffeeWipe.h"
 #include "MCGameState.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -88,8 +90,8 @@ void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds,bool bUs
     ArenaCenter=Plan->ArenaCenter.ContainsNaN()?FVector::ZeroVector:Plan->ArenaCenter;
     Profile=Plan->CoffeeProfile.LoadSynchronous();
     WaterSettings=Profile?Profile->Settings:FMCCoffeeWaterSettings(); WaterSettings.Sanitize();
-    AMCTongue* Tongue=nullptr;
-    for(TActorIterator<AMCTongue> It(GetWorld());It;++It) if(!It->CurrentVertices().IsEmpty()) {Tongue=*It;break;}
+    AMCTongue* Tongue=Cast<AMCTongue>(GetOwner());
+    if (!Tongue) for(TActorIterator<AMCTongue> It(GetWorld());It;++It) if(!It->CurrentVertices().IsEmpty()) {Tongue=*It;break;}
     if(Tongue)
     {
         const FBox Bounds=Tongue->Surface->Bounds.GetBox();
@@ -155,6 +157,7 @@ void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds,bool bUs
     OnRep_Profile(); Waves=WaterSettings.Cycles;
     Seconds=WaterSettings.CycleSeconds()*Waves; StartedAt=GetWorld()->GetTimeSeconds(); Wave=0;
     HitThisWave.Empty(); FoodHitThisWave.Empty(); bActive=true; UpdateSurface(); ForceNetUpdate();
+    InitializeResidue();
     UE_LOG(LogTemp,Display,TEXT("MC_LIQUID_ARENA center=%s half_size=%s floor=%.1f dry=%.1f water=%.1f inlet=%s"),
         *ArenaCenter.ToString(),*HalfSize.ToString(),InletFloorZ,WaterSettings.DryHeight,Height,*WaterSettings.Inlet.ToString());
 }
@@ -164,6 +167,7 @@ EMCCoffeePhase AMCCoffeeFlood::GetPhase() const
 }
 AMCTongue* AMCCoffeeFlood::FindRiverTongue() const
 {
+    if (auto* ExplicitFloor=Cast<AMCTongue>(GetOwner())) return ExplicitFloor;
     if (!RiverTongue.IsValid())
         for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
             if (!It->CurrentVertices().IsEmpty()) { RiverTongue=*It; break; }
@@ -328,12 +332,106 @@ void AMCCoffeeFlood::UpdateRiverDebris()
         }
     }
 }
+void AMCCoffeeFlood::InitializeResidue()
+{
+    ResidueCells.Reset(); LastResidueTime=-100;
+    auto* Tongue=FindRiverTongue(); if (!Tongue) return;
+    ResidueCells.SetNum(ResidueSize*ResidueSize);
+    for (int32 Y=0;Y<ResidueSize;++Y) for (int32 X=0;X<ResidueSize;++X) {
+        auto& Cell=ResidueCells[Y*ResidueSize+X];
+        const FVector Probe=ArenaCenter+FVector(((X+.5f)/ResidueSize*2-1)*HalfSize.X,((Y+.5f)/ResidueSize*2-1)*HalfSize.Y,0);
+        FHitResult Floor;
+        if (Tongue->SurfacePoint(Probe,Floor) && Floor.ImpactNormal.Z>.65f) {
+            Cell.Point=Floor.ImpactPoint; Cell.bSurface=true;
+        }
+    }
+}
+void AMCCoffeeFlood::AccumulateResidue(float Time)
+{
+    // One cached tissue grid records the same uneven wave edge as gameplay and rendering.
+    // Substeps also preserve the swept footprint on a slow server frame.
+    if (ResidueCells.IsEmpty() || Time-LastResidueTime<.1f) return;
+    const float From=LastResidueTime<0?0:LastResidueTime;
+    const int32 Steps=FMath::Clamp(FMath::CeilToInt((Time-From)/.1f),1,64);
+    for (int32 Step=1;Step<=Steps;++Step) {
+        const float T=FMath::Lerp(From,Time,float(Step)/Steps);
+        if (WaterSettings.Phase(T)==EMCCoffeePhase::Inactive) continue;
+        for (auto& Cell:ResidueCells) if (Cell.bSurface) {
+            float Top;
+            if (bRiverFlood) {
+                const float Along=FVector::DotProduct(Cell.Point-RiverOrigin,RiverDirection),Front=RiverFrontAt(Cell.Point,T);
+                const float Weight=FMath::SmoothStep(Front-RiverWidth-100,Front-RiverWidth+100,Along)*(1-FMath::SmoothStep(Front-100,Front+100,Along));
+                if (Weight<=.05f) continue;
+                Top=RiverHeightAt(Cell.Point,T,Cell.Point.Z);
+            } else {
+                if (WaterSettings.Phase(T)==EMCCoffeePhase::Filling && FVector::Dist2D(Cell.Point,WaterSettings.Inlet)>=WaterSettings.FrontRadius(T)+WaterSettings.FrontWidth) continue;
+                Top=BaseHeight(T)+WaterSettings.SurfaceOffset(Cell.Point,T);
+            }
+            if (Top>=Cell.Point.Z) Cell.WetTop=FMath::Max(Cell.WetTop,Top);
+        }
+    }
+    LastResidueTime=Time;
+}
+bool AMCCoffeeFlood::HasResidueAt(FVector P) const
+{
+    if (ResidueCells.IsEmpty() || P.ContainsNaN()) return false;
+    const FVector2D UV((P.X-ArenaCenter.X)/(2*HalfSize.X)+.5,(P.Y-ArenaCenter.Y)/(2*HalfSize.Y)+.5);
+    if (UV.X<0 || UV.Y<0 || UV.X>=1 || UV.Y>=1) return false;
+    const int32 X=FMath::Clamp(int32(UV.X*ResidueSize),0,ResidueSize-1),Y=FMath::Clamp(int32(UV.Y*ResidueSize),0,ResidueSize-1);
+    const auto& Cell=ResidueCells[Y*ResidueSize+X];
+    return Cell.bSurface && Cell.WetTop> -MAX_flt && P.Z<=Cell.WetTop+5;
+}
+void AMCCoffeeFlood::DepositResidue()
+{
+    auto* Tongue=FindRiverTongue(); if (!Tongue || ResidueCells.IsEmpty()) return;
+    for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
+        It->DepositLiquidGrime([this](FVector Point) { return HasResidueAt(Point); });
+    TArray<FVector> Placed;
+    for (TActorIterator<AMCMouthSurface> It(GetWorld());It;++It)
+        if (!It->bUlcer && !It->IsClean() && (!Cast<AMCTongue>(GetOwner()) || It->GetTongue()==Tongue)) Placed.Add(It->GetActorLocation());
+    const int32 Budget=FMath::Clamp(18-Placed.Num(),0,8);
+    FRandomStream Random(HashCombine(GetTypeHash(StartedAt),GetTypeHash(ArenaCenter)));
+    TArray<int32> Candidates;
+    for (int32 I=0;I<ResidueCells.Num();++I) if (ResidueCells[I].bSurface && ResidueCells[I].WetTop> -MAX_flt) Candidates.Add(I);
+    for (int32 I=Candidates.Num()-1;I>0;--I) Candidates.Swap(I,Random.RandRange(0,I));
+    int32 Spawned=0;
+    for (const int32 Index:Candidates) {
+        if (Spawned>=Budget) break;
+        const float Half=Random.FRandRange(160.f,320.f);
+        const FVector Point=ResidueCells[Index].Point;
+        bool Near=false; for (const FVector& Other:Placed) if (FVector::Dist2D(Point,Other)<Half*1.6f+200) { Near=true; break; }
+        if (Near) continue;
+        FHitResult Floor; if (!Tongue->InteriorSurfacePoint(Point,Half*.9f,Floor)) continue;
+        const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
+        TArray<uint8> Mask; Mask.Init(0,FMCCoffeeWipe::Count);
+        int32 Wet=0;
+        for (int32 Y=0;Y<FMCCoffeeWipe::Size;++Y) for (int32 X=0;X<FMCCoffeeWipe::Size;++X) {
+            const FVector Local(((X+.5f)/FMCCoffeeWipe::Size-.5f)*2*Half,((Y+.5f)/FMCCoffeeWipe::Size-.5f)*2*Half,0);
+            if (HasResidueAt(Pose.TransformPosition(Local))) { Mask[Y*FMCCoffeeWipe::Size+X]=255; ++Wet; }
+        }
+        if (Wet<FMCCoffeeWipe::Count/5) continue;
+        auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);
+        if (!Patch) continue;
+        Patch->bRandomizeLiquidSize=false; Patch->LiquidHalfSize=Half; Patch->Batch=ResidueBatch;
+        // Opening coffee belongs to the same dirt completion/reset contract as its meal.
+        if (ResidueBatch>0) Patch->Tags.AddUnique(FName(TEXT("MCFoodServedDirt")));
+        Patch->SetLiquidDepositMask(Mask); Patch->FinishSpawning(Pose);
+        Patch->Status->ApplyCoffee(1.f); Patch->ForceNetUpdate();
+        Placed.Add(Floor.ImpactPoint); ++Spawned;
+    }
+    ResidueCells.Reset();
+}
 void AMCCoffeeFlood::Stop()
 {
     if (!HasAuthority()) return;
     bActive=false; Level=-40; ForceNetUpdate();
     Surface->SetVisibility(false); RiverSurface->SetVisibility(false); Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false);
-    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) { It->bInCoffee=false; It->ClingTooth=nullptr; It->ForceNetUpdate(); }
+    for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+    {
+        if (Cast<AMCTongue>(GetOwner()) && (FMath::Abs(It->GetActorLocation().X-ArenaCenter.X)>HalfSize.X
+            || FMath::Abs(It->GetActorLocation().Y-ArenaCenter.Y)>HalfSize.Y)) continue;
+        It->bInCoffee=false; It->ClingTooth=nullptr; It->ForceNetUpdate();
+    }
 }
 void AMCCoffeeFlood::Tick(float Dt)
 {
@@ -346,13 +444,15 @@ void AMCCoffeeFlood::Tick(float Dt)
             && Director && Director->IsManagingEvents();
         if (!GS || (GS->Phase!=EMCShiftPhase::Working && !CarryingIntoRest)) { Stop(); return; }
         const float Age=WaterTime();
-        if (Age>=Seconds) { Stop(); return; }
+        if (Age>=Seconds) { AccumulateResidue(Seconds-UE_KINDA_SMALL_NUMBER); DepositResidue(); Stop(); return; }
+        AccumulateResidue(Age);
         const int32 Current=FMath::FloorToInt(Age/WaterSettings.CycleSeconds())+1;
         if (Current!=Wave) { Wave=Current; HitThisWave.Empty(); FoodHitThisWave.Empty(); ForceNetUpdate(); }
         Level=BaseHeight(Age);
         for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
         {
             auto* Hero=*It; const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
+            if (Cast<AMCTongue>(GetOwner()) && (FMath::Abs(P.X-ArenaCenter.X)>HalfSize.X || FMath::Abs(P.Y-ArenaCenter.Y)>HalfSize.Y)) continue;
             const FVector WaterProbe=bRiverFlood && Hero->ToothPhysics->GetBodyState()!=EMCBodyState::Ragdoll?
                 P-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-10.f):P;
             Hero->bInCoffee=!Hero->SwallowedBy && !Hero->MimicCaptor && Contains(WaterProbe) && Hero->Status->IsAlive();

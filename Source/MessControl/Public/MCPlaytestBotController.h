@@ -27,6 +27,9 @@ public:
     AActor* GetTaskTarget() const { return Target.Get(); }
     EMCPlaytestBotSkill GetSkill() const { return Skill; }
     bool IsApproachPositionClear(FVector PawnCenter) const;
+    /** Isolated lab ownership: retain the ordinary approach/input code, without global task selection. */
+    void SetLabControlled(bool bEnabled);
+    void DriveLabTask(AActor* Actor,EMCPlaytestBotGoal Task);
 protected:
     virtual void OnPossess(APawn* InPawn) override;
     virtual void OnUnPossess() override;
@@ -43,6 +46,7 @@ private:
     void WorkAtTarget();
     void FailPath();
     bool PlanCleanApproach(class AMCArenaTooth* Tooth);
+    bool PlanLabFloorApproach(class AMCMouthSurface* Surface);
     bool ProjectStandingPosition(FVector Candidate,FVector& PawnCenter) const;
     void ResetApproach(bool bRememberFailure=false);
     void RecoverFromStall();
@@ -73,6 +77,7 @@ private:
     float AimError=0,IdleSeconds=0,WorkSeconds=0;
     int32 PathFailures=0;
     bool bConfigured=false;
+    bool bLabControlled=false;
     bool bSuspended=false;
     bool bNutBossCare=false;
     int32 NutFlankSide=1;

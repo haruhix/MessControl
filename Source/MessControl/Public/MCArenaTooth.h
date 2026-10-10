@@ -97,6 +97,7 @@ public:
     void SetAppearance(UStaticMesh* Mesh,FVector Scale,UMaterialInterface* GameplayMaterial=nullptr);
     void StatusChanged();
     void ResetGrime();
+    void DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet);
     bool BrushGrime(class AMCToothCharacter* Worker,float Seconds);
     bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred=INDEX_NONE);
     // Remaining surface geometry for planning; never advances cleaning or selects a worker contact.

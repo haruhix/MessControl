@@ -10,6 +10,7 @@ class UMCGameDirectorProfile;
 class AMCNutRainEvent;
 class AMCIceEvent;
 class AMCFogBrawlEvent;
+class AMCCoffeeFlood;
 class AMCGameDirector;
 class AMCBossCharacter;
 class AMCDayDirector;
@@ -44,8 +45,11 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMinMinutes=25;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Sequence",meta=(ClampMin="1",ClampMax="120",Units="min")) float RunTargetMaxMinutes=35;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float AfterTrainingPauseSeconds=5;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="6")) int32 OpeningMealItems=3;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin=".5",ClampMax="5",Units="s")) float OpeningMealDropSeconds=1.5f;
+    /** An announced coffee wave opens the first meal; food arrives after it passes. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening") bool bOpeningCoffeeWave=true;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="6",Units="s")) float OpeningCoffeeWarningSeconds=2;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="1",ClampMax="30")) int32 OpeningMealItems=12;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin=".5",ClampMax="5",Units="s")) float OpeningMealDropSeconds=1.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Opening",meta=(ClampMin="0",ClampMax="30",Units="s")) float BeforeNutsPauseSeconds=4;
     /** Explicit compatibility for the old short prototype, never enabled by new fragment authoring. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Legacy") bool bLegacyTimedFinale=false;
@@ -99,9 +103,12 @@ private:
     UPROPERTY() TObjectPtr<UMCGameDirectorProfile> DirectorProfile;
     UPROPERTY() TObjectPtr<AMCGameDirector> Interlude;
     UPROPERTY() TObjectPtr<AMCDayDirector> MealServices;
+    UPROPERTY() TObjectPtr<AMCCoffeeFlood> OpeningCoffee;
     double InterludeEndsAt=0;
     double RunStartedAt=0;
     double NextMealDropAt=0;
+    double OpeningCoffeeAt=0;
+    bool bOpeningCoffeeStarted=false;
     int32 FirstMealBatch=0,MealSpawned=0,MealAttempts=0;
     FRandomStream MealRandom;
     bool bStopped=false;

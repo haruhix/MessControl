@@ -42,7 +42,7 @@ void FMCGameDirectorDaySettings::Sanitize()
 {
     DaySeconds=Finite(DaySeconds,360,60,1200);
     CoffeePatches=FMath::Clamp(CoffeePatches,1,20); InitialPatches=FMath::Clamp(InitialPatches,0,20);
-    MaxFoodBatch=FMath::Clamp(MaxFoodBatch,1,4); MaxWholeFood=FMath::Clamp(MaxWholeFood,1,12); MaxFragments=FMath::Clamp(MaxFragments,4,80);
+    MaxFoodBatch=FMath::Clamp(MaxFoodBatch,1,8); MaxWholeFood=FMath::Clamp(MaxWholeFood,1,12); MaxFragments=FMath::Clamp(MaxFragments,4,80);
     FoodInterval=Finite(FoodInterval,6,1,30); FoodWorkPerPlayer=Finite(FoodWorkPerPlayer,30,5,120); PressureLimit=Finite(PressureLimit,.9f,.2f,3);
     TargetPressureMin=Finite(TargetPressureMin,.18f,0,PressureLimit);
     TargetPressureMax=Finite(TargetPressureMax,.48f,TargetPressureMin,PressureLimit);

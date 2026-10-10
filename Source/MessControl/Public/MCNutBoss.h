@@ -9,6 +9,7 @@ class AMCNutRainEvent;
 class AMCNutCombatEffect;
 class AMCNutSpellProjectile;
 class USkeletalMeshComponent;
+class AMCVFXLabBossStation;
 struct FMCNutBossAnimationSnapshot;
 
 /** Two complementary bosses share tool contact, but own distinct server attack schedules. */
@@ -51,6 +52,7 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) int32 AttackSeed=0;
     UPROPERTY(Replicated, BlueprintReadOnly) double VisualHitAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) double ShieldHitAt=-100;
+    UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly,Category="Shield") float ShieldHealth=500;
     UPROPERTY(Replicated, BlueprintReadOnly) FVector VisualHitDirection=FVector::ZeroVector;
     // Absolute server-clock readiness is shared with clients and the diagnostic UI.
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextMeleeAt=0;
@@ -61,10 +63,16 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextSummonAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextRainAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextTeleportAt=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextSpecialAt=0;
 protected:
     virtual void RefreshPresentation() override;
     virtual void Defeat() override;
 private:
+    // A placed laboratory station schedules real attacks without the encounter AI.
+    friend class AMCVFXLabBossStation;
+    TWeakObjectPtr<AMCVFXLabBossStation> LabStation;
+    TWeakObjectPtr<AMCToothCharacter> LabTarget;
+    int32 LabTelegraphs=0,LabExecutions=0,LabRecoveries=0;
     UFUNCTION() void RefreshBossPresentation();
     double Now() const;
     void Enter(EMCNutBossState Next,float Seconds);
@@ -83,6 +91,8 @@ private:
     void BeginTeleport();
     void TriggerRollToothPain(const FHitResult& Hit);
     void Recover(float Seconds);
+    float RecoverySeconds(float Requested) const;
+    void StartAttackCooldown(double RecoveryEndsAt);
     void DamageArea(FVector Center,float Radius,float Damage,float Push,TSet<TWeakObjectPtr<AMCToothCharacter>>* HitSet=nullptr);
     void DamageChargeSegment(FVector Start,FVector End);
     void SummonCreeps();

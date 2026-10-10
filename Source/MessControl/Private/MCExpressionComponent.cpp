@@ -30,7 +30,10 @@ void UMCExpressionComponent::BeginPlay()
 }
 double UMCExpressionComponent::Now() const
 {
-    const auto* GS=GetWorld()->GetGameState(); return GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
+    const UWorld* World=GetWorld();
+    if(!World) return 0;
+    const auto* GS=World->GetGameState();
+    return GS?GS->GetServerWorldTimeSeconds():World->GetTimeSeconds();
 }
 const FMCEmoteEntry* UMCExpressionComponent::ActiveEntry() const
 {
@@ -269,7 +272,8 @@ void UMCExpressionComponent::BuildSocialPose(TArray<FTransform>& Pose,const FRef
 }
 void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt)
 {
-    if (!Tooth) return;
+    // Keep the incoming neutral pose for worldless construction/asset previews.
+    if (!Tooth || !GetWorld()) return;
     const auto& S=Tooth->Status->State;
     const float Pain=Tooth->Status->PainAlpha();
     const bool Saw=Tooth->Inventory && Tooth->Inventory->IsChainsawRunning();

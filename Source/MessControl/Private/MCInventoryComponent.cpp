@@ -11,7 +11,17 @@
 #include "MCRewardChest.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
+#include "MCToothCalculusComponent.h"
+#include "MCToothPhysicsComponent.h"
+#include "MCToothpick.h"
+#include "MCIceEvent.h"
+#include "MCColdCola.h"
+#include "MCNutEnemy.h"
+#include "MCBossCharacter.h"
+#include "MCTutorialDirector.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshSocket.h"
@@ -28,10 +38,22 @@ UMCInventoryComponent::UMCInventoryComponent()
     Profile=TSoftObjectPtr<UMCEquipmentProfile>(FSoftObjectPath(TEXT("/Game/Data/DA_Equipment.DA_Equipment")));
 }
 double UMCInventoryComponent::Now() const
-{ const auto* GS=GetWorld()->GetGameState(); return GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds(); }
+{
+    // Animation previews and construction-time mesh updates can query the
+    // component before it has a world. No gameplay clock exists in that phase.
+    const UWorld* World=GetWorld();
+    if(!World) return 0;
+    const auto* GS=World->GetGameState();
+    return GS?GS->GetServerWorldTimeSeconds():World->GetTimeSeconds();
+}
 void UMCInventoryComponent::BeginPlay()
 {
-    Super::BeginPlay(); Hero=Cast<AMCToothCharacter>(GetOwner()); Settings=Profile.LoadSynchronous();
+    Super::BeginPlay();
+    Hero=Cast<AMCToothCharacter>(GetOwner());
+    // Blueprint reinstancing can retain an external CDO archetype reference.
+    // Bind the actual owned component before asset loading can update animation.
+    if(Hero && (!Hero->Inventory || Hero->Inventory->GetOwner()!=Hero)) Hero->Inventory=this;
+    Settings=Profile.LoadSynchronous();
     if(!Settings) Settings=NewObject<UMCEquipmentProfile>(this);
     if(GetOwner()->HasAuthority()) WaterAmmo=WaterMagazineCapacity();
     if(Hero) {OriginalBrushMesh=Hero->Brush->GetStaticMesh();OriginalBrushTransform=Hero->Brush->GetRelativeTransform();}
@@ -147,7 +169,12 @@ FVector UMCInventoryComponent::ConstrainPickaxeGrip(const FTransform& WristWorld
 {
     if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe) return FVector::ZeroVector;
     const FTransform World=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform()*WristWorld;
-    const FBoxSphereBounds Bounds=Tool->GetStaticMesh()->GetBounds();
+    return ConstrainToolPose(World,Tool->GetStaticMesh());
+}
+FVector UMCInventoryComponent::ConstrainToolPose(const FTransform& World,const UStaticMesh* Mesh) const
+{
+    if(!Hero || !Mesh) return FVector::ZeroVector;
+    const FBoxSphereBounds Bounds=Mesh->GetBounds();
     FCollisionQueryParams Q(SCENE_QUERY_STAT(MCPickaxePose),false,Hero);
     FCollisionQueryParams EnamelQ(SCENE_QUERY_STAT(MCPickaxeEnamel),true,Hero);
     TArray<AMCArenaTooth*,TInlineAllocator<4>> Nearby;
@@ -189,6 +216,122 @@ FVector UMCInventoryComponent::ConstrainPickaxeGrip(const FTransform& WristWorld
     }
     return Correction.GetClampedToMaxSize(260);
 }
+bool UMCInventoryComponent::BufferToolPose(FTransform& World,UStaticMesh*& Mesh) const
+{
+    if(!Hero || !Settings || Selected!=EMCToolSlot::Pickaxe || !HasUpgrade(EMCToolUpgrade::Buffer) || !ShouldPresentTool()) return false;
+    Mesh=Settings->BufferMesh.LoadSynchronous();
+    if(!Mesh) Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Art/Meshes/Equipments/SM_Pick.SM_Pick"));
+    if(!Mesh) return false;
+    const FTransform Attachment=Settings->bUseWorkingToolPoses?Settings->BufferWorkTransform:Settings->BufferTransform;
+    FTransform Pose=Settings->bUseWorkingToolPoses?Settings->BufferWorkPose:Settings->BufferIdlePose;
+    Pose.SetScale3D(Attachment.GetScale3D()*Hero->BrushPivot->GetRelativeScale3D());
+    World=Pose*Hero->GetActorTransform();
+    World.AddToTranslation(ConstrainToolPose(World,Mesh));
+    return !World.ContainsNaN();
+}
+bool UMCInventoryComponent::BufferContactSphere(FVector& Center,float& Radius) const
+{
+    if(bResolvingBuffer) {Center=BufferPulseCenter;Radius=BufferPulseRadius;return true;}
+    FTransform World; UStaticMesh* Mesh=nullptr;
+    if(!BufferToolPose(World,Mesh)) return false;
+    const auto* Socket=Mesh->FindSocket(TEXT("PickaxeTip"));
+    const FVector Tip=Socket?Socket->RelativeLocation:FVector(Mesh->GetBoundingBox().Max.X,0,0);
+    Center=World.TransformPosition(Tip);
+    Radius=FMath::IsFinite(Settings->BufferContactRadius)?FMath::Clamp(Settings->BufferContactRadius,20.f,150.f):65.f;
+    return !Center.ContainsNaN();
+}
+bool UMCInventoryComponent::CanBufferContact(AActor* Target,FVector Point) const
+{
+    FVector Center; float Radius;
+    if(!IsValid(Target) || Target->GetWorld()!=GetWorld() || Point.ContainsNaN() || !Hero || !Hero->CanWork()
+        || Hero->bInCoffee || !IsUsingBuffer() || !BufferContactSphere(Center,Radius)
+        || FVector::DistSquared(Center,Point)>FMath::Square(Radius)) return false;
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCBufferContact),false,Hero); Query.AddIgnoredActor(Target);
+    FHitResult Block;
+    return !GetWorld()->LineTraceSingleByChannel(Block,Center,Point,ECC_Visibility,Query);
+}
+bool UMCInventoryComponent::ResolveBufferContact()
+{
+    if(!Hero || !Hero->HasAuthority() || !IsUsingBuffer()
+        || !BufferContactSphere(BufferPulseCenter,BufferPulseRadius)) return false;
+    // Every target validator sees this same constrained tip for one server pulse.
+    TGuardValue<bool> Pulse(bResolvingBuffer,true);
+    const FVector Center=BufferPulseCenter;
+    const float HitDamage=Damage();
+    bool HitAny=false;
+    auto RegisterHit=[&](FVector Point)
+    {
+        ++Hero->ConfirmedHitCount; HitAny=true;
+        Hero->MulticastHitSound(Point,uint8(EMCToolSlot::Pickaxe),FMath::Clamp(HitDamage/60.f,.25f,1.f));
+    };
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) {
+        if(!It->IsAvailable() || !It->Calculus || !It->Calculus->HasCalculus()) continue;
+        FVector Point;
+        if(It->Calculus->ApplyBufferHit(Hero,HitDamage,Point)) {
+            RegisterHit(Point);
+            if(!It->Calculus->HasCalculus()) {
+                Hero->NotifyTaskFeedback(true,Point);
+                if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(Hero,EMCTutorialAction::CalculusCleared,*It);
+            }
+        }
+    }
+    for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) {
+        if(It->Stage!=EMCIceEventStage::Active) continue;
+        FVector Point;
+        if(It->HitObstructionWithPickaxe(Hero,HitDamage,Point)) RegisterHit(Point);
+        if(It->IsActive() && CanBufferContact(*It,It->CandyContactPoint(Center)) && It->HitWithPickaxe(Hero,HitDamage))
+            RegisterHit(It->CandyContactPoint(Center));
+    }
+    for(TActorIterator<AMCToothpick> It(GetWorld());It;++It)
+        if(It->HitWithPickaxe(Hero,HitDamage)) RegisterHit(It->Body->Bounds.GetBox().GetClosestPointTo(Center));
+    for(TActorIterator<AMCIceBlock> It(GetWorld());It;++It) {
+        const FVector Point=It->Body->Bounds.GetBox().GetClosestPointTo(Center);
+        if(CanBufferContact(*It,Point) && It->HitWithPickaxe(Hero,HitDamage)) {
+            RegisterHit(Point);
+            if(It->bBroken) Hero->NotifyTaskFeedback(true,Point);
+        }
+    }
+    for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
+        const FVector Point=It->GetToolTargetPoint(Center);
+        if(It->CanReceiveToolHit() && CanBufferContact(*It,Point) && It->ReceiveToolDamage(HitDamage,Hero)>0) RegisterHit(Point);
+    }
+    for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
+        const FVector Point=It->GetMeleeTargetPoint(Center);
+        if(It->CanReceiveWeaponHit() && CanBufferContact(*It,Point) && It->ReceiveBossDamage(HitDamage,Hero)>0) RegisterHit(Point);
+    }
+    // Breaking food can spawn fragments. Snapshot the current actors so one
+    // pulse cannot immediately drill its own newly created debris a second time.
+    TArray<TWeakObjectPtr<AMCFoodActor>> Foods;
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) Foods.Add(*It);
+    for(const auto& Food: Foods) {
+        auto* Target=Food.Get();
+        if(!IsValid(Target) || !CanBreak(Target) || Target->Phase==EMCFoodPhase::Swallowing) continue;
+        FVector Point;
+        if(Target->Body->GetClosestPointOnCollision(Center,Point)<0) Point=Target->Visual->Bounds.GetBox().GetClosestPointTo(Center);
+        if(CanBufferContact(Target,Point) && Target->HitFood(HitDamage,Hero->GetActorForwardVector(),Hero)) {
+            RegisterHit(Point);
+            if(Target->IsDisposed()) if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld())) Tutorial->NotifyAction(Hero,EMCTutorialAction::FoodCut,Target);
+        }
+    }
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
+        auto* Target=*It;
+        if(!Target->Status || !Target->Status->IsAlive()) continue;
+        if(Target->HasFrozenLegs()) {
+            if(Target->HitFrozenLegsWithPickaxe(Hero,HitDamage)) RegisterHit(Target->GetActorLocation()-FVector(0,0,35));
+            continue;
+        }
+        if(Target==Hero || !Target->ToothPhysics || Target->ToothPhysics->GetBodyState()==EMCBodyState::Recovering) continue;
+        FVector Point=Target->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Target->ToothPhysics->PhysicalLocation():Target->GetActorLocation();
+        if(Target->ToothPhysics->GetBodyState()!=EMCBodyState::Ragdoll)
+            Target->GetCapsuleComponent()->GetClosestPointOnCollision(Center,Point);
+        if(!CanBufferContact(Target,Point)) continue;
+        FVector Direction=(Target->GetActorLocation()-Hero->GetActorLocation()).GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=Hero->GetActorForwardVector();
+        Target->ToothPhysics->ApplyHit(Direction*Hero->ToothPhysics->Settings.Knockback+FVector(0,0,Hero->ToothPhysics->Settings.Lift),Point);
+        Target->Status->Damage(HitDamage,Direction); RegisterHit(Point);
+    }
+    return HitAny;
+}
 bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend) const
 {
     Blend=0;
@@ -196,31 +339,15 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
     if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe) return false;
     if(HasUpgrade(EMCToolUpgrade::Buffer)) {
         if(!IsUsingBuffer()) return false;
-        FTransform WorkTool;
-        if(!UpgradeWorkToolPose(WorkTool)) return false;
-        const bool Contact=Hero->GetCalculusSwingContact(Point,Normal);
+        FTransform WorkTool; UStaticMesh* Mesh=nullptr;
+        if(!BufferToolPose(WorkTool,Mesh)) return false;
         const FTransform InHand=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
-        const FVector Scale=WorkTool.GetScale3D();
-        const FVector Tip=LocalPickaxeContactTip();
-        FQuat Rotation=WorkTool.GetRotation();
-        FVector TipWorld=WorkTool.TransformPosition(Tip);
-        if(Contact) {
-            // Aim from the braced rear grip, retaining the reference shoulder
-            // pose instead of lifting the whole machine to the stone's height.
-            const FVector Wrist=(InHand.Inverse()*WorkTool).GetLocation();
-            Rotation=(FQuat::FindBetweenNormals((TipWorld-Wrist).GetSafeNormal(),(Point-Wrist).GetSafeNormal())*Rotation).GetNormalized();
-            TipWorld=Point+Normal*.7f;
-        }
-        const FVector Forward=Rotation.GetAxisX(),Right=Rotation.GetAxisY(),Up=Rotation.GetAxisZ();
-        // Keep the bit pressed into the locked patch across repeated uses.
-        // A small axial feed and motor vibration replace the pickaxe windup.
+        // The working pose stays in front of the player. Only scenery can
+        // compress it backwards; individual targets never pull the hands.
         const auto* GS=Hero->GetWorld()->GetGameState();
         const float Time=GS?GS->GetServerWorldTimeSeconds():Hero->GetWorld()->GetTimeSeconds();
-        TipWorld+=Forward*(.35f*FMath::Sin(Time*67))+Right*(.2f*FMath::Sin(Time*53))+Up*(.15f*FMath::Cos(Time*59));
-        Rotation=(Rotation*FRotator(.25f*FMath::Sin(Time*43),.2f*FMath::Cos(Time*47),.4f*FMath::Sin(Time*61)).Quaternion()).GetNormalized();
-        const FTransform DrillWorld(Rotation,TipWorld-Rotation.RotateVector(Tip*Scale),Scale);
-        HandWorld=InHand.Inverse()*DrillWorld;
-        if(!Contact) HandWorld.AddToTranslation(ConstrainPickaxeGrip(HandWorld));
+        WorkTool.AddToTranslation(WorkTool.GetUnitAxis(EAxis::X)*(-.2f*(1+FMath::Sin(Time*67))));
+        HandWorld=InHand.Inverse()*WorkTool;
         Blend=1;
         return !HandWorld.ContainsNaN();
     }
@@ -387,7 +514,7 @@ void UMCInventoryComponent::ReactPlayersToSpray()
 FString UMCInventoryComponent::ToolName() const
 {
     switch(Selected) {
-    case EMCToolSlot::Pickaxe:return HasUpgrade(EMCToolUpgrade::Buffer)?TEXT("ТЯЖЁЛЫЙ ОЧИСТИТЕЛЬ"):TEXT("КИРКА");
+    case EMCToolSlot::Pickaxe:return HasUpgrade(EMCToolUpgrade::Buffer)?TEXT("ПЕРФОРАТОР"):TEXT("КИРКА");
     case EMCToolSlot::Knife:return HasUpgrade(EMCToolUpgrade::Chainsaw)?TEXT("БЕНЗОПИЛА"):TEXT("НОЖ");
     case EMCToolSlot::Spray:return HasUpgrade(EMCToolUpgrade::Watergun)?(bPressureMode?TEXT("ВОДЯНОЙ ПИСТОЛЕТ · ВЫСТРЕЛ"):TEXT("ВОДЯНОЙ ПИСТОЛЕТ · ЛЕЧЕНИЕ")):TEXT("СПРЕЙ");
     default:return HasUpgrade(EMCToolUpgrade::MeshaBrush)?TEXT("МЕГАЩЁТКА"):bWaterJetUnlocked?TEXT("ВОДОМЁТ"):TEXT("ЩЁТКА"); }

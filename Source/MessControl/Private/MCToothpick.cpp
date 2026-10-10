@@ -101,6 +101,11 @@ bool AMCToothpick::CanReceivePickaxeHit(const AMCToothCharacter* Worker) const
 {
     if(State!=EMCToothpickState::Extracted || !IsValid(Worker) || Worker->GetWorld()!=GetWorld()
         || !Worker->CanWork() || Worker->bInCoffee || !Worker->Inventory || Worker->Inventory->Selected!=EMCToolSlot::Pickaxe) return false;
+    if(Worker->Inventory->HasUpgrade(EMCToolUpgrade::Buffer)) {
+        FVector Center; float Radius;
+        return Worker->Inventory->BufferContactSphere(Center,Radius)
+            && Worker->Inventory->CanBufferContact(const_cast<AMCToothpick*>(this),Body->Bounds.GetBox().GetClosestPointTo(Center));
+    }
     const FVector Offset=Body->Bounds.GetBox().GetClosestPointTo(Worker->GetActorLocation())-Worker->GetActorLocation();
     // A worker can stand alongside the long shaft: the closest bounds point may have no forward component.
     // Use that point for reach, but face the visible shaft center when deciding whether a swing is aimed at it.

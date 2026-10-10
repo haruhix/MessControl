@@ -9,6 +9,7 @@
 #include "MCGripComponent.h"
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
+#include "MCCoffeeWipe.h"
 #include "MCFirePatch.h"
 #include "MCBossCharacter.h"
 #include "MCNutEnemy.h"
@@ -111,6 +112,7 @@ void AMCPlaytestBotController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void AMCPlaytestBotController::Tick(float Dt)
 {
     Super::Tick(Dt);
+    if(bLabControlled) return;
     if(!HasAuthority() || !IsValid(Hero)) return;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const bool Terminal=GS && (GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost || GS->bDayOneComplete || GS->bLobbyWaiting);
@@ -305,8 +307,9 @@ bool AMCPlaytestBotController::IsApproachPositionClear(FVector PawnCenter) const
     // leave the worker's body inside a padded tooth box or another player.
     const float Radius=Capsule->GetScaledCapsuleRadius()+4;
     const float Height=FMath::Max(Radius,Capsule->GetScaledCapsuleHalfHeight());
-    return !GetWorld()->OverlapBlockingTestByProfile(PawnCenter,FQuat::Identity,
-        Capsule->GetCollisionProfileName(),FCollisionShape::MakeCapsule(Radius,Height),Query);
+    return !GetWorld()->OverlapBlockingTestByChannel(PawnCenter,FQuat::Identity,
+        Capsule->GetCollisionObjectType(),FCollisionShape::MakeCapsule(Radius,Height),Query,
+        FCollisionResponseParams(Capsule->GetCollisionResponseToChannels()));
 }
 
 bool AMCPlaytestBotController::ProjectStandingPosition(FVector Candidate,FVector& PawnCenter) const
@@ -377,6 +380,49 @@ bool AMCPlaytestBotController::PlanCleanApproach(AMCArenaTooth* Tooth)
         }
         WorkStand=Option.Stand; WorkAim=Option.Aim; bHasWorkApproach=true;
         LastWorkProgressAt=Now; return true;
+    }
+    return false;
+}
+
+bool AMCPlaytestBotController::PlanLabFloorApproach(AMCMouthSurface* Surface)
+{
+    const double Now=GetWorld()->GetTimeSeconds();
+    FailedApproaches.RemoveAll([Now](const auto& Entry){return Now>=Entry.Value;});
+    struct FOption {FVector Stand,Aim;double Score;};
+    TArray<FOption> Options;
+    const FVector Origin=Hero->GetActorLocation();
+    const FTransform Transform=Surface->GetActorTransform();
+    bool CurrentFailed=false;
+    for(const auto& Bad:FailedApproaches) CurrentFailed|=FVector::DistSquared2D(Bad.Key,Origin)<FMath::Square(55.f);
+    const bool CurrentClear=!CurrentFailed && IsApproachPositionClear(Origin);
+    for(int32 Y=1;Y<FMCCoffeeWipe::Size;Y+=2) for(int32 X=1;X<FMCCoffeeWipe::Size;X+=2) {
+        const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
+        if(!FMCCoffeeWipe::WetAt(Surface->LiquidDepositMask,UV,Surface->LiquidSeed)
+            || (Surface->WipeMask.Num()==FMCCoffeeWipe::Count && Surface->WipeMask[Y*FMCCoffeeWipe::Size+X]<=63)) continue;
+        const FVector Aim=Transform.TransformPosition(FVector((UV.X-.5)*2*Surface->LiquidHalfSize,(UV.Y-.5)*2*Surface->LiquidHalfSize,0));
+        const FRotator CurrentFacing(0,(Aim-Origin).Rotation().Yaw,0);
+        if(CurrentClear && Hero->BrushContact->CanReachFromPose(Origin,CurrentFacing,Aim,Surface->GetActorUpVector(),Surface)) {
+            WorkStand=Origin;WorkAim=Aim;bHasWorkApproach=true;LastWorkProgressAt=Now;return true;
+        }
+        const FVector Out=(Origin-Aim).GetSafeNormal2D(KINDA_SMALL_NUMBER,-Hero->GetActorForwardVector());
+        for(float Angle:{0.f,-90.f,90.f,180.f}) for(float Distance:{65.f,105.f}) {
+            FVector Stand;
+            if(!ProjectStandingPosition(Aim+Out.RotateAngleAxis(Angle,FVector::UpVector)*Distance,Stand)) continue;
+            bool Failed=false;
+            for(const auto& Bad:FailedApproaches) Failed|=FVector::DistSquared2D(Bad.Key,Stand)<FMath::Square(55.f);
+            if(Failed) continue;
+            const FRotator Facing(0,(Aim-Stand).Rotation().Yaw,0);
+            if(!Hero->BrushContact->CanReachFromPose(Stand,Facing,Aim,Surface->GetActorUpVector(),Surface)) continue;
+            Options.Add({Stand,Aim,FVector::DistSquared2D(Origin,Stand)});
+        }
+    }
+    Options.Sort([](const auto& A,const auto& B){return A.Score<B.Score;});
+    for(const auto& Option:Options) {
+        if(Option.Score>FMath::Square(25.f)) {
+            const auto* Path=UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),Origin,Option.Stand,this);
+            if(!Path || !Path->IsValid() || Path->IsPartial()) continue;
+        }
+        WorkStand=Option.Stand;WorkAim=Option.Aim;bHasWorkApproach=true;LastWorkProgressAt=Now;return true;
     }
     return false;
 }
@@ -675,6 +721,7 @@ void AMCPlaytestBotController::WorkAtTarget()
 
 void AMCPlaytestBotController::Decide()
 {
+    if(bLabControlled) return;
     if(!HasAuthority() || !IsValid(Hero) || !bConfigured) return;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     if(!Hero->CanWork() || Hero->bInCoffee || (GS && (GS->Phase!=EMCShiftPhase::Working || GS->bDayOneComplete))) {
@@ -733,5 +780,129 @@ void AMCPlaytestBotController::Decide()
     }
     // Do not track a moving food/player through walls after acquiring it.
     if(Goal!=EMCPlaytestBotGoal::Deliver && !CanObserve(Target.Get())) {ReleaseInputs(); ResetApproach(); Target.Reset(); Goal=EMCPlaytestBotGoal::Idle; return;}
+    WorkAtTarget();
+}
+
+void AMCPlaytestBotController::SetLabControlled(bool bEnabled)
+{
+    if(!HasAuthority()) return;
+    bLabControlled=bEnabled;
+    GetWorldTimerManager().ClearTimer(DecisionTimer);
+    ReleaseInputs(); StopMovement(); Target.Reset(); ResetApproach();
+    if(!bEnabled && Hero && bConfigured)
+        GetWorldTimerManager().SetTimer(DecisionTimer,this,&AMCPlaytestBotController::Decide,Tuning.DecisionSeconds,true,.1f);
+}
+
+void AMCPlaytestBotController::DriveLabTask(AActor* Actor,EMCPlaytestBotGoal Task)
+{
+    if(!HasAuthority() || !bLabControlled || !IsValid(Hero) || !Hero->CanWork() || !IsValid(Actor)) return;
+    const double Now=GetWorld()->GetTimeSeconds();
+    if(Target!=Actor || Goal!=Task) {
+        ReleaseInputs(); ResetApproach(); Target=Actor; Goal=Task;
+        NextMoveAt=0; LastWorkProgressAt=Now; LastTargetProgress=TargetProgress();
+    }
+    const double Progress=TargetProgress();
+    if(FMath::Abs(Progress-LastTargetProgress)>.001) {LastTargetProgress=Progress;LastWorkProgressAt=Now;}
+    if(Task==EMCPlaytestBotGoal::Clean) if(auto* Surface=Cast<AMCMouthSurface>(Actor)) {
+        if(Hero->Inventory->Selected!=EMCToolSlot::Brush) {ReleaseInputs();Hero->Inventory->ServerSelect(EMCToolSlot::Brush);}
+        if(bHasWorkApproach && (!IsApproachPositionClear(WorkStand) || Now-LastWorkProgressAt>3)) ResetApproach(true);
+        if(!bHasWorkApproach && !PlanLabFloorApproach(Surface)) {ReleaseInputs();StopMovement();return;}
+        if(FVector::DistSquared2D(Hero->GetActorLocation(),WorkStand)>FMath::Square(24.f)) {
+            ReleaseInputs();MoveTowards(WorkStand,15);return;
+        }
+        // Hold a stable pose long enough for the ordinary hand approach to
+        // finish; choose another remaining mask region only after real work stalls.
+        StopMovement();Hero->SetSelfCareInput(false);
+        const FRotator Facing(0,(WorkAim-Hero->GetActorLocation()).Rotation().Yaw,0);
+        SetControlRotation(Facing);Hero->SetActorRotation(FMath::RInterpTo(Hero->GetActorRotation(),Facing,Tuning.DecisionSeconds,5.f));
+        FVector Contact,Normal;
+        if(!Surface->FindDirtyContact(Hero,Contact,Normal)) {Hero->SetPrimaryInputHeld(false);ResetApproach(true);return;}
+        WorkAim=Contact;Hero->SetPrimaryInputHeld(true);return;
+    }
+    if(Task==EMCPlaytestBotGoal::Calculus) if(auto* Tooth=Cast<AMCArenaTooth>(Actor); Tooth && Tooth->Calculus) {
+        if(Hero->Inventory->Selected!=EMCToolSlot::Pickaxe) {ReleaseInputs();Hero->Inventory->ServerSelect(EMCToolSlot::Pickaxe);}
+        Hero->SetSelfCareInput(false);
+        const bool Buffer=Hero->Inventory->HasUpgrade(EMCToolUpgrade::Buffer);
+        // Finish the contact of an already committed chisel stroke before
+        // walking toward a different surviving piece.
+        FVector SwingPoint,SwingNormal;
+        if(!Buffer && Hero->GetCalculusSwingContact(SwingPoint,SwingNormal)
+            && Hero->GetToolSwingElapsed()<Hero->Inventory->SwingContactTime()+.15f) {
+            StopMovement();SetControlRotation(FRotator(0,(SwingPoint-Hero->GetActorLocation()).Rotation().Yaw,0));
+            Hero->SetActorRotation(GetControlRotation());Hero->SetPrimaryInputHeld(true);return;
+        }
+        const auto& State=Tooth->Calculus->State;
+        const int32 PerDeposit=State.Anchors.IsEmpty()?0:State.Pieces.Num()/State.Anchors.Num();
+        for(int32 Deposit=0;Deposit<State.Anchors.Num() && PerDeposit>0;++Deposit) {
+            bool Alive=false;
+            for(int32 I=Deposit*PerDeposit;I<(Deposit+1)*PerDeposit;++I) Alive|=State.Pieces[I]>0;
+            if(!Alive) continue;
+            const auto& Anchor=State.Anchors[Deposit];
+            const FTransform Surface=Tooth->Visual->GetComponentTransform();
+            FVector Aim=Surface.TransformPosition(Anchor.Center);
+            const FVector SurfaceScale=Surface.GetScale3D().GetAbs().ComponentMax(FVector(.001f));
+            FVector Normal=Surface.TransformVectorNoScale(FVector(Anchor.Normal)/SurfaceScale).GetSafeNormal();
+            auto Face=[&](FVector Point) {
+                SetControlRotation(FRotator(0,(Point-Hero->GetActorLocation()).Rotation().Yaw,0));
+                Hero->SetActorRotation(GetControlRotation());
+            };
+            Face(Aim);
+            // Once an exposed deposit is in reach, aim at a surviving piece,
+            // rather than continuing to swing at its already empty center.
+            FVector Piece,PieceNormal;
+            const bool Reachable=Tooth->Calculus->FindContact(Hero,Piece,PieceNormal);
+            if(Reachable) {Aim=Piece;Normal=PieceNormal;Face(Aim);}
+            const FVector Out=Normal.GetSafeNormal2D();
+            if(Reachable && !Buffer) {
+                StopMovement();Hero->SetPrimaryInputHeld(true);return;
+            }
+            FVector Stand;
+            bool HaveStand=false;
+            if(Buffer && Reachable) {
+                Hero->SetPrimaryInputHeld(true);
+                FVector Tip;float Radius;
+                if(Hero->Inventory->BufferContactSphere(Tip,Radius)) {
+                    // Test the actual constrained tip after facing the piece.
+                    // A distance-only stop can leave it behind the enamel.
+                    if(FVector::DotProduct(Normal,(Tip-Aim).GetSafeNormal())>.05f
+                        && Hero->Inventory->CanBufferContact(Tooth,Aim)) {
+                        StopMovement();return;
+                    }
+                    const FVector TipGoal=Aim+Normal*FMath::Min(30.f,Radius*.45f);
+                    const FVector Correction=FVector(TipGoal.X-Tip.X,TipGoal.Y-Tip.Y,0).GetClampedToMaxSize(80.f);
+                    const FVector Candidate=Hero->GetActorLocation()+Correction;
+                    // Keep the body on the exposed side as well. Scenery can
+                    // compress the tool pose; never follow that correction
+                    // through the crown or abandon this target for generic aim.
+                    const float BodyClearance=Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+10.f;
+                    if(FVector::DotProduct(Candidate-Aim,Out)>BodyClearance
+                        && ProjectStandingPosition(Candidate,Stand)
+                        && FVector::DotProduct(Stand-Aim,Out)>BodyClearance
+                        && FVector::DistSquared2D(Hero->GetActorLocation(),Stand)>FMath::Square(8.f)) HaveStand=true;
+                }
+            }
+            if(!HaveStand) {
+                // Visit fixed exposed flank poses rather than chasing a sine
+                // wave forever. Curved edge pieces can face away from their
+                // original deposit anchor, so search both sides after a stall.
+                static constexpr float Angles[]={0.f,-35.f,35.f,-70.f,70.f,-85.f,85.f};
+                const int32 Phase=FMath::Max(0,FMath::FloorToInt((Now-LastWorkProgressAt-2.)/2.));
+                for(int32 Attempt=0;Attempt<UE_ARRAY_COUNT(Angles) && !HaveStand;++Attempt) {
+                    const FVector Direction=Out.RotateAngleAxis(Angles[(Phase+Attempt)%UE_ARRAY_COUNT(Angles)],FVector::UpVector);
+                    for(float Distance:{105.f,145.f}) if(ProjectStandingPosition(Aim+Direction*Distance,Stand)
+                        && FVector::DotProduct(Stand-Aim,Out)>1.f) {HaveStand=true;break;}
+                }
+            }
+            if(!HaveStand) {ReleaseInputs();StopMovement();return;}
+            if(FVector::DistSquared2D(Hero->GetActorLocation(),Stand)>FMath::Square(8.f)) {
+                if(!Buffer) ReleaseInputs();
+                else Hero->SetPrimaryInputHeld(true);
+                MoveTowards(Stand,5);return;
+            }
+            StopMovement();Face(Aim);Hero->SetPrimaryInputHeld(true);return;
+        }
+        ReleaseInputs();StopMovement();return;
+    }
+    if(Now-LastWorkProgressAt>3 && Task==EMCPlaytestBotGoal::Clean) {ResetApproach(true);LastWorkProgressAt=Now;}
     WorkAtTarget();
 }

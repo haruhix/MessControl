@@ -54,6 +54,7 @@ private:
     bool bManaging=false;
     bool bInterlude=false;
     bool bSupportMode=false;
+    bool bOpeningCoffeePending=false;
     TOptional<EMCGameDirectorEvent> LaunchGrant;
     int32 NextId=0,PlannedFoodTotal=0,SpawnedFoodTotal=0,FinishedFoodTotal=0;
     double DayStartedAt=0,DayEndsAt=0,LastSpecialAt=-100,NextFoodAt=0,PhaseStartedAt=0,RestUntil=0,NextObserveAt=0;

@@ -1,0 +1,17 @@
+{
+  "map": "/Game/Tests/L_VFXLab",
+  "layout": "Open neutral platforms; no arena environment or visible tongue",
+  "removed_actors": 1250,
+  "stations": 51,
+  "static_supports": 51,
+  "niagara_gallery_samples": 8,
+  "key_intensity": 4.0,
+  "ambient_intensity": 0.5,
+  "exposure_min": 1.0,
+  "exposure_max": 1.0,
+  "exposure_bias": 0.0,
+  "bloom": 0.1,
+  "fog": false,
+  "sky_geometry": false,
+  "main_arena_saved": false
+}

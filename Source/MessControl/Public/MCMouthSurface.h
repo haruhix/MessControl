@@ -31,8 +31,8 @@ public:
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Liquid") EMCGroundSurface GroundResponse=EMCGroundSurface::Slippery;
     bool AffectsFooting(FVector Sole) const;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") bool bRandomizeLiquidSize=true;
-    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") FVector2D LiquidSizeRange=FVector2D(28,220);
-    UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidSize,BlueprintReadOnly,Category="Liquid",meta=(ClampMin="20",ClampMax="260")) float LiquidHalfSize=92;
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") FVector2D LiquidSizeRange=FVector2D(56,440);
+    UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidSize,BlueprintReadOnly,Category="Liquid",meta=(ClampMin="20",ClampMax="520")) float LiquidHalfSize=184;
     UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidMaterial,BlueprintReadOnly,Category="Liquid") TSoftObjectPtr<UMaterialInterface> LiquidMaterial;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Liquid") double LiquidBornAt=-100;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Liquid") void SetLiquidAppearance(UMaterialInterface* Preset);
@@ -62,11 +62,14 @@ public:
     AMCTongue* GetTongue() const { return Tongue; }
     void Disturb();
     void ResetLiquid();
+    // Initial wet coverage, clipped to the path of the liquid that deposited it.
+    void SetLiquidDepositMask(const TArray<uint8>& Mask);
     // Called only after the character's authoritative reach/tool/occlusion checks.
     bool BrushLiquid(class AMCToothCharacter* Worker,float Seconds);
     bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
     float RemainingLiquid() const;
     UPROPERTY(ReplicatedUsing=OnRep_Wipe,BlueprintReadOnly,Category="Liquid") TArray<uint8> WipeMask;
+    UPROPERTY(ReplicatedUsing=OnRep_Wipe) TArray<uint8> LiquidDepositMask;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Liquid") int32 LiquidSeed=0;
 private:
     UFUNCTION() void OnRep_Wipe();

@@ -1,0 +1,12 @@
+{
+  "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+  "navigation": {
+    "before": 1,
+    "after": 2,
+    "moved_cm": 9000.0
+  },
+  "paused_all_stations": 51,
+  "resumed_all_stations": 51,
+  "reset_current": true,
+  "key_bindings": "Source-inspected; verified same reflected server RPC paths in possessed standard PIE"
+}

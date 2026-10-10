@@ -59,9 +59,10 @@ void AMCMouthSurface::BeginPlay()
         LiquidSeed=1+int32(HashCombine(GetTypeHash(FMath::RoundToInt(P.X)),GetTypeHash(FMath::RoundToInt(P.Y)))%4093);
         if (bRandomizeLiquidSize)
         {
+            if (LiquidSizeRange.Equals(FVector2D(28,220))) LiquidSizeRange=FVector2D(56,440);
             FRandomStream Appearance(LiquidSeed);
-            const float Low=FMath::Clamp(float(LiquidSizeRange.X),20.f,260.f);
-            const float High=FMath::Clamp(float(LiquidSizeRange.Y),Low,260.f);
+            const float Low=FMath::Clamp(float(LiquidSizeRange.X),20.f,520.f);
+            const float High=FMath::Clamp(float(LiquidSizeRange.Y),Low,520.f);
             const float Group=Appearance.FRand();
             const float Weight=Group<.30f?Appearance.FRandRange(0,.15f):Group<.70f?Appearance.FRandRange(.25f,.48f):Appearance.FRandRange(.68f,1.f);
             LiquidHalfSize=FMath::Lerp(Low,High,Weight);
@@ -218,6 +219,7 @@ void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
     DOREPLIFETIME(AMCMouthSurface,Tongue); DOREPLIFETIME(AMCMouthSurface,TongueAnchor);
     DOREPLIFETIME(AMCMouthSurface,WipeMask); DOREPLIFETIME(AMCMouthSurface,LiquidSeed);
+    DOREPLIFETIME(AMCMouthSurface,LiquidDepositMask);
     DOREPLIFETIME(AMCMouthSurface,LiquidHalfSize);
     DOREPLIFETIME(AMCMouthSurface,LiquidMaterial);
     DOREPLIFETIME(AMCMouthSurface,LiquidBornAt);

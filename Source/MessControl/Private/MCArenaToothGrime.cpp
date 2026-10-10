@@ -239,6 +239,34 @@ void AMCArenaTooth::ResetGrime()
 }
 void AMCArenaTooth::OnRep_Grime() { bGrimeDirty=true; }
 
+void AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet)
+{
+    if (!HasAuthority() || !IsAvailable() || !Visual->GetStaticMesh()) return;
+    if (!bGrimeReliefBuilt) BuildGrimeRelief();
+    const FTransform Transform=Visual->GetComponentTransform();
+    bool Touched=false;
+    for (const auto& Sample:GrimeSamples)
+        if (Sample.Weight>.1f && IsWet(Transform.TransformPosition(Sample.Point))) { Touched=true; break; }
+    if (!Touched) return;
+    const FBoxSphereBounds Bounds=Visual->GetStaticMesh()->GetBounds();
+    TArray<uint8> Deposited;
+    if (Status->NeedsCare(true) && GrimeMask.Num()==FMCSurfaceWipe::Count) Deposited=GrimeMask;
+    else Deposited.Init(0,FMCSurfaceWipe::Count);
+    for (int32 Z=0;Z<FMCSurfaceWipe::Size;++Z) for (int32 Y=0;Y<FMCSurfaceWipe::Size;++Y) for (int32 X=0;X<FMCSurfaceWipe::Size;++X) {
+        const FVector UV=FVector(X,Y,Z)/double(FMCSurfaceWipe::Size-1);
+        const FVector World=Transform.TransformPosition(Bounds.Origin-Bounds.BoxExtent+UV*Bounds.BoxExtent*2);
+        if (IsWet(World)) Deposited[FMCSurfaceWipe::Index(X,Y,Z)]=255;
+    }
+    // A barely touched voxel must still produce a coating sample the brush can acquire.
+    bool Brushable=false;
+    for (const auto& Sample:GrimeSamples)
+        if (Sample.Weight>.1f && FMCSurfaceWipe::Sample(Deposited,Sample.UV)>.25f) { Brushable=true; break; }
+    if (!Brushable) return;
+    Status->ApplyCoffee(1.f);
+    GrimeMask=MoveTemp(Deposited); PreciseGrimeMask.Reset();
+    OnRep_Grime(); ForceNetUpdate();
+}
+
 float AMCArenaTooth::RemainingGrime() const
 {
     float Total=0,Left=0;
@@ -303,9 +331,12 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
         N=FMath::Lerp(Surface.TransformVectorNoScale(History.Normal),N,1-FMath::Exp(-24.f*Seconds)).GetSafeNormal();
     }
     History.Aim=Surface.InverseTransformPosition(Aim); History.Normal=Surface.InverseTransformVectorNoScale(N);
-    const FVector Up=FVector::VectorPlaneProject(FVector::UpVector,N).GetSafeNormal(),Side=FVector::CrossProduct(Up,N).GetSafeNormal();
-    // Small tangential strokes stay on the chosen stain; project each stroke back onto enamel.
-    const FVector Sweep=Side*(FMath::Sin(History.Clock*24)*3)+Up*(FMath::Sin(History.Clock*12)*2.5f);
+    FVector Up=FVector::VectorPlaneProject(FVector::UpVector,N).GetSafeNormal();
+    if(Up.IsNearlyZero()) Up=FVector::VectorPlaneProject(Worker->GetActorForwardVector(),N).GetSafeNormal();
+    const FVector Side=FVector::CrossProduct(Up,N).GetSafeNormal();
+    // Restore the readable 7/5 cm scrub used before the small-contact rework.
+    // Larger plaque windows must not reduce the visible stroke to a wrist tremor.
+    const FVector Sweep=Side*(FMath::Sin(History.Clock*24)*7)+Up*(FMath::Sin(History.Clock*12)*5);
     FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCToothBrush),true,Worker);
     auto ValidContact=[&](FVector Point,FVector Normal) {
         if(FVector::Dist2D(Point,Worker->GetActorLocation())>Worker->BrushContact->SurfaceReach+20
@@ -313,8 +344,11 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
         FHitResult Block; FCollisionQueryParams Occlusion(SCENE_QUERY_STAT(MCBrushOcclusion),false,Worker); Occlusion.AddIgnoredActor(this);
         return !GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation()+FVector(0,0,40),Point-Normal*2,ECC_Visibility,Occlusion);
     };
-    const bool Projected=BrushSurface->LineTraceComponent(Hit,Aim+Sweep+N*25,Aim+Sweep-N*25,Query)
-        && ValidContact(Hit.ImpactPoint,Hit.ImpactNormal);
+    bool Projected=false;
+    for(float StrokeScale:{1.f,.5f,.25f}) {
+        if(BrushSurface->LineTraceComponent(Hit,Aim+Sweep*StrokeScale+N*25,Aim+Sweep*StrokeScale-N*25,Query)
+            && ValidContact(Hit.ImpactPoint,Hit.ImpactNormal)) {Projected=true;break;}
+    }
     if(!Projected) {
         // A rounded lower edge can occlude the tangential stroke. Keep the
         // already validated dirty sample instead of repeatedly dropping it.

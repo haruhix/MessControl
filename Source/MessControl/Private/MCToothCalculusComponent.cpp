@@ -465,6 +465,35 @@ bool UMCToothCalculusComponent::ApplyPickaxeHit(AMCToothCharacter* Worker,FVecto
     return true;
 }
 
+bool UMCToothCalculusComponent::ApplyBufferHit(AMCToothCharacter* Worker,float Damage,FVector& HitPoint)
+{
+    auto* Tooth=Cast<AMCArenaTooth>(GetOwner());
+    FVector Center; float Radius;
+    if(!Tooth || !Tooth->HasAuthority() || !Tooth->IsAvailable() || !IsValid(Worker) || !Worker->HasAuthority()
+        || !Worker->Inventory || !Worker->Inventory->IsUsingBuffer() || !HasCalculus()
+        || !FMath::IsFinite(Damage) || Damage<=0 || !Worker->Inventory->BufferContactSphere(Center,Radius)) return false;
+    bool Changed=false; FVector HitNormal=FVector::UpVector;
+    for(int32 I=0;I<SurfacePieces.Num() && I<State.Pieces.Num();++I) {
+        if(State.Pieces[I]==0) continue;
+        FVector Normal; const FVector Point=PieceContact(I,Normal);
+        // Stay on the exposed side of this crown as well as inside the drill
+        // sphere; ignoring the target in LOS must not hit through its enamel.
+        if(FVector::DistSquared(Point,Center)>FMath::Square(Radius)
+            || FVector::DotProduct(Normal,(Center-Point).GetSafeNormal())<.05f
+            || !Worker->Inventory->CanBufferContact(Tooth,Point)) continue;
+        State.Pieces[I]=0;
+        if(!Changed) {HitPoint=Point;HitNormal=Normal;}
+        Changed=true;
+    }
+    if(!Changed) return false;
+    State.HitPoint=Tooth->Visual->GetComponentTransform().InverseTransformPosition(HitPoint);
+    State.HitNormal=MCCalculus::LocalNormal(Tooth->Visual->GetComponentTransform(),HitNormal);
+    State.HitAt=MCCalculus::Time(GetWorld()); ++State.HitSerial;
+    BuildDepositMesh(); PlayedHit=State.HitSerial;
+    EmitShards(HitPoint,HitNormal,State.HitSerial); Tooth->ForceNetUpdate();
+    return true;
+}
+
 void UMCToothCalculusComponent::OnRep_State()
 {
     auto* Tooth=Cast<AMCArenaTooth>(GetOwner());

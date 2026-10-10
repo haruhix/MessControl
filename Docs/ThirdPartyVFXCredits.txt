@@ -1,0 +1,10 @@
+Free Niagara Particles (CC BY 4.0)
+Author: SoftTofuVFX
+Source: https://www.fab.com/listings/183732bc-c2fb-465c-9453-f70a1ce7ba2c
+License: Creative Commons Attribution 4.0 International
+License URL: https://creativecommons.org/licenses/by/4.0/
+
+Imported assets: /Game/FreeParticle_SoftTofu
+Used as references in the isolated /Game/Tests/L_VFXLab test level.
+The original imported assets have not been modified. Placement and component
+settings in the test level are authored for MessControl.

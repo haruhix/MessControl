@@ -61,6 +61,17 @@ struct FMCNutBossAnimProxy final : FAnimInstanceProxy
 {
     explicit FMCNutBossAnimProxy(UAnimInstance* Instance):FAnimInstanceProxy(Instance) {}
 protected:
+    virtual void CacheBones() override
+    {
+        const bool bResetPose=bBoneCachesInvalidated;
+        FAnimInstanceProxy::CacheBones();
+        if(bResetPose) {
+            // A new compact-bone layout cannot reuse transforms indexed by the old LOD.
+            LastPose.Reset(); PreviousPose.Reset(); bNewTransition=false;
+            bBoneCachesInvalidated=false;
+        }
+    }
+
     virtual void PreUpdate(UAnimInstance* Instance,float Dt) override
     {
         FAnimInstanceProxy::PreUpdate(Instance,Dt);
@@ -72,10 +83,22 @@ protected:
     virtual void Update(float Dt) override
     {
         FAnimInstanceProxy::Update(Dt);
-        const float Step=FMath::Clamp(Dt,0.f,.1f);
-        AimYaw=FMath::FInterpTo(AimYaw,Input.AimYaw,Step,12);
-        AimPitch=FMath::FInterpTo(AimPitch,Input.AimPitch,Step,12);
-        if(Input.VisualKey!=LastKey) {LastKey=Input.VisualKey;bNewTransition=true;TransitionAge=0;}
+        const float Step=FMath::Max(0.f,Dt);
+        auto Smooth=[Step](float Current,float Target,float Rate){return FMath::Lerp(Current,Target,1-FMath::Exp(-Rate*Step));};
+        AimYaw=Smooth(AimYaw,Input.AimYaw,12);
+        AimPitch=Smooth(AimPitch,Input.AimPitch,12);
+        ForwardSpeed=Smooth(ForwardSpeed,Input.ForwardSpeed,14);
+        SideSpeed=Smooth(SideSpeed,Input.SideSpeed,14);
+        Guard=Smooth(Guard,Input.Guard,18);
+        Airborne=Smooth(Airborne,Input.Airborne,24);
+        // Repeated damage restarts the server pulse at zero; retain a short,
+        // continuous recoil instead of snapping the arms and torso back to rest.
+        Hit=Smooth(Hit,Input.Hit,35);
+        ShieldHit=Smooth(ShieldHit,Input.ShieldHit,35);
+        HitDirection=FMath::Lerp(HitDirection,Input.HitDirection,1-FMath::Exp(-25.f*Step));
+        if(Input.VisualKey!=LastKey) {LastKey=Input.VisualKey;bNewTransition=true;TransitionAge=Step;}
+        // Pose samples use server time. The blend must also consume the full
+        // elapsed frame, including skipped or slow animation updates.
         else TransitionAge+=Step;
     }
 
@@ -97,14 +120,14 @@ protected:
         if(bNewTransition) {
             PreviousPose=LastPose; bNewTransition=false;
         }
-        const float Alpha=FMath::SmoothStep(0.f,Input.BlendSeconds,TransitionAge);
+        const float Alpha=Input.BlendSeconds>KINDA_SMALL_NUMBER?FMath::SmoothStep(0.f,Input.BlendSeconds,TransitionAge):1.f;
         if(PreviousPose.Num()==Count && Alpha<1.f)
             for(auto Bone:Output.Pose.ForEachBoneIndex()) {
                 FTransform Blended; Blended.Blend(PreviousPose[Bone.GetInt()],Output.Pose[Bone],Alpha); Output.Pose[Bone]=Blended;
             }
+        Output.Pose.NormalizeRotations();
         LastPose.SetNumUninitialized(Count);
         for(auto Bone:Output.Pose.ForEachBoneIndex()) LastPose[Bone.GetInt()]=Output.Pose[Bone];
-        Output.Pose.NormalizeRotations();
         return true;
     }
 private:
@@ -122,20 +145,20 @@ private:
         const float Stride=FMath::Sin(float(Input.ServerTime)*6.28f);
         const float Cast=Input.Cast*Alive;
         const float Channel=FMath::Sin(float(Input.ServerTime)*5)*Input.Channel;
-        const float Recoil=Input.Hit*(Input.ShieldHit>.1f?.4f:1.f);
-        Rotate(Torso,FRotator(Breath*.8f+Input.ForwardSpeed*-3+AimPitch*.12f*Cast-Recoil*9,
-            AimYaw*.2f*Cast,Input.SideSpeed*-4+Recoil*Input.HitDirection.Y*10));
+        const float Recoil=Hit*(1-.6f*FMath::SmoothStep(0.f,.2f,ShieldHit))*Alive;
+        Rotate(Torso,FRotator(Breath*.8f+ForwardSpeed*-3+AimPitch*.12f*Cast-Recoil*9,
+            AimYaw*.2f*Cast,SideSpeed*-4+Recoil*HitDirection.Y*10));
         Rotate(Head,FRotator(AimPitch*.2f*Alive-Recoil*5,AimYaw*.25f*Alive,Breath*.6f));
-        Rotate(LeftArm,FRotator(-Input.Guard*13-Input.ShieldHit*10+AimPitch*.25f*Cast,Input.Guard*-8+AimYaw*.25f*Cast,
+        Rotate(LeftArm,FRotator((-Guard*13-ShieldHit*10)*Alive+AimPitch*.25f*Cast,-Guard*8*Alive+AimYaw*.25f*Cast,
             Input.bMage?Cast*(-5+Channel*2):0));
         Rotate(RightArm,FRotator(AimPitch*.55f*Cast-Input.Release*14,
-            AimYaw*.55f*Cast,Input.bMage?Channel*3:Stride*Input.ForwardSpeed*2));
+            AimYaw*.55f*Cast,Input.bMage?Channel*3:Stride*ForwardSpeed*2));
         Rotate(LeftHand,FRotator(Channel*3+AimPitch*.2f*Cast,AimYaw*.2f*Cast+Cast*FMath::Sin(Input.CastProgress*PI)*8,0));
         Rotate(RightHand,FRotator(AimPitch*.2f*Cast+Input.Release*8,AimYaw*.2f*Cast,Channel*4));
         if(Torso.GetInt()!=INDEX_NONE) {
             FVector Translation=Pose[Torso].GetTranslation();
-            Translation=FMath::Lerp(Translation,Pose.GetBoneContainer().GetRefPoseTransform(Torso).GetTranslation(),double(Input.Airborne));
-            Translation.Z+=Breath*.45f+FMath::Abs(Stride)*FMath::Abs(Input.ForwardSpeed)*.6f;
+            Translation=FMath::Lerp(Translation,Pose.GetBoneContainer().GetRefPoseTransform(Torso).GetTranslation(),double(Airborne));
+            Translation.Z+=Breath*.45f+FMath::Abs(Stride)*FMath::Abs(ForwardSpeed)*.6f;
             Pose[Torso].SetTranslation(Translation);
         }
         if(Input.bMage) MatchCastHand(Pose,Input,Cast*.85f);
@@ -160,7 +183,8 @@ private:
     FMCNutBossAnimationSnapshot Input;
     TArray<FTransform> LastPose,PreviousPose;
     int32 LastKey=INDEX_NONE;
-    float TransitionAge=1,AimYaw=0,AimPitch=0;
+    float TransitionAge=1,AimYaw=0,AimPitch=0,ForwardSpeed=0,SideSpeed=0,Guard=0,Airborne=0,Hit=0,ShieldHit=0;
+    FVector HitDirection=FVector::ZeroVector;
     bool bNewTransition=false;
 };
 }

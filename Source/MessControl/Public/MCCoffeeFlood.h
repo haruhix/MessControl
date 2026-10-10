@@ -49,6 +49,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Start(const UMCDayPlan* Plan,float SwimTestSeconds=0,bool bUseLegacyFlood=false);
     void Stop();
+    int32 ResidueBatch=0;
     bool Contains(FVector Position) const;
     float SurfaceHeightAt(FVector Position) const;
     float SurfaceVerticalSpeedAt(FVector Position) const;
@@ -102,6 +103,14 @@ private:
     float RiverHeightAt(FVector Position,float Time,float FloorZ) const;
     bool IsFlowBlocked(FVector Position,const AActor* Ignore) const;
     void UpdateRiverDebris();
+    void InitializeResidue();
+    void AccumulateResidue(float Time);
+    bool HasResidueAt(FVector Position) const;
+    void DepositResidue();
+    static constexpr int32 ResidueSize=48;
+    struct FResidueCell { FVector Point=FVector::ZeroVector; float WetTop=-MAX_flt; bool bSurface=false; };
+    TArray<FResidueCell> ResidueCells;
+    float LastResidueTime=-100;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> JetMaterial;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> CrownMaterial;

@@ -33,8 +33,8 @@ profile.set_editor_property('key_events', slots)
 profile.set_editor_property('legacy_timed_finale', False)
 profile.set_editor_property('run_target_min_minutes', 25.0)
 profile.set_editor_property('run_target_max_minutes', 35.0)
-for name, value in dict(after_training_pause_seconds=5.0, opening_meal_items=3,
-                        opening_meal_drop_seconds=1.5, before_nuts_pause_seconds=4.0).items():
+for name, value in dict(after_training_pause_seconds=5.0, opening_meal_items=12,
+                        opening_meal_drop_seconds=1.0, before_nuts_pause_seconds=4.0).items():
     profile.set_editor_property(name, value)
 assert library.save_loaded_asset(profile)
 

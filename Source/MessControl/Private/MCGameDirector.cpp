@@ -114,6 +114,7 @@ void AMCGameDirector::InitializeRun(UMCDayPlan* Plan,UMCGameDirectorProfile* Pro
     Services=GetWorld()->SpawnActor<AMCDayDirector>();
     if(Services) { Services->SetOwner(this); Services->InitializeEventServices(Mechanics,GS->RunSeed); }
     bManaging=true; bInterlude=false; bSupportMode=false; Pacing=EMCGameDirectorPacing::Intermission;
+    bOpeningCoffeePending=false;
     GS->DirectorState=FMCGameDirectorState(); GS->DirectorState.bEnabled=true;
     Record(TEXT("Director включён: выбор по состоянию команды, без квот событий")); GS->ForceNetUpdate();
 }
@@ -136,6 +137,8 @@ void AMCGameDirector::BeginDay(int32 Day)
     Pacing=EMCGameDirectorPacing::Build; PhaseStartedAt=DayStartedAt; RestUntil=0; NextFoodAt=DayStartedAt; LastSpecialAt=DayStartedAt-100;
     LastReason.Empty(); CurrentTitle=TEXT("ВРЕМЯ ЧИСТИТЬ"); CandidateTitle.Empty();
     DayEventCounts.Reset(); NextDecisionAt=DayStartedAt+Settings->InitialCleaningSeconds; SampleAt=DayStartedAt;
+    const auto* CoffeeRule=Settings->Events.FindByPredicate([](const auto& Rule){return Rule.Kind==EMCGameDirectorEvent::CoffeeFlood;});
+    bOpeningCoffeePending=Day==1 && !bSupportMode && CoffeeRule && CoffeeRule->Weight>0;
     Difficulty=FMath::Clamp(Day==1?.7f*Settings->DifficultyMultiplier:Difficulty,DaySettings.MinimumDifficulty,DaySettings.MaximumDifficulty);
     TargetPressure=FMath::Lerp(DaySettings.TargetPressureMin,DaySettings.TargetPressureMax,.5f);
     GS->Day=Day; GS->Phase=EMCShiftPhase::Working; GS->StepStartedAt=GS->DayStartedAt=DayStartedAt; GS->PhaseEndsAt=DayEndsAt;
@@ -151,7 +154,7 @@ void AMCGameDirector::BeginInterlude(float Seconds)
     bSupportMode=false;
     Settings->Days[0].InitialPatches=0;
     for(auto& Rule:Settings->Events) if(Rule.Kind==EMCGameDirectorEvent::Boss || Rule.Kind==EMCGameDirectorEvent::Reward) Rule.Weight=0;
-    BeginDay(1); bInterlude=true;
+    BeginDay(1); bInterlude=true; bOpeningCoffeePending=false;
     auto* GS=GetWorld()->GetGameState<AMCGameState>();
     DayEndsAt=GS->GetServerWorldTimeSeconds()+FMath::Clamp(Seconds,5.f,300.f);
     DaySettings.DaySeconds=FMath::Clamp(Seconds,5.f,300.f);
@@ -166,21 +169,24 @@ void AMCGameDirector::BeginSupport(float Seconds)
     Settings->Days[0].InitialPatches=0;
     // Destruction clears food much faster than the old carry-and-deliver loop.
     // Keep the saved profile usable while tuning only this encounter's run copy.
-    Settings->DecisionInterval=FMath::Min(Settings->DecisionInterval,1.25f);
+    Settings->DecisionInterval=FMath::Min(Settings->DecisionInterval,1.f);
     auto& SupportDay=Settings->Days[0];
-    SupportDay.MaxFoodBatch=FMath::Max(SupportDay.MaxFoodBatch,4);
-    SupportDay.FoodInterval=FMath::Min(SupportDay.FoodInterval,2.25f);
+    SupportDay.MaxFoodBatch=FMath::Max(SupportDay.MaxFoodBatch,6);
+    SupportDay.MaxWholeFood=FMath::Max(SupportDay.MaxWholeFood,6);
+    SupportDay.MaxFragments=FMath::Max(SupportDay.MaxFragments,32);
+    SupportDay.FoodWorkPerPlayer=FMath::Max(SupportDay.FoodWorkPerPlayer,48.f);
+    SupportDay.FoodInterval=FMath::Min(SupportDay.FoodInterval,1.f);
     SupportDay.RestSeconds=FMath::Min(SupportDay.RestSeconds,1.5f);
     for (auto& Rule:Settings->Events)
         if (Rule.Kind==EMCGameDirectorEvent::Boss || Rule.Kind==EMCGameDirectorEvent::Reward) Rule.Weight=0;
         else if(Rule.Weight>0) {
             // A saved support profile may still contain the older sparse menu.
             // Adjust only this run's copy; explicitly disabled kinds stay disabled.
-            const float Minimum=Rule.Kind==EMCGameDirectorEvent::Food?12.f:
+            const float Minimum=Rule.Kind==EMCGameDirectorEvent::Food?20.f:
                 Rule.Kind==EMCGameDirectorEvent::Coffee?4.5f:
                 Rule.Kind==EMCGameDirectorEvent::Pepper || Rule.Kind==EMCGameDirectorEvent::CoffeeFlood?2.f:0.f;
             Rule.Weight=FMath::Max(Rule.Weight,Minimum);
-            if(Rule.Kind==EMCGameDirectorEvent::Food) Rule.CooldownSeconds=FMath::Min(Rule.CooldownSeconds,3.f);
+            if(Rule.Kind==EMCGameDirectorEvent::Food) Rule.CooldownSeconds=FMath::Min(Rule.CooldownSeconds,1.5f);
         }
     BeginDay(1);
     bInterlude=true;
@@ -341,10 +347,11 @@ TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGa
     const float Deficit=FMath::Clamp((TargetPressure-Seen.Pressure)/FMath::Max(.05f,TargetPressure),0.f,1.f);
     for(const auto& Rule:Settings->Events) {
         auto& C=Out.AddDefaulted_GetRef(); C.Kind=Rule.Kind; C.BaseWeight=Rule.Weight;
+        const bool OpeningCoffee=bOpeningCoffeePending && Rule.Kind==EMCGameDirectorEvent::CoffeeFlood;
         const auto T=MakeTicket(Rule.Kind,Seen); C.ForecastPressure=ForecastPressure(T,Seen);
         if(Rule.Weight<=0) C.BlockReason=TEXT("Выключено");
-        else if(!bSupportMode && GS && GS->Day<Rule.FirstDay) C.BlockReason=TEXT("Откроется в день ")+FString::FromInt(Rule.FirstDay);
-        else if(Difficulty+.001f<Rule.MinimumDifficulty) C.BlockReason=TEXT("Сложность ниже порога");
+        else if(!OpeningCoffee && !bSupportMode && GS && GS->Day<Rule.FirstDay) C.BlockReason=TEXT("Откроется в день ")+FString::FromInt(Rule.FirstDay);
+        else if(!OpeningCoffee && Difficulty+.001f<Rule.MinimumDifficulty) C.BlockReason=TEXT("Сложность ниже порога");
         else if(Rule.MaxPerDay>0 && DayEventCounts.FindRef(Rule.Kind)>=Rule.MaxPerDay) C.BlockReason=TEXT("Достигнут безопасный предел");
         else if(const auto* Last=LastEventAt.Find(Rule.Kind);Last && Now<*Last+Rule.CooldownSeconds) C.BlockReason=FString::Printf(TEXT("Cooldown %.0f с"),*Last+Rule.CooldownSeconds-Now);
         else if(Pacing!=EMCGameDirectorPacing::Build) C.BlockReason=Pacing==EMCGameDirectorPacing::FinalCleanup?TEXT("Финальная уборка"):TEXT("Разгрузка / передышка");
@@ -409,7 +416,15 @@ void AMCGameDirector::CancelReservation(const FString& Reason,double Now)
 bool AMCGameDirector::SelectEvent(const FMCGameDirectorState& Seen,double Now)
 {
     CandidateScores=EvaluateCandidates(Seen,Now); WaitWeight=ComputeWaitWeight(Seen);
+    if(bOpeningCoffeePending && CandidateScores.ContainsByPredicate([](const auto& C)
+        {return C.Kind==EMCGameDirectorEvent::CoffeeFlood && C.EffectiveWeight>0;})) {
+        // The first eligible coffee wave is announced early instead of relying
+        // on a lucky roll. Disabled rules and all safety/deadline gates remain.
+        WaitWeight=0;
+        for(auto& C:CandidateScores) if(C.Kind!=EMCGameDirectorEvent::CoffeeFlood) C.EffectiveWeight=0;
+    }
     float Sum=WaitWeight; for(const auto& C:CandidateScores) Sum+=C.EffectiveWeight;
+    for(auto& C:CandidateScores) C.Probability=Sum>0?C.EffectiveWeight/Sum:0;
     WaitProbability=Sum>0?WaitWeight/Sum:1.f; CandidateTitle=TEXT("ПЕРЕДЫШКА");
     float Best=WaitProbability; for(const auto& C:CandidateScores) if(C.Probability>Best) {Best=C.Probability;CandidateTitle=EventName(C.Kind);}
     float Pick=Random.FRand()*Sum;
@@ -429,7 +444,9 @@ bool AMCGameDirector::SelectEvent(const FMCGameDirectorState& Seen,double Now)
                 const auto Fresh=Observe();
                 const auto* Rule=Settings->Events.FindByPredicate([&](const auto& R){return R.Kind==C.Kind;});
                 if(Fresh.bUrgent || Fresh.bGlobalMovement || Fresh.WholeFood>=DaySettings.MaxWholeFood || Fresh.Fragments>=DaySettings.MaxFragments ||
-                    Fresh.Pressure>=TargetPressure*.65f || (Rule && Rule->MaxPerDay>0 && DayEventCounts.FindRef(C.Kind)>=Rule->MaxPerDay)) break;
+                    Fresh.Pressure>=TargetPressure*(bSupportMode?.9f:.65f) ||
+                    MCMeasureFoodPipeline(GetWorld()).EstimatedWorkerSeconds>=DaySettings.FoodWorkPerPlayer*FMath::Max(1,Fresh.AvailablePlayers) ||
+                    (Rule && Rule->MaxPerDay>0 && DayEventCounts.FindRef(C.Kind)>=Rule->MaxPerDay)) break;
                 auto Extra=MakeTicket(C.Kind,Fresh);Extra.Id=NextId++;Extra.Day=T.Day;Extra.RequestedAt=Now;
                 if(ForecastPressure(Extra,Fresh)>TargetPressure || !TryStart(Extra,Fresh,Now)) break;
                 Tickets.Add(Extra);++PlannedFoodTotal;
@@ -542,6 +559,7 @@ bool AMCGameDirector::TryStart(FTicket& T,const FMCGameDirectorState& S,double N
     LaunchGrant.Reset();
     if(!Success) return false;
     T.bStarted=true; T.StartedAt=Now; T.WarningAt=-1; CurrentTitle=EventName(T.Kind);
+    if(T.Kind==EMCGameDirectorEvent::CoffeeFlood) bOpeningCoffeePending=false;
     // Regular meals have their own cadence. They must not keep postponing the
     // coffee/other-special window while that event still fits the workload.
     if(T.Kind!=EMCGameDirectorEvent::Food && T.Kind!=EMCGameDirectorEvent::Coffee) LastSpecialAt=Now;

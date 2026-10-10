@@ -297,6 +297,8 @@ void UMCToothPhysicsComponent::EnterRagdoll()
     SetMuscles(false); Mesh->SetAllBodiesSimulatePhysics(false);
     ConfigureGripConstraints();
     Mesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+    // Full knockdowns need world support after standing limbs ignored scenery.
+    Mesh->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
     Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Block);
     Mesh->SetMorphTarget(TEXT("Squash"),0); Mesh->SetMorphTarget(TEXT("Stretch"),0);
     if (Tooth->HasAuthority())
@@ -357,8 +359,10 @@ bool UMCToothPhysicsComponent::TryRecover()
     const FVector Center=PhysicalLocation();
     auto* Movement=Cast<UMCToothMovementComponent>(Tooth->GetCharacterMovement());
     auto* Water=Movement?Movement->DeepWaterAt(Center,true):nullptr;
-    const float Half=Tooth->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
-    const float Radius=Tooth->GetCapsuleComponent()->GetScaledCapsuleRadius();
+    const auto* Capsule=Tooth->GetCapsuleComponent();
+    const float Half=Capsule->GetScaledCapsuleHalfHeight();
+    const float Radius=Capsule->GetScaledCapsuleRadius();
+    const FCollisionResponseParams CapsuleResponses(Capsule->GetCollisionResponseToChannels());
     FVector Destination=Center;
     bool bClear=false;
     // Search independently at each point: a steep or obstructed centre must not
@@ -391,7 +395,9 @@ bool UMCToothPhysicsComponent::TryRecover()
             Candidate=Support.ImpactPoint+FVector(0,0,Half+3);
             PathEnd=Support.ImpactPoint+FVector(0,0,Radius+3);
         }
-        if(GetWorld()->OverlapBlockingTestByProfile(Candidate,FQuat::Identity,Tooth->GetCapsuleComponent()->GetCollisionProfileName(),FCollisionShape::MakeCapsule(Radius,Half),Params)) continue;
+        // A per-component "Custom" preset has no global profile to query.
+        // Match the standing capsule's actual channel and response overrides.
+        if(GetWorld()->OverlapBlockingTestByChannel(Candidate,FQuat::Identity,Capsule->GetCollisionObjectType(),FCollisionShape::MakeCapsule(Radius,Half),Params,CapsuleResponses)) continue;
         FHitResult Obstacle;
         if(!Offset.IsNearlyZero() && GetWorld()->SweepSingleByChannel(Obstacle,Center,PathEnd,FQuat::Identity,ECC_Pawn,FCollisionShape::MakeSphere(8),Params)) continue;
         // The capsule fits and the fallen body can reach it without crossing a wall.
@@ -431,6 +437,9 @@ void UMCToothPhysicsComponent::EnterStanding()
     // The torso also follows a finite-strength balance motor: impacts and turns
     // can displace it while CharacterMovement supplies collision-safe locomotion.
     Mesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    // The capsule supplies floor and obstacle contact. Active limbs must not
+    // catch on static scenery and throw the standing tooth out of balance.
+    Mesh->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Ignore);
     // The capsule receives incoming food while standing; dangling toes must not kick it out of reach.
     Mesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
     Mesh->SetAllBodiesBelowSimulatePhysics(Tooth->RigBone(TEXT("body")),true,true);

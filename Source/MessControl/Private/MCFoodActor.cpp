@@ -917,11 +917,11 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
     ReactToImpact();
     if(FoodData.Kind==EMCFoodKind::Spicy) {
         // Pepper stays one throwable hazard. Cutting and impacts preserve its fuse.
-        Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true);
+        if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true);
         return true;
     }
     AttendFood(); Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();
-    if (Health>0) { Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
+    if (Health>0) { if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
     // Completion is the final real tool hit, including on old fragment actors.
     // Use the delivery guard as well so a later intake cannot reward this item twice.
     // Spoiled ordinary food is still a destruction task; legacy sorting stays unchanged.

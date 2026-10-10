@@ -41,6 +41,17 @@ void FMCNutBossSettings::Sanitize()
     if(FMath::IsNearlyEqual(JumpRadius,230.f)) JumpRadius=460.f;
     if(FMath::IsNearlyEqual(RainRadius,300.f)) RainRadius=703.5624f;
     if(FMath::IsNearlyEqual(RollPush,260.f)) RollPush=620.f;
+    // Existing saved profiles retain the earlier generated balance values.
+    // Migrate those defaults once while preserving independently authored tuning.
+    if(FMath::IsNearlyEqual(MeleeCooldown,2.5f)) MeleeCooldown=3.5f;
+    if(FMath::IsNearlyEqual(ChargeCooldown,8.f)) ChargeCooldown=14.f;
+    if(FMath::IsNearlyEqual(RollCooldown,16.f)) RollCooldown=40.f;
+    if(FMath::IsNearlyEqual(RollDuration,5.f)) RollDuration=8.f;
+    if(FMath::IsNearlyEqual(JumpCooldown,13.f)) JumpCooldown=20.f;
+    if(FMath::IsNearlyEqual(FireballCooldown,5.f)) FireballCooldown=8.f;
+    if(FMath::IsNearlyEqual(SummonCooldown,17.f)) SummonCooldown=22.f;
+    if(FMath::IsNearlyEqual(RainCooldown,20.f)) RainCooldown=28.f;
+    if(FMath::IsNearlyEqual(MageTeleportCooldown,12.f)) MageTeleportCooldown=18.f;
     Safe(TankHealth,1400,200,10000); Safe(MageHealth,1100,200,10000); Safe(ExtraPlayerHealth,.65f,0,2);
     Safe(TankModelYaw,-90,-180,180); Safe(MageModelYaw,-90,-180,180);
     Safe(TankHeight,440,150,640); Safe(MageHeight,400,140,600); Safe(CreepHeight,116,40,240);
@@ -53,23 +64,24 @@ void FMCNutBossSettings::Sanitize()
     MageCastOffset.Z=FMath::Clamp(MageCastOffset.Z,-40.,320.);
     Safe(EntranceSeconds,1.3f,.8f,3); Safe(EntranceHeight,800,300,1500);
     Safe(TankMoveSpeed,160,60,300); Safe(MageMoveSpeed,120,40,250);
-    Safe(ShieldFrontDamageScale,.35f,.15f,1); Safe(ShieldHalfAngle,55,20,85);
-    Safe(MeleeDamage,12,1,30); Safe(MeleeRange,380,140,560); Safe(MeleeWindup,.65f,.5f,2); Safe(MeleeCooldown,2.5f,1.5f,8);
+    Safe(ShieldMaxHealth,500,1,10000); Safe(ShieldFrontDamageScale,.35f,.15f,1); Safe(ShieldHalfAngle,55,20,85);
+    Safe(SpecialAttackGap,3,0,10); Safe(TankRecoverySeconds,2.5f,.5f,8); Safe(RollRecoverySeconds,3.5f,.5f,8);
+    Safe(MeleeDamage,12,1,30); Safe(MeleeRange,380,140,560); Safe(MeleeWindup,.65f,.5f,2); Safe(MeleeCooldown,3.5f,1.5f,12);
     Safe(TankMeleePush,620,0,1500); Safe(TankChargePush,820,0,1500); Safe(TankJumpPush,900,0,1800); Safe(TankPushLift,210,0,500);
-    Safe(ChargeDamage,22,1,40); Safe(ChargeWindup,1.1f,.8f,3); Safe(ChargeCooldown,8,5,25);
+    Safe(ChargeDamage,22,1,40); Safe(ChargeWindup,1.1f,.8f,3); Safe(ChargeCooldown,14,5,60);
     Safe(ChargeSpeed,650,300,900); Safe(ChargeDistance,1100,350,1600);
-    Safe(RollDamage,16,1,30); Safe(RollWindup,1.2f,.9f,3); Safe(RollCooldown,16,10,35);
-    Safe(RollDuration,5,3,7); Safe(RollSpeed,520,300,750); Safe(RollTurnDegreesPerSecond,50,0,75);
+    Safe(RollDamage,16,1,30); Safe(RollWindup,1.2f,.9f,3); Safe(RollCooldown,40,10,90);
+    Safe(RollDuration,8,3,12); Safe(RollSpeed,520,300,750); Safe(RollTurnDegreesPerSecond,50,0,75);
     Safe(RollHitGap,1.1f,.8f,3); Safe(RollPush,620,50,1000); Safe(RollPainCooldown,1.25f,.4f,4);
     Safe(JumpDamage,25,1,40); Safe(JumpWindup,1.2f,.8f,3); Safe(JumpFlightSeconds,.8f,.6f,1.5f);
-    Safe(JumpRadius,460,150,660); Safe(JumpCooldown,13,8,35);
-    Safe(FireballDamage,18,1,35); Safe(FireballWindup,.9f,.7f,2); Safe(FireballCooldown,5,3,15);
+    Safe(JumpRadius,460,150,660); Safe(JumpCooldown,20,8,60);
+    Safe(FireballDamage,18,1,35); Safe(FireballWindup,.9f,.7f,2); Safe(FireballCooldown,8,3,30);
     Safe(FireballSpeed,550,250,850); Safe(FireballRadius,28,15,45);
-    Safe(SummonCooldown,17,10,40); SummonCount=FMath::Clamp(SummonCount,1,4); MaxLiveCreeps=FMath::Clamp(MaxLiveCreeps,1,12);
+    Safe(SummonCooldown,22,10,60); SummonCount=FMath::Clamp(SummonCount,1,4); MaxLiveCreeps=FMath::Clamp(MaxLiveCreeps,1,12);
     Safe(CreepHealth,40,20,80);
     Safe(RainRadius,703.5624f,180,1000); Safe(RainImpactRadius,90,55,130); Safe(RainWindup,1.2f,1,3); Safe(RainActiveSeconds,4,3,6);
-    RainDrops=FMath::Clamp(RainDrops,4,12); Safe(RainDamage,8,1,15); Safe(RainHitGap,.8f,.6f,2); Safe(RainCooldown,20,12,40);
-    Safe(MageTeleportCooldown,12,3,40); Safe(MageTeleportWindup,.65f,.3f,2);
+    RainDrops=FMath::Clamp(RainDrops,4,12); Safe(RainDamage,8,1,15); Safe(RainHitGap,.8f,.6f,2); Safe(RainCooldown,28,12,60);
+    Safe(MageTeleportCooldown,18,3,60); Safe(MageTeleportWindup,.65f,.3f,2);
     Safe(MageTeleportMinDistance,600,250,1600); Safe(MageTeleportMaxDistance,1100,MageTeleportMinDistance,2200);
     Safe(MageFocusRadius,420,150,1200);
 }

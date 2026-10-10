@@ -53,6 +53,8 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Work") FTransform BufferWorkTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Work") FVector BufferWorkSupportGrip;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Work") FRotator BufferWorkSupportRotation;
+    /** Short contact area around the wall-constrained drill tip, in world centimeters. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Buffer",meta=(ClampMin="20",ClampMax="150",Units="cm")) float BufferContactRadius=65;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") TSoftObjectPtr<UStaticMesh> WatergunMesh;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade") FTransform WatergunTransform;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Upgrade|Grip") FVector WatergunSupportGrip=FVector(20,0,-12);
@@ -163,8 +165,12 @@ public:
     FVector ConstrainPickaxeGrip(const FTransform& WristWorld) const;
     bool CalculusHandGoal(FTransform& HandWorld,float& Blend) const;
     FVector PickaxeContactTip() const;
+    bool BufferContactSphere(FVector& Center,float& Radius) const;
+    bool CanBufferContact(AActor* Target,FVector Point) const;
+    bool ResolveBufferContact();
     FString ToolName() const;
 private:
+    friend class AMCVFXLabToolStation;
     double Now() const;
     UPROPERTY() TObjectPtr<AMCToothCharacter> Hero;
     UPROPERTY() TObjectPtr<UMCEquipmentProfile> Settings;
@@ -206,6 +212,11 @@ private:
     uint8 UpgradeMask() const;
     void RefreshMesh();
     FVector LocalPickaxeContactTip() const;
+    bool BufferToolPose(FTransform& World,UStaticMesh*& Mesh) const;
+    FVector ConstrainToolPose(const FTransform& World,const UStaticMesh* Mesh) const;
+    bool bResolvingBuffer=false;
+    FVector BufferPulseCenter=FVector::ZeroVector;
+    float BufferPulseRadius=65;
     AMCMouthSurface* FindSprayTarget() const;
     class AMCFirePatch* FindFireTarget() const;
     FVector SprayOrigin() const;

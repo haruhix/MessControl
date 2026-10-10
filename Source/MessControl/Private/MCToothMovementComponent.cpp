@@ -10,6 +10,7 @@
 #include "MCThroat.h"
 #include "MCFoodActor.h"
 #include "MCMouthSurface.h"
+#include "MCIceEvent.h"
 #include "MCArenaTooth.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
@@ -517,6 +518,10 @@ void UMCToothMovementComponent::RefreshGroundSurface()
     for (TActorIterator<AMCLocomotionSurface> It(GetWorld());It;++It)
         if (It->ContainsSole(Sole) && (It->Priority>Priority || (It->Priority==Priority && It->GetName()<Selected)))
         { Priority=It->Priority; Selected=It->GetName(); GroundSurface=It->Surface; }
+    // Both unblocked warm zones restore ordinary grip on the owner and server,
+    // after material/liquid overrides so another ice source cannot win here.
+    for (TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+        if (It->IsSafePoint(Sole)) { GroundSurface=EMCGroundSurface::Normal; break; }
 }
 FRotator UMCToothMovementComponent::ComputeOrientToMovementRotation(const FRotator& Current,float Dt,FRotator& Delta) const
 {

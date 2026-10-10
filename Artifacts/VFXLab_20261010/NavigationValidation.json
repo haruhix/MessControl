@@ -1,0 +1,2052 @@
+{
+  "schema": 1,
+  "scope": "Native F3 navigation panel in one-process listen-server/client PIE",
+  "snapshots": [
+    {
+      "label": "client-F3-open-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": 0,
+              "menu_open": true,
+              "cursor": true,
+              "move_ignored": true,
+              "look_ignored": true,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-F3-close-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-F3-reopen-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": 0,
+              "menu_open": true,
+              "cursor": true,
+              "move_ignored": true,
+              "look_ignored": true,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-station-button-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee",
+            "01_Boss/03_TankJump"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": 2,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                19180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                19180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee",
+            "01_Boss/03_TankJump"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": 2,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                19180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                19180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-open-to-gallery-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee",
+            "01_Boss/03_TankJump"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": 2,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                19180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                19180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee",
+            "01_Boss/03_TankJump"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": 2,
+              "menu_open": true,
+              "cursor": true,
+              "move_ignored": true,
+              "look_ignored": true,
+              "position": [
+                19180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                19180.0,
+                6000.0,
+                680.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-gallery-button-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": -1,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": -1,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-open-in-gallery-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": -1,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": -1,
+              "menu_open": true,
+              "cursor": true,
+              "move_ignored": true,
+              "look_ignored": true,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-pause-button-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": false,
+          "catalogue": 51,
+          "active": [],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": -1,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": false,
+          "catalogue": 51,
+          "active": [],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": -1,
+              "menu_open": true,
+              "cursor": true,
+              "move_ignored": true,
+              "look_ignored": true,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-resume-button-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": -1,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": -1,
+              "menu_open": true,
+              "cursor": true,
+              "move_ignored": true,
+              "look_ignored": true,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": true,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-close-button-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": -1,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": -1,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "client-reopen-for-endplay-final",
+      "input_source": "Actual Slate keyboard/mouse tools; Python only sets viewport input focus and reads state",
+      "errors": [],
+      "worlds": [
+        {
+          "authority": true,
+          "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 256,
+              "local": true,
+              "index": 0,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                1180.0,
+                6000.0,
+                680.0
+              ],
+              "viewer": [
+                1180.0,
+                6000.0,
+                680.0
+              ]
+            },
+            {
+              "id": 257,
+              "local": false,
+              "index": -1,
+              "menu_open": false,
+              "cursor": false,
+              "move_ignored": false,
+              "look_ignored": false,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        },
+        {
+          "authority": false,
+          "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+          "enabled": true,
+          "catalogue": 51,
+          "active": [
+            "01_Boss/01_TankMelee"
+          ],
+          "humans": [
+            {
+              "id": 257,
+              "local": true,
+              "index": -1,
+              "menu_open": true,
+              "cursor": true,
+              "move_ignored": true,
+              "look_ignored": true,
+              "position": [
+                -850.0,
+                0.0,
+                792.0
+              ],
+              "viewer": [
+                -850.0,
+                0.0,
+                792.0
+              ]
+            }
+          ],
+          "samples": [
+            {
+              "name": "FabVFXLabTemplate_BossCircle_1",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_BossAura_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FeatherFall_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_FreezeSparkling_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_LiquidBubbles_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolHit_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_ToolSparks_0",
+              "visible": true,
+              "active": true,
+              "tick": false
+            },
+            {
+              "name": "FabVFXLabTemplate_NutFire_0",
+              "visible": false,
+              "active": false,
+              "tick": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

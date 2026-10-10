@@ -1,0 +1,844 @@
+{
+  "worlds": [
+    {
+      "world": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+      "authority": true,
+      "game_seconds": 7.49371450394392,
+      "running": true,
+      "scenario_count": 51,
+      "passed": 38,
+      "failures": 0,
+      "bots": 56,
+      "rows": [
+        {
+          "name": "01_Boss/01_TankMelee",
+          "status": "Observed: Observed real telegraph, execution, effect and full recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/02_TankCharge",
+          "status": "Real nut phase Recovery",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/03_TankJump",
+          "status": "Observed: Observed real telegraph, execution, effect and full recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/04_TankRoll",
+          "status": "Real nut phase Executing",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/05_TankEntrance",
+          "status": "Spawned real boss and subject",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/06_TankShieldHit",
+          "status": "Observed: Shield 500: raw75 removed75 durability, protected health damage observed",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/07_TankShieldBreakOverflow",
+          "status": "Observed: Shield 500: raw600 broke shield; reduced500 + full100 overflow observed",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/08_TankDeath",
+          "status": "Observed: Observed actual defeat/death callback",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/09_MageMelee",
+          "status": "Observed: Observed real telegraph, execution, effect and full recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/10_MageFireball",
+          "status": "Observed: Observed real telegraph, execution, effect and full recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/11_MageSummon",
+          "status": "Observed: Observed real telegraph, execution, effect and full recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/12_MageNutRain",
+          "status": "Real nut phase Executing",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/13_MageTeleport",
+          "status": "Observed: Observed real telegraph, execution, effect and full recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/14_MageHurt",
+          "status": "Observed: Observed accepted damage and hurt timestamp",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/15_MageDeath",
+          "status": "Observed: Observed actual defeat/death callback",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/16_MageEntrance",
+          "status": "Spawned real boss and subject",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/17_ZombiePunchLeft",
+          "status": "Real boss phase Telegraph",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/18_ZombiePunchRight",
+          "status": "Observed: Observed real melee damage, attack phases and recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/19_ZombieKick",
+          "status": "Observed: Observed real melee damage, attack phases and recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/20_ZombieHurt",
+          "status": "Real boss phase Searching",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/21_ZombieDeath",
+          "status": "Real boss phase Dead",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/22_ZombieRoar",
+          "status": "Observed: Authored roar presentation completed; no combat callback",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/23_Phase3PunchRight",
+          "status": "Observed: Observed real melee damage, attack phases and recovery",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "01_Boss/24_Phase3AreaAttack",
+          "status": "Real boss phase Recovering",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/01_FloorBrush",
+          "status": "FloorBrush\nRUN: waiting for real input/contact progress\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/02_FloorMeshaBrush",
+          "status": "FloorMeshaBrush\nPASS: observed completion; brush contacts +4, confirmed hits +0\nCycles 2 | pass 2 | fail 0",
+          "passed": 2,
+          "failed": 0,
+          "cycles": 2,
+          "running": true
+        },
+        {
+          "name": "02_Tools/03_ToothBrush",
+          "status": "ToothBrush\nRUN: 89% | remaining 0.114 | contacts +3 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/04_ToothMeshaBrush",
+          "status": "ToothMeshaBrush\nRUN: waiting for real input/contact progress\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/05_SelfBrush",
+          "status": "SelfBrush\nRUN: waiting for real input/contact progress\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/06_SelfRepair",
+          "status": "SelfRepair\nRUN: waiting for real input/contact progress\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/07_ToothRepair",
+          "status": "ToothRepair\nRUN: 51% | remaining 150.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/08_SprayUlcer",
+          "status": "SprayUlcer\nRUN: 92% | remaining 0.080 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/09_SprayFire",
+          "status": "SprayFire\nPASS: observed completion; brush contacts +0, confirmed hits +0\nCycles 2 | pass 2 | fail 0",
+          "passed": 2,
+          "failed": 0,
+          "cycles": 2,
+          "running": true
+        },
+        {
+          "name": "02_Tools/10_WatergunCare",
+          "status": "WatergunCare\nRUN: 47% | remaining 0.532 | contacts +0 | hits +0\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/11_WatergunPressure",
+          "status": "WatergunPressure\nRUN: 25% | remaining 9.000 | contacts +0 | hits +0\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/12_PickaxeCalculus",
+          "status": "PickaxeCalculus\nRUN: 31% | remaining 27.000 | contacts +0 | hits +8\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/13_BufferCalculus",
+          "status": "BufferCalculus\nPASS: observed completion; brush contacts +0, confirmed hits +5\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/14_PickaxeIce",
+          "status": "PickaxeIce\nRUN: 27% | remaining 110.000 | contacts +0 | hits +1\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/15_FrozenLegs",
+          "status": "FrozenLegs\nRUN: 27% | remaining 110.000 | contacts +0 | hits +1\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/16_BufferAoE",
+          "status": "BufferAoE\nPASS: observed completion; brush contacts +0, confirmed hits +4\nCycles 2 | pass 2 | fail 0",
+          "passed": 2,
+          "failed": 0,
+          "cycles": 2,
+          "running": true
+        },
+        {
+          "name": "02_Tools/17_BufferWall",
+          "status": "BufferWall\nRUN: waiting for real input/contact progress\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/18_KnifeFood",
+          "status": "KnifeFood\nRUN: 67% | remaining 25.000 | contacts +0 | hits +2\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/19_ChainsawFood",
+          "status": "ChainsawFood\nRUN: waiting for real input/contact progress\nCycles 2 | pass 2 | fail 0",
+          "passed": 2,
+          "failed": 0,
+          "cycles": 2,
+          "running": true
+        },
+        {
+          "name": "02_Tools/20_ChainsawWall",
+          "status": "ChainsawWall\nRUN: waiting for real input/contact progress\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/21_CoffeeWave",
+          "status": "CoffeeWave\nNatural wave ended; actual residue mask YES; bot coffee contact YES\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/01_FreezeThawAndRescue",
+          "status": "OK: Frozen bot moved into a real warm zone",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/02_NovaProtection",
+          "status": "Cycle complete; holding final scene until repeat",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/03_CrystalAndIcicles",
+          "status": "OK: Crystal radial/tangential landing impulse caused real ragdoll",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/04_CentralCrystal",
+          "status": "Breaking core through normal swings: 1120 / 1440 HP",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/05_IceBlocks",
+          "status": "OK: Worker approaches landed ice using a supported pose",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/06_PhysicsReaction",
+          "status": "OK: Off / Soft / Firm subjects entered server-simulated ragdoll",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        }
+      ]
+    },
+    {
+      "world": "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab",
+      "authority": false,
+      "game_seconds": 6.621169000864029,
+      "running": true,
+      "scenario_count": 51,
+      "passed": 1,
+      "failures": 0,
+      "bots": 1,
+      "rows": [
+        {
+          "name": "01_Boss/01_TankMelee",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/02_TankCharge",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/03_TankJump",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/04_TankRoll",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/05_TankEntrance",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/06_TankShieldHit",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/07_TankShieldBreakOverflow",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/08_TankDeath",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/09_MageMelee",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/10_MageFireball",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/11_MageSummon",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/12_MageNutRain",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/13_MageTeleport",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/14_MageHurt",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/15_MageDeath",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/16_MageEntrance",
+          "status": "Spawned real boss and subject",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/17_ZombiePunchLeft",
+          "status": "Real boss phase Telegraph",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/18_ZombiePunchRight",
+          "status": "Real boss phase Telegraph",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/19_ZombieKick",
+          "status": "Real boss phase Telegraph",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/20_ZombieHurt",
+          "status": "Real boss phase Searching",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/21_ZombieDeath",
+          "status": "Real boss phase Dead",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/22_ZombieRoar",
+          "status": "Real boss phase Dormant",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/23_Phase3PunchRight",
+          "status": "Real boss phase Telegraph",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "01_Boss/24_Phase3AreaAttack",
+          "status": "Real boss phase Telegraph",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/01_FloorBrush",
+          "status": "FloorBrush\nRUN: 0% | remaining 1.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/02_FloorMeshaBrush",
+          "status": "FloorMeshaBrush\nRUN: 0% | remaining 1.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/03_ToothBrush",
+          "status": "ToothBrush\nRUN: 0% | remaining 1.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/04_ToothMeshaBrush",
+          "status": "ToothMeshaBrush\nRUN: 0% | remaining 1.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/05_SelfBrush",
+          "status": "SelfBrush\nRUN: 0% | remaining 4.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/06_SelfRepair",
+          "status": "SelfRepair\nRUN: 0% | remaining 69.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/07_ToothRepair",
+          "status": "ToothRepair\nRUN: 0% | remaining 304.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/08_SprayUlcer",
+          "status": "SprayUlcer\nRUN: 10% | remaining 0.904 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/09_SprayFire",
+          "status": "SprayFire\nRUN: 68% | remaining 0.319 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/10_WatergunCare",
+          "status": "WatergunCare\nRUN: 29% | remaining 0.711 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/11_WatergunPressure",
+          "status": "WatergunPressure\nRUN: 25% | remaining 9.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/12_PickaxeCalculus",
+          "status": "PickaxeCalculus\nRUN: 0% | remaining 39.000 | contacts +0 | hits +1\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/13_BufferCalculus",
+          "status": "BufferCalculus\nRUN: 15% | remaining 33.000 | contacts +0 | hits +1\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/14_PickaxeIce",
+          "status": "PickaxeIce\nRUN: 27% | remaining 110.000 | contacts +0 | hits +1\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/15_FrozenLegs",
+          "status": "FrozenLegs\nRUN: 27% | remaining 110.000 | contacts +0 | hits +1\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/16_BufferAoE",
+          "status": "BufferAoE\nRUN: 0% | remaining 300.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/17_BufferWall",
+          "status": "BufferWall\nRUN: 0% | remaining 150.000 | contacts +0 | hits +0\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/18_KnifeFood",
+          "status": "KnifeFood\nRUN: 33% | remaining 50.000 | contacts +0 | hits +1\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/19_ChainsawFood",
+          "status": "ChainsawFood\nPASS: observed completion; brush contacts +0, confirmed hits +0\nCycles 1 | pass 1 | fail 0",
+          "passed": 1,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "02_Tools/20_ChainsawWall",
+          "status": "ChainsawWall\nRUN: waiting for real input/contact progress\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "02_Tools/21_CoffeeWave",
+          "status": "CoffeeWave\nRUN: waiting for real input/contact progress\nCycles 0 | pass 0 | fail 0",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 0,
+          "running": true
+        },
+        {
+          "name": "03_Ice/01_FreezeThawAndRescue",
+          "status": "OK: Winter arrival, loaded wind/crystal VFX and active state",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/02_NovaProtection",
+          "status": "OK: Real nova warning queued",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/03_CrystalAndIcicles",
+          "status": "OK: Falling crystal exists and does not block warmth before landing",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/04_CentralCrystal",
+          "status": "OK: Worker faces central crystal in ordinary reach",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/05_IceBlocks",
+          "status": "Running real gameplay; awaiting arrival / floor contact",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        },
+        {
+          "name": "03_Ice/06_PhysicsReaction",
+          "status": "Running real gameplay; awaiting arrival / floor contact",
+          "passed": 0,
+          "failed": 0,
+          "cycles": 1,
+          "running": true
+        }
+      ]
+    }
+  ]
+}

@@ -84,7 +84,7 @@ void AMCDayDirector::AddDirt(bool bCoffee,int32 Patches,int32 Batch,int32 ToothL
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(!It->IsClean()) Placed.Add(It->GetActorLocation());
     for (int32 I=0;I<FMath::Clamp(Patches,0,40);++I)
     {
-        const float HalfSize=Random.FRandRange(55.f,175.f);
+        const float HalfSize=Random.FRandRange(110.f,300.f);
         FHitResult Floor; bool FoundFloor=false;
         for(auto* Tongue:Tongues)
             if(Tongue->RandomGameplaySpawnPoint(Random,HalfSize*1.415f+40,HalfSize*1.6f+90,Placed,Floor)) {FoundFloor=true;break;}

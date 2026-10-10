@@ -235,8 +235,14 @@ bool AMCToothCharacter::HitFrozenLegsWithPickaxe(AMCToothCharacter* Worker,float
     if(!HasAuthority() || !HasFrozenLegs() || !Status->IsAlive() || !IsValid(Worker)
         || Worker->GetWorld()!=GetWorld() || !Worker->CanWork() || !Worker->Inventory
         || Worker->Inventory->Selected!=EMCToolSlot::Pickaxe || !FMath::IsFinite(Damage) || Damage<=0) return false;
-    // Self rescue uses the ordinary pickaxe swing without requiring a downward camera.
-    if(Worker!=this)
+    // The drill has to reach the frozen feet; ordinary pickaxe self rescue
+    // retains its swing without requiring a downward camera.
+    if(Worker->Inventory->HasUpgrade(EMCToolUpgrade::Buffer))
+    {
+        const FVector Point=GetActorLocation()-FVector(0,0,35);
+        if(!Worker->Inventory->CanBufferContact(this,Point)) return false;
+    }
+    else if(Worker!=this)
     {
         const FVector Offset=GetActorLocation()-Worker->GetActorLocation();
         if(Offset.SizeSquared()>FMath::Square(180.f)
@@ -265,7 +271,7 @@ void AMCToothCharacter::UpdateIceLegVisuals()
     const bool Visible=HasFrozenLegs() && Status->IsAlive() && !IsMimicCaptured() && !SwallowedBy;
     for(int32 Side=0;Side<IceLegParts.Num();++Side)
     {
-        auto* Part=IceLegParts[Side].Get(); if(!Part) continue;
+        auto* Part=IceLegParts[Side].Get(); if(!Part || !Part->GetStaticMesh()) continue;
         Part->SetVisibility(Visible);
         if(!Visible) continue;
         const FName FootBone=RigBone(Side==0?TEXT("foot_l"):TEXT("foot_r"));
@@ -278,8 +284,10 @@ void AMCToothCharacter::UpdateIceLegVisuals()
         const FQuat Rotation=FQuat::FindBetweenNormals(FVector::UpVector,Axis.GetSafeNormal(UE_SMALL_NUMBER,FVector::UpVector));
         const FBox Bounds=Part->GetStaticMesh()->GetBoundingBox();
         const FVector Size=Bounds.GetSize();
-        const FVector Scale(44.f/FMath::Max(1.,Size.X),44.f/FMath::Max(1.,Size.Y),
-            FMath::Clamp(float(Axis.Size())+25.f,35.f,75.f)/FMath::Max(1.,Size.Z));
+        // Locked feet should read as solid ice cuffs from gameplay distance,
+        // with a wider base and a visible rim above the knee-to-foot span.
+        const FVector Scale(66.f/FMath::Max(1.,Size.X),62.f/FMath::Max(1.,Size.Y),
+            FMath::Clamp(float(Axis.Size())+42.f,55.f,98.f)/FMath::Max(1.,Size.Z));
         Part->SetWorldLocationAndRotation((Foot+Knee)*.5f-Rotation.RotateVector(Bounds.GetCenter()*Scale),Rotation);
         Part->SetWorldScale3D(Scale);
     }
@@ -1037,7 +1045,7 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
     Grip->ReleaseBrace();
     if(Inventory->Selected==EMCToolSlot::Spray) { Inventory->ServerSpray(); return; }
     FVector Point=FVector::ZeroVector,Normal=FVector::UpVector;
-    CalculusTarget=Inventory->Selected==EMCToolSlot::Pickaxe?FindCalculusTarget(Point,Normal):nullptr;
+    CalculusTarget=Inventory->Selected==EMCToolSlot::Pickaxe && !Inventory->HasUpgrade(EMCToolUpgrade::Buffer)?FindCalculusTarget(Point,Normal):nullptr;
     CalculusContactLocal=CalculusTarget?CalculusTarget->Visual->GetComponentTransform().InverseTransformPosition(Point):FVector::ZeroVector;
     const FTransform Surface=CalculusTarget?CalculusTarget->Visual->GetComponentTransform():FTransform::Identity;
     CalculusNormalLocal=CalculusTarget?(Surface.InverseTransformVectorNoScale(Normal)*Surface.GetScale3D()).GetSafeNormal():FVector::UpVector;
@@ -1113,6 +1121,7 @@ AMCArenaTooth* AMCToothCharacter::FindCalculusTarget(FVector& Point,FVector& Nor
 void AMCToothCharacter::ResolveSwing()
 {
     if (!HasAuthority() || !CanWork() || Inventory->Selected==EMCToolSlot::Spray) return;
+    if(Inventory->Selected==EMCToolSlot::Pickaxe && Inventory->HasUpgrade(EMCToolUpgrade::Buffer)) {Inventory->ResolveBufferContact();return;}
     const uint8 AudioTool=uint8(Inventory->Selected);
     const float HitIntensity=FMath::Clamp(Inventory->Damage()/60.f,.25f,1.f);
     if(Inventory->Selected==EMCToolSlot::Pickaxe) {
@@ -1296,12 +1305,16 @@ void AMCToothCharacter::ClientGroundImpact_Implementation(float Strength,FVector
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {
     if(HasAuthority() && HitComponent && OtherComponent && OtherActor!=this) {
-        const FVector OwnVelocity=HitComponent->IsSimulatingPhysics(Hit.MyBoneName)
+        const bool bOwnSimulating=HitComponent->IsSimulatingPhysics(Hit.MyBoneName);
+        const FVector OwnVelocity=bOwnSimulating
             ?HitComponent->GetPhysicsLinearVelocity(Hit.MyBoneName):GetVelocity();
         const FVector OtherVelocity=OtherComponent->IsSimulatingPhysics(Hit.BoneName)
             ?OtherComponent->GetPhysicsLinearVelocity(Hit.BoneName):OtherComponent->GetComponentVelocity();
         const float ClosingSpeed=float(FMath::Max(0.,-FVector::DotProduct(OwnVelocity-OtherVelocity,Hit.ImpactNormal)));
-        const float ImpulseSpeed=float(NormalImpulse.Size())/FMath::Max(1.f,HitComponent->GetMass());
+        // Walking capsules use CharacterMovement mass; GetMass is only valid
+        // for a simulated body and otherwise emits a warning on every contact.
+        const float OwnMass=bOwnSimulating?HitComponent->GetMass():GetCharacterMovement()->Mass;
+        const float ImpulseSpeed=float(NormalImpulse.Size())/FMath::Max(1.f,OwnMass);
         NotifyCameraImpact(FMath::Max(ClosingSpeed,ImpulseSpeed),Hit.ImpactNormal);
     }
     if(Inventory) Inventory->HandleChainsawCollision(OtherActor,Hit);
@@ -1319,7 +1332,7 @@ void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* Othe
     if (!HasAuthority() || !ToothPhysics->CanAct() || !OtherComponent || OtherActor==this || GetWorld()->GetTimeSeconds()-LastEnvironmentHit<0.6f) return;
     FVector Impact=FVector::ZeroVector;
     if (OtherComponent->IsSimulatingPhysics()) Impact=(OtherComponent->GetPhysicsLinearVelocity()-GetVelocity())*0.7f;
-    else if (Hit.ImpactNormal.Z<0.4f && GetVelocity().Size()>500.f) Impact=Hit.ImpactNormal*GetVelocity().Size()*0.6f;
+    // Scenery still blocks the capsule, but a running bump is not a knockdown.
     if (Impact.Size()<ToothPhysics->Settings.FallThreshold) return;
     LastEnvironmentHit=GetWorld()->GetTimeSeconds(); Impact.Z=FMath::Max(150.f,Impact.Z);
     ToothPhysics->ApplyHit(Impact,Hit.ImpactPoint);

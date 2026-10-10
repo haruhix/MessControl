@@ -55,6 +55,7 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Care|Calculus") void ClearCalculus();
     bool FindContact(AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
     bool ApplyPickaxeHit(AMCToothCharacter* Worker,FVector Point,FVector Normal,float Damage);
+    bool ApplyBufferHit(AMCToothCharacter* Worker,float Damage,FVector& HitPoint);
     UFUNCTION(BlueprintPure, Category="Care|Calculus") bool HasCalculus() const;
     UFUNCTION(BlueprintPure, Category="Care|Calculus") int32 RemainingPieces() const;
     UFUNCTION(BlueprintPure, Category="Care|Calculus") float RemainingFraction() const;

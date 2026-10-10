@@ -1,0 +1,25 @@
+{
+  "phase": 5,
+  "worlds": [
+    "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab",
+    "/Game/Tests/UEDPIE_1_L_VFXLab.L_VFXLab"
+  ],
+  "replicated_scenarios": 51,
+  "initial_index": 0,
+  "initial_position": [
+    1180.0,
+    6000.0,
+    680.0
+  ],
+  "navigation": {
+    "index": 1,
+    "moved_cm": 9000.0,
+    "server_client_distance_cm": 0.0
+  },
+  "client_rpc_paused_all": 51,
+  "reset_before": 1,
+  "client_rpc_reset_current": true,
+  "client_rpc_resumed_all": 51,
+  "complete": true,
+  "scope": "Real client keyboard input through Slate; two clients, one-process listen server: catalogue replication, owned navigation/pause/reset/resume RPCs; no packet loss/latency matrix"
+}

@@ -37,7 +37,7 @@ void AMCMouthSurface::OnRep_LiquidMaterial()
 
 void AMCMouthSurface::OnRep_LiquidSize()
 {
-    LiquidHalfSize=FMath::IsFinite(LiquidHalfSize)?FMath::Clamp(LiquidHalfSize,20.f,260.f):92.f;
+    LiquidHalfSize=FMath::IsFinite(LiquidHalfSize)?FMath::Clamp(LiquidHalfSize,20.f,520.f):184.f;
     if (!bUlcer) Area->SetBoxExtent(FVector(LiquidHalfSize*.75f,LiquidHalfSize*.75f,6));
     LiquidVertices.Reset();
 }
@@ -45,18 +45,24 @@ void AMCMouthSurface::OnRep_LiquidSize()
 void AMCMouthSurface::ResetLiquid()
 {
     if (!HasAuthority()) return;
-    FMCCoffeeWipe::Reset(WipeMask); WipeFractional.Reset(); PreviousBrush.Reset(); BrushCenters.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
+    if (LiquidDepositMask.Num()==FMCCoffeeWipe::Count) WipeMask=LiquidDepositMask;
+    else FMCCoffeeWipe::Reset(WipeMask);
+    WipeFractional.Reset(); PreviousBrush.Reset(); BrushCenters.Reset(); Finish=0; BrushAt=-100; BrushClock=0;
     OnRep_Wipe(); ForceNetUpdate();
+}
+void AMCMouthSurface::SetLiquidDepositMask(const TArray<uint8>& Mask)
+{
+    if (!HasAuthority() || Mask.Num()!=FMCCoffeeWipe::Count) return;
+    LiquidDepositMask=Mask; ResetLiquid();
 }
 void AMCMouthSurface::OnRep_Wipe() { bWipeDirty=true; }
 
 float AMCMouthSurface::RemainingLiquid() const
 {
     int32 Total=0; float Left=0;
-    const TArray<uint8> Full;
     for(int32 Y=0;Y<FMCCoffeeWipe::Size;++Y) for(int32 X=0;X<FMCCoffeeWipe::Size;++X) {
         const FVector2D UV((X+.5)/FMCCoffeeWipe::Size,(Y+.5)/FMCCoffeeWipe::Size);
-        if(!FMCCoffeeWipe::WetAt(Full,UV,LiquidSeed)) continue;
+        if(!FMCCoffeeWipe::WetAt(LiquidDepositMask,UV,LiquidSeed)) continue;
         ++Total;
         const float Value=WipeMask.Num()==FMCCoffeeWipe::Count?WipeMask[Y*FMCCoffeeWipe::Size+X]/255.f:1.f;
         Left+=FMath::Clamp((Value-.25f)/.75f,0.f,1.f);

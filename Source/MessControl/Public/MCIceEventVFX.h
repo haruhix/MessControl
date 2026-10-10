@@ -13,6 +13,7 @@ class UMaterialInstanceDynamic;
 class UProceduralMeshComponent;
 class UStaticMeshComponent;
 class UStaticMesh;
+class UTextRenderComponent;
 
 /** Client-local effects inferred from the winter event's replicated state. */
 UCLASS(NotBlueprintable, Transient)
@@ -40,6 +41,8 @@ private:
     void RetireBurst(UNiagaraComponent* Component);
     void StopLoops();
     void UpdateWindSheet(const AMCIceEvent& Event, double ServerTime, float Strength, bool bWarning);
+    void UpdateFrozenFeet(const AMCIceEvent& Event);
+    void UpdateHealthLabels(const AMCIceEvent& Event, double ServerTime);
     UFUNCTION() void OnBurstFinished(UNiagaraComponent* Component);
 
     UPROPERTY(EditDefaultsOnly, Category="VFX") TSoftObjectPtr<UNiagaraSystem> WindSystem;
@@ -59,15 +62,22 @@ private:
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> Wind;
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> Snow;
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> CoreCharge;
+    UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> VortexWisps;
+    UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> VortexSnow;
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> CrystalCharges;
+    UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> CrystalTrails;
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> WarmMotes;
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> IcicleCharges;
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> Bursts;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UProceduralMeshComponent> WindSheet;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> CrystalFacets;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> FootFacets;
+    UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> FootMotes;
+    UPROPERTY(Transient) TObjectPtr<UTextRenderComponent> CoreHealthLabel;
+    UPROPERTY(Transient) TArray<TObjectPtr<UTextRenderComponent>> CrystalHealthLabels;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> SheetMID;
 
-    struct FCrystalState { FVector Anchor; float Health=0; };
+    struct FCrystalState { FVector Anchor; float Health=0; int32 Id=0; bool bLanded=false; };
     TMap<int32, FCrystalState> PreviousCrystals;
     TMap<TWeakObjectPtr<AMCToothCharacter>, float> PreviousFeet;
     TMap<TWeakObjectPtr<UNiagaraComponent>, double> BurstDeadlines;

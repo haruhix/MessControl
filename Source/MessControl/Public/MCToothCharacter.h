@@ -213,6 +213,7 @@ public:
 protected:
     virtual void BeginPlay() override;
 private:
+    friend class UMCInventoryComponent;
     friend class UMCValidationSubsystem;
     friend class AMCCoreScenario;
     friend class AMCDayOneScenario;

@@ -1,0 +1,14 @@
+{
+  "scope": "Client spectator placement; native runtime owned viewer-position RPC convergence, no Python RPC call or WASD claim",
+  "client_position": [
+    18000.0,
+    4000.0,
+    120.0
+  ],
+  "authority_viewer": [
+    18000.0,
+    4000.0,
+    120.0
+  ],
+  "distance_cm": 0.0
+}

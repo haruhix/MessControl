@@ -6,8 +6,12 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/PlayerCameraManager.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Materials/MaterialInterface.h"
 #include "NiagaraComponent.h"
@@ -34,6 +38,18 @@ bool FloorAt(const AMCIceEvent& Event, FVector Anchor, FHitResult& Hit)
 FVector FeetAt(const AMCToothCharacter& Hero)
 {
     return Hero.GetActorLocation()-FVector(0,0,Hero.GetCapsuleComponent()->GetScaledCapsuleHalfHeight()-20);
+}
+
+float CrystalFallProgress(const FMCIceZoneCrystal& Crystal,double Time)
+{
+    return Crystal.bLanded?1.f:FMath::Clamp(float((Time-Crystal.SpawnedAt)/FMath::Max(.05,Crystal.ImpactAt-Crystal.SpawnedAt)),0.f,1.f);
+}
+
+FVector CrystalPosition(const AMCIceEvent& Event,const FMCIceZoneCrystal& Crystal,const FHitResult& Floor,double Time)
+{
+    const float Progress=CrystalFallProgress(Crystal,Time);
+    // The accelerating descent and full turn are reconstructed from server time.
+    return Floor.ImpactPoint+Floor.ImpactNormal*85+FVector(0,0,Event.ZoneCrystalFallHeight*(1-Progress*Progress));
 }
 }
 
@@ -97,9 +113,15 @@ void AMCIceEventVFX::BeginPlay()
     Wind=MakeLoop(TEXT("WindWisps"),WindSystem.Get(),WispMaterial.Get());
     Snow=MakeLoop(TEXT("WindSnow"),SnowSystem.Get(),SnowMaterial.Get());
     CoreCharge=MakeLoop(TEXT("CoreCharge"),ChargeSystem.Get(),ChargeMaterial.Get());
+    for(int32 I=0;I<3;++I)
+    {
+        VortexWisps.Add(MakeLoop(*FString::Printf(TEXT("VortexWisps%d"),I),WindSystem.Get(),WispMaterial.Get()));
+        VortexSnow.Add(MakeLoop(*FString::Printf(TEXT("VortexSnow%d"),I),SnowSystem.Get(),SnowMaterial.Get()));
+    }
     for(int32 I=0;I<2;++I)
     {
         CrystalCharges.Add(MakeLoop(*FString::Printf(TEXT("BlockedZoneCharge%d"),I),ChargeSystem.Get(),ChargeMaterial.Get()));
+        CrystalTrails.Add(MakeLoop(*FString::Printf(TEXT("FallingCrystalTrail%d"),I),WindSystem.Get(),WispMaterial.Get()));
         WarmMotes.Add(MakeLoop(*FString::Printf(TEXT("WarmMotes%d"),I),ChargeSystem.Get(),ChargeMaterial.Get()));
     }
     for(int32 I=0;I<3;++I)
@@ -110,6 +132,17 @@ void AMCIceEventVFX::BeginPlay()
         WindSheet->SetMaterial(0,SheetMID);
         SheetMID->SetVectorParameterValue(TEXT("Tint"),IceColor);
     }
+    auto MakeHealthLabel=[this](const TCHAR* Name,float Size)
+    {
+        auto* Label=NewObject<UTextRenderComponent>(this,FName(Name));
+        Label->SetupAttachment(GetRootComponent()); Label->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        Label->SetHorizontalAlignment(EHTA_Center); Label->SetVerticalAlignment(EVRTA_TextCenter);
+        Label->SetWorldSize(Size); Label->SetTextRenderColor(FColor(165,235,255)); Label->SetCastShadow(false);
+        Label->RegisterComponent(); AddInstanceComponent(Label); return Label;
+    };
+    CoreHealthLabel=MakeHealthLabel(TEXT("CoreCrystalHealth"),32);
+    for(int32 I=0;I<2;++I)
+        CrystalHealthLabels.Add(MakeHealthLabel(*FString::Printf(TEXT("ZoneCrystalHealth%d"),I),25));
 }
 
 UNiagaraComponent* AMCIceEventVFX::MakeLoop(const TCHAR* Name, UNiagaraSystem* System, UMaterialInterface* Material)
@@ -211,13 +244,97 @@ bool AMCIceEventVFX::HasRequiredAssets() const
         && ChargeMaterial.Get() && HasCrystalVisuals();
 }
 
+void AMCIceEventVFX::UpdateFrozenFeet(const AMCIceEvent& Event)
+{
+    const int32 PlayerCount=FMath::Min(Event.Players.Num(),8);
+    if(CrystalMesh.Get())
+        while(FootFacets.Num()<PlayerCount*6)
+        {
+            auto* Facet=NewObject<UStaticMeshComponent>(this);
+            Facet->SetupAttachment(GetRootComponent()); Facet->ComponentTags.Add(TEXT("MC_FrozenFootCrystal"));
+            Facet->SetStaticMesh(CrystalMesh.Get()); Facet->SetMaterial(0,CrystalMaterial.Get());
+            Facet->SetCollisionEnabled(ECollisionEnabled::NoCollision); Facet->SetGenerateOverlapEvents(false);
+            Facet->SetCanEverAffectNavigation(false); Facet->SetCastShadow(false); Facet->bReceivesDecals=false;
+            Facet->RegisterComponent(); AddInstanceComponent(Facet); FootFacets.Add(Facet);
+        }
+    while(FootMotes.Num()<PlayerCount*2)
+        FootMotes.Add(MakeLoop(*FString::Printf(TEXT("FrozenFootMotes%d"),FootMotes.Num()),ChargeSystem.Get(),ChargeMaterial.Get()));
+    for(int32 I=0;I<FootFacets.Num();++I) FootFacets[I]->SetVisibility(false);
+    for(int32 PlayerIndex=0;PlayerIndex<PlayerCount;++PlayerIndex)
+    {
+        const auto* Hero=Event.Players[PlayerIndex].Hero.Get();
+        const bool bFrozen=IsValid(Hero) && Hero->HasFrozenLegs() && Hero->Status && Hero->Status->IsAlive()
+            && !Hero->IsMimicCaptured() && !Hero->SwallowedBy && !Hero->IsHidden();
+        for(int32 Side=0;Side<2;++Side)
+        {
+            FVector Foot=FVector::ZeroVector,Knee=FVector::ZeroVector;
+            if(bFrozen)
+            {
+                Foot=FeetAt(*Hero)+Hero->GetActorRightVector()*(Side?18.f:-18.f);
+                Knee=Foot+FVector(0,0,45);
+                const auto* Source=Hero->GetMesh();
+                const FName FootBone=Hero->RigBone(Side?TEXT("foot_r"):TEXT("foot_l"));
+                const FName KneeBone=Hero->RigBone(Side?TEXT("knee_r"):TEXT("knee_l"));
+                if(Source && Source->GetBoneIndex(FootBone)!=INDEX_NONE) Foot=Source->GetSocketLocation(FootBone);
+                if(Source && Source->GetBoneIndex(KneeBone)!=INDEX_NONE) Knee=Source->GetSocketLocation(KneeBone);
+                const FVector Axis=(Knee-Foot).GetSafeNormal(UE_SMALL_NUMBER,FVector::UpVector);
+                const FQuat Rotation=FQuat::FindBetweenNormals(FVector::UpVector,Axis);
+                for(int32 Spire=0;Spire<3;++Spire)
+                {
+                    const int32 Index=PlayerIndex*6+Side*3+Spire;
+                    if(!FootFacets.IsValidIndex(Index)) continue;
+                    const FBox Bounds=CrystalMesh.Get()->GetBoundingBox();
+                    const FVector Size=Bounds.GetSize();
+                    const FVector Scale((Spire==1?49.f:31.f)/FMath::Max(1.,Size.X),
+                        (Spire==1?44.f:29.f)/FMath::Max(1.,Size.Y),(Spire==1?86.f:65.f)/FMath::Max(1.,Size.Z));
+                    const FVector Center=Foot+Axis*25+Hero->GetActorRightVector()*((Spire-1)*18)
+                        +Hero->GetActorForwardVector()*(Spire==1?8.f:-5.f);
+                    auto* Facet=FootFacets[Index].Get();
+                    Facet->SetWorldLocationAndRotation(Center-Rotation.RotateVector(Bounds.GetCenter()*Scale),Rotation);
+                    Facet->SetWorldScale3D(Scale); Facet->SetVisibility(true);
+                }
+            }
+            SetLoop(FootMotes[PlayerIndex*2+Side],bFrozen,Foot+FVector(0,0,22),FRotator::ZeroRotator,
+                12.f,.22f,FVector2D(8,8),FLinearColor(.48f,.91f,1.f,.9f));
+        }
+    }
+    for(int32 I=PlayerCount*2;I<FootMotes.Num();++I)
+        SetLoop(FootMotes[I],false,FVector::ZeroVector,FRotator::ZeroRotator,0,0,FVector2D::ZeroVector,IceColor);
+}
+
+void AMCIceEventVFX::UpdateHealthLabels(const AMCIceEvent& Event,double ServerTime)
+{
+    const auto* Controller=GetWorld()->GetFirstPlayerController();
+    const auto* Camera=Controller?Controller->PlayerCameraManager.Get():nullptr;
+    auto SetLabel=[Camera](UTextRenderComponent* Label,bool bVisible,FVector Position,float Health,float MaxHealth)
+    {
+        if(!IsValid(Label)) return;
+        Label->SetVisibility(bVisible);
+        if(!bVisible) return;
+        Label->SetWorldLocation(Position);
+        if(Camera) Label->SetWorldRotation((Camera->GetCameraLocation()-Position).Rotation());
+        Label->SetText(FText::FromString(FString::Printf(TEXT("%d / %d HP"),FMath::CeilToInt(Health),FMath::CeilToInt(MaxHealth))));
+        Label->SetTextRenderColor(Health<=MaxHealth*.25f?FColor(255,170,110):FColor(165,235,255));
+    };
+    SetLabel(CoreHealthLabel,Event.CandyHealth>0,LastCorePoint+FVector(0,0,440),Event.CandyHealth,Event.MaxCandyHealth);
+    for(int32 I=0;I<CrystalHealthLabels.Num();++I)
+    {
+        FHitResult Floor;
+        const bool bVisible=Event.ZoneCrystals.IsValidIndex(I) && Event.ZoneCrystals[I].Health>0
+            && FloorAt(Event,Event.ZoneCrystals[I].Anchor,Floor);
+        SetLabel(CrystalHealthLabels[I],bVisible,bVisible?CrystalPosition(Event,Event.ZoneCrystals[I],Floor,ServerTime)+FVector(0,0,180):FVector::ZeroVector,
+            bVisible?Event.ZoneCrystals[I].Health:0,bVisible?Event.ZoneCrystals[I].MaxHealth:Event.ZoneCrystalHealth);
+    }
+}
+
 void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSeconds, double ServerTime)
 {
     if(bFinishing || !Event.IsActive()) return;
     FHitResult CoreFloor;
     if(!FloorAt(Event,Event.CandyAnchor,CoreFloor)) return;
     LastCorePoint=CoreFloor.ImpactPoint;
-    if(HasCrystalVisuals() && ServerTime>=LastCrystalUpdate+.1)
+    UpdateFrozenFeet(Event); UpdateHealthLabels(Event,ServerTime);
+    if(HasCrystalVisuals())
     {
         LastCrystalUpdate=ServerTime;
         for(int32 I=0;I<12;++I)
@@ -236,9 +353,12 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
                 FHitResult Floor;
                 if(Event.ZoneCrystals.IsValidIndex(Zone) && FloorAt(Event,Event.ZoneCrystals[Zone].Anchor,Floor))
                 {
-                    const float Angle=Spire*2*PI/3;
+                    const auto& Crystal=Event.ZoneCrystals[Zone];
+                    const float Fall=CrystalFallProgress(Crystal,ServerTime);
+                    const float Angle=Spire*2*PI/3+Fall*2*PI;
                     Transform=FTransform(FRotator(Spire*6,Angle*180/PI,0),
-                        Floor.ImpactPoint+FVector(FMath::Cos(Angle)*19,FMath::Sin(Angle)*19,80),FVector(.58,.55,1.15+Spire*.03));
+                        CrystalPosition(Event,Crystal,Floor,ServerTime)+FVector(FMath::Cos(Angle)*28,FMath::Sin(Angle)*28,0),
+                        FVector(.78,.75,1.55+Spire*.05));
                 }
             }
             CrystalFacets[I]->SetWorldTransform(Transform);
@@ -250,9 +370,12 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         PreviousCoreHealth=Event.CandyHealth;
         bWasActive=Event.Stage==EMCIceEventStage::Active;
         if(Event.NovaImpactAt>0 && ServerTime>Event.NovaImpactAt+.5) LastNovaImpact=Event.NovaImpactAt;
+        if(Event.NovaImpactAt>0 && ServerTime>=Event.NovaImpactAt && ServerTime<Event.NovaImpactAt+Event.BossVortexSeconds)
+            BlastStartedAt=Event.NovaImpactAt;
         for(const auto& Strike:Event.Strikes)
             if(ServerTime>Strike.ImpactAt+.5) LastImpactStrikeId=FMath::Max(LastImpactStrikeId,Strike.Id);
-        for(const auto& Crystal:Event.ZoneCrystals) PreviousCrystals.Add(Crystal.ZoneIndex,{Crystal.Anchor,Crystal.Health});
+        for(const auto& Crystal:Event.ZoneCrystals)
+            PreviousCrystals.Add(Crystal.ZoneIndex,{Crystal.Anchor,Crystal.Health,Crystal.Id,Crystal.bLanded || ServerTime>=Crystal.ImpactAt});
         for(const auto& Player:Event.Players)
             if(IsValid(Player.Hero)) PreviousFeet.Add(Player.Hero.Get(),Player.Hero->IceLegHealth);
         bInitialized=true;
@@ -280,13 +403,19 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
     TMap<int32,FCrystalState> Crystals;
     for(const auto& Crystal:Event.ZoneCrystals)
     {
-        Crystals.Add(Crystal.ZoneIndex,{Crystal.Anchor,Crystal.Health});
+        const bool bLanded=Crystal.bLanded || ServerTime>=Crystal.ImpactAt;
+        Crystals.Add(Crystal.ZoneIndex,{Crystal.Anchor,Crystal.Health,Crystal.Id,bLanded});
         const auto* Previous=PreviousCrystals.Find(Crystal.ZoneIndex);
         FHitResult Floor;
         if(!FloorAt(Event,Crystal.Anchor,Floor)) continue;
-        if(!Previous)
-            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Floor.ImpactPoint+FVector(0,0,20),.45f,FVector::OneVector,FVector2D(65,50),IceColor);
-        else if(Crystal.Health<Previous->Health)
+        const bool bNewCrystal=!Previous || Previous->Id!=Crystal.Id;
+        if(bLanded && (bNewCrystal || !Previous->bLanded) && ServerTime<=Crystal.ImpactAt+.5)
+        {
+            const FVector Point=Floor.ImpactPoint+Floor.ImpactNormal*22;
+            PlayBurst(ShardSystem.Get(),nullptr,Point,1.35f,FVector(.1,.13,.24),FVector2D::ZeroVector,IceColor);
+            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,1.45f,FVector::OneVector,FVector2D(155,110),IceColor);
+        }
+        else if(!bNewCrystal && Crystal.Health<Previous->Health)
             PlayBurst(ShardSystem.Get(),nullptr,Floor.ImpactPoint+FVector(0,0,90),.45f,FVector(.045,.06,.1),FVector2D::ZeroVector,IceColor);
     }
     for(const auto& Previous:PreviousCrystals)
@@ -304,8 +433,16 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
     {
         FHitResult Floor;
         const bool bEnabled=Event.ZoneCrystals.IsValidIndex(I) && FloorAt(Event,Event.ZoneCrystals[I].Anchor,Floor);
-        SetLoop(CrystalCharges[I],bEnabled,bEnabled?Floor.ImpactPoint+FVector(0,0,185):FVector::ZeroVector,
-            FRotator::ZeroRotator,9.f,.35f,FVector2D(9,9),FLinearColor(.2f,.64f,1,.8f));
+        const FVector Center=bEnabled?CrystalPosition(Event,Event.ZoneCrystals[I],Floor,ServerTime):FVector::ZeroVector;
+        const bool bFalling=bEnabled && ServerTime<Event.ZoneCrystals[I].ImpactAt;
+        SetLoop(CrystalCharges[I],bEnabled,Center+FVector(0,0,85),FRotator::ZeroRotator,
+            bFalling?23.f:12.f,bFalling?.6f:.35f,FVector2D(bFalling?13:9,bFalling?13:9),FLinearColor(.2f,.64f,1,.9f));
+        const bool bVortex=bEnabled && ServerTime<Event.ZoneCrystals[I].ImpactAt+Event.ZoneCrystalVortexSeconds;
+        const float Angle=bEnabled?float(ServerTime-Event.ZoneCrystals[I].SpawnedAt)*4.5f:0.f;
+        const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0);
+        const FVector Tangent(-Ray.Y,Ray.X,bFalling?-.4f:.15f);
+        SetLoop(CrystalTrails[I],bVortex,Center+Ray*(bFalling?95.f:Event.ZoneCrystalVortexRadius*.65f),Tangent.Rotation(),
+            bFalling?28.f:19.f,bFalling?1.1f:.85f,FVector2D(90,26),FLinearColor(.42f,.8f,1.f,.75f));
     }
     for(int32 I=0;I<WarmMotes.Num();++I)
     {
@@ -360,22 +497,33 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
     }
     const bool bWarning=Event.bNovaWarning && ServerTime<Event.NovaImpactAt;
     const float BlastAge=float(ServerTime-BlastStartedAt);
-    const bool bBlast=BlastAge>=0 && BlastAge<1.25f;
+    const bool bBlast=BlastAge>=0 && BlastAge<Event.BossVortexSeconds;
     const float ChargeProgress=bWarning?FMath::Clamp(1-float((Event.NovaImpactAt-ServerTime)/Event.NovaWarningSeconds),0.f,1.f):0.f;
-    const float Strength=bWarning?.22f+.35f*ChargeProgress:bBlast?FMath::Clamp(1-BlastAge/1.25f,0.f,1.f):0.f;
-    const FVector Direction=Event.Tongue->GetActorTransform().TransformVectorNoScale(Event.NovaDirection).GetSafeNormal2D();
+    const float Ambient=bActive?.3f:0.f;
+    const float Strength=bWarning?.5f+.35f*ChargeProgress:bBlast?Ambient+.7f*(1-FMath::SmoothStep(Event.BossVortexSeconds*.6f,Event.BossVortexSeconds,BlastAge)):Ambient;
+    const float Reach=bBlast?Event.NovaRange:Event.BossFrostRadius;
     SetLoop(CoreCharge,true,Event.GetActorLocation()+FVector(0,0,200),FRotator::ZeroRotator,
         bWarning?14+28*ChargeProgress:7.f,bWarning?.75f:.3f,FVector2D(bWarning?14:8,bWarning?14:8),IceColor);
-    SetLoop(Wind,bWarning || bBlast,LastCorePoint+Direction*145+FVector(0,0,85),Direction.Rotation(),
-        bWarning?18+14*ChargeProgress:52*Strength,bWarning?.4f:1.7f,FVector2D(bWarning?85:155,bWarning?25:38),FLinearColor(.4f,.76f,1,bWarning?.55f:.8f));
-    SetLoop(Snow,bBlast,LastCorePoint+Direction*180+FVector(0,0,110),Direction.Rotation(),
-        78*Strength,1.4f,FVector2D(3,17),FLinearColor(.7f,.91f,1,.8f));
+    // Four simultaneous tangent emitters surround the crystal. The procedural
+    // spiral below supplies continuous coverage between those particle trails.
+    for(int32 Sector=0;Sector<4;++Sector)
+    {
+        const float Angle=float(ServerTime-Event.StartedAt)*(bBlast?2.1f:1.f)+Sector*PI*.5f;
+        const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0),Tangent(-Ray.Y,Ray.X,.08f);
+        auto* Wisp=Sector==0?Wind.Get():VortexWisps[Sector-1].Get();
+        auto* SnowTrail=Sector==0?Snow.Get():VortexSnow[Sector-1].Get();
+        const FVector Position=LastCorePoint+Ray*Reach*.55f+FVector(0,0,85+(Sector%2)*80);
+        SetLoop(Wisp,Strength>0,Position,Tangent.Rotation(),10+22*Strength,bBlast?1.7f:.65f,
+            FVector2D(bBlast?150:105,bBlast?40:29),FLinearColor(.4f,.76f,1,.8f));
+        SetLoop(SnowTrail,Strength>0,Position+FVector(0,0,35),Tangent.Rotation(),6+20*Strength,bBlast?1.5f:.55f,
+            FVector2D(3,bBlast?20:12),FLinearColor(.7f,.91f,1,.8f));
+    }
     WindSheet->SetVisibility(Strength>0 && SheetMID);
     if(Strength>0 && SheetMID)
     {
-        SheetMID->SetScalarParameterValue(TEXT("Age"),float(ServerTime-Event.NovaImpactAt+Event.NovaWarningSeconds));
-        SheetMID->SetScalarParameterValue(TEXT("FlowSpeed"),bWarning?.45f:1.7f);
-        SheetMID->SetScalarParameterValue(TEXT("Opacity"),bWarning?.22f+.18f*ChargeProgress:Strength*.58f);
+        SheetMID->SetScalarParameterValue(TEXT("Age"),float(ServerTime-Event.StartedAt));
+        SheetMID->SetScalarParameterValue(TEXT("FlowSpeed"),bWarning?.8f:bBlast?1.7f:.5f);
+        SheetMID->SetScalarParameterValue(TEXT("Opacity"),bWarning?.5f:bBlast?.65f:.4f);
         if(ServerTime>=LastSheetUpdate+.05)
         {
             LastSheetUpdate=ServerTime;
@@ -386,50 +534,64 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
 
 void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime, float Strength, bool bWarning)
 {
-    constexpr int32 Bands=10,Steps=6;
+    constexpr int32 Steps=16;
     TArray<FVector> Vertices,Normals;
     TArray<FVector2D> UV;
     TArray<FLinearColor> Colors;
     TArray<FProcMeshTangent> Tangents;
     TArray<int32> Indices;
-    Vertices.Reserve(Bands*(Steps+1)*2); Normals.Reserve(Vertices.Max());
+    Vertices.Reserve(24*(Steps+1)*2); Normals.Reserve(Vertices.Max());
     UV.Reserve(Vertices.Max()); Colors.Reserve(Vertices.Max()); Tangents.Reserve(Vertices.Max());
-    const FVector Direction=Event.Tongue->GetActorTransform().TransformVectorNoScale(Event.NovaDirection).GetSafeNormal2D();
-    const float Time=float(ServerTime-Event.NovaImpactAt);
-    const float Reach=bWarning?Event.NovaRange*.82f:Event.NovaRange*FMath::Clamp(.35f+Time*1.8f,.35f,1.f);
-    for(int32 Band=0;Band<Bands;++Band)
+    const FTransform Transform=WindSheet->GetComponentTransform();
+    auto Vortex=[&](FVector Center,float Radius,float Height,float Age,float Weight,int32 Bands,bool bFalling)
     {
-        const int32 First=Vertices.Num();
-        const float Fan=(Band%5)/4.f*2-1;
-        const FVector Ray=Direction.RotateAngleAxis(Fan*Event.NovaHalfAngleDegrees*.8f,FVector::UpVector);
-        const FVector Across=FVector::CrossProduct(FVector::UpVector,Ray);
-        for(int32 Step=0;Step<=Steps;++Step)
+        for(int32 Band=0;Band<Bands;++Band)
         {
-            const float Fraction=Step/float(Steps);
-            const float Distance=120+Fraction*FMath::Max(1.f,Reach-120);
-            const float Sway=FMath::Sin(Fraction*5+Time*2+Band*1.9f)*35*Fraction;
-            const float Width=(bWarning?13.f:35.f)+(bWarning?24.f:70.f)*Fraction;
-            const float Height=45+(Band/5)*105+FMath::Sin(Fraction*4+Band)*30*Fraction;
-            for(int32 Side=0;Side<2;++Side)
+            const int32 First=Vertices.Num();
+            for(int32 Step=0;Step<=Steps;++Step)
             {
-                FVector Point=LastCorePoint+Ray*Distance+Across*(Sway+(Side?Width:-Width));
-                FHitResult Floor;
-                if(Event.Tongue->SurfacePoint(Point,Floor)) Point.Z=Floor.ImpactPoint.Z;
-                Point.Z+=Height;
-                Vertices.Add(Point); Normals.Add(FVector::UpVector);
-                UV.Add(FVector2D(Fraction,Side));
-                const float EdgeAlpha=FMath::Clamp(Fraction*5,0.f,1.f)*(1-Fraction);
-                Colors.Add(FLinearColor(.6f,.84f,1.f,EdgeAlpha*(bWarning?1.f:Strength)));
-                Tangents.Add(FProcMeshTangent(Ray,false));
-            }
-            if(Step>0)
-            {
-                const int32 A=First+(Step-1)*2;
-                Indices.Append({A,A+3,A+1,A,A+2,A+3});
+                const float Fraction=Step/float(Steps);
+                const float Angle=Band*2*PI/Bands+Fraction*2*PI*1.1f+Age*(bFalling?4.f:bWarning?1.8f:1.5f);
+                const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0),Tangent(-Ray.Y,Ray.X,0);
+                const float Distance=Radius*(.22f+.78f*Fraction);
+                const float Width=(12+Radius*.033f)*(1+.45f*FMath::Sin(Fraction*9+Band+Age));
+                const float Z=bFalling?30+Height*Fraction:40+(Band%3)*Height*.28f+FMath::Sin(Fraction*6+Band+Age)*25;
+                for(int32 Side=0;Side<2;++Side)
+                {
+                    const FVector Point=Center+Ray*Distance+FVector(0,0,Z+(Side?Width:-Width));
+                    Vertices.Add(Transform.InverseTransformPosition(Point));
+                    Normals.Add(Transform.InverseTransformVectorNoScale(Ray).GetSafeNormal());
+                    UV.Add(FVector2D(Fraction,Side));
+                    const float EdgeAlpha=FMath::SmoothStep(0.f,.13f,Fraction)*(1-FMath::SmoothStep(.8f,1.f,Fraction));
+                    Colors.Add(FLinearColor(.65f,.88f,1.f,EdgeAlpha*Weight));
+                    Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(Tangent).GetSafeNormal(),false));
+                }
+                if(Step>0)
+                {
+                    const int32 A=First+(Step-1)*2;
+                    Indices.Append({A,A+3,A+1,A,A+2,A+3});
+                }
             }
         }
+    };
+    const float BlastAge=float(ServerTime-BlastStartedAt);
+    const bool bBlast=BlastAge>=0 && BlastAge<Event.BossVortexSeconds;
+    const float Reach=bBlast?FMath::Lerp(Event.BossFrostRadius,Event.NovaRange,FMath::Clamp(BlastAge/.65f,0.f,1.f)):Event.BossFrostRadius;
+    Vortex(LastCorePoint,Reach,bBlast?380.f:260.f,float(ServerTime-Event.StartedAt),Strength,12,false);
+    for(const auto& Crystal:Event.ZoneCrystals)
+    {
+        FHitResult Floor;
+        if(!FloorAt(Event,Crystal.Anchor,Floor)) continue;
+        const float ImpactAge=float(ServerTime-Crystal.ImpactAt);
+        if(ImpactAge>=Event.ZoneCrystalVortexSeconds) continue;
+        const bool bFalling=ImpactAge<0;
+        const float Weight=bFalling?.85f:1-FMath::SmoothStep(Event.ZoneCrystalVortexSeconds*.5f,Event.ZoneCrystalVortexSeconds,ImpactAge);
+        const FVector Center=bFalling?CrystalPosition(Event,Crystal,Floor,ServerTime):Floor.ImpactPoint;
+        Vortex(Center,bFalling?145.f:Event.ZoneCrystalVortexRadius,bFalling?280.f:180.f,
+            float(ServerTime-Crystal.SpawnedAt),Weight,6,bFalling);
     }
-    if(WindSheet->GetNumSections()>0)
+    const auto* Existing=WindSheet->GetProcMeshSection(0);
+    if(Existing && Existing->ProcVertexBuffer.Num()==Vertices.Num() && Existing->ProcIndexBuffer.Num()==Indices.Num())
         WindSheet->UpdateMeshSection_LinearColor(0,Vertices,Normals,UV,Colors,Tangents);
     else WindSheet->CreateMeshSection_LinearColor(0,Vertices,Indices,Normals,UV,Colors,Tangents,false);
 }
@@ -440,6 +602,14 @@ void AMCIceEventVFX::StopLoops()
         if(IsValid(Component)) Component->DeactivateImmediate();
     for(UNiagaraComponent* Component:CrystalCharges)
         if(IsValid(Component)) Component->DeactivateImmediate();
+    for(UNiagaraComponent* Component:CrystalTrails)
+        if(IsValid(Component)) Component->DeactivateImmediate();
+    for(UNiagaraComponent* Component:VortexWisps)
+        if(IsValid(Component)) Component->DeactivateImmediate();
+    for(UNiagaraComponent* Component:VortexSnow)
+        if(IsValid(Component)) Component->DeactivateImmediate();
+    for(UNiagaraComponent* Component:FootMotes)
+        if(IsValid(Component)) Component->DeactivateImmediate();
     for(UNiagaraComponent* Component:WarmMotes)
         if(IsValid(Component)) Component->DeactivateImmediate();
     for(UNiagaraComponent* Component:IcicleCharges)
@@ -447,6 +617,11 @@ void AMCIceEventVFX::StopLoops()
     WindSheet->SetVisibility(false);
     for(UStaticMeshComponent* Facet:CrystalFacets)
         if(IsValid(Facet)) Facet->SetVisibility(false);
+    for(UStaticMeshComponent* Facet:FootFacets)
+        if(IsValid(Facet)) Facet->SetVisibility(false);
+    if(IsValid(CoreHealthLabel)) CoreHealthLabel->SetVisibility(false);
+    for(UTextRenderComponent* Label:CrystalHealthLabels)
+        if(IsValid(Label)) Label->SetVisibility(false);
     PreviousCrystals.Reset(); PreviousFeet.Reset();
 }
 

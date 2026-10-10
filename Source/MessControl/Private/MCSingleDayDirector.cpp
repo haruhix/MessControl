@@ -1,4 +1,5 @@
 #include "MCSingleDayDirector.h"
+#include "MCCoffeeFlood.h"
 #include "MCNutRainEvent.h"
 #include "MCIceEvent.h"
 #include "MCFogBrawlEvent.h"
@@ -60,6 +61,10 @@ void AMCSingleDayDirector::Initialize(UMCDayPlan* Plan, UMCSingleDayProfile* Pro
     if(!HasAuthority()) return;
     Mechanics=Plan?Plan:NewObject<UMCDayPlan>(this);
     Settings=Profile?DuplicateObject<UMCSingleDayProfile>(Profile,this):NewObject<UMCSingleDayProfile>(this);
+    // Saved prototype profiles retain their original opening portion. Change
+    // only those defaults in the private run copy; custom portions survive.
+    if(Settings->OpeningMealItems==3) Settings->OpeningMealItems=12;
+    if(FMath::IsNearlyEqual(Settings->OpeningMealDropSeconds,1.5f)) Settings->OpeningMealDropSeconds=1.f;
     // Extend the previous prototype shapes in the runtime copy only, preserving
     // saved identities, variants and support intervals. Custom sequences stay authored.
     if(!Settings->bLegacyTimedFinale && Settings->KeyEvents.Num()==1
@@ -166,6 +171,7 @@ void AMCSingleDayDirector::BeginFirstMeal()
     Stage=EMCSingleDayStage::FirstMeal; StageEndsAt=0;
     FirstMealBatch=2000000+int32(GetUniqueID()&0x000FFFFF);
     MealSpawned=MealAttempts=0;
+    bOpeningCoffeeStarted=false; OpeningCoffeeAt=0;
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     MealRandom.Initialize((GS?GS->RunSeed:41)^0x4D45414C);
     MealServices=GetWorld()->SpawnActor<AMCDayDirector>();
@@ -173,9 +179,12 @@ void AMCSingleDayDirector::BeginFirstMeal()
     MealServices->SetOwner(this);
     MealServices->InitializeEventServices(Mechanics,GS?GS->RunSeed:41);
     NextMealDropAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
-    Record(TEXT("Обычный приём пищи: разбивание еды за XP и чистка; ореховое событие ждёт завершения задач"));
-    Publish(TEXT("ПРИЁМ ПИЩИ"),TEXT("Разбейте еду, получите XP и очистите оставшуюся грязь."),
-        FMath::Clamp(Settings->OpeningMealItems,1,6),FMath::Clamp(Settings->OpeningMealItems,1,6));
+    const float Warning=FMath::IsFinite(Settings->OpeningCoffeeWarningSeconds)?FMath::Clamp(Settings->OpeningCoffeeWarningSeconds,1.f,6.f):2.f;
+    OpeningCoffeeAt=Settings->bOpeningCoffeeWave?NextMealDropAt+Warning:0;
+    Record(TEXT("Начало приёма пищи: гарантированная волна кофе, затем увеличенная порция еды; орехи ждут завершения задач"));
+    Publish(Settings->bOpeningCoffeeWave?TEXT("СКОРО: КОФЕЙНАЯ ВОЛНА"):TEXT("ПРИЁМ ПИЩИ"),
+        Settings->bOpeningCoffeeWave?TEXT("Приготовьтесь к волне кофе. Еда появится после неё."):TEXT("Разбейте еду, получите XP и очистите оставшуюся грязь."),
+        FMath::Clamp(Settings->OpeningMealItems,1,30),FMath::Clamp(Settings->OpeningMealItems,1,30));
     ForceNetUpdate();
 }
 FName AMCSingleDayDirector::ChooseOpeningFood()
@@ -196,9 +205,30 @@ FName AMCSingleDayDirector::ChooseOpeningFood()
 void AMCSingleDayDirector::TickFirstMeal()
 {
     auto* GS=GetWorld()->GetGameState<AMCGameState>(); if(!GS) return;
-    const int32 Target=FMath::Clamp(Settings->OpeningMealItems,1,6);
+    const int32 Target=FMath::Clamp(Settings->OpeningMealItems,1,30);
     const double Time=GS->GetServerWorldTimeSeconds();
-    if(MealSpawned<Target && Time>=NextMealDropAt) {
+    if(Settings->bOpeningCoffeeWave && !bOpeningCoffeeStarted) {
+        if(Time<OpeningCoffeeAt) return;
+        OpeningCoffee=GetWorld()->SpawnActor<AMCCoffeeFlood>();
+        if(!OpeningCoffee) {Fail(TEXT("Не удалось создать начальную волну кофе."));return;}
+        OpeningCoffee->SetOwner(this); OpeningCoffee->ResidueBatch=FirstMealBatch; OpeningCoffee->Start(Mechanics);
+        if(!OpeningCoffee->IsActive()) {Fail(TEXT("Не удалось запустить начальную волну кофе."));return;}
+        bOpeningCoffeeStarted=true;
+        Record(TEXT("Начальная волна кофе запущена до подачи еды"));
+    }
+    if(IsValid(OpeningCoffee)) {
+        if(OpeningCoffee->IsActive()) {
+            Publish(TEXT("КОФЕЙНАЯ ВОЛНА"),TEXT("Уклоняйтесь от волны и держитесь за опору. Еда появится после кофе."),Target,Target);
+            return;
+        }
+        OpeningCoffee->Destroy(); OpeningCoffee=nullptr; NextMealDropAt=Time;
+    }
+    const auto CurrentFood=MCMeasureFoodPipeline(GetWorld());
+    int32 Workers=0;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(It->GetController() && It->Status && It->Status->IsAlive()) ++Workers;
+    const int32 WholeLimit=FMath::Clamp(6+2*(FMath::Max(1,Workers)-1),6,12);
+    if(MealSpawned<Target && Time>=NextMealDropAt && CurrentFood.Whole<WholeLimit && CurrentFood.Fragments<48
+        && !CurrentFood.bThroatBusy) {
         const FName Row=ChooseOpeningFood(); ++MealAttempts;
         if(auto* Food=MCSpawnDirectedFoodEntry(GetWorld(),Mechanics,Row,FirstMealBatch,MealRandom,MealServices)) {
             Food->SetOwner(this); ++MealSpawned;
@@ -207,7 +237,7 @@ void AMCSingleDayDirector::TickFirstMeal()
             Fail(TEXT("Не удалось подать обычную еду. Проверьте меню, язык и коллизию продуктов.")); return;
         }
         const float Configured=Settings->OpeningMealDropSeconds;
-        NextMealDropAt=Time+(FMath::IsFinite(Configured)?FMath::Clamp(Configured,.5f,5.f):1.5f);
+        NextMealDropAt=Time+(FMath::IsFinite(Configured)?FMath::Clamp(Configured,.5f,5.f):1.f);
     }
     // Each ordinary item remains outstanding until destroyed. Retained transport
     // and swallowing also stay outstanding until their existing work ends.
@@ -420,6 +450,8 @@ void AMCSingleDayDirector::Stop()
         FirstMealBatch=0;
     }
     if(IsValid(MealServices)) MealServices->Destroy(); MealServices=nullptr;
+    if(IsValid(OpeningCoffee)) {OpeningCoffee->Stop();OpeningCoffee->Destroy();} OpeningCoffee=nullptr;
+    OpeningCoffeeAt=0; bOpeningCoffeeStarted=false;
     if(IsValid(NutEvent)) {NutEvent->Stop();NutEvent->Destroy();} NutEvent=nullptr;
     if(IsValid(IceEvent)) {IceEvent->Stop();IceEvent->Destroy();} IceEvent=nullptr;
     if(IsValid(FogEvent)) {FogEvent->Stop();FogEvent->Destroy();} FogEvent=nullptr;

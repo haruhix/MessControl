@@ -53,9 +53,13 @@ void AMCIceBlock::RefreshAppearance()
 bool AMCIceBlock::HitWithPickaxe(AMCToothCharacter* Hero,float Damage)
 {
     if(!HasAuthority() || bBroken || !Hero || !Hero->CanWork() || Hero->Inventory->Selected!=EMCToolSlot::Pickaxe || !FMath::IsFinite(Damage) || Damage<=0) return false;
-    const FVector Point=Body->Bounds.GetBox().GetClosestPointTo(Hero->GetActorLocation());
+    const bool Buffer=Hero->Inventory->HasUpgrade(EMCToolUpgrade::Buffer);
+    FVector Origin=Hero->GetActorLocation(); float Radius;
+    if(Buffer && !Hero->Inventory->BufferContactSphere(Origin,Radius)) return false;
+    const FVector Point=Body->Bounds.GetBox().GetClosestPointTo(Origin);
     const FVector Offset=Point-Hero->GetActorLocation();
-    if(Offset.SizeSquared()>FMath::Square(180.f) || FVector::DotProduct(Offset.GetSafeNormal2D(),Hero->GetActorForwardVector())<.25f || !Hero->CanContact(this)) return false;
+    if(Buffer) {if(!Hero->Inventory->CanBufferContact(this,Point)) return false;}
+    else if(Offset.SizeSquared()>FMath::Square(180.f) || FVector::DotProduct(Offset.GetSafeNormal2D(),Hero->GetActorForwardVector())<.25f || !Hero->CanContact(this)) return false;
     Health=FMath::Max(0.f,Health-Damage); bBroken=Health<=0; ForceNetUpdate();
     if(bBroken) {
         Shatter(Body->Bounds.Origin,Size.GetMax()); SetLifeSpan(3);

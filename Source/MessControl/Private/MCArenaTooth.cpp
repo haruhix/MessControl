@@ -262,6 +262,8 @@ void AMCArenaTooth::Tick(float DeltaSeconds)
 void AMCArenaTooth::OnBodyHit(UPrimitiveComponent*,AActor* OtherActor,UPrimitiveComponent* Other,FVector Impulse,const FHitResult& Hit)
 {
     if (Cast<AMCFoodActor>(OtherActor)) return; // Food owns its per-target hit cooldown.
+    // Ordinary worker contact is support, not an attack against the arena tooth.
+    if (Cast<AMCToothCharacter>(OtherActor)) return;
     if (!HasAuthority() || !IsAvailable() || !Other || !Other->IsSimulatingPhysics()) return;
     const double Now=GetWorld()->GetTimeSeconds();
     // Normal impulse gives the approaching speed even when Chaos already stopped the other body.

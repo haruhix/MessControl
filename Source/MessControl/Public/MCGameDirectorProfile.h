@@ -41,7 +41,7 @@ struct MESSCONTROL_API FMCGameDirectorDaySettings
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="0",ClampMax="3")) float MinimumDifficulty=.5f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="0",ClampMax="3")) float MaximumDifficulty=.85f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="0",ClampMax="20")) int32 InitialPatches=2;
-    UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="1",ClampMax="4")) int32 MaxFoodBatch=2;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="1",ClampMax="8")) int32 MaxFoodBatch=2;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="1",ClampMax="12")) int32 MaxWholeFood=3;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="4",ClampMax="80")) int32 MaxFragments=18;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(ClampMin="1",ClampMax="30")) float FoodInterval=6;

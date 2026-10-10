@@ -1,5 +1,7 @@
 #include "MCLocomotionSurface.h"
+#include "MCIceEvent.h"
 #include "Components/BoxComponent.h"
+#include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
 
 AMCLocomotionSurface::AMCLocomotionSurface()
@@ -15,7 +17,13 @@ bool AMCLocomotionSurface::ContainsSole(FVector Point) const
 {
     const FVector P=GetActorTransform().InverseTransformPosition(Point).GetAbs();
     const FVector E=HalfExtent.GetAbs().ComponentMax(FVector(1));
-    return P.X<=E.X && P.Y<=E.Y && P.Z<=E.Z;
+    if(P.X>E.X || P.Y>E.Y || P.Z>E.Z || Point.ContainsNaN()) return false;
+    // Direct surface queries share the same warm-zone exclusion as predicted
+    // character movement, including overlapping slippery patches.
+    if(Surface==EMCGroundSurface::Slippery)
+        for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+            if(It->IsSafePoint(Point)) return false;
+    return true;
 }
 void AMCLocomotionSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

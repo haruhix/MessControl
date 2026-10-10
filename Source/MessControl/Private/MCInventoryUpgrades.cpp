@@ -46,9 +46,13 @@ bool UMCInventoryComponent::IsChainsawRunning() const
 }
 bool UMCInventoryComponent::IsUsingWatergun() const
 {
+    // The animation proxy can run during deferred spawning/profile loading,
+    // before Inventory::BeginPlay has bound the pawn and initialized its tool.
+    if(!Hero || !HasBegunPlay() || !Hero->HasActorBegunPlay() || !GetWorld()
+        || Selected!=EMCToolSlot::Spray || !HasUpgrade(EMCToolUpgrade::Watergun)) return false;
     const double ShotAge=Now()-LastWaterShotAt;
     const bool Recovering=LastWaterShotAt>=0 && ShotAge>=0 && ShotAge<.09;
-    return Hero && Selected==EMCToolSlot::Spray && HasUpgrade(EMCToolUpgrade::Watergun) && (Hero->IsPrimaryHeld() || Recovering)
+    return (Hero->IsPrimaryHeld() || Recovering)
         && Hero->CanWork() && !Hero->bInCoffee && ShouldPresentTool();
 }
 float UMCInventoryComponent::WaterRecoil() const
@@ -159,7 +163,6 @@ FQuat UMCInventoryComponent::ToolHandRotation(const FQuat& ToolWorldRotation) co
 }
 float UMCInventoryComponent::MovementMultiplier() const
 {
-    if(Selected==EMCToolSlot::Pickaxe && HasUpgrade(EMCToolUpgrade::Buffer)) return .5f;
     return IsChainsawRunning()?1.4f:1.f;
 }
 float UMCInventoryComponent::WaterChargeFraction() const
@@ -206,7 +209,15 @@ void UMCInventoryComponent::HandleChainsawCollision(AActor* Other,const FHitResu
 {
     if(!Hero || !Hero->HasAuthority() || !IsChainsawRunning() || Cast<AMCToothCharacter>(Other) || Cast<AMCFoodActor>(Other)
         || FMath::Abs(Hit.ImpactNormal.Z)>.6f || FVector::DotProduct(Hero->GetActorForwardVector(),Hit.ImpactNormal)>-.25f) return;
-    if(Hero->GetVelocity().Size2D()<120 || Now()<SawStunEndsAt) return;
+    // CharacterMovement may already have clipped Velocity against this wall
+    // before its hit notification. The blocking sweep still records the real
+    // attempted movement for that simulation step; a stationary overlap has none.
+    const auto* Movement=Hero->GetCharacterMovement();
+    const float Step=FMath::Max(.001f,FMath::Min(GetWorld()->GetDeltaSeconds(),Movement->MaxSimulationTimeStep));
+    const FVector SweptVelocity=(Hit.TraceEnd-Hit.TraceStart)/Step;
+    const float IntoWall=FMath::Max(float(-FVector::DotProduct(Hero->GetVelocity(),Hit.ImpactNormal)),
+        float(-FVector::DotProduct(SweptVelocity,Hit.ImpactNormal)));
+    if(IntoWall<120 || Now()<SawStunEndsAt) return;
     Hero->CancelGameplayInput();CancelUpgradeUse();SawStunEndsAt=Now()+2.5;
     Hero->Status->Damage(30.f,-Hero->GetActorForwardVector());
     const float Fall=FMath::Max(650.f,Hero->ToothPhysics->Settings.FallThreshold+100.f);

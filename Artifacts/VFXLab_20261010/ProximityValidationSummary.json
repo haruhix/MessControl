@@ -1,0 +1,504 @@
+{
+  "schema": 1,
+  "source": "ProximityValidation.json",
+  "remote_viewer_source": "RemoteViewerReport.json",
+  "scope": "One-process listen-server plus one remote client; human spectator distance activation, cleanup, replicated controls, local Fab visibility. Authority placements are distance-only probes.",
+  "snapshot_count": 41,
+  "snapshot_errors": {
+    "count": 2,
+    "message_count": 4,
+    "records": [
+      {
+        "index": 2,
+        "phase": "after-input",
+        "label": "client-navigation-down",
+        "errors": [
+          "Client navigation did not change authority StationIndex",
+          "Client navigation index/position did not converge with authority"
+        ]
+      },
+      {
+        "index": 6,
+        "phase": "after-input",
+        "label": "client-nav-focused",
+        "errors": [
+          "Client navigation did not change authority StationIndex",
+          "Client navigation index/position did not converge with authority"
+        ]
+      }
+    ],
+    "no_error_snapshot_count": 39,
+    "latest_errors": [],
+    "context": "Early PageDown attempts did not reach the game viewport. Native SetInputModeGameOnly focus preceded the successful Slate control checks; errors are retained, not reclassified as passes."
+  },
+  "input_checks": {
+    "total": 8,
+    "successful": 6,
+    "failed": 2,
+    "successful_keys": [
+      "PageDown",
+      "PageDown",
+      "P",
+      "R",
+      "P",
+      "PageUp"
+    ]
+  },
+  "platform_thresholds_cm": {
+    "activate": 3000.0,
+    "release": 3600.0
+  },
+  "boss_hysteresis": [
+    {
+      "label": "boss-2800-active",
+      "seconds": 352.45493491366506,
+      "station_index": 2,
+      "name": "01_Boss/03_TankJump",
+      "running": true,
+      "tick": true,
+      "owned_actors": 6,
+      "human_distance_cm": 2800.874863323958,
+      "cycles": 15,
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "label": "boss-3300-remains-active",
+      "seconds": 356.0178810171783,
+      "station_index": 2,
+      "name": "01_Boss/03_TankJump",
+      "running": true,
+      "tick": true,
+      "owned_actors": 6,
+      "human_distance_cm": 3300.7423407470023,
+      "cycles": 15,
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "label": "boss-3700-off",
+      "seconds": 359.5089441202581,
+      "station_index": 2,
+      "name": "01_Boss/03_TankJump",
+      "running": false,
+      "tick": false,
+      "owned_actors": 0,
+      "human_distance_cm": 3700.662102921584,
+      "cycles": 15,
+      "passed": 15,
+      "failed": 0
+    },
+    {
+      "label": "boss-3300-remains-off",
+      "seconds": 363.0204909108579,
+      "station_index": 2,
+      "name": "01_Boss/03_TankJump",
+      "running": false,
+      "tick": false,
+      "owned_actors": 0,
+      "human_distance_cm": 3300.7423407470023,
+      "cycles": 15,
+      "passed": 15,
+      "failed": 0
+    }
+  ],
+  "tool_and_ice_load_cleanup": [
+    {
+      "label": "tool-near-active",
+      "seconds": 389.67841571196914,
+      "station_index": 24,
+      "name": "02_Tools/01_FloorBrush",
+      "running": true,
+      "tick": true,
+      "owned_actors": 4,
+      "human_distance_cm": 1007.1742649611338,
+      "cycles": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "label": "tool-cleaned",
+      "seconds": 393.02204840630293,
+      "station_index": 24,
+      "name": "02_Tools/01_FloorBrush",
+      "running": false,
+      "tick": false,
+      "owned_actors": 0,
+      "human_distance_cm": 34006.799320135964,
+      "cycles": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    {
+      "label": "ice-near-active",
+      "seconds": 396.96534660458565,
+      "station_index": 47,
+      "name": "03_Ice/03_CrystalAndIcicles",
+      "running": true,
+      "tick": true,
+      "owned_actors": 8,
+      "human_distance_cm": 1007.1742649611338,
+      "cycles": 1,
+      "passed": 0,
+      "failed": 0
+    },
+    {
+      "label": "ice-cleaned",
+      "seconds": 400.2893511131406,
+      "station_index": 47,
+      "name": "03_Ice/03_CrystalAndIcicles",
+      "running": false,
+      "tick": false,
+      "owned_actors": 0,
+      "human_distance_cm": 70373.67973894786,
+      "cycles": 1,
+      "passed": 0,
+      "failed": 0
+    }
+  ],
+  "human_union": {
+    "label": "tool-near-active",
+    "authority_humans": [
+      {
+        "controller": "MCVFXLabPlayerController_0",
+        "player_id": 256,
+        "local": true,
+        "station_index": 1,
+        "pawn": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab:PersistentLevel.SpectatorPawn_1",
+        "pawn_class": "SpectatorPawn",
+        "position": [
+          -4000.0,
+          42000.0,
+          120.0
+        ],
+        "viewer": [
+          -4000.0,
+          42000.0,
+          120.0
+        ],
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera": [
+          -4000.0,
+          42000.0,
+          120.0
+        ]
+      },
+      {
+        "controller": "MCVFXLabPlayerController_1",
+        "player_id": 257,
+        "local": false,
+        "station_index": 0,
+        "pawn": "/Game/Tests/UEDPIE_0_L_VFXLab.L_VFXLab:PersistentLevel.SpectatorPawn_2",
+        "pawn_class": "SpectatorPawn",
+        "position": [
+          1180.0,
+          6000.0,
+          680.0
+        ],
+        "viewer": [
+          1180.0,
+          6000.0,
+          680.0
+        ],
+        "velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "camera": [
+          1180.0,
+          6000.0,
+          680.0
+        ]
+      }
+    ],
+    "active_indices": [
+      0,
+      24
+    ],
+    "replicated_client_active_indices": [
+      0,
+      24
+    ]
+  },
+  "paused_states": {
+    "authority_paused_row_observations": 2037,
+    "retained_gameplay_actor_violations": [],
+    "paused_tick_violations_all_worlds": [],
+    "adjacent_authority_counter_comparisons_excluding_explicit_reset": 1928,
+    "unchanged": 1928,
+    "unexpected_changes": []
+  },
+  "gallery": {
+    "near_label": "gallery-near-enabled",
+    "far_label": "gallery-cleaned",
+    "near_visible_indices_authority": [
+      0,
+      1,
+      2,
+      4
+    ],
+    "near_visible_indices_client": [],
+    "far_all_eight_inactive_hidden_tick_disabled_authority": true
+  },
+  "control_observations": {
+    "pause_running_counts": [
+      0,
+      0
+    ],
+    "reset_station_index": 2,
+    "before_reset_authority": {
+      "cycles": 17,
+      "passed": 17,
+      "failed": 0
+    },
+    "after_reset_authority": {
+      "cycles": 0,
+      "passed": 0,
+      "failed": 0
+    },
+    "resume_running_counts": [
+      1,
+      1
+    ]
+  },
+  "remote_viewer": {
+    "scope": "Client spectator placement; native runtime owned viewer-position RPC convergence, no Python RPC call or WASD claim",
+    "client_position": [
+      18000.0,
+      4000.0,
+      120.0
+    ],
+    "authority_viewer": [
+      18000.0,
+      4000.0,
+      120.0
+    ],
+    "distance_cm": 0.0
+  },
+  "final_snapshot": [
+    {
+      "authority": true,
+      "seconds": 518.4371647238731,
+      "catalogue_count": 51,
+      "running_count": 1,
+      "human_count": 2,
+      "retained_counters": {
+        "cycles": 85,
+        "passed": 84,
+        "failed": 0
+      },
+      "stations_with_success": 12,
+      "nonzero_station_counters": [
+        {
+          "index": 0,
+          "name": "01_Boss/01_TankMelee",
+          "cycles": 60,
+          "passed": 60,
+          "failed": 0
+        },
+        {
+          "index": 1,
+          "name": "01_Boss/02_TankCharge",
+          "cycles": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "index": 2,
+          "name": "01_Boss/03_TankJump",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 3,
+          "name": "01_Boss/04_TankRoll",
+          "cycles": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "index": 4,
+          "name": "01_Boss/05_TankEntrance",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 5,
+          "name": "01_Boss/06_TankShieldHit",
+          "cycles": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "index": 6,
+          "name": "01_Boss/07_TankShieldBreakOverflow",
+          "cycles": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "index": 7,
+          "name": "01_Boss/08_TankDeath",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 8,
+          "name": "01_Boss/09_MageMelee",
+          "cycles": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "index": 10,
+          "name": "01_Boss/11_MageSummon",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 11,
+          "name": "01_Boss/12_MageNutRain",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 24,
+          "name": "02_Tools/01_FloorBrush",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 47,
+          "name": "03_Ice/03_CrystalAndIcicles",
+          "cycles": 1,
+          "passed": 0,
+          "failed": 0
+        }
+      ]
+    },
+    {
+      "authority": false,
+      "seconds": 518.003411218524,
+      "catalogue_count": 51,
+      "running_count": 1,
+      "human_count": 1,
+      "retained_counters": {
+        "cycles": 85,
+        "passed": 84,
+        "failed": 0
+      },
+      "stations_with_success": 12,
+      "nonzero_station_counters": [
+        {
+          "index": 0,
+          "name": "01_Boss/01_TankMelee",
+          "cycles": 60,
+          "passed": 60,
+          "failed": 0
+        },
+        {
+          "index": 1,
+          "name": "01_Boss/02_TankCharge",
+          "cycles": 4,
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "index": 2,
+          "name": "01_Boss/03_TankJump",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 3,
+          "name": "01_Boss/04_TankRoll",
+          "cycles": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "index": 4,
+          "name": "01_Boss/05_TankEntrance",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 5,
+          "name": "01_Boss/06_TankShieldHit",
+          "cycles": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "index": 6,
+          "name": "01_Boss/07_TankShieldBreakOverflow",
+          "cycles": 5,
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "index": 7,
+          "name": "01_Boss/08_TankDeath",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 8,
+          "name": "01_Boss/09_MageMelee",
+          "cycles": 2,
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "index": 10,
+          "name": "01_Boss/11_MageSummon",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 11,
+          "name": "01_Boss/12_MageNutRain",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 24,
+          "name": "02_Tools/01_FloorBrush",
+          "cycles": 1,
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "index": 47,
+          "name": "03_Ice/03_CrystalAndIcicles",
+          "cycles": 1,
+          "passed": 0,
+          "failed": 0
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Not a 51-scenario simultaneous rerun: final counters retain earlier nearby outcomes and were explicitly reset for station 2.",
+    "Ice 47 load/cleanup was observed; its one started cycle was interrupted, with passed=0 and failed=0.",
+    "Client viewer convergence followed direct client spectator placement; no W/WASD or walking input claim.",
+    "No exhaustive emitter, latency or packet-loss matrix.",
+    "F3 panel was not part of this validation."
+  ]
+}

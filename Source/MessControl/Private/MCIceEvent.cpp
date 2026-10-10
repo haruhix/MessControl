@@ -133,21 +133,32 @@ bool AMCIceEvent::AnchorFloor(FVector Anchor,FHitResult& Hit) const
         && Tongue->SurfacePoint(Tongue->GetActorTransform().TransformPosition(Anchor),Hit);
 }
 
+bool AMCIceEvent::IsParticipant(const AMCToothCharacter* Hero) const
+{
+    return !bLabEvent || LabParticipants.ContainsByPredicate([Hero](const auto& Subject) { return Subject.Get()==Hero; });
+}
+
 void AMCIceEvent::Start()
 {
     if(!HasAuthority()) return;
     Stop(); bFailed=false;
     // Keep a single winter owner even when F3 starts it during another slot.
-    for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
-        if(*It!=this && It->IsActive()) { It->Stop(); It->Destroy(); }
-    Tongue=nullptr;
-    for(TActorIterator<AMCTongue> It(GetWorld());It;++It)
-        if(!It->CurrentVertices().IsEmpty()) { Tongue=*It; break; }
+    if(!bLabEvent) {
+        for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+            if(*It!=this && !It->bLabEvent && It->IsActive()) { It->Stop(); It->Destroy(); }
+        Tongue=nullptr;
+        for(TActorIterator<AMCTongue> It(GetWorld());It;++It)
+            if(!It->CurrentVertices().IsEmpty()) { Tongue=*It; break; }
+    }
     if(!IsValid(Tongue)) { Finish(true); return; }
     int32 TeamSize=0;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
-        if(It->GetController() && It->Status && It->Status->IsAlive()) ++TeamSize;
-    MaxCandyHealth=(FMath::IsFinite(CandyHealthPerPlayer)?FMath::Clamp(CandyHealthPerPlayer,1.f,10000.f):960.f)*FMath::Clamp(TeamSize,1,8);
+        if(IsParticipant(*It) && It->GetController() && It->Status && It->Status->IsAlive()) ++TeamSize;
+    // Upgrade only generated defaults retained by existing saved instances.
+    if(FMath::IsNearlyEqual(CandyHealthPerPlayer,960.f)) CandyHealthPerPlayer=1440.f;
+    if(FMath::IsNearlyEqual(ZoneCrystalHealth,80.f)) ZoneCrystalHealth=160.f;
+    if(FMath::IsNearlyEqual(NovaFootHealth,80.f)) NovaFootHealth=160.f;
+    MaxCandyHealth=(FMath::IsFinite(CandyHealthPerPlayer)?FMath::Clamp(CandyHealthPerPlayer,1.f,10000.f):1440.f)*FMath::Clamp(TeamSize,1,8);
     ArrivalSeconds=FMath::IsFinite(ArrivalSeconds)?FMath::Clamp(ArrivalSeconds,1.f,10.f):3.f;
     FreezeSeconds=FMath::IsFinite(FreezeSeconds)?FMath::Clamp(FreezeSeconds,4.f,60.f):12.f;
     ThawSeconds=FMath::IsFinite(ThawSeconds)?FMath::Clamp(ThawSeconds,1.f,20.f):4.f;
@@ -157,26 +168,35 @@ void AMCIceEvent::Start()
     CircleOverlapSeconds=FMath::IsFinite(CircleOverlapSeconds)?FMath::Clamp(CircleOverlapSeconds,1.f,MinCircleSeconds*.5f):10.f;
     CircleRadius=FMath::IsFinite(CircleRadius)?FMath::Clamp(CircleRadius,100.f,450.f):330.f;
     MinCircleRadius=FMath::IsFinite(MinCircleRadius)?FMath::Clamp(MinCircleRadius,80.f,CircleRadius):200.f;
+    CircleMinGap=FMath::IsFinite(CircleMinGap)?FMath::Clamp(CircleMinGap,0.f,3000.f):1100.f;
     IcicleWarningSeconds=FMath::IsFinite(IcicleWarningSeconds)?FMath::Clamp(IcicleWarningSeconds,1.f,5.f):2.2f;
     IcicleSeriesSpacingSeconds=FMath::IsFinite(IcicleSeriesSpacingSeconds)?FMath::Clamp(IcicleSeriesSpacingSeconds,.5f,4.f):1.2f;
     IcicleIntervalSeconds=FMath::IsFinite(IcicleIntervalSeconds)?FMath::Clamp(IcicleIntervalSeconds,IcicleSeriesSpacingSeconds*2+1,300.f):12.f;
     IcicleRadius=FMath::IsFinite(IcicleRadius)?FMath::Clamp(IcicleRadius,50.f,220.f):155.f;
     IcicleDamage=FMath::IsFinite(IcicleDamage)?FMath::Clamp(IcicleDamage,0.f,100.f):35.f;
     ZoneCrystalIntervalSeconds=FMath::IsFinite(ZoneCrystalIntervalSeconds)?FMath::Clamp(ZoneCrystalIntervalSeconds,4.f,300.f):16.f;
-    ZoneCrystalHealth=FMath::IsFinite(ZoneCrystalHealth)?FMath::Clamp(ZoneCrystalHealth,1.f,500.f):80.f;
+    ZoneCrystalHealth=FMath::IsFinite(ZoneCrystalHealth)?FMath::Clamp(ZoneCrystalHealth,1.f,2000.f):160.f;
+    ZoneCrystalFallSeconds=FMath::IsFinite(ZoneCrystalFallSeconds)?FMath::Clamp(ZoneCrystalFallSeconds,.5f,5.f):1.4f;
+    ZoneCrystalFallHeight=FMath::IsFinite(ZoneCrystalFallHeight)?FMath::Clamp(ZoneCrystalFallHeight,100.f,2000.f):900.f;
+    ZoneCrystalVortexRadius=FMath::IsFinite(ZoneCrystalVortexRadius)?FMath::Clamp(ZoneCrystalVortexRadius,50.f,900.f):440.f;
+    ZoneCrystalVortexSeconds=FMath::IsFinite(ZoneCrystalVortexSeconds)?FMath::Clamp(ZoneCrystalVortexSeconds,.5f,8.f):2.5f;
+    ZoneCrystalPush=FMath::IsFinite(ZoneCrystalPush)?FMath::Clamp(ZoneCrystalPush,0.f,1500.f):650.f;
     NovaIntervalSeconds=FMath::IsFinite(NovaIntervalSeconds)?FMath::Clamp(NovaIntervalSeconds,4.f,300.f):18.f;
     NovaWarningSeconds=FMath::IsFinite(NovaWarningSeconds)?FMath::Clamp(NovaWarningSeconds,1.f,6.f):2.5f;
     NovaRange=FMath::IsFinite(NovaRange)?FMath::Clamp(NovaRange,100.f,5000.f):2600.f;
     NovaHalfAngleDegrees=FMath::IsFinite(NovaHalfAngleDegrees)?FMath::Clamp(NovaHalfAngleDegrees,10.f,70.f):35.f;
-    NovaFootHealth=FMath::IsFinite(NovaFootHealth)?FMath::Clamp(NovaFootHealth,1.f,500.f):80.f;
+    NovaFootHealth=FMath::IsFinite(NovaFootHealth)?FMath::Clamp(NovaFootHealth,1.f,1000.f):160.f;
+    BossVortexSeconds=FMath::IsFinite(BossVortexSeconds)?FMath::Clamp(BossVortexSeconds,.5f,12.f):5.f;
+    BossFrostRadius=FMath::IsFinite(BossFrostRadius)?FMath::Clamp(BossFrostRadius,100.f,1500.f):700.f;
+    BossFreezeMultiplier=FMath::IsFinite(BossFreezeMultiplier)?FMath::Clamp(BossFreezeMultiplier,1.f,5.f):2.f;
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
-    Random.Initialize((State?State->RunSeed:41)^0x1ce2026);
+    Random.Initialize((State?State->RunSeed:41)^FMath::Rand()^0x1ce2026);
     FHitResult Floor;
     const FVector Center=Tongue->Surface->Bounds.Origin;
     if(!Tongue->InteriorSurfacePoint(Center,MintRadius+35,Floor)
         && !Tongue->RandomInteriorPoint(Random,MintRadius+35,0,TArray<FVector>(),Floor)) { Finish(true); return; }
     CandyAnchor=Tongue->GetActorTransform().InverseTransformPosition(Floor.ImpactPoint);
-    CandyHealth=MaxCandyHealth; CircleIndex=0; StrikeSerial=0;
+    CandyHealth=MaxCandyHealth; CircleIndex=0; StrikeSerial=0; CrystalSerial=0;
     if(!ChooseCircle(SafeAnchor,true)) { Finish(true); return; }
     StartedAt=Now(); CircleStartedAt=StartedAt+ArrivalSeconds; NextIcicleAt=CircleStartedAt+5;
     NextCircleStartedAt=0; NextZoneCrystalAt=CircleStartedAt+ZoneCrystalIntervalSeconds;
@@ -187,6 +207,7 @@ void AMCIceEvent::Start()
     if(SlipperyFloor)
     {
         SlipperyFloor->HalfExtent=Bounds.GetExtent()+FVector(0,0,700);
+        SlipperyFloor->SetOwner(this);
         SlipperyFloor->Priority=150; SlipperyFloor->Surface=EMCGroundSurface::Slippery;
         SlipperyFloor->RefreshBounds(); SlipperyFloor->ForceNetUpdate();
     }
@@ -218,7 +239,7 @@ float AMCIceEvent::NextSafeRadius() const
 bool AMCIceEvent::IsCircleBlocked(int32 Index) const
 {
     return ZoneCrystals.ContainsByPredicate([Index](const FMCIceZoneCrystal& Crystal)
-        {return Crystal.ZoneIndex==Index && Crystal.Health>0;});
+        {return Crystal.ZoneIndex==Index && Crystal.bLanded && Crystal.Health>0;});
 }
 
 bool AMCIceEvent::IsSafePoint(FVector WorldPoint) const
@@ -232,7 +253,8 @@ bool AMCIceEvent::IsSafePoint(FVector WorldPoint) const
             && FMath::Abs(WorldPoint.Z-Floor.ImpactPoint.Z)<150;
     };
     const double Time=Now();
-    return (Time<CircleStartedAt+CircleDuration(CircleIndex) && !IsCircleBlocked(CircleIndex) && Inside(SafeAnchor,SafeRadius()))
+    return ((!bNextCircle || Time<FMath::Max(CircleStartedAt+CircleDuration(CircleIndex),CircleHandoffAt))
+            && !IsCircleBlocked(CircleIndex) && Inside(SafeAnchor,SafeRadius()))
         || (bNextCircle && Time<NextCircleStartedAt+CircleDuration(CircleIndex+1)
             && !IsCircleBlocked(CircleIndex+1) && Inside(NextSafeAnchor,NextSafeRadius()));
 }
@@ -243,47 +265,54 @@ bool AMCIceEvent::ChooseCircle(FVector& Anchor,bool bFirst)
     FHitResult Candy,Previous,Floor;
     if(!AnchorFloor(CandyAnchor,Candy)) return false;
     const bool bPrevious=!bFirst && AnchorFloor(SafeAnchor,Previous);
+    if(!bFirst && !bPrevious) return false;
     const FBox Bounds=Tongue->Surface->Bounds.GetBox();
     const float Reach=float(Bounds.GetExtent().Size2D());
+    // The gap is measured between the shrinking old circle and the full new
+    // circle, rather than between their centers. Never relax it on a small arena.
+    const float Separation=bPrevious?SafeRadius()+CircleRadius+CircleMinGap:0.f;
+    const double SeparationSquared=FMath::Square(Separation);
     TArray<FVector> Candidates;
+    auto AddCandidate=[&](FVector Point)
+    {
+        if(bPrevious && FVector::DistSquaredXY(Point,Previous.ImpactPoint)<SeparationSquared) return false;
+        Candidates.Add(Point); return true;
+    };
     const float Offset=Random.FRandRange(-PI,PI);
     // Sample the actual tissue, excluding throat/brush delivery lanes. An inset
     // of the bounds alone would let a zone hang over a concave tongue edge.
     for(int32 Ray=0;Ray<48;++Ray)
     {
-        const float Angle=Offset+Ray*2*PI/48;
+        const float Angle=Offset+(Ray+Random.FRandRange(-.35f,.35f))*2*PI/48;
         const FVector Direction(FMath::Cos(Angle),FMath::Sin(Angle),0);
         for(int32 Step=20;Step>0;--Step)
         {
             const FVector Point=Candy.ImpactPoint+Direction*(Reach*Step/20);
             if(!Tongue->GameplaySpawnFootprint(Point,CircleRadius,Floor)) continue;
-            Candidates.Add(Floor.ImpactPoint);
-            break;
+            if(AddCandidate(Floor.ImpactPoint)) break;
         }
     }
-    // The tongue can be asymmetric. Its farthest edge alone may put every
-    // candidate on the same side, so require a real crossing wherever the
-    // supported surface permits two distinct full-radius zones.
-    const double SeparationSquared=FMath::Square(CircleRadius*2.f);
-    const bool bSeparated=bPrevious && Candidates.ContainsByPredicate([&](const FVector& Point)
-        {return FVector::DistSquaredXY(Point,Previous.ImpactPoint)>=SeparationSquared;});
+    // Supplement the edge rays on irregular tissue. The shared sampler checks
+    // the complete physical footprint; gameplay bands still exclude delivery.
+    TArray<FVector> Excluded;
+    if(bPrevious) Excluded.Add(Previous.ImpactPoint);
+    for(int32 Attempt=0;Attempt<24;++Attempt)
+        if(Tongue->RandomInteriorPoint(Random,CircleRadius,Separation,Excluded,Floor)
+            && Tongue->GameplaySpawnFootprint(Floor.ImpactPoint,CircleRadius,Floor)) AddCandidate(Floor.ImpactPoint);
     double Farthest=0;
     for(const FVector& Point:Candidates)
-    {
-        if(bSeparated && FVector::DistSquaredXY(Point,Previous.ImpactPoint)<SeparationSquared) continue;
         Farthest=FMath::Max(Farthest,FVector::DistSquaredXY(Point,Candy.ImpactPoint));
-    }
-    double Best=-1;
+    TArray<FVector> OuterCandidates;
     for(const FVector& Point:Candidates)
+        if(FVector::DistSquaredXY(Point,Candy.ImpactPoint)>=Farthest*.65) OuterCandidates.Add(Point);
+    if(!OuterCandidates.IsEmpty())
     {
-        if(bSeparated && FVector::DistSquaredXY(Point,Previous.ImpactPoint)<SeparationSquared) continue;
-        if(FVector::DistSquaredXY(Point,Candy.ImpactPoint)<Farthest*.8) continue;
-        const double Score=bPrevious?FVector::DistSquaredXY(Point,Previous.ImpactPoint):Random.FRand();
-        if(Score>Best) {Best=Score; Anchor=Tongue->GetActorTransform().InverseTransformPosition(Point);}
+        const FVector Point=OuterCandidates[Random.RandRange(0,OuterCandidates.Num()-1)];
+        Anchor=Tongue->GetActorTransform().InverseTransformPosition(Point); return true;
     }
-    if(Best>=0) return true;
     // A small test/replacement arena may not have authored gameplay bands.
-    if(Tongue->InteriorSurfacePoint(Candy.ImpactPoint,CircleRadius,Floor)) {Anchor=CandyAnchor; return true;}
+    // Only the first zone may use its center; later zones keep the required gap.
+    if(bFirst && Tongue->InteriorSurfacePoint(Candy.ImpactPoint,CircleRadius,Floor)) {Anchor=CandyAnchor; return true;}
     return false;
 }
 
@@ -292,17 +321,23 @@ void AMCIceEvent::UpdateCircles(double Time)
     bool bChanged=false;
     for(int32 Catchup=0;Catchup<32;++Catchup)
     {
-        const double Ends=CircleStartedAt+CircleDuration(CircleIndex);
-        if(!bNextCircle && Time>=Ends-CircleOverlapSeconds)
+        const double Ends=FMath::Max(CircleStartedAt+CircleDuration(CircleIndex),CircleHandoffAt);
+        if(!bNextCircle && Time>=Ends-CircleOverlapSeconds && Time>=NextCircleRetryAt)
         {
             bNextCircle=ChooseCircle(NextSafeAnchor);
-            if(bNextCircle) NextCircleStartedAt=Ends-CircleOverlapSeconds;
-            bChanged=true;
+            NextCircleRetryAt=Time+2;
+            if(bNextCircle)
+            {
+                // A late successful retry still gives workers the complete
+                // crossing window, while the old circle stays at its minimum.
+                NextCircleStartedAt=Time;
+                CircleHandoffAt=FMath::Max(Ends,Time+CircleOverlapSeconds);
+                bChanged=true;
+            }
         }
-        if(Time<Ends) break;
-        if(!bNextCircle) {Finish(true); return;}
+        if(!bNextCircle || Time<FMath::Max(Ends,CircleHandoffAt)) break;
         SafeAnchor=NextSafeAnchor; CircleStartedAt=NextCircleStartedAt;
-        bNextCircle=false; ++CircleIndex; bChanged=true;
+        bNextCircle=false; CircleHandoffAt=0; NextCircleRetryAt=0; ++CircleIndex; bChanged=true;
         ZoneCrystals.RemoveAll([this](const FMCIceZoneCrystal& Crystal){return Crystal.ZoneIndex<CircleIndex;});
     }
     if(bChanged) ForceNetUpdate();
@@ -311,27 +346,73 @@ void AMCIceEvent::UpdateCircles(double Time)
 void AMCIceEvent::QueueZoneCrystal()
 {
     TArray<int32> Eligible;
-    if(!IsCircleBlocked(CircleIndex) && Now()<CircleStartedAt+CircleDuration(CircleIndex)-4) Eligible.Add(CircleIndex);
-    if(bNextCircle && !IsCircleBlocked(CircleIndex+1)) Eligible.Add(CircleIndex+1);
+    auto HasCrystal=[&](int32 Index){return ZoneCrystals.ContainsByPredicate([Index](const FMCIceZoneCrystal& Crystal)
+        {return Crystal.ZoneIndex==Index && Crystal.Health>0;});};
+    if(!HasCrystal(CircleIndex) && Now()<CircleStartedAt+CircleDuration(CircleIndex)-ZoneCrystalFallSeconds-2) Eligible.Add(CircleIndex);
+    if(bNextCircle && !HasCrystal(CircleIndex+1)) Eligible.Add(CircleIndex+1);
     if(Eligible.IsEmpty()) return;
     const int32 Index=Eligible[Random.RandRange(0,Eligible.Num()-1)];
     FHitResult Floor;
     if(!AnchorFloor(Index==CircleIndex?SafeAnchor:NextSafeAnchor,Floor)) return;
     auto& Crystal=ZoneCrystals.AddDefaulted_GetRef();
-    Crystal.ZoneIndex=Index; Crystal.Health=ZoneCrystalHealth;
+    Crystal.ZoneIndex=Index; Crystal.Health=Crystal.MaxHealth=ZoneCrystalHealth;
+    Crystal.Id=++CrystalSerial; Crystal.SpawnedAt=Now(); Crystal.ImpactAt=Crystal.SpawnedAt+ZoneCrystalFallSeconds;
     Crystal.Anchor=Tongue->GetActorTransform().InverseTransformPosition(Floor.ImpactPoint);
+    ForceNetUpdate();
+}
+
+void AMCIceEvent::ResolveZoneCrystal(FMCIceZoneCrystal& Crystal)
+{
+    if(!HasAuthority() || Crystal.bLanded || Crystal.Health<=0) return;
+    Crystal.bLanded=true;
+    FHitResult Floor;
+    if(!AnchorFloor(Crystal.Anchor,Floor)) {Crystal.Health=0; ForceNetUpdate(); return;}
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
+        auto* Hero=*It;
+        if(!IsParticipant(Hero) || !Hero->GetController() || !Hero->Status || !Hero->Status->IsAlive() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
+        const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+        const float Reach=ZoneCrystalVortexRadius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius();
+        if(FVector::DistSquared2D(Feet,Floor.ImpactPoint)>FMath::Square(Reach) || FMath::Abs(Feet.Z-Floor.ImpactPoint.Z)>200) continue;
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIceCrystalLanding),false,this);
+        Query.AddIgnoredActor(Tongue); Query.AddIgnoredActor(Hero);
+        FHitResult Obstacle;
+        if(GetWorld()->LineTraceSingleByChannel(Obstacle,Floor.ImpactPoint+Floor.ImpactNormal*80,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
+        const FVector Out=(Hero->GetActorLocation()-Floor.ImpactPoint).GetSafeNormal2D(UE_SMALL_NUMBER,Hero->GetActorForwardVector());
+        const FVector Tangent=FVector::CrossProduct(FVector::UpVector,Out);
+        const FVector Impulse=(Out+Tangent*.35f).GetSafeNormal2D()*ZoneCrystalPush+Floor.ImpactNormal*180;
+        if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Impulse,Hero->GetActorLocation());
+        else Hero->LaunchCharacter(Impulse,false,false);
+    }
     ForceNetUpdate();
 }
 
 bool AMCIceEvent::HitObstructionWithPickaxe(AMCToothCharacter* Hero,float Damage,FVector& Point)
 {
-    if(!HasAuthority() || Stage!=EMCIceEventStage::Active || !IsValid(Hero) || !Hero->CanWork()
+    if(!HasAuthority() || Stage!=EMCIceEventStage::Active || !IsValid(Hero) || !IsParticipant(Hero) || !Hero->CanWork()
         || !Hero->Inventory || Hero->Inventory->Selected!=EMCToolSlot::Pickaxe || !FMath::IsFinite(Damage) || Damage<=0) return false;
+    if(Hero->Inventory->HasUpgrade(EMCToolUpgrade::Buffer))
+    {
+        FVector Center; float Radius;
+        if(!Hero->Inventory->BufferContactSphere(Center,Radius)) return false;
+        bool HitAny=false;
+        for(int32 I=ZoneCrystals.Num()-1;I>=0;--I) {
+            auto& Crystal=ZoneCrystals[I]; FHitResult Floor;
+            if(Crystal.Health<=0 || !Crystal.bLanded || !AnchorFloor(Crystal.Anchor,Floor)) continue;
+            const FVector Origin=Floor.ImpactPoint+Floor.ImpactNormal*85;
+            const FVector Contact=FBox(Origin-FVector(65,65,85),Origin+FVector(65,65,85)).GetClosestPointTo(Center);
+            if(!Hero->Inventory->CanBufferContact(this,Contact)) continue;
+            Crystal.Health=FMath::Max(0.f,Crystal.Health-Damage);
+            Point=Contact; HitAny=true;
+            if(Crystal.Health<=0) {Hero->NotifyTaskFeedback(true,Point); ZoneCrystals.RemoveAt(I);}
+        }
+        if(HitAny) {RefreshZoneCrystals();ForceNetUpdate();}
+        return HitAny;
+    }
     int32 Best=INDEX_NONE; double Distance=FMath::Square(180.f);
     for(int32 I=0;I<ZoneCrystals.Num();++I)
     {
         const auto& Crystal=ZoneCrystals[I]; FHitResult Floor;
-        if(Crystal.Health<=0 || !AnchorFloor(Crystal.Anchor,Floor)) continue;
+        if(Crystal.Health<=0 || !Crystal.bLanded || !AnchorFloor(Crystal.Anchor,Floor)) continue;
         const FVector Center=Floor.ImpactPoint+Floor.ImpactNormal*85;
         const FVector Contact=FBox(Center-FVector(65,65,85),Center+FVector(65,65,85)).GetClosestPointTo(Hero->GetActorLocation());
         const FVector Offset=Contact-Hero->GetActorLocation();
@@ -355,15 +436,21 @@ float AMCIceEvent::FreezeAmount(const AMCToothCharacter* Hero) const
 void AMCIceEvent::UpdateFreeze(float DeltaSeconds)
 {
     TArray<FMCPlayerFreeze> Updated;
+    FHitResult BossFloor;
+    const bool bBossFloor=AnchorFloor(CandyAnchor,BossFloor);
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         auto* Hero=*It;
-        if(!Hero->GetController() || !Hero->Status || !Hero->Status->IsAlive() || Hero->IsActorBeingDestroyed()
+        if(!IsParticipant(Hero) || !Hero->GetController() || !Hero->Status || !Hero->Status->IsAlive() || Hero->IsActorBeingDestroyed()
             || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
         auto& Player=Updated.AddDefaulted_GetRef(); Player.Hero=Hero;
         const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
         Player.bSafe=IsSafePoint(Feet);
-        Player.Amount=FMath::Clamp(FreezeAmount(Hero)+DeltaSeconds*(Player.bSafe?-1/FMath::Max(1.f,ThawSeconds):1/FMath::Max(1.f,FreezeSeconds)),0.f,1.f);
+        const bool NearBoss=bBossFloor && FVector::DistSquared2D(Feet,BossFloor.ImpactPoint)<=FMath::Square(BossFrostRadius)
+            && FMath::Abs(Feet.Z-BossFloor.ImpactPoint.Z)<180;
+        const float Rate=Player.bSafe?-.5f/FMath::Max(1.f,ThawSeconds):
+            (NearBoss?BossFreezeMultiplier:1.f)/FMath::Max(1.f,FreezeSeconds);
+        Player.Amount=FMath::Clamp(FreezeAmount(Hero)+DeltaSeconds*Rate,0.f,1.f);
         if(Player.Amount>=1)
         {
             Hero->NotifyTaskFeedback(false,Hero->GetActorLocation());
@@ -381,7 +468,7 @@ AMCToothCharacter* AMCIceEvent::ChooseTarget()
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         FHitResult Floor;
-        if(!It->GetController() || !It->Status || !It->Status->IsAlive() || It->SwallowedBy || It->IsMimicCaptured()) continue;
+        if(!IsParticipant(*It) || !It->GetController() || !It->Status || !It->Status->IsAlive() || It->SwallowedBy || It->IsMimicCaptured()) continue;
         const FVector Feet=It->GetActorLocation()-FVector(0,0,It->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
         if(Tongue->SurfacePoint(Feet,Floor) && FMath::Abs(Feet.Z-Floor.ImpactPoint.Z)<150) Candidates.Add(*It);
     }
@@ -391,7 +478,7 @@ AMCToothCharacter* AMCIceEvent::ChooseTarget()
 void AMCIceEvent::QueueIcicle(AMCToothCharacter* Target)
 {
     FHitResult Floor;
-    if(!IsValid(Target) || !Target->Status || !Target->Status->IsAlive() || Target->SwallowedBy || Target->IsMimicCaptured()
+    if(!IsValid(Target) || !IsParticipant(Target) || !Target->Status || !Target->Status->IsAlive() || Target->SwallowedBy || Target->IsMimicCaptured()
         || !Tongue->SurfacePoint(Target->GetActorLocation(),Floor)) return;
     auto& Strike=Strikes.AddDefaulted_GetRef();
     Strike.Anchor=Tongue->GetActorTransform().InverseTransformPosition(Floor.ImpactPoint);
@@ -432,9 +519,7 @@ bool AMCIceEvent::IsInsideNova(FVector WorldPoint) const
     if(!IsActive() || WorldPoint.ContainsNaN() || !AnchorFloor(CandyAnchor,Center)
         || !Tongue->SurfacePoint(WorldPoint,Floor) || FMath::Abs(WorldPoint.Z-Floor.ImpactPoint.Z)>150) return false;
     const FVector Offset=Floor.ImpactPoint-Center.ImpactPoint;
-    const FVector Direction=Tongue->GetActorTransform().TransformVectorNoScale(NovaDirection).GetSafeNormal2D();
-    return Offset.SizeSquared2D()<=FMath::Square(NovaRange)
-        && (Offset.IsNearlyZero() || FVector::DotProduct(Offset.GetSafeNormal2D(),Direction)>=FMath::Cos(FMath::DegreesToRadians(NovaHalfAngleDegrees)));
+    return !IsSafePoint(WorldPoint) && Offset.SizeSquared2D()<=FMath::Square(NovaRange);
 }
 
 void AMCIceEvent::ResolveNova()
@@ -445,7 +530,7 @@ void AMCIceEvent::ResolveNova()
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         auto* Hero=*It;
-        if(!Hero->GetController() || !Hero->CanWork() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
+        if(!IsParticipant(Hero) || !Hero->GetController() || !Hero->CanWork() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
         const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
         if(!IsInsideNova(Feet)) continue;
         FHitResult Obstacle; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIceNovaContact),false,this);
@@ -466,7 +551,7 @@ void AMCIceEvent::ResolveIcicle(FMCIcicleStrike& Strike)
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         auto* Hero=*It;
-        if(!Hero->GetController() || !Hero->Status || !Hero->Status->IsAlive() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
+        if(!IsParticipant(Hero) || !Hero->GetController() || !Hero->Status || !Hero->Status->IsAlive() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
         const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
         const float Reach=IcicleRadius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius();
         if(FVector::DistSquaredXY(Feet,Floor.ImpactPoint)>FMath::Square(Reach) || FMath::Abs(Feet.Z-Floor.ImpactPoint.Z)>260) continue;
@@ -491,11 +576,19 @@ FVector AMCIceEvent::CandyContactPoint(FVector From) const
 
 bool AMCIceEvent::HitWithPickaxe(AMCToothCharacter* Hero,float Damage)
 {
-    if(!HasAuthority() || Stage!=EMCIceEventStage::Active || !IsValid(Hero) || !Hero->CanWork()
+    if(!HasAuthority() || Stage!=EMCIceEventStage::Active || !IsValid(Hero) || !IsParticipant(Hero) || !Hero->CanWork()
         || !Hero->Inventory || Hero->Inventory->Selected!=EMCToolSlot::Pickaxe || !FMath::IsFinite(Damage) || Damage<=0) return false;
-    const FVector Offset=CandyContactPoint(Hero->GetActorLocation())-Hero->GetActorLocation();
-    if(Offset.SizeSquared()>FMath::Square(180.f) || FVector::DotProduct(Offset.GetSafeNormal2D(),Hero->GetActorForwardVector())<.25f
-        || !Hero->CanContact(this)) return false;
+    if(Hero->Inventory->HasUpgrade(EMCToolUpgrade::Buffer))
+    {
+        FVector Center; float Radius;
+        if(!Hero->Inventory->BufferContactSphere(Center,Radius) || !Hero->Inventory->CanBufferContact(this,CandyContactPoint(Center))) return false;
+    }
+    else
+    {
+        const FVector Offset=CandyContactPoint(Hero->GetActorLocation())-Hero->GetActorLocation();
+        if(Offset.SizeSquared()>FMath::Square(180.f) || FVector::DotProduct(Offset.GetSafeNormal2D(),Hero->GetActorForwardVector())<.25f
+            || !Hero->CanContact(this)) return false;
+    }
     CandyHealth=FMath::Max(0.f,CandyHealth-Damage); ForceNetUpdate();
     if(CandyHealth<=0)
     {
@@ -523,6 +616,7 @@ void AMCIceEvent::Tick(float DeltaSeconds)
             UpdateCircles(Time);
             if(!IsActive()) return;
             if(Time>=NextZoneCrystalAt) {QueueZoneCrystal(); NextZoneCrystalAt=Time+ZoneCrystalIntervalSeconds;}
+            for(auto& Crystal:ZoneCrystals) if(!Crystal.bLanded && Time>=Crystal.ImpactAt) ResolveZoneCrystal(Crystal);
             if(bNovaWarning && Time>=NovaImpactAt) ResolveNova();
             else if(!bNovaWarning && Time>=NextNovaAt) BeginNova();
             UpdateFreeze(DeltaSeconds);
@@ -579,24 +673,24 @@ void AMCIceEvent::RefreshFloorGuides()
         Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,IcicleRadius,6+2*Progress,Color,!Strike.bImpacted);
         if(!Strike.bImpacted) Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,FMath::Max(8.f,IcicleRadius*Progress),3,Color);
     }
-    if(NovaImpactAt>0 && Time<NovaImpactAt+.8 && AnchorFloor(CandyAnchor,Floor))
+    for(const auto& Crystal:ZoneCrystals) {
+        if(Crystal.Health<=0 || Crystal.bLanded || !AnchorFloor(Crystal.Anchor,Floor)) continue;
+        const float Fall=FMath::Clamp(float((Time-Crystal.SpawnedAt)/FMath::Max(.01,Crystal.ImpactAt-Crystal.SpawnedAt)),0.f,1.f);
+        const FLinearColor Warning=FLinearColor(1.f,.15f,.12f)*(.8f+.2f*FMath::Sin(Fall*PI*10));
+        Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,ZoneCrystalVortexRadius,6,Warning,true);
+        Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,FMath::Max(10.f,ZoneCrystalVortexRadius*Fall),3,Warning);
+    }
+    if(Stage==EMCIceEventStage::Active && AnchorFloor(CandyAnchor,Floor))
     {
-        const FVector Direction=Tongue->GetActorTransform().TransformVectorNoScale(NovaDirection).GetSafeNormal2D();
         const FVector Center=Floor.ImpactPoint;
-        const FLinearColor Color=bNovaWarning?FLinearColor(.32f,.85f,1.f):FLinearColor(.85f,.97f,1.f);
-        for(float Angle:{-NovaHalfAngleDegrees,NovaHalfAngleDegrees})
-        {
-            const FVector Ray=Direction.RotateAngleAxis(Angle,FVector::UpVector);
-            for(int32 Step=1;Step<12;++Step)
-                Mesh.Strip(Tongue,Transform,Center+Ray*(NovaRange*Step/12),Center+Ray*(NovaRange*(Step+1)/12),8,Color);
-        }
-        // Crossbars give the cone a visible area, rather than a single line.
-        const FVector Side=FVector::CrossProduct(Direction,FVector::UpVector);
-        for(int32 Step=1;Step<=8;++Step)
-        {
-            const float Distance=NovaRange*Step/9,Width=Distance*FMath::Tan(FMath::DegreesToRadians(NovaHalfAngleDegrees));
-            const FVector Middle=Center+Direction*Distance;
-            Mesh.Strip(Tongue,Transform,Middle-Side*Width,Middle+Side*Width,2,Color);
+        Mesh.Ring(Tongue,Transform,Center,BossFrostRadius,3,FLinearColor(.2f,.7f,1.f),true);
+        if(bNovaWarning || (NovaImpactAt>0 && Time<NovaImpactAt+BossVortexSeconds)) {
+            const FLinearColor Color=bNovaWarning?FLinearColor(.35f,.8f,1.f):FLinearColor(.85f,.97f,1.f);
+            Mesh.Ring(Tongue,Transform,Center,NovaRange,6,Color,bNovaWarning);
+            if(bNovaWarning) {
+                const float Progress=FMath::Clamp(1.f-float((NovaImpactAt-Time)/NovaWarningSeconds),0.f,1.f);
+                Mesh.Ring(Tongue,Transform,Center,FMath::Max(MintRadius,NovaRange*Progress),4,Color);
+            }
         }
     }
     FloorGuides->CreateMeshSection_LinearColor(0,Mesh.Vertices,Mesh.Indices,Mesh.Normals,Mesh.UV,Mesh.Colors,Mesh.Tangents,false);
@@ -604,6 +698,7 @@ void AMCIceEvent::RefreshFloorGuides()
 
 void AMCIceEvent::RefreshZoneCrystals()
 {
+    const double Time=Now();
     while(ZoneCrystalMeshes.Num()<ZoneCrystals.Num())
     {
         auto* Part=NewObject<UStaticMeshComponent>(this); Part->SetupAttachment(Body);
@@ -619,10 +714,14 @@ void AMCIceEvent::RefreshZoneCrystals()
         FHitResult Floor; auto* Part=ZoneCrystalMeshes[I].Get();
         const bool bVisible=IsActive() && ZoneCrystals.IsValidIndex(I) && ZoneCrystals[I].Health>0 && AnchorFloor(ZoneCrystals[I].Anchor,Floor);
         Part->SetVisibility(bVisible && !(IsValid(EventVFX) && EventVFX->HasCrystalVisuals()));
-        Part->SetCollisionEnabled(bVisible?ECollisionEnabled::QueryOnly:ECollisionEnabled::NoCollision);
+        Part->SetCollisionEnabled(bVisible && ZoneCrystals[I].bLanded?ECollisionEnabled::QueryOnly:ECollisionEnabled::NoCollision);
         if(!bVisible) continue;
-        Part->SetWorldLocationAndRotation(Floor.ImpactPoint+Floor.ImpactNormal*85,Floor.ImpactNormal.Rotation()+FRotator(-90,0,0));
-        Part->SetWorldScale3D(FVector(1.3f,1.3f,1.7f));
+        const auto& Crystal=ZoneCrystals[I];
+        const float Progress=Crystal.bLanded?1.f:FMath::Clamp(float((Time-Crystal.SpawnedAt)/FMath::Max(.05,Crystal.ImpactAt-Crystal.SpawnedAt)),0.f,1.f);
+        const FVector Position=Floor.ImpactPoint+Floor.ImpactNormal*85+FVector(0,0,ZoneCrystalFallHeight*(1-Progress*Progress));
+        const FQuat Alignment=(Floor.ImpactNormal.Rotation()+FRotator(-90,0,0)).Quaternion();
+        Part->SetWorldLocationAndRotation(Position,FQuat(Floor.ImpactNormal,Progress*2*PI)*Alignment);
+        Part->SetWorldScale3D(FVector(1.6f,1.6f,2.1f));
     }
 }
 
@@ -634,22 +733,26 @@ void AMCIceEvent::RefreshNovaWind()
         return;
     }
     const double Time=Now(); FHitResult Floor;
-    if(NovaImpactAt<=0 || Time>NovaImpactAt+.8 || !AnchorFloor(CandyAnchor,Floor))
+    if(!IsActive() || !AnchorFloor(CandyAnchor,Floor))
     {if(NovaWind->GetNumSections()>0) NovaWind->ClearAllMeshSections(); return;}
     FIceGuideMesh Mesh;
     const FTransform Transform=NovaWind->GetComponentTransform();
     const FVector Center=Floor.ImpactPoint;
-    const FVector Direction=Tongue->GetActorTransform().TransformVectorNoScale(NovaDirection).GetSafeNormal2D();
-    const float Age=float(Time-NovaImpactAt+NovaWarningSeconds);
-    for(int32 Ribbon=0;Ribbon<24;++Ribbon)
+    const bool bBlast=NovaImpactAt>0 && Time>=NovaImpactAt && Time<NovaImpactAt+BossVortexSeconds;
+    const bool bWarning=bNovaWarning && Time<NovaImpactAt;
+    if(Stage!=EMCIceEventStage::Active && !bWarning && !bBlast)
+    {if(NovaWind->GetNumSections()>0) NovaWind->ClearAllMeshSections(); return;}
+    const float Age=float(Time-StartedAt);
+    const float Radius=bBlast?NovaRange:BossFrostRadius;
+    for(int32 Ribbon=0;Ribbon<36;++Ribbon)
     {
-        const float Across=(Ribbon%8)/7.f*2-1;
-        const FVector Ray=Direction.RotateAngleAxis(Across*NovaHalfAngleDegrees*.92f,FVector::UpVector);
-        const float Travel=FMath::Frac(Age*(bNovaWarning?.55f:1.2f)+Ribbon*.618f);
-        const float Distance=MintRadius+Travel*FMath::Max(1.f,NovaRange-MintRadius-220);
-        const FVector A=Center+Ray*Distance,B=A+Ray*180;
-        Mesh.Strip(Tongue,Transform,A,B,bNovaWarning?3.f:8.f,
-            FLinearColor(.65f+.3f*Travel,.87f+.1f*Travel,1.f),30+(Ribbon/8)*65);
+        const float Angle=(Ribbon%12)*2*PI/12+Age*(bBlast?2.f:1.f);
+        const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0),Tangent(-Ray.Y,Ray.X,0);
+        const float Travel=FMath::Frac(Age*.45f+Ribbon*.618f);
+        const float Distance=Radius*(.35f+.65f*Travel);
+        const FVector A=Center+Ray*Distance,B=A+Tangent*(bBlast?260.f:140.f);
+        Mesh.Strip(Tongue,Transform,A,B,bBlast?13.f:bWarning?8.f:5.f,
+            FLinearColor(.65f+.3f*Travel,.87f+.1f*Travel,1.f),35+(Ribbon/12)*75);
     }
     if(Mesh.Indices.IsEmpty()) {if(NovaWind->GetNumSections()>0) NovaWind->ClearAllMeshSections();}
     else NovaWind->CreateMeshSection_LinearColor(0,Mesh.Vertices,Mesh.Indices,Mesh.Normals,Mesh.UV,Mesh.Colors,Mesh.Tangents,false);
@@ -857,17 +960,19 @@ void AMCIceEvent::RefreshPresentation(float DeltaSeconds)
 
 void AMCIceEvent::SetClimate()
 {
+    if(bLabEvent) return;
     if(GetNetMode()==NM_DedicatedServer || !Climate) return;
     float Amount=IsActorBeingDestroyed()?0:FrostAmount();
     for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It)
         if(!It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
     for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
-        if(*It!=this && !It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
+        if(*It!=this && !It->bLabEvent && !It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
     if(auto* Instance=GetWorld()->GetParameterCollectionInstance(Climate)) Instance->SetScalarParameterValue(TEXT("ColdAmount"),Amount);
 }
 
 void AMCIceEvent::PublishManualHUD()
 {
+    if(bLabEvent) return;
     auto* State=GetWorld()->GetGameState<AMCGameState>();
     if(!HasAuthority() || !State || !State->bDevManualEvents || !ActorHasTag(TEXT("MC_DevKeyEvent"))) return;
     auto& Status=State->DirectorState;
@@ -890,6 +995,7 @@ void AMCIceEvent::ClearGameplay()
     for(const auto& Player:Players) if(IsValid(Player.Hero)) Player.Hero->ClearFrozenLegs();
     FrozenLegHeroes.Reset();
     Players.Reset(); Strikes.Reset(); ZoneCrystals.Reset(); bNextCircle=false; bNovaWarning=false; NovaImpactAt=0;
+    CircleHandoffAt=0; NextCircleRetryAt=0; CrystalSerial=0;
     SeriesTarget.Reset(); SeriesShotsLeft=0; NextIcicleAt=NextSeriesShotAt=NextZoneCrystalAt=NextNovaAt=0;
     Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
@@ -996,6 +1102,7 @@ void AMCIceEvent::EndPlay(const EEndPlayReason::Type Reason)
 void AMCIceEvent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+    DOREPLIFETIME(AMCIceEvent,bLabEvent);
     DOREPLIFETIME(AMCIceEvent,Stage); DOREPLIFETIME(AMCIceEvent,bFailed);
     DOREPLIFETIME(AMCIceEvent,CandyHealth); DOREPLIFETIME(AMCIceEvent,MaxCandyHealth);
     DOREPLIFETIME(AMCIceEvent,ArrivalSeconds); DOREPLIFETIME(AMCIceEvent,FreezeSeconds); DOREPLIFETIME(AMCIceEvent,ThawSeconds);
@@ -1006,6 +1113,10 @@ void AMCIceEvent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
     DOREPLIFETIME(AMCIceEvent,IcicleSeriesSpacingSeconds);
     DOREPLIFETIME(AMCIceEvent,IcicleRadius); DOREPLIFETIME(AMCIceEvent,IcicleDamage);
     DOREPLIFETIME(AMCIceEvent,ZoneCrystalIntervalSeconds); DOREPLIFETIME(AMCIceEvent,ZoneCrystalHealth);
+    DOREPLIFETIME(AMCIceEvent,CircleMinGap); DOREPLIFETIME(AMCIceEvent,CircleHandoffAt);
+    DOREPLIFETIME(AMCIceEvent,ZoneCrystalFallSeconds); DOREPLIFETIME(AMCIceEvent,ZoneCrystalFallHeight);
+    DOREPLIFETIME(AMCIceEvent,ZoneCrystalVortexRadius); DOREPLIFETIME(AMCIceEvent,ZoneCrystalVortexSeconds); DOREPLIFETIME(AMCIceEvent,ZoneCrystalPush);
+    DOREPLIFETIME(AMCIceEvent,BossVortexSeconds); DOREPLIFETIME(AMCIceEvent,BossFrostRadius); DOREPLIFETIME(AMCIceEvent,BossFreezeMultiplier);
     DOREPLIFETIME(AMCIceEvent,NovaIntervalSeconds); DOREPLIFETIME(AMCIceEvent,NovaWarningSeconds);
     DOREPLIFETIME(AMCIceEvent,NovaRange); DOREPLIFETIME(AMCIceEvent,NovaHalfAngleDegrees); DOREPLIFETIME(AMCIceEvent,NovaFootHealth);
     DOREPLIFETIME(AMCIceEvent,Tongue); DOREPLIFETIME(AMCIceEvent,CandyAnchor);
