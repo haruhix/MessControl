@@ -1,6 +1,8 @@
 #include "MCPlayerCameraComponent.h"
 #include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
 #include "Engine/World.h"
+#include "GameFramework/GameStateBase.h"
 
 namespace {
     constexpr float ImpactDuration=.28f;
@@ -49,6 +51,17 @@ void UMCPlayerCameraComponent::AddGroundImpact(float Strength,const FVector& Sou
     GroundImpactSource=Source;GroundImpactStartedAt=Now;
 }
 
+void UMCPlayerCameraComponent::AddCombatConfirm(float Strength)
+{
+    if(!GetWorld() || !FMath::IsFinite(Strength) || Strength<=0.f) return;
+    if(GetOwner() && GetOwner()->ActorHasTag(TEXT("MC.LegacyCombatFeedback"))) return;
+    const double Now=GetWorld()->GetTimeSeconds();
+    // Several contacts in a buffer pulse produce one bounded camera accent.
+    Strength=FMath::Clamp(Strength,0.f,1.f);
+    if(Now-CombatConfirmAt<.08) {CombatConfirmStrength=FMath::Max(CombatConfirmStrength,Strength);return;}
+    CombatConfirmAt=Now;CombatConfirmStrength=Strength;
+}
+
 void UMCPlayerCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)
 {
     Super::GetCameraView(DeltaTime,DesiredView);
@@ -72,6 +85,38 @@ void UMCPlayerCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& 
         DesiredView.Rotation+=FRotator(-.9f*Wave,.6f*CrossWave*Side,.35f*Wave*Side)*Amount;
     }
     const auto* Hero=Cast<AMCToothCharacter>(GetOwner());
+    if(Hero && !Hero->ActorHasTag(TEXT("MC.LegacyCombatFeedback")) && Hero->IsLocallyControlled() && Hero->IsPlayerControlled() && Hero->Status) {
+        const float FeedbackScale=FMath::Clamp(ImpactShakeScale,0.f,2.f);
+        const double Time=GetWorld()->GetTimeSeconds();
+        const double ConfirmAge=Time-CombatConfirmAt;
+        if(ConfirmAge>=0. && ConfirmAge<.13) {
+            const float Punch=CombatConfirmStrength*ImpactEnvelope(ConfirmAge,.13f)*FeedbackScale;
+            DesiredView.Rotation.Pitch-=.48f*Punch;
+            DesiredView.FOV-=.8f*Punch;
+        }
+        const auto& Status=Hero->Status->State;
+        if(Status.DamageAt>PresentedDamageAt) {
+            const float Loss=PreviousHealth>=0.f?FMath::Max(0.f,PreviousHealth-Status.Health):Status.MaxHealth*.1f;
+            DamageStrength=FMath::Clamp(.3f+Loss/FMath::Max(1.f,Status.MaxHealth)*2.f,.3f,1.f);
+            PresentedDamageAt=Status.DamageAt;
+        }
+        PreviousHealth=Status.Health;
+        const auto* GS=GetWorld()->GetGameState();
+        const double DamageAge=(GS?GS->GetServerWorldTimeSeconds():Time)-Status.DamageAt;
+        if(DamageAge>=0. && DamageAge<.32) {
+            const float Pulse=DamageStrength*ImpactEnvelope(DamageAge,.32f);
+            const float Kick=Pulse*FeedbackScale;
+            DesiredView.Rotation+=FRotator(-1.15f*FMath::Cos(float(DamageAge)*PI*9.f),0,
+                .55f*FMath::Sin(float(DamageAge)*PI*11.f))*Kick;
+            DesiredView.FOV+=1.2f*Kick;
+            // Change only this frame's view; the authored post-process settings restore automatically.
+            auto& PP=DesiredView.PostProcessSettings;
+            PP.bOverride_VignetteIntensity=true;
+            PP.VignetteIntensity=FMath::Clamp(PP.VignetteIntensity+.24f*Pulse,0.f,1.f);
+            PP.bOverride_SceneColorTint=true;
+            PP.SceneColorTint*=FMath::Lerp(FLinearColor::White,FLinearColor(1,.72f,.64f),Pulse*.32f);
+        }
+    }
     if (!Hero || !bAutoFocusPlayer || PostProcessBlendWeight<=0.f || !PostProcessSettings.bOverride_DepthOfFieldFocalDistance) return;
     const FVector Focus=Hero->GetCameraFocusLocation();
     // Use the final view after the spring arm's collision correction, and focus

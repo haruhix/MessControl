@@ -15,6 +15,7 @@
 #include "MCArenaTooth.h"
 #include "MCToothCalculusComponent.h"
 #include "MCToothStatusComponent.h"
+#include "MCCombatFeedbackComponent.h"
 #include "MCFoodActor.h"
 #include "MCGameMode.h"
 #include "MCTutorialDirector.h"
@@ -88,6 +89,9 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     Muscles->bAttemptToRecreateDisabledControls=true;
     ToothPhysics=CreateDefaultSubobject<UMCToothPhysicsComponent>(TEXT("ToothPhysics"));
     Status=CreateDefaultSubobject<UMCToothStatusComponent>(TEXT("ToothStatus"));
+    Feedback=CreateDefaultSubobject<UMCCombatFeedbackComponent>(TEXT("CombatFeedback"));
+    Feedback->bUseProceduralRecoil=false;
+    Feedback->bUseBodyOverlay=false;
     BrushContact=CreateDefaultSubobject<UMCBrushContactComponent>(TEXT("BrushContact"));
     Gaze=CreateDefaultSubobject<UMCGazeComponent>(TEXT("Gaze"));
     Grip=CreateDefaultSubobject<UMCGripComponent>(TEXT("Grip"));
@@ -195,7 +199,10 @@ void AMCToothCharacter::BeginPlay()
     UMaterialInterface* Base=Appearance && Appearance->Material?Appearance->Material.Get():LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_ArenaTooth.M_ArenaTooth"));
     if (Base)
     {
-        StatusMaterial=UMaterialInstanceDynamic::Create(Base,this);
+        UMaterialInterface* Legacy=ActorHasTag(TEXT("MC.LegacyCombatFeedback"))
+            ?LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Tests/CombatImpactCompare/M_PlayerImpactBaseline.M_PlayerImpactBaseline")):nullptr;
+        StatusMaterial=UMaterialInstanceDynamic::Create(Legacy?Legacy:Base,this);
+        if(Legacy) StatusMaterial->CopyMaterialUniformParameters(Base);
         for (int32 I=0;I<GetMesh()->GetNumMaterials();++I)
         {
             const FString Name=GetNameSafe(GetMesh()->GetMaterial(I));
@@ -949,7 +956,10 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
         const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
         StatusMaterial->SetScalarParameterValue(TEXT("Coffee"),Status->CoffeeAmount());
         StatusMaterial->SetScalarParameterValue(TEXT("Damage"),1-Status->State.Health/FMath::Max(1.f,Status->State.MaxHealth));
-        StatusMaterial->SetScalarParameterValue(TEXT("HitFlash"),Status->State.bCareReaction?0:FMath::Max(0.,1-(Now-Status->State.ReactionAt)/.16));
+        const float HitFlash=ActorHasTag(TEXT("MC.LegacyCombatFeedback"))
+            ?(Status->State.bCareReaction?0.f:float(FMath::Max(0.,1-(Now-Status->State.ReactionAt)/.16)))
+            :Feedback->GetHitFlash();
+        StatusMaterial->SetScalarParameterValue(TEXT("HitFlash"),HitFlash);
     }
     const auto& A = AnimationSettings;
     const float Time = GetWorld()->GetTimeSeconds();
@@ -1067,6 +1077,8 @@ void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaT
 }
 void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 ToolSlot,float Intensity)
 {
+    if(IsLocallyControlled() && IsPlayerControlled()) if(auto* PlayerCamera=Cast<UMCPlayerCameraComponent>(Camera))
+        PlayerCamera->AddCombatConfirm(.35f+.65f*FMath::Clamp(Intensity,0.f,1.f));
     const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):NAME_None;
     if((Event.IsNone() || !ExperimentalAudio->Play(Event,Location,Intensity,.5f)) && SoundPalette)
         SoundPalette->Play(this,TEXT("Hit"),Location);
@@ -1268,10 +1280,10 @@ void AMCToothCharacter::ResolveSwing()
             GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,FMath::Min(1.f/30.f,Left),false);
         return;
     }
-    ++ConfirmedHitCount;
     FVector Direction=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(); if (Direction.IsNearlyZero()) Direction=GetActorForwardVector();
     Target->ToothPhysics->ApplyHit(Direction*ToothPhysics->Settings.Knockback+FVector(0,0,ToothPhysics->Settings.Lift),Target->GetActorLocation()+FVector(0,0,15));
-    Target->Status->Damage(Inventory->IsCleaningTool()?25.f:Inventory->Damage(),Direction);
+    if(!Target->Status->Damage(Inventory->IsCleaningTool()?25.f:Inventory->Damage(),Direction,this)) return;
+    ++ConfirmedHitCount;
     MulticastHitSound(Target->GetActorLocation(),AudioTool,HitIntensity);
 }
 void AMCToothCharacter::NotifyCameraImpact(float ImpactSpeed,const FVector& Direction)

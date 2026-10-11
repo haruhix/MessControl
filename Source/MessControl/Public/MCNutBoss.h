@@ -66,6 +66,7 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Cooldown") double NextSpecialAt=0;
 protected:
     virtual void RefreshPresentation() override;
+    virtual void ReportDamageFeedback(AMCToothCharacter* Source,float Applied) override;
     virtual void Defeat() override;
 private:
     // A placed laboratory station schedules real attacks without the encounter AI.

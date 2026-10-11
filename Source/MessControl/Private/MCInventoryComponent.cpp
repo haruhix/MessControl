@@ -328,7 +328,7 @@ bool UMCInventoryComponent::ResolveBufferContact()
         FVector Direction=(Target->GetActorLocation()-Hero->GetActorLocation()).GetSafeNormal2D();
         if(Direction.IsNearlyZero()) Direction=Hero->GetActorForwardVector();
         Target->ToothPhysics->ApplyHit(Direction*Hero->ToothPhysics->Settings.Knockback+FVector(0,0,Hero->ToothPhysics->Settings.Lift),Point);
-        Target->Status->Damage(HitDamage,Direction); RegisterHit(Point);
+        if(Target->Status->Damage(HitDamage,Direction,Hero)) RegisterHit(Point);
     }
     return HitAny;
 }

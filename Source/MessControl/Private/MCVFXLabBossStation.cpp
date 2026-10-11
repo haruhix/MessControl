@@ -66,7 +66,7 @@ void AMCVFXLabBossStation::BeginPlay()
         Status=TEXT("Paused; waiting for a nearby spectator");
         // The lab manager starts only nearby stations after all BeginPlay calls.
         // A station placed on its own retains its authored auto-run behavior.
-        if(bAutoRun && !AMCVFXLab::Find(GetWorld())) {
+        if(!bComparisonMode && bAutoRun && !AMCVFXLab::Find(GetWorld())) {
             SetRunning(true);
             NextCycleAt=GetWorld()->GetTimeSeconds()+FMath::Max(.1f,StartDelaySeconds);
         }
@@ -156,14 +156,23 @@ bool AMCVFXLabBossStation::BeginCycle()
     SubjectController=GetWorld()->SpawnActor<AMCPlaytestBotController>(AMCPlaytestBotController::StaticClass(),GetActorLocation(),Facing,Spawn);
     if(!SubjectController) {Status=TEXT("Subject controller spawn failed");return false;}
     Track(SubjectController);
+    if(bComparisonMode) SubjectController->Configure(EMCPlaytestBotSkill::Regular,0,ComparisonSeed);
     UClass* ToothClass=SubjectClass.LoadSynchronous();
     if(!ToothClass) {Status=TEXT("Saved tooth Blueprint is missing");return false;}
     const auto* ToothDefaults=ToothClass->GetDefaultObject<AMCToothCharacter>();
     const float SubjectHeight=ToothDefaults->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()+4;
-    Subject=GetWorld()->SpawnActor<AMCToothCharacter>(ToothClass,SubjectGround.ImpactPoint+FVector(0,0,SubjectHeight),Facing,Spawn);
+    const FTransform SubjectPose(Facing,SubjectGround.ImpactPoint+FVector(0,0,SubjectHeight));
+    if(bComparisonMode) {
+        Subject=GetWorld()->SpawnActorDeferred<AMCToothCharacter>(ToothClass,SubjectPose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        if(Subject) {
+            if(bLegacyFeedback) Subject->Tags.AddUnique(TEXT("MC.LegacyCombatFeedback"));
+            Subject->FinishSpawning(SubjectPose);
+        }
+    } else Subject=GetWorld()->SpawnActor<AMCToothCharacter>(ToothClass,SubjectPose.GetLocation(),Facing,Spawn);
     if(!Subject) {Status=TEXT("Subject pawn spawn failed");return false;}
     Track(Subject);
     SubjectController->Possess(Subject);
+    if(bComparisonMode) SubjectController->SetLabControlled(true);
     GetWorldTimerManager().ClearAllTimersForObject(SubjectController);
     SubjectController->StopMovement();
     SubjectController->SetActorTickEnabled(false);
@@ -188,8 +197,9 @@ bool AMCVFXLabBossStation::BeginCycle()
         NutBoss=GetWorld()->SpawnActorDeferred<AMCNutBoss>(AMCNutBoss::StaticClass(),Pose,NutOwner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!NutBoss) {Status=TEXT("Nut boss spawn failed");return false;}
         Track(NutBoss);
+        if(bComparisonMode && bLegacyFeedback) NutBoss->Tags.AddUnique(TEXT("MC.LegacyCombatFeedback"));
         NutBoss->LabStation=this; NutBoss->LabTarget=Subject; NutBoss->Target=Subject;
-        NutBoss->ConfigureEncounter(Floor,NutOwner,BossRole,Settings,1,GetUniqueID()+Cycles*137);
+        NutBoss->ConfigureEncounter(Floor,NutOwner,BossRole,Settings,1,bComparisonMode?ComparisonSeed:GetUniqueID()+Cycles*137);
         FTransform AirbornePose=Pose; AirbornePose.SetLocation(NutBoss->GetActorLocation());
         NutBoss->FinishSpawning(AirbornePose);
         NutOwner->Bosses.Add(NutBoss); NutOwner->RegisterEncounterEnemy(NutBoss);
@@ -204,7 +214,9 @@ bool AMCVFXLabBossStation::BeginCycle()
         const FTransform Pose(Facing,BossStart);
         Boss=GetWorld()->SpawnActorDeferred<AMCBossCharacter>(Class,Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Boss) {Status=TEXT("Boss Blueprint spawn failed");return false;}
-        Track(Boss); Boss->Profile=Profile; Boss->Tags.AddUnique(TEXT("MC_DevBoss")); Boss->FinishSpawning(Pose);
+        Track(Boss); Boss->Profile=Profile; Boss->Tags.AddUnique(TEXT("MC_DevBoss"));
+        if(bComparisonMode && bLegacyFeedback) Boss->Tags.AddUnique(TEXT("MC.LegacyCombatFeedback"));
+        Boss->FinishSpawning(Pose);
         Boss->ActivateBoss();
         if(auto* Brain=Cast<AMCBossAIController>(Boss->GetController())) {
             Brain->StopBossBrain(); Brain->SetActorTickEnabled(false); Brain->SetOwner(this); Track(Brain);
@@ -214,6 +226,157 @@ bool AMCVFXLabBossStation::BeginCycle()
     }
     Status=TEXT("Spawned real boss and subject");
     return true;
+}
+
+AMCToothCharacter* AMCVFXLabBossStation::GetComparisonSubject() const
+{
+    return bComparisonMode && IsValid(Subject)?Subject.Get():nullptr;
+}
+
+AActor* AMCVFXLabBossStation::GetComparisonEnemy() const
+{
+    if(!bComparisonMode) return nullptr;
+    if(IsValid(NutBoss)) return NutBoss.Get();
+    return IsValid(Boss)?Boss.Get():nullptr;
+}
+
+bool AMCVFXLabBossStation::IsComparisonReady() const
+{
+#if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
+    if(!bComparisonMode || !bCycleOpen || !IsValid(Subject) || !Subject->Status || !Subject->Status->IsAlive()) return false;
+    if(IsValid(NutBoss)) return NutBoss->CanReceiveToolHit();
+    return IsValid(Boss) && Boss->CanReceiveWeaponHit();
+#else
+    return false;
+#endif
+}
+
+bool AMCVFXLabBossStation::PrepareComparison(EMCVFXLabBossKind Selected)
+{
+#if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
+    if(!HasAuthority() || !GetWorld() || !GetWorld()->IsGameWorld()
+        || !StaticEnum<EMCVFXLabBossKind>()->IsValidEnumValue(int64(Selected))) return false;
+    bComparisonMode=true;
+    bRunning=false;
+    Kind=Selected;
+    SetActorTickEnabled(true);
+    const bool Prepared=BeginCycle();
+    if(!Prepared) {
+        const FString Reason=Status;
+        Cleanup();
+        Status=Reason;
+    } else Status=TEXT("Comparison prepared; waiting for landing or a manual strike");
+    ForceNetUpdate(); UpdateLabel();
+    return Prepared;
+#else
+    return false;
+#endif
+}
+
+bool AMCVFXLabBossStation::RunComparisonAction()
+{
+#if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
+    if(!HasAuthority() || !IsComparisonReady() || bActionStarted) return false;
+    if(IsValid(NutBoss) && NutBoss->State!=EMCNutBossState::Idle) return false;
+    if(IsValid(Boss) && Boss->Runtime.State!=EMCBossState::Searching && Boss->Runtime.State!=EMCBossState::Chasing) return false;
+    SubjectHealthBefore=Subject->Status->State.Health;
+    ComparisonIncomingHealth=0;
+    if(IsEntranceKind()) {
+        bActionStarted=true; ActionStartedAt=GetWorld()->GetTimeSeconds();
+        const bool Observed=bSawEntrance && SeenCues.Contains(uint8(EMCNutCombatCue::EntranceImpact));
+        FinishCycle(Observed,TEXT("Observed real comparison entrance; fixtures retained"));
+        return Observed;
+    }
+    const float EnemyHealthBefore=IsValid(NutBoss)?NutBoss->Health:Boss->Runtime.Health;
+    const float EnemyShieldBefore=IsValid(NutBoss)?NutBoss->ShieldHealth:0;
+    const bool Accepted=LaunchAction();
+    if(IsDeathKind() || Kind==EMCVFXLabBossKind::MageHurt || Kind==EMCVFXLabBossKind::ZombieHurt
+        || Kind==EMCVFXLabBossKind::TankShieldHit || Kind==EMCVFXLabBossKind::TankShieldBreakOverflow) {
+        const float EnemyHealthAfter=IsValid(NutBoss)?NutBoss->Health:Boss->Runtime.Health;
+        const float EnemyShieldAfter=IsValid(NutBoss)?NutBoss->ShieldHealth:0;
+        ComparisonOutgoingHealth=FMath::Max(0.f,EnemyHealthBefore-EnemyHealthAfter);
+        ComparisonOutgoingShield=FMath::Max(0.f,EnemyShieldBefore-EnemyShieldAfter);
+    }
+    bRunning=Accepted;
+    if(!Accepted) {
+        bActionStarted=false;
+        Status=TEXT("Selected real ability rejected; fixtures retained");
+    } else Status=TEXT("Selected real ability running; fixtures retained after recovery");
+    ForceNetUpdate(); UpdateLabel();
+    return Accepted;
+#else
+    return false;
+#endif
+}
+
+float AMCVFXLabBossStation::ApplyComparisonOutgoing(float Damage)
+{
+#if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
+    if(!HasAuthority() || !IsComparisonReady() || !FMath::IsFinite(Damage) || Damage<=0) return 0;
+    const float HealthBefore=IsValid(NutBoss)?NutBoss->Health:Boss->Runtime.Health;
+    const float ShieldHealthBefore=IsValid(NutBoss)?NutBoss->ShieldHealth:0;
+    if(IsValid(NutBoss)) NutBoss->ReceiveToolDamage(Damage,Subject);
+    else Boss->ReceiveBossDamage(Damage,Subject);
+    const float HealthAfter=IsValid(NutBoss)?NutBoss->Health:Boss->Runtime.Health;
+    const float ShieldHealthAfter=IsValid(NutBoss)?NutBoss->ShieldHealth:0;
+    ComparisonOutgoingHealth=FMath::Max(0.f,HealthBefore-HealthAfter);
+    ComparisonOutgoingShield=FMath::Max(0.f,ShieldHealthBefore-ShieldHealthAfter);
+    Status=FString::Printf(TEXT("%s outgoing: HP %.1f, shield %.1f"),
+        ComparisonOutgoingHealth>0 || ComparisonOutgoingShield>0?TEXT("Accepted"):TEXT("Rejected"),
+        ComparisonOutgoingHealth,ComparisonOutgoingShield);
+    ForceNetUpdate(); UpdateLabel();
+    return ComparisonOutgoingHealth;
+#else
+    return 0;
+#endif
+}
+
+float AMCVFXLabBossStation::ApplyComparisonIncoming(float Damage)
+{
+#if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
+    AActor* Enemy=GetComparisonEnemy();
+    if(!HasAuthority() || !IsComparisonReady() || !IsValid(Enemy) || !FMath::IsFinite(Damage) || Damage<=0) return 0;
+    const float HealthBefore=Subject->Status->State.Health;
+    const FVector Direction=(Subject->GetActorLocation()-Enemy->GetActorLocation()).GetSafeNormal2D(SMALL_NUMBER,GetActorForwardVector());
+    Subject->Status->Damage(Damage,Direction,Enemy);
+    ComparisonIncomingHealth=FMath::Max(0.f,HealthBefore-Subject->Status->State.Health);
+    Status=FString::Printf(TEXT("%s incoming: HP %.1f"),ComparisonIncomingHealth>0?TEXT("Accepted"):TEXT("Rejected"),ComparisonIncomingHealth);
+    ForceNetUpdate(); UpdateLabel();
+    return ComparisonIncomingHealth;
+#else
+    return 0;
+#endif
+}
+
+FString AMCVFXLabBossStation::GetComparisonStatusText() const
+{
+    if(!bComparisonMode) return Status;
+    const float PlayerHealth=IsValid(Subject) && Subject->Status?Subject->Status->State.Health:0;
+    const float PlayerMaxHealth=IsValid(Subject) && Subject->Status?Subject->Status->State.MaxHealth:0;
+    const float EnemyHealth=IsValid(NutBoss)?NutBoss->Health:IsValid(Boss)?Boss->Runtime.Health:0;
+    const float EnemyMaxHealth=IsValid(NutBoss)?NutBoss->Settings.MaxHealth:IsValid(Boss)?Boss->Runtime.MaxHealth:0;
+    const float ShieldHealth=IsValid(NutBoss)?NutBoss->ShieldHealth:0;
+    const FString Phase=IsValid(NutBoss)?StaticEnum<EMCNutBossState>()->GetNameStringByValue(int64(NutBoss->State)):
+        IsValid(Boss)?StaticEnum<EMCBossState>()->GetNameStringByValue(int64(Boss->Runtime.State)):TEXT("Missing fixtures");
+    const float ObservedIncoming=bActionStarted?FMath::Max(0.f,SubjectHealthBefore-PlayerHealth):ComparisonIncomingHealth;
+    return FString::Printf(TEXT("%s | %s\nPlayer HP %.0f/%.0f | Boss HP %.0f/%.0f | Shield %.0f\nOutgoing HP %.1f, shield %.1f | Incoming HP %.1f\n%s"),
+        *KindName(),*Phase,PlayerHealth,PlayerMaxHealth,EnemyHealth,EnemyMaxHealth,ShieldHealth,
+        ComparisonOutgoingHealth,ComparisonOutgoingShield,ObservedIncoming,*Status);
+}
+
+void AMCVFXLabBossStation::ResumeComparisonBot()
+{
+#if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
+    if(!HasAuthority() || !bComparisonMode || !IsValid(Subject) || !IsValid(SubjectController)
+        || (Subject->GetController() && Subject->GetController()!=SubjectController)) return;
+    if(Subject->GetController()!=SubjectController) SubjectController->Possess(Subject);
+    SubjectController->SetLabControlled(true);
+    GetWorldTimerManager().ClearAllTimersForObject(SubjectController);
+    SubjectController->SetActorTickEnabled(false);
+    if(APlayerState* Identity=SubjectController->GetPlayerState<APlayerState>()) {
+        Identity->SetIsSpectator(false); Identity->SetIsOnlyASpectator(false); Identity->SetIsABot(true);
+    }
+#endif
 }
 
 bool AMCVFXLabBossStation::LaunchAction()
@@ -235,7 +398,8 @@ bool AMCVFXLabBossStation::LaunchAction()
             return bSawHurt;
         }
         if(Kind==EMCVFXLabBossKind::TankShieldHit || Kind==EMCVFXLabBossKind::TankShieldBreakOverflow) {
-            if(!FMath::IsNearlyEqual(ShieldBefore,500.f,.1f) || !NutBoss->IsShieldProtectingFrom(Subject->GetActorLocation())) return false;
+            const float ExpectedShield=bComparisonMode?NutBoss->BossSettings.ShieldMaxHealth:500.f;
+            if(!FMath::IsNearlyEqual(ShieldBefore,ExpectedShield,.1f) || !NutBoss->IsShieldProtectingFrom(Subject->GetActorLocation())) return false;
             const float Raw=Kind==EMCVFXLabBossKind::TankShieldHit?75.f:ShieldBefore+100.f;
             AppliedHealthDamage=NutBoss->ReceiveToolDamage(Raw,Subject);
             const float Expected=FMath::Min(Raw,ShieldBefore)*NutBoss->BossSettings.ShieldFrontDamageScale+FMath::Max(0.f,Raw-ShieldBefore);
@@ -322,14 +486,20 @@ void AMCVFXLabBossStation::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
     UpdateLabel();
-    if(!HasAuthority() || !bRunning || !GetWorld()->IsGameWorld()) return;
+    if(!HasAuthority() || !GetWorld()->IsGameWorld()) return;
+    if(bComparisonMode) {
+        // Entrance, native attack timers and presentation keep progressing while
+        // the comparison owner decides when to strike or prepare the next case.
+        if(bCycleOpen) Observe();
+        if(!bRunning || !bActionStarted || !bCycleOpen) return;
+    } else if(!bRunning) return;
     const double Now=GetWorld()->GetTimeSeconds();
     if(!bCycleOpen) {
         if(Now<NextCycleAt) return;
         if(!BeginCycle()) {FinishCycle(false,Status);return;}
     }
     Observe();
-    if(Now-CycleStartedAt>40) {FinishCycle(false,TEXT("Timeout: expected live callback/effect was not observed"));return;}
+    if(Now-(bComparisonMode?ActionStartedAt:CycleStartedAt)>40) {FinishCycle(false,TEXT("Timeout: expected live callback/effect was not observed"));return;}
     if(!bActionStarted) {
         if(IsNutKind()) {
             if(!IsValid(NutBoss)) {FinishCycle(false,TEXT("Nut disappeared before action"));return;}
@@ -352,7 +522,7 @@ void AMCVFXLabBossStation::Tick(float DeltaSeconds)
     }
     if((Kind==EMCVFXLabBossKind::TankShieldHit || Kind==EMCVFXLabBossKind::TankShieldBreakOverflow) && Age>=1) {
         const bool Cue=SeenCues.Contains(uint8(EMCNutCombatCue::ShieldHit));
-        FinishCycle(Cue && AppliedHealthDamage>0,Kind==EMCVFXLabBossKind::TankShieldHit?
+        FinishCycle(Cue && (AppliedHealthDamage>0 || (bComparisonMode && NutBoss->ShieldHealth<ShieldBefore)),Kind==EMCVFXLabBossKind::TankShieldHit?
             TEXT("Shield 500: raw75 removed75 durability, protected health damage observed"):
             TEXT("Shield 500: raw600 broke shield; reduced500 + full100 overflow observed"));return;
     }
@@ -395,8 +565,11 @@ void AMCVFXLabBossStation::FinishCycle(bool bPassed,const FString& Reason)
     Status=FString(bPassed?TEXT("Observed: "):TEXT("FAILED: "))+Reason;
     if(!bPassed) Status+=FString::Printf(TEXT(" | tell/execute/recover %d/%d/%d; creeps %d; fire %d; wind/clot/impact/ulcer %d/%d/%d/%d; travel %.0f"),
         CycleTelegraphs,CycleExecutions,CycleRecoveries,GeneratedCreeps,bSawFireImpact,bSawWind,bSawClot,bSawClotImpact,bSawUlcer,MaximumTravel);
-    bCycleOpen=false;
-    NextCycleAt=GetWorld()->GetTimeSeconds()+FMath::Max(.5f,CycleSeconds);
+    if(bComparisonMode) bRunning=false;
+    else {
+        bCycleOpen=false;
+        NextCycleAt=GetWorld()->GetTimeSeconds()+FMath::Max(.5f,CycleSeconds);
+    }
     ForceNetUpdate(); UpdateLabel();
 }
 
@@ -406,7 +579,10 @@ void AMCVFXLabBossStation::Cleanup()
         GatherOwnedActors();
         if(IsValid(Boss)) Boss->ResetForRun();
         if(IsValid(NutOwner)) NutOwner->Stop();
-        for(const auto& Weak:OwnedActors) if(AActor* Actor=Weak.Get(); IsValid(Actor) && !Actor->IsActorBeingDestroyed()) Actor->Destroy();
+        for(const auto& Weak:OwnedActors) if(AActor* Actor=Weak.Get(); IsValid(Actor) && !Actor->IsActorBeingDestroyed()) {
+            if(bComparisonMode) GetWorldTimerManager().ClearAllTimersForObject(Actor);
+            Actor->Destroy();
+        }
     }
     OwnedActors.Reset(); ObservedActors.Reset(); SeenCues.Reset();
     NutBoss=nullptr; Boss=nullptr; NutOwner=nullptr; Subject=nullptr; SubjectController=nullptr;
@@ -415,11 +591,17 @@ void AMCVFXLabBossStation::Cleanup()
     LastTelegraphs=LastExecutions=LastRecoveries=0;
     CycleTelegraphs=CycleExecutions=CycleRecoveries=GeneratedCreeps=0;
     LastBossState=255; MaximumTravel=0; AppliedHealthDamage=0;
+    ComparisonOutgoingHealth=ComparisonOutgoingShield=ComparisonIncomingHealth=0;
 }
 
 void AMCVFXLabBossStation::Reset()
 {
     if(!HasAuthority() || !GetWorld() || !GetWorld()->IsGameWorld()) return;
+    if(bComparisonMode) {
+        Cycles=Passed=Failed=Telegraphs=Executions=Recoveries=Impacts=0;
+        PrepareComparison(Kind);
+        return;
+    }
     Cleanup(); Cycles=Passed=Failed=Telegraphs=Executions=Recoveries=Impacts=0;
     NextCycleAt=GetWorld()->GetTimeSeconds()+.1;
     Status=bRunning?TEXT("Reset; waiting to spawn"):TEXT("Reset; paused"); ForceNetUpdate(); UpdateLabel();
@@ -430,6 +612,13 @@ void AMCVFXLabBossStation::SetRunning(bool bEnabled)
 #if !UE_BUILD_SHIPPING
     if(!HasAuthority() || !HasActorBegunPlay() || !GetWorld() || !GetWorld()->IsGameWorld() || bRunning==bEnabled) return;
     bRunning=bEnabled;
+    if(bComparisonMode) {
+        // Pause scheduling and observation completion, retaining the fixtures.
+        // An already accepted native ability may finish its normal recovery.
+        SetActorTickEnabled(true);
+        ForceNetUpdate(); UpdateLabel();
+        return;
+    }
     SetActorTickEnabled(bRunning);
     if(!bRunning) {Cleanup();Status=TEXT("Paused; owned actors cleared");}
     else {NextCycleAt=GetWorld()->GetTimeSeconds()+.1;Status=TEXT("Waiting to spawn real boss");}

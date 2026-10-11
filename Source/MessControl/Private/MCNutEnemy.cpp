@@ -5,8 +5,7 @@
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
-#include "MCReactionVFX.h"
-#include "MCNutBoss.h"
+#include "MCCombatFeedbackComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -29,6 +28,7 @@ AMCNutEnemy::AMCNutEnemy()
     Body->SetGenerateOverlapEvents(false); Body->SetCanEverAffectNavigation(false);
     Visual=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("NutMesh")); Visual->SetupAttachment(Body);
     Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision); Visual->SetCanEverAffectNavigation(false);
+    Feedback=CreateDefaultSubobject<UMCCombatFeedbackComponent>(TEXT("CombatFeedback"));
     LeftEye=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LeftEye")); LeftEye->SetupAttachment(Body);
     RightEye=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightEye")); RightEye->SetupAttachment(Body);
     static ConstructorHelpers::FObjectFinder<UStaticMesh> Sphere(TEXT("/Engine/BasicShapes/Sphere.Sphere"));
@@ -46,6 +46,7 @@ AMCNutEnemy::AMCNutEnemy()
 void AMCNutEnemy::BeginPlay()
 {
     Super::BeginPlay(); Settings.Sanitize(); PhaseOffset=GetUniqueID()*.37f;
+    Feedback->SetVisualTarget(Visual);
     if(auto* EyeMaterial=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/CoreLoop/M_NutEnemyEyes.M_NutEnemyEyes")))
         for(UStaticMeshComponent* Eye:{LeftEye.Get(),RightEye.Get()}) Eye->SetMaterial(0,EyeMaterial);
     RefreshPresentation();
@@ -103,11 +104,7 @@ float AMCNutEnemy::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
     const float Applied=FMath::Min(Health,Damage); Health-=Applied; HitAt=GetWorld()->GetTimeSeconds();
-    // The boss supplies its shield-aware feedback after this shared health mutation.
-    if(!Cast<AMCNutBoss>(this)) {
-        const FVector From=Source?Source->GetActorLocation():GetActorLocation()-GetActorForwardVector()*Settings.BodyRadius*2;
-        AMCReactionVFX::SpawnHit(this,GetToolTargetPoint(From),(GetActorLocation()-From).GetSafeNormal(),Applied);
-    }
+    ReportDamageFeedback(Source,Applied);
     if(IsValid(Source)) Target=Source;
     // A hit interrupts the telegraphed bite and gives the worker time to move.
     bAttackPending=false; AttackTarget.Reset(); AttackStartedAt=-100;
@@ -115,6 +112,12 @@ float AMCNutEnemy::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     if(Health<=0) Defeat();
     else RefreshPresentation();
     ForceNetUpdate(); return Applied;
+}
+
+void AMCNutEnemy::ReportDamageFeedback(AMCToothCharacter* Source,float Applied)
+{
+    const FVector From=Source?Source->GetActorLocation():GetActorLocation()-GetActorForwardVector()*Settings.BodyRadius*2;
+    Feedback->ReportAcceptedHit(Source,GetToolTargetPoint(From),(GetActorLocation()-From).GetSafeNormal(),Applied,0.f,false,Health<=0.f);
 }
 
 bool AMCNutEnemy::IsLiveTarget(const AMCToothCharacter* Hero) const
@@ -170,14 +173,21 @@ void AMCNutEnemy::MoveOnTongue(FVector Direction,float Dt)
 void AMCNutEnemy::TickPresentation(double Now)
 {
     const bool Winding=AttackStartedAt>-99 && Now-AttackStartedAt<Settings.WindupSeconds;
-    const float Hop=bDefeated?0:Settings.HopHeight*(.5f+.5f*FMath::Sin(Now*9+PhaseOffset));
-    const float Squash=Winding?.82f:1.f;
+    // Every procedural monster consumes the same accepted-hit pulse and fixed impact direction.
+    const float Hit=!bDefeated && Feedback->bUseProceduralRecoil?Feedback->GetHitPulse():0.f;
+    const FVector Away=GetActorTransform().InverseTransformVectorNoScale(Feedback->LastHit.Direction);
+    const FVector Recoil=Away.GetSafeNormal2D(SMALL_NUMBER,-FVector::ForwardVector)*(Settings.BodyRadius*.28f*Hit);
+    const float Hop=bDefeated?0:Settings.HopHeight*(.5f+.5f*FMath::Sin(Now*9+PhaseOffset))*(1-Hit);
+    const float Squash=(Winding?.82f:1.f)*(1-.23f*Hit);
     const float DeathScale=bDefeated?FMath::Clamp(1.f-float(Now-HitAt)/.6f,0.f,1.f):1.f;
     Visual->SetRelativeScale3D(MeshScale*FVector(1.f/Squash,1.f/Squash,Squash)*DeathScale);
-    Visual->SetRelativeLocation(VisualCenter+FVector(0,0,Winding?0:Hop));
+    Visual->SetRelativeLocation(VisualCenter+Recoil+FVector(0,0,Winding?0:Hop));
     for(UStaticMeshComponent* Eye:{LeftEye.Get(),RightEye.Get()})
     {
-        FVector EyePoint=Eye->GetRelativeLocation(); EyePoint.Z=Settings.BodyRadius*.32f+(Winding?0:Hop);
+        const float Side=Eye==LeftEye.Get()?-1.f:1.f;
+        const float HitSquash=1-.23f*Hit;
+        FVector EyePoint(Settings.BodyRadius*.88f/HitSquash,Side*Settings.BodyRadius*.3f/HitSquash,Settings.BodyRadius*.32f*HitSquash);
+        EyePoint+=Recoil+FVector(0,0,Winding?0:Hop);
         Eye->SetRelativeLocation(EyePoint);
     }
 }
@@ -195,7 +205,7 @@ void AMCNutEnemy::Tick(float Dt)
     if(bAttackPending && Now>=AttackStartedAt+Settings.WindupSeconds)
     {
         if(HasAttackContact(AttackTarget.Get()))
-            AttackTarget->Status->Damage(Settings.AttackDamage,(AttackTarget->GetActorLocation()-GetActorLocation()).GetSafeNormal2D());
+            AttackTarget->Status->Damage(Settings.AttackDamage,(AttackTarget->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(),this);
         bAttackPending=false; AttackTarget.Reset(); NextAttackAt=Now+Settings.AttackCooldown;
     }
     if(!IsLiveTarget(Target)) return;

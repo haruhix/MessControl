@@ -12,6 +12,7 @@ class USphereComponent;
 class UStaticMeshComponent;
 class UTextRenderComponent;
 class UStaticMesh;
+class UMCCombatFeedbackComponent;
 
 /** Small server-driven enemy supported directly by the live, deforming tongue. */
 UCLASS(Blueprintable)
@@ -31,6 +32,7 @@ public:
     virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source);
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USphereComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category="Combat|Feedback") TObjectPtr<UMCCombatFeedbackComponent> Feedback;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> LeftEye;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> RightEye;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UTextRenderComponent> Label;
@@ -45,6 +47,8 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCTongue> Tongue;
 protected:
     UFUNCTION() virtual void RefreshPresentation();
+    /** Override only when a derived damage resolver must report its final shield/health result. */
+    virtual void ReportDamageFeedback(AMCToothCharacter* Source,float Applied);
     bool IsLiveTarget(const AMCToothCharacter* Hero) const;
     bool HasAttackContact(const AMCToothCharacter* Hero) const;
     void Retarget();

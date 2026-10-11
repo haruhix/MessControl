@@ -75,7 +75,7 @@ void AMCNutSpellProjectile::ResolveImpact(const FHitResult& Hit)
     Impact.bImpacted=true;Impact.Point=Hit.ImpactPoint;Impact.Normal=Hit.ImpactNormal.GetSafeNormal(SMALL_NUMBER,FVector::UpVector);Impact.At=Now();
     if(auto* Hero=Cast<AMCToothCharacter>(Hit.GetActor());Hero && Hero->Status && Hero->Status->IsAlive()) {
         const FVector Direction=(Flight.Target-Flight.Start).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
-        if(Hero->Status->Damage(Damage,Direction)) {
+        if(Hero->Status->Damage(Damage,Direction,SourceActor)) {
             ++DamageApplications;
             if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Direction*180+FVector(0,0,65),Hit.ImpactPoint);
         }

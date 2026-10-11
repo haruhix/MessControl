@@ -155,7 +155,10 @@ AMCReactionVFX* AMCReactionVFX::SpawnHit(AActor* Victim,FVector Point,FVector Ai
     auto* V=Victim->GetWorld()->SpawnActorDeferred<AMCReactionVFX>(StaticClass(),Pose);
     if(!V) return nullptr;
     V->Effect=Cast<AMCToothCharacter>(Victim)?EMCReactionEffect::PlayerHit:EMCReactionEffect::CombatHit;
-    V->Seconds=.85f;V->Radius=V->Effect==EMCReactionEffect::PlayerHit?58.f:44.f;
+    V->bLegacyCombatFeedback=Victim->ActorHasTag(TEXT("MC.LegacyCombatFeedback"));
+    const float Strength=FMath::Sqrt(FMath::Clamp(Damage/40.f,0.f,1.f));
+    V->Seconds=.85f;V->Radius=V->bLegacyCombatFeedback?(V->Effect==EMCReactionEffect::PlayerHit?58.f:44.f)
+        :(V->Effect==EMCReactionEffect::PlayerHit?62.f:50.f)*FMath::Lerp(1.f,1.45f,Strength);
     V->Direction=Aim.GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
     V->AppliedDamage=Damage;V->bShieldedHit=Shielded;V->FinishSpawning(Pose);
     return V;
@@ -163,7 +166,8 @@ AMCReactionVFX* AMCReactionVFX::SpawnHit(AActor* Victim,FVector Point,FVector Ai
 void AMCReactionVFX::BeginPlay()
 {
     Super::BeginPlay();if(HasAuthority()) {StartedAt=Now();if(!bLoop) SetLifeSpan(Seconds+.15f);ForceNetUpdate();}
-    if(Effect==EMCReactionEffect::CombatHit || Effect==EMCReactionEffect::PlayerHit || Effect==EMCReactionEffect::FoodBreak) SetActorTickInterval(1.f/30);
+    if(Effect==EMCReactionEffect::CombatHit || Effect==EMCReactionEffect::PlayerHit) SetActorTickInterval(bLegacyCombatFeedback?1.f/30:1.f/60);
+    else if(Effect==EMCReactionEffect::FoodBreak) SetActorTickInterval(1.f/30);
     if(GetNetMode()!=NM_DedicatedServer) {
         if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/VFX/M_Reaction.M_Reaction"))) {Material=UMaterialInstanceDynamic::Create(Base,this);Mesh->SetMaterial(0,Material);}
         if(auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Gameplay/VFX/M_ReactionSoft.M_ReactionSoft"))) {SoftMaterial=UMaterialInstanceDynamic::Create(Base,this);Mesh->SetMaterial(1,SoftMaterial);}
@@ -189,7 +193,8 @@ void AMCReactionVFX::Tick(float Dt)
     const FVector R=FVector::CrossProduct(Axis,FVector::UpVector).GetSafeNormal(),V=FVector::CrossProduct(R,Axis).GetSafeNormal();
     const bool Combat=Effect==EMCReactionEffect::CombatHit || Effect==EMCReactionEffect::PlayerHit;
     DamageNumber->SetVisibility(Combat);DamageBackdrop->SetVisibility(Combat);
-    if(Combat) {
+    if(Combat && bLegacyCombatFeedback) {
+        if(!FMath::IsNearlyEqual(GetActorTickInterval(),1.f/30)) SetActorTickInterval(1.f/30);
         const bool Player=Effect==EMCReactionEffect::PlayerHit;
         const FLinearColor Tint=Player?FLinearColor(1,.18f,.09f):bShieldedHit?FLinearColor(.35f,.80f,1.f):FLinearColor(1,.82f,.25f);
         if(PresentedDamage!=AppliedDamage) {
@@ -217,6 +222,72 @@ void AMCReactionVFX::Tick(float Dt)
         if(Player) for(int32 I=0;I<5;++I) {
             const FVector P=Right*(I-2)*Radius*.17f+FVector(0,0,Age*(100+I*17));
             Soft.Disk(P,Right,Up,(8+Age*12),FLinearColor(.62f,.035f,.02f,.22f*SparkFade),16);
+        }
+    } else if(Combat) {
+        const float TickInterval=Age<.2f?1.f/60:1.f/30;
+        if(!FMath::IsNearlyEqual(GetActorTickInterval(),TickInterval)) SetActorTickInterval(TickInterval);
+        const bool Player=Effect==EMCReactionEffect::PlayerHit;
+        const bool Blocked=bShieldedHit && AppliedDamage==0;
+        const FLinearColor Tint=bShieldedHit?FLinearColor(.25f,.85f,1.f):Player?FLinearColor(1,.22f,.11f):FLinearColor(1,.82f,.25f);
+        if(PresentedDamage!=AppliedDamage) {
+            const FString Number=Blocked?TEXT("BLOCK"):FMath::IsNearlyEqual(AppliedDamage,FMath::RoundToFloat(AppliedDamage),.001f)
+                ?FString::Printf(TEXT("%.0f"),AppliedDamage):FString::Printf(TEXT("%.1f"),AppliedDamage);
+            DamageNumber->SetText(FText::FromString(Number));DamageBackdrop->SetText(FText::FromString(Number));PresentedDamage=AppliedDamage;
+        }
+        const float NumberAlpha=1-FMath::SmoothStep(.65f,1.f,T);
+        const float Pop=1+.22f*FMath::Exp(-Age*18);
+        const FVector NumberPoint=GetActorLocation()+View*(Radius*.45f+8)+Up*(Radius*.7f+Age*46);
+        const FRotator Facing=View.Rotation();
+        DamageNumber->SetWorldLocationAndRotation(NumberPoint,Facing);
+        DamageBackdrop->SetWorldLocationAndRotation(NumberPoint-View*.8f+Right*1.1f-Up*1.1f,Facing);
+        DamageNumber->SetWorldSize(38*Pop);DamageBackdrop->SetWorldSize(38*Pop);
+        DamageNumber->SetTextRenderColor(Tint.CopyWithNewOpacity(NumberAlpha).ToFColor(true));
+        DamageBackdrop->SetTextRenderColor(FLinearColor(.015f,.012f,.01f,NumberAlpha).ToFColor(true));
+        // A short bright contact silhouette reads before the ring and fragments
+        // spread. Both sections retain depth testing and existing owned materials.
+        const FVector Contact=View*3;
+        const float Flash=1-FMath::SmoothStep(.025f,.10f,Age);
+        if(Flash>.001f) {
+            Soft.Disk(Contact,Right,Up,Radius*(.30f+Age*1.4f),Tint.CopyWithNewOpacity(.48f*Flash),24);
+            const FLinearColor Core=bShieldedHit?FLinearColor(1.25f,1.65f,1.8f,.95f*Flash):FLinearColor(1.8f,1.65f,1.25f,.95f*Flash);
+            Glow.Star(Contact+View,Right,Up,Radius*(.34f-Age*.9f),.25f,Core);
+            Glow.Disk(Contact+View*2,Right,Up,Radius*.12f,Core,16,false);
+        }
+        const float RingFade=1-FMath::SmoothStep(.065f,.23f,Age);
+        if(RingFade>.001f) {
+            TArray<FVector> Ring;
+            const float RingSize=Radius*(.25f+.85f*FMath::Clamp(Age/.23f,0.f,1.f));
+            for(int32 I=0;I<=32;++I) {
+                const float A=I*2*PI/32;
+                Ring.Add(Contact+(Right*FMath::Cos(A)+Up*FMath::Sin(A))*RingSize);
+            }
+            Soft.Stroke(Ring,(2.7f+Radius*.012f)*RingFade,Tint.CopyWithNewOpacity(.92f*RingFade),false);
+        }
+        const float SparkFade=1-FMath::SmoothStep(.10f,.32f,Age);
+        if(SparkFade>.001f) {
+            const FVector Push=(Axis-View*FVector::DotProduct(Axis,View)).GetSafeNormal(SMALL_NUMBER,Up);
+            const float Flight=FMath::Clamp(Age/.30f,0.f,1.f);
+            for(int32 I=0;I<8;++I) {
+                const float A=I*2.39996f;
+                const FVector Radial=Right*FMath::Cos(A)+Up*FMath::Sin(A);
+                const FVector Travel=Radial*Radius*(.20f+Flight*(.74f+(I%3)*.12f))+Push*Radius*Flight*.35f;
+                const float Roll=A+Age*(I%2?6.f:-6.f);
+                const FVector Along=Right*FMath::Cos(Roll)+Up*FMath::Sin(Roll),Across=FVector::CrossProduct(View,Along).GetSafeNormal();
+                const float Size=(6.f+(I%3)*2.f)*(1-Flight*.45f);
+                Soft.RoundedPolygon(Contact+Travel,Along,Across,
+                    {FVector2D(-Size,0),FVector2D(0,Size*.45f),FVector2D(Size,0),FVector2D(0,-Size*.45f)},
+                    Tint.CopyWithNewOpacity(SparkFade),.10f);
+                Glow.Stroke({Contact+Travel-Radial*Radius*.18f,Contact+Travel-Radial*Radius*.07f,Contact+Travel},
+                    1.8f*SparkFade,FLinearColor(1.35f,1.25f,1.f,.70f*SparkFade),true);
+            }
+        }
+        if(Blocked) {
+            const float ShieldFade=1-FMath::SmoothStep(.10f,.30f,Age);
+            const FVector Center=Contact+View*2;
+            const TArray<FVector> Shield={Center+Up*Radius*.31f,Center+(Right*.26f+Up*.16f)*Radius,
+                Center+(Right*.20f-Up*.18f)*Radius,Center-Up*Radius*.36f,
+                Center+(-Right*.20f-Up*.18f)*Radius,Center+(-Right*.26f+Up*.16f)*Radius,Center+Up*Radius*.31f};
+            if(ShieldFade>.001f) Soft.Stroke(Shield,3.4f,Tint.CopyWithNewOpacity(ShieldFade),false);
         }
     } else if(Effect==EMCReactionEffect::FoodBreak) {
         if(!bFoodBurstPresented) {
@@ -479,4 +550,4 @@ void AMCReactionVFX::Tick(float Dt)
     if(Smoke.P.Num()) Smoke.Upload(Mesh,3);else Mesh->ClearMeshSection(3);
 }
 void AMCReactionVFX::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCReactionVFX,Effect);DOREPLIFETIME(AMCReactionVFX,StartedAt);DOREPLIFETIME(AMCReactionVFX,Seconds);DOREPLIFETIME(AMCReactionVFX,Radius);DOREPLIFETIME(AMCReactionVFX,Direction);DOREPLIFETIME(AMCReactionVFX,FlowLength);DOREPLIFETIME(AMCReactionVFX,bLoop);DOREPLIFETIME(AMCReactionVFX,AppliedDamage);DOREPLIFETIME(AMCReactionVFX,bShieldedHit);}
+{Super::GetLifetimeReplicatedProps(OutLifetimeProps);DOREPLIFETIME(AMCReactionVFX,Effect);DOREPLIFETIME(AMCReactionVFX,StartedAt);DOREPLIFETIME(AMCReactionVFX,Seconds);DOREPLIFETIME(AMCReactionVFX,Radius);DOREPLIFETIME(AMCReactionVFX,Direction);DOREPLIFETIME(AMCReactionVFX,FlowLength);DOREPLIFETIME(AMCReactionVFX,bLoop);DOREPLIFETIME(AMCReactionVFX,AppliedDamage);DOREPLIFETIME(AMCReactionVFX,bShieldedHit);DOREPLIFETIME(AMCReactionVFX,bLegacyCombatFeedback);}

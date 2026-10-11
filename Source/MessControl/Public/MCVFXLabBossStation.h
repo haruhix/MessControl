@@ -35,6 +35,10 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab") TObjectPtr<AMCTongue> Floor;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab") EMCVFXLabBossKind Kind=EMCVFXLabBossKind::TankRoll;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab") bool bAutoRun=true;
+    /** Manual A/B owner keeps the real fixtures between strikes. Ordinary lab cycles are unchanged. */
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab|Comparison") bool bComparisonMode=false;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab|Comparison") bool bLegacyFeedback=false;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab|Comparison") int32 ComparisonSeed=137;
     /** Pause after a complete ability, retaining the impact/ulcer for inspection. */
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab",meta=(ClampMin="0.5",Units="s")) float CycleSeconds=4;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab",meta=(ClampMin="0.1",Units="s")) float StartDelaySeconds=.5f;
@@ -46,6 +50,15 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="VFX Lab|Assets") TSoftObjectPtr<UMCBossProfile> Phase3Profile;
     UFUNCTION(BlueprintCallable,Category="VFX Lab") void Reset();
     UFUNCTION(BlueprintCallable,Category="VFX Lab") void SetRunning(bool bEnabled);
+    AMCToothCharacter* GetComparisonSubject() const;
+    AActor* GetComparisonEnemy() const;
+    bool IsComparisonReady() const;
+    bool PrepareComparison(EMCVFXLabBossKind Selected);
+    bool RunComparisonAction();
+    float ApplyComparisonOutgoing(float Damage);
+    float ApplyComparisonIncoming(float Damage);
+    FString GetComparisonStatusText() const;
+    void ResumeComparisonBot();
     UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly,Category="VFX Lab|Observed") bool bRunning=false;
     UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly,Category="VFX Lab|Observed") int32 Cycles=0;
     UPROPERTY(Replicated,VisibleAnywhere,BlueprintReadOnly,Category="VFX Lab|Observed") int32 Passed=0;
@@ -87,6 +100,7 @@ private:
     FVector BossStart=FVector::ZeroVector;
     double CycleStartedAt=0,ActionStartedAt=0,NextCycleAt=0;
     float SubjectHealthBefore=0,BossHealthBefore=0,ShieldBefore=0,AppliedHealthDamage=0,MaximumTravel=0;
+    float ComparisonOutgoingHealth=0,ComparisonOutgoingShield=0,ComparisonIncomingHealth=0;
     int32 LastTelegraphs=0,LastExecutions=0,LastRecoveries=0;
     int32 CycleTelegraphs=0,CycleExecutions=0,CycleRecoveries=0,GeneratedCreeps=0;
     uint8 LastBossState=255;

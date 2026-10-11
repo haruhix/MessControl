@@ -29,6 +29,8 @@ public:
     UPROPERTY(Replicated) bool bLoop=false;
     UPROPERTY(Replicated,BlueprintReadOnly) float AppliedDamage=0;
     UPROPERTY(Replicated,BlueprintReadOnly) bool bShieldedHit=false;
+    /** Opt-in comparison baseline, captured from the victim's MC.LegacyCombatFeedback actor tag. */
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Feedback") bool bLegacyCombatFeedback=false;
     /** Reuse the owned dust burst; reflected reference keeps it reachable by cooking. */
     UPROPERTY(EditDefaultsOnly,Category="Feedback") TSoftObjectPtr<class UNiagaraSystem> FoodBreakSystem;
 private:

@@ -11,6 +11,7 @@ class UInputMappingContext;
 class UMCToothPhysicsComponent;
 class UPhysicsControlComponent;
 class UMCToothStatusComponent;
+class UMCCombatFeedbackComponent;
 class UMCGazeComponent;
 class UMCGripComponent;
 class UMCExpressionComponent;
@@ -28,6 +29,9 @@ class MESSCONTROL_API AMCToothCharacter : public ACharacter
 {
     GENERATED_BODY()
     friend void MCTickApprovalValidation(UWorld* World);
+#if !UE_BUILD_SHIPPING && !UE_BUILD_TEST
+    friend class AMCCombatFeedbackStation;
+#endif
 #if !UE_BUILD_SHIPPING
     friend void MCTickClimbNetworkValidation(UWorld* World);
     friend void MCTickSprayNetworkValidation(UWorld* World);
@@ -47,6 +51,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physics") TObjectPtr<UMCToothPhysicsComponent> ToothPhysics;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<UMCToothStatusComponent> Status;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat|Feedback") TObjectPtr<UMCCombatFeedbackComponent> Feedback;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Care") TObjectPtr<class UMCBrushContactComponent> BrushContact;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Gaze") TObjectPtr<UMCGazeComponent> Gaze;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Grip") TObjectPtr<UMCGripComponent> Grip;

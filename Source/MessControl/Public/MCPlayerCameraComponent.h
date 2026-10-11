@@ -13,6 +13,7 @@ public:
     virtual void GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView) override;
     void AddImpact(float ImpactSpeed, const FVector& WorldDirection);
     void AddGroundImpact(float Strength,const FVector& Source);
+    void AddCombatConfirm(float Strength);
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera|Depth of Field") bool bAutoFocusPlayer=true;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera|Impact",meta=(ClampMin="0",ClampMax="2")) float ImpactShakeScale=1.f;
 private:
@@ -22,4 +23,9 @@ private:
     double GroundImpactStartedAt=-1.;
     float GroundImpactStrength=0.f;
     FVector GroundImpactSource=FVector::ZeroVector;
+    double CombatConfirmAt=-100.;
+    float CombatConfirmStrength=0.f;
+    double PresentedDamageAt=-100.;
+    float PreviousHealth=-1.f;
+    float DamageStrength=0.f;
 };

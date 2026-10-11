@@ -1,12 +1,12 @@
 #include "MCNutBoss.h"
 #include "MCNutBossAnimInstance.h"
+#include "MCCombatFeedbackComponent.h"
 
 #include "MCNutCombatEffect.h"
 #include "MCNutSpellProjectile.h"
 #include "MCNutRainEvent.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
-#include "MCReactionVFX.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
@@ -43,6 +43,7 @@ void SetCenteredMesh(UStaticMeshComponent* Component,UStaticMesh* Mesh,float Hei
 
 AMCNutBoss::AMCNutBoss()
 {
+    Feedback->bUseProceduralRecoil=false;
     PrimaryActorTick.TickInterval=1.f/30.f;
     Shield=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Shield")); Shield->SetupAttachment(Body);
     Kernel=CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Kernel")); Kernel->SetupAttachment(Body);
@@ -354,7 +355,10 @@ void AMCNutBoss::PresentTankModel(double Time)
     const float DeathScale=bDefeated?1-FMath::SmoothStep(BossSettings.DeathSeconds-.3f,BossSettings.DeathSeconds,DeathAge):1.f;
     const bool HasMage=BossRole==EMCNutBossRole::Mage && MageModel->GetSkeletalMeshAsset();
     MageModel->SetVisibility(HasMage);
-    if(BossRole==EMCNutBossRole::Mage) Visual->SetVisibility(!HasMage);
+    if(BossRole==EMCNutBossRole::Mage) {
+        Visual->SetVisibility(!HasMage);
+        Feedback->SetVisualTarget(HasMage?static_cast<UMeshComponent*>(MageModel.Get()):Visual.Get());
+    }
     if(HasMage) {
         const FVector Scale=MageModelScale*DeathScale;
         const FRotator ModelRotation(0,BossSettings.MageModelYaw,0);
@@ -373,6 +377,8 @@ void AMCNutBoss::PresentTankModel(double Time)
     const bool HasWarrior=TankModel->GetSkeletalMeshAsset()!=nullptr;
     TankBall->SetVisibility(BallWeight>.001f); TankModel->SetVisibility(HasWarrior && BallWeight<.999f);
     Visual->SetVisibility(!HasWarrior && BallWeight<.999f);
+    Feedback->SetVisualTarget(BallWeight>.5f?static_cast<UMeshComponent*>(TankBall.Get()):
+        HasWarrior?static_cast<UMeshComponent*>(TankModel.Get()):Visual.Get());
     const float RollAge=FMath::Clamp(float(Time-ResolveAt),0.f,BossSettings.RollDuration);
     const float Pitch=Rolling || Returning?FMath::Fmod(RollAge*BossSettings.RollSpeed/FMath::Max(1.f,Settings.BodyRadius)*180.f/PI,360.f):0;
     const FRotator Rotation(Pitch,0,0);
@@ -406,6 +412,7 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
     const bool Shielded=Source && IsShieldProtectingFrom(Source->GetActorLocation());
+    const float ShieldBefore=ShieldHealth;
     VisualHitAt=Now(); VisualHitDirection=Source?(Source->GetActorLocation()-GetActorLocation()).GetSafeNormal2D():-GetActorForwardVector();
     if(Shielded) {
         // Durability consumes the incoming tool damage. Only the protected part
@@ -424,15 +431,26 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     // cancelling an entire boss attack each time four workers swing together.
     const float Before=Health;
     const float Applied=Super::ReceiveToolDamage(Damage,Source);
+    if(Shielded && Applied<=0) {
+        RefreshPresentation();ForceNetUpdate();
+        if(!ActorHasTag(TEXT("MC.LegacyCombatFeedback"))) {
+            Source->NotifyCameraImpact(550.f,-VisualHitDirection);
+        }
+    }
+    Feedback->ReportAcceptedHit(Source,GetToolTargetPoint(Source?Source->GetActorLocation():GetActorLocation()+VisualHitDirection*Settings.BodyRadius),
+        -VisualHitDirection,Before-Health,FMath::Max(0.f,ShieldBefore-ShieldHealth),Shielded,Health<=0.f);
     if(Applied>0) {
-        AMCReactionVFX::SpawnHit(this,GetToolTargetPoint(Source?Source->GetActorLocation():GetActorLocation()+VisualHitDirection*Settings.BodyRadius),
-            -VisualHitDirection,Before-Health,Shielded);
         if(BossRole==EMCNutBossRole::Mage && IsValid(Source)) {
             if(VisualHitAt-FocusWindowStartedAt>2) {FocusWindowStartedAt=VisualHitAt;FocusHits=0;}
             ++FocusHits;
         }
     }
     return Applied;
+}
+
+void AMCNutBoss::ReportDamageFeedback(AMCToothCharacter* Source,float Applied)
+{
+    // ReceiveToolDamage reports once after resolving shield durability and health overflow.
 }
 
 float AMCNutBoss::GetAttackCooldownRemaining(EMCNutBossAttack Ability) const
@@ -675,7 +693,7 @@ void AMCNutBoss::DamageArea(FVector Center,float Radius,float Damage,float Push,
         const float Reach=Radius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius();
         if(Delta.SizeSquared2D()>FMath::Square(Reach) || FMath::Abs(Delta.Z)>230 || !HasLineOfSight(Hero,Center+FVector(0,0,80))) continue;
         FVector Direction=Delta.GetSafeNormal2D(); if(Direction.IsNearlyZero()) Direction=AttackForward;
-        if(!Hero->Status->Damage(Damage,Direction)) continue;
+        if(!Hero->Status->Damage(Damage,Direction,this)) continue;
         if(HitSet) HitSet->Add(Hero);
         PushPlayer(Hero,Direction,Push);
     }
@@ -690,7 +708,7 @@ void AMCNutBoss::DamageChargeSegment(FVector Start,FVector End)
         const float Reach=Settings.BodyRadius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+15;
         if(FVector::DistSquared2D(Hero->GetActorLocation(),Closest)>FMath::Square(Reach)
             || FMath::Abs(Hero->GetActorLocation().Z-Closest.Z)>180 || !HasLineOfSight(Hero,Closest)) continue;
-        if(Hero->Status->Damage(BossSettings.ChargeDamage,AttackForward)) {
+        if(Hero->Status->Damage(BossSettings.ChargeDamage,AttackForward,this)) {
             AttackHits.Add(Hero);
             PushPlayer(Hero,AttackForward,BossSettings.TankChargePush);
         }
@@ -709,7 +727,7 @@ void AMCNutBoss::DamageRollSegment(FVector Start,FVector End)
         const FVector Delta=Hero->GetActorLocation()-Closest;
         if(Delta.SizeSquared2D()>FMath::Square(Reach) || FMath::Abs(Delta.Z)>180 || !HasLineOfSight(Hero,Closest)) continue;
         FVector PushDirection=Delta.GetSafeNormal2D(); if(PushDirection.IsNearlyZero()) PushDirection=AttackForward;
-        if(!Hero->Status->Damage(BossSettings.RollDamage,PushDirection)) continue;
+        if(!Hero->Status->Damage(BossSettings.RollDamage,PushDirection,this)) continue;
         RollHitAt.Add(Hero,Time);
         PushPlayer(Hero,PushDirection,BossSettings.RollPush);
     }

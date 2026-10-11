@@ -10,6 +10,7 @@ class AMCBossAIController;
 class UCapsuleComponent;
 class UMCBossFaceComponent;
 class UMCBossMouthAttackComponent;
+class UMCCombatFeedbackComponent;
 
 /** One replicated snapshot keeps phase and attack presentation coherent on clients. Times use server world time. */
 USTRUCT(BlueprintType)
@@ -44,6 +45,7 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Boss|Collision") TObjectPtr<UCapsuleComponent> BodyHitbox;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Boss|Presentation") TObjectPtr<UMCBossFaceComponent> Face;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Boss|Attacks") TObjectPtr<UMCBossMouthAttackComponent> MouthAttack;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Combat|Feedback") TObjectPtr<UMCCombatFeedbackComponent> Feedback;
     virtual void Tick(float DeltaSeconds) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual float TakeDamage(float DamageAmount,const FDamageEvent& DamageEvent,AController* EventInstigator,AActor* DamageCauser) override;

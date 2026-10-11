@@ -1,8 +1,9 @@
 #include "MCToothStatusComponent.h"
 #include "MCArenaTooth.h"
 #include "MCToothCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "MCFoodCollectionComponent.h"
-#include "MCReactionVFX.h"
+#include "MCCombatFeedbackComponent.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCTutorialDirector.h"
@@ -75,10 +76,11 @@ void UMCToothStatusComponent::Loosen()
     if (!GetOwner()->HasAuthority() || !IsAlive()) return;
     State.RepairLeft=Settings.RepairContacts; Changed(false);
 }
-bool UMCToothStatusComponent::Damage(float Amount,FVector Direction)
+bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Source)
 {
     if (const auto* Game=GetWorld()->GetGameState<AMCGameState>(); Game && (Game->bTutorialActive || Game->bLobbyWaiting)) return false;
-    if (!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0 || Direction.ContainsNaN()) return false;
+    if (!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0 || Direction.ContainsNaN()
+        || (IsValid(Source) && Source->GetWorld()!=GetWorld())) return false;
     if (const auto* Hero=Cast<AMCToothCharacter>(GetOwner()); Hero && Hero->MimicCaptor) return false;
     const float HealthBefore=State.Health;
     LastDamageDirection=Direction.GetSafeNormal(); State.Health=FMath::Max(0.f,State.Health-Amount);
@@ -86,7 +88,10 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction)
     State.DamageAt=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     if(auto* Hero=Cast<AMCToothCharacter>(GetOwner())) {
         Hero->FoodCollection->Spill(LastDamageDirection*180+FVector(0,0,50));
-        AMCReactionVFX::SpawnHit(Hero,Hero->GetActorLocation()-LastDamageDirection*30+FVector(0,0,35),LastDamageDirection,HealthBefore-State.Health);
+        const bool Legacy=Hero->ActorHasTag(TEXT("MC.LegacyCombatFeedback"));
+        const float ContactRadius=Legacy?30.f:Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+8.f;
+        Hero->Feedback->ReportAcceptedHit(Source,Hero->GetActorLocation()-LastDamageDirection*ContactRadius+FVector(0,0,Legacy?35:25),
+            LastDamageDirection,HealthBefore-State.Health,0.f,false,State.Health<=0.f);
     }
     if (State.Health<=State.MaxHealth*Settings.LooseHealthFraction) State.RepairLeft=FMath::Max(State.RepairLeft,Settings.RepairContacts);
     Changed(false); return true;

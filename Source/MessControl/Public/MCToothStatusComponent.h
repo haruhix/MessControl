@@ -64,7 +64,7 @@ public:
     void Restore(const FMCToothStatus& Source);
     void ApplyCoffee(float Amount=1.f);
     void Loosen();
-    bool Damage(float Amount,FVector Direction=FVector::ForwardVector);
+    bool Damage(float Amount,FVector Direction=FVector::ForwardVector,AActor* Source=nullptr);
     float PainAlpha() const;
     // Called only after the worker validates a complete continuous tool contact on the server.
     bool CareContact(bool bBrush, AMCToothCharacter* Worker=nullptr);

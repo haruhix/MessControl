@@ -6,6 +6,7 @@
 #include "MCBossMouthAttackComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCCombatFeedbackComponent.h"
 #include "MCGameMode.h"
 #include "EngineUtils.h"
 #include "Animation/AnimSequence.h"
@@ -39,6 +40,9 @@ AMCBossCharacter::AMCBossCharacter()
     BodyHitbox->SetCanEverAffectNavigation(false);
     Face=CreateDefaultSubobject<UMCBossFaceComponent>(TEXT("BossFace"));
     MouthAttack=CreateDefaultSubobject<UMCBossMouthAttackComponent>(TEXT("MouthAttack"));
+    Feedback=CreateDefaultSubobject<UMCCombatFeedbackComponent>(TEXT("CombatFeedback"));
+    Feedback->bUseProceduralRecoil=false;
+    Feedback->bLegacyHasImpact=false;
     GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     bUseControllerRotationYaw=false;
     GetCharacterMovement()->bOrientRotationToMovement=false;
@@ -51,6 +55,7 @@ AMCBossCharacter::AMCBossCharacter()
 void AMCBossCharacter::BeginPlay()
 {
     Super::BeginPlay();
+    Feedback->SetVisualTarget(GetMesh());
     OnRep_Profile();
     if (!HasAuthority()) { OnRep_Runtime(); return; }
     auto Safe=[](float Value,float Default,float Min,float Max)
@@ -216,6 +221,10 @@ float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
         || !FMath::IsFinite(Damage) || Damage<=0.f) return 0.f;
     const float Applied=FMath::Min(Runtime.Health,Damage);
     Runtime.Health-=Applied;
+    AActor* Source=IsValid(DamageCauser)?DamageCauser->GetInstigator():nullptr;
+    if(!IsValid(Source)) Source=IsValid(DamageCauser)?DamageCauser:nullptr;
+    const FVector From=Source?Source->GetActorLocation():GetActorLocation()+GetActorForwardVector()*200;
+    Feedback->ReportAcceptedHit(Source,GetMeleeTargetPoint(From),(GetActorLocation()-From).GetSafeNormal2D(),Applied,0.f,false,Runtime.Health<=0.f);
     if (Runtime.Health<=0.f)
     {
         GetWorldTimerManager().ClearTimer(AttackTimer);
@@ -338,7 +347,7 @@ void AMCBossCharacter::ExecuteAttack_Implementation(const FMCBossAttackDefinitio
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         auto* Player=*It;
-        if (IsPlayerInAttack(Player,Attack,Runtime.AttackForward)) Player->Status->Damage(Attack.Damage,Runtime.AttackForward);
+        if (IsPlayerInAttack(Player,Attack,Runtime.AttackForward)) Player->Status->Damage(Attack.Damage,Runtime.AttackForward,this);
     }
 }
 

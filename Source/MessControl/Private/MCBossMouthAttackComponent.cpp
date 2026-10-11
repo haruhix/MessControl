@@ -89,7 +89,7 @@ void UMCBossMouthAttackComponent::ResolveClotHit(int32 Serial,const FHitResult& 
         if(!AMCBossCharacter::IsLivingPlayer(Player)) return;
         float& Dealt=DamageDealt.FindOrAdd(Player);
         const float Damage=FMath::Min(Definition.ClotDamage,FMath::Max(0.f,Definition.Damage-Dealt));
-        if(Player->Status->Damage(Damage,(Player->GetActorLocation()-GetMouthLocation()).GetSafeNormal())) Dealt+=Damage;
+        if(Player->Status->Damage(Damage,(Player->GetActorLocation()-GetMouthLocation()).GetSafeNormal(),GetOwner())) Dealt+=Damage;
         return;
     }
     // Only an actual tongue collision can produce a lesion; walls/teeth/props cannot.
