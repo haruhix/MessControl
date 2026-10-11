@@ -1,0 +1,36 @@
+{
+  "saved": true,
+  "source": "D:\\PROJECT\\GAME\\TEETH CONTROL\\teeth\\New Folder\\SM_Candy.fbx",
+  "source_sha256": "3d929cc51483a88439d8001c46aad17f122f9f42816db97a7d381e12cbd62ed6",
+  "source_preserved": true,
+  "static_mesh": "/Game/Gameplay/Cold/Candy/SM_WinterCandy.SM_WinterCandy",
+  "skeletal_mesh": "/Game/Gameplay/Cold/Candy/Animations/SK_WinterCandy.SK_WinterCandy",
+  "material": "/Game/Art/Materials/Bosses/MI_Candy.MI_Candy",
+  "new_materials_created": 0,
+  "material_parameters_preserved": true,
+  "bounds": "<Struct 'BoxSphereBounds' (0x000002C2AEEC3740) {origin: {x: 0.000000, y: 0.000000, z: 0.000008}, box_extent: {x: 66.872513, y: 112.874069, z: 160.583580}, sphere_radius: 207.363388}>",
+  "morphs": [
+    "scream",
+    "floor_hit"
+  ],
+  "clips": [
+    {
+      "name": "A_WinterCandy_Idle",
+      "duration": 2.0
+    },
+    {
+      "name": "A_WinterCandy_MiniCandy",
+      "duration": 0.625
+    },
+    {
+      "name": "A_WinterCandy_FloorHit",
+      "duration": 1.0
+    },
+    {
+      "name": "A_WinterCandy_Scream",
+      "duration": 1.5833333730697632
+    }
+  ],
+  "dirty_content": [],
+  "dirty_maps": []
+}

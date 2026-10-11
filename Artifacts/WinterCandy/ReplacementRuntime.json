@@ -1,0 +1,19 @@
+{
+  "ready": true,
+  "body": "/Game/Gameplay/Cold/Candy/SM_WinterCandy.SM_WinterCandy",
+  "mesh": "/Game/Gameplay/Cold/Candy/Animations/SK_WinterCandy.SK_WinterCandy",
+  "materials": [
+    "/Game/Art/Materials/Bosses/MI_Candy.MI_Candy",
+    "/Game/Art/Materials/Bosses/MI_Candy.MI_Candy",
+    "/Game/Art/Materials/Bosses/MI_Candy.MI_Candy"
+  ],
+  "scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "morphs": [
+    "scream",
+    "floor_hit"
+  ]
+}

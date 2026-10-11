@@ -1,5 +1,13 @@
 # Winter candy boss animation source
 
+Current mesh: `D:/PROJECT/GAME/TEETH CONTROL/teeth/New Folder/SM_Candy.fbx`.
+It retains the FBX geometry, UVs and morphs on the existing root-bone rig.
+All winter boss slots use the user's existing
+`/Game/Art/Materials/Bosses/MI_Candy`.
+Rebuild the current mesh with `ArtSource/WinterCandy/export_replacement_candy.py`
+and `Tools/Unreal/import_replacement_candy.py`. The original animation pipeline
+below describes the source of the preserved attack sequences.
+
 Source: `D:/PROJECT/GAME/TEETH CONTROL/teeth/candy.blend`.
 Only the visible `SM_CandyMan` is exported. The floor and hidden sculpt backup
 are excluded. The saved source file is read in a separate Blender process and

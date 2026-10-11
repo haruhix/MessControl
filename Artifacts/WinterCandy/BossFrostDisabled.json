@@ -1,0 +1,9 @@
+{
+  "saved": true,
+  "material": "/Game/Art/Materials/Bosses/MI_Candy.MI_Candy",
+  "parameter": "Environment Frost Amount",
+  "before": 0.0,
+  "after": 0.0,
+  "other_material_parameters_preserved": true,
+  "environment_default_unchanged": true
+}
