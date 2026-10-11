@@ -1,0 +1,26 @@
+{
+  "source": "D:\\PROJECT\\GAME\\TEETH CONTROL\\teeth\\candy.blend",
+  "source_dirty": true,
+  "source_disk_sha256": "4da355848d95c17163dca62c99ded797ed007459a0a8dae050f08983593ffe39",
+  "parts": [
+    {
+      "name": "SM_CandyMan",
+      "vertices": 2169,
+      "polygons": 2144,
+      "color_attribute": "Attribute",
+      "color_domain": "CORNER",
+      "body_polygons": 734,
+      "face_polygons": 1410
+    }
+  ],
+  "source_dimensions_cm": [
+    133.74502062797546,
+    225.7481336593628,
+    321.1671829223633
+  ],
+  "source_unit_scale": 1.0,
+  "source_geometry": "saved evaluated mesh",
+  "authored_size_preserved": true,
+  "fbx": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\ArtSource\\WinterCandy\\SM_WinterCandy.fbx",
+  "source_file_preserved": true
+}

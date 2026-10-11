@@ -53,6 +53,7 @@ struct FIceWorld
         }
         Hero=MakeHero(FVector(600,0,0));
         Event=World->SpawnActor<AMCIceEvent>();
+        Event->bUseAnimatedBossAttacks=false;
         Event->CircleSeconds=60;Event->FreezeSeconds=60;Event->IcicleIntervalSeconds=20;
         Event->ZoneCrystalIntervalSeconds=300;Event->NovaIntervalSeconds=300;
         Place(FVector(600,0,0));

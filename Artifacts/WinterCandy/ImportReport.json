@@ -1,0 +1,33 @@
+{
+  "materials": [
+    "/Game/Gameplay/Cold/Candy/M_WinterCandyIceBody.M_WinterCandyIceBody",
+    "/Game/Gameplay/Cold/Candy/M_WinterCandyIceFace.M_WinterCandyIceFace"
+  ],
+  "source_dimensions_cm": [
+    133.74502062797546,
+    225.7481336593628,
+    321.1671829223633
+  ],
+  "imported_dimensions_cm": [
+    133.74502563476562,
+    225.74813079833984,
+    321.1671600341797
+  ],
+  "authored_size_preserved": true,
+  "slots": [
+    {
+      "name": "WinterCandyBody",
+      "material": "/Game/Gameplay/Cold/Candy/M_WinterCandyIceBody.M_WinterCandyIceBody"
+    },
+    {
+      "name": "WinterCandyFace",
+      "material": "/Game/Gameplay/Cold/Candy/M_WinterCandyIceFace.M_WinterCandyIceFace"
+    }
+  ],
+  "mesh": "/Game/Gameplay/Cold/Candy/SM_WinterCandy.SM_WinterCandy",
+  "bounds": "<Struct 'BoxSphereBounds' (0x00000181DC32E880) {origin: {x: 0.000000, y: 0.000004, z: -0.000008}, box_extent: {x: 66.872513, y: 112.874065, z: 160.583580}, sphere_radius: 165.844744}>",
+  "triangles": 4180,
+  "vertex_colors": true,
+  "collision_hulls": 1,
+  "dirty": []
+}

@@ -1,0 +1,9 @@
+{
+  "front": "<Object '/Game/Art/Materials/ice/M_Ice.M_Ice:MaterialExpressionMaterialFunctionCall_0' (0x0000029242602800) Class 'MaterialExpressionMaterialFunctionCall'>",
+  "function": "<Object '/Engine/Functions/Substrate/SMF_UE4Legacy.SMF_UE4Legacy' (0x000002923EF5DFC0) Class 'MaterialFunction'>",
+  "has_pre_skinned_local_position": false,
+  "collision_doc": "x.set_convex_decomposition_collisions(static_mesh, hull_count, max_hull_verts, hull_precision) -> bool\r\nSame as SetConvexDecompositionCollisionsWithNotification but changes are automatically applied.\r\n\r\nArgs:\r\n    static_mesh (StaticMesh): \r\n    hull_count (int32): \r\n    max_hull_verts (int32): \r\n    hull_precision (int32): \r\n\r\nReturns:\r\n    bool:",
+  "vertex_import_enum": "<VertexColorImportOption.REPLACE: 0>",
+  "dirty": [],
+  "function_inputs": "[\"Base Color\", \"Metallic\", \"Specular\", \"Roughness\", \"Normal\", \"Emissive Color\", \"Opacity\"]"
+}

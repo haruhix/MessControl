@@ -1,0 +1,35 @@
+{
+  "ready": true,
+  "stage": "<MCIceEventStage.ACTIVE: 2>",
+  "mesh": "/Game/Gameplay/Cold/Candy/SM_WinterCandy.SM_WinterCandy",
+  "materials": [
+    "/Game/Gameplay/Cold/Candy/M_WinterCandyIceBody.M_WinterCandyIceBody",
+    "/Game/Gameplay/Cold/Candy/M_WinterCandyIceFace.M_WinterCandyIceFace"
+  ],
+  "visible": true,
+  "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+  "scale": [
+    2.722940683364868,
+    2.722940683364868,
+    2.722940683364868
+  ],
+  "location": [
+    123.90667631745566,
+    -12.954011654598581,
+    188.9990709272315
+  ],
+  "camera": [
+    1053.9066763174555,
+    -292.95401165459856,
+    358.9990709272315
+  ],
+  "old_core_facets_visible": [
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "vertex_colors_import_verified": true
+}

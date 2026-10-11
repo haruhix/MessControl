@@ -1,0 +1,41 @@
+{
+  "saved": true,
+  "source_preserved": true,
+  "dirty_content": [],
+  "dirty_maps": [],
+  "editor_preferences_restored": true,
+  "assets": [
+    {
+      "name": "A_WinterCandy_FloorHit",
+      "bytes": 24576,
+      "sha256": "85a36aae3f0a1efc2ad17f82fd8ca89c910c9719c73ccecec3b414cfee714943"
+    },
+    {
+      "name": "A_WinterCandy_Idle",
+      "bytes": 23542,
+      "sha256": "59996c7e9c8723b1dff5f895fc645d3ad0e3ea6d3097166c199f5e208bc12fc4"
+    },
+    {
+      "name": "A_WinterCandy_MiniCandy",
+      "bytes": 20070,
+      "sha256": "856316f83f9c3976a4588bb931b7f768b94ed1d83e897ebda5bc554573abe8ed"
+    },
+    {
+      "name": "A_WinterCandy_Scream",
+      "bytes": 25188,
+      "sha256": "c36b79a34b6386d893f1b87f0de542550a7259a9e0db532e33ce3e81f0e1a506"
+    },
+    {
+      "name": "SK_WinterCandy",
+      "bytes": 821813,
+      "sha256": "c44a80e6a9a7f70a7f70de8568c27d2b85e1f980026499db0071fe3c923daa8f"
+    },
+    {
+      "name": "SK_WinterCandy_Skeleton",
+      "bytes": 7450,
+      "sha256": "10858c863215f887a8202b39012088a191ad05269e09a27f6bf58059800d627e"
+    }
+  ],
+  "runtime_checked": true,
+  "network_note": "Attack state, phase, extinguished zones and attack tuning replicate; multi-client PIE was not run."
+}

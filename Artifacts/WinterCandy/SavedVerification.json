@@ -1,0 +1,22 @@
+{
+  "vertex_colors": true,
+  "triangles": 4180,
+  "collision_hulls": 1,
+  "dirty_content": [],
+  "dirty_maps": [],
+  "background_throttle_restored": true,
+  "assets": {
+    "M_WinterCandyIceBody.uasset": {
+      "bytes": 27656,
+      "sha256": "0009a6b19c67ffe70a24a1b09d985fc8fa980e9752dfa4d33dddc99bfeece58f"
+    },
+    "M_WinterCandyIceFace.uasset": {
+      "bytes": 25069,
+      "sha256": "33a667d02707df152cc8e55124af3224434a97aebead3705f1de94457766e325"
+    },
+    "SM_WinterCandy.uasset": {
+      "bytes": 159508,
+      "sha256": "2203b2925a766bc4d36fdd568792c2f6e01c361410b4dfa808ce48ca4ef8814f"
+    }
+  }
+}
