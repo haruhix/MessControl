@@ -1,0 +1,256 @@
+{
+  "status": "complete",
+  "title": "Кариес · фаза 2 · новые анимации",
+  "video": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\Carries_Stage2_NewAnimations.mp4",
+  "video_sha256": "b410a2f261f5a262e9b12e73ae1cc99b548f82cdd00f8a74af562221ea865bc9",
+  "poster": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\Carries_Stage2_NewAnimations.png",
+  "poster_sha256": "28a7bcbc52d2c3f5671b24c3eaaf43e0b25a040cd249ec9e58ec1d1dffe6abcb",
+  "chapters": [
+    {
+      "ordinal": 1,
+      "name": "AwakenRoar_ThreeQuarter",
+      "label": "Пробуждение и рёв · Три четверти",
+      "view": "ThreeQuarter",
+      "note": "Кисть отрывается последней; корпус распрямляется, затем подаётся вперёд в рёве.",
+      "start_frame": 0,
+      "frame_count": 192,
+      "source_frame_start": 0,
+      "source_frame_end": 191,
+      "start_seconds": 0.0,
+      "duration_seconds": 3.2
+    },
+    {
+      "ordinal": 2,
+      "name": "ForwardHammer_ThreeQuarter",
+      "label": "Тяжёлый удар вперёд · Три четверти",
+      "view": "ThreeQuarter",
+      "note": "Босс разворачивает корпус назад, поднимает сжатую кисть и резко выбрасывает её вперёд.",
+      "start_frame": 192,
+      "frame_count": 216,
+      "source_frame_start": 0,
+      "source_frame_end": 215,
+      "start_seconds": 3.2,
+      "duration_seconds": 3.6
+    },
+    {
+      "ordinal": 3,
+      "name": "WideBackhand_ThreeQuarter",
+      "label": "Широкий обратный удар · Три четверти",
+      "view": "ThreeQuarter",
+      "note": "Рука уходит через переднюю дугу влево и возвращается широким обратным взмахом.",
+      "start_frame": 408,
+      "frame_count": 204,
+      "source_frame_start": 0,
+      "source_frame_end": 203,
+      "start_seconds": 6.8,
+      "duration_seconds": 3.4
+    },
+    {
+      "ordinal": 4,
+      "name": "PalmShove_ThreeQuarter",
+      "label": "Толчок с коротким шагом · Три четверти",
+      "view": "ThreeQuarter",
+      "note": "Короткий шаг задаёт вес; открытая ладонь давит вперёд и остаётся в давлении после толчка.",
+      "start_frame": 612,
+      "frame_count": 204,
+      "source_frame_start": 0,
+      "source_frame_end": 203,
+      "start_seconds": 10.2,
+      "duration_seconds": 3.4
+    },
+    {
+      "ordinal": 5,
+      "name": "InfectionPulse_ThreeQuarter",
+      "label": "Каст инфекции в землю · Три четверти",
+      "view": "ThreeQuarter",
+      "note": "Рука поднимает воображаемый сгусток; корпус сжимается и выпускает один импульс в пол.",
+      "start_frame": 816,
+      "frame_count": 240,
+      "source_frame_start": 0,
+      "source_frame_end": 239,
+      "start_seconds": 13.6,
+      "duration_seconds": 4.0
+    },
+    {
+      "ordinal": 6,
+      "name": "HeavyStagger_ThreeQuarter",
+      "label": "Сильное попадание · Три четверти",
+      "view": "ThreeQuarter",
+      "note": "Корпус принимает удар; тяжёлая рука запаздывает, затем ловит тело опорой о пол.",
+      "start_frame": 1056,
+      "frame_count": 180,
+      "source_frame_start": 0,
+      "source_frame_end": 179,
+      "start_seconds": 17.6,
+      "duration_seconds": 3.0
+    },
+    {
+      "ordinal": 7,
+      "name": "ExhaustedRecovery_ThreeQuarter",
+      "label": "Изнеможение и подъём · Три четверти",
+      "view": "ThreeQuarter",
+      "note": "Босс долго висит на неподвижной руке; медленно возвращает вес на ноги и выпрямляется.",
+      "start_frame": 1236,
+      "frame_count": 240,
+      "source_frame_start": 0,
+      "source_frame_end": 239,
+      "start_seconds": 20.6,
+      "duration_seconds": 4.0
+    },
+    {
+      "ordinal": 8,
+      "name": "SupportedTurn_ThreeQuarter",
+      "label": "Разворот с опорой · Три четверти",
+      "view": "ThreeQuarter",
+      "note": "Кисть остаётся на месте, пока корпус поворачивается; ноги переступают, затем тяжёлая рука переносится.",
+      "start_frame": 1476,
+      "frame_count": 240,
+      "source_frame_start": 0,
+      "source_frame_end": 239,
+      "start_seconds": 24.6,
+      "duration_seconds": 4.0
+    }
+  ],
+  "chapter_metadata": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\Carries_Stage2_NewAnimations.ffmetadata",
+  "size": [
+    800,
+    720
+  ],
+  "source_view_size": [
+    800,
+    600
+  ],
+  "clip_count": 8,
+  "frame_count": 1716,
+  "rendered_png_count": 1716,
+  "fps": 60.0,
+  "fps_fraction": "60/1",
+  "duration_seconds": 28.6,
+  "playback_speed": 1,
+  "repeated_clips": false,
+  "added_holds": false,
+  "video_frame_interpolation": false,
+  "complete_source_timelines": true,
+  "source_files_unchanged": true,
+  "sources": [
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\CarriesStage2\\CombatPool_v1\\Carries_Stage2_CombatPool_v1.blend",
+      "sha256": "084c38ffc463a487e649bdc7b655069552e380a1672fe480e21f69933644abb0"
+    },
+    {
+      "path": "E:\\DEVGAME\\MessControl\\ArtSource\\CarriesStage2\\HandSupportWalk\\Carries_Stage2_HandSupportWalk_v4.blend",
+      "sha256": "7264f2e27e8974028a5366f5576c68fc06cdeee57cbb2ebe84d31bbdfe092474"
+    }
+  ],
+  "render_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\RenderManifest.json",
+  "render_manifest_sha256": "6c8acd48eb2c4aa744c3389f3f92083fcb6b60577e55fec21cd307dcc747ab6a",
+  "validation": {
+    "all_frame_indices_paths_counts_checked": true,
+    "png_sha_samples": [
+      {
+        "clip": "AwakenRoar_ThreeQuarter",
+        "index": 0,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\AwakenRoar_ThreeQuarter\\frame_0000.png"
+      },
+      {
+        "clip": "AwakenRoar_ThreeQuarter",
+        "index": 191,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\AwakenRoar_ThreeQuarter\\frame_0191.png"
+      },
+      {
+        "clip": "ForwardHammer_ThreeQuarter",
+        "index": 0,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\ForwardHammer_ThreeQuarter\\frame_0000.png"
+      },
+      {
+        "clip": "ForwardHammer_ThreeQuarter",
+        "index": 215,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\ForwardHammer_ThreeQuarter\\frame_0215.png"
+      },
+      {
+        "clip": "WideBackhand_ThreeQuarter",
+        "index": 0,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\WideBackhand_ThreeQuarter\\frame_0000.png"
+      },
+      {
+        "clip": "WideBackhand_ThreeQuarter",
+        "index": 203,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\WideBackhand_ThreeQuarter\\frame_0203.png"
+      },
+      {
+        "clip": "PalmShove_ThreeQuarter",
+        "index": 0,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\PalmShove_ThreeQuarter\\frame_0000.png"
+      },
+      {
+        "clip": "PalmShove_ThreeQuarter",
+        "index": 203,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\PalmShove_ThreeQuarter\\frame_0203.png"
+      },
+      {
+        "clip": "InfectionPulse_ThreeQuarter",
+        "index": 0,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\InfectionPulse_ThreeQuarter\\frame_0000.png"
+      },
+      {
+        "clip": "InfectionPulse_ThreeQuarter",
+        "index": 239,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\InfectionPulse_ThreeQuarter\\frame_0239.png"
+      },
+      {
+        "clip": "HeavyStagger_ThreeQuarter",
+        "index": 0,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\HeavyStagger_ThreeQuarter\\frame_0000.png"
+      },
+      {
+        "clip": "HeavyStagger_ThreeQuarter",
+        "index": 179,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\HeavyStagger_ThreeQuarter\\frame_0179.png"
+      },
+      {
+        "clip": "ExhaustedRecovery_ThreeQuarter",
+        "index": 0,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\ExhaustedRecovery_ThreeQuarter\\frame_0000.png"
+      },
+      {
+        "clip": "ExhaustedRecovery_ThreeQuarter",
+        "index": 239,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\ExhaustedRecovery_ThreeQuarter\\frame_0239.png"
+      },
+      {
+        "clip": "SupportedTurn_ThreeQuarter",
+        "index": 0,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\SupportedTurn_ThreeQuarter\\frame_0000.png"
+      },
+      {
+        "clip": "SupportedTurn_ThreeQuarter",
+        "index": 239,
+        "path": "E:\\DEVGAME\\MessControl\\Artifacts\\CarriesStage2\\CombatPool_v1\\SupportedTurn_ThreeQuarter\\frame_0239.png"
+      }
+    ],
+    "png_sha_validation": "first and last frame per clip",
+    "all_frame_dimensions_checked_during_encode": true
+  },
+  "scope": "Blender-only new phase-two animation pool for video approval before Unreal integration.",
+  "limitations": [
+    "Preview animation performances; gameplay hitboxes, VFX and arena speed are not integrated.",
+    "Asymmetric original BoneBrush/ARP skin retained; bespoke clips are not automatic humanoid Mixamo retargets."
+  ],
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "width": 800,
+        "height": 720,
+        "r_frame_rate": "60/1",
+        "avg_frame_rate": "60/1",
+        "duration": "28.600000",
+        "nb_read_frames": "1716"
+      }
+    ],
+    "format": {
+      "duration": "28.600000"
+    }
+  }
+}

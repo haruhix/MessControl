@@ -1,0 +1,877 @@
+{
+  "passed": true,
+  "blend": "Carries_Stage2_CombatPool_v1.blend",
+  "blend_sha256": "084c38ffc463a487e649bdc7b655069552e380a1672fe480e21f69933644abb0",
+  "source": "../HandSupportWalk/Carries_Stage2_HandSupportWalk_v4.blend",
+  "source_sha256": "7264f2e27e8974028a5366f5576c68fc06cdeee57cbb2ebe84d31bbdfe092474",
+  "parent_review": "E:\\DEVGAME\\MessControl\\ArtSource\\CarriesStage2\\HandSupportWalk\\Carries_Stage2_HandSupportWalk_v4.blend",
+  "parent_review_sha256": "7264f2e27e8974028a5366f5576c68fc06cdeee57cbb2ebe84d31bbdfe092474",
+  "historical_user_source": "C:\\Users\\user\\Downloads\\Telegram Desktop\\cARRIES_sTADY2.blend",
+  "historical_user_source_sha256": "a03c80a399081a18d6b247ac3400db53bf4345e767c2ae5f13e933a00b4c1c5f",
+  "artist_motion_source": "E:\\DEVGAME\\MessControl\\ArtSource\\BossPhase3ARP\\BossPhase3ARP_Source_20261007.blend",
+  "artist_motion_source_sha256": "cc0f392a45b48bbc90d9eb4b0ab1fe0d84cde9abecef25a4a025978f7100cc9e",
+  "artist_motion_is_historical_reference": true,
+  "artist_motion_reference_only": true,
+  "fps": 30,
+  "clips": [
+    {
+      "name": "AwakenRoar",
+      "labelRU": "Пробуждение и рёв",
+      "useRU": "Кисть отрывается последней; корпус распрямляется, затем подаётся вперёд в рёве.",
+      "frames": 96,
+      "event_frames": {
+        "crouch": 18,
+        "rise": 38,
+        "roar": 48,
+        "hand_drop": 67,
+        "settle": 90
+      },
+      "action": "MC_Stage2_New_AwakenRoar",
+      "shape_actions": {
+        "SM_Character": "MC_Stage2_Face_AwakenRoar_SM_Character",
+        "SM_Character.001": "MC_Stage2_Face_AwakenRoar_SM_Character.001",
+        "SM_Character_006_002_003.004": "MC_Stage2_Face_AwakenRoar_SM_Character_006_002_003.004",
+        "SM_Character_006_002_003.005": "MC_Stage2_Face_AwakenRoar_SM_Character_006_002_003.005"
+      },
+      "preview_start": 1,
+      "preview_end": 96
+    },
+    {
+      "name": "ForwardHammer",
+      "labelRU": "Тяжёлый удар вперёд",
+      "useRU": "Босс разворачивает корпус назад, поднимает сжатую кисть и резко выбрасывает её вперёд.",
+      "frames": 108,
+      "event_frames": {
+        "load": 33,
+        "apex": 40,
+        "strike": 48,
+        "heavy_hold": 55,
+        "recover": 87
+      },
+      "action": "MC_Stage2_New_ForwardHammer",
+      "shape_actions": {
+        "SM_Character": "MC_Stage2_Face_ForwardHammer_SM_Character",
+        "SM_Character.001": "MC_Stage2_Face_ForwardHammer_SM_Character.001",
+        "SM_Character_006_002_003.004": "MC_Stage2_Face_ForwardHammer_SM_Character_006_002_003.004",
+        "SM_Character_006_002_003.005": "MC_Stage2_Face_ForwardHammer_SM_Character_006_002_003.005"
+      },
+      "preview_start": 97,
+      "preview_end": 204
+    },
+    {
+      "name": "WideBackhand",
+      "labelRU": "Широкий обратный удар",
+      "useRU": "Рука уходит через переднюю дугу влево и возвращается широким обратным взмахом.",
+      "frames": 102,
+      "event_frames": {
+        "load": 31,
+        "hold": 37,
+        "strike": 45,
+        "follow": 55,
+        "recover": 83
+      },
+      "action": "MC_Stage2_New_WideBackhand",
+      "shape_actions": {
+        "SM_Character": "MC_Stage2_Face_WideBackhand_SM_Character",
+        "SM_Character.001": "MC_Stage2_Face_WideBackhand_SM_Character.001",
+        "SM_Character_006_002_003.004": "MC_Stage2_Face_WideBackhand_SM_Character_006_002_003.004",
+        "SM_Character_006_002_003.005": "MC_Stage2_Face_WideBackhand_SM_Character_006_002_003.005"
+      },
+      "preview_start": 205,
+      "preview_end": 306
+    },
+    {
+      "name": "PalmShove",
+      "labelRU": "Толчок с коротким шагом",
+      "useRU": "Короткий шаг задаёт вес; открытая ладонь давит вперёд и остаётся в давлении после толчка.",
+      "frames": 102,
+      "event_frames": {
+        "crouch": 24,
+        "first_step": 35,
+        "shove": 47,
+        "press": 60,
+        "recover": 90
+      },
+      "action": "MC_Stage2_New_PalmShove",
+      "shape_actions": {
+        "SM_Character": "MC_Stage2_Face_PalmShove_SM_Character",
+        "SM_Character.001": "MC_Stage2_Face_PalmShove_SM_Character.001",
+        "SM_Character_006_002_003.004": "MC_Stage2_Face_PalmShove_SM_Character_006_002_003.004",
+        "SM_Character_006_002_003.005": "MC_Stage2_Face_PalmShove_SM_Character_006_002_003.005"
+      },
+      "preview_start": 307,
+      "preview_end": 408
+    },
+    {
+      "name": "InfectionPulse",
+      "labelRU": "Каст инфекции в землю",
+      "useRU": "Рука поднимает воображаемый сгусток; корпус сжимается и выпускает один импульс в пол.",
+      "frames": 120,
+      "event_frames": {
+        "gather": 31,
+        "charge": 47,
+        "release": 63,
+        "ground_contact": 67,
+        "recoil": 77,
+        "recover": 108
+      },
+      "action": "MC_Stage2_New_InfectionPulse",
+      "shape_actions": {
+        "SM_Character": "MC_Stage2_Face_InfectionPulse_SM_Character",
+        "SM_Character.001": "MC_Stage2_Face_InfectionPulse_SM_Character.001",
+        "SM_Character_006_002_003.004": "MC_Stage2_Face_InfectionPulse_SM_Character_006_002_003.004",
+        "SM_Character_006_002_003.005": "MC_Stage2_Face_InfectionPulse_SM_Character_006_002_003.005"
+      },
+      "preview_start": 409,
+      "preview_end": 528
+    },
+    {
+      "name": "HeavyStagger",
+      "labelRU": "Сильное попадание",
+      "useRU": "Корпус принимает удар; тяжёлая рука запаздывает, затем ловит тело опорой о пол.",
+      "frames": 90,
+      "event_frames": {
+        "impact": 14,
+        "hand_lag": 21,
+        "support": 35,
+        "overshoot": 52,
+        "settle": 78
+      },
+      "action": "MC_Stage2_New_HeavyStagger",
+      "shape_actions": {
+        "SM_Character": "MC_Stage2_Face_HeavyStagger_SM_Character",
+        "SM_Character.001": "MC_Stage2_Face_HeavyStagger_SM_Character.001",
+        "SM_Character_006_002_003.004": "MC_Stage2_Face_HeavyStagger_SM_Character_006_002_003.004",
+        "SM_Character_006_002_003.005": "MC_Stage2_Face_HeavyStagger_SM_Character_006_002_003.005"
+      },
+      "preview_start": 529,
+      "preview_end": 618
+    },
+    {
+      "name": "ExhaustedRecovery",
+      "labelRU": "Изнеможение и подъём",
+      "useRU": "Босс долго висит на неподвижной руке; медленно возвращает вес на ноги и выпрямляется.",
+      "frames": 120,
+      "event_frames": {
+        "collapse": 25,
+        "fatigue": 48,
+        "push": 75,
+        "rise": 93,
+        "settle": 115
+      },
+      "action": "MC_Stage2_New_ExhaustedRecovery",
+      "shape_actions": {
+        "SM_Character": "MC_Stage2_Face_ExhaustedRecovery_SM_Character",
+        "SM_Character.001": "MC_Stage2_Face_ExhaustedRecovery_SM_Character.001",
+        "SM_Character_006_002_003.004": "MC_Stage2_Face_ExhaustedRecovery_SM_Character_006_002_003.004",
+        "SM_Character_006_002_003.005": "MC_Stage2_Face_ExhaustedRecovery_SM_Character_006_002_003.005"
+      },
+      "preview_start": 619,
+      "preview_end": 738
+    },
+    {
+      "name": "SupportedTurn",
+      "labelRU": "Разворот с опорой",
+      "useRU": "Кисть остаётся на месте, пока корпус поворачивается; ноги переступают, затем тяжёлая рука переносится.",
+      "frames": 120,
+      "event_frames": {
+        "first_step": 37,
+        "pivot": 56,
+        "palm_swing": 72,
+        "second_step": 83,
+        "new_support": 97,
+        "settle": 115
+      },
+      "action": "MC_Stage2_New_SupportedTurn",
+      "shape_actions": {
+        "SM_Character": "MC_Stage2_Face_SupportedTurn_SM_Character",
+        "SM_Character.001": "MC_Stage2_Face_SupportedTurn_SM_Character.001",
+        "SM_Character_006_002_003.004": "MC_Stage2_Face_SupportedTurn_SM_Character_006_002_003.004",
+        "SM_Character_006_002_003.005": "MC_Stage2_Face_SupportedTurn_SM_Character_006_002_003.005"
+      },
+      "preview_start": 739,
+      "preview_end": 858
+    }
+  ],
+  "cameras": {
+    "ThreeQuarter": {
+      "name": "MC_Carries_ThreeQuarter",
+      "scale": 3.791193962097168
+    },
+    "Front": {
+      "name": "MC_Carries_Front",
+      "scale": 3.2855193614959717
+    }
+  },
+  "bounds": [
+    [
+      -1.0994831323623657,
+      -1.8907802104949951,
+      0.015150808729231358
+    ],
+    [
+      1.67844557762146,
+      0.537375271320343,
+      1.7132583856582642
+    ]
+  ],
+  "timeline_frames": 858,
+  "primary_arp_pose_frozen": true,
+  "original_actions_preserved": true,
+  "original_files_unchanged": true,
+  "source_method": "New authored asymmetric pose performances on the reviewed native rig; no new Mixamo download",
+  "skin_contact_floor": 0.020786942914128304,
+  "minimum_keypose_skin_z": 0.015150808729231358,
+  "contact_corrections": {
+    "InfectionPulse": 0.0019074392467737199,
+    "HeavyStagger": -0.0021303284019231795,
+    "AwakenRoar": 0.016890019454061985
+  },
+  "max_arm_reach_ratio": 0.9047227542052799,
+  "max_leg_reach_ratio": 0.9790002281899461,
+  "keypose_checks": [
+    {
+      "clip": "AwakenRoar",
+      "frame": 1,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "AwakenRoar",
+      "frame": 18,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024926386773586273,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.24930620193481445
+      ]
+    },
+    {
+      "clip": "AwakenRoar",
+      "frame": 38,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.6299205422401428,
+      "wrist": [
+        1.2385156154632568,
+        -0.3493359088897705,
+        1.0076115131378174
+      ]
+    },
+    {
+      "clip": "AwakenRoar",
+      "frame": 48,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.5033093690872192,
+      "wrist": [
+        1.2400000095367432,
+        -0.4999999701976776,
+        1.0324162244796753
+      ]
+    },
+    {
+      "clip": "AwakenRoar",
+      "frame": 67,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.4343729615211487,
+      "wrist": [
+        1.1098568439483643,
+        -0.6234771609306335,
+        0.6617892980575562
+      ]
+    },
+    {
+      "clip": "AwakenRoar",
+      "frame": 90,
+      "minimum_skin_z": 0.02034413069486618,
+      "arm_low": 0.02034413069486618,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "AwakenRoar",
+      "frame": 96,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ForwardHammer",
+      "frame": 1,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ForwardHammer",
+      "frame": 33,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.32624179124832153,
+      "wrist": [
+        1.1699999570846558,
+        0.1599999964237213,
+        1.0199999809265137
+      ]
+    },
+    {
+      "clip": "ForwardHammer",
+      "frame": 40,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.38480129837989807,
+      "wrist": [
+        1.2200000286102295,
+        0.20000000298023224,
+        1.1200000047683716
+      ]
+    },
+    {
+      "clip": "ForwardHammer",
+      "frame": 48,
+      "minimum_skin_z": 0.017924092710018158,
+      "arm_low": 0.051092587411403656,
+      "wrist": [
+        0.6000000238418579,
+        -1.25,
+        0.7799999713897705
+      ]
+    },
+    {
+      "clip": "ForwardHammer",
+      "frame": 55,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.046297587454319,
+      "wrist": [
+        0.6200000047683716,
+        -1.2400000095367432,
+        0.7300000190734863
+      ]
+    },
+    {
+      "clip": "ForwardHammer",
+      "frame": 87,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.16841475665569305,
+      "wrist": [
+        0.9300000071525574,
+        -0.6700000166893005,
+        0.38999998569488525
+      ]
+    },
+    {
+      "clip": "ForwardHammer",
+      "frame": 108,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "WideBackhand",
+      "frame": 1,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "WideBackhand",
+      "frame": 31,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.3142673671245575,
+      "wrist": [
+        -0.41561833024024963,
+        -0.7403767704963684,
+        0.699999988079071
+      ]
+    },
+    {
+      "clip": "WideBackhand",
+      "frame": 37,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.3611314296722412,
+      "wrist": [
+        -0.41561833024024963,
+        -0.7403767704963684,
+        0.7099999785423279
+      ]
+    },
+    {
+      "clip": "WideBackhand",
+      "frame": 45,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.2564115524291992,
+      "wrist": [
+        1.0943104028701782,
+        -1.0302534103393555,
+        0.7710922360420227
+      ]
+    },
+    {
+      "clip": "WideBackhand",
+      "frame": 55,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.348455548286438,
+      "wrist": [
+        1.5010613203048706,
+        -0.49745631217956543,
+        0.8700000047683716
+      ]
+    },
+    {
+      "clip": "WideBackhand",
+      "frame": 83,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.1823517084121704,
+      "wrist": [
+        0.950891375541687,
+        -0.858276903629303,
+        0.3961355686187744
+      ]
+    },
+    {
+      "clip": "WideBackhand",
+      "frame": 102,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "PalmShove",
+      "frame": 1,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "PalmShove",
+      "frame": 24,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.6223211884498596,
+      "wrist": [
+        0.8700000047683716,
+        -0.3100000023841858,
+        0.7200000286102295
+      ]
+    },
+    {
+      "clip": "PalmShove",
+      "frame": 35,
+      "minimum_skin_z": 0.07019320130348206,
+      "arm_low": 0.6349692344665527,
+      "wrist": [
+        0.8600000143051147,
+        -0.3561607897281647,
+        0.8100000023841858
+      ]
+    },
+    {
+      "clip": "PalmShove",
+      "frame": 47,
+      "minimum_skin_z": 0.017989210784435272,
+      "arm_low": 0.4766467213630676,
+      "wrist": [
+        0.6000000238418579,
+        -1.3799999952316284,
+        0.6299999952316284
+      ]
+    },
+    {
+      "clip": "PalmShove",
+      "frame": 60,
+      "minimum_skin_z": 0.022769026458263397,
+      "arm_low": 0.4295237958431244,
+      "wrist": [
+        0.5799999833106995,
+        -1.3700000047683716,
+        0.5799999833106995
+      ]
+    },
+    {
+      "clip": "PalmShove",
+      "frame": 90,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.07514619082212448,
+      "wrist": [
+        0.7740874886512756,
+        -0.7726499438285828,
+        0.27326342463493347
+      ]
+    },
+    {
+      "clip": "PalmShove",
+      "frame": 102,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "InfectionPulse",
+      "frame": 1,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "InfectionPulse",
+      "frame": 31,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.6810191869735718,
+      "wrist": [
+        1.0399999618530273,
+        -0.5899999737739563,
+        1.0399999618530273
+      ]
+    },
+    {
+      "clip": "InfectionPulse",
+      "frame": 47,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.6867369413375854,
+      "wrist": [
+        1.090000033378601,
+        -0.5199999809265137,
+        1.0800000429153442
+      ]
+    },
+    {
+      "clip": "InfectionPulse",
+      "frame": 63,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.37355750799179077,
+      "wrist": [
+        0.8495638966560364,
+        -0.7468000054359436,
+        0.5633994340896606
+      ]
+    },
+    {
+      "clip": "InfectionPulse",
+      "frame": 67,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024800263345241547,
+      "wrist": [
+        0.7799999713897705,
+        -0.8700000047683716,
+        0.2343236207962036
+      ]
+    },
+    {
+      "clip": "InfectionPulse",
+      "frame": 77,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.14395460486412048,
+      "wrist": [
+        0.8100000023841858,
+        -0.8100000023841858,
+        0.350378155708313
+      ]
+    },
+    {
+      "clip": "InfectionPulse",
+      "frame": 108,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.1520107090473175,
+      "wrist": [
+        0.8245093822479248,
+        -0.7400655746459961,
+        0.35147714614868164
+      ]
+    },
+    {
+      "clip": "InfectionPulse",
+      "frame": 120,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "HeavyStagger",
+      "frame": 1,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "HeavyStagger",
+      "frame": 14,
+      "minimum_skin_z": 0.015150808729231358,
+      "arm_low": 0.015150808729231358,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "HeavyStagger",
+      "frame": 21,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.3049488365650177,
+      "wrist": [
+        0.8799999952316284,
+        -0.6599999666213989,
+        0.5424162149429321
+      ]
+    },
+    {
+      "clip": "HeavyStagger",
+      "frame": 35,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.02476879209280014,
+      "wrist": [
+        0.7599999904632568,
+        -0.8049999475479126,
+        0.2302858531475067
+      ]
+    },
+    {
+      "clip": "HeavyStagger",
+      "frame": 52,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.06064151972532272,
+      "wrist": [
+        0.7770898342132568,
+        -0.7756054401397705,
+        0.26630789041519165
+      ]
+    },
+    {
+      "clip": "HeavyStagger",
+      "frame": 78,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.02704741805791855,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "HeavyStagger",
+      "frame": 90,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ExhaustedRecovery",
+      "frame": 1,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ExhaustedRecovery",
+      "frame": 25,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.027590148150920868,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ExhaustedRecovery",
+      "frame": 48,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.028271429240703583,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ExhaustedRecovery",
+      "frame": 75,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.027126334607601166,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ExhaustedRecovery",
+      "frame": 93,
+      "minimum_skin_z": 0.023374997079372406,
+      "arm_low": 0.023374997079372406,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ExhaustedRecovery",
+      "frame": 115,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024145029485225677,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "ExhaustedRecovery",
+      "frame": 120,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "SupportedTurn",
+      "frame": 1,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "SupportedTurn",
+      "frame": 37,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.02993103116750717,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "SupportedTurn",
+      "frame": 56,
+      "minimum_skin_z": 0.0213521346449852,
+      "arm_low": 0.03539334982633591,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "SupportedTurn",
+      "frame": 72,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.29858365654945374,
+      "wrist": [
+        0.8517565727233887,
+        -0.7006745338439941,
+        0.47098326683044434
+      ]
+    },
+    {
+      "clip": "SupportedTurn",
+      "frame": 83,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.23353311419487,
+      "wrist": [
+        0.8569947481155396,
+        -0.6788057684898376,
+        0.4142794609069824
+      ]
+    },
+    {
+      "clip": "SupportedTurn",
+      "frame": 97,
+      "minimum_skin_z": 0.02846657484769821,
+      "arm_low": 0.02846657484769821,
+      "wrist": [
+        0.8500000238418579,
+        -0.6699999570846558,
+        0.23241618275642395
+      ]
+    },
+    {
+      "clip": "SupportedTurn",
+      "frame": 115,
+      "minimum_skin_z": 0.024868737906217575,
+      "arm_low": 0.12095888704061508,
+      "wrist": [
+        0.7879235148429871,
+        -0.7449482679367065,
+        0.32702261209487915
+      ]
+    },
+    {
+      "clip": "SupportedTurn",
+      "frame": 120,
+      "minimum_skin_z": 0.02378694713115692,
+      "arm_low": 0.024343393743038177,
+      "wrist": [
+        0.7599999904632568,
+        -0.7799999713897705,
+        0.23241618275642395
+      ]
+    }
+  ],
+  "scope": "Blender-only new phase-two animation pool for video approval before Unreal integration.",
+  "limitations": [
+    "Preview animation performances; gameplay hitboxes, VFX and arena speed are not integrated.",
+    "Asymmetric original BoneBrush/ARP skin retained; bespoke clips are not automatic humanoid Mixamo retargets."
+  ]
+}

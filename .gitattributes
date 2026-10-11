@@ -9,3 +9,8 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 # Keep validation log bytes identical to the SHA256 captured with each video.
 Artifacts/Approval/*_Validation.txt -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Keep the exact evidence bytes referenced by author/render/video SHA256 records.
+ArtSource/CarriesStage2/HandSupportWalk/AuthorReport_v4.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+ArtSource/CarriesStage2/CombatPool_v1/Report_v1.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/CarriesStage2/CombatPool_v1/RenderManifest.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/CarriesStage2/CombatPool_v1/Video.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

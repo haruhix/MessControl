@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "source": "C:\\Users\\user\\Downloads\\Telegram Desktop\\cARRIES_sTADY2.blend",
+  "source_sha256": "a03c80a399081a18d6b247ac3400db53bf4345e767c2ae5f13e933a00b4c1c5f",
+  "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\CarriesStage2\\HandSupportWalk\\Carries_Stage2_HandSupportWalk_v4.blend",
+  "blend_sha256": "7264f2e27e8974028a5366f5576c68fc06cdeee57cbb2ebe84d31bbdfe092474",
+  "artist_motion_source": "E:\\DEVGAME\\MessControl\\ArtSource\\BossPhase3ARP\\BossPhase3ARP_Source_20261007.blend",
+  "artist_motion_source_sha256": "cc0f392a45b48bbc90d9eb4b0ab1fe0d84cde9abecef25a4a025978f7100cc9e",
+  "parent_review": "E:\\DEVGAME\\MessControl\\ArtSource\\CarriesStage2\\ArtistReview\\Carries_Stage2_ArtistStudies_v2.blend",
+  "parent_review_sha256": "a6e073e550296ffe655d76ffbffdcc16da73e16053871bbf911305ab293d375a",
+  "fps": 30,
+  "clips": [
+    {
+      "name": "HandSupportWalk",
+      "labelRU": "Походка с опорой на руку",
+      "useRU": "Опора на основание кисти, короткие шаги ногами, затем перенос руки вперёд. Три цикла с реальным продвижением.",
+      "frames": 180,
+      "action": "MC_Stage2_HandSupport_Walk_Preview",
+      "event_frames": {
+        "palm_contact": 1,
+        "far_foot_swing": 15,
+        "near_foot_swing": 33,
+        "unload": 43,
+        "palm_swing": 50,
+        "next_contact": 61
+      }
+    }
+  ],
+  "cameras": {
+    "ThreeQuarter": {
+      "name": "MC_Carries_ThreeQuarter",
+      "scale": 2.970460891723633
+    },
+    "Side": {
+      "name": "MC_Carries_Side",
+      "scale": 3.1867763996124268
+    }
+  },
+  "original_files_unchanged": true,
+  "original_action_curves_preserved": true,
+  "source_method": "Authored asymmetric planted-palm gait; no downloaded Mixamo or Left4Dead motion",
+  "step_m": 0.24,
+  "cycle_frames": 60,
+  "cycle_seconds": 2.0,
+  "expected_speed_mps": 0.12,
+  "palm_stance_fraction": 0.71,
+  "palm_world_stance_slip_m": [
+    5.960464477539063e-08,
+    0.0,
+    1.1920928955078125e-07
+  ],
+  "max_leg_reach_ratio": 0.9709697203905137,
+  "max_arm_reach_ratio": 0.592779385596544,
+  "foot_bones": [
+    {
+      "name": "MC_Foot_PosX",
+      "vertices": 75,
+      "skin_bind_error": 2.2135674953460693e-05,
+      "sole_correction": 0.0029996703118085853
+    },
+    {
+      "name": "MC_Foot_NegX",
+      "vertices": 69,
+      "skin_bind_error": 3.978610038757324e-05,
+      "sole_correction": -0.005739860728383065
+    }
+  ],
+  "palm_correction": -0.02443794582784176,
+  "skin_contact_floor": 0.020786942914128304,
+  "minimum_skin_z": 0.02209915965795517,
+  "bounds": [
+    [
+      -0.38607385754585266,
+      -2.3437159061431885,
+      0.02209915965795517
+    ],
+    [
+      1.38197660446167,
+      0.26130998134613037,
+      1.120868444442749
+    ]
+  ],
+  "scope": "Blender-only hand-supported locomotion preview for approval before Unreal integration.",
+  "limitations": [
+    "Custom asymmetric gait, not a direct Mixamo or Left4Dead animation retarget.",
+    "Speed is calibrated to source model scale; gameplay speed and terrain IK need integration after approval."
+  ]
+}

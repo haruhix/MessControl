@@ -25,4 +25,8 @@ Codex has project-configured MCP connections for Unreal Engine, Blender, Adobe S
 
 # Validation scope
 
-Implement and integrate small mechanics promptly. Collect gameplay, network and regression checks into larger batches when testing is requested or a substantial batch is ready. Do not automatically start broad test suites, repeated playthroughs, builds or full index refreshes after each small update. Perform only the authoring steps needed to make the change usable, such as saving packages, compiling an edited Blueprint or baking changed collision. Report deferred validation honestly. Windows build/cook/package is a separate task and runs only when the user requests it.
+Implement and integrate small mechanics promptly. By default, validate changes with a short local gameplay check in solo PIE, as they behave in the game. Run network or multiplayer tests only when the user makes a separate explicit request for them; a substantial batch of changes is not authorization. Do not automatically start broad test suites, repeated playthroughs, builds or full index refreshes after each small update. Perform only the authoring steps needed to make the change usable, such as saving packages, compiling an edited Blueprint or baking changed collision. Report deferred validation honestly. Windows build/cook/package is a separate task and runs only when the user requests it.
+
+# Change descriptions and changelog
+
+Every commit description and pull request description must include a concise changelog of what was added or changed. State the resulting behavior, new animations/assets/tools and the validation actually performed. Identify previews awaiting approval and deferred integration or validation explicitly. Update descriptions when the final scope changes; do not describe abandoned work as delivered.
