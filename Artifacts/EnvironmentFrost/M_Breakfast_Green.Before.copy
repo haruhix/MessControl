@@ -1,0 +1,31 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_Green" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_GreenEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green:M_Breakfast_GreenEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.080000,G=0.300000,B=0.018000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=F92320AC488AD0000D3B91B3C93BEA89
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=DC6ACAF040FA85918E048FBFC88CCF17
+      Material="/Script/Engine.Material'M_Breakfast_Green'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=F924C603458B938FF8C914B16F82FA41
+      Material="/Script/Engine.Material'M_Breakfast_Green'"
+   End Object
+   Begin Object Name="M_Breakfast_GreenEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Green.M_Breakfast_Green:M_Breakfast_GreenEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Green:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_Green:MaterialExpressionConstant_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Green:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_Green:MaterialExpressionConstant_0'"))
+   End Object
+   StateId=E1303D7C4D28D7A0545DDEA593DCB279
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_GreenEditorOnlyData'"
+   LightingGuid=F2FBD4CC4E46C29E1D3304968F942720
+End Object

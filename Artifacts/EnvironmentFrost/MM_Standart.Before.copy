@@ -1,0 +1,561 @@
+Begin Object Class=/Script/Engine.Material Name="MM_Standart" ExportPath="/Script/Engine.Material'/Game/Art/Materials/MM_Standart.MM_Standart'"
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="MM_StandartEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/MM_Standart.MM_Standart:MM_StandartEditorOnlyData'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionAppendVector Name="MaterialExpressionAppendVector_1" ExportPath="/Script/Engine.MaterialExpressionAppendVector'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionAppendVector_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_0" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_1" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_2" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_3" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_4" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComment Name="MaterialExpressionComment_5" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_2" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComponentMask_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionComponentMask Name="MaterialExpressionComponentMask_3" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComponentMask_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_1" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionConstant_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionDesaturation Name="MaterialExpressionDesaturation_1" ExportPath="/Script/Engine.MaterialExpressionDesaturation'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionDesaturation_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionDivide Name="MaterialExpressionDivide_1" ExportPath="/Script/Engine.MaterialExpressionDivide'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionDivide_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionLinearInterpolate Name="MaterialExpressionLinearInterpolate_1" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionLinearInterpolate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_11" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_11'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_12" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_12'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_13" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_13'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_14" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_14'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_15" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_15'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_16" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_16'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_17" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_17'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_18" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_18'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_19" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_19'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_20" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_20'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMultiply Name="MaterialExpressionMultiply_21" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_21'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionNormalize Name="MaterialExpressionNormalize_1" ExportPath="/Script/Engine.MaterialExpressionNormalize'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionNormalize_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionObjectPositionWS Name="MaterialExpressionObjectPositionWS_1" ExportPath="/Script/Engine.MaterialExpressionObjectPositionWS'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionObjectPositionWS_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionPower Name="MaterialExpressionPower_1" ExportPath="/Script/Engine.MaterialExpressionPower'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionPower_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionReroute Name="MaterialExpressionReroute_1" ExportPath="/Script/Engine.MaterialExpressionReroute'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionReroute_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSaturate Name="MaterialExpressionSaturate_2" ExportPath="/Script/Engine.MaterialExpressionSaturate'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionSaturate_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSaturate Name="MaterialExpressionSaturate_3" ExportPath="/Script/Engine.MaterialExpressionSaturate'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionSaturate_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_10" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_10'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_11" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_11'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_12" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_12'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_13" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_13'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_14" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_14'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_15" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_15'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_16" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_16'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_17" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_17'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_18" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_18'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_19" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_19'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionSubtract Name="MaterialExpressionSubtract_1" ExportPath="/Script/Engine.MaterialExpressionSubtract'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionSubtract_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionTextureCoordinate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionTextureSampleParameter2D_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionTextureSampleParameter2D_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionTextureSampleParameter2D_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionVectorParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_1" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionWorldPosition_1'"
+   End Object
+   Begin Object Name="MM_StandartEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/MM_Standart.MM_Standart:MM_StandartEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionLinearInterpolate'MM_Standart:MaterialExpressionLinearInterpolate_1'")
+      Metallic=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_11'")
+      Specular=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_12'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_13'")
+      Normal=(Expression="/Script/Engine.MaterialExpressionNormalize'MM_Standart:MaterialExpressionNormalize_1'")
+      Tangent=(UseConstant=True)
+      EmissiveColor=(UseConstant=True)
+      Opacity=(UseConstant=True)
+      OpacityMask=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_14'")
+      SubsurfaceColor=(UseConstant=True)
+      ClearCoat=(UseConstant=True)
+      ClearCoatRoughness=(UseConstant=True)
+      AmbientOcclusion=(UseConstant=True)
+      Refraction=(UseConstant=True)
+      CustomizedUVs(0)=(UseConstant=True)
+      CustomizedUVs(1)=(UseConstant=True)
+      CustomizedUVs(2)=(UseConstant=True)
+      CustomizedUVs(3)=(UseConstant=True)
+      CustomizedUVs(4)=(UseConstant=True)
+      CustomizedUVs(5)=(UseConstant=True)
+      CustomizedUVs(6)=(UseConstant=True)
+      CustomizedUVs(7)=(UseConstant=True)
+      SurfaceThickness=(UseConstant=True)
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionDivide'MM_Standart:MaterialExpressionDivide_1'","/Script/Engine.MaterialExpressionComponentMask'MM_Standart:MaterialExpressionComponentMask_2'","/Script/Engine.MaterialExpressionLinearInterpolate'MM_Standart:MaterialExpressionLinearInterpolate_1'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_11'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_12'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_13'","/Script/Engine.MaterialExpressionNormalize'MM_Standart:MaterialExpressionNormalize_1'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_14'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_0'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_10'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_15'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_11'","/Script/Engine.MaterialExpressionSaturate'MM_Standart:MaterialExpressionSaturate_2'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_16'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_1'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_12'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_2'","/Script/Engine.MaterialExpressionVectorParameter'MM_Standart:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_13'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_14'","/Script/Engine.MaterialExpressionPower'MM_Standart:MaterialExpressionPower_1'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_17'","/Script/Engine.MaterialExpressionComponentMask'MM_Standart:MaterialExpressionComponentMask_3'","/Script/Engine.MaterialExpressionDesaturation'MM_Standart:MaterialExpressionDesaturation_1'","/Script/Engine.MaterialExpressionAppendVector'MM_Standart:MaterialExpressionAppendVector_1'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_15'","/Script/Engine.MaterialExpressionSaturate'MM_Standart:MaterialExpressionSaturate_3'","/Script/Engine.MaterialExpressionTextureCoordinate'MM_Standart:MaterialExpressionTextureCoordinate_1'","/Script/Engine.MaterialExpressionConstant'MM_Standart:MaterialExpressionConstant_1'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_16'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_18'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_17'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_19'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_18'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_20'","/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_19'","/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_21'","/Script/Engine.MaterialExpressionReroute'MM_Standart:MaterialExpressionReroute_1'","/Script/Engine.MaterialExpressionVectorParameter'MM_Standart:MaterialExpressionVectorParameter_3'","/Script/Engine.MaterialExpressionWorldPosition'MM_Standart:MaterialExpressionWorldPosition_1'","/Script/Engine.MaterialExpressionObjectPositionWS'MM_Standart:MaterialExpressionObjectPositionWS_1'","/Script/Engine.MaterialExpressionSubtract'MM_Standart:MaterialExpressionSubtract_1'"),EditorComments=("/Script/Engine.MaterialExpressionComment'MM_Standart:MaterialExpressionComment_0'","/Script/Engine.MaterialExpressionComment'MM_Standart:MaterialExpressionComment_1'","/Script/Engine.MaterialExpressionComment'MM_Standart:MaterialExpressionComment_2'","/Script/Engine.MaterialExpressionComment'MM_Standart:MaterialExpressionComment_3'","/Script/Engine.MaterialExpressionComment'MM_Standart:MaterialExpressionComment_4'","/Script/Engine.MaterialExpressionComment'MM_Standart:MaterialExpressionComment_5'"))
+      ParameterGroupData(0)=(GroupName="00 - Base")
+      ParameterGroupData(1)=(GroupName="01 - Albedo")
+      ParameterGroupData(2)=(GroupName="02 - Normal")
+      ParameterGroupData(3)=(GroupName="03 - ARM")
+   End Object
+   Begin Object Name="MaterialExpressionAppendVector_1" ExportPath="/Script/Engine.MaterialExpressionAppendVector'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionAppendVector_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_17'")
+      B=(Expression="/Script/Engine.MaterialExpressionConstant'MM_Standart:MaterialExpressionConstant_1'")
+      MaterialExpressionEditorX=-48
+      MaterialExpressionEditorY=672
+      MaterialExpressionGuid=B487129149316ECB2B00E18A54826E49
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_0" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_0'"
+      SizeX=224
+      SizeY=224
+      Text="OPACITY_MASK"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=1872
+      MaterialExpressionEditorY=976
+      MaterialExpressionGuid=7FB7E7E149A2306045B8B5B144832D59
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_1" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_1'"
+      SizeX=224
+      SizeY=192
+      Text="Metalic"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=1808
+      MaterialExpressionEditorY=192
+      MaterialExpressionGuid=3ECDE7F7464B3958D94CB68CD120B75A
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_2" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_2'"
+      SizeX=217
+      SizeY=188
+      Text="Specular"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=1808
+      MaterialExpressionEditorY=384
+      MaterialExpressionGuid=0E6D45FE45C99EA37BF676A447AFFE3E
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_3" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_3'"
+      SizeX=240
+      SizeY=176
+      Text="Normal"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=992
+      MaterialExpressionEditorY=1056
+      MaterialExpressionGuid=3F81C91B4ADF5EDC0D90B689B8B0962B
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_4" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_4'"
+      SizeX=207
+      SizeY=218
+      Text="Basecolor"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=1840
+      MaterialExpressionEditorY=-16
+      MaterialExpressionGuid=9DC8CA774BC93DA8DA543CAE6651FD0D
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionComment_5" ExportPath="/Script/Engine.MaterialExpressionComment'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComment_5'"
+      SizeX=213
+      SizeY=192
+      Text="Roushness"
+      CommentColor=(R=0.150000,G=0.150000,B=0.150000,A=0.500000)
+      MaterialExpressionEditorX=1808
+      MaterialExpressionEditorY=576
+      MaterialExpressionGuid=C21C8824425140421DC7668A69225AEA
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_2" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComponentMask_2'"
+      Input=(Expression="/Script/Engine.MaterialExpressionSubtract'MM_Standart:MaterialExpressionSubtract_1'")
+      B=True
+      MaterialExpressionEditorX=1888
+      MaterialExpressionEditorY=-768
+      MaterialExpressionGuid=289F788F4A343FA9B1BC2EAFD6606E14
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionComponentMask_3" ExportPath="/Script/Engine.MaterialExpressionComponentMask'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionComponentMask_3'"
+      Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      R=True
+      G=True
+      MaterialExpressionEditorX=-528
+      MaterialExpressionEditorY=576
+      MaterialExpressionGuid=5BC48A1841C121F4308067BD95C456DD
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_1" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionConstant_1'"
+      R=1.000000
+      MaterialExpressionEditorX=-224
+      MaterialExpressionEditorY=784
+      MaterialExpressionGuid=29CB41834B9FDB85A90D1FA5B454D424
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionDesaturation_1" ExportPath="/Script/Engine.MaterialExpressionDesaturation'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionDesaturation_1'"
+      Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Fraction=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_15'")
+      MaterialExpressionEditorX=-464
+      MaterialExpressionEditorY=32
+      MaterialExpressionGuid=107223984E3B2C4213193EA09AA9E4EC
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionDivide_1" ExportPath="/Script/Engine.MaterialExpressionDivide'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionDivide_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionComponentMask'MM_Standart:MaterialExpressionComponentMask_2'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_11'")
+      MaterialExpressionEditorX=2144
+      MaterialExpressionEditorY=-784
+      MaterialExpressionGuid=DFEDEB954D675DB86E2AB0B7E79A2B09
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionLinearInterpolate_1" ExportPath="/Script/Engine.MaterialExpressionLinearInterpolate'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionLinearInterpolate_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionReroute'MM_Standart:MaterialExpressionReroute_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_21'")
+      Alpha=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_15'")
+      MaterialExpressionEditorX=1888
+      MaterialExpressionEditorY=32
+      MaterialExpressionGuid=880F6009473733FE8B5F01B76CD3E0AB
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_11" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_11'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=3,Mask=1,MaskB=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_12'")
+      MaterialExpressionEditorX=1872
+      MaterialExpressionEditorY=256
+      MaterialExpressionGuid=7771E343407ADFFB446C52A4E853A28A
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_12" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_12'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_1'",OutputIndex=1,Mask=1,MaskR=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_17'")
+      MaterialExpressionEditorX=1872
+      MaterialExpressionEditorY=448
+      MaterialExpressionGuid=DA28107E4F1C3C1326DBDD8573CAA471
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_13" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_13'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_0'",OutputIndex=2,Mask=1,MaskG=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_13'")
+      MaterialExpressionEditorX=1872
+      MaterialExpressionEditorY=640
+      MaterialExpressionGuid=F440D0754D2D83621071C5AB06780D0E
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_14" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_14'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_Standart:MaterialExpressionTextureSampleParameter2D_1'",OutputIndex=4,Mask=1,MaskA=1)
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_19'")
+      MaterialExpressionEditorX=1936
+      MaterialExpressionEditorY=1072
+      MaterialExpressionGuid=F77C544145A9B9D785E66994F4699381
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_15" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_15'"
+      A=(Expression="/Script/Engine.MaterialExpressionSaturate'MM_Standart:MaterialExpressionSaturate_2'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_10'")
+      MaterialExpressionEditorX=2544
+      MaterialExpressionEditorY=-752
+      MaterialExpressionGuid=9F02DDCB4C7E6756BB2E7386AD31EFFA
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_16" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_16'"
+      A=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_18'")
+      B=(Expression="/Script/Engine.MaterialExpressionVectorParameter'MM_Standart:MaterialExpressionVectorParameter_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=-208
+      MaterialExpressionEditorY=-96
+      MaterialExpressionGuid=A591B4D844464F4A684379B72810A41D
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_17" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_17'"
+      A=(Expression="/Script/Engine.MaterialExpressionComponentMask'MM_Standart:MaterialExpressionComponentMask_3'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_14'")
+      MaterialExpressionEditorX=-240
+      MaterialExpressionEditorY=624
+      MaterialExpressionGuid=4E1CDBC942A0142B4E09E2BDB93AD4A2
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_18" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_18'"
+      A=(Expression="/Script/Engine.MaterialExpressionDesaturation'MM_Standart:MaterialExpressionDesaturation_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_16'")
+      MaterialExpressionEditorX=-400
+      MaterialExpressionEditorY=-304
+      MaterialExpressionGuid=4DDE5088413FD1EC735133A3F2582C19
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_19" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_19'"
+      A=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'MM_Standart:MaterialExpressionTextureCoordinate_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_18'")
+      MaterialExpressionEditorX=-1104
+      MaterialExpressionEditorY=272
+      MaterialExpressionGuid=437527654DF6ED22F66EB1899BDE1B76
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_20" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_20'"
+      MaterialExpressionEditorX=160
+      MaterialExpressionEditorY=224
+      MaterialExpressionGuid=E58DDE77413646A53EECBCB15A573077
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionMultiply_21" ExportPath="/Script/Engine.MaterialExpressionMultiply'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionMultiply_21'"
+      A=(Expression="/Script/Engine.MaterialExpressionVectorParameter'MM_Standart:MaterialExpressionVectorParameter_3'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      B=(Expression="/Script/Engine.MaterialExpressionReroute'MM_Standart:MaterialExpressionReroute_1'")
+      MaterialExpressionEditorX=976
+      MaterialExpressionEditorY=-352
+      MaterialExpressionGuid=7B9E346E4BCDD624898813AC1EFFDFE0
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionNormalize_1" ExportPath="/Script/Engine.MaterialExpressionNormalize'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionNormalize_1'"
+      VectorInput=(Expression="/Script/Engine.MaterialExpressionAppendVector'MM_Standart:MaterialExpressionAppendVector_1'")
+      MaterialExpressionEditorX=1040
+      MaterialExpressionEditorY=1136
+      MaterialExpressionGuid=52DE3C7741BA75758270639F16DD7AD4
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionObjectPositionWS_1" ExportPath="/Script/Engine.MaterialExpressionObjectPositionWS'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionObjectPositionWS_1'"
+      MaterialExpressionEditorX=1360
+      MaterialExpressionEditorY=-928
+      MaterialExpressionGuid=7AFD290E4A64582E1361FD9D4F38ACB1
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionPower_1" ExportPath="/Script/Engine.MaterialExpressionPower'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionPower_1'"
+      Base=(OutputIndex=3,Mask=1,MaskB=1)
+      Exponent=(Expression="/Script/Engine.MaterialExpressionScalarParameter'MM_Standart:MaterialExpressionScalarParameter_12'")
+      MaterialExpressionEditorX=160
+      MaterialExpressionEditorY=-160
+      MaterialExpressionGuid=6C0E34AC4D8526447DB0869FF7FC144A
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionReroute_1" ExportPath="/Script/Engine.MaterialExpressionReroute'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionReroute_1'"
+      Input=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_16'")
+      MaterialExpressionEditorX=768
+      MaterialExpressionEditorY=-144
+      MaterialExpressionGuid=5C4447A84B6E07D7E6262E9A4F3F1821
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionSaturate_2" ExportPath="/Script/Engine.MaterialExpressionSaturate'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionSaturate_2'"
+      Input=(Expression="/Script/Engine.MaterialExpressionDivide'MM_Standart:MaterialExpressionDivide_1'")
+      MaterialExpressionEditorX=2320
+      MaterialExpressionEditorY=-768
+      MaterialExpressionGuid=4223BA3449C05AC4B7DBB2997484BAAF
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionSaturate_3" ExportPath="/Script/Engine.MaterialExpressionSaturate'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionSaturate_3'"
+      MaterialExpressionEditorX=-64
+      MaterialExpressionEditorY=-224
+      MaterialExpressionGuid=CFBF323B4AE804B2DDB02F85B946DB77
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_10" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_10'"
+      ParameterName="Param_1"
+      ExpressionGUID=156F43BA432D3441EE31A89CD86DB6C1
+      MaterialExpressionEditorX=2304
+      MaterialExpressionEditorY=-656
+      MaterialExpressionGuid=ACE27A1C4A021250899B8E8650934C39
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_11" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_11'"
+      DefaultValue=148.644989
+      ExpressionGUID=0694880A414F14558B3B0AB2B40CBE36
+      MaterialExpressionEditorX=2032
+      MaterialExpressionEditorY=-624
+      MaterialExpressionGuid=DF3F445E4EDBBBAD1057DD8C6BF97FC6
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_12" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_12'"
+      ParameterName="Metalic"
+      ExpressionGUID=C1FC9A27479FA7C9EF4E7C877137D0E6
+      Group="03 - ARM"
+      MaterialExpressionEditorX=-112
+      MaterialExpressionEditorY=192
+      MaterialExpressionGuid=5BAF2CE94748AA42FF78E4A6C8DCC184
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_13" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_13'"
+      DefaultValue=0.500000
+      SliderMax=1.000000
+      ParameterName="Roughness Strength"
+      ExpressionGUID=32118E2447006A3AEEB247A83B529023
+      Group="03 - ARM"
+      SortPriority=1
+      MaterialExpressionEditorX=-512
+      MaterialExpressionEditorY=208
+      MaterialExpressionGuid=2F44CC4B49B4C587D8DC05B09E9CEBC2
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_14" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_14'"
+      DefaultValue=1.000000
+      SliderMax=2.000000
+      ParameterName="Normal Strength"
+      ExpressionGUID=7022F59A43BDE33708D2E9A5D01C8304
+      Group="02 - Normal"
+      SortPriority=1
+      MaterialExpressionEditorX=-544
+      MaterialExpressionEditorY=672
+      MaterialExpressionGuid=D6EC56794E6A5D47F0589AAB309A716E
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_15" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_15'"
+      ParameterName="Saturate"
+      ExpressionGUID=6DDCBD1B4003D42338B9928FE9E3A111
+      Group="01 - Albedo"
+      MaterialExpressionEditorX=-688
+      MaterialExpressionEditorY=144
+      MaterialExpressionGuid=247A120943A60928BC95C6A5B935093A
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_16" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_16'"
+      DefaultValue=1.000000
+      ParameterName="lightning"
+      ExpressionGUID=EABCD3A84668D5EE522BABA130052D65
+      Group="01 - Albedo"
+      MaterialExpressionEditorX=-592
+      MaterialExpressionEditorY=-80
+      MaterialExpressionGuid=333A9D0B430F1CE844EF44BC1E99B197
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_17" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_17'"
+      DefaultValue=0.500000
+      ParameterName="Spec"
+      ExpressionGUID=6A002FDE4A8A173C35E33598BA9A7E66
+      Group="03 - ARM"
+      MaterialExpressionEditorX=848
+      MaterialExpressionEditorY=384
+      MaterialExpressionGuid=3D90376D48C675F426D8558B5FF34F13
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_18" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_18'"
+      DefaultValue=1.000000
+      ParameterName="Tile"
+      ExpressionGUID=D074317949C9BE5E93FA7BBFC32EEFF6
+      Group="00 - Base"
+      MaterialExpressionEditorX=-1376
+      MaterialExpressionEditorY=336
+      MaterialExpressionGuid=72DB37D94DFD2A89735BBF8ED000F7E9
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_19" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionScalarParameter_19'"
+      DefaultValue=1.000000
+      ParameterName="Mask"
+      ExpressionGUID=B8CB0A52410A1C86C59E90A4F99240FB
+      MaterialExpressionEditorX=32
+      MaterialExpressionEditorY=976
+      MaterialExpressionGuid=AA6985034DD3F872324DDB98A910C02A
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionSubtract_1" ExportPath="/Script/Engine.MaterialExpressionSubtract'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionSubtract_1'"
+      A=(Expression="/Script/Engine.MaterialExpressionObjectPositionWS'MM_Standart:MaterialExpressionObjectPositionWS_1'")
+      B=(Expression="/Script/Engine.MaterialExpressionWorldPosition'MM_Standart:MaterialExpressionWorldPosition_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=1696
+      MaterialExpressionEditorY=-800
+      MaterialExpressionGuid=BD4BFD2E4DEA8AD9123F4A8686377B72
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionTextureCoordinate_1'"
+      MaterialExpressionEditorX=-1376
+      MaterialExpressionEditorY=208
+      MaterialExpressionGuid=BC23A6B74768FCE1E7ACD097C5BA69C1
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionTextureSampleParameter2D_0'"
+      ParameterName="ARM"
+      ExpressionGUID=44FDBEDE414706C0F779F0A6829F6C64
+      Group="03 - ARM"
+      SortPriority=0
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_19'")
+      Texture="/Script/Engine.Texture2D'/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture'"
+      MaterialExpressionEditorX=-912
+      MaterialExpressionEditorY=288
+      MaterialExpressionGuid=34006E104C2BD1B10BA579892FFF0ED4
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionTextureSampleParameter2D_1'"
+      ParameterName="Albedo Texture"
+      ExpressionGUID=6BFB3B7C4D7639CD6D983396715F5D04
+      Group="01 - Albedo"
+      SortPriority=0
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_19'")
+      Texture="/Script/Engine.Texture2D'/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture'"
+      MaterialExpressionEditorX=-1312
+      MaterialExpressionEditorY=-336
+      MaterialExpressionGuid=1104065549AF7CFCA0B1A98003450FB3
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionTextureSampleParameter2D_2'"
+      ParameterName="Normal Texture"
+      ExpressionGUID=1EE83D994324F21F78C1DBA17E33214C
+      Group="02 - Normal"
+      SortPriority=0
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionMultiply'MM_Standart:MaterialExpressionMultiply_19'")
+      Texture="/Script/Engine.Texture2D'/Engine/EngineMaterials/DefaultNormal.DefaultNormal'"
+      SamplerType=SAMPLERTYPE_Normal
+      MaterialExpressionEditorX=-880
+      MaterialExpressionEditorY=608
+      MaterialExpressionGuid=62FD39854832C71F5725A5A4690CE5D6
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=1.000000,G=1.000000,B=1.000000,A=1.000000)
+      ParameterName="Albedo Color"
+      ExpressionGUID=F96A59A14418EF02AF7B47A98DAF94AE
+      Group="01 - Albedo"
+      SortPriority=1
+      MaterialExpressionEditorX=-896
+      MaterialExpressionEditorY=16
+      MaterialExpressionGuid=5C95B5A940254C296C07B2AC1D95BFEB
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionVectorParameter_3'"
+      DefaultValue=(R=0.000000,G=0.000000,B=0.000000,A=1.000000)
+      ParameterName="GragientTint"
+      ExpressionGUID=5DEA5D2740F233F33114DE835CBA5952
+      MaterialExpressionEditorX=672
+      MaterialExpressionEditorY=-512
+      MaterialExpressionGuid=8399141E4F332DF0E20636B47C256369
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_1" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Art/Materials/MM_Standart.MM_Standart:MaterialExpressionWorldPosition_1'"
+      MaterialExpressionEditorX=1360
+      MaterialExpressionEditorY=-816
+      MaterialExpressionGuid=DA84CDE940421989EAE591B0F5B1B8FA
+      Material="/Script/Engine.Material'MM_Standart'"
+   End Object
+   BlendMode=BLEND_Masked
+   EditorX=2912
+   EditorY=432
+   StateId=3315546E41DFF1DBA39BBA9F8131CBAC
+   ReferencedTextureGuids(0)=3C9868FC412CA5EF29C70C98A29E0B6B
+   ReferencedTextureGuids(1)=00000000000000000000000000000000
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'MM_StandartEditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="DefaultNormal",TextureReference="/Engine/EngineMaterials/DefaultNormal.DefaultNormal")
+   TextureStreamingData(1)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="WhiteSquareTexture",TextureReference="/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture'"
+   ReferencedDefaultTextures(1)="/Script/Engine.Texture2D'/Engine/EngineMaterials/DefaultNormal.DefaultNormal'"
+   LightingGuid=2308019A44CA2CDFF65FAB9C79DD1A75
+End Object

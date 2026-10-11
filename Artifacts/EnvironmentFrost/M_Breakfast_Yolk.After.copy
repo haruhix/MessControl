@@ -1,0 +1,59 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_Yolk" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk'"
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_YolkEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:M_Breakfast_YolkEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Game/Gameplay/Cold/Frost/MF_EnvironmentFrost.MF_EnvironmentFrost'"
+      FunctionInputs(0)=(ExpressionInputId=3A54F02640C0A77971B1918F96C7D6C0,Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'",InputName="BaseColor",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      FunctionInputs(1)=(ExpressionInputId=EB6F9D1A4286FB636375C49D30400786,Input=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_Yolk:MaterialExpressionConstant_0'",InputName="Roughness"))
+      FunctionInputs(2)=(ExpressionInputId=2FCC08B443F25B99AB6737B1E05BA1B8,Input=(OutputIndex=-1,InputName="Metallic"))
+      FunctionInputs(3)=(ExpressionInputId=63D907F14E0A6881F594C596059D0340,Input=(OutputIndex=-1,InputName="Specular"))
+      FunctionOutputs(0)=(ExpressionOutputId=8F875B7B424B3496B8CCA09360FE3470,Output=(OutputName="BaseColor"))
+      FunctionOutputs(1)=(ExpressionOutputId=FA1559FA48055BA4FB63DDA8EABF5D30,Output=(OutputName="Roughness"))
+      FunctionOutputs(2)=(ExpressionOutputId=A94B89EA49249E426712AA8F1FAC637B,Output=(OutputName="Metallic"))
+      FunctionOutputs(3)=(ExpressionOutputId=96DB59FB47E22DC2FAE2F1B5415FEA8C,Output=(OutputName="Specular"))
+      FunctionOutputs(4)=(ExpressionOutputId=C843F3E745D7730425AC8EAC28D55A4F,Output=(OutputName="Coverage"))
+      MaterialExpressionEditorX=2600
+      MaterialExpressionEditorY=1600
+      MaterialExpressionGuid=E2968D45454CAED51714DF86338031A4
+      Material="/Script/Engine.Material'M_Breakfast_Yolk'"
+      Desc="Shared matte fern frost; existing climate ColdAmount"
+      Outputs(0)=(OutputName="BaseColor")
+      Outputs(1)=(OutputName="Roughness")
+      Outputs(2)=(OutputName="Metallic")
+      Outputs(3)=(OutputName="Specular")
+      Outputs(4)=(OutputName="Coverage")
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=1.000000,G=0.400000,B=0.015000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=A67BC6B3448EB561589A7EA0BF9D3598
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=7EA781874FB2237CBE6ADA833DD39245
+      Material="/Script/Engine.Material'M_Breakfast_Yolk'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=CC3B86B948B497439A2FC9994532D8A7
+      Material="/Script/Engine.Material'M_Breakfast_Yolk'"
+   End Object
+   Begin Object Name="M_Breakfast_YolkEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Yolk.M_Breakfast_Yolk:M_Breakfast_YolkEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Yolk:MaterialExpressionMaterialFunctionCall_0'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Yolk:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=1)
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Yolk:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_Yolk:MaterialExpressionConstant_0'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_Breakfast_Yolk:MaterialExpressionMaterialFunctionCall_0'"))
+   End Object
+   StateId=DECE499A4B631CA1F467A4BA795B0A2F
+   ReferencedTextureGuids(0)=670619CD48696888D492F08383AE80CE
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_YolkEditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=0.781250,UVChannelIndex=0,TextureName="T_PlayerFrostMask",TextureReference="/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+   LightingGuid=247D4FCE4356237BAC7546A911900068
+End Object

@@ -1,0 +1,407 @@
+{
+  "passed": true,
+  "samples": [
+    {
+      "stage": "full",
+      "ColdAmount": 1.0
+    },
+    {
+      "stage": "stop",
+      "ColdAmount": 0.0
+    }
+  ],
+  "camera_location": [
+    -740.7672598422491,
+    67.9902825150296,
+    555.9778298254487
+  ],
+  "camera_rotation": [
+    0.0,
+    -25.022306442260742,
+    -27.774873733520508
+  ],
+  "event": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCIceEvent_0",
+  "visible_materials": {
+    "/Game/Art/Materials/ThroatEdgeFade/M_ExitClimate_EdgeFade.M_ExitClimate_EdgeFade": [
+      {
+        "actor": "StaticMeshActor_218",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_32",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "MCThroat_0",
+        "class": "MCThroat",
+        "component": "AuthoredMouth",
+        "slot": 0
+      }
+    ],
+    "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS": [
+      {
+        "actor": "StaticMeshActor_220",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_6",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2": [
+      {
+        "actor": "StaticMeshActor_221",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_229",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_230",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_232",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_1",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_34",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_40",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_41",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_42",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_43",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_44",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_45",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "MCArenaTooth_8",
+        "class": "MCArenaTooth",
+        "component": "AnimatedEnamel",
+        "slot": 0
+      },
+      {
+        "actor": "MCArenaTooth_9",
+        "class": "MCArenaTooth",
+        "component": "AnimatedEnamel",
+        "slot": 0
+      },
+      {
+        "actor": "MCArenaTooth_10",
+        "class": "MCArenaTooth",
+        "component": "AnimatedEnamel",
+        "slot": 0
+      },
+      {
+        "actor": "MCArenaTooth_11",
+        "class": "MCArenaTooth",
+        "component": "AnimatedEnamel",
+        "slot": 0
+      },
+      {
+        "actor": "MCArenaTooth_12",
+        "class": "MCArenaTooth",
+        "component": "AnimatedEnamel",
+        "slot": 0
+      },
+      {
+        "actor": "MCArenaTooth_13",
+        "class": "MCArenaTooth",
+        "component": "AnimatedEnamel",
+        "slot": 0
+      },
+      {
+        "actor": "MCArenaTooth_14",
+        "class": "MCArenaTooth",
+        "component": "AnimatedEnamel",
+        "slot": 0
+      },
+      {
+        "actor": "MCArenaTooth_15",
+        "class": "MCArenaTooth",
+        "component": "AnimatedEnamel",
+        "slot": 0
+      }
+    ],
+    "/Game/Art/Materials/Arena/RainDrips/M_Roof_RainDrips.M_Roof_RainDrips": [
+      {
+        "actor": "StaticMeshActor_2",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/Cold/Frost/M_DefaultPropFrost.M_DefaultPropFrost": [
+      {
+        "actor": "StaticMeshActor_33",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_35",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_36",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_37",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_38",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      },
+      {
+        "actor": "StaticMeshActor_39",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/Cold/Frost/M_IcePropFrost.M_IcePropFrost": [
+      {
+        "actor": "StaticMeshActor_0",
+        "class": "StaticMeshActor",
+        "component": "StaticMeshComponent0",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/Delivery/M_DeliveryZoneGuide.M_DeliveryZoneGuide": [
+      {
+        "actor": "MCFoodDisposal_1",
+        "class": "MCFoodDisposal",
+        "component": "DeliveryFloorGuide",
+        "slot": 0
+      },
+      {
+        "actor": "MCFoodDisposal_1",
+        "class": "MCFoodDisposal",
+        "component": "DeliveryArrowGuide",
+        "slot": 0
+      },
+      {
+        "actor": "MCThroat_0",
+        "class": "MCThroat",
+        "component": "DeliveryFloorGuide",
+        "slot": 0
+      },
+      {
+        "actor": "MCThroat_0",
+        "class": "MCThroat",
+        "component": "DeliveryArrowGuide",
+        "slot": 0
+      }
+    ],
+    "/Engine/EngineMaterials/Widget3DPassThrough.Widget3DPassThrough": [
+      {
+        "actor": "MCFoodDisposal_1",
+        "class": "MCFoodDisposal",
+        "component": "DeliveryCaption",
+        "slot": 0
+      },
+      {
+        "actor": "BP_PlayerCharacter_C_2",
+        "class": "BP_PlayerCharacter_C",
+        "component": "PlayerName",
+        "slot": 0
+      },
+      {
+        "actor": "MCIceEvent_0",
+        "class": "MCIceEvent",
+        "component": "WidgetComponent_0",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/Arena/M_TonguePain.M_TonguePain": [
+      {
+        "actor": "MCTongue_0",
+        "class": "MCTongue",
+        "component": "TongueSurface",
+        "slot": 0
+      }
+    ],
+    "/Game/Art/Materials/M_LivingTissue.M_LivingTissue": [
+      {
+        "actor": "MCThroat_0",
+        "class": "MCThroat",
+        "component": "Uvula",
+        "slot": 0
+      },
+      {
+        "actor": "MCThroat_0",
+        "class": "MCThroat",
+        "component": "Uvula",
+        "slot": 1
+      }
+    ],
+    "/Game/Gameplay/VFX/M_ReactionSoft.M_ReactionSoft": [
+      {
+        "actor": "MCThroat_0",
+        "class": "MCThroat",
+        "component": "ThroatDepth",
+        "slot": 0
+      }
+    ],
+    "/Game/Art/Materials/M_TeethGameplay.M_TeethGameplay": [
+      {
+        "actor": "BP_PlayerCharacter_C_2",
+        "class": "BP_PlayerCharacter_C",
+        "component": "CharacterMesh0",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/CharacterCurrent/Materials/M_BagGameplay.M_BagGameplay": [
+      {
+        "actor": "BP_PlayerCharacter_C_2",
+        "class": "BP_PlayerCharacter_C",
+        "component": "CharacterMesh0",
+        "slot": 1
+      }
+    ],
+    "/Game/Art/Materials/MM_Standart.MM_Standart": [
+      {
+        "actor": "BP_PlayerCharacter_C_2",
+        "class": "BP_PlayerCharacter_C",
+        "component": "MiniBrush",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus": [
+      {
+        "actor": "MCArenaTooth_13",
+        "class": "MCArenaTooth",
+        "component": "CalculusDeposits",
+        "slot": 0
+      }
+    ],
+    "/Engine/EngineDebugMaterials/VertexColorMaterial.VertexColorMaterial": [
+      {
+        "actor": "MCIceEvent_0",
+        "class": "MCIceEvent",
+        "component": "WarmthAndIcicleGuides",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/Cold/Frost/M_TongueFrost.M_TongueFrost": [
+      {
+        "actor": "MCIceEvent_0",
+        "class": "MCIceEvent",
+        "component": "FrozenTongue",
+        "slot": 0
+      }
+    ],
+    "/Game/Gameplay/Cold/VFX/M_IceWindSheet.M_IceWindSheet": [
+      {
+        "actor": "MCIceEventVFX_0",
+        "class": "MCIceEventVFX",
+        "component": "VolumetricWindSheets",
+        "slot": 0
+      }
+    ],
+    "/Game/Art/Materials/ice/M_Ice.M_Ice": [
+      {
+        "actor": "MCIceEventVFX_0",
+        "class": "MCIceEventVFX",
+        "component": "CrystalFacet0",
+        "slot": 0
+      },
+      {
+        "actor": "MCIceEventVFX_0",
+        "class": "MCIceEventVFX",
+        "component": "CrystalFacet1",
+        "slot": 0
+      },
+      {
+        "actor": "MCIceEventVFX_0",
+        "class": "MCIceEventVFX",
+        "component": "CrystalFacet2",
+        "slot": 0
+      },
+      {
+        "actor": "MCIceEventVFX_0",
+        "class": "MCIceEventVFX",
+        "component": "CrystalFacet3",
+        "slot": 0
+      },
+      {
+        "actor": "MCIceEventVFX_0",
+        "class": "MCIceEventVFX",
+        "component": "CrystalFacet4",
+        "slot": 0
+      },
+      {
+        "actor": "MCIceEventVFX_0",
+        "class": "MCIceEventVFX",
+        "component": "CrystalFacet5",
+        "slot": 0
+      }
+    ]
+  },
+  "error": null
+}

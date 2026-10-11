@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "samples": [
+    {
+      "stage": "holding",
+      "age": 0.4027627110481262,
+      "alive": true,
+      "meter": 1.0,
+      "cube_visible": true,
+      "body_fragments": 36,
+      "nonempty_body_fragments": 18,
+      "ice_fragments": 36,
+      "visible_ice_fragments": 0,
+      "source_hidden": true,
+      "can_work": null
+    },
+    {
+      "stage": "shatter",
+      "age": 1.9515339136123657,
+      "alive": false,
+      "meter": null,
+      "cube_visible": false,
+      "body_fragments": 36,
+      "nonempty_body_fragments": 18,
+      "ice_fragments": 36,
+      "visible_ice_fragments": 36,
+      "source_hidden": true,
+      "can_work": null
+    }
+  ],
+  "preview_floor": [
+    -996.6492218012279,
+    -81.68783186255476,
+    24.275105059146853
+  ],
+  "camera": [
+    -576.6492218012279,
+    -251.68783186255476,
+    221.27510505914685
+  ],
+  "respawn": {
+    "new_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_3",
+    "old_body_hidden": true
+  },
+  "error": null
+}

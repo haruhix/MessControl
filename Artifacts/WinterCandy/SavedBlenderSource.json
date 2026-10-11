@@ -1,0 +1,156 @@
+{
+  "file": "D:\\PROJECT\\GAME\\TEETH CONTROL\\teeth\\candy.blend",
+  "version": "5.1.2",
+  "units": 1.0,
+  "objects": [
+    {
+      "name": "Cylinder_001",
+      "visible": false,
+      "hidden": true,
+      "scale": [
+        1.1856764554977417,
+        1.1856764554977417,
+        1.1856764554977417
+      ],
+      "dimensions": [
+        3.2140636444091797,
+        2.260014772415161,
+        1.2764191627502441
+      ],
+      "vertices": 70192,
+      "polygons": 70190,
+      "colors": [
+        {
+          "name": "Attribute",
+          "domain": "CORNER",
+          "type": "BYTE_COLOR"
+        }
+      ],
+      "modifiers": [],
+      "minimum": [
+        -0.5653415322303772,
+        -1.1300073862075806,
+        0.44989585876464844
+      ],
+      "maximum": [
+        0.7110776901245117,
+        1.1300073862075806,
+        3.663959503173828
+      ]
+    },
+    {
+      "name": "SM_CandyMan",
+      "visible": true,
+      "hidden": false,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "dimensions": [
+        1.3374502658843994,
+        2.257481336593628,
+        3.211671829223633
+      ],
+      "vertices": 2169,
+      "polygons": 2144,
+      "colors": [
+        {
+          "name": "Attribute",
+          "domain": "CORNER",
+          "type": "BYTE_COLOR"
+        }
+      ],
+      "modifiers": [],
+      "minimum": [
+        -0.5653382539749146,
+        -1.128740668296814,
+        0.557098388671875
+      ],
+      "maximum": [
+        0.7721119523048401,
+        1.128740668296814,
+        3.768770217895508
+      ]
+    }
+  ],
+  "enums": {
+    "apply_scale_options": [
+      "FBX_SCALE_NONE",
+      "FBX_SCALE_UNITS",
+      "FBX_SCALE_CUSTOM",
+      "FBX_SCALE_ALL"
+    ],
+    "object_types": [
+      "EMPTY",
+      "CAMERA",
+      "LIGHT",
+      "ARMATURE",
+      "MESH",
+      "OTHER"
+    ],
+    "mesh_smooth_type": [
+      "OFF",
+      "FACE",
+      "EDGE",
+      "SMOOTH_GROUP"
+    ],
+    "colors_type": [
+      "NONE",
+      "SRGB",
+      "LINEAR"
+    ],
+    "primary_bone_axis": [
+      "X",
+      "Y",
+      "Z",
+      "-X",
+      "-Y",
+      "-Z"
+    ],
+    "secondary_bone_axis": [
+      "X",
+      "Y",
+      "Z",
+      "-X",
+      "-Y",
+      "-Z"
+    ],
+    "armature_nodetype": [
+      "NULL",
+      "ROOT",
+      "LIMBNODE"
+    ],
+    "path_mode": [
+      "AUTO",
+      "ABSOLUTE",
+      "RELATIVE",
+      "MATCH",
+      "STRIP",
+      "COPY"
+    ],
+    "batch_mode": [
+      "OFF",
+      "SCENE",
+      "COLLECTION",
+      "SCENE_COLLECTION",
+      "ACTIVE_SCENE_COLLECTION"
+    ],
+    "axis_forward": [
+      "X",
+      "Y",
+      "Z",
+      "-X",
+      "-Y",
+      "-Z"
+    ],
+    "axis_up": [
+      "X",
+      "Y",
+      "Z",
+      "-X",
+      "-Y",
+      "-Z"
+    ]
+  }
+}

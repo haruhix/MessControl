@@ -1,0 +1,452 @@
+{
+  "file": "D:\\PROJECT\\GAME\\TEETH CONTROL\\teeth\\candy.blend",
+  "version": "5.1.2",
+  "fps": 24,
+  "fps_base": 1.0,
+  "frame": 213,
+  "units": 1.0,
+  "objects": [
+    {
+      "name": "Cylinder_001",
+      "type": "MESH",
+      "visible": false,
+      "scale": [
+        1.1856764554977417,
+        1.1856764554977417,
+        1.1856764554977417
+      ],
+      "dimensions": [
+        3.2140636444091797,
+        2.260014772415161,
+        1.2764191627502441
+      ],
+      "modifiers": [],
+      "action": null,
+      "nla": [],
+      "bones": [],
+      "shapes": [],
+      "shape_action": null
+    },
+    {
+      "name": "SM_CandyMan",
+      "type": "MESH",
+      "visible": true,
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "dimensions": [
+        1.3374502658843994,
+        2.2824203968048096,
+        3.4210214614868164
+      ],
+      "modifiers": [],
+      "action": null,
+      "nla": [
+        {
+          "name": "idle",
+          "mute": false,
+          "strips": [
+            {
+              "name": "idle",
+              "action": "idle",
+              "start": 0.0,
+              "end": 48.0
+            },
+            {
+              "name": "Atack_MiniCandy",
+              "action": "Atack_MiniCandy",
+              "start": 71.0,
+              "end": 86.0
+            },
+            {
+              "name": "Floor_Hit",
+              "action": "Floor_Hit",
+              "start": 122.0,
+              "end": 146.0
+            },
+            {
+              "name": "Scream_Atack",
+              "action": "Scream_Atack",
+              "start": 198.0,
+              "end": 233.0
+            }
+          ]
+        },
+        {
+          "name": "Atack_MiniCandy",
+          "mute": false,
+          "strips": []
+        }
+      ],
+      "bones": [],
+      "shapes": [
+        {
+          "name": "Basis",
+          "value": 1.0
+        },
+        {
+          "name": "scream",
+          "value": 0.6697348952293396
+        },
+        {
+          "name": "floor_hit",
+          "value": 1.0
+        }
+      ],
+      "shape_action": null
+    },
+    {
+      "name": "Plane",
+      "type": "MESH",
+      "visible": true,
+      "scale": [
+        26.957469940185547,
+        26.957469940185547,
+        26.957469940185547
+      ],
+      "dimensions": [
+        53.914939880371094,
+        53.914939880371094,
+        0.0
+      ],
+      "modifiers": [],
+      "action": "PlaneAction",
+      "nla": [],
+      "bones": [],
+      "shapes": [],
+      "shape_action": null
+    }
+  ],
+  "actions": [
+    {
+      "name": "Atack_MiniCandy",
+      "range": [
+        0.0,
+        15.0
+      ],
+      "slots": [
+        {
+          "identifier": "OBPlane",
+          "type": "OBJECT"
+        }
+      ],
+      "curves": [
+        {
+          "path": "location",
+          "index": 0,
+          "keys": 2,
+          "start": 0.0,
+          "end": 13.0
+        },
+        {
+          "path": "location",
+          "index": 1,
+          "keys": 2,
+          "start": 0.0,
+          "end": 13.0
+        },
+        {
+          "path": "location",
+          "index": 2,
+          "keys": 2,
+          "start": 0.0,
+          "end": 13.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 0,
+          "keys": 2,
+          "start": 0.0,
+          "end": 13.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 1,
+          "keys": 2,
+          "start": 0.0,
+          "end": 13.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 2,
+          "keys": 2,
+          "start": 0.0,
+          "end": 13.0
+        },
+        {
+          "path": "scale",
+          "index": 0,
+          "keys": 2,
+          "start": 0.0,
+          "end": 13.0
+        },
+        {
+          "path": "scale",
+          "index": 1,
+          "keys": 8,
+          "start": 0.0,
+          "end": 13.0
+        },
+        {
+          "path": "scale",
+          "index": 2,
+          "keys": 9,
+          "start": 0.0,
+          "end": 15.0
+        }
+      ]
+    },
+    {
+      "name": "B\u00e9zierCurveAction",
+      "range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "identifier": "CUB\u00e9zierCurve",
+          "type": "CURVE"
+        },
+        {
+          "identifier": "OBB\u00e9zierCurve",
+          "type": "OBJECT"
+        }
+      ],
+      "curves": [
+        {
+          "path": "eval_time",
+          "index": 0,
+          "keys": 0,
+          "start": 0,
+          "end": 0
+        }
+      ]
+    },
+    {
+      "name": "Floor_Hit",
+      "range": [
+        0.0,
+        24.0
+      ],
+      "slots": [
+        {
+          "identifier": "OBPlane",
+          "type": "OBJECT"
+        }
+      ],
+      "curves": [
+        {
+          "path": "location",
+          "index": 0,
+          "keys": 5,
+          "start": 0.0,
+          "end": 24.0
+        },
+        {
+          "path": "location",
+          "index": 1,
+          "keys": 5,
+          "start": 0.0,
+          "end": 24.0
+        },
+        {
+          "path": "location",
+          "index": 2,
+          "keys": 5,
+          "start": 0.0,
+          "end": 24.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 0,
+          "keys": 5,
+          "start": 0.0,
+          "end": 24.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 1,
+          "keys": 5,
+          "start": 0.0,
+          "end": 24.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 2,
+          "keys": 5,
+          "start": 0.0,
+          "end": 24.0
+        },
+        {
+          "path": "scale",
+          "index": 0,
+          "keys": 6,
+          "start": 0.0,
+          "end": 24.0
+        },
+        {
+          "path": "scale",
+          "index": 1,
+          "keys": 6,
+          "start": 0.0,
+          "end": 24.0
+        },
+        {
+          "path": "scale",
+          "index": 2,
+          "keys": 6,
+          "start": 0.0,
+          "end": 24.0
+        }
+      ]
+    },
+    {
+      "name": "idle",
+      "range": [
+        0.0,
+        48.0
+      ],
+      "slots": [
+        {
+          "identifier": "OBPlane",
+          "type": "OBJECT"
+        }
+      ],
+      "curves": [
+        {
+          "path": "location",
+          "index": 0,
+          "keys": 2,
+          "start": 0.0,
+          "end": 48.0
+        },
+        {
+          "path": "location",
+          "index": 1,
+          "keys": 2,
+          "start": 0.0,
+          "end": 48.0
+        },
+        {
+          "path": "location",
+          "index": 2,
+          "keys": 3,
+          "start": 0.0,
+          "end": 48.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 0,
+          "keys": 2,
+          "start": 0.0,
+          "end": 48.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 1,
+          "keys": 2,
+          "start": 0.0,
+          "end": 48.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 2,
+          "keys": 2,
+          "start": 0.0,
+          "end": 48.0
+        },
+        {
+          "path": "scale",
+          "index": 0,
+          "keys": 2,
+          "start": 0.0,
+          "end": 48.0
+        },
+        {
+          "path": "scale",
+          "index": 1,
+          "keys": 2,
+          "start": 0.0,
+          "end": 48.0
+        },
+        {
+          "path": "scale",
+          "index": 2,
+          "keys": 2,
+          "start": 0.0,
+          "end": 48.0
+        }
+      ]
+    },
+    {
+      "name": "PlaneAction",
+      "range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "identifier": "OBPlane",
+          "type": "OBJECT"
+        }
+      ],
+      "curves": []
+    },
+    {
+      "name": "Scream_Atack",
+      "range": [
+        1.0,
+        39.0
+      ],
+      "slots": [
+        {
+          "identifier": "KEKey",
+          "type": "KEY"
+        },
+        {
+          "identifier": "OBPlane",
+          "type": "OBJECT"
+        }
+      ],
+      "curves": [
+        {
+          "path": "key_blocks[\"scream\"].value",
+          "index": 0,
+          "keys": 11,
+          "start": 8.0,
+          "end": 39.0
+        },
+        {
+          "path": "location",
+          "index": 0,
+          "keys": 4,
+          "start": 1.0,
+          "end": 36.0
+        },
+        {
+          "path": "location",
+          "index": 1,
+          "keys": 3,
+          "start": 1.0,
+          "end": 36.0
+        },
+        {
+          "path": "location",
+          "index": 2,
+          "keys": 6,
+          "start": 1.0,
+          "end": 36.0
+        },
+        {
+          "path": "rotation_euler",
+          "index": 1,
+          "keys": 5,
+          "start": 1.0,
+          "end": 36.0
+        }
+      ]
+    }
+  ]
+}

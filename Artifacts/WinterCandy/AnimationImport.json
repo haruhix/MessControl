@@ -1,0 +1,30 @@
+{
+  "mesh": "/Game/Gameplay/Cold/Candy/Animations/SK_WinterCandy.SK_WinterCandy",
+  "skeleton": "/Game/Gameplay/Cold/Candy/Animations/SK_WinterCandy_Skeleton.SK_WinterCandy_Skeleton",
+  "morphs": [
+    "scream"
+  ],
+  "bounds": "<Struct 'BoxSphereBounds' (0x000001ED7E8DAF80) {origin: {x: 0.000000, y: 0.000000, z: -0.000008}, box_extent: {x: 66.872513, y: 112.874069, z: 160.583580}, sphere_radius: 207.363388}>",
+  "clips": [
+    {
+      "role": "Idle",
+      "asset": "/Game/Gameplay/Cold/Candy/Animations/A_WinterCandy_Idle.A_WinterCandy_Idle",
+      "duration": 2.0
+    },
+    {
+      "role": "MiniCandy",
+      "asset": "/Game/Gameplay/Cold/Candy/Animations/A_WinterCandy_MiniCandy.A_WinterCandy_MiniCandy",
+      "duration": 0.625
+    },
+    {
+      "role": "FloorHit",
+      "asset": "/Game/Gameplay/Cold/Candy/Animations/A_WinterCandy_FloorHit.A_WinterCandy_FloorHit",
+      "duration": 1.0
+    },
+    {
+      "role": "Scream",
+      "asset": "/Game/Gameplay/Cold/Candy/Animations/A_WinterCandy_Scream.A_WinterCandy_Scream",
+      "duration": 1.5833333730697632
+    }
+  ]
+}

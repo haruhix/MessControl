@@ -1,0 +1,66 @@
+{
+  "pie": false,
+  "dirty_content": [
+    "/Game/Gameplay/Cold/Candy/Animations/SK_WinterCandy",
+    "/Game/Gameplay/Cold/Candy/Animations/SK_WinterCandy_Skeleton",
+    "/Game/Gameplay/Cold/Candy/Animations/A_WinterCandy_Idle",
+    "/Game/Gameplay/Cold/Candy/Animations/A_WinterCandy_MiniCandy",
+    "/Game/Gameplay/Cold/Candy/Animations/A_WinterCandy_FloorHit",
+    "/Game/Gameplay/Cold/Candy/Animations/A_WinterCandy_Scream",
+    "/Game/Art/Materials/Bosses/MI_Candy",
+    "/Game/Art/Texture/ice/candy_low_DefaultMaterial_Normal",
+    "/Game/Art/Texture/ice/candy_low_DefaultMaterial_OcclusionRoughnessMetallic",
+    "/Game/Art/Texture/ice/candy_low_DefaultMaterial_BaseColor"
+  ],
+  "dirty_maps": [],
+  "assets": [
+    {
+      "path": "/Game/FromBlender9/SM_Candy",
+      "class": "StaticMesh",
+      "bounds": "<Struct 'BoxSphereBounds' (0x0000022649023800) {origin: {x: 0.000000, y: 0.000000, z: 0.000000}, box_extent: {x: 56.766155, y: 113.506111, z: 161.236938}, sphere_radius: 167.530322}>",
+      "source": [
+        "C:/Users/vasil/Documents/UE_Exports/UE_Export_20261009_214315_449087/SM_Candy.fbx"
+      ],
+      "slots": [
+        "<Struct 'StaticMaterial' (0x0000022649020C00) {material_interface: \"/Script/Engine.Material'/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial'\", material_slot_name: \"WorldGridMaterial\", uv_channel_data: {}, overlay_material_interface: None}>"
+      ],
+      "vertices": 270,
+      "triangles": 348
+    },
+    {
+      "path": "/Game/Art/Materials/MI_Candy",
+      "class": "MaterialInstanceConstant",
+      "parent": "/Game/Art/Materials/MM_Standart_SSS.MM_Standart_SSS",
+      "parameters": {
+        "scalar_parameter_values": "[{parameter_info: {name: \"Roughness Strength\", association: GlobalParameter, index: -1}, parameter_value: 0.000000}, {parameter_info: {name: \"Metalic\", association: GlobalParameter, index: -1}, parameter_value: 1.000000}, {parameter_info: {name: \"Spec\", association: GlobalParameter, index: -1}, parameter_value: 96.400131}, {parameter_info: {name: \"RefractionDepthBias\", association: GlobalParameter, index: -1}, parameter_value: 0.000000}]",
+        "vector_parameter_values": "[]",
+        "texture_parameter_values": "[{parameter_info: {name: \"Albedo Texture\", association: GlobalParameter, index: -1}, parameter_value: \"/Script/Engine.Texture2D'/Game/Art/Texture/Candy/candy_low_DefaultMaterial_BaseColor.candy_low_DefaultMaterial_BaseColor'\"}, {parameter_info: {name: \"Normal Texture\", association: GlobalParameter, index: -1}, parameter_value: \"/Script/Engine.Texture2D'/Game/Art/Texture/Candy/candy_low_DefaultMaterial_Normal.candy_low_DefaultMaterial_Normal'\"}, {parameter_info: {name: \"ARM\", association: GlobalParameter, index: -1}, parameter_value: \"/Script/Engine.Texture2D'/Game/Art/Texture/Candy/candy_low_DefaultMaterial_OcclusionRoughnessMetallic.candy_low_DefaultMaterial_OcclusionRoughnessMetallic'\"}]"
+      },
+      "base_usage": {
+        "used_with_skeletal_mesh": "False",
+        "used_with_morph_targets": "False",
+        "automatically_set_usage_in_editor": "True"
+      }
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Candy/SM_WinterCandy",
+      "class": null
+    },
+    {
+      "path": "/Game/Gameplay/Cold/Candy/Animations/SK_WinterCandy",
+      "class": "SkeletalMesh",
+      "bounds": "<Struct 'BoxSphereBounds' (0x0000022649021000) {origin: {x: 10.338686, y: -0.000027, z: 199.014675}, box_extent: {x: 66.872511, y: 112.874065, z: 160.583591}, sphere_radius: 207.363394}>",
+      "source": [
+        "D:/PROJECT/GAME/TEETH CONTROL/teeth/New Folder/SM_Candy.fbx"
+      ],
+      "slots": [
+        "<Struct 'SkeletalMaterial' (0x0000022649021A00) {material_interface: \"/Script/Engine.Material'/Game/Gameplay/Cold/Candy/M_WinterCandyIceBody.M_WinterCandyIceBody'\", material_slot_name: \"WinterCandyBody\", uv_channel_data: {}, overlay_material_interface: None}>"
+      ],
+      "morphs": [
+        "scream",
+        "floor_hit"
+      ],
+      "skeleton": "/Game/Gameplay/Cold/Candy/Animations/SK_WinterCandy_Skeleton.SK_WinterCandy_Skeleton"
+    }
+  ]
+}

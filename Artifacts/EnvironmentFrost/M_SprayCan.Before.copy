@@ -1,0 +1,42 @@
+Begin Object Class=/Script/Engine.Material Name="M_SprayCan" ExportPath="/Script/Engine.Material'/Game/Gameplay/Care/M_SprayCan.M_SprayCan'"
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionTextureCoordinate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionTextureCoordinate_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionCustom_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_SprayCanEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:M_SprayCanEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionTextureCoordinate_1'"
+      MaterialExpressionGuid=13BB8A70443307C94309BE8CB78FA85F
+      Material="/Script/Engine.Material'M_SprayCan'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionTextureCoordinate_0'"
+      MaterialExpressionGuid=BD43891A4EC62F667288E3B14DD25628
+      Material="/Script/Engine.Material'M_SprayCan'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionScalarParameter_0'"
+      DefaultValue=0.260000
+      ParameterName="Roughness"
+      ExpressionGUID=E3F8494748C51D8B08BEB691E5F0E896
+      MaterialExpressionGuid=61D34E98450B03FDF3D10DA78A472540
+      Material="/Script/Engine.Material'M_SprayCan'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionCustom_2'"
+      Code="\nfloat label=smoothstep(.25,.27,UV.y)*(1-smoothstep(.70,.72,UV.y));\nfloat2 p=float2(frac(UV.x*3)-.5,UV.y-.48);\nfloat cross=max((1-step(.035,abs(p.x)))*(1-step(.14,abs(p.y))),(1-step(.11,abs(p.x)))*(1-step(.035,abs(p.y))));\nreturn lerp(float3(.78,.88,.85),lerp(float3(.025,.32,.20),float3(.9,.98,.96),cross),label);\n"
+      Description="Spray can: clinic label"
+      Inputs(0)=(InputName="UV",Input=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayCan:MaterialExpressionTextureCoordinate_0'"))
+      MaterialExpressionGuid=EE7295D54C510F5E401AAAA59DF64749
+      Material="/Script/Engine.Material'M_SprayCan'"
+   End Object
+   Begin Object Name="M_SprayCanEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:M_SprayCanEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionCustom'M_SprayCan:MaterialExpressionCustom_2'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_SprayCan:MaterialExpressionScalarParameter_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayCan:MaterialExpressionTextureCoordinate_1'","/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayCan:MaterialExpressionTextureCoordinate_0'","/Script/Engine.MaterialExpressionCustom'M_SprayCan:MaterialExpressionCustom_2'","/Script/Engine.MaterialExpressionScalarParameter'M_SprayCan:MaterialExpressionScalarParameter_0'"))
+   End Object
+   StateId=0BF990EB41391DF99B9E26989AB2A070
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_SprayCanEditorOnlyData'"
+   LightingGuid=5B5BDAAF450C0CAB76A34E8F9786BDBA
+End Object

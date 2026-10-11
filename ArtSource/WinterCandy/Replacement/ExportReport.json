@@ -1,0 +1,29 @@
+{
+  "source": "D:\\PROJECT\\GAME\\TEETH CONTROL\\teeth\\New Folder\\SM_Candy.fbx",
+  "sha256": "3d929cc51483a88439d8001c46aad17f122f9f42816db97a7d381e12cbd62ed6",
+  "source_preserved": true,
+  "vertices": 2183,
+  "dimensions_cm": [
+    133.74502563476562,
+    225.74813842773438,
+    321.16717529296875
+  ],
+  "center_cm": [
+    10.338685035705566,
+    2.384185791015625e-05,
+    199.01466369628906
+  ],
+  "root_head_cm": [
+    -10.338685035705566,
+    -2.384185791015625e-05,
+    -156.83963012695312
+  ],
+  "uv_layers": [
+    "UVMap"
+  ],
+  "morphs": [
+    "Basis",
+    "scream",
+    "floor_hit"
+  ]
+}

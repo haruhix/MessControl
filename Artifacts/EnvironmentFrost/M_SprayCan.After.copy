@@ -1,0 +1,70 @@
+Begin Object Class=/Script/Engine.Material Name="M_SprayCan" ExportPath="/Script/Engine.Material'/Game/Gameplay/Care/M_SprayCan.M_SprayCan'"
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionTextureCoordinate_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionTextureCoordinate_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionCustom_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_SprayCanEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:M_SprayCanEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Game/Gameplay/Cold/Frost/MF_EnvironmentFrost.MF_EnvironmentFrost'"
+      FunctionInputs(0)=(ExpressionInputId=3A54F02640C0A77971B1918F96C7D6C0,Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_SprayCan:MaterialExpressionCustom_2'",InputName="BaseColor"))
+      FunctionInputs(1)=(ExpressionInputId=EB6F9D1A4286FB636375C49D30400786,Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_SprayCan:MaterialExpressionScalarParameter_0'",InputName="Roughness"))
+      FunctionInputs(2)=(ExpressionInputId=2FCC08B443F25B99AB6737B1E05BA1B8,Input=(OutputIndex=-1,InputName="Metallic"))
+      FunctionInputs(3)=(ExpressionInputId=63D907F14E0A6881F594C596059D0340,Input=(OutputIndex=-1,InputName="Specular"))
+      FunctionOutputs(0)=(ExpressionOutputId=8F875B7B424B3496B8CCA09360FE3470,Output=(OutputName="BaseColor"))
+      FunctionOutputs(1)=(ExpressionOutputId=FA1559FA48055BA4FB63DDA8EABF5D30,Output=(OutputName="Roughness"))
+      FunctionOutputs(2)=(ExpressionOutputId=A94B89EA49249E426712AA8F1FAC637B,Output=(OutputName="Metallic"))
+      FunctionOutputs(3)=(ExpressionOutputId=96DB59FB47E22DC2FAE2F1B5415FEA8C,Output=(OutputName="Specular"))
+      FunctionOutputs(4)=(ExpressionOutputId=C843F3E745D7730425AC8EAC28D55A4F,Output=(OutputName="Coverage"))
+      MaterialExpressionEditorX=2600
+      MaterialExpressionEditorY=1600
+      MaterialExpressionGuid=71A4FA8B4EE64EB2639F3AB533AF1B06
+      Material="/Script/Engine.Material'M_SprayCan'"
+      Desc="Shared matte fern frost; existing climate ColdAmount"
+      Outputs(0)=(OutputName="BaseColor")
+      Outputs(1)=(OutputName="Roughness")
+      Outputs(2)=(OutputName="Metallic")
+      Outputs(3)=(OutputName="Specular")
+      Outputs(4)=(OutputName="Coverage")
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_1" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionTextureCoordinate_1'"
+      MaterialExpressionGuid=13BB8A70443307C94309BE8CB78FA85F
+      Material="/Script/Engine.Material'M_SprayCan'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionTextureCoordinate_0'"
+      MaterialExpressionGuid=BD43891A4EC62F667288E3B14DD25628
+      Material="/Script/Engine.Material'M_SprayCan'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionScalarParameter_0'"
+      DefaultValue=0.260000
+      ParameterName="Roughness"
+      ExpressionGUID=E3F8494748C51D8B08BEB691E5F0E896
+      MaterialExpressionGuid=61D34E98450B03FDF3D10DA78A472540
+      Material="/Script/Engine.Material'M_SprayCan'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:MaterialExpressionCustom_2'"
+      Code="\nfloat label=smoothstep(.25,.27,UV.y)*(1-smoothstep(.70,.72,UV.y));\nfloat2 p=float2(frac(UV.x*3)-.5,UV.y-.48);\nfloat cross=max((1-step(.035,abs(p.x)))*(1-step(.14,abs(p.y))),(1-step(.11,abs(p.x)))*(1-step(.035,abs(p.y))));\nreturn lerp(float3(.78,.88,.85),lerp(float3(.025,.32,.20),float3(.9,.98,.96),cross),label);\n"
+      Description="Spray can: clinic label"
+      Inputs(0)=(InputName="UV",Input=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayCan:MaterialExpressionTextureCoordinate_0'"))
+      MaterialExpressionGuid=EE7295D54C510F5E401AAAA59DF64749
+      Material="/Script/Engine.Material'M_SprayCan'"
+   End Object
+   Begin Object Name="M_SprayCanEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Care/M_SprayCan.M_SprayCan:M_SprayCanEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_SprayCan:MaterialExpressionMaterialFunctionCall_0'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_SprayCan:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=1)
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayCan:MaterialExpressionTextureCoordinate_1'","/Script/Engine.MaterialExpressionTextureCoordinate'M_SprayCan:MaterialExpressionTextureCoordinate_0'","/Script/Engine.MaterialExpressionCustom'M_SprayCan:MaterialExpressionCustom_2'","/Script/Engine.MaterialExpressionScalarParameter'M_SprayCan:MaterialExpressionScalarParameter_0'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_SprayCan:MaterialExpressionMaterialFunctionCall_0'"))
+   End Object
+   StateId=612602E4470661B56D2F0EBB86061C15
+   ReferencedTextureGuids(0)=670619CD48696888D492F08383AE80CE
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_SprayCanEditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=0.781250,UVChannelIndex=0,TextureName="T_PlayerFrostMask",TextureReference="/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+   LightingGuid=57D7F77748108F8ABD43C0A979F6C841
+End Object

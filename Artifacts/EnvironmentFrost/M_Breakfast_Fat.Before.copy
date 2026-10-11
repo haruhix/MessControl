@@ -1,0 +1,31 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_Fat" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_FatEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat:M_Breakfast_FatEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.950000,G=0.540000,B=0.250000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=0F326B6D4B883BF430E87E9A0702E4AB
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=E010DD2146495E77B7FBBF944ED205BD
+      Material="/Script/Engine.Material'M_Breakfast_Fat'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=8BEF9ED74CA75BD54B3F92BFC7F4697A
+      Material="/Script/Engine.Material'M_Breakfast_Fat'"
+   End Object
+   Begin Object Name="M_Breakfast_FatEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Fat.M_Breakfast_Fat:M_Breakfast_FatEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Fat:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_Fat:MaterialExpressionConstant_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Fat:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_Fat:MaterialExpressionConstant_0'"))
+   End Object
+   StateId=C0F81B0648F176E3C593F9AB9B74B9A3
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_FatEditorOnlyData'"
+   LightingGuid=7416E8D14544154FC3195EA0BD9F43F0
+End Object

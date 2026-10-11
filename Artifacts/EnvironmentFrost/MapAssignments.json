@@ -1,0 +1,67 @@
+{
+  "originals_unchanged": {
+    "M_Ice": "a1103022599b6f6abe8a0f22fd1286a8bc46314a6ce2f45ee11e677cc8e42647",
+    "MI_Ice": "f27c41949355e8de3293b52615c0a5f3c8866f1e728d5450beb00934a60153f8"
+  },
+  "assignments": [
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_33",
+      "label": "SM_Teeth5",
+      "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_33.StaticMeshComponent0",
+      "slot": 0,
+      "before": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+      "after": "/Game/Gameplay/Cold/Frost/M_DefaultPropFrost.M_DefaultPropFrost"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_35",
+      "label": "SM_Teeth_L_17",
+      "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_35.StaticMeshComponent0",
+      "slot": 0,
+      "before": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+      "after": "/Game/Gameplay/Cold/Frost/M_DefaultPropFrost.M_DefaultPropFrost"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_36",
+      "label": "SM_Teeth_L_18",
+      "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_36.StaticMeshComponent0",
+      "slot": 0,
+      "before": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+      "after": "/Game/Gameplay/Cold/Frost/M_DefaultPropFrost.M_DefaultPropFrost"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_37",
+      "label": "SM_Teeth_L_19",
+      "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_37.StaticMeshComponent0",
+      "slot": 0,
+      "before": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+      "after": "/Game/Gameplay/Cold/Frost/M_DefaultPropFrost.M_DefaultPropFrost"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_38",
+      "label": "SM_Teeth_l_20",
+      "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_38.StaticMeshComponent0",
+      "slot": 0,
+      "before": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+      "after": "/Game/Gameplay/Cold/Frost/M_DefaultPropFrost.M_DefaultPropFrost"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_39",
+      "label": "SM_Teeth_l_21",
+      "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_39.StaticMeshComponent0",
+      "slot": 0,
+      "before": "/Engine/EngineMaterials/WorldGridMaterial.WorldGridMaterial",
+      "after": "/Game/Gameplay/Cold/Frost/M_DefaultPropFrost.M_DefaultPropFrost"
+    },
+    {
+      "actor": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_0",
+      "label": "Sphere",
+      "component": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_0.StaticMeshComponent0",
+      "slot": 0,
+      "before": "/Game/Art/Materials/ice/MI_Ice.MI_Ice",
+      "after": "/Game/Gameplay/Cold/Frost/MI_IcePropFrost.MI_IcePropFrost"
+    }
+  ],
+  "map_backup": "D:/PROJECT/GAME/WaifuTD/MessControl/Artifacts/EnvironmentFrost/L_Mouth.BeforeEnvironmentFrost.umap",
+  "dirty_content": [],
+  "dirty_maps": []
+}

@@ -1,0 +1,144 @@
+{
+  "pid": 27612,
+  "project": "D:/PROJECT/GAME/WaifuTD/MessControl/",
+  "pie": true,
+  "dirty_content": [],
+  "dirty_maps": [],
+  "materials": {
+    "/Game/Art/Materials/M_TeethGameplay": {
+      "blend": "<BlendMode.BLEND_MASKED: 1>",
+      "custom": [
+        {
+          "description": "Gameplay stains over the original textured enamel",
+          "code": "\nfloat body=saturate(Stain.y*.68+(1-D.x)*.28);\nfloat3 dirt=lerp(lerp(GrimeLight,GrimeDark,body),Pigment,.72);\ndirt*=lerp(.54,1.22,smoothstep(.08,.92,D.x))*D.y;\ndirt=lerp(dirt,GrimeRim,Stain.z*.38);\nfloat enamel=smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nfloat patch=Stain.x*saturate(GrimeOpacity)*enamel;\nfloat3 color=lerp(Enamel,dirt,patch);\nfloat crack = max(Fracture.x,Fracture.y);\ncolor = lerp(color,HairlineColor,Fracture.x*.72);\ncolor = lerp(color,DeepColor,Fracture.y*.94);\ncolor = lerp(color,min(color*1.08+.025,1.0),Fracture.w*.75);\nreturn lerp(color,float3(1,.3,.08),saturate(Flash)*.55);\n"
+        },
+        {
+          "description": "Cosmetic squash/stretch; collision shapes stay stable",
+          "code": "float h=clamp(1+S,.65,1.4); float w=rsqrt(h); return float3(P.xy*(w-1),P.z*(h-1));"
+        },
+        {
+          "description": "Rounded player grime mask",
+          "code": "\nstruct RoundedGrime {\n    float hash(float3 p) {\n        p = frac(p * .1031);\n        p += dot(p, p.yzx + 33.33);\n        return frac((p.x + p.y) * p.z);\n    }\n    float noise(float3 p) {\n        float3 i = floor(p), f = frac(p);\n        f = f * f * (3 - 2 * f);\n        float a = lerp(hash(i), hash(i + float3(1,0,0)), f.x);\n        float b = lerp(hash(i + float3(0,1,0)), hash(i + float3(1,1,0)), f.x);\n        float c = lerp(hash(i + float3(0,0,1)), hash(i + float3(1,0,1)), f.x);\n        float d = lerp(hash(i + float3(0,1,1)), hash(i + float3(1,1,1)), f.x);\n        return lerp(lerp(a,b,f.y), lerp(c,d,f.y), f.z);\n    }\n    float protect(float3 p, float3 center, float3 radius) {\n        return 1 - smoothstep(.85, 1.15, length((p - center) / radius));\n    }\n};\nRoundedGrime G;\nfloat amount = saturate(Coffee);\nfloat3 q = P / max(Size, 8) + float3(3.71,8.13,1.47);\nfloat field = .65 * G.noise(q)\n    + .25 * G.noise(q * 2.3 + float3(9.2,2.7,5.1))\n    + .10 * G.noise(q * 5.5 + float3(4.7,3.1,8.2));\nfield += .045 * smoothstep(25,42,abs(P.x))\n    + .055 * (1 - smoothstep(25,55,P.z));\nfloat threshold = lerp(.80,.55,pow(amount,.8));\nfloat edge = max(max(Softness,.008),fwidth(field) * .8);\nfloat coverage = smoothstep(threshold-edge,threshold+edge,field)\n    * smoothstep(0,.035,amount);\nfloat core = smoothstep(threshold+.055,threshold+.17,field);\nfloat rim = 1 - smoothstep(threshold+.02,threshold+.065,field);\nfloat face = max(\n    G.protect(P,float3(17.67,20.21,80.20),float3(15,16,16)),\n    G.protect(P,float3(-17.67,20.21,80.20),float3(15,16,16)));\nface = max(face,G.protect(P,float3(0,27,55),float3(19,17,13)));\nreturn float3(coverage * (1-face), core, rim);\n"
+        },
+        {
+          "description": "Matte player grime",
+          "code": "\nfloat enamel=smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nfloat rough=lerp(.33,.83,D.z)+(1-D.y)*.06;\nrough=lerp(rough,.18,Stain.z*.84);\nreturn lerp(Base,rough,Stain.x*enamel);\n"
+        },
+        {
+          "description": "Reduced player grime shine",
+          "code": "\nfloat enamel=smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nreturn lerp(Base,.43,Stain.x*enamel*.85);\n"
+        },
+        {
+          "description": "Branched enamel fractures",
+          "code": "// Pre-skinned centimeters keep the fracture pattern attached to the rig.\nstruct ToothFracture {\n    float3 hash3(float3 p) {\n        p = frac(p * float3(.1031,.1030,.0973));\n        p += dot(p,p.yxz + 33.33);\n        return frac((p.xxy + p.yxx) * p.zyx);\n    }\n    float hash(float3 p) { return hash3(p).x; }\n    float noise(float3 p) {\n        float3 i = floor(p), f = frac(p);\n        f = f*f*(3-2*f);\n        float a = lerp(hash(i),hash(i+float3(1,0,0)),f.x);\n        float b = lerp(hash(i+float3(0,1,0)),hash(i+float3(1,1,0)),f.x);\n        float c = lerp(hash(i+float3(0,0,1)),hash(i+float3(1,0,1)),f.x);\n        float d = lerp(hash(i+float3(0,1,1)),hash(i+float3(1,1,1)),f.x);\n        return lerp(lerp(a,b,f.y),lerp(c,d,f.y),f.z);\n    }\n    float2 cellEdge(float3 p) {\n        float3 cell = floor(p), local = frac(p);\n        float first = 1e6, second = 1e6, seed = 0;\n        [unroll] for (int z=-1; z<=1; ++z) {\n            [unroll] for (int y=-1; y<=1; ++y) {\n                [unroll] for (int x=-1; x<=1; ++x) {\n                    float3 offset = float3(x,y,z);\n                    float3 random = hash3(cell+offset);\n                    float3 r = offset + .18 + random*.64 - local;\n                    float distance = dot(r,r);\n                    if (distance<first) {\n                        second = first; first = distance; seed = random.x;\n                    } else { second = min(second,distance); }\n                }\n            }\n        }\n        return float2((sqrt(second)-sqrt(first))*.5,seed);\n    }\n    float segment(float2 p,float2 a,float2 b) {\n        float2 ab = b-a;\n        float t = saturate(dot(p-a,ab)/max(dot(ab,ab),.001));\n        return length(p-a-ab*t);\n    }\n    float protect(float3 p,float3 center,float3 radius) {\n        return 1-smoothstep(.85,1.12,length((p-center)/radius));\n    }\n};\nToothFracture F;\nfloat damage = saturate(Damage);\n[branch] if (damage<=.0001) return float4(0,0,0,0);\nfloat3 drift = float3(F.noise(P*.10),F.noise(P*.10+17.1),F.noise(P*.10+31.7))-.5;\nfloat3 splinters = float3(F.noise(P*.55),F.noise(P*.55+12.7),F.noise(P*.55+24.3))-.5;\nfloat size = max(CellSize,8);\nfloat2 cells = F.cellEdge((P+drift*4.8+splinters*.9)/size+float3(5.13,2.71,9.23));\nfloat distance = max(0,cells.x*size + (F.noise(P*.95)-.5)*.12);\nfloat fineWidth = lerp(.035,.13,smoothstep(.03,.7,damage))*max(HairlineWidth,.2);\nfloat antialias = max(fwidth(distance)*.65,.015);\nfloat reveal = smoothstep(.035+cells.y*.32,.23+cells.y*.32,damage);\nfloat fine = (1-smoothstep(fineWidth-antialias,fineWidth+antialias,distance))*reveal;\n\n// Front faults are restricted to the front half of the tooth. Projecting\n// these X/Z paths through the whole mesh produced mirrored bands on the back.\nfloat2 p = P.xz + drift.xz*.9 + splinters.xz*.5;\nfloat major = F.segment(p,float2(0,116),float2(-.3,104));\nmajor = min(major,F.segment(p,float2(-.3,104),float2(1.8,99)));\nmajor = min(major,F.segment(p,float2(1.8,99),float2(-.4,94)));\nmajor = min(major,F.segment(p,float2(-.4,94),float2(-2.3,88)));\nmajor = min(major,F.segment(p,float2(-2.3,88),float2(1.2,82)));\nmajor = min(major,F.segment(p,float2(1.2,82),float2(.2,76)));\nmajor = min(major,F.segment(p,float2(-31,116),float2(-28,106)));\nmajor = min(major,F.segment(p,float2(-28,106),float2(-34,102)));\nmajor = min(major,F.segment(p,float2(-34,102),float2(-43,100)));\nmajor = min(major,F.segment(p,float2(41,57),float2(34,54)));\nmajor = min(major,F.segment(p,float2(34,54),float2(31,48)));\nmajor = min(major,F.segment(p,float2(31,48),float2(24,47)));\nmajor = min(major,F.segment(p,float2(37,19),float2(29,18)));\nmajor = min(major,F.segment(p,float2(29,18),float2(26,13)));\nmajor = min(major,F.segment(p,float2(26,13),float2(18,10)));\nmajor = min(major,F.segment(p,float2(-37,17),float2(-30,15)));\nmajor = min(major,F.segment(p,float2(-30,15),float2(-24,18)));\nmajor = min(major,F.segment(p,float2(-24,18),float2(-19,14)));\nfloat growth = smoothstep(.24,.88,damage);\nfloat taper = P.z>72 ? lerp(.16,1.0,smoothstep(77,108,P.z)) : .65;\nfloat width = max(MajorWidth,.1)*growth*taper*lerp(.75,1.25,F.noise(P*.7));\nfloat aa = max(fwidth(major)*.55,.025);\nfloat deep = (1-smoothstep(width-aa,width+aa,major))*growth;\nfloat rim = smoothstep(width-aa*.3,width+aa*.6,major)\n    * (1-smoothstep(width+.18,width+.55,major))*growth;\nfloat front = smoothstep(-2,12,P.y);\ndeep *= front;\nrim *= front;\n\n// The back has two separate, open faults with tapered tips. They neither\n// span the body nor trace closed outlines around the existing sculpt.\nfloat backA = F.segment(p,float2(16,108),float2(12.5,103));\nbackA = min(backA,F.segment(p,float2(12.5,103),float2(15,99)));\nbackA = min(backA,F.segment(p,float2(15,99),float2(11,94)));\nbackA = min(backA,F.segment(p,float2(11,94),float2(12,91)));\nfloat taperA = smoothstep(91,97,P.z)*(1-smoothstep(103,109,P.z));\nfloat backB = F.segment(p,float2(-27,66),float2(-23,62));\nbackB = min(backB,F.segment(p,float2(-23,62),float2(-24.5,57)));\nbackB = min(backB,F.segment(p,float2(-24.5,57),float2(-19,54)));\nbackB = min(backB,F.segment(p,float2(-19,54),float2(-17,49)));\nfloat taperB = smoothstep(49,55,P.z)*(1-smoothstep(61,67,P.z));\nfloat backWidth = max(MajorWidth,.1)*.43*growth*lerp(.65,1.15,F.noise(P*.8));\nfloat aaA = max(fwidth(backA)*.55,.025);\nfloat aaB = max(fwidth(backB)*.55,.025);\nfloat cutA = (1-smoothstep(backWidth*taperA-aaA,backWidth*taperA+aaA,backA))*taperA;\nfloat cutB = (1-smoothstep(backWidth*taperB-aaB,backWidth*taperB+aaB,backB))*taperB;\nfloat edgeA = smoothstep(backWidth*taperA,backWidth*taperA+aaA,backA)\n    * (1-smoothstep(backWidth*taperA+.10,backWidth*taperA+.30,backA))*taperA;\nfloat edgeB = smoothstep(backWidth*taperB,backWidth*taperB+aaB,backB)\n    * (1-smoothstep(backWidth*taperB+.10,backWidth*taperB+.30,backB))*taperB;\nfloat back = (1-smoothstep(-18,-4,P.y))*growth;\ndeep = max(deep,max(cutA,cutB)*back*.72);\nrim = max(rim,max(edgeA,edgeB)*back*.6);\nfloat enamel = smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nfloat face = max(\n    F.protect(P,float3(17.67,20.21,80.20),float3(17,34,20)),\n    F.protect(P,float3(-17.67,20.21,80.20),float3(17,34,20)));\nface = max(face,F.protect(P,float3(0,27,55),float3(18,17,11)));\nfloat surface = enamel*(1-face)*smoothstep(0,.035,damage);\nfine *= surface;\ndeep *= surface;\nrim *= surface;\n// Z is a recessed height in cm; W is the intact enamel bevel.\nreturn float4(fine,deep,-fine*.025-deep*.70+rim*.055,rim);\n"
+        },
+        {
+          "description": "Recessed enamel surface normal",
+          "code": "\nfloat3 n=normalize(N);\nfloat3 dx=ddx(WP),dy=ddy(WP),rx=cross(dy,n),ry=cross(n,dx);\nfloat determinant=dot(dx,rx);\nfloat enamel=smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nfloat coverage=Stain.x*enamel*saturate(Opacity);\nfloat plaque=coverage*(max(Strength,0)*D.w+.35*Stain.y);\nfloat height=max(Depth,0)*Fracture.z+plaque;\nfloat sx=ddx(height)+coverage*max(NormalStrength,0)*dot(Slope,ddx(P*Scale));\nfloat sy=ddy(height)+coverage*max(NormalStrength,0)*dot(Slope,ddy(P*Scale));\nfloat3 gradient=sign(determinant)*(sx*rx+sy*ry);\nreturn normalize(max(abs(determinant),.00001)*n-gradient);\n"
+        },
+        {
+          "description": "Matte broken enamel",
+          "code": "return lerp(Base,max(Base,.68),max(Fracture.x*.4,Fracture.y));"
+        },
+        {
+          "description": "Small damaged crown notches",
+          "code": "\nfloat amount = smoothstep(.30,.92,saturate(Damage));\nfloat center = (1-smoothstep(.35,2.1,abs(P.x-.4))) * smoothstep(96,106,P.z);\nfloat side = (1-smoothstep(.45,2.3,abs(P.x+29.5))) * smoothstep(99,110,P.z);\nreturn float3(0,0,-max(Depth,0)*amount*max(center,side));\n"
+        },
+        {
+          "description": "Anchored player grime detail",
+          "code": "\n[branch] if (Amount<=.0001) return float4(.5,1,.5,0);\n// Coordinates follow the surface, including piano movement and skeletal pose.\nfloat3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);\nfloat3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);\nfloat h=Texture2DSample(Height,HeightSampler,q.yz).r*w.x\n       +Texture2DSample(Height,HeightSampler,q.xz).r*w.y\n       +Texture2DSample(Height,HeightSampler,q.xy).r*w.z;\nfloat rough=Texture2DSample(Surface,SurfaceSampler,q.yz).r*w.x\n           +Texture2DSample(Surface,SurfaceSampler,q.xz).r*w.y\n           +Texture2DSample(Surface,SurfaceSampler,q.xy).r*w.z;\n// Height is independent of albedo: pits, granules and built-up plateaus remain\n// visible under moving lights rather than collapsing to one saturated brown.\nfloat plateau=smoothstep(.24,.78,h);\nfloat pit=1-smoothstep(.13,.43,h);\nfloat relief=(h-.5)*.72+plateau*.28-pit*.13;\nreturn float4(h,1-pit*.52,saturate(rough),relief);\n"
+        },
+        {
+          "description": "Anchored player grime detail pigment",
+          "code": "\n[branch] if (Amount<=.0001) return float3(.2,.08,.018);\nfloat3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);\nfloat3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);\nreturn Texture2DSample(Pigment,PigmentSampler,q.yz).rgb*w.x\n      +Texture2DSample(Pigment,PigmentSampler,q.xz).rgb*w.y\n      +Texture2DSample(Pigment,PigmentSampler,q.xy).rgb*w.z;\n"
+        },
+        {
+          "description": "Anchored player grime detail normal slope",
+          "code": "\n[branch] if (Amount<=.0001) return float3(0,0,0);\nfloat3 q=P*Scale/max(Tile,8.0)+Seed*float3(.37,.19,.73);\nfloat3 w=abs(normalize(N)); w*=w; w*=w; w/=max(dot(w,1),.0001);\n// BC5 normal textures store signed tangent X/Y in their two sampled channels.\n// Reconstruct Z, then express the three projection slopes in rest-space cm.\nfloat2 x=Texture2DSample(NormalMap,NormalMapSampler,q.yz).rg*2-1;\nfloat2 y=Texture2DSample(NormalMap,NormalMapSampler,q.xz).rg*2-1;\nfloat2 z=Texture2DSample(NormalMap,NormalMapSampler,q.xy).rg*2-1;\nx/=-max(sqrt(saturate(1-dot(x,x))),.35);\ny/=-max(sqrt(saturate(1-dot(y,y))),.35);\nz/=-max(sqrt(saturate(1-dot(z,z))),.35);\nreturn float3(0,x.x,x.y)*w.x+float3(y.x,0,y.y)*w.y+float3(z.x,z.y,0)*w.z;\n"
+        }
+      ],
+      "MP_FRONT_MATERIAL": null,
+      "MP_WORLD_POSITION_OFFSET": "/Game/Art/Materials/M_TeethGameplay.M_TeethGameplay:MaterialExpressionAdd_0",
+      "MP_OPACITY": null,
+      "MP_BASE_COLOR": "/Game/Art/Materials/M_TeethGameplay.M_TeethGameplay:MaterialExpressionCustom_0"
+    },
+    "/Game/Gameplay/CharacterCurrent/Materials/M_BagGameplay": {
+      "blend": "<BlendMode.BLEND_MASKED: 1>",
+      "custom": [
+        {
+          "description": "Gameplay stains over the original textured enamel",
+          "code": "\nfloat3 dirt = lerp(GrimeLight,GrimeDark,Stain.y);\ndirt = lerp(dirt,GrimeRim,Stain.z * .55);\nfloat enamel = smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nfloat patch = Stain.x * saturate(GrimeOpacity) * enamel;\nfloat3 color = lerp(Enamel,dirt,patch);\nfloat crack = max(Fracture.x,Fracture.y);\ncolor = lerp(color,HairlineColor,Fracture.x*.72);\ncolor = lerp(color,DeepColor,Fracture.y*.94);\ncolor = lerp(color,min(color*1.08+.025,1.0),Fracture.w*.75);\nreturn lerp(color,float3(1,.3,.08),saturate(Flash)*.55);\n"
+        },
+        {
+          "description": "Cosmetic squash/stretch; collision shapes stay stable",
+          "code": "float h=clamp(1+S,.65,1.4); float w=rsqrt(h); return float3(P.xy*(w-1),P.z*(h-1));"
+        },
+        {
+          "description": "Rounded player grime mask",
+          "code": "\nstruct RoundedGrime {\n    float hash(float3 p) {\n        p = frac(p * .1031);\n        p += dot(p, p.yzx + 33.33);\n        return frac((p.x + p.y) * p.z);\n    }\n    float noise(float3 p) {\n        float3 i = floor(p), f = frac(p);\n        f = f * f * (3 - 2 * f);\n        float a = lerp(hash(i), hash(i + float3(1,0,0)), f.x);\n        float b = lerp(hash(i + float3(0,1,0)), hash(i + float3(1,1,0)), f.x);\n        float c = lerp(hash(i + float3(0,0,1)), hash(i + float3(1,0,1)), f.x);\n        float d = lerp(hash(i + float3(0,1,1)), hash(i + float3(1,1,1)), f.x);\n        return lerp(lerp(a,b,f.y), lerp(c,d,f.y), f.z);\n    }\n    float protect(float3 p, float3 center, float3 radius) {\n        return 1 - smoothstep(.85, 1.15, length((p - center) / radius));\n    }\n};\nRoundedGrime G;\nfloat amount = saturate(Coffee);\nfloat3 q = P / max(Size, 8) + float3(3.71,8.13,1.47);\nfloat field = .65 * G.noise(q)\n    + .25 * G.noise(q * 2.3 + float3(9.2,2.7,5.1))\n    + .10 * G.noise(q * 5.5 + float3(4.7,3.1,8.2));\nfield += .045 * smoothstep(25,42,abs(P.x))\n    + .055 * (1 - smoothstep(25,55,P.z));\nfloat threshold = lerp(.80,.55,pow(amount,.8));\nfloat edge = max(max(Softness,.008),fwidth(field) * .8);\nfloat coverage = smoothstep(threshold-edge,threshold+edge,field)\n    * smoothstep(0,.035,amount);\nfloat core = smoothstep(threshold+.055,threshold+.17,field);\nfloat rim = 1 - smoothstep(threshold+.02,threshold+.065,field);\nfloat face = max(\n    G.protect(P,float3(17.67,20.21,80.20),float3(15,16,16)),\n    G.protect(P,float3(-17.67,20.21,80.20),float3(15,16,16)));\nface = max(face,G.protect(P,float3(0,27,55),float3(19,17,13)));\nreturn float3(coverage * (1-face), core, rim);\n"
+        },
+        {
+          "description": "Matte player grime",
+          "code": "float enamel = smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nreturn lerp(Base,max(Base,.64),Stain.x * enamel * .8);"
+        },
+        {
+          "description": "Reduced player grime shine",
+          "code": "float enamel = smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nreturn lerp(Base,min(Base,.28),Stain.x * enamel * .75);"
+        },
+        {
+          "description": "Branched enamel fractures",
+          "code": "// Pre-skinned centimeters keep the fracture pattern attached to the rig.\nstruct ToothFracture {\n    float3 hash3(float3 p) {\n        p = frac(p * float3(.1031,.1030,.0973));\n        p += dot(p,p.yxz + 33.33);\n        return frac((p.xxy + p.yxx) * p.zyx);\n    }\n    float hash(float3 p) { return hash3(p).x; }\n    float noise(float3 p) {\n        float3 i = floor(p), f = frac(p);\n        f = f*f*(3-2*f);\n        float a = lerp(hash(i),hash(i+float3(1,0,0)),f.x);\n        float b = lerp(hash(i+float3(0,1,0)),hash(i+float3(1,1,0)),f.x);\n        float c = lerp(hash(i+float3(0,0,1)),hash(i+float3(1,0,1)),f.x);\n        float d = lerp(hash(i+float3(0,1,1)),hash(i+float3(1,1,1)),f.x);\n        return lerp(lerp(a,b,f.y),lerp(c,d,f.y),f.z);\n    }\n    float2 cellEdge(float3 p) {\n        float3 cell = floor(p), local = frac(p);\n        float first = 1e6, second = 1e6, seed = 0;\n        [unroll] for (int z=-1; z<=1; ++z) {\n            [unroll] for (int y=-1; y<=1; ++y) {\n                [unroll] for (int x=-1; x<=1; ++x) {\n                    float3 offset = float3(x,y,z);\n                    float3 random = hash3(cell+offset);\n                    float3 r = offset + .18 + random*.64 - local;\n                    float distance = dot(r,r);\n                    if (distance<first) {\n                        second = first; first = distance; seed = random.x;\n                    } else { second = min(second,distance); }\n                }\n            }\n        }\n        return float2((sqrt(second)-sqrt(first))*.5,seed);\n    }\n    float segment(float2 p,float2 a,float2 b) {\n        float2 ab = b-a;\n        float t = saturate(dot(p-a,ab)/max(dot(ab,ab),.001));\n        return length(p-a-ab*t);\n    }\n    float protect(float3 p,float3 center,float3 radius) {\n        return 1-smoothstep(.85,1.12,length((p-center)/radius));\n    }\n};\nToothFracture F;\nfloat damage = saturate(Damage);\n[branch] if (damage<=.0001) return float4(0,0,0,0);\nfloat3 drift = float3(F.noise(P*.10),F.noise(P*.10+17.1),F.noise(P*.10+31.7))-.5;\nfloat3 splinters = float3(F.noise(P*.55),F.noise(P*.55+12.7),F.noise(P*.55+24.3))-.5;\nfloat size = max(CellSize,8);\nfloat2 cells = F.cellEdge((P+drift*4.8+splinters*.9)/size+float3(5.13,2.71,9.23));\nfloat distance = max(0,cells.x*size + (F.noise(P*.95)-.5)*.12);\nfloat fineWidth = lerp(.035,.13,smoothstep(.03,.7,damage))*max(HairlineWidth,.2);\nfloat antialias = max(fwidth(distance)*.65,.015);\nfloat reveal = smoothstep(.035+cells.y*.32,.23+cells.y*.32,damage);\nfloat fine = (1-smoothstep(fineWidth-antialias,fineWidth+antialias,distance))*reveal;\n\n// Front faults are restricted to the front half of the tooth. Projecting\n// these X/Z paths through the whole mesh produced mirrored bands on the back.\nfloat2 p = P.xz + drift.xz*.9 + splinters.xz*.5;\nfloat major = F.segment(p,float2(0,116),float2(-.3,104));\nmajor = min(major,F.segment(p,float2(-.3,104),float2(1.8,99)));\nmajor = min(major,F.segment(p,float2(1.8,99),float2(-.4,94)));\nmajor = min(major,F.segment(p,float2(-.4,94),float2(-2.3,88)));\nmajor = min(major,F.segment(p,float2(-2.3,88),float2(1.2,82)));\nmajor = min(major,F.segment(p,float2(1.2,82),float2(.2,76)));\nmajor = min(major,F.segment(p,float2(-31,116),float2(-28,106)));\nmajor = min(major,F.segment(p,float2(-28,106),float2(-34,102)));\nmajor = min(major,F.segment(p,float2(-34,102),float2(-43,100)));\nmajor = min(major,F.segment(p,float2(41,57),float2(34,54)));\nmajor = min(major,F.segment(p,float2(34,54),float2(31,48)));\nmajor = min(major,F.segment(p,float2(31,48),float2(24,47)));\nmajor = min(major,F.segment(p,float2(37,19),float2(29,18)));\nmajor = min(major,F.segment(p,float2(29,18),float2(26,13)));\nmajor = min(major,F.segment(p,float2(26,13),float2(18,10)));\nmajor = min(major,F.segment(p,float2(-37,17),float2(-30,15)));\nmajor = min(major,F.segment(p,float2(-30,15),float2(-24,18)));\nmajor = min(major,F.segment(p,float2(-24,18),float2(-19,14)));\nfloat growth = smoothstep(.24,.88,damage);\nfloat taper = P.z>72 ? lerp(.16,1.0,smoothstep(77,108,P.z)) : .65;\nfloat width = max(MajorWidth,.1)*growth*taper*lerp(.75,1.25,F.noise(P*.7));\nfloat aa = max(fwidth(major)*.55,.025);\nfloat deep = (1-smoothstep(width-aa,width+aa,major))*growth;\nfloat rim = smoothstep(width-aa*.3,width+aa*.6,major)\n    * (1-smoothstep(width+.18,width+.55,major))*growth;\nfloat front = smoothstep(-2,12,P.y);\ndeep *= front;\nrim *= front;\n\n// The back has two separate, open faults with tapered tips. They neither\n// span the body nor trace closed outlines around the existing sculpt.\nfloat backA = F.segment(p,float2(16,108),float2(12.5,103));\nbackA = min(backA,F.segment(p,float2(12.5,103),float2(15,99)));\nbackA = min(backA,F.segment(p,float2(15,99),float2(11,94)));\nbackA = min(backA,F.segment(p,float2(11,94),float2(12,91)));\nfloat taperA = smoothstep(91,97,P.z)*(1-smoothstep(103,109,P.z));\nfloat backB = F.segment(p,float2(-27,66),float2(-23,62));\nbackB = min(backB,F.segment(p,float2(-23,62),float2(-24.5,57)));\nbackB = min(backB,F.segment(p,float2(-24.5,57),float2(-19,54)));\nbackB = min(backB,F.segment(p,float2(-19,54),float2(-17,49)));\nfloat taperB = smoothstep(49,55,P.z)*(1-smoothstep(61,67,P.z));\nfloat backWidth = max(MajorWidth,.1)*.43*growth*lerp(.65,1.15,F.noise(P*.8));\nfloat aaA = max(fwidth(backA)*.55,.025);\nfloat aaB = max(fwidth(backB)*.55,.025);\nfloat cutA = (1-smoothstep(backWidth*taperA-aaA,backWidth*taperA+aaA,backA))*taperA;\nfloat cutB = (1-smoothstep(backWidth*taperB-aaB,backWidth*taperB+aaB,backB))*taperB;\nfloat edgeA = smoothstep(backWidth*taperA,backWidth*taperA+aaA,backA)\n    * (1-smoothstep(backWidth*taperA+.10,backWidth*taperA+.30,backA))*taperA;\nfloat edgeB = smoothstep(backWidth*taperB,backWidth*taperB+aaB,backB)\n    * (1-smoothstep(backWidth*taperB+.10,backWidth*taperB+.30,backB))*taperB;\nfloat back = (1-smoothstep(-18,-4,P.y))*growth;\ndeep = max(deep,max(cutA,cutB)*back*.72);\nrim = max(rim,max(edgeA,edgeB)*back*.6);\nfloat enamel = smoothstep(.20,.48,min(Enamel.r,min(Enamel.g,Enamel.b)));\nfloat face = max(\n    F.protect(P,float3(17.67,20.21,80.20),float3(17,34,20)),\n    F.protect(P,float3(-17.67,20.21,80.20),float3(17,34,20)));\nface = max(face,F.protect(P,float3(0,27,55),float3(18,17,11)));\nfloat surface = enamel*(1-face)*smoothstep(0,.035,damage);\nfine *= surface;\ndeep *= surface;\nrim *= surface;\n// Z is a recessed height in cm; W is the intact enamel bevel.\nreturn float4(fine,deep,-fine*.025-deep*.70+rim*.055,rim);\n"
+        },
+        {
+          "description": "Recessed enamel surface normal",
+          "code": "\nfloat3 n = normalize(N);\nfloat3 dx = ddx(WP), dy = ddy(WP);\nfloat3 rx = cross(dy,n), ry = cross(n,dx);\nfloat determinant = dot(dx,rx);\nfloat3 gradient = sign(determinant)*(ddx(Fracture.z)*rx+ddy(Fracture.z)*ry);\nreturn normalize(max(abs(determinant),.00001)*n-max(Depth,0)*gradient);\n"
+        },
+        {
+          "description": "Matte broken enamel",
+          "code": "return lerp(Base,max(Base,.68),max(Fracture.x*.4,Fracture.y));"
+        },
+        {
+          "description": "Small damaged crown notches",
+          "code": "\nfloat amount = smoothstep(.30,.92,saturate(Damage));\nfloat center = (1-smoothstep(.35,2.1,abs(P.x-.4))) * smoothstep(96,106,P.z);\nfloat side = (1-smoothstep(.45,2.3,abs(P.x+29.5))) * smoothstep(99,110,P.z);\nreturn float3(0,0,-max(Depth,0)*amount*max(center,side));\n"
+        },
+        {
+          "description": "Keep authored yellow bag details",
+          "code": "\nfloat maximum = max(Original.r, max(Original.g, Original.b));\nfloat yellowChroma = (min(Original.r, Original.g) - Original.b) / max(maximum, 0.0001);\nfloat keepYellow = smoothstep(0.06, 0.16, yellowChroma);\nreturn lerp(Tinted, Original * Brightness, keepYellow);\n"
+        }
+      ],
+      "MP_FRONT_MATERIAL": null,
+      "MP_WORLD_POSITION_OFFSET": "/Game/Gameplay/CharacterCurrent/Materials/M_BagGameplay.M_BagGameplay:MaterialExpressionAdd_0",
+      "MP_OPACITY": null,
+      "MP_BASE_COLOR": "/Game/Gameplay/CharacterCurrent/Materials/M_BagGameplay.M_BagGameplay:MaterialExpressionCustom_9"
+    },
+    "/Game/Art/Materials/ice/M_Ice": {
+      "blend": "<BlendMode.BLEND_MASKED: 1>",
+      "custom": [],
+      "MP_FRONT_MATERIAL": "/Game/Art/Materials/ice/M_Ice.M_Ice:MaterialExpressionMaterialFunctionCall_0",
+      "MP_WORLD_POSITION_OFFSET": null,
+      "MP_OPACITY": null,
+      "MP_BASE_COLOR": null
+    },
+    "/Game/Gameplay/Cold/VFX/M_IceWindSheet": {
+      "blend": "<BlendMode.BLEND_TRANSLUCENT: 2>",
+      "custom": [
+        {
+          "description": "Cold wind sheets with animated wisps and broken edges",
+          "code": "\nstruct ColdNoise {\n    float hash(float2 p) { return frac(sin(dot(p,float2(127.1,311.7)))*43758.5453); }\n    float value(float2 p) {\n        float2 i=floor(p), f=frac(p); f=f*f*(3-2*f);\n        return lerp(lerp(hash(i),hash(i+float2(1,0)),f.x),\n                    lerp(hash(i+float2(0,1)),hash(i+float2(1,1)),f.x),f.y);\n    }\n    float fbm(float2 p) { return value(p)*.65+value(p*2.07+17.4)*.25+value(p*4.1-9.2)*.10; }\n};\nColdNoise N;\n\n            float2 q=float2(UV.x*11-Age*FlowSpeed*2.8,UV.y*3.3);\n            q.y+=sin(q.x*.65+Age*.7)*.35;\n            float field=N.fbm(q);\n            float filament=pow(saturate(1-abs(sin(q.y*5+field*2.5))*.85),3)*.26;\n            float wisp=smoothstep(.36,.73,field);\n            float sides=pow(saturate(1-abs(UV.y*2-1)),1.2);\n            float ends=smoothstep(0,.08,UV.x)*(1-smoothstep(.88,1,UV.x));\n            float alpha=(wisp*.65+filament)*sides*ends*Alpha*Opacity;\n            float3 color=lerp(Tint,float3(.72,.94,1.06),field*.40)*VertexRGB;\n            return float4(color*1.2,saturate(alpha));\n        "
+        },
+        {
+          "description": "Cold emissive color",
+          "code": "return Field.rgb;"
+        },
+        {
+          "description": "Cold soft opacity",
+          "code": "return saturate(Field.a);"
+        }
+      ],
+      "MP_FRONT_MATERIAL": null,
+      "MP_WORLD_POSITION_OFFSET": null,
+      "MP_OPACITY": "/Game/Gameplay/Cold/VFX/M_IceWindSheet.M_IceWindSheet:MaterialExpressionDepthFade_0",
+      "MP_BASE_COLOR": null
+    }
+  }
+}

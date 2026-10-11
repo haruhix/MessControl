@@ -85,7 +85,7 @@ void UMCPlayerCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& 
         DesiredView.Rotation+=FRotator(-.9f*Wave,.6f*CrossWave*Side,.35f*Wave*Side)*Amount;
     }
     const auto* Hero=Cast<AMCToothCharacter>(GetOwner());
-    if(Hero && !Hero->ActorHasTag(TEXT("MC.LegacyCombatFeedback")) && Hero->IsLocallyControlled() && Hero->IsPlayerControlled() && Hero->Status) {
+    if(Hero && !Hero->IsFreezingToDeath() && !Hero->ActorHasTag(TEXT("MC.LegacyCombatFeedback")) && Hero->IsLocallyControlled() && Hero->IsPlayerControlled() && Hero->Status) {
         const float FeedbackScale=FMath::Clamp(ImpactShakeScale,0.f,2.f);
         const double Time=GetWorld()->GetTimeSeconds();
         const double ConfirmAge=Time-CombatConfirmAt;

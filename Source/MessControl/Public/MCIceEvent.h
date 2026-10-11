@@ -17,9 +17,29 @@ class UMaterialInterface;
 class UMaterialParameterCollection;
 class AMCIceEventVFX;
 class AMCVFXLabIceStation;
+class UAnimSequence;
 
 UENUM(BlueprintType)
 enum class EMCIceEventStage : uint8 { Idle, Arrival, Active, Complete };
+
+UENUM(BlueprintType)
+enum class EMCCandyAttack : uint8 { None, MiniCandy, FloorHit, Scream };
+
+USTRUCT(BlueprintType)
+struct FMCCandyAttackState
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) EMCCandyAttack Kind=EMCCandyAttack::None;
+    UPROPERTY(BlueprintReadOnly) int32 Serial=0;
+    UPROPERTY(BlueprintReadOnly) double StartedAt=0;
+    UPROPERTY(BlueprintReadOnly) double AnimationAt=0;
+    UPROPERTY(BlueprintReadOnly) double ImpactAt=0;
+    UPROPERTY(BlueprintReadOnly) double EndsAt=0;
+    UPROPERTY(BlueprintReadOnly) FVector TargetAnchor=FVector::ZeroVector;
+    UPROPERTY(BlueprintReadOnly) int32 TargetZone=INDEX_NONE;
+    UPROPERTY(BlueprintReadOnly) float TargetRadius=0;
+    UPROPERTY(BlueprintReadOnly) bool bResolved=false;
+};
 
 USTRUCT(BlueprintType)
 struct FMCPlayerFreeze
@@ -54,6 +74,8 @@ struct FMCIceZoneCrystal
     UPROPERTY(BlueprintReadOnly) double SpawnedAt=0;
     UPROPERTY(BlueprintReadOnly) double ImpactAt=0;
     UPROPERTY(BlueprintReadOnly) bool bLanded=false;
+    UPROPERTY(BlueprintReadOnly) bool bLaunchedFromBoss=false;
+    UPROPERTY(BlueprintReadOnly) FVector LaunchAnchor=FVector::ZeroVector;
 };
 
 /** Break the central crystal, transfer between warm zones and dodge cold spells. */
@@ -82,8 +104,23 @@ public:
     bool IsInsideNova(FVector WorldPoint) const;
     float FreezeAmount(const AMCToothCharacter* Hero) const;
     FVector CandyContactPoint(FVector From) const;
+    /** A complete artist mesh owns the central visual and its contact collision. */
+    bool HasAuthoredCandy() const;
+    FVector CrystalWorldPosition(const FMCIceZoneCrystal& Crystal,const FHitResult& Floor,double Time) const;
+    float GroundWaveRadius(double Time) const;
 
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Body;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> CandyVisual;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ice|Appearance") TObjectPtr<AMCToothCharacter> FacingPlayer;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks") bool bUseAnimatedBossAttacks=true;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="2",Units="s")) float AttackRecoverySeconds=5;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="16",Units="s")) float ScreamCooldownSeconds=24;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="1.5",Units="s")) float ScreamWarningSeconds=2;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="1.5",Units="s")) float CrystalFlightSeconds=3;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="1",Units="s")) float WaveTravelSeconds=2.8f;
+    UPROPERTY(Replicated,BlueprintReadOnly) bool bSecondPhase=false;
+    UPROPERTY(Replicated,BlueprintReadOnly) FMCCandyAttackState BossAttack;
+    UPROPERTY(Replicated,BlueprintReadOnly) TArray<int32> ExtinguishedZones;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> CandyFace;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> FloorGuides;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UProceduralMeshComponent> FrostSurface;
@@ -167,6 +204,11 @@ private:
     void ResolveIcicle(FMCIcicleStrike& Strike);
     void BeginNova();
     void ResolveNova();
+    void UpdateBossAttacks(double Time);
+    bool BeginBossAttack(EMCCandyAttack Kind);
+    void ResolveScream();
+    void UpdateGroundWave(double Time);
+    void PresentCandyAnimation(double Time);
     void RefreshZoneCrystals();
     void RefreshNovaWind();
     void Finish(bool bFailure=false);
@@ -190,6 +232,13 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UWidgetComponent>> FreezeBars;
     UPROPERTY(Transient) TArray<TObjectPtr<USkeletalMeshComponent>> IceCoatings;
     UPROPERTY(Transient) TObjectPtr<AMCIceEventVFX> EventVFX;
+    UPROPERTY() TObjectPtr<UAnimSequence> IdleAnimation;
+    UPROPERTY() TObjectPtr<UAnimSequence> MiniCandyAnimation;
+    UPROPERTY() TObjectPtr<UAnimSequence> FloorHitAnimation;
+    UPROPERTY() TObjectPtr<UAnimSequence> ScreamAnimation;
+    TSet<TWeakObjectPtr<AMCToothCharacter>> WaveHitHeroes;
+    double NextBossAttackAt=0;
+    double NextScreamAt=0;
     bool bCompletionVFXSignaled=false;
     TArray<TWeakObjectPtr<AMCToothCharacter>> BarHeroes;
     TArray<TWeakObjectPtr<AMCToothCharacter>> FrozenLegHeroes;

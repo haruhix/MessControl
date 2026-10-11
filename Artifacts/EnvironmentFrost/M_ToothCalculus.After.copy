@@ -1,0 +1,214 @@
+Begin Object Class=/Script/Engine.Material Name="M_ToothCalculus" ExportPath="/Script/Engine.Material'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexColor Name="MaterialExpressionVertexColor_1" ExportPath="/Script/Engine.MaterialExpressionVertexColor'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionVertexColor_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureCoordinate Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionTextureCoordinate_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_6" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_6'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_3" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_ToothCalculusEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:M_ToothCalculusEditorOnlyData'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexColor_1" ExportPath="/Script/Engine.MaterialExpressionVertexColor'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionVertexColor_1'"
+      MaterialExpressionEditorX=-520
+      MaterialExpressionEditorY=176
+      MaterialExpressionGuid=5F5956BE45E39132695193A270ED2B40
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.940000,G=0.880000,B=0.720000,A=1.000000)
+      ParameterName="FreshChalk"
+      ExpressionGUID=2DE616DF498351E1BD56958945E2FCC6
+      MaterialExpressionEditorX=-520
+      MaterialExpressionEditorY=338
+      MaterialExpressionGuid=DB95731A4E6E6CE7D4B05B9D4FBCDEF2
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_2'"
+      ParameterName="Mineral_Roughness"
+      ExpressionGUID=E8C33E754AABD379EFDA8CB17F2B6E9C
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_ToothCalculus:MaterialExpressionTextureCoordinate_0'")
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Care/Textures/T_Calculus_Roughness.T_Calculus_Roughness'"
+      SamplerType=SAMPLERTYPE_LinearGrayscale
+      MaterialExpressionEditorX=-520
+      MaterialExpressionEditorY=514
+      MaterialExpressionGuid=1958241848E1B6E034DC34B6941388A2
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_1'"
+      ParameterName="Mineral_Normal"
+      ExpressionGUID=D5B917324821132FE065AEB7E2FAE2A0
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_ToothCalculus:MaterialExpressionTextureCoordinate_0'")
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Care/Textures/T_Calculus_Normal.T_Calculus_Normal'"
+      SamplerType=SAMPLERTYPE_Normal
+      MaterialExpressionEditorX=-520
+      MaterialExpressionEditorY=852
+      MaterialExpressionGuid=ADA90B80491721DEF476BF9A7EF50278
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_0'"
+      ParameterName="Mineral_Basecolor"
+      ExpressionGUID=75D035C9470F1ACCC2E456ABAD1A8F97
+      Coordinates=(Expression="/Script/Engine.MaterialExpressionTextureCoordinate'M_ToothCalculus:MaterialExpressionTextureCoordinate_0'")
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Care/Textures/T_Calculus_Basecolor.T_Calculus_Basecolor'"
+      MaterialExpressionEditorX=-520
+      MaterialExpressionGuid=5B8716CD4BEA7C0A016585AB9C28208C
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureCoordinate_0" ExportPath="/Script/Engine.MaterialExpressionTextureCoordinate'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionTextureCoordinate_0'"
+      MaterialExpressionEditorX=-780
+      MaterialExpressionGuid=EF661E4346D1E2F5EDF965A85C6A8138
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_6" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_6'"
+      ParameterName="Metallic"
+      ExpressionGUID=58FE7C574922935FD76A4587F865FBAA
+      Group="Mineral surface"
+      MaterialExpressionEditorX=-260
+      MaterialExpressionEditorY=162
+      MaterialExpressionGuid=E43423AC467A1743178418889090E0E0
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_5'"
+      DefaultValue=0.300000
+      ParameterName="Specular"
+      ExpressionGUID=1B7A721D4B9D1255EB6C18B84BF99888
+      Group="Mineral surface"
+      MaterialExpressionEditorX=-260
+      MaterialExpressionEditorY=324
+      MaterialExpressionGuid=CD64739D4232AE7845B2FF84434D754B
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_4'"
+      DefaultValue=0.400000
+      ParameterName="PoreStrength"
+      ExpressionGUID=480EDA9C49CB391D34088C8205F8D930
+      Group="Mineral surface"
+      MaterialExpressionEditorX=-520
+      MaterialExpressionEditorY=1028
+      MaterialExpressionGuid=299840664712709175A80B991B12E3EF
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_3" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_3'"
+      DefaultValue=0.180000
+      ParameterName="Dampness"
+      ExpressionGUID=F3046FEA4FE63649514C008ADBF907E8
+      Group="Mineral surface"
+      MaterialExpressionEditorX=-520
+      MaterialExpressionEditorY=690
+      MaterialExpressionGuid=5F7E21FB4B13141432587E9BFBC47D74
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionScalarParameter_0'"
+      DefaultValue=0.820000
+      ParameterName="Roughness"
+      ExpressionGUID=0E6ED4A742ED799FD01873860F74E9C2
+      Group="Calculus"
+      MaterialExpressionEditorX=-260
+      MaterialExpressionEditorY=486
+      MaterialExpressionGuid=F304D1964391D9C55AF4CAB4CBD7A7A6
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_2'"
+      Code="return normalize(lerp(float3(0,0,1),Detail,saturate(Strength)*lerp(1,.3,saturate(Fresh))));"
+      Description="Calculus: fine baked mineral pores"
+      Inputs(0)=(InputName="Detail",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Strength",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_4'"))
+      Inputs(2)=(InputName="Fresh",Input=(Expression="/Script/Engine.MaterialExpressionVertexColor'M_ToothCalculus:MaterialExpressionVertexColor_1'",OutputIndex=4,Mask=1,MaskA=1))
+      MaterialExpressionEditorX=-260
+      MaterialExpressionEditorY=648
+      MaterialExpressionGuid=B000E9C1484B982E7E7D89A2FA46742C
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_1'"
+      Code="return lerp(clamp(Rough*(1-saturate(Damp)),.42,.78),.88,saturate(Fresh));"
+      OutputType=CMOT_Float1
+      Description="Calculus: damp crust and dry broken core"
+      Inputs(0)=(InputName="Rough",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_2'",OutputIndex=1,Mask=1,MaskR=1))
+      Inputs(1)=(InputName="Damp",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_3'"))
+      Inputs(2)=(InputName="Fresh",Input=(Expression="/Script/Engine.MaterialExpressionVertexColor'M_ToothCalculus:MaterialExpressionVertexColor_1'",OutputIndex=4,Mask=1,MaskA=1))
+      MaterialExpressionEditorX=-260
+      MaterialExpressionEditorY=486
+      MaterialExpressionGuid=AC96E63546F9C3DA1507F6945F17027F
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionCustom_0'"
+      Code="\nfloat pigment = saturate(dot(Vertex, float3(.25,.5,.25)));\nfloat3 crust = Aged * lerp(.92,1.08,pigment);\nfloat3 chalk = Chalk * lerp(.94,1.02,dot(Aged,float3(.333,.333,.333)));\nreturn lerp(crust,chalk,saturate(Fresh));\n"
+      Description="Calculus: mineral pigment and fresh fracture"
+      Inputs(0)=(InputName="Aged",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="Vertex",Input=(Expression="/Script/Engine.MaterialExpressionVertexColor'M_ToothCalculus:MaterialExpressionVertexColor_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(2)=(InputName="Fresh",Input=(Expression="/Script/Engine.MaterialExpressionVertexColor'M_ToothCalculus:MaterialExpressionVertexColor_1'",OutputIndex=4,Mask=1,MaskA=1))
+      Inputs(3)=(InputName="Chalk",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ToothCalculus:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      MaterialExpressionEditorX=-260
+      MaterialExpressionGuid=E58114244DFFBA8D063C2AA406E22833
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+   End Object
+   Begin Object Name="M_ToothCalculusEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:M_ToothCalculusEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'")
+      Metallic=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=2)
+      Specular=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=3)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=1)
+      Normal=(Expression="/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_2'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_0'","/Script/Engine.MaterialExpressionTextureCoordinate'M_ToothCalculus:MaterialExpressionTextureCoordinate_0'","/Script/Engine.MaterialExpressionVertexColor'M_ToothCalculus:MaterialExpressionVertexColor_1'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_0'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_1'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ToothCalculus:MaterialExpressionTextureSampleParameter2D_2'","/Script/Engine.MaterialExpressionVectorParameter'M_ToothCalculus:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_0'","/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_3'","/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_1'","/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_4'","/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_2'","/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_5'","/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_6'","/Script/Engine.MaterialExpressionMaterialFunctionCall'M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'"))
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Gameplay/Care/M_ToothCalculus.M_ToothCalculus:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Game/Gameplay/Cold/Frost/MF_EnvironmentFrost.MF_EnvironmentFrost'"
+      FunctionInputs(0)=(ExpressionInputId=3A54F02640C0A77971B1918F96C7D6C0,Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_0'",InputName="BaseColor"))
+      FunctionInputs(1)=(ExpressionInputId=EB6F9D1A4286FB636375C49D30400786,Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ToothCalculus:MaterialExpressionCustom_1'",InputName="Roughness"))
+      FunctionInputs(2)=(ExpressionInputId=2FCC08B443F25B99AB6737B1E05BA1B8,Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_6'",InputName="Metallic"))
+      FunctionInputs(3)=(ExpressionInputId=63D907F14E0A6881F594C596059D0340,Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ToothCalculus:MaterialExpressionScalarParameter_5'",InputName="Specular"))
+      FunctionOutputs(0)=(ExpressionOutputId=8F875B7B424B3496B8CCA09360FE3470,Output=(OutputName="BaseColor"))
+      FunctionOutputs(1)=(ExpressionOutputId=FA1559FA48055BA4FB63DDA8EABF5D30,Output=(OutputName="Roughness"))
+      FunctionOutputs(2)=(ExpressionOutputId=A94B89EA49249E426712AA8F1FAC637B,Output=(OutputName="Metallic"))
+      FunctionOutputs(3)=(ExpressionOutputId=96DB59FB47E22DC2FAE2F1B5415FEA8C,Output=(OutputName="Specular"))
+      FunctionOutputs(4)=(ExpressionOutputId=C843F3E745D7730425AC8EAC28D55A4F,Output=(OutputName="Coverage"))
+      MaterialExpressionEditorX=2600
+      MaterialExpressionEditorY=1600
+      MaterialExpressionGuid=6C1668EE4FE3A3ED1FF25183C8BE8E7B
+      Material="/Script/Engine.Material'M_ToothCalculus'"
+      Desc="Shared matte fern frost; existing climate ColdAmount"
+      Outputs(0)=(OutputName="BaseColor")
+      Outputs(1)=(OutputName="Roughness")
+      Outputs(2)=(OutputName="Metallic")
+      Outputs(3)=(OutputName="Specular")
+      Outputs(4)=(OutputName="Coverage")
+   End Object
+   StateId=755036574BD8204EA61740B0FA2744AE
+   ReferencedTextureGuids(0)=A0AECEB9481A48CC9671069C71D07976
+   ReferencedTextureGuids(1)=8F1A343A45A33B7C095D12949C759A3C
+   ReferencedTextureGuids(2)=670619CD48696888D492F08383AE80CE
+   ReferencedTextureGuids(3)=2063E9D0479913D98EE5A58E5301766C
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_ToothCalculusEditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_Calculus_Basecolor",TextureReference="/Game/Gameplay/Care/Textures/T_Calculus_Basecolor.T_Calculus_Basecolor")
+   TextureStreamingData(1)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_Calculus_Normal",TextureReference="/Game/Gameplay/Care/Textures/T_Calculus_Normal.T_Calculus_Normal")
+   TextureStreamingData(2)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_Calculus_Roughness",TextureReference="/Game/Gameplay/Care/Textures/T_Calculus_Roughness.T_Calculus_Roughness")
+   TextureStreamingData(3)=(SamplingScale=0.781250,UVChannelIndex=0,TextureName="T_PlayerFrostMask",TextureReference="/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Game/Gameplay/Care/Textures/T_Calculus_Basecolor.T_Calculus_Basecolor'"
+   ReferencedDefaultTextures(1)="/Script/Engine.Texture2D'/Game/Gameplay/Care/Textures/T_Calculus_Normal.T_Calculus_Normal'"
+   ReferencedDefaultTextures(2)="/Script/Engine.Texture2D'/Game/Gameplay/Care/Textures/T_Calculus_Roughness.T_Calculus_Roughness'"
+   ReferencedDefaultTextures(3)="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+   LightingGuid=43496696407C453F62209E8691FA2E1D
+End Object

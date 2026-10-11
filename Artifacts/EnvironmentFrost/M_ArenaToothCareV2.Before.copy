@@ -1,0 +1,472 @@
+Begin Object Class=/Script/Engine.Material Name="M_ArenaToothCareV2" ExportPath="/Script/Engine.Material'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2'"
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_1" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionWorldPosition_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionWorldPosition Name="MaterialExpressionWorldPosition_0" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionWorldPosition_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexNormalWS Name="MaterialExpressionVertexNormalWS_1" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexNormalWS_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexNormalWS Name="MaterialExpressionVertexNormalWS_0" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexNormalWS_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexInterpolator Name="MaterialExpressionVertexInterpolator_2" ExportPath="/Script/Engine.MaterialExpressionVertexInterpolator'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexInterpolator Name="MaterialExpressionVertexInterpolator_1" ExportPath="/Script/Engine.MaterialExpressionVertexInterpolator'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVertexInterpolator Name="MaterialExpressionVertexInterpolator_0" ExportPath="/Script/Engine.MaterialExpressionVertexInterpolator'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_5" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_4" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTransform Name="MaterialExpressionTransform_0" ExportPath="/Script/Engine.MaterialExpressionTransform'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTransform_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureObjectParameter Name="MaterialExpressionTextureObjectParameter_1" ExportPath="/Script/Engine.MaterialExpressionTextureObjectParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureObjectParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureObjectParameter Name="MaterialExpressionTextureObjectParameter_0" ExportPath="/Script/Engine.MaterialExpressionTextureObjectParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureObjectParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_7" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_7'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_6" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_6'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_3" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_2" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionScalarParameter Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionPreSkinnedPosition Name="MaterialExpressionPreSkinnedPosition_0" ExportPath="/Script/Engine.MaterialExpressionPreSkinnedPosition'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionPreSkinnedPosition_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionPreSkinnedNormal Name="MaterialExpressionPreSkinnedNormal_0" ExportPath="/Script/Engine.MaterialExpressionPreSkinnedNormal'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionPreSkinnedNormal_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_8" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_8'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_7" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_7'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_6" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_6'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_5" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_5'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_4" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_4'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_3" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_3'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_2'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCustom Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionCollectionParameter Name="MaterialExpressionCollectionParameter_0" ExportPath="/Script/Engine.MaterialExpressionCollectionParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCollectionParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_ArenaToothCareV2EditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:M_ArenaToothCareV2EditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_1" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionWorldPosition_1'"
+      MaterialExpressionGuid=A61AB0C44D7E1A5FFC02F0A9631025F8
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionWorldPosition_0" ExportPath="/Script/Engine.MaterialExpressionWorldPosition'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionWorldPosition_0'"
+      MaterialExpressionEditorX=1720
+      MaterialExpressionEditorY=400
+      MaterialExpressionGuid=06A3741844C130D488EC1A8443BBBF0B
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexNormalWS_1" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexNormalWS_1'"
+      MaterialExpressionGuid=99F3F3414507A18D97E835B28F4B48FE
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexNormalWS_0" ExportPath="/Script/Engine.MaterialExpressionVertexNormalWS'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexNormalWS_0'"
+      MaterialExpressionEditorY=640
+      MaterialExpressionGuid=386D2BEE491C2CFDA2FFD78C26B2E554
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexInterpolator_2" ExportPath="/Script/Engine.MaterialExpressionVertexInterpolator'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_2'"
+      Input=(Expression="/Script/Engine.MaterialExpressionVertexNormalWS'M_ArenaToothCareV2:MaterialExpressionVertexNormalWS_0'")
+      MaterialExpressionEditorX=430
+      MaterialExpressionEditorY=640
+      MaterialExpressionGuid=6BCEC3814D9625F5CEBE14B5330D237C
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexInterpolator_1" ExportPath="/Script/Engine.MaterialExpressionVertexInterpolator'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_1'"
+      Input=(Expression="/Script/Engine.MaterialExpressionPreSkinnedNormal'M_ArenaToothCareV2:MaterialExpressionPreSkinnedNormal_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=1290
+      MaterialExpressionEditorY=400
+      MaterialExpressionGuid=3B1CACF1473F18B27E46F9A3B2656727
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVertexInterpolator_0" ExportPath="/Script/Engine.MaterialExpressionVertexInterpolator'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_0'"
+      Input=(Expression="/Script/Engine.MaterialExpressionPreSkinnedPosition'M_ArenaToothCareV2:MaterialExpressionPreSkinnedPosition_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=430
+      MaterialExpressionEditorY=400
+      MaterialExpressionGuid=55FFD9104CD327B4EACD058CEF8593AC
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_5" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_5'"
+      DefaultValue=(R=0.160000,G=0.034000,B=0.004000,A=1.000000)
+      ParameterName="GrimeColor"
+      ExpressionGUID=23EA71C645C80524F5AED3BE3C343EEF
+      Group="Care"
+      MaterialExpressionEditorX=860
+      MaterialExpressionEditorY=1120
+      MaterialExpressionGuid=88EF9B5A404663FE64C1D1A422458191
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_4" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_4'"
+      ParameterName="BrushLocal"
+      ExpressionGUID=3FD7F4EC48EE51403EA114BD0B85F574
+      Group="Care"
+      MaterialExpressionEditorX=430
+      MaterialExpressionEditorY=1120
+      MaterialExpressionGuid=9E2572324D117D83A1779584934D4E82
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_3" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_3'"
+      DefaultValue=(R=1.000000,G=1.000000,B=1.000000,A=0.000000)
+      ParameterName="GrimeScale"
+      ExpressionGUID=D7DD89564FF16AAF005FA59CDAF911D1
+      Group="Care"
+      MaterialExpressionEditorY=1120
+      MaterialExpressionGuid=5E41BEEA451A0F75CF399EA9C906D7A0
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_2" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_2'"
+      DefaultValue=(R=100.000000,G=100.000000,B=100.000000,A=0.000000)
+      ParameterName="GrimeSize"
+      ExpressionGUID=4872C37B484434184B3EE8A84C18D34A
+      Group="Care"
+      MaterialExpressionEditorX=1720
+      MaterialExpressionEditorY=880
+      MaterialExpressionGuid=7AA97E3B41426101810D28A194966526
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_1" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_1'"
+      DefaultValue=(R=0.917608,G=0.915610,B=0.940000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=5033E8BE4CEB9B73CCDEF98B9613AA58
+      MaterialExpressionEditorX=-350
+      MaterialExpressionGuid=44E804CB4B999C8A042776AB94737443
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=-50.000000,G=-50.000000,B=-50.000000,A=0.000000)
+      ParameterName="GrimeMin"
+      ExpressionGUID=D9168E80447F99C5DC90E79FFD2D86E1
+      Group="Care"
+      MaterialExpressionEditorX=1290
+      MaterialExpressionEditorY=880
+      MaterialExpressionGuid=B442BFEE48B6F0DC396EC18543E5A076
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionTransform_0" ExportPath="/Script/Engine.MaterialExpressionTransform'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTransform_0'"
+      Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=2600
+      MaterialExpressionGuid=4CD231CA48C3BF3D7B64CDB9D88C4398
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+      Desc="Arena V2 normal to world"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_2'"
+      ParameterName="Normal Texture"
+      ExpressionGUID=C64048C64C3603F95C09DE87831E1395
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_Normal.teeth_loc_low_DefaultMaterial_Normal'"
+      SamplerType=SAMPLERTYPE_Normal
+      MaterialExpressionEditorX=-600
+      MaterialExpressionEditorY=2600
+      MaterialExpressionGuid=6596C6DF4C42E0152892DF849D30911E
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_1'"
+      ParameterName="ARM"
+      ExpressionGUID=CCBDB5404F3311959659C488857A9BFC
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic.teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic'"
+      SamplerType=SAMPLERTYPE_LinearColor
+      MaterialExpressionEditorX=-600
+      MaterialExpressionEditorY=2400
+      MaterialExpressionGuid=7DD1C64247AEAEC49F53C695D62F0FB0
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_0'"
+      ParameterName="Albedo Texture"
+      ExpressionGUID=5F84A60D4D6F470BD9C55D89D5E33182
+      Texture="/Script/Engine.Texture2D'/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_BaseColor.teeth_loc_low_DefaultMaterial_BaseColor'"
+      MaterialExpressionEditorX=-600
+      MaterialExpressionEditorY=2200
+      MaterialExpressionGuid=CC5A73B245761B28AAE7849BD7377764
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureObjectParameter_1" ExportPath="/Script/Engine.MaterialExpressionTextureObjectParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureObjectParameter_1'"
+      ParameterName="GrimePigment"
+      ExpressionGUID=751A069A406033E70C74A3A2DA7E3994
+      Texture="/Script/Engine.Texture2D'/Game/Gameplay/Care/Textures/T_Grime_BaseColor.T_Grime_BaseColor'"
+      MaterialExpressionEditorX=1290
+      MaterialExpressionEditorY=640
+      MaterialExpressionGuid=D025EE2B46FE308461EDF69B55BC03C1
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureObjectParameter_0" ExportPath="/Script/Engine.MaterialExpressionTextureObjectParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionTextureObjectParameter_0'"
+      ParameterName="GrimeWipe"
+      ExpressionGUID=DE3A83914CD9B9FE4C510FB58C10F528
+      Texture="/Script/Engine.Texture2D'/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture'"
+      SamplerType=SAMPLERTYPE_LinearColor
+      MaterialExpressionEditorX=860
+      MaterialExpressionEditorY=640
+      MaterialExpressionGuid=72E9EA7C40AA92FDE0EA72AB1E2E6E36
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_7" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_7'"
+      DefaultValue=0.650000
+      ParameterName="Specular"
+      ExpressionGUID=F600CCFF4225D84EE63EF59A673DB548
+      Group="Care"
+      MaterialExpressionEditorX=1720
+      MaterialExpressionEditorY=1360
+      MaterialExpressionGuid=FCF18934417F77479FEEF490430C7956
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_6" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_6'"
+      ParameterName="HitFlash"
+      ExpressionGUID=39614E4848B9D1CF1BFAED8E44026FB2
+      Group="Care"
+      MaterialExpressionEditorX=1720
+      MaterialExpressionEditorY=1120
+      MaterialExpressionGuid=47AFD3AE4D8153CC50F4FEA372CAB372
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_5" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_5'"
+      ParameterName="Damage"
+      ExpressionGUID=7D5C063F40E59BB4076784AB2C832DBA
+      Group="Care"
+      MaterialExpressionEditorX=1290
+      MaterialExpressionEditorY=1120
+      MaterialExpressionGuid=CF022DDF4A5DABD0562AC0A86125AB70
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_4" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_4'"
+      DefaultValue=3.500000
+      ParameterName="GrimeThickness"
+      ExpressionGUID=3813349B41FF02C8F71E028165E5A9B9
+      Group="Care"
+      MaterialExpressionEditorX=860
+      MaterialExpressionEditorY=880
+      MaterialExpressionGuid=7BB07AE44C70DEE0D091CB82E3D9606F
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_3" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_3'"
+      DefaultValue=1.000000
+      ParameterName="GrimeSeed"
+      ExpressionGUID=F5856F854FC1ADB478B80EB813DA35B5
+      Group="Care"
+      MaterialExpressionEditorX=430
+      MaterialExpressionEditorY=880
+      MaterialExpressionGuid=A21282BE4828302BD81C6B9F88F0F92F
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_2" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_2'"
+      DefaultValue=4.000000
+      ParameterName="BrushAge"
+      ExpressionGUID=EC75E62B4927B7F4637408A22507E6F6
+      Group="Care"
+      MaterialExpressionEditorY=880
+      MaterialExpressionGuid=22FA42BE4EDF6207EFC6F39337FDF760
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_1" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_1'"
+      ParameterName="Roughness"
+      ExpressionGUID=ECFCEFF743289834FDD7459A715FE700
+      MaterialExpressionEditorX=-320
+      MaterialExpressionEditorY=208
+      MaterialExpressionGuid=B258D17D4C5C432A0E9EFB8452D4E971
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionScalarParameter_0" ExportPath="/Script/Engine.MaterialExpressionScalarParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionScalarParameter_0'"
+      ParameterName="GrimeAmount"
+      ExpressionGUID=0D975674443E901969A7309ACB9F9ED8
+      Group="Care"
+      MaterialExpressionEditorX=1720
+      MaterialExpressionEditorY=640
+      MaterialExpressionGuid=220C9F3F495DC14E7CE997A8F2444A16
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionPreSkinnedPosition_0" ExportPath="/Script/Engine.MaterialExpressionPreSkinnedPosition'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionPreSkinnedPosition_0'"
+      MaterialExpressionEditorY=400
+      MaterialExpressionGuid=739C776B4C06BC8BFD8E5E9CB8189C62
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionPreSkinnedNormal_0" ExportPath="/Script/Engine.MaterialExpressionPreSkinnedNormal'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionPreSkinnedNormal_0'"
+      MaterialExpressionEditorX=860
+      MaterialExpressionEditorY=400
+      MaterialExpressionGuid=45C7D9364312B97174755BBFDE2E840E
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_8" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_8'"
+      Code="return lerp(Rough,.58,Frost);"
+      OutputType=CMOT_Float1
+      Description="Mouth climate rough crystalline finish"
+      Inputs(0)=(InputName="Rough",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_3'"))
+      Inputs(1)=(InputName="Frost",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_6'"))
+      MaterialExpressionGuid=0122E2CD41A05CF7540CAAAEA9DDADF3
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_7" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_7'"
+      Code="return lerp(Base,float3(.65,.82,.93),Frost*.84);"
+      Description="Mouth climate frost color"
+      Inputs(0)=(InputName="Base",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_2'"))
+      Inputs(1)=(InputName="Frost",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_6'"))
+      MaterialExpressionGuid=D4CECB6546A9CFDF7401ADA8D1072844
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_6" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_6'"
+      Code="\nfloat grains=frac(sin(dot(floor(P*.9),float3(12.9898,78.233,45.164)))*43758.5453);\nfloat wisps=.5+.5*sin(P.x*.021+sin(P.y*.018)*2+P.z*.015);\nfloat coat=saturate(.38+.50*saturate(N.z)+.28*wisps+.12*grains);\nreturn saturate(Cold)*coat;\n"
+      OutputType=CMOT_Float1
+      Description="Mouth climate frost crystal coverage"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_ArenaToothCareV2:MaterialExpressionWorldPosition_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="N",Input=(Expression="/Script/Engine.MaterialExpressionVertexNormalWS'M_ArenaToothCareV2:MaterialExpressionVertexNormalWS_1'"))
+      Inputs(2)=(InputName="Cold",Input=(Expression="/Script/Engine.MaterialExpressionCollectionParameter'M_ArenaToothCareV2:MaterialExpressionCollectionParameter_0'"))
+      MaterialExpressionGuid=CF2A540C4BF23E63AD365CB9EA2CD867
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_5" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_5'"
+      Code="\nfloat3 n=normalize(N);\nfloat3 dx=ddx(World),dy=ddy(World);\nfloat3 rx=cross(dy,n),ry=cross(n,dx);\nfloat det=dot(dx,rx);\nfloat3 slope=(ddx(Height)*rx+ddy(Height)*ry)*sign(det)/max(abs(det),1e-5);\nreturn normalize(n-slope);\n"
+      Description="MC Care: filmNormal"
+      Inputs(0)=(InputName="World",Input=(Expression="/Script/Engine.MaterialExpressionWorldPosition'M_ArenaToothCareV2:MaterialExpressionWorldPosition_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="N",Input=(Expression="/Script/Engine.MaterialExpressionTransform'M_ArenaToothCareV2:MaterialExpressionTransform_0'"))
+      Inputs(2)=(InputName="Height",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_4'"))
+      MaterialExpressionEditorX=430
+      MaterialExpressionEditorY=1600
+      MaterialExpressionGuid=735B34E746EE097E8558A2A473C3AAC9
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_4" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_4'"
+      Code="\nstruct Noise {\n float hash(float3 p) { return frac(sin(dot(p,float3(127.1,311.7,74.7)))*43758.5453); }\n float value(float3 p) {\n  float3 i=floor(p), f=frac(p); f=f*f*(3-2*f);\n  return lerp(lerp(lerp(hash(i),hash(i+float3(1,0,0)),f.x),lerp(hash(i+float3(0,1,0)),hash(i+float3(1,1,0)),f.x),f.y),\n              lerp(lerp(hash(i+float3(0,0,1)),hash(i+float3(1,0,1)),f.x),lerp(hash(i+float3(0,1,1)),hash(i+1),f.x),f.y),f.z);\n }\n}; Noise S;\n\nfloat bead=smoothstep(.39,.67,S.value(P*.18+Seed));\nfloat broad=smoothstep(.30,.68,S.value(P*.060+Seed*2.7));\nreturn pow(saturate(F.x),.62)*Thickness*(.25+.30*broad+1.10*bead)+F.y*.35;\n"
+      OutputType=CMOT_Float1
+      Description="MC Care: filmHeight"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_0'"))
+      Inputs(1)=(InputName="F",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_1'"))
+      Inputs(2)=(InputName="Seed",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_3'"))
+      Inputs(3)=(InputName="Thickness",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_4'"))
+      MaterialExpressionEditorY=1600
+      MaterialExpressionGuid=4DDFA1AD4EA9A383498A76A4C93C4AD8
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_3" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_3'"
+      Code="return lerp(lerp(.18,.135,F.z*.6),.38,F.y);"
+      OutputType=CMOT_Float1
+      Description="MC Care: cleaningRoughness"
+      Inputs(0)=(InputName="Base",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_1'",OutputIndex=2,Mask=1,MaskG=1))
+      Inputs(1)=(InputName="F",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_1'"))
+      MaterialExpressionEditorX=1290
+      MaterialExpressionEditorY=1360
+      MaterialExpressionGuid=D3A27D704C1263F587EA79B98BD476CF
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_2" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_2'"
+      Code="\nfloat3 cream=float3(.91,.79,.62)*lerp(.96,1.04,saturate(Enamel.r));\nfloat3 pigment=Tint*lerp(.7,1.5,saturate(Pigment.r*2.5));\nfloat3 color=lerp(cream,pigment,F.x);\ncolor=lerp(color,float3(.075,.024,.012),F.w*.85);\ncolor=lerp(color,float3(.91,.98,.95),F.y*.95);\nreturn lerp(color,float3(1,.3,.08),saturate(Flash)*.55);\n"
+      Description="MC Care: cleaningColor"
+      Inputs(0)=(InputName="Enamel",Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(1)=(InputName="F",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_1'"))
+      Inputs(2)=(InputName="Pigment",Input=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_0'"))
+      Inputs(3)=(InputName="Tint",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_5'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(4)=(InputName="Flash",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_6'"))
+      MaterialExpressionEditorX=860
+      MaterialExpressionEditorY=1360
+      MaterialExpressionGuid=5CEB01F54D86516F17BDF2BAD6228551
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_1" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_1'"
+      Code="\nstruct Noise {\n float hash(float3 p) { return frac(sin(dot(p,float3(127.1,311.7,74.7)))*43758.5453); }\n float value(float3 p) {\n  float3 i=floor(p), f=frac(p); f=f*f*(3-2*f);\n  return lerp(lerp(lerp(hash(i),hash(i+float3(1,0,0)),f.x),lerp(hash(i+float3(0,1,0)),hash(i+float3(1,1,0)),f.x),f.y),\n              lerp(lerp(hash(i+float3(0,0,1)),hash(i+float3(1,0,1)),f.x),lerp(hash(i+float3(0,1,1)),hash(i+1),f.x),f.y),f.z);\n }\n}; Noise S;\n\nfloat3 uv=saturate((P-Minimum)/max(Size,.01))*15;\nfloat z0=floor(uv.z),z1=min(z0+1,15);\nfloat2 a=(uv.xy+float2(fmod(z0,4),floor(z0/4))*16+.5)/64;\nfloat2 b=(uv.xy+float2(fmod(z1,4),floor(z1/4))*16+.5)/64;\nfloat wipe=lerp(Texture2DSampleLevel(Wipe,WipeSampler,a,0).r,Texture2DSampleLevel(Wipe,WipeSampler,b,0).r,frac(uv.z));\nfloat3 q=P+Seed*float3(13.7,21.3,8.1);\nfloat grain=S.value(q*float3(.055,.052,.036)+4);\nfloat streak=S.value(q*float3(.12,.11,.022)+19);\nfloat flecks=S.value(q*.20);\nfloat h=uv.z/15;\nfloat band=smoothstep(.10,.25,h)*(1-smoothstep(.63,.84,h));\nfloat field=grain*.67+streak*.23+flecks*.10-(1-band)*.30;\nfloat threshold=lerp(.63,.51,Amount);\nfloat patch=smoothstep(threshold,threshold+.045,field);\nfloat dirt=0; // Visible coating is the continuous projected relief mesh.\nfloat distance=length((P-Brush)*Scale);\nfloat foam=(1-smoothstep(23,45,distance))*(1-smoothstep(.25,1.4,Age));\nfloat bubbles=smoothstep(.23,.49,S.value(P*.65));\nfoam*=lerp(.72,1,bubbles);\nfloat wet=(1-wipe)*patch;\nfloat crack=1-smoothstep(.025,.075,abs(sin(P.z*.044+P.y*.029+sin(P.y*.055)*.8)));\ncrack*=smoothstep(.15,.65,Damage)*smoothstep(-20,50,P.z);\nreturn float4(dirt,foam,wet,crack);\n"
+      OutputType=CMOT_Float4
+      Description="MC Care: localFilm"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_0'"))
+      Inputs(1)=(InputName="Minimum",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(2)=(InputName="Size",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_2'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(3)=(InputName="Scale",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_3'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(4)=(InputName="Wipe",Input=(Expression="/Script/Engine.MaterialExpressionTextureObjectParameter'M_ArenaToothCareV2:MaterialExpressionTextureObjectParameter_0'"))
+      Inputs(5)=(InputName="Amount",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_0'"))
+      Inputs(6)=(InputName="Age",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_2'"))
+      Inputs(7)=(InputName="Brush",Input=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_4'",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      Inputs(8)=(InputName="Damage",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_5'"))
+      Inputs(9)=(InputName="Seed",Input=(Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_3'"))
+      MaterialExpressionEditorX=430
+      MaterialExpressionEditorY=1360
+      MaterialExpressionGuid=3ADCC0D94A9639E245A9CA8A039F23E2
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCustom_0" ExportPath="/Script/Engine.MaterialExpressionCustom'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCustom_0'"
+      Code="\nfloat3 w=pow(abs(N),4); w/=max(dot(w,1),.001);\nreturn Texture2DSample(Tex,TexSampler,P.yz*.009).rgb*w.x+\n       Texture2DSample(Tex,TexSampler,P.xz*.009).rgb*w.y+\n       Texture2DSample(Tex,TexSampler,P.xy*.009).rgb*w.z;\n"
+      Description="MC Care: pigmentColor"
+      Inputs(0)=(InputName="P",Input=(Expression="/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_0'"))
+      Inputs(1)=(InputName="N",Input=(Expression="/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_1'"))
+      Inputs(2)=(InputName="Tex",Input=(Expression="/Script/Engine.MaterialExpressionTextureObjectParameter'M_ArenaToothCareV2:MaterialExpressionTextureObjectParameter_1'"))
+      MaterialExpressionEditorY=1360
+      MaterialExpressionGuid=9B45991244BABAEC3F075E97CFC13F24
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="MaterialExpressionCollectionParameter_0" ExportPath="/Script/Engine.MaterialExpressionCollectionParameter'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:MaterialExpressionCollectionParameter_0'"
+      Collection="/Script/Engine.MaterialParameterCollection'/Game/Gameplay/Cold/MPC_MouthClimate.MPC_MouthClimate'"
+      ParameterName="ColdAmount"
+      ParameterId=E38A7DE7433F83CE89B0EDB76C640A39
+      MaterialExpressionGuid=17909FAB410A0A25C08474B02DA8B031
+      Material="/Script/Engine.Material'M_ArenaToothCareV2'"
+   End Object
+   Begin Object Name="M_ArenaToothCareV2EditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Gameplay/Arena/V2/M_ArenaToothCareV2.M_ArenaToothCareV2:M_ArenaToothCareV2EditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_7'")
+      Metallic=(UseConstant=True)
+      Specular=(UseConstant=True,Expression="/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_7'")
+      Roughness=(Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_8'")
+      Normal=(UseConstant=True,Expression="/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_5'")
+      Tangent=(UseConstant=True)
+      EmissiveColor=(UseConstant=True)
+      Opacity=(UseConstant=True)
+      OpacityMask=(UseConstant=True)
+      SubsurfaceColor=(UseConstant=True)
+      ClearCoat=(UseConstant=True)
+      ClearCoatRoughness=(UseConstant=True)
+      AmbientOcclusion=(UseConstant=True)
+      Refraction=(UseConstant=True)
+      CustomizedUVs(0)=(UseConstant=True)
+      CustomizedUVs(1)=(UseConstant=True)
+      CustomizedUVs(2)=(UseConstant=True)
+      CustomizedUVs(3)=(UseConstant=True)
+      CustomizedUVs(4)=(UseConstant=True)
+      CustomizedUVs(5)=(UseConstant=True)
+      CustomizedUVs(6)=(UseConstant=True)
+      CustomizedUVs(7)=(UseConstant=True)
+      SurfaceThickness=(UseConstant=True)
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_1'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_1'","/Script/Engine.MaterialExpressionPreSkinnedPosition'M_ArenaToothCareV2:MaterialExpressionPreSkinnedPosition_0'","/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_0'","/Script/Engine.MaterialExpressionPreSkinnedNormal'M_ArenaToothCareV2:MaterialExpressionPreSkinnedNormal_0'","/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_1'","/Script/Engine.MaterialExpressionWorldPosition'M_ArenaToothCareV2:MaterialExpressionWorldPosition_0'","/Script/Engine.MaterialExpressionVertexNormalWS'M_ArenaToothCareV2:MaterialExpressionVertexNormalWS_0'","/Script/Engine.MaterialExpressionVertexInterpolator'M_ArenaToothCareV2:MaterialExpressionVertexInterpolator_2'","/Script/Engine.MaterialExpressionTextureObjectParameter'M_ArenaToothCareV2:MaterialExpressionTextureObjectParameter_0'","/Script/Engine.MaterialExpressionTextureObjectParameter'M_ArenaToothCareV2:MaterialExpressionTextureObjectParameter_1'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_0'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_2'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_3'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_4'","/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_2'","/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_3'","/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_4'","/Script/Engine.MaterialExpressionVectorParameter'M_ArenaToothCareV2:MaterialExpressionVectorParameter_5'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_5'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_6'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_0'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_1'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_2'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_3'","/Script/Engine.MaterialExpressionScalarParameter'M_ArenaToothCareV2:MaterialExpressionScalarParameter_7'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_4'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_5'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_0'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_1'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'M_ArenaToothCareV2:MaterialExpressionTextureSampleParameter2D_2'","/Script/Engine.MaterialExpressionTransform'M_ArenaToothCareV2:MaterialExpressionTransform_0'","/Script/Engine.MaterialExpressionCollectionParameter'M_ArenaToothCareV2:MaterialExpressionCollectionParameter_0'","/Script/Engine.MaterialExpressionWorldPosition'M_ArenaToothCareV2:MaterialExpressionWorldPosition_1'","/Script/Engine.MaterialExpressionVertexNormalWS'M_ArenaToothCareV2:MaterialExpressionVertexNormalWS_1'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_6'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_7'","/Script/Engine.MaterialExpressionCustom'M_ArenaToothCareV2:MaterialExpressionCustom_8'"))
+   End Object
+   bTangentSpaceNormal=False
+   bUsedWithSkeletalMesh=True
+   bUsedWithMorphTargets=True
+   StateId=CAAF7C3842E9375996A1B99CDFCEF801
+   ReferencedTextureGuids(0)=86FBFE4A45DC06AF2C4E0ABAD78F0655
+   ReferencedTextureGuids(2)=33617CB04F511EEF19D4C0ADAEF709D7
+   ReferencedTextureGuids(3)=F2C0060941E527090DCC8DA8964D13DC
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_ArenaToothCareV2EditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="teeth_loc_low_DefaultMaterial_BaseColor",TextureReference="/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_BaseColor.teeth_loc_low_DefaultMaterial_BaseColor")
+   TextureStreamingData(1)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic",TextureReference="/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic.teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture'"
+   ReferencedDefaultTextures(1)="/Script/Engine.Texture2D'/Game/Gameplay/Care/Textures/T_Grime_BaseColor.T_Grime_BaseColor'"
+   ReferencedDefaultTextures(2)="/Script/Engine.Texture2D'/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_BaseColor.teeth_loc_low_DefaultMaterial_BaseColor'"
+   ReferencedDefaultTextures(3)="/Script/Engine.Texture2D'/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic.teeth_loc_low_DefaultMaterial_OcclusionRoughnessMetallic'"
+   ReferencedDefaultTextures(4)="/Script/Engine.Texture2D'/Game/Art/Texture/Arena/teeth_loc_low_DefaultMaterial_Normal.teeth_loc_low_DefaultMaterial_Normal'"
+   LightingGuid=B94DA5D3423A4D5152FE23BF64188728
+End Object

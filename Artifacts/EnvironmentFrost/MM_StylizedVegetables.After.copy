@@ -1,0 +1,101 @@
+Begin Object Class=/Script/Engine.Material Name="MM_StylizedVegetables" ExportPath="/Script/Engine.Material'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables'"
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="MM_StylizedVegetablesEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MM_StylizedVegetablesEditorOnlyData'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_1'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionTextureSampleParameter2D Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2'"
+   End Object
+   Begin Object Class=/Script/UnrealEd.SceneThumbnailInfoWithPrimitive Name="SceneThumbnailInfoWithPrimitive_0" ExportPath="/Script/UnrealEd.SceneThumbnailInfoWithPrimitive'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:SceneThumbnailInfoWithPrimitive_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionMaterialFunctionCall Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionMaterialFunctionCall_0'"
+   End Object
+   Begin Object Name="MM_StylizedVegetablesEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MM_StylizedVegetablesEditorOnlyData'"
+      BaseColor=(Constant=(R=0.501961,G=0.501961,B=0.501961,A=1.000000),Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_StylizedVegetables:MaterialExpressionMaterialFunctionCall_0'")
+      Metallic=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_StylizedVegetables:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=2)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_StylizedVegetables:MaterialExpressionMaterialFunctionCall_0'",OutputIndex=1)
+      Normal=(Constant=(X=0.000000,Y=0.000000,Z=0.000000),Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_1'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      AmbientOcclusion=(Constant=0.000000,Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2'",OutputIndex=1,Mask=1,MaskR=1)
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_0'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_1'","/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2'","/Script/Engine.MaterialExpressionMaterialFunctionCall'MM_StylizedVegetables:MaterialExpressionMaterialFunctionCall_0'"))
+      ParameterGroupData(0)=(GroupName="None")
+      ParameterGroupData(1)=(GroupName="None")
+      ParameterGroupData(2)=(GroupName="None")
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_0" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_0'"
+      ParameterName="Color"
+      ExpressionGUID=6AB0FEBA483950D449EA308EB5701E35
+      SortPriority=8
+      Texture="/Script/Engine.Texture2D'/Game/Stylized_Vegetables/Textures/T_Eggplant_C.T_Eggplant_C'"
+      MaterialExpressionEditorX=-384
+      MaterialExpressionEditorY=32
+      MaterialExpressionGuid=89643B00448E9EDE9B939281434B4428
+      Material="/Script/Engine.Material'MM_StylizedVegetables'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_1" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_1'"
+      ParameterName="Normal"
+      ExpressionGUID=55FACEDE4B19422E0174F09381FA5188
+      SortPriority=16
+      Texture="/Script/Engine.Texture2D'/Game/Stylized_Vegetables/Textures/T_Eggplant_N.T_Eggplant_N'"
+      SamplerType=SAMPLERTYPE_Normal
+      MaterialExpressionEditorX=-390
+      MaterialExpressionEditorY=254
+      MaterialExpressionGuid=01DE652946A10E7EF2074CB608DE62DA
+      Material="/Script/Engine.Material'MM_StylizedVegetables'"
+   End Object
+   Begin Object Name="MaterialExpressionTextureSampleParameter2D_2" ExportPath="/Script/Engine.MaterialExpressionTextureSampleParameter2D'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2'"
+      ParameterName="Value Packed"
+      ExpressionGUID=4AA3D43D41CCED8C92CC7F91EC70F23B
+      Texture="/Script/Engine.Texture2D'/Game/Stylized_Vegetables/Textures/T_Eggplant_V.T_Eggplant_V'"
+      SamplerType=SAMPLERTYPE_Masks
+      MaterialExpressionEditorX=-384
+      MaterialExpressionEditorY=480
+      MaterialExpressionGuid=F19931BB4557EE37F34E74935FD8FAEE
+      Material="/Script/Engine.Material'MM_StylizedVegetables'"
+   End Object
+   Begin Object Name="SceneThumbnailInfoWithPrimitive_0" ExportPath="/Script/UnrealEd.SceneThumbnailInfoWithPrimitive'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:SceneThumbnailInfoWithPrimitive_0'"
+   End Object
+   Begin Object Name="MaterialExpressionMaterialFunctionCall_0" ExportPath="/Script/Engine.MaterialExpressionMaterialFunctionCall'/Game/Stylized_Vegetables/Materials/MM_StylizedVegetables.MM_StylizedVegetables:MaterialExpressionMaterialFunctionCall_0'"
+      MaterialFunction="/Script/Engine.MaterialFunction'/Game/Gameplay/Cold/Frost/MF_EnvironmentFrost.MF_EnvironmentFrost'"
+      FunctionInputs(0)=(ExpressionInputId=3A54F02640C0A77971B1918F96C7D6C0,Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_0'",InputName="BaseColor",Mask=1,MaskR=1,MaskG=1,MaskB=1))
+      FunctionInputs(1)=(ExpressionInputId=EB6F9D1A4286FB636375C49D30400786,Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2'",OutputIndex=2,InputName="Roughness",Mask=1,MaskG=1))
+      FunctionInputs(2)=(ExpressionInputId=2FCC08B443F25B99AB6737B1E05BA1B8,Input=(Expression="/Script/Engine.MaterialExpressionTextureSampleParameter2D'MM_StylizedVegetables:MaterialExpressionTextureSampleParameter2D_2'",OutputIndex=3,InputName="Metallic",Mask=1,MaskB=1))
+      FunctionInputs(3)=(ExpressionInputId=63D907F14E0A6881F594C596059D0340,Input=(OutputIndex=-1,InputName="Specular"))
+      FunctionOutputs(0)=(ExpressionOutputId=8F875B7B424B3496B8CCA09360FE3470,Output=(OutputName="BaseColor"))
+      FunctionOutputs(1)=(ExpressionOutputId=FA1559FA48055BA4FB63DDA8EABF5D30,Output=(OutputName="Roughness"))
+      FunctionOutputs(2)=(ExpressionOutputId=A94B89EA49249E426712AA8F1FAC637B,Output=(OutputName="Metallic"))
+      FunctionOutputs(3)=(ExpressionOutputId=96DB59FB47E22DC2FAE2F1B5415FEA8C,Output=(OutputName="Specular"))
+      FunctionOutputs(4)=(ExpressionOutputId=C843F3E745D7730425AC8EAC28D55A4F,Output=(OutputName="Coverage"))
+      MaterialExpressionEditorX=2600
+      MaterialExpressionEditorY=1600
+      MaterialExpressionGuid=D0E8B74249AE313E6D01CEB5E9BDBA01
+      Material="/Script/Engine.Material'MM_StylizedVegetables'"
+      Desc="Shared matte fern frost; existing climate ColdAmount"
+      Outputs(0)=(OutputName="BaseColor")
+      Outputs(1)=(OutputName="Roughness")
+      Outputs(2)=(OutputName="Metallic")
+      Outputs(3)=(OutputName="Specular")
+      Outputs(4)=(OutputName="Coverage")
+   End Object
+   EditorX=-64
+   EditorY=96
+   bCanMaskedBeAssumedOpaque=True
+   PixelDepthOffsetMode=PDOM_Legacy
+   StateId=71A634D148CB4D3801EC89B0E82984A4
+   ReferencedTextureGuids(0)=32AA048B441A7053436A70B216BC04C5
+   ReferencedTextureGuids(1)=11BEE2A84A5405F2E7D98BB09557F889
+   ReferencedTextureGuids(2)=670619CD48696888D492F08383AE80CE
+   ReferencedTextureGuids(3)=AC1CC9F84F5A6FDAEAA1ED8CFE899A0E
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'MM_StylizedVegetablesEditorOnlyData'"
+   TextureStreamingDataVersion=1
+   TextureStreamingData(0)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_Eggplant_C",TextureReference="/Game/Stylized_Vegetables/Textures/T_Eggplant_C.T_Eggplant_C")
+   TextureStreamingData(1)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_Eggplant_N",TextureReference="/Game/Stylized_Vegetables/Textures/T_Eggplant_N.T_Eggplant_N")
+   TextureStreamingData(2)=(SamplingScale=1.000000,UVChannelIndex=0,TextureName="T_Eggplant_V",TextureReference="/Game/Stylized_Vegetables/Textures/T_Eggplant_V.T_Eggplant_V")
+   TextureStreamingData(3)=(SamplingScale=0.781250,UVChannelIndex=0,TextureName="T_PlayerFrostMask",TextureReference="/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask")
+   ReferencedDefaultTextures(0)="/Script/Engine.Texture2D'/Game/Stylized_Vegetables/Textures/T_Eggplant_C.T_Eggplant_C'"
+   ReferencedDefaultTextures(1)="/Script/Engine.Texture2D'/Game/Stylized_Vegetables/Textures/T_Eggplant_N.T_Eggplant_N'"
+   ReferencedDefaultTextures(2)="/Script/Engine.Texture2D'/Game/Stylized_Vegetables/Textures/T_Eggplant_V.T_Eggplant_V'"
+   ReferencedDefaultTextures(3)="/Script/Engine.Texture2D'/Game/Gameplay/Cold/Frost/T_PlayerFrostMask.T_PlayerFrostMask'"
+   ThumbnailInfo="/Script/UnrealEd.SceneThumbnailInfoWithPrimitive'SceneThumbnailInfoWithPrimitive_0'"
+   LightingGuid=773E3FD545BDA1548ACAE9A4F84E1C82
+End Object

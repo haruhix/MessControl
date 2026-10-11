@@ -1,0 +1,31 @@
+Begin Object Class=/Script/Engine.Material Name="M_Breakfast_Bacon" ExportPath="/Script/Engine.Material'/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon'"
+   Begin Object Class=/Script/Engine.MaterialExpressionVectorParameter Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon:MaterialExpressionVectorParameter_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialExpressionConstant Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon:MaterialExpressionConstant_0'"
+   End Object
+   Begin Object Class=/Script/Engine.MaterialEditorOnlyData Name="M_Breakfast_BaconEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon:M_Breakfast_BaconEditorOnlyData'"
+   End Object
+   Begin Object Name="MaterialExpressionVectorParameter_0" ExportPath="/Script/Engine.MaterialExpressionVectorParameter'/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon:MaterialExpressionVectorParameter_0'"
+      DefaultValue=(R=0.500000,G=0.060000,B=0.025000,A=1.000000)
+      ParameterName="Tint"
+      ExpressionGUID=5C4232604B6BC05C7EAA0EB7324A03A9
+      MaterialExpressionEditorX=-300
+      MaterialExpressionGuid=ECB99116487589D074C9DB83AF535D74
+      Material="/Script/Engine.Material'M_Breakfast_Bacon'"
+   End Object
+   Begin Object Name="MaterialExpressionConstant_0" ExportPath="/Script/Engine.MaterialExpressionConstant'/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon:MaterialExpressionConstant_0'"
+      R=0.350000
+      MaterialExpressionEditorX=-300
+      MaterialExpressionEditorY=120
+      MaterialExpressionGuid=825C93004A1A34F93729DC904250A5EA
+      Material="/Script/Engine.Material'M_Breakfast_Bacon'"
+   End Object
+   Begin Object Name="M_Breakfast_BaconEditorOnlyData" ExportPath="/Script/Engine.MaterialEditorOnlyData'/Game/Art/Materials/M_Breakfast_Bacon.M_Breakfast_Bacon:M_Breakfast_BaconEditorOnlyData'"
+      BaseColor=(Expression="/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Bacon:MaterialExpressionVectorParameter_0'",Mask=1,MaskR=1,MaskG=1,MaskB=1)
+      Roughness=(Expression="/Script/Engine.MaterialExpressionConstant'M_Breakfast_Bacon:MaterialExpressionConstant_0'")
+      ExpressionCollection=(Expressions=("/Script/Engine.MaterialExpressionVectorParameter'M_Breakfast_Bacon:MaterialExpressionVectorParameter_0'","/Script/Engine.MaterialExpressionConstant'M_Breakfast_Bacon:MaterialExpressionConstant_0'"))
+   End Object
+   StateId=E686107A4BB6A8CC53989FB267F80C72
+   EditorOnlyData="/Script/Engine.MaterialEditorOnlyData'M_Breakfast_BaconEditorOnlyData'"
+   LightingGuid=B29C0ABE4C6E725277B4699BD2C3B6D6
+End Object

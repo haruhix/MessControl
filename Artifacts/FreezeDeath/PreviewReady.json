@@ -1,0 +1,31 @@
+{
+  "stage": "wait_shatter",
+  "samples": [
+    {
+      "stage": "holding",
+      "age": 0.4027627110481262,
+      "alive": true,
+      "meter": 1.0,
+      "cube_visible": true,
+      "body_fragments": 36,
+      "nonempty_body_fragments": 18,
+      "ice_fragments": 36,
+      "visible_ice_fragments": 0,
+      "source_hidden": true,
+      "can_work": null
+    },
+    {
+      "stage": "shatter",
+      "age": 1.9515339136123657,
+      "alive": false,
+      "meter": null,
+      "cube_visible": false,
+      "body_fragments": 36,
+      "nonempty_body_fragments": 18,
+      "ice_fragments": 36,
+      "visible_ice_fragments": 36,
+      "source_hidden": true,
+      "can_work": null
+    }
+  ]
+}
