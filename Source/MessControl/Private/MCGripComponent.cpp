@@ -331,6 +331,12 @@ FVector UMCGripComponent::BraceForce() const
     const FVector Out=Offset.GetSafeNormal(); const float Stretch=FMath::Max(0.f,float(Offset.Size())-Contact.RestLength+6);
     const float Relative=FMath::Max(0.f,float(FVector::DotProduct(Tooth->GetVelocity()-BraceTargetVelocity(),Out)));
     const float Pull=FMath::Max(0.f,float(FVector::DotProduct(InputDirection(),Out)))*500.f;
+    if(const auto* Player=Cast<AMCToothCharacter>(Contact.Target)) {
+        // Each held right-click contributes a modest force. Incoming grips are
+        // summed by the target's movement, rather than amplifying this grip's motor.
+        const float Drag=FMath::Clamp(Stretch*4.f+Relative*.8f+Pull*.2f,0.f,180.f);
+        return Out*FMath::Max(3.f,Player->ToothPhysics->Settings.Mass)*Drag;
+    }
     return (Out*TotalChainMass()*(Stretch*35+Relative*6+Pull)).GetClampedToMaxSize(60000);
 }
 FMCBraceMovementState UMCGripComponent::CaptureBraceMovement() const
@@ -411,6 +417,7 @@ void UMCGripComponent::BeginLift(AMCFoodActor* Food)
 bool UMCGripComponent::CanCarry(const AMCFoodActor* Food) const
 {
     if (!Food || !Food->UsesLegacyGrip() || Food->bBrushTool || Food->Phase==EMCFoodPhase::Stuck || Food->IsDisposed() || Food->Holders.Num()>1) return false;
+    if(Food->FoodData.Kind==EMCFoodKind::Spicy) return true;
     const FVector Extent=Food->Body->GetScaledBoxExtent();
     const float VisualRadius=Food->Visual->Bounds.SphereRadius;
     return Extent.GetMax()<=Settings.CarryMaxHalfExtent

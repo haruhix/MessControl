@@ -104,11 +104,12 @@ bool UMCSteamSessionSubsystem::IsMessControlRoom(const FOnlineSessionSearchResul
     return Result.IsValid() && Result.Session.SessionSettings.Get(GameKey,Value) && Value==GameValue;
 }
 
-void UMCSteamSessionSubsystem::HostRoom(bool bWaitForLobby)
+void UMCSteamSessionSubsystem::HostRoom(bool bWaitForLobby,bool bWithTutorial)
 {
     if (IsBusy()) return;
     if (!GetSessions()) { SetStatus(TEXT("Запусти Steam, войди в аккаунт и перезапусти игру."),true); return; }
     bHostWaitsForLobby=bWaitForLobby;
+    bHostStartsWithTutorial=bWithTutorial;
     bReturnToMenuPending=false;
     if (HasRoom()) DestroyFor(EOperation::DestroyForHost);
     else CreateRoom();
@@ -145,8 +146,10 @@ void UMCSteamSessionSubsystem::Created(FName Name, bool Success)
     if (!Success) { SetStatus(TEXT("Не удалось создать комнату. Проверь подключение Steam и попробуй снова."),true); return; }
     SetStatus(TEXT("Комната создана. Друг может найти её по твоему имени Steam или принять приглашение."));
     UE_LOG(LogTemp,Display,TEXT("MC_STEAM_ROOM_CREATED"));
-    UGameplayStatics::OpenLevel(GetGameInstance(),FName(TEXT("/Game/Maps/L_Mouth")),true,
-        bHostWaitsForLobby?TEXT("listen?MCLobby=1"):TEXT("listen"));
+    FString Options=TEXT("listen");
+    if(bHostWaitsForLobby) Options+=TEXT("?MCLobby=1");
+    if(bHostStartsWithTutorial) Options+=TEXT("?MCTutorial=1");
+    UGameplayStatics::OpenLevel(GetGameInstance(),FName(bHostStartsWithTutorial?TEXT("/Game/Maps/L_Tutorial"):TEXT("/Game/Maps/L_Mouth")),true,Options);
 }
 
 void UMCSteamSessionSubsystem::FindRooms()

@@ -1,8 +1,71 @@
 #include "MCPlayerCameraComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCRewardChest.h"
 #include "Engine/World.h"
 #include "GameFramework/GameStateBase.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Components/MeshComponent.h"
+#include "Materials/MaterialInterface.h"
+#include "EngineUtils.h"
+
+namespace MCPlayerCameraPrivate
+{
+    constexpr int32 RevealFocusIndex=20,RevealSettingsIndex=24;
+    bool CanSpectatorRevealWall(const UMeshComponent* Wall)
+    {
+        if(!Wall || !Wall->IsRegistered() || !Wall->IsQueryCollisionEnabled() || Wall->GetNumMaterials()==0) return false;
+        for(int32 Slot=0;Slot<Wall->GetNumMaterials();++Slot) {
+            const auto* Material=Wall->GetMaterial(Slot); float Enabled=0;
+            if(!Material || !Material->GetScalarParameterValue(FMaterialParameterInfo(TEXT("CameraRevealEnabled")),Enabled) || Enabled<.5f) return false;
+        }
+        return Wall->GetCustomPrimitiveDataIndexForVectorParameter(TEXT("CameraRevealFocus"))==RevealFocusIndex
+            && Wall->GetCustomPrimitiveDataIndexForVectorParameter(TEXT("CameraRevealSettings"))==RevealSettingsIndex;
+    }
+    void RestoreSpectatorWall(UMeshComponent* Wall,const FMCSpectatorCameraViewState::FRevealedWall& State)
+    {
+        if(!Wall) return;
+        Wall->SetCustomPrimitiveDataFloat(RevealSettingsIndex,0);
+        Wall->SetCollisionResponseToChannel(ECC_Camera,State.CameraResponse);
+    }
+    void PrepareSpectatorWalls(const AMCToothCharacter* Target,FMCSpectatorCameraViewState& State)
+    {
+        for(auto It=State.RevealedWalls.CreateIterator();It;++It) {
+            auto* Wall=It.Key().Get();
+            if(Wall && Target->bCameraWallReveal && CanSpectatorRevealWall(Wall)) continue;
+            RestoreSpectatorWall(Wall,It.Value()); It.RemoveCurrent();
+        }
+        if(!Target->bCameraWallReveal) return;
+        const double Now=Target->GetWorld()->GetTimeSeconds();
+        if(Now<State.NextWallScan) return;
+        State.NextWallScan=Now+.5;
+        for(TActorIterator<AActor> It(Target->GetWorld());It;++It) {
+            if(*It==Target) continue;
+            TInlineComponentArray<UMeshComponent*> Components; It->GetComponents(Components);
+            for(auto* Wall:Components) {
+                if(State.RevealedWalls.Contains(Wall) || Wall->GetCollisionResponseToChannel(ECC_Camera)!=ECR_Block
+                    || !CanSpectatorRevealWall(Wall)) continue;
+                auto& Revealed=State.RevealedWalls.Add(Wall); Revealed.CameraResponse=Wall->GetCollisionResponseToChannel(ECC_Camera);
+                // The spectator owns the local camera-channel override and restores only its own walls.
+                Wall->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+            }
+        }
+    }
+    void PresentSpectatorWalls(const AMCToothCharacter* Target,float Dt,const FVector& Eye,const FVector& Focus,
+        FMCSpectatorCameraViewState& State)
+    {
+        const float Blend=1.f-FMath::Exp(-10.f*FMath::Max(0.f,Dt));
+        for(auto& Entry:State.RevealedWalls) if(auto* Wall=Entry.Key.Get()) {
+            FHitResult Hit;
+            const bool Occluded=Wall->SweepComponent(Hit,Eye,Focus,FQuat::Identity,FCollisionShape::MakeSphere(45),true);
+            auto& Revealed=Entry.Value; Revealed.Amount=FMath::Lerp(Revealed.Amount,Occluded?1.f:0.f,Blend);
+            if(Revealed.Amount<.001f) Revealed.Amount=0;
+            Wall->SetCustomPrimitiveDataVector4(RevealFocusIndex,FVector4(Focus,0));
+            Wall->SetCustomPrimitiveDataVector4(RevealSettingsIndex,FVector4(Revealed.Amount,
+                FMath::Clamp(Target->CameraWallRevealRadius,60.f,500.f),FMath::Clamp(Target->CameraWallRevealFeather,.02f,.8f),0));
+        }
+    }
+}
 
 namespace {
     constexpr float ImpactDuration=.28f;
@@ -24,6 +87,77 @@ UMCPlayerCameraComponent::UMCPlayerCameraComponent()
     PostProcessSettings.DepthOfFieldSensorWidth=36.f;
     PostProcessSettings.bOverride_DepthOfFieldFocalDistance=true;
     PostProcessSettings.DepthOfFieldFocalDistance=900.f;
+}
+
+void UMCPlayerCameraComponent::GetSpectatorView(const AMCToothCharacter* Target,const AActor* ViewerPawn,
+    FRotator Orbit,float Distance,float DeltaTime,FMCSpectatorCameraViewState& State,FMinimalViewInfo& View)
+{
+    if(!IsValid(Target) || !Target->GetWorld()) return;
+    const FVector Position=Target->GetActorLocation();
+    const bool Reset=!State.bInitialized || FVector::DistSquared(Position,State.Focus)>FMath::Square(1400.f);
+    const float Dt=FMath::Max(0.f,DeltaTime);
+    const float Speed=FMath::Clamp(Target->FollowSpeed,1.f,20.f);
+    const float Blend=1.f-FMath::Exp(-Speed*Dt);
+    State.Focus=Reset?Position:FMath::Lerp(State.Focus,Position,Blend);
+    Orbit.Pitch=FMath::Clamp(Orbit.Pitch,-85.,85.); Orbit.Roll=0;
+    State.Rotation=Reset?Orbit:FMath::RInterpTo(State.Rotation,Orbit,Dt,Speed);
+    Distance=FMath::Clamp(Distance,250.f,1600.f);
+    State.Distance=Reset?Distance:FMath::Lerp(State.Distance,Distance,Blend);
+    // Match the ordinary free orbit: upward looking never swings the eye below the floor.
+    const FVector EyeAxis=FRotator(FMath::Min(State.Rotation.Pitch,0.),State.Rotation.Yaw,0).Vector();
+    const FVector Wanted=State.Focus+FVector(0,0,FMath::Clamp(Target->CameraOrbitHeight,30.f,250.f))-EyeAxis*State.Distance;
+    const FVector Origin=Position+FVector(0,0,30);
+    MCPlayerCameraPrivate::PrepareSpectatorWalls(Target,State);
+    FVector Safe=Wanted;
+    const auto* Boom=Target->CameraBoom.Get();
+    if(!Boom || Boom->bDoCollisionTest) {
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSpectatorCamera),false,Target);
+        if(ViewerPawn) Query.AddIgnoredActor(ViewerPawn);
+        if(IsValid(Target->MimicCaptor)) Query.AddIgnoredActor(Target->MimicCaptor);
+        FHitResult Hit;
+        const float Radius=Boom?FMath::Max(1.f,Boom->ProbeSize):24.f;
+        const ECollisionChannel Channel=Boom?Boom->ProbeChannel.GetValue():ECC_Camera;
+        if(Target->GetWorld()->SweepSingleByChannel(Hit,Origin,Wanted,FQuat::Identity,Channel,
+            FCollisionShape::MakeSphere(Radius),Query)) Safe=Hit.Location;
+    }
+    const float Limit=float(FVector::Distance(Origin,Safe));
+    if(Reset || State.SafeArmLength<0.f) State.SafeArmLength=Limit;
+    // Retract immediately; only outward travel is smoothed, as on the ordinary camera arm.
+    State.SafeArmLength=FMath::Min(Limit,FMath::Lerp(State.SafeArmLength,Limit,1.f-FMath::Exp(-12.f*Dt)));
+    View=FMinimalViewInfo();
+    View.Location=Origin+(Safe-Origin).GetSafeNormal()*State.SafeArmLength;
+    // An aperture bypasses the view ray, but the eye's sphere must remain outside the wall volume.
+    const float EyeRadius=(Boom?FMath::Max(1.f,Boom->ProbeSize):24.f)+2.f;
+    for(const auto& Entry:State.RevealedWalls) if(auto* Wall=Entry.Key.Get()) {
+        if(!Wall->Bounds.GetBox().ExpandBy(EyeRadius).IsInsideOrOn(View.Location)) continue;
+        FHitResult Touch,Contact;
+        if(!Wall->SweepComponent(Touch,View.Location,View.Location+FVector(0,0,.1),FQuat::Identity,
+            FCollisionShape::MakeSphere(EyeRadius),true)) continue;
+        if(Wall->SweepComponent(Contact,Origin,View.Location,FQuat::Identity,FCollisionShape::MakeSphere(EyeRadius),true)) {
+            State.SafeArmLength=FMath::Min(State.SafeArmLength,FMath::Max(0.f,float(FVector::Distance(Origin,Contact.Location))-2.f));
+            View.Location=Origin+(View.Location-Origin).GetSafeNormal()*State.SafeArmLength;
+        }
+    }
+    View.Rotation=State.Rotation;
+    View.FOV=FMath::Clamp(Target->FollowFOV,45.f,95.f);
+    View.AspectRatio=16.f/9.f;
+    View.AspectRatioAxisConstraint=AspectRatio_MaintainYFOV;
+    if(const auto* Camera=Target->Camera.Get()) {
+        View.PostProcessSettings=Camera->PostProcessSettings;
+        View.PostProcessBlendWeight=Camera->PostProcessBlendWeight;
+        if(View.PostProcessSettings.bOverride_DepthOfFieldFocalDistance)
+            View.PostProcessSettings.DepthOfFieldFocalDistance=FMath::Max(10.f,float(FVector::DotProduct(
+                Target->GetCameraFocusLocation()-View.Location,View.Rotation.Vector())));
+    }
+    State.bInitialized=true;
+    MCPlayerCameraPrivate::PresentSpectatorWalls(Target,Dt,View.Location,Origin,State);
+}
+
+void UMCPlayerCameraComponent::ClearSpectatorView(FMCSpectatorCameraViewState& State)
+{
+    for(const auto& Entry:State.RevealedWalls)
+        MCPlayerCameraPrivate::RestoreSpectatorWall(Entry.Key.Get(),Entry.Value);
+    State=FMCSpectatorCameraViewState();
 }
 
 void UMCPlayerCameraComponent::AddImpact(float ImpactSpeed, const FVector& WorldDirection)

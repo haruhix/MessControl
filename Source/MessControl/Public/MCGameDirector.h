@@ -8,6 +8,7 @@ class UMCDayPlan;
 class AMCDayDirector;
 class AMCGameState;
 class AMCRoguelikeDirector;
+class AMCToothCharacter;
 
 /** One server scheduler owns all exogenous events; committed consequences remain real. */
 UCLASS()
@@ -33,6 +34,8 @@ public:
     bool TryDispatchReward(AMCRoguelikeDirector* Rewards);
     bool HasOutstandingWork() const;
     int32 PendingFoodCount() const;
+    /** Combat goals alternate between proximity and a short, readable comedy focus. */
+    AMCToothCharacter* ChooseBossTarget(AActor* Boss,const TArray<AMCToothCharacter*>& Candidates,AMCToothCharacter* Current);
     /** Observes the actual world. Also used by focused automation diagnostics. */
     FMCGameDirectorState Observe() const;
     TArray<FMCGameDirectorCandidate> EvaluateCandidates(const FMCGameDirectorState& Seen,double Now) const;
@@ -41,6 +44,12 @@ public:
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Director") TObjectPtr<UMCDayPlan> Mechanics;
     UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Director") FMCGameDirectorDaySettings DaySettings;
 private:
+    struct FBossFocus {
+        TWeakObjectPtr<AMCToothCharacter> Player;
+        double EndsAt=0;
+        bool bFocus=false;
+    };
+    TMap<TWeakObjectPtr<AActor>,FBossFocus> BossFocus;
     struct FTicket {
         int32 Id=0,Day=0,Batch=0,Patches=0,ToothCount=0,IceCount=1;
         EMCGameDirectorEvent Kind=EMCGameDirectorEvent::Food;

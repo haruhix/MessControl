@@ -40,7 +40,9 @@ bool UMCPerkComponent::HasAuthority() const
 
 bool UMCPerkComponent::IsDefinitionUsable(const FMCPerkDefinition& Definition)
 {
-    return Definition.MaxStacks > 0 && uint8(Definition.ToolUpgrade)<=uint8(EMCToolUpgrade::Watergun)
+    // The perforator is retained for authored assets, but disabled in every reward pool.
+    return Definition.MaxStacks > 0 && Definition.ToolUpgrade!=EMCToolUpgrade::Buffer
+        && uint8(Definition.ToolUpgrade)<=uint8(EMCToolUpgrade::Watergun)
         && (Definition.Polarity == EMCPerkPolarity::Positive || Definition.Polarity == EMCPerkPolarity::Negative)
         && (!Definition.EffectClass || !Definition.EffectClass->HasAnyClassFlags(CLASS_Abstract));
 }
@@ -81,7 +83,7 @@ bool UMCPerkComponent::CanGrantPerk(FName PerkID) const
 
 bool UMCPerkComponent::HasToolUpgrade(EMCToolUpgrade Kind) const
 {
-    if(Kind==EMCToolUpgrade::None || uint8(Kind)>4) return false;
+    if(Kind==EMCToolUpgrade::None || Kind==EMCToolUpgrade::Buffer || uint8(Kind)>4) return false;
     if(const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr)
         if(GS->TeamToolUpgrades&(1<<(uint8(Kind)-1))) return true;
     for(const auto& Active:ActivePerks) if(Active.Stacks>0)

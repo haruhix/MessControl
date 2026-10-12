@@ -1,4 +1,5 @@
 #include "MCNutBoss.h"
+#include "MCGameDirector.h"
 #include "MCNutBossAnimInstance.h"
 #include "MCCombatFeedbackComponent.h"
 
@@ -482,7 +483,7 @@ void AMCNutBoss::Enter(EMCNutBossState Next,float Seconds)
     RefreshPresentation(); ForceNetUpdate();
 }
 
-void AMCNutBoss::SelectTarget(bool bRandom)
+void AMCNutBoss::SelectTarget(bool /*bRandom*/)
 {
     if(LabStation.IsValid()) {
         Target=IsLiveTarget(LabTarget.Get())?LabTarget.Get():nullptr;
@@ -492,7 +493,7 @@ void AMCNutBoss::SelectTarget(bool bRandom)
     TArray<AMCToothCharacter*> Heroes;
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if(IsLiveTarget(*It)) Heroes.Add(*It);
     if(Heroes.IsEmpty()) { Target=nullptr; return; }
-    if(bRandom) Target=Heroes[Random.RandRange(0,Heroes.Num()-1)];
+    if(auto* Director=AMCGameDirector::Find(GetWorld())) Target=Director->ChooseBossTarget(this,Heroes,Target);
     else {
         double Best=DBL_MAX; Target=nullptr;
         for(auto* Hero:Heroes) {

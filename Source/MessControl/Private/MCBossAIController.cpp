@@ -1,6 +1,7 @@
 #include "MCBossAIController.h"
 #include "MCBossCharacter.h"
 #include "MCToothCharacter.h"
+#include "MCGameDirector.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -65,13 +66,19 @@ AMCToothCharacter* AMCBossAIController::FindVisiblePlayer() const
     const auto* Profile=Boss->GetResolvedProfile();
     float BestDistance=FMath::Square(Profile?SafeSetting(Profile->SightRadius,2500.f,1.f,100000.f):2500.f);
     AMCToothCharacter* Best=nullptr;
+    TArray<AMCToothCharacter*> VisiblePlayers;
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         auto* Player=*It;
         if (!AMCBossCharacter::IsLivingPlayer(Player)) continue;
         const float Distance=FVector::DistSquared(Boss->GetActorLocation(),Player->GetActorLocation());
-        if (Distance<BestDistance && Boss->CanSeePlayer(Player)) { Best=Player; BestDistance=Distance; }
+        if (Distance<=FMath::Square(Profile?SafeSetting(Profile->SightRadius,2500.f,1.f,100000.f):2500.f) && Boss->CanSeePlayer(Player)) {
+            VisiblePlayers.Add(Player);
+            if(Distance<BestDistance) {Best=Player;BestDistance=Distance;}
+        }
     }
+    if(auto* Director=AMCGameDirector::Find(GetWorld()))
+        return Director->ChooseBossTarget(Boss,VisiblePlayers,Boss->Runtime.Target);
     return Best;
 }
 
@@ -97,12 +104,13 @@ void AMCBossAIController::Decide()
         if (Visible) { TargetLastVisibleAt=Now; LastVisiblePosition=Target->GetActorLocation(); }
         else if (Now-TargetLastVisibleAt>Memory) Target=nullptr;
     }
-    if (!Target && Now>=NextTargetScanAt)
+    if (Now>=NextTargetScanAt)
     {
         NextTargetScanAt=Now+ScanInterval;
-        Target=FindVisiblePlayer();
-        Visible=Target!=nullptr;
-        if (Target) { TargetLastVisibleAt=Now; LastVisiblePosition=Target->GetActorLocation(); }
+        if(auto* Pick=FindVisiblePlayer()) {
+            Target=Pick; Visible=true;
+            TargetLastVisibleAt=Now; LastVisiblePosition=Target->GetActorLocation();
+        }
     }
     if (!Target)
     {

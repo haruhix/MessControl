@@ -59,6 +59,7 @@ private:
     void SetStatus(const FString& Text);
     void ApplySettings();
     void RevertVideoSettings();
+    UFUNCTION() void HostTutorialChanged(bool bChecked);
     UTextBlock* AddText(const FString& Text, int32 Size=17);
     UMCMainMenuActionButton* AddButton(const FString& Text, EMCMainMenuAction Action);
     UComboBoxString* AddPicker(const FString& Label);
@@ -73,12 +74,14 @@ private:
     UPROPERTY(Transient) TObjectPtr<UComboBoxString> WindowModePicker;
     UPROPERTY(Transient) TObjectPtr<UComboBoxString> QualityPicker;
     UPROPERTY(Transient) TObjectPtr<UCheckBox> VSyncCheck;
+    UPROPERTY(Transient) TObjectPtr<UCheckBox> HostTutorialCheck;
     UPROPERTY(Transient) TArray<TObjectPtr<UButton>> Buttons;
     UPROPERTY(Transient) TArray<TObjectPtr<UButton>> OnlineButtons;
     TArray<FIntPoint> Resolutions;
     EPage Page=EPage::Main;
     bool bLobby=false;
     bool bPauseMenu=false;
+    bool bHostStartWithTutorial=false;
     bool bVideoConfirmationPending=false;
     FIntPoint PreviousResolution=FIntPoint::ZeroValue;
     int32 PreviousWindowMode=0;

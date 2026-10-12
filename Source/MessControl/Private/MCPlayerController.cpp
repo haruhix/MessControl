@@ -22,6 +22,7 @@
 #include "MCMainMenuWidget.h"
 #include "MCTutorialWidget.h"
 #include "MCTutorialDirector.h"
+#include "MCGameplayHUD.h"
 
 void AMCPlayerController::BeginPlay()
 {
@@ -73,7 +74,91 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     if (ScoreboardWidget && ScoreboardWidget->IsVisible() && !IsInputKeyDown(EKeys::Tab)) HideScoreboard();
     const double Now=GetWorld()->GetTimeSeconds();
     if (Now>=NextSpectatorCheck) { NextSpectatorCheck=Now+.1; UpdateDeathSpectating(); }
+    if(bDeathSpectating && SpectatorTarget.IsValid() && !bShowMouseCursor && !IsLookInputIgnored()) {
+        float X=0,Y=0; GetInputMouseDelta(X,Y);
+        ApplySpectatorOrbitInput(FVector2D(X,Y));
+        ZoomSpectatorCamera(GetInputAnalogKeyState(EKeys::MouseWheelAxis));
+    }
 }
+void AMCPlayerController::CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult)
+{
+    if(IsLocalController() && bDeathSpectating && SpectatorTarget.IsValid()) {
+        UMCPlayerCameraComponent::GetSpectatorView(SpectatorTarget.Get(),GetPawn(),SpectatorOrbit,
+            SpectatorDistance,DeltaTime,SpectatorCameraView,OutResult);
+        return;
+    }
+    if(GetPawn()) { GetPawn()->CalcCamera(DeltaTime,OutResult); return; }
+    Super::CalcCamera(DeltaTime,OutResult);
+}
+void AMCPlayerController::NotifyLoadedWorld(FName WorldPackageName,bool bFinalDest)
+{
+    Super::NotifyLoadedWorld(WorldPackageName,bFinalDest);
+    if(bFinalDest) ResetWorldPresentation();
+}
+void AMCPlayerController::PostSeamlessTravel()
+{
+    Super::PostSeamlessTravel();
+    ResetWorldPresentation();
+}
+void AMCPlayerController::ResetWorldPresentation()
+{
+    bGameplayLoaded=false; bGameplayLoadAckSent=false;
+    AcknowledgedTutorial.Reset(); NextFrontEndCheck=0; NextLevelChoiceCheck=0;
+    NextAlarmAt=0; NextColorAt=0;
+    UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
+    SpectatorTarget.Reset(); PreviousPawn.Reset(); bDeathSpectating=false;
+    bSpectatorOrbitInitialized=false; bAutoManageActiveCameraTarget=true; NextSpectatorCheck=0;
+    if(GameplayHUD) GameplayHUD->ResetGameplayAlerts();
+    HealthBoss.Reset(); GuardedIntroBoss.Reset(); BossDiedAt=-1; NextBossScan=0;
+    if(!IsLocalController()) return;
+    // A retained controller needs fresh world-bound widgets and timers after seamless travel.
+    const bool HadHUD=PrototypeWidget!=nullptr;
+    if(IsValid(BossIntro)) BossIntro->CancelIntro();
+    BossIntro=nullptr; bBossIntroPlaying=false;
+    CloseRewardUI(false); HideScoreboard();
+    if(FrontEndWidget) FrontEndWidget->RemoveFromParent(); FrontEndWidget=nullptr;
+    if(TutorialWidget) TutorialWidget->RemoveFromParent(); TutorialWidget=nullptr;
+    if(DevPanel) DevPanel->RemoveFromParent(); DevPanel=nullptr;
+    if(EmoteWidget) EmoteWidget->RemoveFromParent(); EmoteWidget=nullptr;
+    if(ScoreboardWidget) ScoreboardWidget->RemoveFromParent(); ScoreboardWidget=nullptr;
+    if(PerkChoiceWidget) PerkChoiceWidget->RemoveFromParent(); PerkChoiceWidget=nullptr;
+    bLobbyUIOpen=bPauseMenuOpen=bTutorialMenuInput=bFrontEndHidPrototype=false;
+    if(HadHUD) {
+        PrototypeWidget->RemoveFromParent(); PrototypeWidget=nullptr; GameplayHUD=nullptr;
+        PrototypeWidget=CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
+        if(PrototypeWidget) PrototypeWidget->AddToViewport();
+        if(BossHealthWidget) BossHealthWidget->RemoveFromParent();
+        BossHealthWidget=CreateWidget<UMCBossHealthWidget>(this,UMCBossHealthWidget::StaticClass());
+        if(BossHealthWidget) BossHealthWidget->AddToViewport(40);
+        GetWorldTimerManager().SetTimer(BossHUDTimer,this,&AMCPlayerController::RefreshBossHUD,.1f,true);
+        UpdateInputMode();
+    }
+    if(IsValid(GetPawn()) && GetPawn()->GetWorld()==GetWorld()) SetViewTarget(GetPawn());
+}
+void AMCPlayerController::ApplySpectatorOrbitInput(FVector2D Delta)
+{
+    const auto* Target=SpectatorTarget.Get();
+    if(!IsLocalController() || !bDeathSpectating || !Target || bShowMouseCursor || IsLookInputIgnored()
+        || Delta.ContainsNaN() || Delta.IsNearlyZero()) return;
+    const float Sensitivity=FMath::Clamp(Target->CameraOrbitSensitivity,.02f,1.f);
+    SpectatorOrbit.Yaw=FRotator::NormalizeAxis(SpectatorOrbit.Yaw+Delta.X*Sensitivity);
+    SpectatorOrbit.Pitch=FMath::Clamp(SpectatorOrbit.Pitch+Delta.Y*Sensitivity,-85.,85.);
+}
+void AMCPlayerController::ZoomSpectatorCamera(float ScrollDelta)
+{
+    const auto* Target=SpectatorTarget.Get();
+    if(!IsLocalController() || !bDeathSpectating || !Target || bShowMouseCursor || IsLookInputIgnored()
+        || !FMath::IsFinite(ScrollDelta) || FMath::IsNearlyZero(ScrollDelta)) return;
+    SpectatorDistance=FMath::Clamp(SpectatorDistance-ScrollDelta*FMath::Clamp(Target->CameraZoomStep,10.f,300.f),250.f,1600.f);
+}
+void AMCPlayerController::RegisterGameplayHUD(UMCGameplayHUD* HUD)
+{ if(IsLocalController() && IsValid(HUD) && HUD->GetOwningPlayer()==this) GameplayHUD=HUD; }
+void AMCPlayerController::UnregisterGameplayHUD(UMCGameplayHUD* HUD)
+{ if(GameplayHUD==HUD) GameplayHUD=nullptr; }
+void AMCPlayerController::QueueGameplayAlert(const FText& Message,float HoldSeconds,FName EventId)
+{ if(IsLocalController() && GameplayHUD) GameplayHUD->QueueGameplayAlert(Message,HoldSeconds,EventId); }
+void AMCPlayerController::ClientShowGameplayAlert_Implementation(const FText& Message,float HoldSeconds,FName EventId)
+{ QueueGameplayAlert(Message,HoldSeconds,EventId); }
 void AMCPlayerController::UpdateDeathSpectating()
 {
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
@@ -84,6 +169,7 @@ void AMCPlayerController::UpdateDeathSpectating()
         {
             if (auto* Previous=Cast<AMCToothCharacter>(GetViewTarget())) Previous->ClearCameraWallReveal();
             bDeathSpectating=false; SpectatorTarget.Reset(); bAutoManageActiveCameraTarget=true;
+            bSpectatorOrbitInitialized=false; UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
             if (GetPawn()) SetViewTargetWithBlend(GetPawn(),.2f);
         }
         PreviousPawn=GetPawn(); return;
@@ -108,13 +194,25 @@ void AMCPlayerController::CycleSpectator(int32 Direction)
     { return (A.GetPlayerState()?A.GetPlayerState()->GetPlayerId():0)<(B.GetPlayerState()?B.GetPlayerState()->GetPlayerId():0); });
     if (Living.IsEmpty())
     {
-        SpectatorTarget.Reset(); if (GetPawn() && GetViewTarget()!=GetPawn()) SetViewTargetWithBlend(GetPawn(),.2f);
+        SpectatorTarget.Reset(); UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
+        if (GetPawn() && GetViewTarget()!=GetPawn()) SetViewTargetWithBlend(GetPawn(),.2f);
         return;
     }
     const int32 Current=Living.IndexOfByKey(SpectatorTarget.Get());
     const int32 Next=Current==INDEX_NONE?0:(Current+Direction+Living.Num())%Living.Num();
     if (auto* Previous=Cast<AMCToothCharacter>(GetViewTarget())) Previous->ClearCameraWallReveal();
-    SpectatorTarget=Living[Next]; SetViewTargetWithBlend(Living[Next],.2f);
+    SpectatorTarget=Living[Next];
+    if(!bSpectatorOrbitInitialized) {
+        const auto* Target=SpectatorTarget.Get();
+        SpectatorOrbit=Target->Camera?Target->Camera->GetComponentRotation():FRotator(-30,0,0);
+        SpectatorOrbit.Pitch=FMath::Clamp(SpectatorOrbit.Pitch,-85.,85.); SpectatorOrbit.Roll=0;
+        SpectatorDistance=Target->Camera?FMath::Clamp(float(FVector::Dist(Target->Camera->GetComponentLocation(),
+            Target->GetCameraFocusLocation())),250.f,1600.f):1000.f;
+        bSpectatorOrbitInitialized=true;
+    }
+    UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
+    // This controller computes a local view without changing the teammate's camera or control rotation.
+    SetViewTargetWithBlend(this,.2f);
 }
 void AMCPlayerController::NextSpectator() { CycleSpectator(1); }
 void AMCPlayerController::PreviousSpectator() { CycleSpectator(-1); }
@@ -399,6 +497,7 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
 
 void AMCPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    UMCPlayerCameraComponent::ClearSpectatorView(SpectatorCameraView);
     if (FrontEndWidget) FrontEndWidget->RemoveFromParent();
     if (TutorialWidget) TutorialWidget->RemoveFromParent();
     GetWorldTimerManager().ClearTimer(BossHUDTimer);

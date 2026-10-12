@@ -24,6 +24,27 @@
 #include "GameFramework/PlayerController.h"
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
+AMCMouthSurface* AMCMouthSurface::SpawnExperimentalHugeStain(UWorld* World,FVector Near)
+{
+    if(!World || World->GetNetMode()==NM_Client || Near.ContainsNaN()) return nullptr;
+    for(TActorIterator<AMCTongue> It(World);It;++It) {
+        const FBox Bounds=It->Surface->Bounds.GetBox();
+        if(!Bounds.IsValid) continue;
+        const FVector Center=Bounds.GetCenter();
+        FHitResult Floor;
+        // One continuous work area, clipped to the existing tongue surface.
+        if(!It->SurfacePoint(Center,Floor)) continue;
+        const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
+        auto* Patch=World->SpawnActorDeferred<AMCMouthSurface>(StaticClass(),Pose);
+        if(!Patch) continue;
+        Patch->bRandomizeLiquidSize=false;
+        Patch->LiquidHalfSize=FMath::Clamp(float(FMath::Min(Bounds.GetSize().X,Bounds.GetSize().Y))*.38f,600.f,1600.f);
+        Patch->Tags.Add(TEXT("MCExperimentalHugeStain"));
+        Patch->FinishSpawning(Pose); Patch->Status->ApplyCoffee(1); Patch->ForceNetUpdate();
+        return Patch;
+    }
+    return nullptr;
+}
 AMCMouthSurface::AMCMouthSurface()
 {
     bReplicates=true; bAlwaysRelevant=true; PrimaryActorTick.bCanEverTick=true;

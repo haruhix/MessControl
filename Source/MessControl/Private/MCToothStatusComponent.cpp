@@ -85,6 +85,9 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Sour
     if (!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0 || Direction.ContainsNaN()
         || (IsValid(Source) && Source->GetWorld()!=GetWorld())) return false;
     if (const auto* Hero=Cast<AMCToothCharacter>(GetOwner()); Hero && Hero->MimicCaptor) return false;
+    // Native tools attribute hits to the wielder. Chili attributes damage to
+    // its hazard actor, so its deliberate all-target exception still applies.
+    if (const auto* Hero=Cast<AMCToothCharacter>(GetOwner()); Hero && Cast<AMCToothCharacter>(Source)) return false;
     const float HealthBefore=State.Health;
     LastDamageDirection=Direction.GetSafeNormal(); State.Health=FMath::Max(0.f,State.Health-Amount);
     const auto* GS=GetWorld()->GetGameState();

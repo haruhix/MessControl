@@ -457,6 +457,31 @@ void AMCReactionVFX::Tick(float Dt)
             Smoke.Right=SmokeRight;
             Smoke.SmokePuff(P,SmokeUp,Size,Seed/(2*PI),U,Opacity);
         }
+    } else if(Effect==EMCReactionEffect::SpoiledSmell) {
+        // Broad green wisps loop around the product rather than a tiny label.
+        for(int32 I=0;I<5;++I) {
+            const float Life=FMath::Frac(Age*.32f+I*.2f),Angle=I*2.39996f;
+            const FVector Base=FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Radius*.35f;
+            TArray<FVector> Wisp;
+            for(int32 J=0;J<9;++J) {
+                const float U=J/8.f;
+                Wisp.Add(Base+Right*(FMath::Sin(U*PI*3-Age*2+Angle)*Radius*.12f)
+                    +FVector(0,0,Radius*(.1f+Life*1.5f+U*.55f)));
+            }
+            const float Opacity=FMath::Sin(Life*PI)*.46f;
+            Soft.Stroke(Wisp,FMath::Max(4.f,Radius*.07f),FLinearColor(.33f,.65f,.06f,Opacity),true,true);
+            Soft.Disk(Wisp[4],Right,Up,Radius*(.12f+Life*.1f),FLinearColor(.4f,.7f,.08f,Opacity*.3f));
+        }
+    } else if(Effect==EMCReactionEffect::ChiliExplosion) {
+        const float Expansion=FMath::SmoothStep(0.f,.85f,T),Opacity=1-FMath::SmoothStep(.15f,1.f,T);
+        Glow.Disk(FVector::ZeroVector,Right,Up,Radius*(.15f+Expansion*.5f),FLinearColor(1.f,.45f,.04f,Opacity));
+        for(int32 I=0;I<5;++I) {
+            const float Angle=I*PI*2/5;
+            const FVector Ray=(Right*FMath::Cos(Angle)+Up*FMath::Sin(Angle));
+            const FVector P=Ray*Radius*Expansion;
+            Soft.Disk(P,Right,Up,Radius*(.13f+Expansion*.18f),FLinearColor(1.f,.24f,.015f,Opacity*.7f));
+            Glow.Line(P*.75f,P+Ray*Radius*.12f,3*Opacity,FLinearColor(1.f,.85f,.2f,Opacity));
+        }
     } else if(Effect==EMCReactionEffect::Steam) {
         const float Grow=FMath::SmoothStep(0.f,.18f,Age),Dissolve=1-FMath::SmoothStep(.22f,1.f,T);
         for(int32 I=0;I<4;++I) {

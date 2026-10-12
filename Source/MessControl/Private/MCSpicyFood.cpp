@@ -7,6 +7,11 @@
 #include "MCTongue.h"
 #include "EngineUtils.h"
 #include "MCToothStatusComponent.h"
+#include "MCToothCharacter.h"
+#include "MCToothPhysicsComponent.h"
+#include "MCNutEnemy.h"
+#include "MCBossCharacter.h"
+#include "MCReactionVFX.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -24,28 +29,59 @@ void AMCFoodActor::ArmSpicy()
 {
     if(!HasAuthority() || FoodData.Kind!=EMCFoodKind::Spicy || FuseEndsAt>0 || bFusePaused || IsDisposed()) return;
     if(const auto* GS=GetWorld()->GetGameState<AMCGameState>()) HazardRound=FMath::Max(1,GS->Day);
-    // Landing arms one absolute deadline. Grabs, throws and later landings keep it.
+    // One absolute deadline starts on entry and survives carrying and throwing.
     FuseEndsAt=HazardNow()+(FMath::IsFinite(FoodData.FuseSeconds)?FMath::Clamp(FoodData.FuseSeconds,1.f,60.f):10.f);
     ForceNetUpdate();
 }
 void AMCFoodActor::PauseFuse(AMCThroat* Throat)
 {
-    if(!HasAuthority() || FoodData.Kind!=EMCFoodKind::Spicy || !IsValid(Throat) || IsDisposed() || bFusePaused) return;
-    ArmSpicy(); PausedFuse=FuseRemaining(); bFusePaused=true; FuseOwner=Throat; ForceNetUpdate();
+    if(!HasAuthority() || FoodData.Kind!=EMCFoodKind::Spicy || !IsValid(Throat) || IsDisposed()) return;
+    // Intake may move the pepper, but never stops its clock.
+    bFusePaused=false; PausedFuse=0; FuseOwner.Reset(); ArmSpicy(); ForceNetUpdate();
 }
 void AMCFoodActor::ResumeFuse(AMCThroat* Throat)
 {
     if(!HasAuthority() || !bFusePaused || FuseOwner.Get()!=Throat) return;
-    FuseEndsAt=HazardNow()+PausedFuse; bFusePaused=false; FuseOwner.Reset(); ForceNetUpdate();
+    bFusePaused=false; PausedFuse=0; FuseOwner.Reset(); ArmSpicy(); ForceNetUpdate();
 }
 void AMCFoodActor::Detonate()
 {
-    if(!HasAuthority() || IsDisposed() || FoodData.Kind!=EMCFoodKind::Spicy || bFusePaused || Phase==EMCFoodPhase::Swallowing
+    if(!HasAuthority() || IsDisposed() || FoodData.Kind!=EMCFoodKind::Spicy || bFusePaused
         || FuseEndsAt<=0 || HazardNow()<FuseEndsAt) return;
     FHitResult Floor; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCPepperFloor),false,this);
     const FVector P=GetActorLocation();
     const bool Found=GetWorld()->LineTraceSingleByObjectType(Floor,P+FVector(0,0,80),P-FVector(0,0,1000),FCollisionObjectQueryParams(ECC_WorldStatic),Q);
     const FVector Impact=Found?Floor.ImpactPoint+Floor.ImpactNormal*5:P;
+    // The compact burst stays on the moving pepper, including mid-air. Its
+    // ground wave expands afterwards, sharing a ledger to avoid double hits.
+    const float Pulse=FMath::IsFinite(FoodData.PulseDamage)?FMath::Clamp(FoodData.PulseDamage,0.f,100.f):18.f;
+    const float BlastRadius=FMath::Clamp(DetonationRadius()*.45f,90.f,160.f);
+    AMCReactionVFX::Spawn(GetWorld(),P,EMCReactionEffect::ChiliExplosion,.55f,90);
+    const FTransform WavePose(Impact);
+    auto* Wave=GetWorld()->SpawnActorDeferred<AMCHazardWave>(AMCHazardWave::StaticClass(),WavePose);
+    if(Wave) {Wave->bSpicy=true;Wave->Source=this;Wave->MaxRadius=DetonationRadius();Wave->Damage=Pulse;Wave->WarningSeconds=0;Wave->TravelSeconds=.8f;}
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
+        auto* Hero=*It;
+        if(!Hero->Status->IsAlive() || Hero->SwallowedBy || Hero->MimicCaptor) continue;
+        const FVector Center=Hero->ToothPhysics->CanAct()?Hero->GetActorLocation():Hero->ToothPhysics->PhysicalLocation();
+        if(FVector::DistSquared(Center,P)>FMath::Square(BlastRadius)) continue;
+        FVector Direction=(Center-P).GetSafeNormal2D();
+        if(Direction.IsNearlyZero()) Direction=GetActorForwardVector();
+        Hero->Status->Damage(Pulse,Direction,this);
+        Hero->ToothPhysics->ApplyHit(Direction*340+FVector(0,0,150),P);
+        if(Wave) Wave->RegisterBlastVictim(Hero);
+    }
+    for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
+        if(It->CanReceiveToolHit() && FVector::DistSquared(It->GetToolTargetPoint(P),P)<=FMath::Square(BlastRadius)) {
+            It->ReceiveToolDamage(Pulse,nullptr); if(Wave) Wave->RegisterBlastVictim(*It);
+        }
+    }
+    for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
+        if(It->CanReceiveWeaponHit() && FVector::DistSquared(It->GetMeleeTargetPoint(P),P)<=FMath::Square(BlastRadius)) {
+            It->ReceiveBossDamage(Pulse,this); if(Wave) Wave->RegisterBlastVictim(*It);
+        }
+    }
+    if(Wave) Wave->FinishSpawning(WavePose);
     // The expired fuse ignites a road; contact or cutting cannot ignite it early.
     BurnLesion=AMCMouthSurface::SpawnDamageUlcer(GetWorld(),Impact,Batch);
     const FVector Motion=PrePhysicsVelocity.GetSafeNormal2D();
@@ -75,12 +111,14 @@ void AMCFoodActor::UpdateHazard(float Dt)
     if(FoodData.Kind!=EMCFoodKind::Spicy || IsDisposed()) return;
     if(HasAuthority())
     {
+        // Arm before the first landing so a late throw can really detonate in air.
+        if(bFusePaused) ResumeFuse(FuseOwner.Get());
+        ArmSpicy();
         if(bLandingPending && !bFusePaused && Phase!=EMCFoodPhase::Swallowing) {
             ArmSpicy();
             // The normal food tick still owns the Falling -> Free/Stuck transition.
             if(Phase!=EMCFoodPhase::Falling) bLandingPending=false;
         }
-        if(bFusePaused && (!FuseOwner.IsValid() || (FuseOwner->ThroatPhase==EMCThroatPhase::Collecting && Phase!=EMCFoodPhase::Swallowing))) ResumeFuse(FuseOwner.Get());
         if(!bFusePaused && FuseEndsAt>0 && HazardNow()>=FuseEndsAt) {Detonate();if(IsDisposed()) return;}
     }
     if(GetNetMode()==NM_DedicatedServer) return;

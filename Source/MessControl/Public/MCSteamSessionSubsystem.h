@@ -22,7 +22,7 @@ public:
     const FString& GetStatus() const { return Status; }
     const TArray<FString>& GetRoomLabels() const { return RoomLabels; }
     int32 GetSearchRevision() const { return SearchRevision; }
-    void HostRoom(bool bWaitForLobby=false);
+    void HostRoom(bool bWaitForLobby=false,bool bWithTutorial=false);
     /** Close the online room (when present), then return this local player to the menu. */
     void LeaveRoom();
     void FindRooms();
@@ -57,5 +57,6 @@ private:
     int32 SearchRevision=0;
     bool bFailed=false;
     bool bHostWaitsForLobby=false;
+    bool bHostStartsWithTutorial=false;
     bool bReturnToMenuPending=false;
 };

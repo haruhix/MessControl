@@ -15,7 +15,8 @@ enum class EMCDevAction : uint8
     OldFlood, BotsStart, BotsStop, BotsReport, MimicChest, MimicRemove,
     GrantToolBooster, GrantAllToolBoosters,
     NutEncounter, StopNutEncounter, IceEvent, StopIceEvent, CoffeeFlood, StuckFood,
-    FogEvent, FogEventStop
+    FogEvent, FogEventStop,
+    HugeTongueStain=62
 };
 
 // Reuse the existing typed dev-command argument for the 4 counts x 3 skills x 2 modes.

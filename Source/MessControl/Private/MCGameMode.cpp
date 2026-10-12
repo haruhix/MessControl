@@ -49,6 +49,7 @@
 AMCGameMode::AMCGameMode()
 {
     PrimaryActorTick.bCanEverTick = true;
+    bUseSeamlessTravel=true;
     DefaultPawnClass = AMCToothCharacter::StaticClass();
     // Camera/component defaults are authored in the current player Blueprint.
     static ConstructorHelpers::FClassFinder<AMCToothCharacter> PlayerBlueprint(TEXT("/Game/Blueprints/BP_PlayerCharacter"));
@@ -72,11 +73,11 @@ AMCGameMode::AMCGameMode()
 void AMCGameMode::BeginPlay()
 {
     Super::BeginPlay();
-    bTutorialRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCTutorial"));
+    bTutorialRequested=UGameplayStatics::GetCurrentLevelName(this,true)==TEXT("L_Tutorial")
+        || UGameplayStatics::GetIntOption(OptionsString,TEXT("MCTutorial"),0)!=0;
     bLobbyRequested=UGameplayStatics::HasOption(OptionsString,TEXT("MCLobby"));
     if(FParse::Param(FCommandLine::Get(),TEXT("MCSingleDay"))) bUseSingleDayLoop=true;
     if(FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays")) || FParse::Param(FCommandLine::Get(),TEXT("MCCore")) || FParse::Param(FCommandLine::Get(),TEXT("MCDayOne"))) bUseSingleDayLoop=false;
-    if(bUseSingleDayLoop) bTutorialRequested=true;
     if (FParse::Param(FCommandLine::Get(),TEXT("MCLegacyDays"))) { bUseDayOnePlan=false; bUseAdaptiveDirector=false; }
     if (FParse::Param(FCommandLine::Get(),TEXT("MCDayOne")) || FParse::Param(FCommandLine::Get(),TEXT("MCCore"))) bUseAdaptiveDirector=false;
     EventPool.RemoveAll([](const TObjectPtr<UMCDayEvent>& Event) { return !IsValid(Event); });
@@ -157,7 +158,7 @@ void AMCGameMode::RestartShift()
     if (!State) return;
     if(IsValid(State->SingleDayDirector)) { State->SingleDayDirector->Stop(); State->SingleDayDirector->Destroy(); }
     State->SingleDayDirector=nullptr; State->bSingleDayLoop=bUseSingleDayLoop;
-    if(bUseSingleDayLoop) bTutorialRequested=!bRestartingForPlaytest;
+    if(bRestartingForPlaytest) bTutorialRequested=false;
     if (IsValid(TutorialDirector)) { TutorialDirector->OnTutorialFinished.RemoveAll(this); TutorialDirector->Stop(); TutorialDirector->Destroy(); }
     TutorialDirector=nullptr;
     State->bTutorialActive=bTutorialRequested;
@@ -324,6 +325,21 @@ void AMCGameMode::Tick(float DeltaSeconds)
         }
         return;
     }
+    // The normal map starts the existing perk/day sequence once the team has
+    // loaded, without silently entering the tutorial again.
+    if(State && State->bSingleDayLoop && IsValid(State->SingleDayDirector)
+        && State->SingleDayDirector->Stage==EMCSingleDayStage::Training
+        && GetGameplayParticipantCount()>0 && !State->bDevManualEvents)
+    {
+        bool bTeamLoaded=true;
+        for(FConstPlayerControllerIterator It=GetWorld()->GetPlayerControllerIterator();It;++It)
+        {
+            if(!IsGameplayParticipant(It->Get())) continue;
+            const auto* PC=Cast<AMCPlayerController>(It->Get());
+            bTeamLoaded&=PC && PC->HasAcknowledgedGameplay() && PC->GetPawn();
+        }
+        if(bTeamLoaded) BeginSingleDaySequence();
+    }
     if (!State || State->Phase==EMCShiftPhase::Won || State->Phase==EMCShiftPhase::Lost) return;
     ProcessRespawns();
     if (State->bDayOneComplete) return;
@@ -362,9 +378,9 @@ void AMCGameMode::FinishTutorial()
     TutorialDirector->OnTutorialFinished.RemoveAll(this);
     TutorialDirector->Stop();
     bTutorialRequested=false;
-    if(auto* GS=GetGameState<AMCGameState>(); GS && GS->bSingleDayLoop && GS->SingleDayDirector) {
-        BeginSingleDaySequence();
-        UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_FINISHED_FIRST_PERK"));
+    if(UGameplayStatics::GetCurrentLevelName(this,true)==TEXT("L_Tutorial")) {
+        GetWorld()->ServerTravel(TEXT("/Game/Maps/L_Mouth?MCTutorial=0"),true);
+        UE_LOG(LogTemp,Display,TEXT("MC_TUTORIAL_FINISHED_TRAVEL_MAIN"));
         return;
     }
     RestartShift();

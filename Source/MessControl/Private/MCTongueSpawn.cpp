@@ -1,6 +1,10 @@
 #include "MCTongue.h"
 #include "MCFoodActor.h"
 #include "EngineUtils.h"
+#include "MCToothCharacter.h"
+#include "MCToothStatusComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Engine/World.h"
 
 namespace
 {
@@ -83,7 +87,46 @@ bool AMCTongue::GameplaySpawnFootprint(FVector Point,float Margin,FHitResult& Hi
     // footprint must stay between the two forbidden outer strips.
     if(Point.X+Margin>Bands.Near || Point.X-Margin<Bands.Far
         || !InteriorSurfacePoint(Point,Margin,Hit)) return false;
-    return !TouchesDeliveryLane(*this,Hit.ImpactPoint,Margin);
+    if(TouchesDeliveryLane(*this,Hit.ImpactPoint,Margin)) return false;
+    // The visible tongue also runs under gums and permanent teeth. A surface
+    // triangle alone does not prove a player can stand beside and process food.
+    FCollisionQueryParams Query(SCENE_QUERY_STAT(MCGameplayAccess),false,this);
+    FCollisionObjectQueryParams Objects(ECC_WorldStatic);
+    int32 Reachable=0;
+    for(int32 I=0;I<8;++I) {
+        const float Angle=I*PI/4;
+        const FVector Approach=Hit.ImpactPoint+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*(Margin+65);
+        FHitResult Floor;
+        if(!InteriorSurfacePoint(Approach,35,Floor)) continue;
+        FHitResult Block;
+        const FVector Center=Floor.ImpactPoint+FVector(0,0,92);
+        if(GetWorld()->SweepSingleByObjectType(Block,Center,Center+FVector(0,0,.5),FQuat::Identity,Objects,FCollisionShape::MakeCapsule(35,88),Query)) continue;
+        if(GetWorld()->LineTraceSingleByObjectType(Block,Center,Hit.ImpactPoint+FVector(0,0,55),Objects,Query)) continue;
+        ++Reachable;
+    }
+    return Reachable>=2;
+}
+
+bool AMCTongue::RandomGameplayInterestPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit)
+{
+    if(!HasAuthority()) return false;
+    const FBox Bounds=Surface->Bounds.GetBox();
+    TArray<FVector> Workers;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+        if(It->Status && It->Status->IsAlive() && It->CanWork()) Workers.Add(It->GetActorLocation());
+    for(int32 Attempt=0;Attempt<96;++Attempt) {
+        FVector Candidate;
+        if(!Workers.IsEmpty()) {
+            const FVector Worker=Workers[Random.RandRange(0,Workers.Num()-1)];
+            const float Angle=Random.FRandRange(-PI,PI),Distance=Random.FRandRange(Margin+100,Margin+750);
+            Candidate=Worker+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Distance;
+        } else Candidate=Bounds.GetCenter()+FVector(Random.FRandRange(-Bounds.GetExtent().X*.2,Bounds.GetExtent().X*.2),Random.FRandRange(-Bounds.GetExtent().Y*.35,Bounds.GetExtent().Y*.35),0);
+        // Preserve the delivery lane exclusions even when workers stand there.
+        bool Near=false;
+        for(const FVector& P:Excluded) Near|=FVector::DistSquared2D(Candidate,P)<FMath::Square(Separation);
+        if(!Near && GameplaySpawnFootprint(Candidate,Margin,Hit)) return true;
+    }
+    return false;
 }
 
 bool AMCTongue::GameplayStuckFoodFootprint(FVector Point,float Margin,FHitResult& Hit) const

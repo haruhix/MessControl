@@ -9,6 +9,7 @@
 #include "MCFogBrawlEvent.h"
 #include "MCMouthSurface.h"
 #include "MCThroat.h"
+#include "MCTongue.h"
 #include "MCBrushContactComponent.h"
 #include "MCOrbitSpringArmComponent.h"
 #include "MCPlayerCameraComponent.h"
@@ -429,6 +430,23 @@ void AMCToothCharacter::StartJump()
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It) if(It->CanOrderJump(this)) { ServerOrderJump(*It); return; }
     Jump();
 }
+bool AMCToothCharacter::ClearsGroundWave(float Clearance) const
+{
+    const auto* Move=GetCharacterMovement();
+    if(!GetWorld() || !Move || !Move->IsFalling() || !ToothPhysics || !ToothPhysics->CanAct()
+        || SwallowedBy || MimicCaptor || HasFrozenLegs()) return false;
+    const FVector Center=GetActorLocation();
+    const float SoleZ=Center.Z-GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+    FHitResult Floor; bool Found=false;
+    for(TActorIterator<AMCTongue> It(GetWorld());It;++It)
+        if(It->SurfacePoint(Center,Floor)) {Found=true;break;}
+    if(!Found) {
+        FCollisionQueryParams Query(SCENE_QUERY_STAT(MCJumpWaveFloor),false,this);
+        Found=GetWorld()->LineTraceSingleByObjectType(Floor,Center+FVector(0,0,20),Center-FVector(0,0,1200),
+            FCollisionObjectQueryParams(ECC_WorldStatic),Query);
+    }
+    return Found && SoleZ-Floor.ImpactPoint.Z>FMath::Clamp(Clearance,4.f,24.f);
+}
 void AMCToothCharacter::ServerOrderJump_Implementation(AMCThroat* Throat)
 {
     if(!HasFrozenLegs() && IsValid(Throat)) Throat->LaunchToUvula(this);
@@ -760,6 +778,22 @@ void AMCToothCharacter::ResolvePrimaryAction()
 {
     if(FoodCollection->bCollecting) return;
     if (!bPrimaryHeld || !CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-.3f) return;
+    if(!bInCoffee && !bSelfCare && !HeldFood && !Grip->GrabbedPlayer && !Inventory->IsCleaningTool()) {
+        AMCFoodActor* Fragment=nullptr; float Best=MAX_flt;
+        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+            if(!It->bFragment || It->IsDisposed() || !Grip->CanAcquire(*It) || !CanContact(*It)) continue;
+            const float Distance=FVector::DistSquared(It->Visual->Bounds.GetBox().GetClosestPointTo(GetActorLocation()),GetActorLocation());
+            if(Distance<Best && Distance<=FMath::Square(It->Settings.GrabReach)) {Best=Distance;Fragment=*It;}
+        }
+        if(Fragment) {
+            bBrushing=false; bHandling=true;
+            if(Fragment->TryGrab(this)) {ResetContact();OnRep_Working();ForceNetUpdate();return;}
+            bHandling=false;
+        }
+    }
+    if(HeldFood && (HeldFood->bFragment || HeldFood->FoodData.Kind==EMCFoodKind::Spicy)) {
+        bHandling=true;bBrushing=false;return;
+    }
     if(!bInCoffee && !Inventory->IsCleaningTool()) {
         if(Inventory->IsChainsawRunning()) {bBrushing=false;bHandling=false;return;}
         if(Inventory->Selected==EMCToolSlot::Spray) Inventory->ServerSpray();
@@ -795,6 +829,16 @@ void AMCToothCharacter::ResolvePrimaryAction()
         && (Cast<AMCArenaTooth>(CareTarget) || Cast<AMCMouthSurface>(CareTarget) || Cast<AMCToothCharacter>(CareTarget))) { bHandling=false; return; }
     auto* Repair=FindCareTarget(false);
     bool BrushMode=Clean && (!Repair || Distance(Clean->GetOwner())<=Distance(Repair->GetOwner()));
+    bool BrushIce=false;
+    if(!Clean && HasBrush() && Inventory->IsCleaningTool())
+        for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+            if(It->CanBrushIceUnderfoot(this)) {BrushIce=true;BrushMode=true;break;}
+    if(BrushIce) {
+        // Keep primary input scrubbing the floor rather than stealing it for
+        // a nearby loose item. AdvanceCare owns the actual elapsed cleaning.
+        if(!bBrushing || bHandling) {bBrushing=true;bHandling=false;ResetContact();OnRep_Working();ForceNetUpdate();}
+        return;
+    }
     float BestDistance=BrushMode?Distance(Clean->GetOwner()):Repair?Distance(Repair->GetOwner()):MAX_flt;
     AMCFoodActor* BestFood=nullptr;
     if (!bSelfCare && !bInCoffee)
@@ -1292,7 +1336,6 @@ void AMCToothCharacter::ResolveSwing()
     }
     FVector Direction=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(); if (Direction.IsNearlyZero()) Direction=GetActorForwardVector();
     Target->ToothPhysics->ApplyHit(Direction*ToothPhysics->Settings.Knockback+FVector(0,0,ToothPhysics->Settings.Lift),Target->GetActorLocation()+FVector(0,0,15));
-    if(!Target->Status->Damage(Inventory->IsCleaningTool()?25.f:Inventory->Damage(),Direction,this)) return;
     ++ConfirmedHitCount;
     MulticastHitSound(Target->GetActorLocation(),AudioTool,HitIntensity);
 }
@@ -1466,7 +1509,16 @@ void AMCToothCharacter::AdvanceCare(float Dt)
     if (!HasAuthority()) return;
     if (!CanWork() || (!bBrushing && !bHandling) || HeldFood || (bBrushing && !HasBrush()) || bInCoffee) { ResetContact(); return; }
     auto* Target=FindCareTarget(bBrushing);
-    if (!Target) { ResetContact(); return; }
+    if (!Target) {
+        if(bBrushing && FMath::IsFinite(Dt) && Dt>0)
+            for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+                if(It->CanBrushIceUnderfoot(this)) {
+                    if(CareTarget!=*It || !bLastContactBrush) {ResetContact();CareTarget=*It;bLastContactBrush=true;}
+                    if(It->BrushIceUnderfoot(this,FMath::Min(Dt,.1f))) return;
+                }
+        ResetContact();
+        return;
+    }
     if (CareTarget!=Target->GetOwner() || bLastContactBrush!=bBrushing) { ResetContact(); CareTarget=Target->GetOwner(); bLastContactBrush=bBrushing; }
     if (!FMath::IsFinite(Dt) || Dt<=0) return;
     if (bBrushing) if (auto* Surface=Cast<AMCMouthSurface>(Target->GetOwner())) {

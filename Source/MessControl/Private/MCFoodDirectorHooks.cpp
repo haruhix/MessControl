@@ -595,7 +595,7 @@ FMCFoodPipelineLoad MCMeasureFoodPipeline(UWorld* World,int32 Batch,const FMCFoo
 
         const bool Carried=Food->StackCarrier || !Food->Holders.IsEmpty() || Food->Phase==EMCFoodPhase::Carried;
         if(Carried) ++Out.Carried;
-        if(!Ordinary)
+        if(!Ordinary || Food->bFragment)
         {
             const float Distance=DeliveryDistance(World,Food->WorkPosition(),Food);
             ++Out.EstimatedTrips;

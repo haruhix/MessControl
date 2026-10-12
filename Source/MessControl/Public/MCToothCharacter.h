@@ -170,6 +170,8 @@ public:
     float GetToolSwingElapsed() const;
     bool GetCalculusSwingContact(FVector& Point,FVector& Normal) const;
     bool WantsCalculusFacing(FVector& Direction) const;
+    /** Ground waves test the capsule sole, independently of animated body-bone bobbing. */
+    bool ClearsGroundWave(float Clearance=12.f) const;
     // A pickaxe swing owns one patch until recovery; the contact follows the
     // visible enamel, independently of skeletal evaluation on the server.
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Action|Calculus") TObjectPtr<AMCArenaTooth> CalculusTarget;

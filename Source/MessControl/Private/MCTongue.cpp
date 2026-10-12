@@ -11,6 +11,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
+#include "MCThroat.h"
 #include "MCGazeComponent.h"
 #include "MCHazardWave.h"
 #include "Components/BoxComponent.h"
@@ -20,6 +21,11 @@
 #include "Async/ParallelFor.h"
 #include "HAL/IConsoleManager.h"
 #include "ProfilingDebugging/CpuProfilerTrace.h"
+void AMCTongue::ReactToWaterTickle(AMCToothCharacter* Source,FVector Impact)
+{
+    if(!HasAuthority()) return;
+    for(TActorIterator<AMCThroat> It(GetWorld());It;++It) It->ReactToWaterTickle(Source,Impact);
+}
 
 namespace
 {

@@ -26,6 +26,7 @@
 namespace MCMainMenuPrivate
 {
     const FName MouthMap(TEXT("/Game/Maps/L_Mouth"));
+    const FName TutorialMap(TEXT("/Game/Maps/L_Tutorial"));
     const FLinearColor TextColor(.94f,.96f,.97f);
     const FLinearColor Accent(.26f,.78f,.65f);
 
@@ -221,7 +222,7 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
     Page=NewPage;
     Content->ClearChildren(); Buttons.Reset(); OnlineButtons.Reset();
     RoomPicker=nullptr; AddressBox=nullptr; ResolutionPicker=nullptr; WindowModePicker=nullptr;
-    QualityPicker=nullptr; VSyncCheck=nullptr; LobbyPlayers=nullptr; StartButton=nullptr;
+    QualityPicker=nullptr; VSyncCheck=nullptr; HostTutorialCheck=nullptr; LobbyPlayers=nullptr; StartButton=nullptr;
     LastSearchRevision=INDEX_NONE;
     SetStatus(TEXT(""));
     auto* Steam=MCMainMenuPrivate::Sessions(this);
@@ -242,6 +243,18 @@ void UMCMainMenuWidget::ShowPage(EPage NewPage)
         break;
     case EPage::Host:
         AddText(TEXT("CREATE LOBBY"),24);
+        HostTutorialCheck=WidgetTree->ConstructWidget<UCheckBox>();
+        {
+            auto* Label=WidgetTree->ConstructWidget<UTextBlock>();
+            Label->SetText(FText::FromString(TEXT("Начать с обучения")));
+            Label->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),17));
+            Label->SetColorAndOpacity(FSlateColor(MCMainMenuPrivate::TextColor));
+            HostTutorialCheck->SetContent(Label);
+            HostTutorialCheck->SetIsChecked(bHostStartWithTutorial);
+            HostTutorialCheck->OnCheckStateChanged.AddDynamic(this,&ThisClass::HostTutorialChanged);
+            Content->AddChildToVerticalBox(HostTutorialCheck)->SetPadding(FMargin(0,6,0,12));
+        }
+        AddText(TEXT("С обучением: сначала учебная карта, затем обычная игра. Без галочки — сразу обычная карта."),14);
         AddText(bSteam?FString::Printf(TEXT("Steam · %s\nДо четырёх игроков. После загрузки комнаты хост запускает смену кнопкой Start."),*Steam->GetPlayerName()):
             TEXT("Локальная комната по IP · UDP 7777\nДрузья подключаются через Join Lobby. Хост запускает смену кнопкой Start."));
         OnlineButtons.Add(AddButton(TEXT("Create"),EMCMainMenuAction::Host));
@@ -354,6 +367,11 @@ void UMCMainMenuWidget::BuildSettings()
     AddButton(TEXT("Back"),EMCMainMenuAction::Back);
 }
 
+void UMCMainMenuWidget::HostTutorialChanged(bool bChecked)
+{
+    bHostStartWithTutorial=bChecked;
+}
+
 void UMCMainMenuWidget::ApplySettings()
 {
     UGameUserSettings* Settings=UGameUserSettings::GetGameUserSettings();
@@ -456,7 +474,7 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
     {
     case EMCMainMenuAction::Tutorial:
         if (Steam && Steam->IsBusy()) { SetStatus(TEXT("Дождись завершения подключения.")); break; }
-        UGameplayStatics::OpenLevel(this,MCMainMenuPrivate::MouthMap,true,TEXT("MCTutorial=1"));
+        UGameplayStatics::OpenLevel(this,MCMainMenuPrivate::TutorialMap,true,TEXT("MCTutorial=1"));
         break;
     case EMCMainMenuAction::CreateLobby: ShowPage(EPage::Host); break;
     case EMCMainMenuAction::JoinLobby: ShowPage(EPage::Join); break;
@@ -472,8 +490,9 @@ void UMCMainMenuWidget::HandleAction(EMCMainMenuAction Action)
         break;
     case EMCMainMenuAction::Host:
         if (Steam && Steam->IsBusy()) break;
-        if (Steam && Steam->CanUseSteam()) Steam->HostRoom(true);
-        else UGameplayStatics::OpenLevel(this,MCMainMenuPrivate::MouthMap,true,TEXT("listen?MCLobby=1"));
+        if (Steam && Steam->CanUseSteam()) Steam->HostRoom(true,bHostStartWithTutorial);
+        else UGameplayStatics::OpenLevel(this,bHostStartWithTutorial?MCMainMenuPrivate::TutorialMap:MCMainMenuPrivate::MouthMap,
+            true,bHostStartWithTutorial?TEXT("listen?MCLobby=1?MCTutorial=1"):TEXT("listen?MCLobby=1"));
         break;
     case EMCMainMenuAction::FindRooms: if (Steam) Steam->FindRooms(); break;
     case EMCMainMenuAction::JoinRoom:

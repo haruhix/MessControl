@@ -37,7 +37,7 @@ void AMCMouthSurface::OnRep_LiquidMaterial()
 
 void AMCMouthSurface::OnRep_LiquidSize()
 {
-    LiquidHalfSize=FMath::IsFinite(LiquidHalfSize)?FMath::Clamp(LiquidHalfSize,20.f,520.f):184.f;
+    LiquidHalfSize=FMath::IsFinite(LiquidHalfSize)?FMath::Clamp(LiquidHalfSize,20.f,1600.f):240.f;
     if (!bUlcer) Area->SetBoxExtent(FVector(LiquidHalfSize*.75f,LiquidHalfSize*.75f,6));
     LiquidVertices.Reset();
 }

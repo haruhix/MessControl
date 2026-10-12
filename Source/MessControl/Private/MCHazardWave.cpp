@@ -6,6 +6,8 @@
 #include "MCToothStatusComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCArenaTooth.h"
+#include "MCNutEnemy.h"
+#include "MCBossCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "ProceduralMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -85,23 +87,18 @@ void AMCHazardWave::Tick(float Dt)
         {
             auto* Hero=*It;
             if(!Hero->Status->IsAlive() || Hero->SwallowedBy || Hero->MimicCaptor || HitActors.Contains(Hero)) continue;
-            const FVector P=Hero->ToothPhysics->PhysicalLocation();
+            const FVector P=Hero->ToothPhysics->CanAct()?Hero->GetActorLocation():Hero->ToothPhysics->PhysicalLocation();
             const float Distance=FVector::Dist2D(P,GetActorLocation());
             const float Before=PreviousDistances.FindRef(Hero); const bool Had=PreviousDistances.Contains(Hero);
             PreviousDistances.Add(Hero,Distance);
             if(!Crosses(Had?Before:Distance,Distance,PreviousRadius,CurrentRadius,Hero->GetCapsuleComponent()->GetScaledCapsuleRadius()+12)) continue;
-            FHitResult Floor; bool Found=false;
-            for(TActorIterator<AMCTongue> T(GetWorld());T;++T) if(T->SurfacePoint(P,Floor)) { Found=true; break; }
-            if(!Found) { FCollisionQueryParams Q(SCENE_QUERY_STAT(MCWaveFloor),false,Hero); Found=GetWorld()->LineTraceSingleByObjectType(Floor,P+FVector(0,0,100),P-FVector(0,0,1000),FCollisionObjectQueryParams(ECC_WorldStatic),Q); }
-            const float FloorZ=Found?Floor.ImpactPoint.Z:GetActorLocation().Z;
-            const float Sole=P.Z-Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
             // Once crossed, a wave cannot damage a player who lands behind it.
             HitActors.Add(Hero);
-            if(Sole-FloorZ>ClearHeight) continue;
+            if(Hero->ClearsGroundWave(ClearHeight)) continue;
             FVector Direction=(P-GetActorLocation()).GetSafeNormal2D();
             if(Direction.IsNearlyZero()) Direction=FVector::ForwardVector;
             const auto* Lesion=Cast<AMCMouthSurface>(Source);
-            if(!Lesion || !Lesion->bTutorialLesion) {Hero->Status->Damage(Damage,Direction);Hero->NotifyTaskFeedback(false);}
+            if(!Lesion || !Lesion->bTutorialLesion) {Hero->Status->Damage(Damage,Direction,Source);Hero->NotifyTaskFeedback(false);}
             ++HitCount;
             Hero->ToothPhysics->ApplyHit(Direction*260+FVector(0,0,130),P);
         }
@@ -110,6 +107,22 @@ void AMCHazardWave::Tick(float Dt)
             if(!It->IsAvailable() || HitActors.Contains(*It)) continue;
             const float D=FVector::Dist2D(It->Body->Bounds.Origin,GetActorLocation());
             if(D<=CurrentRadius+It->Body->Bounds.BoxExtent.Size2D()) { HitActors.Add(*It); It->Status->Damage(Damage,(*It)->GetActorLocation()-GetActorLocation()); }
+        }
+        if(bSpicy) {
+            for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
+                if(!It->CanReceiveToolHit() || HitActors.Contains(*It)) continue;
+                const FVector Point=It->GetToolTargetPoint(GetActorLocation());
+                if(FVector::Dist2D(Point,GetActorLocation())<=CurrentRadius) {
+                    HitActors.Add(*It); It->ReceiveToolDamage(Damage,nullptr);
+                }
+            }
+            for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
+                if(!It->CanReceiveWeaponHit() || HitActors.Contains(*It)) continue;
+                const FVector Point=It->GetMeleeTargetPoint(GetActorLocation());
+                if(FVector::Dist2D(Point,GetActorLocation())<=CurrentRadius) {
+                    HitActors.Add(*It); It->ReceiveBossDamage(Damage,Source);
+                }
+            }
         }
         PreviousRadius=CurrentRadius;
         if(Now()-StartedAt>WarningSeconds+TravelSeconds+.15f) { Destroy(); return; }

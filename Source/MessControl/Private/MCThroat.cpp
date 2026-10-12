@@ -209,13 +209,22 @@ bool AMCThroat::ContainsDeliveryPosition(FVector Position) const
 bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
 {
     if(!HasAuthority() || !IsValid(Food) || Food->GetWorld()!=GetWorld() || Food->bBrushTool || Food->IsDisposed()
-        || !Food->Holders.IsEmpty() || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling)) return false;
+        || (!Food->bFragment && !Food->Holders.IsEmpty())
+        || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling && !(Food->bFragment && Food->Phase==EMCFoodPhase::Carried))) return false;
+    if(Food->bFragment) return ContainsDeliveryPosition(Food->GetActorLocation());
     if(const auto* Carrier=Food->StackCarrier.Get()) return !Food->UsesLegacyGrip() && Carrier->CanWork() && ContainsPlayer(Carrier);
     return ContainsFood(Food);
 }
 bool AMCThroat::AcceptDelivery(AMCFoodActor* Food)
 {
     if(!CanAcceptDelivery(Food)) return false;
+    if(Food->bFragment && !Food->IsWrongIngredient()) {
+        auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
+        const FVector Point=Food->GetActorLocation();
+        Food->AwardDelivery();Food->Dispose();++FoodSwallowed;
+        if(Worker) Worker->NotifyTaskFeedback(true,Point);
+        ForceNetUpdate();return true;
+    }
     if (AMCTutorialDirector::IsSafeTutorial(GetWorld()) && AMCTutorialDirector::IsTutorialTarget(Food) && Food->IsWrongIngredient())
     {
         auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
@@ -262,7 +271,32 @@ void AMCThroat::CollectLooseDeliveries()
     // Expelled ingredients must first leave the mouth; the vomit animation
     // must not reserve its own outgoing food into the next batch.
     if(ThroatPhase==EMCThroatPhase::Spasm || ThroatPhase==EMCThroatPhase::Vomiting) return;
-    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) if(ContainsFood(*It)) AcceptDelivery(*It);
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
+        if((It->bFragment && ContainsDeliveryPosition(It->GetActorLocation())) || ContainsFood(*It)) AcceptDelivery(*It);
+}
+void AMCThroat::ReactToWaterTickle(AMCToothCharacter* Source,FVector Impact)
+{
+    if(!HasAuthority() || !IsValid(Source) || Source->GetWorld()!=GetWorld() || Impact.ContainsNaN()) return;
+    if(ServerNow()-TickleStartedAt<.6) return;
+    TickleStartedAt=ServerNow();ForceNetUpdate();
+}
+
+void AMCThroat::CheckOpenThroatPlayers()
+{
+    if(!HasAuthority() || OpenAmount()<.65f || AMCTutorialDirector::IsSafeTutorial(GetWorld())) return;
+    const FVector Inlet=VacuumInlet(),Forward=GetActorForwardVector().GetSafeNormal2D(),Side=GetActorRightVector().GetSafeNormal2D();
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) {
+        if(!It->Status || !It->Status->IsAlive() || It->SwallowedBy || It->IsMimicCaptured()) continue;
+        const FVector Offset=It->GetActorLocation()-Inlet;
+        const float Depth=FVector::DotProduct(Offset,Forward);
+        // Crossing the aperture plane is lethal; the green delivery strip in
+        // front of it remains usable. Waves and suction can push a player across.
+        if(Depth>=-15 && Depth<500 && FMath::Abs(FVector::DotProduct(Offset,Side))<GateSize.X*.78f
+            && FMath::Abs(Offset.Z)<GateSize.Y*.8f) {
+            It->DropFood();
+            It->Status->Damage(It->Status->State.MaxHealth*2,Forward,this);
+        }
+    }
 }
 bool AMCThroat::ContainsPlayer(const AMCToothCharacter* Hero) const
 {
@@ -498,6 +532,7 @@ void AMCThroat::Tick(float Dt)
     if (HasAuthority())
     {
         const double Now=ServerNow();
+        CheckOpenThroatPlayers();
         Weight=0;
         PendingMeal.RemoveAll([this](const FMealPiece& Piece) {
             auto* Food=Piece.Food.Get();
@@ -594,14 +629,16 @@ void AMCThroat::UpdatePresentation(float Dt)
     Uvula->SetRelativeLocation(Authored?UvulaTop:UvulaTop-FVector(0,0,Length*.5f));
     Uvula->SetRelativeScale3D(FVector(.7f,.85f,Length/100.f));
     UvulaLanding->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-    const float Sway=FMath::Sin(Time*1.8f)*1.2f*(1-VisualWeight)+(ThroatPhase==EMCThroatPhase::Spasm?FMath::Sin(Time*28)*12:
+    const float TickleAge=Time-TickleStartedAt;
+    const float Tickle=TickleAge>=0 && TickleAge<1.2f?FMath::Sin(TickleAge*32)*18*FMath::Sin(TickleAge/1.2f*PI):0;
+    const float Sway=Tickle+FMath::Sin(Time*1.8f)*1.2f*(1-VisualWeight)+(ThroatPhase==EMCThroatPhase::Spasm?FMath::Sin(Time*28)*12:
         ThroatPhase==EMCThroatPhase::Vomiting?FMath::Sin(float(Time-PhaseStartedAt)*24)*8*FMath::Exp(-float(Time-PhaseStartedAt)):0);
     Uvula->SetRelativeRotation(FRotator(0,0,Sway));
     // The character braces against the front of the bulb. A pad on its central
     // axis let the visible stalk pass through the body despite a valid landing.
     UvulaLanding->SetRelativeLocation(UvulaTop+FRotator(0,0,Sway).RotateVector(FVector(-86,0,-Length*.81f))-FVector(0,0,16));
-    // The back wall always contains pawns and brushes. Captured food follows a kinematic arc.
-    ClosedBarrier->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+    // A closed aperture blocks passage; the open aperture exposes the death zone.
+    ClosedBarrier->SetCollisionEnabled(Open>=.65f?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
     const FLinearColor Color=ThroatPhase==EMCThroatPhase::Collecting?FLinearColor(.05f,1.f,.31f):
         ThroatPhase==EMCThroatPhase::Anticipation?FLinearColor(.08f,.72f,.60f)*(1+.12f*FMath::Sin(Time*3)):
         ThroatPhase==EMCThroatPhase::Spasm || ThroatPhase==EMCThroatPhase::Vomiting?FLinearColor(1.f,.035f,.01f)*(1+.45f*FMath::Sin(Time*14)):FLinearColor(1.f,.52f,.045f);
@@ -684,6 +721,7 @@ void AMCThroat::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
     DOREPLIFETIME(AMCThroat,ThroatPhase); DOREPLIFETIME(AMCThroat,PhaseStartedAt); DOREPLIFETIME(AMCThroat,Weight);
     DOREPLIFETIME(AMCThroat,FoodInZone); DOREPLIFETIME(AMCThroat,SwallowCount); DOREPLIFETIME(AMCThroat,FoodSwallowed);
     DOREPLIFETIME(AMCThroat,QueuedFoodCount);
+    DOREPLIFETIME(AMCThroat,TickleStartedAt);
     DOREPLIFETIME(AMCThroat,SuctionState);
     DOREPLIFETIME(AMCThroat,SpasmCount);
     DOREPLIFETIME(AMCThroat,VomitCount); DOREPLIFETIME(AMCThroat,MealSequence);

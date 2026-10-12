@@ -37,13 +37,12 @@ struct FWeaponHitWorld {
 };
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWeaponPlayerDamage,"MessControl.Inventory.PlayerHits.AllWeaponsExceptSpray",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCWeaponPlayerDamage,"MessControl.Inventory.PlayerHits.KnockbackWithoutFriendlyDamage",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FMCWeaponPlayerDamage::RunTest(const FString&) {
     for(float Dt:{1.f/30,1.f/60,1.f/120}) for(EMCToolSlot Slot:{EMCToolSlot::Brush,EMCToolSlot::Pickaxe,EMCToolSlot::Knife,EMCToolSlot::Spray}) {
         FWeaponHitWorld T;T.Attacker->Inventory->ServerSelect(Slot);
-        const float Damage=Slot==EMCToolSlot::Spray?0:Slot==EMCToolSlot::Brush?25:T.Attacker->Inventory->Damage();
         T.Attacker->SwingBrush();T.Attacker->SwingBrush();T.Step(.65f,Dt);
-        TestEqual(*FString::Printf(TEXT("Tool %d applies exactly one configured damage amount at %.0f FPS"),int32(Slot),1/Dt),T.Victim->Status->State.Health,1000-Damage);
+        TestEqual(*FString::Printf(TEXT("Tool %d preserves teammate health at %.0f FPS"),int32(Slot),1/Dt),T.Victim->Status->State.Health,1000.f);
         TestEqual(TEXT("One swing produces at most one confirmed hit, including knife follow-through"),T.Attacker->ConfirmedHitCount,Slot==EMCToolSlot::Spray?0:1);
         TestEqual(TEXT("Repeated input cannot create a second offensive swing"),T.Attacker->ValidatedSwingCount,Slot==EMCToolSlot::Spray?0:1);
         TestEqual(TEXT("The attacker never damages itself"),T.Attacker->Status->State.Health,100.f);
@@ -51,7 +50,8 @@ bool FMCWeaponPlayerDamage::RunTest(const FString&) {
         else TestEqual(TEXT("Spray cannot knock another player down"),T.Victim->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
     }
     FWeaponHitWorld T;T.Attacker->Inventory->UnlockWaterJet();T.Attacker->SwingBrush();T.Step(.65f);
-    TestEqual(TEXT("The upgraded first slot keeps its player hit"),T.Victim->Status->State.Health,975.f);
+    TestEqual(TEXT("The upgraded first slot also preserves teammate health"),T.Victim->Status->State.Health,1000.f);
+    TestEqual(TEXT("The upgraded first slot keeps its physical contact"),T.Attacker->ConfirmedHitCount,1);
     return true;
 }
 
@@ -74,7 +74,7 @@ bool FMCWeaponPlayerProtection::RunTest(const FString&) {
         T.Victim->SetActorLocation(FVector(500,0,2000));T.Attacker->SwingBrush();T.Step(.30f,Dt);
         TestEqual(TEXT("The first knife sample misses a distant player"),T.Attacker->ConfirmedHitCount,0);
         T.Victim->SetActorLocation(FVector(125,0,2000));T.Step(.35f,Dt);
-        TestEqual(TEXT("A player entering the knife follow-through receives only one hit"),T.Victim->Status->State.Health,1000-T.Attacker->Inventory->Damage());
+        TestEqual(TEXT("Late knife contact preserves teammate health"),T.Victim->Status->State.Health,1000.f);
         TestEqual(TEXT("Late knife contact ends the retry window"),T.Attacker->ConfirmedHitCount,1);
     }
     return true;

@@ -648,6 +648,8 @@ void UMCToothMovementComponent::TickCharacterPose(float Dt)
 void UMCToothMovementComponent::CalcVelocity(float Dt,float Friction,bool bFluid,float BrakingDeceleration)
 {
     if (IsMovingOnGround()) Friction=GroundSurface==EMCGroundSurface::Slippery?.22f:GroundSurface==EMCGroundSurface::Sticky?6.f:2.6f;
+    if(IsMovingOnGround() && bHasBraceSample && BraceMovement.IncomingMass>0)
+        BrakingDeceleration=FMath::Min(BrakingDeceleration,80.f);
     Super::CalcVelocity(Dt,Friction,bFluid,BrakingDeceleration);
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if (!Hero || !Hero->Grip || !Hero->ToothPhysics->CanAct()) return;

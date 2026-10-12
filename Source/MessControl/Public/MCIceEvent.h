@@ -78,6 +78,16 @@ struct FMCIceZoneCrystal
     UPROPERTY(BlueprintReadOnly) FVector LaunchAnchor=FVector::ZeroVector;
 };
 
+/** A brushed floor patch follows the tongue and gradually freezes again. */
+USTRUCT(BlueprintType)
+struct FMCBrushedWarmPatch
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) FVector Anchor=FVector::ZeroVector;
+    UPROPERTY(BlueprintReadOnly) float Cleaned=0;
+    UPROPERTY(BlueprintReadOnly) double LastBrushedAt=0;
+};
+
 /** Break the central crystal, transfer between warm zones and dodge cold spells. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCIceEvent : public AActor
@@ -101,6 +111,9 @@ public:
     float NextSafeRadius() const;
     bool IsCircleBlocked(int32 Index) const;
     bool IsSafePoint(FVector WorldPoint) const;
+    bool BrushIceUnderfoot(AMCToothCharacter* Hero,float Seconds);
+    bool CanBrushIceUnderfoot(const AMCToothCharacter* Hero) const;
+    float BrushedWarmRadius(const FMCBrushedWarmPatch& Patch) const;
     bool IsInsideNova(FVector WorldPoint) const;
     float FreezeAmount(const AMCToothCharacter* Hero) const;
     FVector CandyContactPoint(FVector From) const;
@@ -177,6 +190,10 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly) TArray<FMCPlayerFreeze> Players;
     UPROPERTY(Replicated,BlueprintReadOnly) TArray<FMCIcicleStrike> Strikes;
     UPROPERTY(Replicated,BlueprintReadOnly) TArray<FMCIceZoneCrystal> ZoneCrystals;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ice|Brush") TArray<FMCBrushedWarmPatch> BrushedWarmPatches;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Ice|Brush",meta=(ClampMin="50")) float BrushWarmRadius=175;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Ice|Brush",meta=(ClampMin=".5")) float BrushWarmSeconds=2;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Ice|Brush",meta=(ClampMin="2")) float BrushRefreezeSeconds=12;
     UPROPERTY(Replicated,BlueprintReadOnly) bool bNovaWarning=false;
     UPROPERTY(Replicated,BlueprintReadOnly) double NovaImpactAt=0;
     /** Cosmetic orientation in tongue space; the nova's gameplay area is a full circle. */

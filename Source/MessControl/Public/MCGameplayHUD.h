@@ -3,6 +3,8 @@
 #include "Blueprint/UserWidget.h"
 #include "MCGameplayHUD.generated.h"
 class UMCStaminaWidget;
+class UMCGameplayAlertWidget;
+class UMCDayEvent;
 class UBorder;
 class USizeBox;
 class UTextBlock;
@@ -17,14 +19,21 @@ class MESSCONTROL_API UMCGameplayHUD : public UUserWidget
 public:
     /** Use a Blueprint subclass of MCStaminaWidget to replace the native gauge. */
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="HUD") TSubclassOf<UMCStaminaWidget> StaminaWidgetClass;
+    UFUNCTION(BlueprintCallable,Category="HUD|Alerts") void QueueGameplayAlert(const FText& Message,float HoldSeconds=3.f,FName EventId=NAME_None);
+    void ResetGameplayAlerts();
 protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeConstruct() override;
+    virtual void NativeDestruct() override;
     virtual void NativeTick(const FGeometry& Geometry,float DeltaSeconds) override;
     virtual int32 NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
         FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;
 private:
     UPROPERTY(Transient) TObjectPtr<UMCStaminaWidget> StaminaWidget;
+    UPROPERTY(Transient) TObjectPtr<UMCGameplayAlertWidget> AlertWidget;
+    TMap<TWeakObjectPtr<AActor>,TMap<FName,double>> ObservedAlertStates;
+    TWeakObjectPtr<UMCDayEvent> LastAlertDayEvent;
+    double LastAlertStepStartedAt=-1;
     UPROPERTY(Transient) TObjectPtr<UBorder> DirectorPanel;
     UPROPERTY(Transient) TObjectPtr<USizeBox> DirectorPanelSize;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorText;
@@ -40,6 +49,8 @@ private:
     bool bHadSprayReticle=false;
     UWidget* Find(FName Name) const;
     void RefreshState();
+    void EnsureAlertWidget();
+    void RefreshGameplayAlerts();
     void EnsureDirectorMonitor();
     void EnsureProgressionPanel();
     void RefreshDirectorMonitor(const FMCGameDirectorState& State);

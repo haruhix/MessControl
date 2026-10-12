@@ -7,6 +7,8 @@
 #include "MCToothStatusComponent.h"
 #include "MCBossCharacter.h"
 #include "MCFoodActor.h"
+#include "MCNutEnemy.h"
+#include "MCThroat.h"
 #include "MCReactionVFX.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -246,7 +248,9 @@ void UMCInventoryComponent::SawContact()
         if(Offset.SizeSquared2D()>FMath::Square(175.f) || FMath::Abs(Offset.Z)>120 || FVector::DotProduct(Offset.GetSafeNormal2D(),Forward)<.45f) continue;
         FHitResult Block;FCollisionQueryParams Q(SCENE_QUERY_STAT(MCChainsawAlly),false,Hero);Q.AddIgnoredActor(Other);
         if(GetWorld()->LineTraceSingleByChannel(Block,Origin,Point,ECC_Visibility,Q)) continue;
-        if(Other->Status->Damage(Damage(),Forward)) {SawContacts.Add(Other,Now()+.65);Other->ToothPhysics->ApplyHit(Forward*220+FVector(0,0,40),Point);}
+        // Teammates keep the physical gag without losing health.
+        SawContacts.Add(Other,Now()+.65);
+        Other->ToothPhysics->ApplyHit(Forward*220+FVector(0,0,40),Point);
     }
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
         if(!It->CanReceiveWeaponHit() || Now()<SawContacts.FindRef(*It)) continue;
@@ -278,8 +282,13 @@ void UMCInventoryComponent::FireWaterShot()
     const FVector Origin=SprayOrigin();FVector End;FHitResult Hit;
     if(TraceWaterShot(Origin,End,Hit)) {
         if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) Food->HitFood(Power,Direction,Hero);
+        else if(auto* Nut=Cast<AMCNutEnemy>(Hit.GetActor())) Nut->ReceiveToolDamage(Power,Hero);
         else if(auto* Boss=Cast<AMCBossCharacter>(Hit.GetActor())) Boss->ReceiveBossDamage(Power,Hero);
-        else if(auto* Player=Cast<AMCToothCharacter>(Hit.GetActor())) Player->Status->Damage(Power,Direction);
+        else if(auto* Player=Cast<AMCToothCharacter>(Hit.GetActor())) {
+            if(Player->Status->IsAlive() && Player->ToothPhysics)
+                Player->ToothPhysics->ApplyHit(Direction.GetSafeNormal()*85+FVector(0,0,12),Hit.ImpactPoint);
+        }
+        else if(auto* Throat=Cast<AMCThroat>(Hit.GetActor())) Throat->ReactToWaterTickle(Hero,Hit.ImpactPoint);
         AMCReactionVFX::Spawn(GetWorld(),End,EMCReactionEffect::WaterImpact,.15f,40,Hit.ImpactNormal);
     }
     AMCReactionVFX::Spawn(GetWorld(),Origin,EMCReactionEffect::WaterShot,.1f,12,Direction,FVector::Distance(Origin,End));

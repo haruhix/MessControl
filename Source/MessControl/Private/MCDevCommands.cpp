@@ -510,7 +510,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     }
     if (static_cast<uint8>(Action)>static_cast<uint8>(EMCDevAction::SwimCoffee) && Action!=EMCDevAction::OldFlood
         && Action!=EMCDevAction::CoffeeFlood && Action!=EMCDevAction::StuckFood
-        && Action!=EMCDevAction::Yawn && Action!=EMCDevAction::Fire)
+        && Action!=EMCDevAction::Yawn && Action!=EMCDevAction::Fire && Action!=EMCDevAction::HugeTongueStain)
         return FText::FromString(TEXT("Неизвестная команда."));
     if (GS->Phase==EMCShiftPhase::Lost || GS->Phase==EMCShiftPhase::Won || GS->bDayOneComplete)
         return FText::FromString(TEXT("Сначала запусти этап или перезапусти день."));
@@ -528,6 +528,12 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
     switch (Action)
     {
+    case EMCDevAction::HugeTongueStain:
+    {
+        AMCMouthSurface* Patch=Hero?AMCMouthSurface::SpawnExperimentalHugeStain(GetWorld(),Hero->GetActorLocation()):nullptr;
+        return FText::FromString(Patch?TEXT("Одно огромное пятно на языке: очищайте щётками вместе."):
+            TEXT("Для пятна нужен игрок на доступной поверхности языка."));
+    }
     case EMCDevAction::CoffeeFlood:
         if (!IsValid(DayDirector->Flood)) DayDirector->Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>();
         if (DayDirector->ColdCola) DayDirector->ColdCola->Stop();
@@ -579,7 +585,7 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
                 if(It->RandomGameplaySpawnPoint(Random,Margin,Margin*2+40,TConstArrayView<FVector>(),Floor)) {Found=true;break;}
             if(!Found) {Food->Destroy();return FText::FromString(TEXT("В зоне дропа нет места для перца."));}
             Pose.SetLocation(Floor.ImpactPoint+FVector(0,0,80));Food->FinishSpawning(Pose);
-            return FText::FromString(TEXT("Перец в зоне дропа: 10 секунд с приземления до взрыва. E — взять, Q — выбросить в глотку или передний выход."));
+            return FText::FromString(TEXT("Перец в зоне дропа: таймер 10 секунд не останавливается в руках и полёте. ЛКМ — взять, Q — бросить. Взрыв ранит всех, включая союзников и боссов."));
         }
         FVector P=Hero->GetActorLocation()+Hero->GetActorForwardVector()*170;
         if(Action==EMCDevAction::VomitMeal) {

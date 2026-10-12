@@ -56,6 +56,45 @@ AMCGameDirector* AMCGameDirector::Find(UWorld* World)
     const auto* Mode=World?World->GetAuthGameMode<AMCGameMode>():nullptr;
     return Mode && IsValid(Mode->GameDirector)?Mode->GameDirector.Get():nullptr;
 }
+AMCToothCharacter* AMCGameDirector::ChooseBossTarget(AActor* Boss,const TArray<AMCToothCharacter*>& Candidates,AMCToothCharacter* Current)
+{
+    if(!HasAuthority() || !IsValid(Boss) || Boss->GetWorld()!=GetWorld()) return nullptr;
+    TArray<AMCToothCharacter*> Eligible;
+    AMCToothCharacter* Nearest=nullptr; double Best=DBL_MAX;
+    for(auto* Player:Candidates) {
+        if(!IsValid(Player) || Player->GetWorld()!=GetWorld() || !Player->Status || !Player->Status->IsAlive()
+            || Player->SwallowedBy || Player->MimicCaptor) continue;
+        Eligible.AddUnique(Player);
+        const double Distance=FVector::DistSquared2D(Boss->GetActorLocation(),Player->GetActorLocation());
+        if(Distance<Best) {Best=Distance;Nearest=Player;}
+    }
+    if(!Nearest) return nullptr;
+    const double Time=GetWorld()->GetTimeSeconds();
+    for(auto It=BossFocus.CreateIterator();It;++It) if(!It.Key().IsValid()) It.RemoveCurrent();
+    auto& Choice=BossFocus.FindOrAdd(Boss);
+    auto Healthy=[](const AMCToothCharacter* Player) {
+        return Player && Player->Status->State.Health>Player->Status->State.MaxHealth*.35f && !Player->HasFrozenLegs();
+    };
+    if(Choice.EndsAt>Time) {
+        if(Choice.bFocus && Eligible.Contains(Choice.Player.Get()) && Healthy(Choice.Player.Get())) return Choice.Player.Get();
+        if(!Choice.bFocus) return Nearest;
+        // A vulnerable or unavailable focus gets relief immediately.
+        Choice.bFocus=false; Choice.EndsAt=Time+2; Choice.Player=nullptr;
+        return Nearest;
+    }
+    TArray<AMCToothCharacter*> FocusCandidates;
+    for(auto* Player:Eligible) if(Healthy(Player)) FocusCandidates.Add(Player);
+    const auto* GS=GetWorld()->GetGameState<AMCGameState>();
+    const bool Recovery=GS && (GS->bTutorialActive || GS->bLobbyWaiting || Pacing==EMCGameDirectorPacing::Drain);
+    Choice.bFocus=!Recovery && Eligible.Num()>1 && !FocusCandidates.IsEmpty() && Random.FRand()<.4f;
+    Choice.Player=Choice.bFocus?FocusCandidates[Random.RandRange(0,FocusCandidates.Num()-1)]:nullptr;
+    Choice.EndsAt=Time+Random.FRandRange(Choice.bFocus?3.f:2.f,Choice.bFocus?6.f:4.f);
+    AMCToothCharacter* Selected=Choice.bFocus?Choice.Player.Get():Nearest;
+    if(Selected!=Current || Choice.bFocus)
+        Record(FString::Printf(TEXT("Босс %s: %s · %s на %.1f с"),*GetNameSafe(Boss),*GetNameSafe(Selected),
+            Choice.bFocus?TEXT("фокус"):TEXT("ближайший"),float(Choice.EndsAt-Time)));
+    return Selected;
+}
 bool AMCGameDirector::IsManagingEvents() const
 {
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;

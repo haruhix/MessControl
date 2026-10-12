@@ -5,6 +5,7 @@
 #include "MCPresentationTypes.h"
 #include "MCPerkTypes.h"
 #include "Components/SlateWrapperTypes.h"
+#include "MCPlayerCameraComponent.h"
 #include "MCPlayerController.generated.h"
 class UMCPrototypeWidget;
 class UMCDevPanelWidget;
@@ -19,6 +20,7 @@ class AMCBossIntro;
 class UMCMainMenuWidget;
 class UMCTutorialWidget;
 class AMCTutorialDirector;
+class UMCGameplayHUD;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
@@ -29,6 +31,9 @@ public:
     virtual void SetupInputComponent() override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    virtual void CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult) override;
+    virtual void NotifyLoadedWorld(FName WorldPackageName,bool bFinalDest) override;
+    virtual void PostSeamlessTravel() override;
     UFUNCTION(BlueprintCallable,Category="Debug") void ToggleDevPanel();
     void ToggleEmotes();
     bool CanUseDevPanel() const;
@@ -48,6 +53,13 @@ public:
     UFUNCTION(BlueprintPure, Category="Spectating") bool IsSpectating() const { return bDeathSpectating; }
     UFUNCTION(BlueprintPure, Category="Spectating") AMCToothCharacter* GetSpectatorTarget() const { return SpectatorTarget.Get(); }
     UFUNCTION(BlueprintPure, Category="Spectating") float GetRespawnSecondsRemaining() const;
+    UFUNCTION(BlueprintCallable, Category="Spectating") void ApplySpectatorOrbitInput(FVector2D Delta);
+    UFUNCTION(BlueprintCallable, Category="Spectating") void ZoomSpectatorCamera(float ScrollDelta);
+    /** Local presentation. Use ClientShowGameplayAlert from server event code. */
+    UFUNCTION(BlueprintCallable, Category="HUD|Alerts") void QueueGameplayAlert(const FText& Message,float HoldSeconds=3.f,FName EventId=NAME_None);
+    UFUNCTION(Client,Reliable) void ClientShowGameplayAlert(const FText& Message,float HoldSeconds,FName EventId);
+    void RegisterGameplayHUD(UMCGameplayHUD* HUD);
+    void UnregisterGameplayHUD(UMCGameplayHUD* HUD);
     UFUNCTION(Server, Reliable) void ServerSendAlarm(EMCPlayerAlarm Alarm);
     UFUNCTION(Server, Reliable) void ServerSetPlayerColor(FLinearColor Color);
     UFUNCTION(BlueprintCallable, Category="Multiplayer") void HostGame();
@@ -76,6 +88,7 @@ public:
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCPerkChoiceWidget> PerkChoiceWidget;
     UPROPERTY(BlueprintReadOnly, Category="UI") TObjectPtr<UMCBossHealthWidget> BossHealthWidget;
 private:
+    void ResetWorldPresentation();
     void RefreshFrontEnd();
     UFUNCTION(Server, Reliable) void ServerGameplayLoaded();
     UFUNCTION(Server, Reliable) void ServerTutorialLoaded();
@@ -116,6 +129,11 @@ private:
     TWeakObjectPtr<AMCToothCharacter> SpectatorTarget;
     TWeakObjectPtr<APawn> PreviousPawn;
     bool bDeathSpectating=false;
+    FRotator SpectatorOrbit=FRotator(-30,0,0);
+    float SpectatorDistance=1000.f;
+    bool bSpectatorOrbitInitialized=false;
+    FMCSpectatorCameraViewState SpectatorCameraView;
+    UPROPERTY(Transient) TObjectPtr<UMCGameplayHUD> GameplayHUD;
     double NextSpectatorCheck=0;
     double NextAlarmAt=0;
     double NextColorAt=0;

@@ -100,6 +100,8 @@ public:
     static bool FindAmbientSuctionAt(UWorld* World,FVector Location,float& Strength,FVector& Velocity);
     UFUNCTION(CallInEditor,Category="Throat") void RebuildAppearance();
     void NotifyUvulaLanding(AMCToothCharacter* Hero,const FHitResult& Hit,float DownSpeed);
+    void ReactToWaterTickle(AMCToothCharacter* Source,FVector Impact);
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Throat|Tickle") double TickleStartedAt=-100;
     bool ContainsPlayer(const AMCToothCharacter* Hero) const;
     bool CanOrderJump(const AMCToothCharacter* Hero) const;
     /** Conservative clearance from the authored uvula profile, including body margin. */
@@ -114,6 +116,7 @@ private:
     void BuildRing();
     void CollectCarriedDeliveries();
     void CollectLooseDeliveries();
+    void CheckOpenThroatPlayers();
     bool CaptureMeal();
     void BeginVomit();
     bool OrderVelocity(const AMCToothCharacter* Hero,FVector& Velocity) const;

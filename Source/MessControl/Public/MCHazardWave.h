@@ -22,12 +22,14 @@ public:
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) float Damage=12;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) float WarningSeconds=.6f;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) float TravelSeconds=1.1f;
-    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) float ClearHeight=45;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) float ClearHeight=12;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite) bool bSpicy=false;
     UPROPERTY(Replicated,BlueprintReadOnly) double StartedAt=0;
     UPROPERTY(Replicated,BlueprintReadOnly) int32 HitCount=0;
     UPROPERTY(Replicated) TObjectPtr<AActor> Source;
     float Radius() const;
+    // The immediate chili burst and its travelling front share one victim ledger.
+    void RegisterBlastVictim(AActor* Victim) { if(IsValid(Victim)) HitActors.Add(Victim); }
     // Local ulcer pulses share the tongue's rendered/collision surface, while
     // this actor retains authority over timing, swept damage and jump clearance.
     bool SurfaceMotion(const AMCTongue* SurfaceTongue,float Time,FMCTongueMotionState& Out) const;

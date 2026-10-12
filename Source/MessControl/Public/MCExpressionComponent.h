@@ -72,6 +72,8 @@ public:
     /** Transient reaction derived locally from the replicated food inhale; never changes an emote. */
     UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float FoodSuctionReaction=0;
     UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float SocialDisgust=0;
+    UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float StinkReaction=0;
+    UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float StinkGestureAlpha=0;
     UPROPERTY(Transient,BlueprintReadOnly,Category="Face") float SprayReaction=0;
     // Authority records actual spray contact; peers derive the cosmetic envelope.
     UPROPERTY(Replicated) FMCSprayReactionState SprayState;
@@ -88,7 +90,7 @@ public:
     void BuildFacePose(TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
     bool ApplyMorphBlink(float Closure);
     float Squint() const { return EyeSquint; }
-    float SocialEyeClosure() const { return FMath::Max(SocialDisgust*.13f,SprayReaction*.82f); }
+    float SocialEyeClosure() const { return FMath::Max3(SocialDisgust*.13f,StinkReaction*.3f,SprayReaction*.82f); }
     // Call on the avatar whose voice is being played locally. Timeout returns the mouth to rest.
     // Envelope-only VOIP can use Open; a later lip-sync provider supplies actual visemes.
     UFUNCTION(BlueprintCallable,Category="Speech") void SetSpeechInput(float Envelope,MCViseme Viseme=MCViseme::Open);
@@ -100,6 +102,8 @@ private:
     double Now() const;
     double VoiceAt=-100,NextEmoteAt=0;
     double FoodSuctionReactionAt=-100;
+    double StinkCheckAt=0,StinkGestureAt=-100,NextStinkGestureAt=0;
+    float StinkContact=0;
     float FoodSuctionFlinch=0;
     float SprayFlinch=0;
     bool CanReactSocially() const;

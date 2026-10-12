@@ -8,6 +8,7 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCInventoryComponent.h"
+#include "MCBrushContactComponent.h"
 #include "MCLocomotionSurface.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
@@ -280,10 +281,58 @@ bool AMCIceEvent::IsSafePoint(FVector WorldPoint) const
             && FMath::Abs(WorldPoint.Z-Floor.ImpactPoint.Z)<150;
     };
     const double Time=Now();
+    for(const auto& Patch:BrushedWarmPatches)
+        if(BrushedWarmRadius(Patch)>=65 && Inside(Patch.Anchor,BrushedWarmRadius(Patch))) return true;
     return ((!bNextCircle || Time<FMath::Max(CircleStartedAt+CircleDuration(CircleIndex),CircleHandoffAt))
             && !IsCircleBlocked(CircleIndex) && Inside(SafeAnchor,SafeRadius()))
         || (bNextCircle && Time<NextCircleStartedAt+CircleDuration(CircleIndex+1)
             && !IsCircleBlocked(CircleIndex+1) && Inside(NextSafeAnchor,NextSafeRadius()));
+}
+
+float AMCIceEvent::BrushedWarmRadius(const FMCBrushedWarmPatch& Patch) const
+{
+    const float Clean=FMath::Clamp(Patch.Cleaned-float(FMath::Max(0.,Now()-Patch.LastBrushedAt))/FMath::Max(2.f,BrushRefreezeSeconds),0.f,1.f);
+    return FMath::Max(50.f,BrushWarmRadius)*FMath::Sqrt(Clean);
+}
+
+bool AMCIceEvent::CanBrushIceUnderfoot(const AMCToothCharacter* Hero) const
+{
+    if(Stage!=EMCIceEventStage::Active || !IsValid(Tongue) || !IsValid(Hero)
+        || !IsParticipant(Hero) || !Hero->CanWork() || !Hero->HasBrush()
+        || Hero->HeldFood || Hero->bInCoffee || !Hero->BrushContact) return false;
+    const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+    FHitResult Floor;
+    return Tongue->SurfacePoint(Feet,Floor) && FMath::Abs(Feet.Z-Floor.ImpactPoint.Z)<=30;
+}
+
+bool AMCIceEvent::BrushIceUnderfoot(AMCToothCharacter* Hero,float Seconds)
+{
+    if(!HasAuthority() || !CanBrushIceUnderfoot(Hero) || !Hero->bBrushing || !FMath::IsFinite(Seconds) || Seconds<=0) return false;
+    const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+    FHitResult Floor;if(!Tongue->SurfacePoint(Feet,Floor)) return false;
+    const double Time=Now();
+    FHitResult BrushFloor;
+    const FVector Aim=Floor.ImpactPoint+Hero->GetActorForwardVector()*65+Hero->GetActorRightVector()*(FMath::Sin(float(Time)*22)*6);
+    if(!Tongue->SurfacePoint(Aim,BrushFloor)) return false;
+    Hero->BrushContact->Contact(this,BrushFloor.ImpactPoint,BrushFloor.ImpactNormal);
+    if(!Hero->BrushContact->IsWorkReady()) return true;
+    BrushedWarmPatches.RemoveAll([this](const FMCBrushedWarmPatch& Patch){return BrushedWarmRadius(Patch)<1;});
+    int32 Index=INDEX_NONE;
+    for(int32 I=0;I<BrushedWarmPatches.Num();++I) {
+        FHitResult Existing;
+        if(AnchorFloor(BrushedWarmPatches[I].Anchor,Existing) && FVector::DistSquared2D(Existing.ImpactPoint,Floor.ImpactPoint)<FMath::Square(75.f)) {Index=I;break;}
+    }
+    if(Index==INDEX_NONE) {
+        if(BrushedWarmPatches.Num()>=32) return false;
+        Index=BrushedWarmPatches.AddDefaulted();
+        BrushedWarmPatches[Index].Anchor=Tongue->GetActorTransform().InverseTransformPosition(Floor.ImpactPoint);
+        BrushedWarmPatches[Index].LastBrushedAt=Time;
+    }
+    auto& Patch=BrushedWarmPatches[Index];
+    const float Before=FMath::Square(BrushedWarmRadius(Patch)/FMath::Max(50.f,BrushWarmRadius));
+    Patch.Cleaned=FMath::Clamp(Before+FMath::Min(Seconds,.1f)*Hero->Inventory->CleaningSpeedMultiplier()/FMath::Max(.5f,BrushWarmSeconds),0.f,1.f);
+    Patch.LastBrushedAt=Time;
+    ForceNetUpdate(); return true;
 }
 
 bool AMCIceEvent::ChooseCircle(FVector& Anchor,bool bFirst)
@@ -563,6 +612,7 @@ void AMCIceEvent::ResolveNova()
         if(!IsParticipant(Hero) || !Hero->GetController() || !Hero->CanWork() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
         const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
         if(!IsInsideNova(Feet)) continue;
+        if(Hero->ClearsGroundWave(12.f)) continue;
         FHitResult Obstacle; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIceNovaContact),false,this);
         Query.AddIgnoredActor(Tongue); Query.AddIgnoredActor(Hero);
         if(GetWorld()->LineTraceSingleByChannel(Obstacle,Center.ImpactPoint+Center.ImpactNormal*100,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
@@ -599,11 +649,15 @@ void AMCIceEvent::UpdateGroundWave(double Time)
         if(WaveHitHeroes.Contains(Hero) || !IsParticipant(Hero) || !Hero->GetController() || !Hero->Status
             || !Hero->Status->IsAlive() || Hero->IsFreezingToDeath() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
         const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-        if(!IsInsideNova(Feet) || FVector::DistSquaredXY(Feet,Center.ImpactPoint)>FMath::Square(Radius)) continue;
+        FHitResult HeroFloor;
+        if(!Tongue->SurfacePoint(Feet,HeroFloor) || !IsInsideNova(HeroFloor.ImpactPoint)
+            || FVector::DistSquaredXY(Feet,Center.ImpactPoint)>FMath::Square(Radius)) continue;
         FHitResult Obstacle; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCCandyWave),false,this);
         Query.AddIgnoredActor(Tongue); Query.AddIgnoredActor(Hero);
         if(GetWorld()->LineTraceSingleByChannel(Obstacle,Center.ImpactPoint+Center.ImpactNormal*60,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
-        Hero->FreezeLegs(NovaFootHealth); WaveHitHeroes.Add(Hero); FrozenLegHeroes.AddUnique(Hero);
+        WaveHitHeroes.Add(Hero);
+        if(Hero->ClearsGroundWave(12.f)) continue;
+        Hero->FreezeLegs(NovaFootHealth); FrozenLegHeroes.AddUnique(Hero);
     }
 }
 
@@ -847,6 +901,11 @@ void AMCIceEvent::RefreshFloorGuides()
     const FTransform Transform=FloorGuides->GetComponentTransform();
     const double Time=Now();
     const float WarmPulse=.88f+.12f*FMath::Sin(float(Time)*2.4f);
+    for(const auto& Patch:BrushedWarmPatches) {
+        const float Radius=BrushedWarmRadius(Patch);
+        if(Radius>1 && AnchorFloor(Patch.Anchor,Floor))
+            Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,Radius,5,FLinearColor(1.f,.67f,.3f)*WarmPulse);
+    }
     if(AnchorFloor(SafeAnchor,Floor))
         Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,SafeRadius(),7,
             (IsCircleBlocked(CircleIndex)?FLinearColor(.12f,.5f,1.f):FLinearColor(1.f,.58f,.17f))*WarmPulse,
@@ -1098,13 +1157,22 @@ void AMCIceEvent::RefreshFrostSurface()
     Mesh.UV.Reserve(Count); Mesh.Colors.Reserve(Count); Mesh.Tangents.Reserve(Count);
     const FTransform Transform=FrostSurface->GetComponentTransform();
     const FTransform TongueTransform=Tongue->Surface->GetComponentTransform();
+    struct FLocalBrushPatch { FVector Center;float Radius; };
+    TArray<FLocalBrushPatch,TInlineAllocator<32>> BrushPatches;
+    for(const auto& Patch:BrushedWarmPatches) {
+        const float Radius=BrushedWarmRadius(Patch);
+        if(Radius>1) BrushPatches.Add({Tongue->GetActorTransform().TransformPosition(Patch.Anchor),Radius});
+    }
     for(const FProcMeshVertex& Vertex:SourceSection->ProcVertexBuffer)
     {
         const FVector Normal=TongueTransform.TransformVectorNoScale(Vertex.Normal).GetSafeNormal();
         const FVector Point=TongueTransform.TransformPosition(Vertex.Position)+Normal*2.5f;
         Mesh.Vertices.Add(Transform.InverseTransformPosition(Point));
         Mesh.Normals.Add(Transform.InverseTransformVectorNoScale(Normal).GetSafeNormal());
-        Mesh.UV.Add(Vertex.UV0); Mesh.Colors.Add(FLinearColor::White);
+        float FrostCoverage=1;
+        for(const auto& Patch:BrushPatches)
+            FrostCoverage=FMath::Min(FrostCoverage,FMath::SmoothStep(Patch.Radius*.7f,Patch.Radius,float(FVector::Dist2D(Point,Patch.Center))));
+        Mesh.UV.Add(Vertex.UV0); Mesh.Colors.Add(FLinearColor(FrostCoverage,FrostCoverage,FrostCoverage,FrostCoverage));
         const FVector Tangent=TongueTransform.TransformVectorNoScale(Vertex.Tangent.TangentX);
         Mesh.Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(Tangent).GetSafeNormal(),Vertex.Tangent.bFlipTangentY));
     }
@@ -1231,6 +1299,7 @@ void AMCIceEvent::PublishManualHUD()
 
 void AMCIceEvent::ClearGameplay()
 {
+    BrushedWarmPatches.Reset();
     if(IsValid(SlipperyFloor)) SlipperyFloor->Destroy(); SlipperyFloor=nullptr;
     for(const auto& Hero:FrozenLegHeroes) if(Hero.IsValid()) Hero->ClearFrozenLegs();
     for(const auto& Player:Players) if(IsValid(Player.Hero)) Player.Hero->ClearFrozenLegs();
@@ -1373,4 +1442,5 @@ void AMCIceEvent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
     DOREPLIFETIME(AMCIceEvent,ScreamCooldownSeconds); DOREPLIFETIME(AMCIceEvent,ScreamWarningSeconds);
     DOREPLIFETIME(AMCIceEvent,CrystalFlightSeconds); DOREPLIFETIME(AMCIceEvent,WaveTravelSeconds);
     DOREPLIFETIME(AMCIceEvent,FacingPlayer);
+    DOREPLIFETIME(AMCIceEvent,BrushedWarmPatches);
 }

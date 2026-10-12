@@ -84,10 +84,10 @@ void AMCDayDirector::AddDirt(bool bCoffee,int32 Patches,int32 Batch,int32 ToothL
     for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(!It->IsClean()) Placed.Add(It->GetActorLocation());
     for (int32 I=0;I<FMath::Clamp(Patches,0,40);++I)
     {
-        const float HalfSize=Random.FRandRange(110.f,300.f);
+        const float HalfSize=Random.FRandRange(190.f,360.f);
         FHitResult Floor; bool FoundFloor=false;
         for(auto* Tongue:Tongues)
-            if(Tongue->RandomGameplaySpawnPoint(Random,HalfSize*1.415f+40,HalfSize*1.6f+90,Placed,Floor)) {FoundFloor=true;break;}
+            if(Tongue->RandomGameplayInterestPoint(Random,HalfSize*1.415f+40,HalfSize*1.6f+90,Placed,Floor)) {FoundFloor=true;break;}
         if(!FoundFloor) {UE_LOG(LogTemp,Warning,TEXT("MC_DIRT_SPAWN no interior tongue footprint for patch %d"),I);continue;}
         const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
         auto* Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose);

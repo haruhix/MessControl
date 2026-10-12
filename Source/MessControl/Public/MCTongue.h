@@ -40,6 +40,8 @@ public:
     bool TriggerPain(FVector WorldPoint);
     bool TriggerToothpickPain(FVector WorldPoint);
     bool TriggerJolt();
+    /** Water provokes a cosmetic tickle of the uvula, without a pain attack. */
+    void ReactToWaterTickle(class AMCToothCharacter* Source,FVector Impact);
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Tongue|Yawn") bool StartYawn(float Seconds=4);
     UFUNCTION(BlueprintPure,Category="Tongue|Yawn") bool IsYawnActive() const;
     void ResetYawn();
@@ -67,6 +69,7 @@ public:
     // Retains the full supported footprint/end strips and excludes the throat.
     bool GameplayStuckFoodFootprint(FVector WorldPoint,float Margin,FHitResult& Hit) const;
     bool RandomGameplaySpawnPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit,int32* OutZone=nullptr);
+    bool RandomGameplayInterestPoint(FRandomStream& Random,float Margin,float Separation,TConstArrayView<FVector> Excluded,FHitResult& Hit);
     // Stable support for permanent coatings: breathing, pressure and pain waves
     // must not give server and clients different grime layouts.
     bool RestSurfacePoint(FVector WorldPoint,FVector& Point) const;

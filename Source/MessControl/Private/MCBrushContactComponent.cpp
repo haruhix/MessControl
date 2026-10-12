@@ -2,6 +2,7 @@
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "MCTongue.h"
+#include "MCIceEvent.h"
 #include "EngineUtils.h"
 #include "MCToothCharacter.h"
 #include "MCInventoryComponent.h"
@@ -215,6 +216,7 @@ bool UMCBrushContactComponent::CanAcquireSurface(const AActor* Surface) const
 {
     const auto* H=Hero?Hero.Get():Cast<AMCToothCharacter>(GetOwner());
     if(!H || !IsValid(Surface) || !H->CanWork()) return false;
+    if(const auto* Ice=Cast<AMCIceEvent>(Surface)) return Ice->CanBrushIceUnderfoot(H);
     const UPrimitiveComponent* Bounds=nullptr;
     if(const auto* Tooth=Cast<AMCArenaTooth>(Surface)) { if(!Tooth->IsAvailable()) return false; Bounds=Tooth->Body; }
     else if(const auto* Patch=Cast<AMCMouthSurface>(Surface)) { if(Patch->bUlcer || Patch->IsClean()) return false; Bounds=Patch->Area; }

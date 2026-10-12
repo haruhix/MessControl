@@ -87,6 +87,7 @@ void AMCFoodActor::BeginMouthEntry(FVector LaunchVelocity,float PushSpeed,TOptio
     bMouthEntry=true; MouthEntryPushSpeed=FMath::Clamp(PushSpeed,0.f,180.f);
     MouthEntryLanding.Reset();
     if(ExpectedLanding.IsSet() && !ExpectedLanding.GetValue().ContainsNaN()) MouthEntryLanding=ExpectedLanding;
+    EntryRecoveryLanding=MouthEntryLanding;
     MouthEntryEndsAt=GetWorld()->GetTimeSeconds()+8;
     bLandingPending=false;
     Body->SetEnableGravity(true); Body->SetLinearDamping(0);
@@ -311,6 +312,7 @@ void AMCFoodActor::Release(AMCToothCharacter* Hero)
 void AMCFoodActor::Dispose()
 {
     if (!HasAuthority() || IsDisposed()) return;
+    if(IsValid(SmellVFX)) {SmellVFX->Destroy();SmellVFX=nullptr;}
     SetStackCarrier(nullptr);
     for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]);
     if (IsValid(EquippedBy)) { EquippedBy->EquippedBrush=nullptr; EquippedBy->ForceNetUpdate(); } EquippedBy=nullptr;
@@ -328,6 +330,7 @@ void AMCFoodActor::AwardDelivery()
 }
 void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
 {
+    if(HasAuthority() && IsValid(SmellVFX)) {SmellVFX->Destroy();SmellVFX=nullptr;}
     if (HasAuthority())
     {
         for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]);
@@ -424,7 +427,9 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
             }
             return;
         }
-    Target->Damage(FMath::Min(Settings.MaxDamage,Speed*Settings.DamagePerSpeed*Settings.Mass/9.f),Direction);
+    // Player-handled physics food retains its knockback without friendly HP loss.
+    if(!Cast<AMCToothCharacter>(Other) || !LastHandledBy)
+        Target->Damage(FMath::Min(Settings.MaxDamage,Speed*Settings.DamagePerSpeed*Settings.Mass/9.f),Direction,this);
     if (auto* Hero=Cast<AMCToothCharacter>(Other))
     {
         Hero->DropFood();
@@ -437,6 +442,7 @@ void AMCFoodActor::Tick(float Dt)
     if (bMouthEntry && (GetWorld()->GetTimeSeconds()>=MouthEntryEndsAt || !Body->IsSimulatingPhysics()
         || Phase!=EMCFoodPhase::Falling || StackCarrier || !Holders.IsEmpty())) EndMouthEntry();
     UpdateHazard(Dt);
+    UpdateSmell();
     UpdateReaction(Dt);
     if(StackCarrier && !HasAuthority()) UpdateCarryPresentation(Dt);
     if(IsDisposed()) {
@@ -445,6 +451,7 @@ void AMCFoodActor::Tick(float Dt)
         return;
     }
     UpdateAbsorption(Dt);
+    RecoverUnreachableFood(Dt);
     if(IsDisposed()) return;
     if(Phase==EMCFoodPhase::Absorbing) { Label->SetVisibility(false); return; }
     AMCToothCharacter* IgnoredCarrier=StackCarrier?StackCarrier.Get():Phase==EMCFoodPhase::Carried && Holders.Num()==1?Holders[0].Get():nullptr;
@@ -523,7 +530,7 @@ void AMCFoodActor::Tick(float Dt)
         // falls out below the arena, remove it instead of respawning it upstream.
         if (bRiverSwept && GetActorLocation().Z<EscapeZ) { Dispose(); return; }
         if (!bRiverSwept && GetActorLocation().Z<EscapeZ)
-        { EndMouthEntry(); for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]); SetActorLocation(FVector(0,0,Settings.DropHeight),false,nullptr,ETeleportType::TeleportPhysics); Body->SetPhysicsLinearVelocity(FVector::ZeroVector); }
+        { EndMouthEntry(); for (int32 I=Holders.Num()-1;I>=0;--I) Release(Holders[I]); RecoverUnreachableFood(.75f); }
         PrePhysicsVelocity=Body->GetPhysicsLinearVelocity();
     }
     if(GetNetMode()==NM_DedicatedServer) return;
@@ -884,6 +891,12 @@ void AMCFoodActor::ConfigureItem(FName Name,const FMCFoodRow& Row,FRandomStream&
     }
     if (!ItemMesh)
     {
+        if(bFragment) for(const auto& Whole:FoodData.WholeMeshes) {
+            ItemMesh=Whole.LoadSynchronous();if(ItemMesh) break;
+        }
+    }
+    if (!ItemMesh)
+    {
         UE_LOG(LogTemp,Warning,TEXT("Food row %s has no usable %s mesh; using the prototype mesh"),*Name.ToString(),Fragment?TEXT("fragment"):TEXT("whole"));
         ItemMesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Art/Meshes/SM_Food.SM_Food"));
     }
@@ -915,6 +928,11 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
     if(StackCarrier) StackCarrier->FoodCollection->Spill(Direction.GetSafeNormal()*180+FVector(0,0,60));
     if(Phase==EMCFoodPhase::Stuck) {Phase=EMCFoodPhase::Free;StuckTooth=nullptr;OnRep_Phase();}
     ReactToImpact();
+    if(bFragment && FoodData.Kind==EMCFoodKind::Food) {
+        AttendFood();
+        if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*120+FVector(0,0,45),NAME_None,true);
+        return true; // Small pieces complete on delivery, without another cutting task.
+    }
     if(FoodData.Kind==EMCFoodKind::Spicy) {
         // Pepper stays one throwable hazard. Cutting and impacts preserve its fuse.
         if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true);
@@ -922,10 +940,10 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
     }
     AttendFood(); Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();
     if (Health>0) { if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
-    // Completion is the final real tool hit, including on old fragment actors.
-    // Use the delivery guard as well so a later intake cannot reward this item twice.
-    // Spoiled ordinary food is still a destruction task; legacy sorting stays unchanged.
-    if(FoodData.Kind==EMCFoodKind::Food && !bDeliveryScored) {
+    // Breaking whole food leaves small pieces for immediate delivery. Reward
+    // the original here only if no fragment could be created.
+    const bool Fragmented=FoodData.Kind==EMCFoodKind::Food && !bFragment && SpawnFragments(Direction);
+    if(FoodData.Kind==EMCFoodKind::Food && !bDeliveryScored && !Fragmented) {
         bDeliveryScored=true;
         if(Worker) {
             if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>())

@@ -106,7 +106,21 @@ void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorCompon
     const auto* Other=Social && Tooth->Gaze && Tooth->Gaze->Target.Interest==EMCGazeInterest::Player
         ?Cast<AMCToothCharacter>(Tooth->Gaze->Target.Actor):nullptr;
     const float Dirt=Other && Other!=Tooth && Other->Status->IsAlive()?Other->Status->CoffeeAmount():0.f;
-    const float Disgust=FMath::Clamp(Dirt,0.f,1.f);
+    if(Now()>=StinkCheckAt)
+    {
+        StinkCheckAt=Now()+.2;
+        StinkContact=Social && AMCFoodActor::FindNearbySpoiledFood(GetWorld(),Tooth->GetActorLocation(),310.f)?1.f:0.f;
+        if(StinkContact>0 && Now()>=NextStinkGestureAt && !Tooth->HeldFood && !Tooth->bHandling
+            && !Tooth->bBrushing && !Tooth->IsPrimaryHeld() && Tooth->Grip && Tooth->Grip->Blend()<.01f
+            && BodyAlpha()<.01f)
+        {
+            StinkGestureAt=Now(); NextStinkGestureAt=Now()+5.;
+        }
+    }
+    StinkReaction=FMath::Lerp(StinkReaction,Social?StinkContact:0.f,1-FMath::Exp(-6.f*FMath::Max(0.f,Dt)));
+    const float GestureAge=float(Now()-StinkGestureAt);
+    StinkGestureAlpha=Social?FMath::SmoothStep(0.f,.18f,GestureAge)*(1-FMath::SmoothStep(1.25f,1.65f,GestureAge)):0.f;
+    const float Disgust=FMath::Clamp(FMath::Max(Dirt,StinkReaction),0.f,1.f);
     SocialDisgust=FMath::Lerp(SocialDisgust,Disgust,1-FMath::Exp(-6.f*FMath::Max(0.f,Dt)));
     const float Spray=Social?1-FMath::SmoothStep(.3f,1.05f,float(Now()-SprayState.ContactAt)):0.f;
     SprayReaction=FMath::Lerp(SprayReaction,Spray,1-FMath::Exp(-14.f*FMath::Max(0.f,Dt)));
@@ -236,7 +250,7 @@ void UMCExpressionComponent::BuildSocialPose(TArray<FTransform>& Pose,const FRef
 {
     if(!CanReactSocially() || !Tooth->ToothPhysics->CanAct() || Tooth->AnimationClimb>.01f || Tooth->AnimationSwim>.01f
         || Tooth->OrderJumpTarget || Tooth->AnimationOrderPress>.01f || Tooth->AnimationOrderFlight>.01f) return;
-    const float Reaction=SprayReaction*(.65f+.35f*SprayFlinch);
+    const float Reaction=FMath::Max(SprayReaction*(.65f+.35f*SprayFlinch),StinkGestureAlpha*.7f);
     if(Reaction<.001f) return;
     const bool HandsBusy=Tooth->HeldFood || Tooth->bHandling || Tooth->bBrushing || Tooth->IsPrimaryHeld()
         || Tooth->FoodCollection->bCollecting || Tooth->Grip->Blend()>.01f || BodyAlpha()>.01f
@@ -265,7 +279,14 @@ void UMCExpressionComponent::BuildSocialPose(TArray<FTransform>& Pose,const FRef
     TArray<FTransform> CS; CS.SetNum(Pose.Num());
     for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
     FTransform Goal=CS[Hand];
-    Goal.SetLocation(FMath::Lerp(Goal.GetLocation(),CS[Body].GetLocation()+Facing.Inverse().RotateVector(FVector(30,-38,22)),Reaction));
+    FVector HandTarget=CS[Body].GetLocation()+Facing.Inverse().RotateVector(FVector(30,-38,22));
+    if(StinkGestureAlpha>.01f)
+    {
+        const int32 Head=Ref.FindBoneIndex(Tooth->RigBone(TEXT("gaze_head")));
+        const float Fan=FMath::Sin(float(Now()-StinkGestureAt)*PI*6.f)*9.f;
+        HandTarget=CS[Head>=0?Head:Body].GetLocation()+Facing.Inverse().RotateVector(FVector(32,-14+Fan,-7));
+    }
+    Goal.SetLocation(FMath::Lerp(Goal.GetLocation(),HandTarget,FMath::Max(Reaction,StinkGestureAlpha)));
     const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Goal;
     const int32 Parent=Ref.GetParentIndex(Lower);
     Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]); Pose[Hand]=Ref.GetRefBonePose()[Hand];

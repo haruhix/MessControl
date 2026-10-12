@@ -92,7 +92,8 @@ public:
     FVector WorkPosition() const { return bMouthEntry && MouthEntryLanding.IsSet()?MouthEntryLanding.GetValue():GetActorLocation(); }
     // Ordinary food is destroyed for XP; collection remains available for future mechanics.
     // Tools and hazards retain the old grip.
-    bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
+    bool UsesLegacyGrip() const { return bBrushTool || bFragment || FoodData.Kind!=EMCFoodKind::Food; }
+    static AMCFoodActor* FindNearbySpoiledFood(UWorld* World,FVector Point,float Radius=280);
     bool TryGrab(AMCToothCharacter* Hero);
     bool FindGripSurface(FVector From,FHitResult& Hit) const;
     // Query the visible food surface independently of its simplified physics hulls.
@@ -209,6 +210,13 @@ private:
     bool FindAbsorptionFloor(FHitResult& Hit,class AMCTongue*& Tongue) const;
     void FinishAbsorption();
     void Spoil();
+    void UpdateSmell();
+    bool SpawnFragments(FVector Direction);
+    void RecoverUnreachableFood(float Dt);
+    UPROPERTY() TObjectPtr<class AMCReactionVFX> SmellVFX;
+    float AccessCheckElapsed=0,UnreachableSeconds=0;
+    TOptional<FVector> LastAccessiblePosition;
+    TOptional<FVector> EntryRecoveryLanding;
     void UpdateHazard(float Dt);
     double HazardNow() const;
     TWeakObjectPtr<class AMCThroat> FuseOwner;

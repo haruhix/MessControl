@@ -18,6 +18,7 @@ class MESSCONTROL_API AMCMouthSurface : public AActor
     GENERATED_BODY()
 public:
     static AMCMouthSurface* SpawnDamageUlcer(UWorld* World,FVector Point,int32 Batch=0);
+    static AMCMouthSurface* SpawnExperimentalHugeStain(UWorld* World,FVector Near);
     AMCMouthSurface();
     virtual void BeginPlay() override;
     virtual void Tick(float Dt) override;
@@ -31,8 +32,8 @@ public:
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Liquid") EMCGroundSurface GroundResponse=EMCGroundSurface::Slippery;
     bool AffectsFooting(FVector Sole) const;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") bool bRandomizeLiquidSize=true;
-    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") FVector2D LiquidSizeRange=FVector2D(56,440);
-    UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidSize,BlueprintReadOnly,Category="Liquid",meta=(ClampMin="20",ClampMax="520")) float LiquidHalfSize=184;
+    UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Liquid") FVector2D LiquidSizeRange=FVector2D(180,440);
+    UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidSize,BlueprintReadOnly,Category="Liquid",meta=(ClampMin="20",ClampMax="1600")) float LiquidHalfSize=240;
     UPROPERTY(EditAnywhere,ReplicatedUsing=OnRep_LiquidMaterial,BlueprintReadOnly,Category="Liquid") TSoftObjectPtr<UMaterialInterface> LiquidMaterial;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Liquid") double LiquidBornAt=-100;
     UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Liquid") void SetLiquidAppearance(UMaterialInterface* Preset);

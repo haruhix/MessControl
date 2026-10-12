@@ -163,13 +163,14 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Steps,TEXT("Потасовка в тумане — остановить тест"),TEXT("Убирает туман и предупреждения теста F3."),EMCDevAction::FogEventStop);
     AddAction(Steps,TEXT("Обычный день — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычную последовательность и поддержку."),EMCDevAction::RestartDay);
     AddText(Steps,TEXT("СОБЫТИЯ ПОДДЕРЖКИ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
+    AddAction(Steps,TEXT("Эксперимент — огромное пятно на языке"),TEXT("Создаёт одно большое пятно возле игрока. Несколько игроков могут одновременно очищать его щётками."),EMCDevAction::HugeTongueStain);
     AddAction(Steps,TEXT("Еда — дроп в зоны 30/70"),TEXT("Случайный целый кусок из таблицы завтрака падает в разрешённую зону языка. Крайние полосы у выходов исключены."),EMCDevAction::DropFood);
     AddAction(Steps,TEXT("Кофейный налёт"),TEXT("Покрывает зубы, игроков и поверхность налётом. Щётка доступна в слоте 1."),EMCDevAction::CoffeeDirt);
     AddAction(Steps,TEXT("Кофе / цунами — волна"),TEXT("Волна сносит к глотке и смывает мелкие кусочки еды. WASD + Shift — бежать. ПКМ у опоры — держаться."),EMCDevAction::CoffeeFlood);
     AddAction(Steps,TEXT("Кофе — остановить"),TEXT("Останавливает кофейную волну или тест плавания, убирает воду и зацепы."),EMCDevAction::StopCoffee);
     AddAction(Steps,TEXT("Холодная кола — иней и лёд"),TEXT("Напиток сверху, скользкая арена, падающий лёд. Разбивай киркой в слоте 2."),EMCDevAction::ColdCola);
     AddAction(Steps,TEXT("Зевание"),TEXT("Работа прерывается. Игроки автоматически цепляются за доступную поверхность языка."),EMCDevAction::Yawn);
-    AddAction(Steps,TEXT("Перец — 10 секунд до взрыва"),TEXT("Подними и выброси в глотку до конца отсчёта. Просроченный перец оставляет огонь и язву."),EMCDevAction::SpicyPepper);
+    AddAction(Steps,TEXT("Перец — 10 секунд до взрыва"),TEXT("Подними и брось чили. Таймер идёт и в руках, и в полёте: взрыв наносит урон всем, включая союзников и боссов, и отбрасывает игроков."),EMCDevAction::SpicyPepper);
     AddAction(Steps,TEXT("Застрявшая еда у зуба"),TEXT("Создаёт Fibre у доступного зуба. Работа инструментом освобождает и разбивает еду."),EMCDevAction::StuckFood);
     AddAction(Steps,TEXT("Расшатать зубы и игроков"),TEXT("Уход удержанием E; C включает уход за собой."),EMCDevAction::LooseTeeth);
     AddAction(Steps,TEXT("Сундук за задачу"),TEXT("Падение в безопасной зоне. E — вскрыть: обычный сундук даёт карточки, мимик может проглотить открывателя."),EMCDevAction::RewardChest);

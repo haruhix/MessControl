@@ -1,5 +1,11 @@
 #include "MCGameplayHUD.h"
 #include "MCStaminaWidget.h"
+#include "MCGameplayAlertWidget.h"
+#include "MCColdCola.h"
+#include "MCIceEvent.h"
+#include "MCNutRainEvent.h"
+#include "MCNutBoss.h"
+#include "MCBossCharacter.h"
 #include "MCPlayerState.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
@@ -173,6 +179,77 @@ void UMCGameplayHUD::NativeOnInitialized()
     }
     EnsureDirectorMonitor();
     EnsureProgressionPanel();
+    EnsureAlertWidget();
+    if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RegisterGameplayHUD(this);
+}
+void UMCGameplayHUD::EnsureAlertWidget()
+{
+    if(AlertWidget || !WidgetTree || !GetOwningPlayer()) return;
+    auto* Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
+    if(!Root) return;
+    AlertWidget=CreateWidget<UMCGameplayAlertWidget>(GetOwningPlayer(),UMCGameplayAlertWidget::StaticClass());
+    if(!AlertWidget) return;
+    auto* AlertSlot=Root->AddChildToCanvas(AlertWidget);
+    AlertSlot->SetAnchors(FAnchors(0,0,1,1)); AlertSlot->SetOffsets(FMargin(0)); AlertSlot->SetZOrder(50);
+}
+void UMCGameplayHUD::QueueGameplayAlert(const FText& Message,float HoldSeconds,FName EventId)
+{
+    EnsureAlertWidget();
+    if(AlertWidget) AlertWidget->QueueAlert(Message,HoldSeconds,EventId);
+}
+void UMCGameplayHUD::ResetGameplayAlerts()
+{
+    if(AlertWidget) AlertWidget->ClearAlerts();
+    ObservedAlertStates.Reset(); LastAlertDayEvent.Reset(); LastAlertStepStartedAt=-1;
+}
+void UMCGameplayHUD::RefreshGameplayAlerts()
+{
+    const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
+    if(!GS || GS->bLobbyWaiting || GS->bTutorialActive) return;
+    if(GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost) {
+        if(AlertWidget && AlertWidget->IsPresentingAlert()) AlertWidget->ClearAlerts();
+        ObservedAlertStates.Reset(); LastAlertDayEvent.Reset(); LastAlertStepStartedAt=-1;
+        return;
+    }
+    // Observe the saved gameplay classes' replicated timelines. Presentation never starts events.
+    auto Observe=[&](AActor* Actor,FName Channel,bool Active,double Serial,const FString& Message,float Hold=3.f) {
+        if(!IsValid(Actor) || !FMath::IsFinite(Serial)) return;
+        auto& Timelines=ObservedAlertStates.FindOrAdd(Actor);
+        if(!Active) { Timelines.Remove(Channel); return; }
+        const double* Previous=Timelines.Find(Channel);
+        if(Previous && *Previous==Serial) return;
+        Timelines.Add(Channel,Serial);
+        const FName EventId(*FString::Printf(TEXT("%s.%d.%.3f"),*Channel.ToString(),Actor->GetUniqueID(),Serial));
+        QueueGameplayAlert(FText::FromString(Message),Hold,EventId);
+    };
+    for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It)
+        Observe(*It,TEXT("Cola"),It->bActive,It->StartedAt,TEXT("ХОЛОДНАЯ КОЛА · БЕРЕГИСЬ ЛЬДА!"));
+    for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
+        Observe(*It,TEXT("CoffeeWave"),It->bActive && It->bRiverFlood,It->StartedAt,TEXT("КОФЕЙНАЯ ВОЛНА · ДЕРЖИСЬ!"));
+    for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+        Observe(*It,TEXT("Ice"),It->IsActive(),It->StartedAt,TEXT("МОРОЗ · ДЕРЖИСЬ В ТЁПЛОЙ ЗОНЕ!"));
+    for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)
+        Observe(*It,TEXT("Fog"),It->IsActive(),It->StartedAt,TEXT("ДРАКА В ТУМАНЕ · ЗАЩИЩАЙТЕ ЗУБ!"));
+    for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) {
+        const bool Active=It->Stage!=EMCNutRainStage::Idle && It->Stage!=EMCNutRainStage::Complete;
+        // SeriesIndex advances for each authored rain; settling/enemy phases do not repeat the alarm.
+        Observe(*It,TEXT("NutRain"),Active,It->SeriesIndex,TEXT("ОРЕХОВЫЙ ДОЖДЬ · СМОТРИ ВВЕРХ!"));
+    }
+    for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
+        const bool Active=It->Runtime.AnimationPreview==EMCBossAnimationPreview::None
+            && It->Runtime.State!=EMCBossState::Dormant && It->IsBossAlive();
+        Observe(*It,TEXT("Boss"),Active,0,TEXT("БОСС ВО РТУ · ПРИГОТОВЬТЕСЬ!"),3.5f);
+    }
+    for(TActorIterator<AMCNutBoss> It(GetWorld());It;++It) {
+        const FString Message=It->BossRole==EMCNutBossRole::Tank?TEXT("БОСС · ОРЕХ ТАНК!"):TEXT("БОСС · ОРЕХ МАГ!");
+        Observe(*It,TEXT("NutBoss"),It->IsEncounterAlive(),0,Message,3.5f);
+    }
+    if(GS->CurrentEvent && (LastAlertDayEvent.Get()!=GS->CurrentEvent || LastAlertStepStartedAt!=GS->StepStartedAt)) {
+        LastAlertDayEvent=GS->CurrentEvent; LastAlertStepStartedAt=GS->StepStartedAt;
+        const FName EventId(*FString::Printf(TEXT("DayEvent.%d.%.3f"),GS->Day,GS->StepStartedAt));
+        QueueGameplayAlert(FText::Format(NSLOCTEXT("MCAlerts","DayEvent","СОБЫТИЕ · {0}"),GS->CurrentEvent->Title),3.f,EventId);
+    }
+    for(auto It=ObservedAlertStates.CreateIterator();It;++It) if(!It.Key().IsValid()) It.RemoveCurrent();
 }
 void UMCGameplayHUD::EnsureProgressionPanel()
 {
@@ -315,6 +392,7 @@ void UMCGameplayHUD::RefreshDirectorMonitor(const FMCGameDirectorState& State)
 void UMCGameplayHUD::NativeConstruct()
 {
     Super::NativeConstruct();
+    if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RegisterGameplayHUD(this);
     Widgets.Reset();
     TArray<UWidget*> All; WidgetTree->GetAllWidgets(All);
     for(auto* Widget:All) {
@@ -323,6 +401,12 @@ void UMCGameplayHUD::NativeConstruct()
         if(auto* Icon=Cast<UMCHUDIcon>(Widget);Icon && Icon->bTooth) Icon->ForceVolatile(true);
     }
     RefreshState();
+}
+void UMCGameplayHUD::NativeDestruct()
+{
+    if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->UnregisterGameplayHUD(this);
+    if(AlertWidget) AlertWidget->ClearAlerts();
+    Super::NativeDestruct();
 }
 UWidget* UMCGameplayHUD::Find(FName Name) const
 { const auto* Widget=Widgets.Find(Name); return Widget?Widget->Get():nullptr; }
@@ -380,6 +464,7 @@ void UMCGameplayHUD::RefreshState()
 {
     namespace HUD = MCGameplayHUDPrivate;
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr; if(!GS) return;
+    RefreshGameplayAlerts();
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     if(StaminaWidget) StaminaWidget->Refresh();
     auto Text=[&](FName Name,const FString& Value) { if(auto* T=Cast<UTextBlock>(Find(Name));T && !T->GetText().ToString().Equals(Value)) T->SetText(FText::FromString(Value)); };
