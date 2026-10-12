@@ -28,6 +28,11 @@
 
 namespace
 {
+bool AuthoredSpellGestures(const UAnimSequence* Clip)
+{
+    return Clip && Clip->EvaluateCurveData(TEXT("MCSpellGesture"),FAnimExtractContext(0.,false))>.5f;
+}
+
 FVector HeightScale(const UStaticMesh* Mesh,float Height)
 {
     return Mesh?FVector(Height/FMath::Max(1.,Mesh->GetBounds().BoxExtent.Z*2)):FVector::OneVector;
@@ -78,6 +83,7 @@ void AMCNutBoss::ConfigureEncounter(AMCTongue* OnTongue,AMCNutRainEvent* OwnerEv
     Tongue=OnTongue; EncounterOwner=OwnerEvent; if(OwnerEvent) SetOwner(OwnerEvent);
     BossRole=InRole; BossSettings=InSettings; BossSettings.Sanitize(); PartyPlayers=FMath::Clamp(Players,1,8);
     ShieldHealth=BossRole==EMCNutBossRole::Tank?BossSettings.ShieldMaxHealth:0.f;
+    ShieldBrokenAt=-100;
     Random.Initialize(int32(uint32(Seed)^(BossRole==EMCNutBossRole::Tank?0x54414e4bu:0x4d414745u)));
     Settings=FMCNutEnemySettings(); Settings.BodyRadius=BossSettings.BodyRadiusForRole(BossRole);
     Settings.MoveSpeed=BossRole==EMCNutBossRole::Tank?BossSettings.TankMoveSpeed:BossSettings.MageMoveSpeed;
@@ -124,8 +130,22 @@ void AMCNutBoss::RefreshPresentation()
         }
         TankMesh=FallbackTankMesh.Get();
     }
-    if(TankModel->GetSkeletalMeshAsset()!=TankMesh) TankModel->SetSkeletalMeshAsset(TankMesh);
+    if(BossRole==EMCNutBossRole::Tank) {
+        // Pin the optional variant before combat, so breaking a shield does not
+        // synchronously load a fresh mesh in the impact frame.
+        const FSoftObjectPath Path=BossSettings.TankUnshieldedSkeletalMesh.ToSoftObjectPath();
+        if(Path!=CachedUnshieldedTankMeshPath) {
+            CachedUnshieldedTankMeshPath=Path;
+            UnshieldedTankMesh=BossSettings.TankUnshieldedSkeletalMesh.LoadSynchronous();
+        }
+    }
+    USkeletalMesh* RenderTankMesh=TankMesh;
+    if(TankMesh && ShieldHealth<=0 && UnshieldedTankMesh
+        && UnshieldedTankMesh->GetSkeleton()==TankMesh->GetSkeleton()) RenderTankMesh=UnshieldedTankMesh;
+    if(TankModel->GetSkeletalMeshAsset()!=RenderTankMesh) TankModel->SetSkeletalMeshAsset(RenderTankMesh);
     if(TankMesh) {
+        // Keep the original anchor: removing the shield changes mesh bounds,
+        // but the feet and body must not jump when the render asset changes.
         const auto Bounds=TankMesh->GetBounds();
         TankModelScale=FVector(BossSettings.TankHeight/FMath::Max(1.,Bounds.BoxExtent.Z*2));
         TankModelCenter=Bounds.Origin;
@@ -174,8 +194,12 @@ void AMCNutBoss::CacheBossAnimations()
     auto Set=[&](EMCNutBossClip Slot,const TSoftObjectPtr<UAnimSequence>& Asset){Clips[int32(Slot)]=Asset;};
     if(BossRole==EMCNutBossRole::Tank) {
         Set(EMCNutBossClip::Idle,BossSettings.TankIdleAnimation); Set(EMCNutBossClip::Walk,BossSettings.TankWalkAnimation);
+        Set(EMCNutBossClip::UnshieldedIdle,BossSettings.TankUnshieldedIdleAnimation);
+        Set(EMCNutBossClip::UnshieldedWalk,BossSettings.TankUnshieldedWalkAnimation);
         Set(EMCNutBossClip::WalkLeft,BossSettings.TankWalkLeftAnimation); Set(EMCNutBossClip::WalkRight,BossSettings.TankWalkRightAnimation);
         Set(EMCNutBossClip::Melee,BossSettings.TankMeleeAnimation); Set(EMCNutBossClip::Jump,BossSettings.TankJumpAnimation);
+        Set(EMCNutBossClip::Hit,BossSettings.TankHitAnimation);
+        Set(EMCNutBossClip::ShieldBreak,BossSettings.TankShieldBreakAnimation);
         Set(EMCNutBossClip::Transform,BossSettings.TankTransformAnimation);
         Set(EMCNutBossClip::ChargeTell,BossSettings.TankChargeTellAnimation);
         Set(EMCNutBossClip::ChargeLoop,BossSettings.TankChargeLoopAnimation);
@@ -203,6 +227,22 @@ FVector AMCNutBoss::GetCastOrigin() const
     const FVector Right=FVector::CrossProduct(FVector::UpVector,Forward);
     const FVector Offset=BossSettings.MageCastOffset;
     return GetActorLocation()+Forward*Offset.X+Right*Offset.Y+FVector::UpVector*Offset.Z;
+}
+
+FVector AMCNutBoss::GetSpellFocusOrigin() const
+{
+    const auto Slot=Attack==EMCNutBossAttack::NutRain?EMCNutBossClip::Rain:
+        Attack==EMCNutBossAttack::Summon?EMCNutBossClip::Summon:EMCNutBossClip::Cast;
+    if(BossRole!=EMCNutBossRole::Mage || !MageModel || State==EMCNutBossState::Idle
+        || !BossAnimations.IsValidIndex(int32(Slot)) || !AuthoredSpellGestures(BossAnimations[int32(Slot)])) return GetCastOrigin();
+    auto Palm=[&](FName Bone,FVector& Point) {
+        if(MageModel->GetBoneIndex(Bone)==INDEX_NONE) Bone=FName(*Bone.ToString().Replace(TEXT("."),TEXT("_")));
+        if(MageModel->GetBoneIndex(Bone)==INDEX_NONE) return false;
+        Point=MageModel->GetSocketTransform(Bone,RTS_World).TransformPosition(FVector(0,8,0));
+        return !Point.ContainsNaN();
+    };
+    FVector Left,Right;
+    return Palm(BossSettings.LeftHandBone,Left) && Palm(BossSettings.RightHandBone,Right)?(Left+Right)*.5:GetCastOrigin();
 }
 
 void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCNutBossAnimationSnapshot& Out) const
@@ -235,7 +275,7 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         Out.HandTipOffset=Model->GetSocketTransform(BossSettings.MageCastSocket,RTS_ParentBoneSpace).GetLocation();
     const float HitAge=float(Time-VisualHitAt),ShieldAge=float(Time-ShieldHitAt);
     Out.Hit=HitAge>=0 && HitAge<.4f?FMath::Sin(HitAge/.4f*PI)*(1-HitAge/.4f):0;
-    Out.ShieldHit=ShieldAge>=0 && ShieldAge<.32f?FMath::Sin(ShieldAge/.32f*PI):0;
+    Out.ShieldHit=ShieldHealth>0 && ShieldAge>=0 && ShieldAge<.32f?FMath::Sin(ShieldAge/.32f*PI):0;
     Out.HitDirection=GetActorTransform().InverseTransformVectorNoScale(VisualHitDirection);
     Out.Death=bDefeated?Progress(Time-StateStartedAt,BossSettings.DeathSeconds):0;
     Out.Guard=!Out.bMage && ShieldHealth>0 && !bDefeated && State==EMCNutBossState::Idle?1.f:0.f;
@@ -258,13 +298,17 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
     auto Has=[&](EMCNutBossClip Slot){return BossAnimations.IsValidIndex(int32(Slot)) && BossAnimations[int32(Slot)]
         && BossAnimations[int32(Slot)]->GetSkeleton()==Model->GetSkeletalMeshAsset()->GetSkeleton()
         && BossAnimations[int32(Slot)]->GetPlayLength()>KINDA_SMALL_NUMBER;};
+    const EMCNutBossClip IdleClip=!Out.bMage && ShieldHealth<=0 && Has(EMCNutBossClip::UnshieldedIdle)?
+        EMCNutBossClip::UnshieldedIdle:EMCNutBossClip::Idle;
+    const EMCNutBossClip WalkClip=!Out.bMage && ShieldHealth<=0 && Has(EMCNutBossClip::UnshieldedWalk)?
+        EMCNutBossClip::UnshieldedWalk:EMCNutBossClip::Walk;
     const bool MageMelee=Out.bMage && Attack==EMCNutBossAttack::Melee;
     Out.bHasMeleeClip=Has(EMCNutBossClip::Melee);
     float AttackWeight=Active?1.f:0.f,Phase=0;
     bool AttackLoop=false;
     float AttackRate=1.f;
     double AttackLoopStartedAt=0;
-    EMCNutBossClip AttackClip=EMCNutBossClip::Idle;
+    EMCNutBossClip AttackClip=IdleClip;
     if(Telegraph) AttackWeight=FMath::SmoothStep(0.f,BossSettings.AnimationBlendSeconds,float(Time-StateStartedAt));
     if(Recovery) AttackWeight=1-FMath::SmoothStep(.65f,1.f,RecoveryProgress);
     if(Active && Attack==EMCNutBossAttack::Roll) {
@@ -288,7 +332,7 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
             // Tell ends in the loop's first contact pose, so each charge starts at frame one.
             AttackLoopStartedAt=StateStartedAt;
         } else {
-            AttackClip=EMCNutBossClip::Walk; AttackLoop=true; AttackRate=2.f;
+            AttackClip=WalkClip; AttackLoop=true; AttackRate=2.f;
         }
     } else if(Active && Out.bMage) {
         const bool Teleporting=Attack==EMCNutBossAttack::Teleport;
@@ -296,15 +340,44 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
             Attack==EMCNutBossAttack::NutRain?EMCNutBossClip::Rain:EMCNutBossClip::Cast;
         const float Release=MageMelee?BossSettings.MageMeleeImpactFraction:BossSettings.MageCastReleaseFraction;
         // The shove is authored directly; casting aim, palm IK and spell release overlays would erase it.
-        Out.Cast=MageMelee || Teleporting?0.f:AttackWeight; Out.CastProgress=WindupProgress;
+        Out.Cast=MageMelee || Teleporting?0.f:AttackWeight;
+        Out.CastReleaseFraction=Release;
         const float SinceRelease=float(Time-ResolveAt);
         Out.Release=!MageMelee && !Teleporting && SinceRelease>=0 && SinceRelease<.22f?FMath::Sin(SinceRelease/.22f*PI):0;
         Out.Channel=Attack==EMCNutBossAttack::NutRain && State==EMCNutBossState::Executing?1.f:0.f;
+        const UAnimSequence* SpellClip=Has(AttackClip)?BossAnimations[int32(AttackClip)]:nullptr;
+        Out.bAuthoredSpellGestures=!MageMelee && AuthoredSpellGestures(SpellClip);
+        float ChannelEnd=Release;
+        float ChannelPeriod=0.f;
+        bool bAuthoredChannelLoop=false;
+        if(Out.bAuthoredSpellGestures) {
+            // A spell remains one performance across its server phases.
+            Out.VisualKey=1000+int32(Attack);
+            if(Attack==EMCNutBossAttack::NutRain) {
+                const float MarkedEnd=SpellClip->EvaluateCurveData(TEXT("MCSpellChannelEnd"),FAnimExtractContext(0.,false));
+                const float MarkedPeriod=SpellClip->EvaluateCurveData(TEXT("MCSpellChannelPeriod"),FAnimExtractContext(0.,false));
+                // Only explicit, valid markers identify an authored loop. An
+                // original one-shot holds its release pose instead of wrapping
+                // an arbitrary section whose endpoints may not match.
+                bAuthoredChannelLoop=FMath::IsFinite(MarkedEnd) && FMath::IsFinite(MarkedPeriod)
+                    && MarkedEnd>=Release+.01f && MarkedEnd<=.99f && MarkedPeriod>=.3f && MarkedPeriod<=4.f;
+                if(bAuthoredChannelLoop) {ChannelEnd=MarkedEnd;ChannelPeriod=MarkedPeriod;}
+                // A loop can stop midway; crossfade from its evaluated pose.
+                // A held one-shot is already continuous into its authored exit.
+                if(Recovery && bAuthoredChannelLoop) Out.VisualKey+=100;
+            }
+        }
         // A channel sustains an authored mid-cast section for its complete server duration.
         // It never reaches the final clip frame merely because the FBX is shorter than the spell.
         Phase=Telegraph?Release*WindupProgress:Out.Channel>.5f?
             Release+.07f*(.5f+.5f*FMath::Sin(SinceRelease*3.5f)):
             FMath::Lerp(Release,1.f,RecoveryProgress);
+        if(Out.bAuthoredSpellGestures && Attack==EMCNutBossAttack::NutRain) {
+            if(Out.Channel>.5f) Phase=bAuthoredChannelLoop?
+                FMath::Lerp(Release,ChannelEnd,float(FMath::Fmod(FMath::Max(0.f,SinceRelease)/ChannelPeriod,1.f))):Release;
+            else if(Recovery) Phase=FMath::Lerp(ChannelEnd,1.f,RecoveryProgress);
+        }
+        Out.CastProgress=Phase;
         if(MageMelee) {
             Out.Melee=AttackWeight;
             Out.MeleePhase=Telegraph?.55f*WindupProgress:FMath::Lerp(.55f,1.f,RecoveryProgress);
@@ -316,7 +389,7 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
     }
     if(!Has(AttackClip)) {
         AttackClip=MageMelee?EMCNutBossClip::Idle:
-            Out.bMage && Has(EMCNutBossClip::HeavyCast)?EMCNutBossClip::HeavyCast:EMCNutBossClip::Idle;
+            Out.bMage && Has(EMCNutBossClip::HeavyCast)?EMCNutBossClip::HeavyCast:IdleClip;
         if(!Active) AttackWeight=0;
     }
     auto Add=[&](EMCNutBossClip Slot,float Fraction,float Weight,bool Loop=false,float Rate=1.f,double LoopStartedAt=0) {
@@ -328,8 +401,9 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         Out.Samples.Add(Sample);
     };
     const float Living=bDefeated?0.f:1.f,Locomotion=Living*(1-AttackWeight);
-    Add(EMCNutBossClip::Idle,0,Locomotion*(1-Moving),true);
+    Add(IdleClip,0,Locomotion*(1-Moving),true);
     if(Out.bMage) Add(EMCNutBossClip::Walk,0,Locomotion*Moving,true);
+    else if(WalkClip==EMCNutBossClip::UnshieldedWalk) Add(WalkClip,0,Locomotion*Moving,true);
     else {
         Add(EMCNutBossClip::Walk,0,Locomotion*Moving*(1-FMath::Abs(Side)),true);
         Add(EMCNutBossClip::WalkLeft,0,Locomotion*Moving*FMath::Max(0.f,-Side),true);
@@ -337,9 +411,46 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
     }
     Add(AttackClip,Phase,Living*AttackWeight,AttackLoop,AttackRate,AttackLoopStartedAt);
     if(Out.bMage && Out.Hit>.01f) Add(EMCNutBossClip::Hit,Progress(HitAge,.4),Out.Hit*.3f);
+    const float ShieldBreakAge=float(Time-ShieldBrokenAt);
+    const float ShieldBreakDuration=Has(EMCNutBossClip::ShieldBreak)?BossAnimations[int32(EMCNutBossClip::ShieldBreak)]->GetPlayLength():0;
+    const bool ShieldBreaking=!Out.bMage && !bDefeated && ShieldHealth<=0 && ShieldBreakAge>=0
+        && ShieldBreakAge<ShieldBreakDuration;
+    if(!Out.bMage && !bDefeated && HitAge>=0 && HitAge<.4f && !ShieldBreaking && Has(EMCNutBossClip::Hit)) {
+        // A sharp reaction reads on contact, then gives control back to the same
+        // attack timeline. Keep a telegraph or executing strike visible under it.
+        const bool bCommitted=State==EMCNutBossState::Telegraph || State==EMCNutBossState::Executing;
+        const float Weight=(bCommitted?.28f:.85f)*(1-FMath::SmoothStep(.16f,.4f,HitAge));
+        for(auto& Sample:Out.Samples) Sample.Weight*=1-Weight;
+        Add(EMCNutBossClip::Hit,Progress(HitAge,.4),Weight);
+        Out.AuthoredTankHitWeight=Weight;
+    }
+    if(ShieldBreaking) {
+        const bool Committed=State==EMCNutBossState::Telegraph || State==EMCNutBossState::Executing;
+        const float ShieldBreakPhase=Progress(ShieldBreakAge,ShieldBreakDuration);
+        const float Weight=(Committed?.35f:.9f)*FMath::SmoothStep(0.f,.06f,ShieldBreakPhase)
+            *(1-FMath::SmoothStep(.7f,1.f,ShieldBreakPhase));
+        for(auto& Sample:Out.Samples) Sample.Weight*=1-Weight;
+        Add(EMCNutBossClip::ShieldBreak,ShieldBreakPhase,Weight);
+        Out.AuthoredTankHitWeight=Weight;
+    }
     Out.bHasDeathClip=Has(EMCNutBossClip::Death);
-    if(bDefeated) Add(Out.bHasDeathClip?EMCNutBossClip::Death:EMCNutBossClip::Idle,Out.Death,1.f);
-    if(Out.Samples.IsEmpty()) Add(EMCNutBossClip::Idle,0,1.f,true);
+    if(bDefeated) Add(Out.bHasDeathClip?EMCNutBossClip::Death:IdleClip,Out.Death,1.f);
+    if(Out.Samples.IsEmpty()) Add(IdleClip,0,1.f,true);
+    if(!Out.bMage) {
+        // Match the final pose mixture, including hit rescaling. A tiny marked
+        // sample must not abruptly remove the idle guard or procedural breath.
+        float Sum=0,Authored=0;
+        for(const auto& Sample:Out.Samples) {
+            Sum+=Sample.Weight;
+            if(Sample.Clip->EvaluateCurveData(TEXT("MCAuthoredCartoon"),FAnimExtractContext(0.,false))>.5f)
+                Authored+=Sample.Weight;
+        }
+        Out.AuthoredTankMotionWeight=Sum>KINDA_SMALL_NUMBER?FMath::Clamp(Authored/Sum,0.f,1.f):0.f;
+        Out.AuthoredTankHitWeight=Sum>KINDA_SMALL_NUMBER?FMath::Clamp(Out.AuthoredTankHitWeight/Sum,0.f,1.f):0.f;
+        // Blend from the evaluated shielded pose when switching base clips;
+        // this cosmetic key never changes the server attack/state timeline.
+        if(ShieldHealth<=0) Out.VisualKey+=10000;
+    }
 }
 
 void AMCNutBoss::PresentTankModel(double Time)
@@ -422,6 +533,7 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
         ShieldHealth=FMath::Max(0.f,ShieldHealth-ProtectedDamage);
         Damage=ProtectedDamage*BossSettings.ShieldFrontDamageScale+(Damage-ProtectedDamage);
         const bool Broken=ShieldHealth<=0;
+        if(Broken) ShieldBrokenAt=VisualHitAt;
         if(Broken || VisualHitAt-ShieldHitAt>=.15) {
             ShieldHitAt=VisualHitAt;
             TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::ShieldHit,
@@ -1040,6 +1152,7 @@ void AMCNutBoss::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifeti
     DOREPLIFETIME(AMCNutBoss,LockedTarget); DOREPLIFETIME(AMCNutBoss,AttackForward); DOREPLIFETIME(AMCNutBoss,AttackSeed);
     DOREPLIFETIME(AMCNutBoss,VisualHitAt); DOREPLIFETIME(AMCNutBoss,ShieldHitAt); DOREPLIFETIME(AMCNutBoss,VisualHitDirection);
     DOREPLIFETIME(AMCNutBoss,ShieldHealth); DOREPLIFETIME(AMCNutBoss,NextSpecialAt);
+    DOREPLIFETIME(AMCNutBoss,ShieldBrokenAt);
     DOREPLIFETIME(AMCNutBoss,NextMeleeAt); DOREPLIFETIME(AMCNutBoss,NextChargeAt); DOREPLIFETIME(AMCNutBoss,NextJumpAt);
     DOREPLIFETIME(AMCNutBoss,NextRollAt); DOREPLIFETIME(AMCNutBoss,NextFireballAt); DOREPLIFETIME(AMCNutBoss,NextSummonAt);
     DOREPLIFETIME(AMCNutBoss,NextRainAt); DOREPLIFETIME(AMCNutBoss,NextTeleportAt);

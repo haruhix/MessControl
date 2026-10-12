@@ -6,7 +6,7 @@
 
 class UAnimSequence;
 
-enum class EMCNutBossClip : uint8 { Idle, Walk, WalkLeft, WalkRight, Melee, Jump, Transform, Cast, HeavyCast, Summon, Rain, Hit, Death, ChargeTell, ChargeLoop, ChargeRecovery, Count };
+enum class EMCNutBossClip : uint8 { Idle, Walk, WalkLeft, WalkRight, Melee, Jump, Transform, Cast, HeavyCast, Summon, Rain, Hit, Death, ChargeTell, ChargeLoop, ChargeRecovery, ShieldBreak, UnshieldedIdle, UnshieldedWalk, Count };
 enum class EMCNutPoseBone : uint8 { Torso, Head, LeftArm, RightArm, LeftForearm, RightForearm, LeftHand, RightHand, Count };
 
 struct FMCNutBossClipSample
@@ -25,11 +25,26 @@ struct FMCNutBossAnimationSnapshot
     double ServerTime=0;
     float BlendSeconds=.18f,ForwardSpeed=0,SideSpeed=0,AimYaw=0,AimPitch=0;
     float Cast=0,CastProgress=0,Release=0,Channel=0,Guard=0,Hit=0,ShieldHit=0,Death=0,Airborne=0,Melee=0,MeleePhase=0;
+    float CastReleaseFraction=.55f;
     FVector HitDirection=FVector::ZeroVector;
     FVector CastEmitter=FVector::ZeroVector;
     FVector HandTipOffset=FVector(0,8,0);
     FQuat ActorToComponent=FQuat::Identity;
     bool bMage=false,bHasDeathClip=false,bHasMeleeClip=false;
+    bool bAuthoredSpellGestures=false;
+    float AuthoredTankMotionWeight=0,AuthoredTankHitWeight=0;
+
+    /** Correct the palm at release/channel contact, leaving authored gathering and recovery gestures free. */
+    float CastHandAlignmentWeight() const
+    {
+        if(bAuthoredSpellGestures) return 0.f;
+        if(Channel>.5f) return Cast*.85f;
+        const float ContactStart=FMath::Max(0.f,CastReleaseFraction-.15f);
+        const float HoldEnd=FMath::Min(.95f,CastReleaseFraction+.07f);
+        const float ContactEnd=FMath::Min(1.f,HoldEnd+.16f);
+        return Cast*.85f*FMath::SmoothStep(ContactStart,CastReleaseFraction,CastProgress)
+            *(1-FMath::SmoothStep(HoldEnd,ContactEnd,CastProgress));
+    }
 };
 
 /** Native pose blending and small bounded overlays for both authored nut rigs. No Blueprint animation graph is required. */

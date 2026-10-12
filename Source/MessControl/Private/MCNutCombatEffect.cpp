@@ -4,6 +4,7 @@
 #include "MCNutBoss.h"
 #include "MCTongue.h"
 #include "Components/InstancedStaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
 #include "GameFramework/GameStateBase.h"
@@ -117,6 +118,8 @@ void AMCNutCombatEffect::BeginPlay()
     if(HasAuthority()) SetLifeSpan(FMath::Max(.2f,Cue.WindupSeconds+Cue.ActiveSeconds)+1.f);
     if(Tongue) AddTickPrerequisiteActor(Tongue);
     if(GetNetMode()==NM_DedicatedServer) return;
+    if(const auto* Boss=Cast<AMCNutBoss>(SourceActor))
+        if(Boss->BossRole==EMCNutBossRole::Mage && Boss->MageModel) AddTickPrerequisiteComponent(Boss->MageModel);
     InitializeMaterials();
 }
 
@@ -171,7 +174,7 @@ void AMCNutCombatEffect::PresentMagic(float Age,FVector Floor,FVector Normal,FVe
     const float Total=FMath::Max(.2f,Cue.WindupSeconds+Cue.ActiveSeconds);
     const float Progress=FMath::Clamp(Age/FMath::Max(.1f,Cue.WindupSeconds),0.f,1.f);
     const auto* Boss=Cast<AMCNutBoss>(SourceActor);
-    const FVector Caster=Boss?Boss->GetCastOrigin():Cue.Origin;
+    const FVector Caster=Boss?Boss->GetSpellFocusOrigin():Cue.Origin;
     const FVector Source=IsValid(SourceActor)?SourceActor->GetActorLocation():Cue.Origin;
     const FVector Direction=(Cue.Target-Cue.Origin).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
     const FVector Forward=Boss && (Roll || Motion)?Boss->AttackForward:Direction;

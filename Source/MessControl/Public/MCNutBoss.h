@@ -31,6 +31,8 @@ public:
     bool IsPlayerInThreat(const AMCToothCharacter* Hero,FVector& EscapeDirection) const;
     UFUNCTION(BlueprintPure,Category="Nut Combat") float GetAttackCooldownRemaining(EMCNutBossAttack Ability) const;
     FVector GetCastOrigin() const;
+    /** Cosmetic focus follows the authored palms; projectile origin remains server-defined. */
+    FVector GetSpellFocusOrigin() const;
     void BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCNutBossAnimationSnapshot& Snapshot) const;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Shield;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Kernel;
@@ -52,6 +54,7 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) int32 AttackSeed=0;
     UPROPERTY(Replicated, BlueprintReadOnly) double VisualHitAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) double ShieldHitAt=-100;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Shield") double ShieldBrokenAt=-100;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly,Category="Shield") float ShieldHealth=500;
     UPROPERTY(Replicated, BlueprintReadOnly) FVector VisualHitDirection=FVector::ZeroVector;
     // Absolute server-clock readiness is shared with clients and the diagnostic UI.
@@ -118,6 +121,8 @@ private:
     FVector MageModelScale=FVector::OneVector,MageModelCenter=FVector::ZeroVector;
     UPROPERTY(Transient) TArray<TObjectPtr<UAnimSequence>> BossAnimations;
     UPROPERTY(Transient) TObjectPtr<USkeletalMesh> FallbackTankMesh;
+    UPROPERTY(Transient) TObjectPtr<USkeletalMesh> UnshieldedTankMesh;
+    FSoftObjectPath CachedUnshieldedTankMeshPath;
     bool bFallbackTankMeshLoaded=false;
     TArray<FSoftObjectPath> CachedBossAnimationPaths;
     EMCNutBossRole CachedAnimationRole=EMCNutBossRole::Tank;
