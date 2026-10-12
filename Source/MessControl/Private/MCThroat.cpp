@@ -211,18 +211,27 @@ bool AMCThroat::CanAcceptDelivery(const AMCFoodActor* Food) const
     if(!HasAuthority() || !IsValid(Food) || Food->GetWorld()!=GetWorld() || Food->bBrushTool || Food->IsDisposed()
         || (!Food->bFragment && !Food->Holders.IsEmpty())
         || (Food->Phase!=EMCFoodPhase::Free && Food->Phase!=EMCFoodPhase::Falling && !(Food->bFragment && Food->Phase==EMCFoodPhase::Carried))) return false;
-    if(Food->bFragment) return ContainsDeliveryPosition(Food->GetActorLocation());
     if(const auto* Carrier=Food->StackCarrier.Get()) return !Food->UsesLegacyGrip() && Carrier->CanWork() && ContainsPlayer(Carrier);
+    if(Food->bFragment) return ContainsDeliveryPosition(Food->GetActorLocation());
     return ContainsFood(Food);
 }
 bool AMCThroat::AcceptDelivery(AMCFoodActor* Food)
 {
     if(!CanAcceptDelivery(Food)) return false;
     if(Food->bFragment && !Food->IsWrongIngredient()) {
+        auto* Carrier=Food->StackCarrier.Get();
         auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
+        if(!Worker) Worker=Carrier;
+        // Credit each piece, but show success once when this carrier's matching fragments are gone.
+        const bool FinalFragment=!Carrier || !Carrier->FoodCollection->Pieces.ContainsByPredicate([this,Food,Carrier](const auto& Piece) {
+            return IsValid(Piece) && Piece!=Food && Piece->bFragment && Piece->StackCarrier==Carrier
+                && !Piece->IsWrongIngredient() && CanAcceptDelivery(Piece);
+        });
         const FVector Point=Food->GetActorLocation();
+        // Use the atomic handoff to remove this layer without waking it or spilling neighbours.
+        if(Food->StackCarrier && !Food->BeginSwallow()) return false;
         Food->AwardDelivery();Food->Dispose();++FoodSwallowed;
-        if(Worker) Worker->NotifyTaskFeedback(true,Point);
+        if(Worker && FinalFragment) Worker->NotifyTaskFeedback(true,Point);
         ForceNetUpdate();return true;
     }
     if (AMCTutorialDirector::IsSafeTutorial(GetWorld()) && AMCTutorialDirector::IsTutorialTarget(Food) && Food->IsWrongIngredient())

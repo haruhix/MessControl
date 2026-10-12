@@ -90,9 +90,10 @@ public:
     FMCFoodEntryLanding OnEntryLanding;
     /** Entry flight is automatic transport, so work is measured at its planned landing. */
     FVector WorkPosition() const { return bMouthEntry && MouthEntryLanding.IsSet()?MouthEntryLanding.GetValue():GetActorLocation(); }
-    // Ordinary food is destroyed for XP; collection remains available for future mechanics.
-    // Tools and hazards retain the old grip.
-    bool UsesLegacyGrip() const { return bBrushTool || bFragment || FoodData.Kind!=EMCFoodKind::Food; }
+    // Cut fragments use the retained hand stack. Tools and hazards retain the old grip.
+    bool UsesLegacyGrip() const { return bBrushTool || FoodData.Kind!=EMCFoodKind::Food; }
+    // Config/DefaultEngine.ini: distinguish fragments from player ragdoll PhysicsBody shapes.
+    static constexpr ECollisionChannel FragmentCollisionChannel=ECC_GameTraceChannel2;
     static AMCFoodActor* FindNearbySpoiledFood(UWorld* World,FVector Point,float Radius=280);
     bool TryGrab(AMCToothCharacter* Hero);
     bool FindGripSurface(FVector From,FHitResult& Hit) const;

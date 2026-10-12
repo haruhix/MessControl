@@ -44,7 +44,7 @@ struct FFoodStackWorld
     { World->EndPlay(EEndPlayReason::Quit);GEngine->DestroyWorldContext(World);World->DestroyWorld(false); }
     void Step(float Seconds,float Dt=1.f/60)
     { for(int32 I=0;I<FMath::CeilToInt(Seconds/Dt);++I) {++GFrameCounter;World->Tick(LEVELTICK_All,Dt);} }
-    AMCFoodActor* Food(FVector Position,EMCFoodKind Kind=EMCFoodKind::Food,FVector Scale=FVector(.36))
+    AMCFoodActor* Food(FVector Position,EMCFoodKind Kind=EMCFoodKind::Food,FVector Scale=FVector(.36),bool Fragment=true)
     {
         auto* Mesh=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
 #if WITH_EDITOR
@@ -54,14 +54,14 @@ struct FFoodStackWorld
         Row.Scale=Row.FragmentScale=Scale;Row.Mass=9;Row.Fragments=3;Row.SpoilSeconds=300; // Each fragment weighs 3 kg.
         const FTransform T(Position);
         auto* F=World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),T,nullptr,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-        FRandomStream Random(7);F->ConfigureItem(TEXT("StackFixture"),Row,Random,true);F->FinishSpawning(T);
+        FRandomStream Random(7);F->ConfigureItem(TEXT("StackFixture"),Row,Random,Fragment && Kind==EMCFoodKind::Food);F->FinishSpawning(T);
         Foods.Add(F);return F;
     }
-    bool Collect(int32 Count=3)
+    bool Collect(int32 Count=3,bool Fragment=true)
     {
         Hero->FoodCollection->Toggle();
         for(int32 I=0;I<Count;++I)
-            if(!Hero->FoodCollection->Collect(Food(Hero->GetActorLocation()+FVector(110,(I-Count*.5f)*38,-35)))) return false;
+            if(!Hero->FoodCollection->Collect(Food(Hero->GetActorLocation()+FVector(110,(I-Count*.5f)*38,-35),EMCFoodKind::Food,FVector(.36),Fragment))) return false;
         return true;
     }
     AActor* Wall(FVector Position,FVector Extent)
@@ -82,7 +82,7 @@ bool FMCCarrierPlayerContact::RunTest(const FString&)
         if(!TestNotNull(TEXT("Second player spawns away from the pickup slot"),Other)) return false;
         Other->GetCharacterMovement()->DisableMovement();
         T.Step(.8f,Dt); // Neither player retains spawn hit immunity.
-        if(!TestTrue(TEXT("Carrier collects one piece"),T.Collect(1))) return false;
+        if(!TestTrue(TEXT("Carrier collects one whole food piece"),T.Collect(1,false))) return false;
         if(!Pickup) T.Step(.7f,Dt);
         // A real swept food contact during the hop, or a swept carrier capsule contact.
         Other->SetActorLocation(Origin+FVector(Pickup?100:70,0,0),false,nullptr,ETeleportType::TeleportPhysics);
@@ -97,6 +97,38 @@ bool FMCCarrierPlayerContact::RunTest(const FString&)
         T.Step(.3f,Dt);
         TestEqual(TEXT("The empty-handed player stays standing"),Other->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
         TestEqual(TEXT("Dropped food cannot damage the bystander"),Other->Status->State.Health,Health);
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFragmentPlayerContactSafety,"MessControl.Food.Stack.FragmentsDoNotKnockPlayers",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFragmentPlayerContactSafety::RunTest(const FString&)
+{
+    for(bool Pickup:{false,true}) {
+        FFoodStackWorld T;const FVector Origin=T.Hero->GetActorLocation();
+        auto* Other=T.World->SpawnActor<AMCToothCharacter>(Origin+FVector(500,0,0),FRotator::ZeroRotator);
+        if(!TestNotNull(TEXT("Fragment contact bystander spawns"),Other)) return false;
+        Other->GetCharacterMovement()->DisableMovement();T.Step(.8f);
+        if(!TestTrue(TEXT("A cut fragment joins the retained hand stack"),T.Collect(1))) return false;
+        if(!Pickup) T.Step(.7f);
+        Other->SetActorLocation(Origin+FVector(Pickup?100:70,0,0),false,nullptr,ETeleportType::TeleportPhysics);
+        const float Health=Other->Status->State.Health;
+        if(Pickup) T.Step(.32f);
+        else {
+            FHitResult Hit;T.Hero->SetActorLocation(Origin+FVector(25,0,0),true,&Hit);
+            TestTrue(TEXT("Player capsules still block each other while carrying fragments"),Hit.bBlockingHit && Hit.GetActor()==Other);
+        }
+        TestTrue(TEXT("Passing a fragment beside a player preserves the carried load"),T.Hero->FoodCollection->Pieces.Num()==1 && T.Hero->FoodCollection->FallenPieces==0);
+        TestEqual(TEXT("Fragment contact keeps the carrier standing"),T.Hero->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+        TestEqual(TEXT("Fragment contact keeps the bystander standing"),Other->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
+        auto* Fragment=T.Foods[0];T.Hero->FoodCollection->Stop();T.Step(.8f);
+        const FVector Target=Other->GetActorLocation();
+        Fragment->SetActorLocation(Target-FVector(100,0,0),false,nullptr,ETeleportType::TeleportPhysics);
+        Fragment->Body->SetEnableGravity(false);Fragment->Body->SetPhysicsLinearVelocity(FVector(600,0,0));
+        T.Step(.3f);
+        TestTrue(TEXT("A moving loose fragment passes through a player instead of pushing it"),Fragment->GetActorLocation().X>Target.X+40);
+        TestEqual(TEXT("An incoming fragment never reduces player health"),Other->Status->State.Health,Health);
+        TestEqual(TEXT("An incoming fragment never knocks down a player"),Other->ToothPhysics->GetBodyState(),EMCBodyState::Standing);
     }
     return true;
 }
@@ -150,7 +182,7 @@ bool FMCStackReleaseSafety::RunTest(const FString&)
     auto* Other=T.World->SpawnActor<AMCToothCharacter>(Origin+FVector(500,0,0),FRotator::ZeroRotator);
     if(!TestNotNull(TEXT("Bystander spawns outside the pickup area"),Other)) return false;
     Other->GetCharacterMovement()->DisableMovement();T.Step(.8f);
-    if(!T.Collect(1)) return false;
+    if(!T.Collect(1,false)) return false;
     T.Step(.12f);auto* Food=T.Foods[0];
     TestTrue(TEXT("Drop happens while the piece is mid-hop"),Food->IsStackPickupActive());
     T.Hero->FoodCollection->Stop();

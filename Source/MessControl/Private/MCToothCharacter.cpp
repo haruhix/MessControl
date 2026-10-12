@@ -65,6 +65,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     bReplicates = true;
     GetCapsuleComponent()->InitCapsuleSize(34.f, 58.f);
     GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+    GetCapsuleComponent()->SetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel,ECR_Ignore);
     // Food movement is driven by grip strength, not CharacterMovement's large automatic push force.
     GetCharacterMovement()->bEnablePhysicsInteraction=false;
     GetCharacterMovement()->MaxWalkSpeed = 440.f;
@@ -82,6 +83,7 @@ AMCToothCharacter::AMCToothCharacter(const FObjectInitializer& ObjectInitializer
     GetMesh()->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
     GetMesh()->SetCollisionResponseToChannel(ECC_Visibility,ECR_Ignore);
     GetMesh()->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+    GetMesh()->SetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel,ECR_Ignore);
     GetMesh()->VisibilityBasedAnimTickOption=EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
     GetMesh()->bEnableUpdateRateOptimizations=false;
     GetMesh()->SetAnimInstanceClass(UMCToothAnimInstance::StaticClass());
@@ -178,7 +180,11 @@ void AMCToothCharacter::BeginPlay()
     Super::BeginPlay();
     // Include Blueprint colliders and the skeletal bodies used by ragdolls.
     TInlineComponentArray<UPrimitiveComponent*> Colliders(this);
-    for (auto* Collider:Colliders) Collider->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+    for (auto* Collider:Colliders) {
+        Collider->SetCollisionResponseToChannel(ECC_Camera,ECR_Ignore);
+        // Apply after Blueprint construction/profile overrides, including ragdoll bodies.
+        Collider->SetCollisionResponseToChannel(AMCFoodActor::FragmentCollisionChannel,ECR_Ignore);
+    }
     // Choose once on the server; owning clients, proxies and late joiners share it.
     if (HasAuthority())
         if (const auto* Identity=GetPlayerState<AMCPlayerState>()) ApplyPlayerColor(Identity->PlayerColor);
@@ -778,20 +784,7 @@ void AMCToothCharacter::ResolvePrimaryAction()
 {
     if(FoodCollection->bCollecting) return;
     if (!bPrimaryHeld || !CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-.3f) return;
-    if(!bInCoffee && !bSelfCare && !HeldFood && !Grip->GrabbedPlayer && !Inventory->IsCleaningTool()) {
-        AMCFoodActor* Fragment=nullptr; float Best=MAX_flt;
-        for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
-            if(!It->bFragment || It->IsDisposed() || !Grip->CanAcquire(*It) || !CanContact(*It)) continue;
-            const float Distance=FVector::DistSquared(It->Visual->Bounds.GetBox().GetClosestPointTo(GetActorLocation()),GetActorLocation());
-            if(Distance<Best && Distance<=FMath::Square(It->Settings.GrabReach)) {Best=Distance;Fragment=*It;}
-        }
-        if(Fragment) {
-            bBrushing=false; bHandling=true;
-            if(Fragment->TryGrab(this)) {ResetContact();OnRep_Working();ForceNetUpdate();return;}
-            bHandling=false;
-        }
-    }
-    if(HeldFood && (HeldFood->bFragment || HeldFood->FoodData.Kind==EMCFoodKind::Spicy)) {
+    if(HeldFood && HeldFood->FoodData.Kind==EMCFoodKind::Spicy) {
         bHandling=true;bBrushing=false;return;
     }
     if(!bInCoffee && !Inventory->IsCleaningTool()) {
@@ -1369,6 +1362,7 @@ void AMCToothCharacter::ClientGroundImpact_Implementation(float Strength,FVector
 
 void AMCToothCharacter::OnBodyHit(UPrimitiveComponent* HitComponent,AActor* OtherActor,UPrimitiveComponent* OtherComponent,FVector NormalImpulse,const FHitResult& Hit)
 {
+    if(const auto* Food=Cast<AMCFoodActor>(OtherActor);Food && Food->bFragment) return;
     if(HasAuthority() && HitComponent && OtherComponent && OtherActor!=this) {
         const bool bOwnSimulating=HitComponent->IsSimulatingPhysics(Hit.MyBoneName);
         const FVector OwnVelocity=bOwnSimulating

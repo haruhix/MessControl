@@ -188,10 +188,11 @@ void AMCFoodActor::OnRep_Phase()
     // Stop Chaos before disabling collision, including disposal while the item is still moving.
     if (!bSimulate) Body->SetSimulatePhysics(false);
     SetActorHiddenInGame(bGone); Body->SetCollisionEnabled((bGone || Phase==EMCFoodPhase::Swallowing)?ECollisionEnabled::NoCollision:Phase==EMCFoodPhase::Absorbing?ECollisionEnabled::QueryOnly:ECollisionEnabled::QueryAndPhysics);
-    Body->SetCollisionResponseToChannel(ECC_Pawn,Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
+    Body->SetCollisionResponseToChannel(ECC_Pawn,bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
     // A carried kinematic body must not shove neighbouring food out of a pile.
     // Server contact probes still detect real incoming bodies above the impulse threshold.
     Body->SetCollisionResponseToChannel(ECC_PhysicsBody,StackCarrier?ECR_Overlap:ECR_Block);
+    Body->SetCollisionResponseToChannel(FragmentCollisionChannel,StackCarrier?ECR_Overlap:ECR_Block);
     // Simulated proxies are kinematic; only the server applies springs and impact damage.
     if (bSimulate) Body->SetSimulatePhysics(true);
 }
@@ -340,6 +341,8 @@ void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
 }
 void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
+    // Fragments remain physical against scenery and food, but never attack a player.
+    if(bFragment && Cast<AMCToothCharacter>(Other)) return;
     if(StackCarrier) {
         if(HasAuthority()) StackCarrier->FoodCollection->HandleStackCollision(this,Other,OtherComponent,Impulse,Hit);
         return;
@@ -736,8 +739,12 @@ bool AMCFoodDisposal::CanAcceptDelivery(const AMCFoodActor* Food) const
 bool AMCFoodDisposal::AcceptDelivery(AMCFoodActor* Food)
 {
     if(!CanAcceptDelivery(Food)) return false;
+    auto* Carrier=Food->StackCarrier.Get();
     auto* Worker=Food->GetLastHandledBy()?Cast<AMCToothCharacter>(Food->GetLastHandledBy()->GetPawn()):nullptr;
-    if(!Worker) Worker=Food->StackCarrier?Food->StackCarrier.Get():Food->EquippedBy.Get();
+    if(!Worker) Worker=Carrier?Carrier:Food->EquippedBy.Get();
+    const bool NotifySuccess=!Food->bFragment || !Carrier || !Carrier->FoodCollection->Pieces.ContainsByPredicate([this,Food,Carrier](const auto& Piece) {
+        return IsValid(Piece) && Piece!=Food && Piece->bFragment && Piece->StackCarrier==Carrier && CanAcceptDelivery(Piece);
+    });
     // The throat's existing handoff removes just this layer from the collection.
     // Setting StackCarrier to null alone leaves a disposed item in Pieces.
     if(Food->StackCarrier && !Food->BeginSwallow()) return false;
@@ -745,7 +752,7 @@ bool AMCFoodDisposal::AcceptDelivery(AMCFoodActor* Food)
     if(bBrushBin && AMCTutorialDirector::IsTutorialTarget(Food)) {
         if(auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
             Tutorial->NotifyAction(Worker,Food->bSpoiled?EMCTutorialAction::SpoiledDiscarded:EMCTutorialAction::TrashDiscarded,Food);
-    } else if(Worker) Worker->NotifyTaskFeedback(true,Food->GetActorLocation());
+    } else if(Worker && NotifySuccess) Worker->NotifyTaskFeedback(true,Food->GetActorLocation());
     return true;
 }
 void AMCFoodDisposal::ReturnFreshFood(AMCFoodActor* Food)
@@ -863,6 +870,8 @@ void AMCFoodActor::OnRep_Item()
         if(UStaticMesh* Mesh=Visual->GetStaticMesh()) {Visual->SetRelativeLocation(-Mesh->GetBounds().Origin*Visual->GetRelativeScale3D());MeshBody->SetCollisionMesh(Mesh,Visual->GetRelativeScale3D());}
     }
     else if(UStaticMesh* Mesh=Visual->GetStaticMesh()) {Visual->SetRelativeLocation(-Mesh->GetBounds().Origin*Visual->GetRelativeScale3D());MeshBody->SetCollisionMesh(Mesh,Visual->GetRelativeScale3D());}
+    Body->SetCollisionObjectType(bBrushTool?ECC_GameTraceChannel1:bFragment?FragmentCollisionChannel:ECC_PhysicsBody);
+    Body->SetCollisionResponseToChannel(ECC_Pawn,bFragment || Phase==EMCFoodPhase::Absorbing?ECR_Ignore:ECR_Block);
     Label->SetRelativeLocation(FVector(0,0,Body->GetUnscaledBoxExtent().Z+28));
     GripSurface->SetStaticMesh(Visual->GetStaticMesh());
     // Construction scripts can add colliders or restore a saved collision profile.

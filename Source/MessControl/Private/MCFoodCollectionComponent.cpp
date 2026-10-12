@@ -39,7 +39,7 @@ bool UMCFoodCollectionComponent::IsLoosePileFood(const AActor* Actor) const
     const auto* F=Cast<AMCFoodActor>(Actor);
     return IsValid(F) && !F->UsesLegacyGrip() && !F->StackCarrier && F->Holders.IsEmpty()
         && (F->Phase==EMCFoodPhase::Free || F->Phase==EMCFoodPhase::Falling)
-        && F->Body->GetScaledBoxExtent().GetMax()<=55
+        && (F->bFragment || F->Body->GetScaledBoxExtent().GetMax()<=55)
         && F->Body->GetPhysicsLinearVelocity().Size()*F->Settings.Mass<ContactThreshold();
 }
 bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
@@ -48,7 +48,7 @@ bool UMCFoodCollectionComponent::CanCollect(const AMCFoodActor* F) const
     if(!H || !IsValid(F) || !H->CanWork() || F->UsesLegacyGrip() || F->StackCarrier || F->IsDisposed()
         || (F->Phase!=EMCFoodPhase::Free && F->Phase!=EMCFoodPhase::Falling) || !F->Holders.IsEmpty()) return false;
     // Large whole vegetables must be cut first. No shrinking of their physics body at pickup.
-    if(F->Body->GetScaledBoxExtent().GetMax()>55 || F->Visual->Bounds.SphereRadius>85) return false;
+    if(!F->bFragment && (F->Body->GetScaledBoxExtent().GetMax()>55 || F->Visual->Bounds.SphereRadius>85)) return false;
     const double* Drop=DroppedAt.Find(F); if(Drop && GetWorld()->GetTimeSeconds()-*Drop<2) return false;
     if(FVector::DistSquared(F->GetActorLocation(),H->GetActorLocation())>FMath::Square(CollectionReach)) return false;
     FHitResult Hit; FCollisionQueryParams Q(SCENE_QUERY_STAT(MCCollectFood),false,H); Q.AddIgnoredActor(F);
@@ -105,7 +105,8 @@ bool UMCFoodCollectionComponent::Collect(AMCFoodActor* Food)
     for(const auto& Piece:Pieces) Q.AddIgnoredActor(Piece);
     TArray<FOverlapResult> Occupants;
     GetWorld()->OverlapMultiByChannel(Occupants,Goal,Rotation,ECC_PhysicsBody,FCollisionShape::MakeBox(Food->Body->GetScaledBoxExtent()*.9),Q);
-    for(const auto& Occupant:Occupants) if(Occupant.bBlockingHit && !IsLoosePileFood(Occupant.GetActor())) return false;
+    for(const auto& Occupant:Occupants) if(Occupant.bBlockingHit && !IsLoosePileFood(Occupant.GetActor())
+        && !(Food->bFragment && Cast<AMCToothCharacter>(Occupant.GetActor()))) return false;
     Food->BeginStackPickup(Cast<AMCToothCharacter>(GetOwner()),Height);
     for(const auto& Piece:Pieces) if(IsValid(Piece)) {
         Food->Body->IgnoreActorWhenMoving(Piece,true); Piece->Body->IgnoreActorWhenMoving(Food,true);
@@ -178,7 +179,13 @@ float UMCFoodCollectionComponent::ContactStrength(float HeldMass,AActor* Other,U
 void UMCFoodCollectionComponent::HandleCarrierCollision(AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
     if(!GetOwner()->HasAuthority() || Pieces.IsEmpty() || !IsValid(Other) || Other==GetOwner()) return;
-    if(auto* Player=Cast<AMCToothCharacter>(Other)) {SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);return;}
+    if(const auto* Food=Cast<AMCFoodActor>(Other);Food && Food->bFragment) return;
+    if(auto* Player=Cast<AMCToothCharacter>(Other)) {
+        // A harmless fragment load must not turn an ordinary capsule bump into a knockdown.
+        if(Pieces.ContainsByPredicate([](const auto& Piece){return IsValid(Piece) && !Piece->bFragment;}))
+            SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);
+        return;
+    }
     if(Hit.ImpactNormal.Z>.55f) return;
     if(const auto* Food=Cast<AMCFoodActor>(Other); Food && (Contains(Food) || IsSettlingRelease(Food))) return;
     const auto* H=Cast<AMCToothCharacter>(GetOwner());
@@ -191,7 +198,10 @@ void UMCFoodCollectionComponent::HandleCarrierCollision(AActor* Other,UPrimitive
 void UMCFoodCollectionComponent::HandleStackCollision(AMCFoodActor* Food,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit)
 {
     if(!GetOwner()->HasAuthority() || !Contains(Food) || !IsValid(Other) || Other==GetOwner()) return;
-    if(auto* Player=Cast<AMCToothCharacter>(Other)) {SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);return;}
+    if(auto* Player=Cast<AMCToothCharacter>(Other)) {
+        if(!Food->bFragment) SpillOnPlayerContact(Player,Hit.ImpactNormal,Hit.ImpactPoint);
+        return;
+    }
     if(const auto* Piece=Cast<AMCFoodActor>(Other); Piece && (Contains(Piece) || IsSettlingRelease(Piece))) return;
     const float Strength=ContactStrength(Food->Settings.Mass,Other,OtherComponent,Impulse,Hit.ImpactNormal);
     if(Strength>=ContactThreshold()) {
