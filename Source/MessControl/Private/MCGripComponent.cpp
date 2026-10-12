@@ -898,8 +898,8 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
     const bool ToolPresented=Tooth->Inventory && Tooth->Inventory->ShouldPresentTool();
     const bool UpgradeHeld=ToolPresented && Tooth->Inventory->SelectedUpgrade()!=EMCToolUpgrade::None;
     const bool ToolSwing=ToolPresented && !Tooth->AnimationToolOffset.IsNearlyZero();
-    // The wrist pose keeps the pickaxe outside collision surfaces even between
-    // swings. Physical arm blending would overwrite that corrected pose.
+    // Preserve the animated pickaxe wrist through the full swing and recovery.
+    // Physical arm blending would overwrite the tool's authored trajectory.
     const bool Pickaxe=ToolPresented && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe;
     const bool Spraying=ToolPresented && Tooth->Inventory->Selected==EMCToolSlot::Spray && Tooth->CanWork()
         && (Tooth->Inventory->HealingTarget || Tooth->Inventory->FireTarget || Tooth->IsPrimaryHeld());

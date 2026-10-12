@@ -1,4 +1,6 @@
 #include "MCFoodActor.h"
+#include "MCPerkComponent.h"
+#include "MCPlayerState.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCReactionVFX.h"
 #include "MCTongue.h"
@@ -44,7 +46,9 @@ bool AMCFoodActor::SpawnFragments(FVector Direction)
     FRandomStream Random(HashCombine(GetTypeHash(GetActorLocation()),GetTypeHash(GetWorld()->GetTimeSeconds())));
     int32 Created=0;
     const FVector Center=GetActorLocation();
-    const float Scatter=FMath::Clamp(float(Visual->Bounds.SphereRadius)*.3f,25.f,70.f);
+    const auto* Perks=UMCPerkComponent::ForActor(LastHandledBy);
+    const float ScatterFactor=Perks?Perks->RogueValue(EMCRogueStat::FoodScatter):1.f;
+    const float Scatter=FMath::Clamp(float(Visual->Bounds.SphereRadius)*.3f,25.f,70.f)*ScatterFactor;
     for(int32 I=0;I<FMath::Clamp(FoodData.Fragments,2,5);++I) {
         const float Angle=I*PI*2/FMath::Clamp(FoodData.Fragments,2,5);
         const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0);
@@ -56,7 +60,7 @@ bool AMCFoodActor::SpawnFragments(FVector Direction)
         Piece->bSpoiled=bSpoiled;Piece->SpoilAt=SpoilAt;
         Piece->EntryRecoveryLanding=Center;
         Piece->FinishSpawning(Pose);
-        Piece->Body->SetPhysicsLinearVelocity(Ray*90+Direction.GetSafeNormal()*35+FVector(0,0,110));
+        Piece->Body->SetPhysicsLinearVelocity((Ray*90+Direction.GetSafeNormal()*35)*ScatterFactor+FVector(0,0,110));
         Piece->ForceNetUpdate();++Created;
     }
     return Created>0;

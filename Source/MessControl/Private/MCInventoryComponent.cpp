@@ -1,4 +1,5 @@
 #include "MCInventoryComponent.h"
+#include "MCPerkComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
@@ -121,8 +122,8 @@ float UMCInventoryComponent::Damage() const
     return FMath::Max(1.f,Selected==EMCToolSlot::Pickaxe?(Settings?Settings->PickaxeDamage:40.f):(Settings?Settings->KnifeDamage:25.f));
 }
 float UMCInventoryComponent::SwingPlayRate(EMCToolSlot Slot) { return Slot==EMCToolSlot::Pickaxe?1.05f/.65f:1.f; }
-float UMCInventoryComponent::SwingDuration() const { return (Selected==EMCToolSlot::Pickaxe?1.05f:Selected==EMCToolSlot::Knife?.70f:.85f)/SwingPlayRate(Selected); }
-float UMCInventoryComponent::SwingContactTime() const { return (Selected==EMCToolSlot::Pickaxe?.38f:Selected==EMCToolSlot::Knife?.28f:.16f)/SwingPlayRate(Selected); }
+float UMCInventoryComponent::SwingDuration() const { return (Selected==EMCToolSlot::Pickaxe?1.05f:Selected==EMCToolSlot::Knife?.70f:.85f)/(SwingPlayRate(Selected)*RogueAttackRate()); }
+float UMCInventoryComponent::SwingContactTime() const { return (Selected==EMCToolSlot::Pickaxe?.38f:Selected==EMCToolSlot::Knife?.28f:.16f)/(SwingPlayRate(Selected)*RogueAttackRate()); }
 float UMCInventoryComponent::SwingAngle(EMCToolSlot Slot,float T)
 {
     T*=SwingPlayRate(Slot);
@@ -167,7 +168,10 @@ bool UMCInventoryComponent::ShouldPresentTool() const
 }
 FVector UMCInventoryComponent::ConstrainPickaxeGrip(const FTransform& WristWorld) const
 {
-    if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe) return FVector::ZeroVector;
+    // The ordinary pickaxe follows its full swing arc through scenery.
+    // Only the buffer's held working pose needs scenery clearance.
+    if(!ShouldPresentTool() || !Tool || !Tool->GetStaticMesh() || Selected!=EMCToolSlot::Pickaxe
+        || !HasUpgrade(EMCToolUpgrade::Buffer)) return FVector::ZeroVector;
     const FTransform World=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform()*WristWorld;
     return ConstrainToolPose(World,Tool->GetStaticMesh());
 }
@@ -352,7 +356,7 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
         return !HandWorld.ContainsNaN();
     }
     if(!Hero->GetCalculusSwingContact(Point,Normal)) return false;
-    const float PlayRate=SwingPlayRate(Selected);
+    const float PlayRate=SwingPlayRate(Selected)*RogueAttackRate();
     const float T=Hero->GetToolSwingElapsed()*PlayRate;
     const float Contact=SwingContactTime()*PlayRate;
     const float WindEnd=FMath::Max(.1f,Contact-.14f);
@@ -387,7 +391,7 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
         const float A=FMath::SmoothStep(RecoilEnd,RecoveryEnd,T);
         Offset=FMath::Lerp(Recoil,Ready,A); Pitch=FMath::Lerp(-5.f,-8.f,A);
     }
-    FQuat Rotation=(FQuat(Side,FMath::DegreesToRadians(Pitch))
+    const FQuat Rotation=(FQuat(Side,FMath::DegreesToRadians(Pitch))
         *ContactRotation).GetNormalized();
     const FTransform InHand=Tool->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
     const FVector Scale=InHand.GetScale3D()*Hero->GetMesh()->GetComponentScale();
@@ -395,38 +399,6 @@ bool UMCInventoryComponent::CalculusHandGoal(FTransform& HandWorld,float& Blend)
     // The sharp point, rather than the wrist or mesh origin, reaches the
     // replicated patch exactly at the authoritative contact time.
     const FVector SharpPoint=Point+Normal*Offset.X+Right*Offset.Y+Tangent*(Offset.Y*.35f);
-    if(const auto* Body=Hero->GetMesh()->GetBodyInstance(Hero->RigBone(TEXT("body")))) {
-        const FBox BodyBounds=Body->GetBodyBounds();
-        const auto Bounds=Tool->GetStaticMesh()->GetBounds();
-        const float Padding=FMath::Max(4.f,float(Bounds.BoxExtent.Y*FMath::Abs(Scale.Y)+2));
-        const FBox Nearby=BodyBounds.ExpandBy(Padding);
-        const auto Probe=FCollisionShape::MakeSphere(Padding);
-        auto Penetrations=[&](const FQuat& R) {
-            int32 Count=0;
-            for(int32 I=0;I<5;++I) {
-                const float A=I/4.f;
-                const FVector Samples[]={FVector(FMath::Lerp(float(Bounds.Origin.X-Bounds.BoxExtent.X),float(Tip.X),A),0,0),
-                    FVector(Tip.X,0,FMath::Lerp(float(Bounds.Origin.Z-Bounds.BoxExtent.Z),float(Bounds.Origin.Z+Bounds.BoxExtent.Z),A))};
-                for(const FVector& Sample:Samples) {
-                    const FVector P=SharpPoint+R.RotateVector((Sample-Tip)*Scale);
-                    // Clearance must not trade player penetration for a hand
-                    // inside the tooth. Small tip overlap is the actual strike.
-                    if(FVector::DotProduct(P-Point,Normal)<-3) return MAX_int32;
-                    if(Nearby.IsInside(P) && Body->OverlapTest(P,FQuat::Identity,Probe)) ++Count;
-                }
-            }
-            return Count;
-        };
-        int32 Best=Penetrations(Rotation);
-        // Bounded local queries against the crown only. Rotate around the
-        // sharp point so clearance never changes the authoritative contact.
-        for(int32 I=1;Best>0 && I<=3;++I) {
-            const FQuat Candidate=(FQuat(Side,FMath::DegreesToRadians(Pitch-10.f*I))
-                *ContactRotation).GetNormalized();
-            const int32 Count=Penetrations(Candidate);
-            if(Count<Best) { Best=Count; Rotation=Candidate; }
-        }
-    }
     const FTransform PickWorld(Rotation,SharpPoint-Rotation.RotateVector(Tip*Scale),Scale);
     HandWorld=InHand.Inverse()*PickWorld;
     return !HandWorld.ContainsNaN();
@@ -551,6 +523,7 @@ void UMCInventoryComponent::RefreshMesh()
         Detail->SetRelativeTransform(Selected==EMCToolSlot::Knife?FTransform(FRotator::ZeroRotator,FVector(-5,0,0),FVector(.24,.09,.10))
             :FTransform(FRotator::ZeroRotator,FVector(22,0,31),FVector(.23,.08,.08)));
     }
+    if(Selected==EMCToolSlot::Pickaxe) Transform.SetScale3D(Transform.GetScale3D()*(MeleeReach()/180.f));
     Tool->SetStaticMesh(Mesh); Tool->SetRelativeTransform(Transform);
     // Untextured Blender imports stay readable; artist materials always take priority.
     if(auto* Neutral=Settings->UpgradeFallbackMaterial.LoadSynchronous()) {
@@ -611,6 +584,7 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
 void UMCInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps); DOREPLIFETIME(UMCInventoryComponent,Selected);
+    DOREPLIFETIME(UMCInventoryComponent,bChainsawRunning);
     DOREPLIFETIME(UMCInventoryComponent,bWaterJetUnlocked); DOREPLIFETIME(UMCInventoryComponent,SprayReadyAt); DOREPLIFETIME(UMCInventoryComponent,LastSprayAt);
     DOREPLIFETIME(UMCInventoryComponent,HealingTarget);DOREPLIFETIME(UMCInventoryComponent,FireTarget);
     DOREPLIFETIME(UMCInventoryComponent,bPressureMode);DOREPLIFETIME(UMCInventoryComponent,WaterShotReadyAt);

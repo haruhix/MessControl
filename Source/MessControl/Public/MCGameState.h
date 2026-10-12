@@ -21,6 +21,11 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Sequence") TObjectPtr<AMCSingleDayDirector> SingleDayDirector;
     /** Legendary tools belong to the run, including respawns and late team joins. */
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards") uint8 TeamToolUpgrades=0;
+    /** Event producers opt in to board-only contexts; absent events never enter perk pools. */
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadOnly,Category="Roguelike") TArray<FName> RogueOptionalEvents;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Roguelike") bool bRogueNightActive=false;
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Roguelike") void SetRogueEventEnabled(FName Event,bool Enabled);
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Roguelike") void SetRogueNightActive(bool Active);
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Director") FMCGameDirectorState DirectorState;
     /** Run history survives HUD state changes and authored key events. Oldest entries expire at 128. */
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Director") TArray<FString> DirectorDecisionLog;

@@ -63,6 +63,7 @@ public:
     virtual void ServerMoveHandleClientError(float TimeStamp,float Dt,const FVector& Accel,const FVector& ClientLocation,
         FMovementBaseInterfaceData* Base,FName Bone,uint8 Mode) override;
     virtual FRotator ComputeOrientToMovementRotation(const FRotator& CurrentRotation,float DeltaTime,FRotator& DeltaRotation) const override;
+    virtual void PhysicsRotation(float DeltaTime) override;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion",meta=(ClampMin="100",ClampMax="600")) float WalkSpeed=340;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion",meta=(ClampMin="200",ClampMax="900")) float SprintSpeed=560;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion",meta=(ClampMin="100",ClampMax="3000")) float GroundAcceleration=1050;
@@ -77,7 +78,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float StaminaPerSecond=22.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float StaminaRecoveryDelay=.65f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Stamina",meta=(ClampMin="0")) float DashStaminaCost=22.f;
-    float GetMaxStamina() const { return FMath::IsFinite(MaxStamina)?FMath::Max(1.f,MaxStamina):100.f; }
+    float GetMaxStamina() const;
     float GetStamina() const { return FMath::Clamp(StaminaState.Value,0.f,GetMaxStamina()); }
     const FMCStaminaPredictionState& GetStaminaPrediction() const { return StaminaState; }
     const FMCStaminaPredictionState& GetStaminaResponseSnapshot() const { return ServerStaminaSnapshot; }
@@ -101,6 +102,7 @@ public:
     void SetWantsDash(bool Enabled) { bWantsDash=Enabled; }
     void CancelDash();
     float GetDashCooldownRemaining() const { return DashCooldownRemaining; }
+    float EffectiveDashCooldown() const;
     void RestoreDashPrediction(float Cooldown) { DashCooldownRemaining=Cooldown; }
     FVector CaptureSuctionForMove();
     void RestoreSuctionForMove(FVector Sample);

@@ -5,6 +5,10 @@
 #include "MCGameMode.h"
 #include "MCGameState.h"
 #include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
+#include "MCPerkComponent.h"
+#include "MCToothPhysicsComponent.h"
+#include "MCGameDirector.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Engine/GameInstance.h"
@@ -40,6 +44,7 @@ void AMCPlayerController::BeginPlay()
 void AMCPlayerController::SetupInputComponent()
 {
     Super::SetupInputComponent();
+    InputComponent->BindKey(EKeys::G,IE_Pressed,this,&AMCPlayerController::ActivateRogueBooster);
     InputComponent->BindKey(EKeys::T,IE_Pressed,this,&AMCPlayerController::ToggleEmotes);
     InputComponent->BindKey(EKeys::Escape,IE_Pressed,this,&AMCPlayerController::TogglePauseMenu);
     InputComponent->BindKey(EKeys::Tab,IE_Pressed,this,&AMCPlayerController::ShowScoreboard);
@@ -337,7 +342,9 @@ bool AMCPlayerController::IsRewardMenuOpen() const
 bool AMCPlayerController::IsRewardInteractionActive() const
 {
     const auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
-    return ActiveLevelOfferId.IsValid() || (HasAuthority() && ProgressPlayer && ProgressPlayer->LevelUpOffer.IsValid())
+    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    const bool SawRunning=Hero && Hero->Inventory && Hero->Inventory->bChainsawRunning;
+    return ActiveLevelOfferId.IsValid() || (HasAuthority() && !SawRunning && ProgressPlayer && ProgressPlayer->LevelUpOffer.IsValid())
         || (ActiveRewardChest.IsValid() && RewardPawn.Get()==GetPawn());
 }
 
@@ -405,13 +412,49 @@ void AMCPlayerController::ChooseRewardPerk(int32 ChoiceIndex)
     ServerChooseRewardPerk(Chest,ChoiceIndex);
 }
 
+void AMCPlayerController::RerollLevelPerks()
+{
+    if(!IsLocalController() || !ActiveLevelOfferId.IsValid() || bRewardChoicePending) return;
+    bRewardChoicePending=true;if(PerkChoiceWidget) PerkChoiceWidget->SetSelectionPending(true);
+    ServerRerollLevelPerks(ActiveLevelOfferId);
+}
+void AMCPlayerController::ActivateRogueBooster() {if(IsLocalController() && !IsRewardMenuOpen()) ServerActivateRogueBooster();}
+void AMCPlayerController::ServerActivateRogueBooster_Implementation()
+{if(auto* PS=GetPlayerState<AMCPlayerState>();PS && PS->Perks) PS->Perks->ActivateBooster();}
+void AMCPlayerController::ServerRerollLevelPerks_Implementation(FGuid OfferId)
+{
+    auto* PS=GetPlayerState<AMCPlayerState>();
+    if(!PS || !PS->TryRerollLevelPerks(OfferId)) ClientLevelPerkChoiceResolved(OfferId,false);
+}
+void AMCPlayerController::ConfirmRogueReward(bool Accept)
+{
+    if(!IsLocalController() || !ActiveRewardChest.IsValid() || bRewardChoicePending) return;
+    bRewardChoicePending=true;if(PerkChoiceWidget) PerkChoiceWidget->SetSelectionPending(true);
+    ServerConfirmRogueReward(ActiveRewardChest.Get(),Accept);
+}
+void AMCPlayerController::ServerConfirmRogueReward_Implementation(AMCRewardChest* Chest,bool Accept)
+{
+    auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    if(!IsValid(Chest) || !Hero) return;
+    const bool Done=Accept?Chest->ConfirmRogueContract(Hero):Chest->DeclineRogueReward(Hero);
+    if(!Done && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero) Chest->PublishRogueOffer();
+}
+void AMCPlayerController::ClientShowRogueChoices_Implementation(AMCRewardChest* Chest,const FMCRogueChestOffer& Offer)
+{
+    if(!IsValid(Chest) || !PrepareRewardUI(Chest) || Offer.Kind==EMCRogueRewardKind::Ordinary
+        || (Offer.Step<2 && Offer.IDs.Num()!=3)) return;
+    bRewardChoicePending=false;PerkChoiceWidget->ShowRogueChoices(Offer);
+    UpdateInputMode();PerkChoiceWidget->SetUserFocus(this);
+}
+
 void AMCPlayerController::ServerChooseRewardPerk_Implementation(AMCRewardChest* Chest,int32 ChoiceIndex)
 {
     auto* Hero=Cast<AMCToothCharacter>(GetPawn());
     if (!IsValid(Chest) || ChoiceIndex<0 || ChoiceIndex>=3 || !Hero || !Chest->TryChooseCard(Hero,ChoiceIndex))
     {
         if (IsValid(Chest) && Hero && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero)
-            ClientShowPerkChoices(Chest,Chest->LootIDs,Chest->Polarity);
+            if(Chest->RogueKind!=EMCRogueRewardKind::Ordinary) Chest->PublishRogueOffer();
+            else ClientShowPerkChoices(Chest,Chest->LootIDs,Chest->Polarity);
         else ClientClosePerkChoices(Chest);
     }
 }
@@ -425,6 +468,14 @@ void AMCPlayerController::ClientClosePerkChoices_Implementation(AMCRewardChest* 
 void AMCPlayerController::RefreshLevelPerkChoices()
 {
     if (!IsLocalController()) return;
+    // Keep earned choices queued until the unstoppable saw run has ended.
+    // Opening its menu would otherwise cancel the tool and halt the player.
+    if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());Hero && Hero->Inventory->bChainsawRunning) return;
+    if(const auto* PS=GetPlayerState<AMCPlayerState>();PS && PS->Perks && PS->Perks->IsFuryActive()) return;
+    if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());!Hero || !Hero->Status->IsAlive() || Hero->HasFrozenLegs()
+        || Hero->IsMimicCaptured() || !Hero->ToothPhysics->CanAct()) return;
+    if(!ActiveLevelOfferId.IsValid()) if(const auto* Director=AMCGameDirector::Find(GetWorld());Director && Director->IsManagingEvents()
+        && !Director->CanStartRewardInteraction()) return;
     const auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     const bool CanShow=ProgressPlayer && ProgressPlayer->LevelUpOffer.IsValid() && ProgressPlayer->LevelUpOffer.OfferId!=AcceptedLevelOfferId && Game && !Game->bLobbyWaiting
@@ -458,7 +509,8 @@ void AMCPlayerController::ServerChooseLevelPerk_Implementation(FGuid OfferId,int
 {
     auto* ProgressPlayer=GetPlayerState<AMCPlayerState>();
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
-    const bool Accepted=ProgressPlayer && Game && !Game->bLobbyWaiting && !Game->bTutorialActive
+    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    const bool Accepted=ProgressPlayer && Hero && Hero->Status->IsAlive() && Game && !Game->bLobbyWaiting && !Game->bTutorialActive
         && ChoiceIndex>=0 && ChoiceIndex<3 && ProgressPlayer->TryChooseLevelUpPerk(OfferId,ChoiceIndex);
     ClientLevelPerkChoiceResolved(OfferId,Accepted);
 }

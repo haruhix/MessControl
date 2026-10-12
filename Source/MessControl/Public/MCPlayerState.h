@@ -3,6 +3,7 @@
 #include "GameFramework/PlayerState.h"
 #include "MCPresentationTypes.h"
 #include "MCLevelUpOffer.h"
+#include "MCRogueTypes.h"
 #include "MCPlayerState.generated.h"
 
 class UMCPerkComponent;
@@ -43,10 +44,13 @@ public:
     void QueueChoicesThroughLevel(int32 TeamLevel);
     void RefreshLevelUpOffer();
     bool TryChooseLevelUpPerk(const FGuid& OfferId,int32 ChoiceIndex);
+    bool TryRerollLevelPerks(const FGuid& OfferId);
     void ResetLevelUpChoices();
     UFUNCTION(BlueprintPure,Category="Progression") bool HasPendingLevelChoices() const { return PendingLevelChoices>0; }
     UPROPERTY(ReplicatedUsing=OnRep_LevelUpOffer,BlueprintReadOnly,Category="Progression") FMCLevelUpOffer LevelUpOffer;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Progression") int32 PendingLevelChoices=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Progression") int32 PersonalChoicesTaken=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Progression") bool bRogueRerollSpent=false;
     /** Server-only consumption record accompanies perks when PlayerState is replaced. */
     UPROPERTY(Transient) TMap<FName,int32> ConsumedRecoveryStacks;
 private:
@@ -55,4 +59,6 @@ private:
     int32 LastQueuedTeamLevel=1;
     bool bChoosingLevelPerk=false;
     bool bWarnedEmptyLevelPool=false;
+    UPROPERTY() TArray<FMCRogueRecentOffer> RecentRogueOffers;
+    bool CreateRogueLevelOffer(bool Reroll);
 };

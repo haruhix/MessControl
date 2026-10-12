@@ -774,7 +774,8 @@ public:
             Rotate(TEXT("arm_l"),FRotator(-Tooth->AnimationToolOffset.Z*.22f,0,-Tooth->AnimationToolOffset.Z*.10f));
         }
         if(AimedCalculus && !BufferTool) {
-            const float T=Tooth->GetToolSwingElapsed()*PickaxePlayRate,Contact=Tooth->Inventory->SwingContactTime()*PickaxePlayRate;
+            const float Rate=PickaxePlayRate*Tooth->Inventory->RogueAttackRate();
+            const float T=Tooth->GetToolSwingElapsed()*Rate,Contact=Tooth->Inventory->SwingContactTime()*Rate;
             const float WindEnd=FMath::Max(.1f,Contact-.14f);
             const float Wind=FMath::SmoothStep(0.f,WindEnd,T)*(1-FMath::SmoothStep(WindEnd,Contact,T));
             const float Impact=FMath::SmoothStep(WindEnd,Contact,T)*(1-FMath::SmoothStep(Contact,Contact+.10f,T));

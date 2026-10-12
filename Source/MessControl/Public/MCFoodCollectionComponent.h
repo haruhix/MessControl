@@ -24,6 +24,7 @@ public:
     void HandleCarrierCollision(AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     void HandleStackCollision(AMCFoodActor* Food,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     bool Collect(AMCFoodActor* Food);
+    int32 EffectiveCapacity() const;
     /** Atomically hands off a Swallowing piece, preserving the rest of the load. */
     bool DetachForDelivery(AMCFoodActor* Food);
     bool Contains(const AMCFoodActor* Food) const;

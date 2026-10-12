@@ -1,5 +1,7 @@
 ﻿#include "MCFoodActor.h"
 #include "MCToothCharacter.h"
+#include "MCPerkComponent.h"
+#include "MCProgressionComponent.h"
 #include "MCGameMode.h"
 #include "MCPlayerState.h"
 #include "MCTutorialDirector.h"
@@ -327,7 +329,14 @@ void AMCFoodActor::AwardDelivery()
     bDeliveryScored=true;
     if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
         if (LastHandledBy) Tutorial->NotifyAction(Cast<AMCToothCharacter>(LastHandledBy->GetPawn()),EMCTutorialAction::FoodDelivered,this);
-    if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
+    if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) {
+        Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
+        if(auto* Perks=UMCPerkComponent::ForActor(LastHandledBy);Perks && FoodData.Kind!=EMCFoodKind::ForeignObject) {
+            Perks->NotifyFoodDelivered();
+            if(auto* GS=GetWorld()->GetGameState<AMCGameState>();GS && GS->bSingleDayLoop && !GS->bTutorialActive && !GS->bLobbyWaiting && GS->Progression)
+                GS->Progression->AddExperience(Perks->FoodExperienceBonus(Mode->ScoreRewards.ForTask(EMCScoreTask::Food)));
+        }
+    }
 }
 void AMCFoodActor::EndPlay(const EEndPlayReason::Type Reason)
 {
@@ -947,7 +956,10 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
         if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true);
         return true;
     }
+    auto* Perks=UMCPerkComponent::ForActor(Worker);
+    if(Perks) Damage=Perks->WeaponDamage(Damage,this);
     AttendFood(); Health=FMath::Max(0.f,Health-Damage); ForceNetUpdate();
+    if(Perks) Perks->NotifyWeaponHit(this);
     if (Health>0) { if(Body->IsSimulatingPhysics()) Body->AddImpulse(Direction.GetSafeNormal()*150+FVector(0,0,60),NAME_None,true); return true; }
     // Breaking whole food leaves small pieces for immediate delivery. Reward
     // the original here only if no fragment could be created.

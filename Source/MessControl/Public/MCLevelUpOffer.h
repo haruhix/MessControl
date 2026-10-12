@@ -11,5 +11,6 @@ struct MESSCONTROL_API FMCLevelUpOffer
     UPROPERTY(BlueprintReadOnly) FGuid OfferId;
     UPROPERTY(BlueprintReadOnly) int32 TeamLevel=0;
     UPROPERTY(BlueprintReadOnly) TArray<FName> PerkIDs;
+    UPROPERTY(BlueprintReadOnly) bool bBoosterFallback=false;
     bool IsValid() const { return OfferId.IsValid() && TeamLevel>1 && PerkIDs.Num()==3; }
 };

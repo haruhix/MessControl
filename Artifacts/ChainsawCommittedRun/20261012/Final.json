@@ -1,0 +1,9 @@
+{
+  "live_coding_applied": true,
+  "solo_pie_passed": true,
+  "speed_cm_s": 1000,
+  "wall_damage": 30,
+  "perk_choices_deferred_until_stop": true,
+  "editor_restored": true,
+  "dirty_packages": []
+}

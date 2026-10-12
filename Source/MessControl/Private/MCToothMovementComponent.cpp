@@ -1,4 +1,6 @@
 #include "MCToothMovementComponent.h"
+#include "MCPerkComponent.h"
+#include "MCFoodCollectionComponent.h"
 #include "MCCoffeeFlood.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -128,7 +130,8 @@ void UMCToothMovementComponent::AdvanceStaminaPrediction(float Dt,bool SprintReq
         // Spend only the part of a move after the delay expires on recovery.
         const float RecoverTime=FMath::Max(0.f,Dt-StaminaState.RecoveryDelay);
         StaminaState.RecoveryDelay=FMath::Max(0.f,StaminaState.RecoveryDelay-Dt);
-        const float Rate=FMath::IsFinite(StaminaPerSecond)?FMath::Max(0.f,StaminaPerSecond):22.f;
+        float Rate=FMath::IsFinite(StaminaPerSecond)?FMath::Max(0.f,StaminaPerSecond):22.f;
+        if(const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner)) Rate=Perks->RogueValue(EMCRogueStat::StaminaRecovery,Rate);
         StaminaState.Value=FMath::Min(GetMaxStamina(),StaminaState.Value+Rate*RecoverTime);
         if (StaminaState.Value>=GetMaxStamina()*.15f) StaminaState.Exhausted=false;
     }
@@ -289,6 +292,8 @@ bool UMCToothMovementComponent::CanDashAction() const
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     const float Incoming=bHasBraceSample?BraceMovement.IncomingMass:Hero && Hero->Grip?Hero->Grip->IncomingChainMass():0;
     return Hero && Hero->CanWork() && !Hero->HasFrozenLegs() && !Hero->ClingTooth && !Hero->OrderJumpTarget && !Hero->bBrushing && !HasHeavyGrip()
+        && (!Hero->Inventory || !Hero->Inventory->IsChainsawRunning())
+        && (!UMCPerkComponent::ForActor(Hero) || !UMCPerkComponent::ForActor(Hero)->IsFuryActive())
         && Incoming<=.1f && !Hero->Grip->IsBracing() && !bWantsToClimb && !IsSwimming() && !IsClimbing() && (IsMovingOnGround() || IsFalling());
 }
 bool UMCToothMovementComponent::CanDash() const
@@ -327,11 +332,16 @@ void UMCToothMovementComponent::OnRep_DashStartedAt()
     if(ServerAge<-.25 || ServerAge>GetDashDuration()+.25 || !CanDashAction()) return;
     DashPresentationStartedAt=GetWorld()->GetTimeSeconds();
 }
+float UMCToothMovementComponent::EffectiveDashCooldown() const
+{
+    const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner);
+    return FMath::Max(GetDashDuration(),FMath::Clamp(Perks?Perks->RogueValue(EMCRogueStat::DashCooldown,DashCooldown):DashCooldown,.5f,4.8f));
+}
 void UMCToothMovementComponent::StartDash()
 {
     FVector Direction=Acceleration.GetSafeNormal2D();
     if(Direction.IsNearlyZero()) Direction=CharacterOwner->GetActorForwardVector().GetSafeNormal2D();
-    DashDirection=Direction;DashStartedAt=MovementServerTime(GetWorld());DashCooldownRemaining=FMath::Max(GetDashDuration(),FMath::Clamp(DashCooldown,.5f,3.f));
+    DashDirection=Direction;DashStartedAt=MovementServerTime(GetWorld());DashCooldownRemaining=EffectiveDashCooldown();
     bWantsToSprint=false;bSprintActive=false;
     auto Source=MakeShared<FMCLocomotionRootMotionSource>();
     Source->InstanceName=DashSourceName;Source->Priority=500;Source->AccumulateMode=ERootMotionAccumulateMode::Override;
@@ -475,6 +485,20 @@ FVector UMCToothMovementComponent::Intent() const
 {
     return CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy?FVector(MovementIntent):Acceleration.GetSafeNormal2D();
 }
+void UMCToothMovementComponent::PhysicsRotation(float DeltaTime)
+{
+    if(const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner);Perks && Perks->IsFuryActive()) {
+        if(UpdatedComponent) {FRotator Rotation=UpdatedComponent->GetComponentRotation();Rotation.Yaw+=DeltaTime*720;MoveUpdatedComponent(FVector::ZeroVector,Rotation,false);}
+        return;
+    }
+    Super::PhysicsRotation(DeltaTime);
+}
+float UMCToothMovementComponent::GetMaxStamina() const
+{
+    const float Base=FMath::IsFinite(MaxStamina)?FMath::Max(1.f,MaxStamina):100.f;
+    const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner);
+    return Perks?Perks->RogueValue(EMCRogueStat::MaxStamina,Base):Base;
+}
 float UMCToothMovementComponent::GetMaxSpeed() const
 {
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) return 0.f;
@@ -484,11 +508,19 @@ float UMCToothMovementComponent::GetMaxSpeed() const
     if (!Hero || !Hero->Grip) return WalkSpeed;
     if (Hero->ClingTooth) return 0;
     float Speed=bWantsToSprint && CanSprint()?SprintSpeed:WalkSpeed;
+    const auto* Perks=UMCPerkComponent::ForActor(Hero);
+    if(Perks && !(Hero->Inventory && Hero->Inventory->IsChainsawRunning())) Speed*=Perks->RogueValue(EMCRogueStat::NormalSpeed);
     if (Hero->HeldFood && HasHeavyGrip()) Speed=FMath::Min(Speed,Hero->HeldFood->DragSpeed());
     if (Hero->Grip->GrabbedPlayer) Speed=FMath::Min(Speed,220.f);
     const float Load=bHasBraceSample?BraceMovement.LoadMass:Hero->Grip->LoadMass();
     const float Incoming=bHasBraceSample?BraceMovement.IncomingMass:Hero->Grip->IncomingChainMass();
-    Speed/=FMath::Sqrt(1+Load/35.f)*FMath::Sqrt(1+Incoming/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass)*.75f);
+    float OwnFactor=1.f/FMath::Sqrt(1+Load/35.f);
+    if(Perks && Hero->FoodCollection && !Hero->FoodCollection->Pieces.IsEmpty()) {
+        float FoodMass=0;for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece)) FoodMass+=Piece->Settings.Mass;
+        const float WithoutFood=1.f/FMath::Sqrt(1+FMath::Max(0.f,Load-FoodMass)/35.f);
+        OwnFactor=WithoutFood*FMath::Max(.05f,1-(1-OwnFactor/WithoutFood)*Perks->RogueValue(EMCRogueStat::CarryPenalty));
+    }
+    Speed*=OwnFactor/FMath::Sqrt(1+Incoming/FMath::Max(3.f,Hero->ToothPhysics->Settings.Mass)*.75f);
     return Speed*(IsMovingOnGround() && GroundSurface==EMCGroundSurface::Sticky?.58f:1.f)*(Hero->Inventory?Hero->Inventory->MovementMultiplier():1.f);
 }
 float UMCToothMovementComponent::GetMaxAcceleration() const
@@ -502,7 +534,8 @@ float UMCToothMovementComponent::GetMaxAcceleration() const
 float UMCToothMovementComponent::GetMaxBrakingDeceleration() const
 {
     if (!IsMovingOnGround()) return Super::GetMaxBrakingDeceleration();
-    return GroundSurface==EMCGroundSurface::Slippery?90.f:GroundSurface==EMCGroundSurface::Sticky?1050.f:650.f;
+    const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner);
+    return GroundSurface==EMCGroundSurface::Slippery?90.f*(Perks?Perks->RogueValue(EMCRogueStat::IceBraking):1.f):GroundSurface==EMCGroundSurface::Sticky?1050.f:650.f;
 }
 void UMCToothMovementComponent::RefreshGroundSurface()
 {
@@ -622,7 +655,7 @@ void UMCToothMovementComponent::PerformMovement(float Dt)
             // Saved root motion already restored the source on correction replay.
             else if(IsDashing()) {
                 const auto Source=GetRootMotionSource(DashSourceName);
-                if(Source.IsValid()) DashCooldownRemaining=FMath::Max(DashCooldownRemaining,FMath::Max(GetDashDuration(),FMath::Clamp(DashCooldown,.5f,3.f))-Source->GetTime());
+                if(Source.IsValid()) DashCooldownRemaining=FMath::Max(DashCooldownRemaining,EffectiveDashCooldown()-Source->GetTime());
                 if (CharacterOwner->bClientUpdating && bReplayDashCharge) bStaminaDashCharged=true;
             }
         }
@@ -649,7 +682,9 @@ void UMCToothMovementComponent::CalcVelocity(float Dt,float Friction,bool bFluid
 {
     if (IsMovingOnGround()) Friction=GroundSurface==EMCGroundSurface::Slippery?.22f:GroundSurface==EMCGroundSurface::Sticky?6.f:2.6f;
     if(IsMovingOnGround() && bHasBraceSample && BraceMovement.IncomingMass>0)
+    {
         BrakingDeceleration=FMath::Min(BrakingDeceleration,80.f);
+    }
     Super::CalcVelocity(Dt,Friction,bFluid,BrakingDeceleration);
     const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
     if (!Hero || !Hero->Grip || !Hero->ToothPhysics->CanAct()) return;

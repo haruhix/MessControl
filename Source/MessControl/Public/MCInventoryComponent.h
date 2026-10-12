@@ -104,6 +104,7 @@ public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Tools") TSoftObjectPtr<UMCEquipmentProfile> Profile;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") EMCToolSlot Selected=EMCToolSlot::Brush;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools|Chainsaw") bool bChainsawRunning=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") bool bWaterJetUnlocked=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double SprayReadyAt=0;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Tools") double LastSprayAt=-100;
@@ -139,8 +140,12 @@ public:
     float CleaningRadius(float DirtRadius=36.f) const;
     FVector BrushContactLocal() const;
     float SprayReach() const;
+    float RogueAttackRate() const;
+    float MeleeReach(float Base=180.f) const;
+    float LastRogueReach=1.f;
     void HandleChainsawCollision(AActor* Other,const FHitResult& Hit);
     void CancelUpgradeUse();
+    void StartChainsaw();
     // Starts fire on the press edge; authority ticks sustain fire and finish reloads.
     void UpdateWatergunInput();
     UFUNCTION(BlueprintPure,Category="Tools") FVector SprayAim() const;

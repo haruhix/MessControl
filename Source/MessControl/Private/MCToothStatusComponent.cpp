@@ -1,4 +1,5 @@
 #include "MCToothStatusComponent.h"
+#include "MCPerkComponent.h"
 #include "MCArenaTooth.h"
 #include "MCToothCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -38,7 +39,7 @@ void UMCToothStatusComponent::Initialize(float MaxHealth)
 {
     if (!GetOwner()->HasAuthority()) return;
     State=FMCToothStatus(); State.MaxHealth=FMath::IsFinite(MaxHealth)?FMath::Max(1.f,MaxHealth):100;
-    State.Health=State.MaxHealth; State.CoffeeTotal=Settings.CoffeeContacts; bInitialized=true;
+    BaseMaxHealth=State.MaxHealth;State.Health=State.MaxHealth; State.CoffeeTotal=Settings.CoffeeContacts; bInitialized=true;
     OnRep_State(); GetOwner()->ForceNetUpdate();
 }
 void UMCToothStatusComponent::Restore(const FMCToothStatus& Source)
@@ -77,7 +78,7 @@ void UMCToothStatusComponent::Loosen()
     if (!GetOwner()->HasAuthority() || !IsAlive()) return;
     State.RepairLeft=Settings.RepairContacts; Changed(false);
 }
-bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Source)
+bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Source,EMCRogueDamageKind Kind)
 {
     if(const auto* Hero=Cast<AMCToothCharacter>(GetOwner());Hero && Hero->IsFreezingToDeath()
         && Hero->FreezeDeathAge()<AMCToothCharacter::FreezeDeathHoldSeconds) return false;
@@ -88,6 +89,7 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Sour
     // Native tools attribute hits to the wielder. Chili attributes damage to
     // its hazard actor, so its deliberate all-target exception still applies.
     if (const auto* Hero=Cast<AMCToothCharacter>(GetOwner()); Hero && Cast<AMCToothCharacter>(Source)) return false;
+    if(const auto* Perks=UMCPerkComponent::ForActor(GetOwner())) Amount=Perks->IncomingDamage(Amount,Kind);
     const float HealthBefore=State.Health;
     LastDamageDirection=Direction.GetSafeNormal(); State.Health=FMath::Max(0.f,State.Health-Amount);
     const auto* GS=GetWorld()->GetGameState();
@@ -104,6 +106,23 @@ bool UMCToothStatusComponent::Damage(float Amount,FVector Direction,AActor* Sour
     if (State.Health<=State.MaxHealth*Settings.LooseHealthFraction) State.RepairLeft=FMath::Max(State.RepairLeft,Settings.RepairContacts);
     Changed(false); return true;
 }
+void UMCToothStatusComponent::Heal(float Amount)
+{
+    if(!GetOwner()->HasAuthority() || !IsAlive() || !FMath::IsFinite(Amount) || Amount<=0) return;
+    State.Health=FMath::Min(State.MaxHealth,State.Health+Amount);Changed(true);
+}
+void UMCToothStatusComponent::ClearCoffeeForBooster()
+{if(GetOwner()->HasAuthority()) {State.CoffeeLeft=0;Changed(true);}}
+void UMCToothStatusComponent::SetPerkMaxHealth(float Maximum)
+{
+    if(!GetOwner()->HasAuthority() || !bInitialized || !FMath::IsFinite(Maximum) || FMath::IsNearlyEqual(Maximum,State.MaxHealth)) return;
+    State.MaxHealth=FMath::Max(1.f,Maximum);State.Health=FMath::Min(State.Health,State.MaxHealth);Changed(true);
+}
+float UMCToothStatusComponent::PersonalCoffeeCareRate() const
+{
+    const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
+    return Perks?1.f/FMath::Max(.1f,Perks->RogueValue(EMCRogueStat::DirtyDuration)):1.f;
+}
 float UMCToothStatusComponent::PainAlpha() const
 {
     const auto* GS=GetWorld()->GetGameState();
@@ -115,7 +134,7 @@ float UMCToothStatusComponent::PainAlpha() const
 bool UMCToothStatusComponent::CareContact(bool bBrush, AMCToothCharacter* Worker)
 {
     if (!GetOwner()->HasAuthority() || !NeedsCare(bBrush)) return false;
-    if (bBrush) --State.CoffeeLeft;
+    if (bBrush) {--State.CoffeeLeft;if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(GetOwner()->GetActorLocation());}
     else { State.Health=FMath::Min(State.MaxHealth,State.Health+Settings.HealPerContact); State.RepairLeft=FMath::Max(0,State.RepairLeft-1); }
     Changed(true);
     if (!NeedsCare(bBrush) && IsValid(Worker))

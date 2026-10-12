@@ -1,4 +1,5 @@
 #include "MCToothPhysicsComponent.h"
+#include "MCPerkComponent.h"
 #include "MCToothMovementComponent.h"
 #include "MCCoffeeFlood.h"
 #include "MCGazeComponent.h"
@@ -287,6 +288,7 @@ void UMCToothPhysicsComponent::SetState(EMCBodyState NewState)
 void UMCToothPhysicsComponent::EnterRagdoll()
 {
     ++KnockdownCount;
+    if(auto* Perks=UMCPerkComponent::ForActor(Tooth)) Perks->OnRogueKnockdown();
     Tooth->bBrushing=false; Tooth->bHandling=false;
     Tooth->DropFood(); Tooth->ResetContact();
     Tooth->GetCharacterMovement()->StopMovementImmediately(); Tooth->GetCharacterMovement()->DisableMovement();
@@ -526,7 +528,9 @@ void UMCToothPhysicsComponent::SetGripArms(bool Left,bool Right,bool PhysicalLef
         Tooth->GetMesh()->SetAllBodiesBelowPhysicsBlendWeight(Tooth->RigBone(Role),ArmPhysicsWeights[I],false,true);
     }
 }
-float UMCToothPhysicsComponent::RecoveryAlpha() const { return FMath::Clamp((ServerTime()-Frame.StateStartedAt)/Settings.GetUpSeconds,0.f,1.f); }
+float UMCToothPhysicsComponent::EffectiveRecoverySeconds(float Base) const
+{const auto* Perks=UMCPerkComponent::ForActor(GetOwner());return Perks?Perks->RogueValue(EMCRogueStat::RagdollDuration,Base):Base;}
+float UMCToothPhysicsComponent::RecoveryAlpha() const { return FMath::Clamp((ServerTime()-Frame.StateStartedAt)/EffectiveRecoverySeconds(Settings.GetUpSeconds),0.f,1.f); }
 void UMCToothPhysicsComponent::BuildPresentationPose(TArray<FTransform>& Pose) const
 {
     if (DisplayPose.Num()!=Pose.Num()) return;
@@ -566,7 +570,8 @@ void UMCToothPhysicsComponent::TickComponent(float Dt,ELevelTick TickType,FActor
             const float Age=ServerTime()-FMath::Max(Frame.StateStartedAt,LastHitTime);
             const float TotalAge=ServerTime()-Frame.StateStartedAt;
             // Repeated contacts may move the body but must not restart the stun forever.
-            if ((Age>=Settings.RagdollSeconds && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160)) || TotalAge>=Settings.RagdollSeconds+3) TryRecover();
+            const float RecoveryDelay=EffectiveRecoverySeconds(Settings.RagdollSeconds);
+            if ((Age>=RecoveryDelay && (Tooth->bInCoffee || Tooth->GetMesh()->GetPhysicsLinearVelocity(Tooth->RigBone(TEXT("body"))).Size()<160)) || TotalAge>=RecoveryDelay+3) TryRecover();
             // Falling out of the mouth is a real death, using the same reserve as impact deaths.
             if (Center.Z<-250)
             {

@@ -104,6 +104,7 @@ public:
     void GetDirtyContactSamples(TArray<FVector>& Points,TArray<FVector>& Normals);
     float RemainingGrime() const;
     UPROPERTY(ReplicatedUsing=OnRep_Grime,BlueprintReadOnly,Category="Care") TArray<uint8> GrimeMask;
+    void ClearGrimeForBooster();
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Care") bool bShowCareLabel=false;
     bool ConsumeForRespawn();
     bool NotifyPianoLanding(class AMCToothCharacter* Worker,const FHitResult& Hit,float DownSpeed);

@@ -1,4 +1,5 @@
 #include "MCIceEvent.h"
+#include "MCPerkComponent.h"
 #include "MCIceEventVFX.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
@@ -291,8 +292,8 @@ bool AMCIceEvent::IsSafePoint(FVector WorldPoint) const
 
 float AMCIceEvent::BrushedWarmRadius(const FMCBrushedWarmPatch& Patch) const
 {
-    const float Clean=FMath::Clamp(Patch.Cleaned-float(FMath::Max(0.,Now()-Patch.LastBrushedAt))/FMath::Max(2.f,BrushRefreezeSeconds),0.f,1.f);
-    return FMath::Max(50.f,BrushWarmRadius)*FMath::Sqrt(Clean);
+    const float Clean=FMath::Clamp(Patch.Cleaned-float(FMath::Max(0.,Now()-Patch.LastBrushedAt))/FMath::Max(1.f,Patch.RefreezeSeconds),0.f,1.f);
+    return FMath::Max(50.f,BrushWarmRadius)*Patch.RadiusMultiplier*FMath::Sqrt(Clean);
 }
 
 bool AMCIceEvent::CanBrushIceUnderfoot(const AMCToothCharacter* Hero) const
@@ -329,7 +330,10 @@ bool AMCIceEvent::BrushIceUnderfoot(AMCToothCharacter* Hero,float Seconds)
         BrushedWarmPatches[Index].LastBrushedAt=Time;
     }
     auto& Patch=BrushedWarmPatches[Index];
-    const float Before=FMath::Square(BrushedWarmRadius(Patch)/FMath::Max(50.f,BrushWarmRadius));
+    const float Before=FMath::Square(BrushedWarmRadius(Patch)/(FMath::Max(50.f,BrushWarmRadius)*Patch.RadiusMultiplier));
+    const auto* Perks=UMCPerkComponent::ForActor(Hero);
+    Patch.RefreezeSeconds=Perks?Perks->RogueValue(EMCRogueStat::WarmDuration,BrushRefreezeSeconds):BrushRefreezeSeconds;
+    Patch.RadiusMultiplier=Perks?Perks->RogueValue(EMCRogueStat::WarmRadius):1.f;
     Patch.Cleaned=FMath::Clamp(Before+FMath::Min(Seconds,.1f)*Hero->Inventory->CleaningSpeedMultiplier()/FMath::Max(.5f,BrushWarmSeconds),0.f,1.f);
     Patch.LastBrushedAt=Time;
     ForceNetUpdate(); return true;
@@ -529,7 +533,9 @@ void AMCIceEvent::UpdateFreeze(float DeltaSeconds)
             && FMath::Abs(Feet.Z-BossFloor.ImpactPoint.Z)<180;
         const float Rate=Player.bSafe?-.5f/FMath::Max(1.f,ThawSeconds):
             (NearBoss?BossFreezeMultiplier:1.f)/FMath::Max(1.f,FreezeSeconds);
-        Player.Amount=FMath::Clamp(FreezeAmount(Hero)+DeltaSeconds*Rate,0.f,1.f);
+        const auto* Perks=UMCPerkComponent::ForActor(Hero);
+        const float Gain=Rate>0 && Perks?Perks->RogueValue(EMCRogueStat::FreezeRate):1.f;
+        Player.Amount=FMath::Clamp(FreezeAmount(Hero)+DeltaSeconds*Rate*Gain,0.f,1.f);
         if(Player.Amount>=1)
         {
             Hero->BeginFreezeDeath();
@@ -832,7 +838,10 @@ bool AMCIceEvent::HitWithPickaxe(AMCToothCharacter* Hero,float Damage)
         if(Offset.SizeSquared()>FMath::Square(180.f) || FVector::DotProduct(Offset.GetSafeNormal2D(),Hero->GetActorForwardVector())<.25f
             || !Hero->CanContact(this)) return false;
     }
+    auto* Perks=UMCPerkComponent::ForActor(Hero);
+    if(Perks) Damage=Perks->WeaponDamage(Damage,this);
     CandyHealth=FMath::Max(0.f,CandyHealth-Damage); ForceNetUpdate();
+    if(Perks) Perks->NotifyWeaponHit(this);
     if(CandyHealth<=0)
     {
         Hero->NotifyTaskFeedback(true,GetActorLocation());

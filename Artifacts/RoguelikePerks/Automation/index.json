@@ -1,0 +1,89 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "98A2CCA248C9C9D8E11701A4397751CC",
+			"instanceName": "VB-32172",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.12-15.41.04",
+	"succeeded": 4,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.14905810356140137,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "CatalogAndEligibility",
+			"fullTestPath": "MessControl.Rogue.CatalogAndEligibility",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98A2CCA248C9C9D8E11701A4397751CC"
+			],
+			"duration": 0.10100220143795013,
+			"dateTime": "2026.10.12-15.41.04",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ChoiceHistoryRerollAndRarities",
+			"fullTestPath": "MessControl.Rogue.ChoiceHistoryRerollAndRarities",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98A2CCA248C9C9D8E11701A4397751CC"
+			],
+			"duration": 0.018601801246404648,
+			"dateTime": "2026.10.12-15.41.04",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ContractAtomicityAndBoosterActivation",
+			"fullTestPath": "MessControl.Rogue.ContractAtomicityAndBoosterActivation",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98A2CCA248C9C9D8E11701A4397751CC"
+			],
+			"duration": 0.017666399478912354,
+			"dateTime": "2026.10.12-15.41.04",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RealEffectsAndLimits",
+			"fullTestPath": "MessControl.Rogue.RealEffectsAndLimits",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"98A2CCA248C9C9D8E11701A4397751CC"
+			],
+			"duration": 0.011787701398134232,
+			"dateTime": "2026.10.12-15.41.04",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

@@ -127,7 +127,7 @@ void AMCNutLandingShadow::Landed(const FHitResult& Hit)
         Query.AddIgnoredActor(Tongue); Query.AddIgnoredActor(TrackedFood.Get()); Query.AddIgnoredActor(Hero);
         if(GetWorld()->LineTraceSingleByChannel(Obstacle,Center+Up*45,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
         FVector Direction=Delta.GetSafeNormal2D(); if(Direction.IsNearlyZero()) Direction=FVector::ForwardVector;
-        const bool Damaged=Hero->Status->Damage(ImpactDamage,Direction);
+        const bool Damaged=Hero->Status->Damage(ImpactDamage,Direction,this,EMCRogueDamageKind::FallingNut);
         if((Damaged || ImpactDamage<=0) && Hero->ToothPhysics && ImpactPushSpeed>0)
             Hero->ToothPhysics->ApplyHit(Direction*ImpactPushSpeed+Up*55,Hero->GetActorLocation());
     }

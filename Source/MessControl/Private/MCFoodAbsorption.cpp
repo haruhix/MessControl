@@ -1,4 +1,6 @@
 #include "MCFoodActor.h"
+#include "MCPerkComponent.h"
+#include "MCToothCharacter.h"
 
 #include "MCTutorialDirector.h"
 
@@ -17,5 +19,8 @@ void AMCFoodActor::UpdateAbsorption(float Dt)
     if (AMCTutorialDirector::IsSafeTutorial(GetWorld())) return;
     if(!HasAuthority() || bBrushTool || IsDisposed() || FoodData.Kind!=EMCFoodKind::Food || ItemName.IsNone()) return;
     if(SpoilAt<=0) SpoilAt=HazardNow()+FoodData.SpoilSeconds;
+    const AMCToothCharacter* Carrier=StackCarrier?StackCarrier.Get():EquippedBy?EquippedBy.Get():!Holders.IsEmpty()?Holders[0].Get():nullptr;
+    if(!bSpoiled && Carrier) if(const auto* Perks=UMCPerkComponent::ForActor(Carrier))
+        SpoilAt+=FMath::Max(0.f,Dt)*(1-Perks->RogueValue(EMCRogueStat::SpoilRate));
     if(!bSpoiled && HazardNow()>=SpoilAt) Spoil();
 }

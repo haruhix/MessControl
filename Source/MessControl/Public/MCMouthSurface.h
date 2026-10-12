@@ -63,6 +63,7 @@ public:
     AMCTongue* GetTongue() const { return Tongue; }
     void Disturb();
     void ResetLiquid();
+    void ClearLiquidForBooster();
     // Initial wet coverage, clipped to the path of the liquid that deposited it.
     void SetLiquidDepositMask(const TArray<uint8>& Mask);
     // Called only after the character's authoritative reach/tool/occlusion checks.

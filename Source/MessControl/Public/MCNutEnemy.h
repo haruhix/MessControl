@@ -30,6 +30,7 @@ public:
     virtual bool CanReceiveToolHit() const { return IsEncounterAlive(); }
     FVector GetToolTargetPoint(FVector From) const;
     virtual float ReceiveToolDamage(float Damage,AMCToothCharacter* Source);
+    void ApplyRogueSlow(float Multiplier,float Seconds);
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USphereComponent> Body;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Visual;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly,Category="Combat|Feedback") TObjectPtr<UMCCombatFeedbackComponent> Feedback;
@@ -56,6 +57,8 @@ protected:
     void MoveOnTongue(FVector Direction,float Dt);
     void TickPresentation(double Now);
 private:
+    float RogueSlowMultiplier=1;
+    double RogueSlowUntil=-100;
     double NextTargetAt=0,NextAttackAt=0;
     bool bAttackPending=false;
     TWeakObjectPtr<AMCToothCharacter> AttackTarget;

@@ -1,4 +1,5 @@
 #include "MCCoffeeFlood.h"
+#include "MCPerkComponent.h"
 #include "MCGameDirector.h"
 #include "MCDayPlan.h"
 #include "MCToothCharacter.h"
@@ -261,6 +262,8 @@ bool AMCCoffeeFlood::IsFlowBlocked(FVector P,const AActor* Ignore) const
 }
 FVector AMCCoffeeFlood::FlowAtPosition(FVector P,const AActor* Ignore) const
 {
+    const auto* Perks=Cast<AMCToothCharacter>(Ignore)?UMCPerkComponent::ForActor(Ignore):nullptr;
+    const float WaveScale=Perks?Perks->RogueValue(EMCRogueStat::WaveResistance):1.f;
     if (bRiverFlood)
     {
         if (!Contains(P) || IsFlowBlocked(P,Ignore)) return FVector::ZeroVector;
@@ -268,9 +271,9 @@ FVector AMCCoffeeFlood::FlowAtPosition(FVector P,const AActor* Ignore) const
         const float Impact=FMath::Exp(-FMath::Square((Along-RiverFrontAt(P,WaterTime())+80.f)/180.f));
         // A breaking front overpowers upstream sprinting. The body keeps pushing,
         // while cover, sideward escape and a tooth grip remain useful responses.
-        return RiverDirection*Flow*6.f*(1.f+.6f*Impact)*RiverWeightAt(P);
+        return RiverDirection*Flow*6.f*(1.f+.6f*Impact)*RiverWeightAt(P)*WaveScale;
     }
-    return bActive && !IsFlowBlocked(P,Ignore)?WaterSettings.FlowAt(P,WaterTime(),Flow):FVector::ZeroVector;
+    return bActive && !IsFlowBlocked(P,Ignore)?WaterSettings.FlowAt(P,WaterTime(),Flow)*WaveScale:FVector::ZeroVector;
 }
 bool AMCCoffeeFlood::IsRiverDebris(const UPrimitiveComponent* Body)
 {

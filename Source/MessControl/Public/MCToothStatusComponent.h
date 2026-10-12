@@ -2,6 +2,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataAsset.h"
+#include "MCRogueTypes.h"
 #include "MCToothStatusComponent.generated.h"
 class AMCToothCharacter;
 
@@ -64,7 +65,12 @@ public:
     void Restore(const FMCToothStatus& Source);
     void ApplyCoffee(float Amount=1.f);
     void Loosen();
-    bool Damage(float Amount,FVector Direction=FVector::ForwardVector,AActor* Source=nullptr);
+    bool Damage(float Amount,FVector Direction=FVector::ForwardVector,AActor* Source=nullptr,EMCRogueDamageKind Kind=EMCRogueDamageKind::Ordinary);
+    void Heal(float Amount);
+    void ClearCoffeeForBooster();
+    void SetPerkMaxHealth(float Maximum);
+    float GetBaseMaxHealth() const { return BaseMaxHealth; }
+    float PersonalCoffeeCareRate() const;
     float PainAlpha() const;
     // Called only after the worker validates a complete continuous tool contact on the server.
     bool CareContact(bool bBrush, AMCToothCharacter* Worker=nullptr);
@@ -74,4 +80,5 @@ private:
     UFUNCTION() void OnRep_State();
     void Changed(bool bCare);
     bool bInitialized=false;
+    float BaseMaxHealth=100.f;
 };

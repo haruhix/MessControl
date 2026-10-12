@@ -1,0 +1,2138 @@
+[
+  {
+    "Name": "P01",
+    "DisplayName": "Лёгкая походка",
+    "Description": "Обычная скорость ходьбы и бега +8% за стак.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "normal_speed",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "NormalSpeed",
+        "Value": 0.08,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P02",
+    "DisplayName": "Вместительные лёгкие",
+    "Description": "Максимальная выносливость +15 за стак. Получение перка не восстанавливает потраченную выносливость.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "max_stamina",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "MaxStamina",
+        "Value": 15,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P03",
+    "DisplayName": "Шустрый рывок",
+    "Description": "Перезарядка обычного рывка −10% за стак.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "dash_cooldown",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "DashCooldown",
+        "Value": -0.1,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P04",
+    "DisplayName": "Цепкие подошвы",
+    "Description": "На скользком полу торможение при обычном движении эффективнее на 25% за стак; заморозка ног действует.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "ice_control",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "IceBraking",
+        "Value": 0.25,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P05",
+    "DisplayName": "Второе дыхание",
+    "Description": "Скорость восстановления выносливости +15% за стак. Задержка до начала восстановления сохраняется.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "stamina_recovery",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "StaminaRecovery",
+        "Value": 0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P06",
+    "DisplayName": "Надёжная опора",
+    "Description": "Снос волной жидкости слабее на 15% за стак. Не удерживает над водой.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "wave_resistance",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "CoffeeWave",
+      "CoffeeFlood",
+      "AlcoholFlood"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WaveResistance",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P07",
+    "DisplayName": "Острая заточка",
+    "Description": "Урон кирки по еде и врагам +12% за стак.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "pickaxe_damage",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "PickaxeDamage",
+        "Value": 0.12,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P08",
+    "DisplayName": "Длинная рукоять",
+    "Description": "Рабочая дальность попадания кирки +10% за стак. Поза и свободный замах сохраняются.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "pickaxe_reach",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "PickaxeReach",
+        "Value": 0.1,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P09",
+    "DisplayName": "Контрудар",
+    "Description": "Прицельная атака врага по владельцу промахнулась во время его рывка: следующий удар оружием в течение 2 секунд наносит +25% урона. Перезарядка 6 секунд.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "dodge_counter",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NutEncounter",
+      "FinalBoss"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WeaponDamage",
+        "Value": 0.25,
+        "bFlat": false,
+        "Condition": "CounterReady"
+      }
+    ]
+  },
+  {
+    "Name": "P10",
+    "DisplayName": "Щитолом",
+    "Description": "Урон по щиту орехового рыцаря +20% за стак; урон по его здоровью не меняется.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "shield_damage",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NutBossKnight"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "ShieldDamage",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P11",
+    "DisplayName": "Зубастая цепь",
+    "Description": "Урон работающей бензопилы +12% за стак; управление и условие остановки не меняются.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "chainsaw_damage",
+    "RequiredTool": "Chainsaw",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "ChainsawDamage",
+        "Value": 0.12,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P12",
+    "DisplayName": "Рикошетная струя",
+    "Description": "После попадания основного выстрела водного пистолета один дополнительный удар поражает ближайшего другого мелкого врага в 2 метрах на 30% исходного урона. Не чаще раза в 0,5 секунды; без попаданий сквозь стены и повторных рикошетов.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Legendary",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "watergun_ricochet",
+    "RequiredTool": "Watergun",
+    "RequiredEvents": [
+      "NutEncounter",
+      "Jelly"
+    ],
+    "Modifiers": []
+  },
+  {
+    "Name": "P13",
+    "DisplayName": "Широкая щетина",
+    "Description": "Ширина рабочей полосы щётки +15% за стак.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brush_width",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "BrushWidth",
+        "Value": 0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P14",
+    "DisplayName": "Глубокая чистка",
+    "Description": "Количество грязи, убираемой одним рабочим движением щётки, +20% за стак.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brush_power",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "BrushPower",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P15",
+    "DisplayName": "Пенный след",
+    "Description": "При работе щёткой раз в 3 секунды появляется маленькое пятно пены на 3 секунды. Мелкие враги в нём замедляются на 20%; боссы не замедляются.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brush_foam",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NutEncounter",
+      "Jelly"
+    ],
+    "Modifiers": []
+  },
+  {
+    "Name": "P16",
+    "DisplayName": "Борец с пятнами",
+    "Description": "Очистка кофейного загрязнения вашего персонажа требует на 20% меньше времени за стак. Грязь арены остаётся.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "dirty_status",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "CoffeeWave",
+      "CoffeeFlood"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "DirtyDuration",
+        "Value": -0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P17",
+    "DisplayName": "Сухая полоса",
+    "Description": "После фактической очистки участка пола обычная скорость владельца +10% на 3 секунды. Повторная уборка обновляет время, сила не складывается.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "clean_move",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": []
+  },
+  {
+    "Name": "P18",
+    "DisplayName": "Тёплая щётка",
+    "Description": "Созданные вами щёткой тёплые участки существуют на 1 секунду дольше за стак. Лимит продления — 6 секунд.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brush_warmth",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WarmDuration",
+        "Value": 1,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P19",
+    "DisplayName": "Крепкий хват",
+    "Description": "Штраф к обычной скорости от массы переносимой еды уменьшается на 20% за стак. Саму массу и коллизии не меняет.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "carry_weight",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "CarryPenalty",
+        "Value": -0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P20",
+    "DisplayName": "Большая порция",
+    "Description": "Лимит пищевых фрагментов в переносимой стопке +1 за стак; общий лимит не выше 10.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "carry_capacity",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "CarryCapacity",
+        "Value": 1,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P21",
+    "DisplayName": "Уверенный бросок",
+    "Description": "Импульс ручного броска переносимой еды +15% за стак.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "food_throw",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "ThrowImpulse",
+        "Value": 0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P22",
+    "DisplayName": "Свежая доставка",
+    "Description": "Пока игрок держит еду, её порча идёт на 25% медленнее за стак. После выпуска еды её оставшийся срок сохраняется, таймер не сбрасывается.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "food_freshness",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "SpoilRate",
+        "Value": -0.25,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P23",
+    "DisplayName": "Аккуратный раздел",
+    "Description": "Куски еды после разрушения целого предмета разлетаются на 25% слабее за стак.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "food_scatter",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "FoodScatter",
+        "Value": -0.25,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P24",
+    "DisplayName": "Порционная награда",
+    "Description": "За еду, доставленную владельцем, в командную шкалу опыта зачисляется на 10% больше за стак. Не повышает опыт за орехи или завершение события.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "delivery_xp",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Progression"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "DeliveryXP",
+        "Value": 0.1,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P25",
+    "DisplayName": "Толстая эмаль",
+    "Description": "Максимальное здоровье владельца +15 за стак. Увеличение максимума само по себе не лечит.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": true,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "max_health",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "MaxHealth",
+        "Value": 15,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P26",
+    "DisplayName": "Каска по размеру",
+    "Description": "Урон от прямого попадания падающего ореха −15% за стак. Наземные взрывы и катящийся рыцарь действуют обычно.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "falling_nut_damage",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NutEncounter",
+      "NutBossMage"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "FallingNutDamage",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P27",
+    "DisplayName": "Термослой",
+    "Description": "Шкала холода заполняется на 10% медленнее за стак. Уже накопленный холод не исчезает.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "freeze_rate",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "FreezeRate",
+        "Value": -0.1,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P28",
+    "DisplayName": "Хрупкий лёд",
+    "Description": "Лёд на ногах владельца имеет на 15% меньше здоровья за стак, поэтому его легче разбить.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "leg_ice_health",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "LegIceHealth",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P29",
+    "DisplayName": "Прочный кожух",
+    "Description": "Урон владельцу при столкновении работающей бензопилы со стеной −5 за стак, но не ниже 10. Остановка и сбивание персонажа сохраняются.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 3,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "chainsaw_crash",
+    "RequiredTool": "Chainsaw",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "ChainsawCrashDamage",
+        "Value": -5,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P30",
+    "DisplayName": "Чистое дыхание",
+    "Description": "Фактическая работа щёткой по грязи восстанавливает владельцу 3 здоровья, не чаще раза в 15 секунд. Работа на уже чистой поверхности не срабатывает.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "clean_heal",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": []
+  },
+  {
+    "Name": "P31",
+    "DisplayName": "Наплечник защитника",
+    "Description": "Личный урон при правильно выполненном прижатии к зубу −15% за стак. Защита цели на расстоянии не появляется.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brace_damage",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "FogBrawl"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "BraceDamage",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P32",
+    "DisplayName": "Быстрый спасатель",
+    "Description": "Скорость освобождения союзника из мимика +20% за стак.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": true,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "mimic_rescue",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Mimic"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "RescueRate",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "P33",
+    "DisplayName": "Светонос",
+    "Description": "В темноте вокруг владельца есть слабый личный свет радиусом 2,5 метра. Не раскрывает предметы сквозь препятствия.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "personal_light",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NightMeal"
+    ],
+    "Modifiers": []
+  },
+  {
+    "Name": "P34",
+    "DisplayName": "Чуткая эмаль",
+    "Description": "Раз в 6 секунд на 1 секунду показывает владельцу направление к активному зубу, который нужно защитить. Не подсвечивает весь путь.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "fog_navigation",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "FogBrawl"
+    ],
+    "Modifiers": []
+  },
+  {
+    "Name": "P35",
+    "DisplayName": "Согласованный удар",
+    "Description": "Попадание по врагу, которого другой игрок ударил не более 2 секунд назад, наносит +15% урона. Не чаще раза в 3 секунды; усиливается только удар владельца.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": true,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "team_hit",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NutEncounter",
+      "FinalBoss",
+      "Jelly"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WeaponDamage",
+        "Value": 0.15,
+        "bFlat": false,
+        "Condition": "TeamStrikeReady"
+      }
+    ]
+  },
+  {
+    "Name": "P36",
+    "DisplayName": "Плечом к плечу",
+    "Description": "Владелец встаёт после сбивания на 20% быстрее, если живой союзник находится не дальше 2 метров.",
+    "Polarity": "Positive",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": true,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "ragdoll_recovery",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "RagdollDuration",
+        "Value": -0.2,
+        "bFlat": false,
+        "Condition": "NearbyAlly"
+      }
+    ]
+  },
+  {
+    "Name": "N01",
+    "DisplayName": "Тяжёлые подошвы",
+    "Description": "Обычная скорость ходьбы и бега −8% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "normal_speed",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "NormalSpeed",
+        "Value": -0.08,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N02",
+    "DisplayName": "Короткий прыжок",
+    "Description": "Высота обычного прыжка −15% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "jump_height",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "JumpHeight",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N03",
+    "DisplayName": "Задумчивый рывок",
+    "Description": "Перезарядка обычного рывка +15% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "dash_cooldown",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "DashCooldown",
+        "Value": 0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N04",
+    "DisplayName": "Раскачка",
+    "Description": "На скользком полу торможение при обычном движении на 20% слабее за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "ice_control",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "IceBraking",
+        "Value": -0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N05",
+    "DisplayName": "Тупая кирка",
+    "Description": "Урон кирки по еде и врагам −12% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "pickaxe_damage",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "PickaxeDamage",
+        "Value": -0.12,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N06",
+    "DisplayName": "Короткая рукоять",
+    "Description": "Рабочая дальность попадания кирки −10%. Свободная анимация замаха сохраняется.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "pickaxe_reach",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "PickaxeReach",
+        "Value": -0.1,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N07",
+    "DisplayName": "Тугая цепь",
+    "Description": "Урон бензопилы −12% за стак; её движение и остановка работают по обычным правилам.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "chainsaw_damage",
+    "RequiredTool": "Chainsaw",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "ChainsawDamage",
+        "Value": -0.12,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N08",
+    "DisplayName": "Капризная струя",
+    "Description": "Частота выстрелов водного пистолета −15% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "watergun_rate",
+    "RequiredTool": "Watergun",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "AttackRate",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "WatergunSelected"
+      }
+    ]
+  },
+  {
+    "Name": "N09",
+    "DisplayName": "Узкая щетина",
+    "Description": "Ширина рабочей полосы щётки −15% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brush_width",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "BrushWidth",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N10",
+    "DisplayName": "Поверхностная чистка",
+    "Description": "Количество грязи, убираемой рабочим движением щётки, −15% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brush_power",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "BrushPower",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N11",
+    "DisplayName": "Остывшая паста",
+    "Description": "Тёплые участки, созданные владельцем щёткой, существуют на 0,5 секунды меньше за стак, но не меньше 1 секунды.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brush_warmth",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WarmDuration",
+        "Value": -0.5,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N12",
+    "DisplayName": "Липкие пятна",
+    "Description": "Очистка кофейного загрязнения вашего персонажа требует на 20% больше времени за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "dirty_status",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "CoffeeWave",
+      "CoffeeFlood"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "DirtyDuration",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N13",
+    "DisplayName": "Слабый хват",
+    "Description": "Штраф к обычной скорости от массы переносимой еды увеличивается на 20% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "carry_weight",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "CarryPenalty",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N14",
+    "DisplayName": "Маленькая порция",
+    "Description": "Лимит фрагментов в переносимой стопке −1, но всегда можно нести хотя бы один.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "carry_capacity",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "CarryCapacity",
+        "Value": -1,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N15",
+    "DisplayName": "Неловкий бросок",
+    "Description": "Импульс ручного броска еды −15% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "food_throw",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "ThrowImpulse",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N16",
+    "DisplayName": "Крошки повсюду",
+    "Description": "Фрагменты после разрушения владельцем целой еды разлетаются на 35% сильнее за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "food_scatter",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "FoodScatter",
+        "Value": 0.35,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N17",
+    "DisplayName": "Тонкая эмаль",
+    "Description": "Максимальное здоровье владельца −12 за стак. Общий максимум не опускается ниже 50% базового.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "max_health",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "MaxHealth",
+        "Value": -12,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N18",
+    "DisplayName": "Без каски",
+    "Description": "Урон от прямого попадания падающего ореха +20% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "falling_nut_damage",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NutEncounter",
+      "NutBossMage"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "FallingNutDamage",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N19",
+    "DisplayName": "Остывший зуб",
+    "Description": "Шкала холода заполняется на 15% быстрее за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "freeze_rate",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "FreezeRate",
+        "Value": 0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N20",
+    "DisplayName": "Толстый лёд",
+    "Description": "Лёд на ногах владельца имеет на 20% больше здоровья за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "leg_ice_health",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "LegIceHealth",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N21",
+    "DisplayName": "Неудобная стойка",
+    "Description": "Личный урон при прижатии к защищаемому зубу +20% за стак. Если прижатие выполнено, сам зуб по-прежнему защищён.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brace_damage",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "FogBrawl"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "BraceDamage",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N22",
+    "DisplayName": "Тяжёлый подъём",
+    "Description": "Восстановление владельца после сбивания занимает на 20% больше времени за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "ragdoll_recovery",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "RagdollDuration",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N23",
+    "DisplayName": "Медленный спасатель",
+    "Description": "Скорость освобождения союзника из мимика −20% за стак.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 2,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": true,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "mimic_rescue",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Mimic"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "RescueRate",
+        "Value": -0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "N24",
+    "DisplayName": "Сахарная ломота",
+    "Description": "После доставки порции еды обычная скорость владельца −10% на 3 секунды. Повторная доставка обновляет длительность, сила не складывается.",
+    "Polarity": "Negative",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Standard",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "post_delivery",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": []
+  },
+  {
+    "Name": "X01",
+    "DisplayName": "Стеклянная эмаль",
+    "Description": "Урон оружия +30%, максимальное здоровье −25%. Увеличение урона не усиливает уборку.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "glass_damage",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "WeaponDamage",
+        "Value": 0.3,
+        "bFlat": false,
+        "Condition": "Always"
+      },
+      {
+        "Stat": "MaxHealth",
+        "Value": -0.25,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "X02",
+    "DisplayName": "Тяжёлая рука",
+    "Description": "Урон кирки +35%, частота её ударов −20%.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "pickaxe_heavy",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "PickaxeDamage",
+        "Value": 0.35,
+        "bFlat": false,
+        "Condition": "Always"
+      },
+      {
+        "Stat": "AttackRate",
+        "Value": -0.2,
+        "bFlat": false,
+        "Condition": "PickaxeSelected"
+      }
+    ]
+  },
+  {
+    "Name": "X03",
+    "DisplayName": "Моторная лихорадка",
+    "Description": "Урон бензопилы +30%; её столкновение со стеной наносит владельцу на 15 урона больше. Остановка только от стены сохраняется.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "chainsaw_risk",
+    "RequiredTool": "Chainsaw",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "ChainsawDamage",
+        "Value": 0.3,
+        "bFlat": false,
+        "Condition": "Always"
+      },
+      {
+        "Stat": "ChainsawCrashDamage",
+        "Value": 15,
+        "bFlat": true,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "X04",
+    "DisplayName": "Щётка-снегоочиститель",
+    "Description": "Ширина рабочей полосы щётки +40%, эффективность удаления грязи −20%.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brush_tradeoff",
+    "RequiredTool": "None",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "BrushWidth",
+        "Value": 0.4,
+        "bFlat": false,
+        "Condition": "Always"
+      },
+      {
+        "Stat": "BrushPower",
+        "Value": -0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "X05",
+    "DisplayName": "Сахарный курьер",
+    "Description": "При переноске еды обычная скорость +20%, получаемый владельцем урон +20%.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "carry_risk",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "NormalSpeed",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "CarryingFood"
+      },
+      {
+        "Stat": "IncomingDamage",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "CarryingFood"
+      }
+    ]
+  },
+  {
+    "Name": "X06",
+    "DisplayName": "Ледяной прикус",
+    "Description": "При заполнении шкалы холода не менее чем наполовину урон оружия +30%. Холод всегда накапливается на 20% быстрее.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "freeze_risk",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WeaponDamage",
+        "Value": 0.3,
+        "bFlat": false,
+        "Condition": "HighFreeze"
+      },
+      {
+        "Stat": "FreezeRate",
+        "Value": 0.2,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "X07",
+    "DisplayName": "Горячая паста",
+    "Description": "Радиус тёплых участков от щётки +35%, длительность −40%, но не меньше 1 секунды.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "warm_area_tradeoff",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "IceEvent"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WarmRadius",
+        "Value": 0.35,
+        "bFlat": false,
+        "Condition": "Always"
+      },
+      {
+        "Stat": "WarmDuration",
+        "Value": -0.4,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "X08",
+    "DisplayName": "Ночная охота",
+    "Description": "В ночном ивенте урон оружия +30%, обычная скорость ходьбы и бега −15%. Вне этого ивента обе части выключены.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "night_tradeoff",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NightMeal"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WeaponDamage",
+        "Value": 0.3,
+        "bFlat": false,
+        "Condition": "Night"
+      },
+      {
+        "Stat": "NormalSpeed",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Night"
+      }
+    ]
+  },
+  {
+    "Name": "X09",
+    "DisplayName": "Коллективный импульс",
+    "Description": "Урон +25%, если союзник попадал по той же цели в последние 2 секунды; иначе урон −15%.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Legendary",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": true,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "team_tradeoff",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "NutEncounter",
+      "FinalBoss",
+      "Jelly"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "WeaponDamage",
+        "Value": 0.25,
+        "bFlat": false,
+        "Condition": "RecentAllyHit"
+      },
+      {
+        "Stat": "WeaponDamage",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "NoRecentAllyHit"
+      }
+    ]
+  },
+  {
+    "Name": "X10",
+    "DisplayName": "Неутомимый щит",
+    "Description": "Личный урон при правильном прижатии к зубу −35%, обычная скорость ходьбы и бега −15%.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "brace_tradeoff",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "FogBrawl"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "BraceDamage",
+        "Value": -0.35,
+        "bFlat": false,
+        "Condition": "Always"
+      },
+      {
+        "Stat": "NormalSpeed",
+        "Value": -0.15,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "X11",
+    "DisplayName": "Рекордная порция",
+    "Description": "Лимит переносимых фрагментов +2; еда в руках владельца портится на 40% быстрее.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "cargo_tradeoff",
+    "RequiredTool": "None",
+    "RequiredEvents": [
+      "Food"
+    ],
+    "Modifiers": [
+      {
+        "Stat": "CarryCapacity",
+        "Value": 2,
+        "bFlat": true,
+        "Condition": "Always"
+      },
+      {
+        "Stat": "SpoilRate",
+        "Value": 0.4,
+        "bFlat": false,
+        "Condition": "Always"
+      }
+    ]
+  },
+  {
+    "Name": "X12",
+    "DisplayName": "Бешеная струя",
+    "Description": "Частота выстрелов водного пистолета +35%; при его активной стрельбе обычная скорость владельца −35%.",
+    "Polarity": "Risky",
+    "Weight": 1,
+    "MaxStacks": 1,
+    "EffectClass": "/Script/CoreUObject.Class'/Script/MessControl.MCRoguePerkEffect'",
+    "Icon": "None",
+    "ToolUpgrade": "None",
+    "Rarity": "Rare",
+    "bAvailableForLevelChoice": true,
+    "bRoguePerk": true,
+    "bEarlyChoice": false,
+    "bRequiresTeam": false,
+    "bConsumableBooster": false,
+    "ChoiceFamily": "watergun_tradeoff",
+    "RequiredTool": "Watergun",
+    "RequiredEvents": [],
+    "Modifiers": [
+      {
+        "Stat": "AttackRate",
+        "Value": 0.35,
+        "bFlat": false,
+        "Condition": "WatergunSelected"
+      },
+      {
+        "Stat": "NormalSpeed",
+        "Value": -0.35,
+        "bFlat": false,
+        "Condition": "WatergunFiring"
+      }
+    ]
+  }
+]

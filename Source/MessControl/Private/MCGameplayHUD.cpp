@@ -7,6 +7,7 @@
 #include "MCNutBoss.h"
 #include "MCBossCharacter.h"
 #include "MCPlayerState.h"
+#include "MCPerkComponent.h"
 #include "MCPlayerController.h"
 #include "MCGameState.h"
 #include "MCSingleDayDirector.h"
@@ -423,10 +424,32 @@ void UMCGameplayHUD::NativeTick(const FGeometry& Geometry,float Dt)
 int32 UMCGameplayHUD::NativePaint(const FPaintArgs& Args,const FGeometry& Geometry,const FSlateRect& CullingRect,
     FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const
 {
-    const int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
+    int32 Top=Super::NativePaint(Args,Geometry,CullingRect,Elements,Layer,Style,ParentEnabled);
     const auto* PC=Cast<AMCPlayerController>(GetOwningPlayer());
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     const auto* Inv=Hero?Hero->Inventory.Get():nullptr;
+    if(PC && Hero && Hero->Status->IsAlive() && !PC->bShowMouseCursor) if(const auto* Perks=UMCPerkComponent::ForActor(Hero)) {
+        FString BoosterHint;
+        if(Perks->IsFuryActive()) BoosterHint=TEXT("ЩЁТОЧНЫЙ ВИХРЬ · НЕСЁТ ВПЕРЁД");
+        else if(Perks->bGrenadeArmed) BoosterHint=TEXT("ГРАНАТА ВЗОРВЁТСЯ ПРИ ПАДЕНИИ");
+        if(!Perks->BoosterQueue.IsEmpty()) {
+            FName Next=NAME_None;
+            for(FName ID:Perks->BoosterQueue) if(ID!=TEXT("Fallback_Grenade") || !Perks->bGrenadeArmed) {Next=ID;break;}
+            if(const auto* Row=Perks->FindDefinition(Next)) BoosterHint+=(BoosterHint.IsEmpty()?TEXT(""):TEXT("\n"))+FString::Printf(TEXT("[G] %s · зарядов: %d"),*Row->DisplayName.ToString(),Perks->BoosterQueue.Num());
+        }
+        if(!BoosterHint.IsEmpty()) FSlateDrawElement::MakeText(Elements,++Top,
+            Geometry.ToPaintGeometry(FVector2D(480,60),FSlateLayoutTransform(FVector2D(32,Geometry.GetLocalSize().Y-220))),
+            FText::FromString(BoosterHint),FCoreStyle::GetDefaultFontStyle(TEXT("Bold"),16),ESlateDrawEffect::None,FLinearColor(.8f,1.f,.9f));
+        FVector Point;
+        if(Perks->GetFogNavigation(Point)) {
+            FVector View;FRotator Rotation;PC->GetPlayerViewPoint(View,Rotation);
+            const FVector Delta=(Point-Hero->GetActorLocation()).GetSafeNormal2D();
+            const FVector Forward=Rotation.Vector().GetSafeNormal2D(),Right=FVector::CrossProduct(FVector::UpVector,Forward);
+            const FVector2D Direction=FVector2D(FVector::DotProduct(Delta,Right),-FVector::DotProduct(Delta,Forward)).GetSafeNormal();
+            const FVector2D Center=Geometry.GetLocalSize()*.5,Tip=Center+Direction*130,Side(-Direction.Y,Direction.X);
+            FSlateDrawElement::MakeLines(Elements,++Top,Geometry.ToPaintGeometry(),{Tip-Direction*20+Side*10,Tip,Tip-Direction*20-Side*10},ESlateDrawEffect::None,FLinearColor(.35f,1,.8f),true,4);
+        }
+    }
     if(!PC || !PC->IsLocalController() || PC->bShowMouseCursor || PC->IsLookInputIgnored() || PC->IsSpectating()
         || !Inv || Inv->Selected!=EMCToolSlot::Spray || !Hero->CanWork() || Hero->bInCoffee || !Inv->ShouldPresentTool()) return Top;
     const auto PlayerGeometry=UWidgetLayoutLibrary::GetPlayerScreenWidgetGeometry(GetOwningPlayer());
@@ -578,9 +601,9 @@ void UMCGameplayHUD::RefreshState()
         Text(TEXT("CooldownValue"),Automatic?(Inv->bWaterReloading?FString::Printf(TEXT("%.1f с"),Cool):FString::Printf(TEXT("%d/%d"),Inv->WaterAmmo,Inv->WaterMagazineCapacity())):FString::Printf(TEXT("%.1f"),Cool));
         Bar(TEXT("CooldownProgress"),Automatic && !Inv->bWaterReloading?float(Inv->WaterAmmo)/Inv->WaterMagazineCapacity():1-Cool/Inv->CooldownSeconds());
         FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ · ЕДА → XP"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РАЗБИТЬ ЕДУ → XP"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):TEXT("ЛКМ · ЧИСТИТЬ");
-        if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=TEXT("УДЕРЖИВАЙ ЛКМ · ПИЛИТЬ И ДВИГАТЬСЯ ВПЕРЁД");
+        if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=Inv->IsChainsawRunning()?TEXT("БЕНЗОПИЛА ТЯНЕТ ВПЕРЁД · СТЕНА ОСТАНОВИТ · 30 УРОНА"):TEXT("ЛКМ · ЗАПУСТИТЬ · ОСТАНОВКА ТОЛЬКО ОБ СТЕНУ");
         if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?(Inv->bWaterReloading?TEXT("ПЕРЕЗАРЯДКА · УДЕРЖИВАЙ ЛКМ ДЛЯ ПРОДОЛЖЕНИЯ     4 · РЕЖИМ"):TEXT("УДЕРЖИВАЙ ЛКМ · АВТОМАТИЧЕСКАЯ СТРЕЛЬБА     4 · РЕЖИМ")):TEXT("УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ");
-        Hint+=TEXT("     ПКМ · ДЕРЖАТЬСЯ");
+        if(!Inv->IsChainsawRunning()) Hint+=TEXT("     ПКМ · ДЕРЖАТЬСЯ");
         const auto IsFreshOrdinaryFood=[](const AMCFoodActor* Food) {
             return IsValid(Food) && Food->FoodData.Kind==EMCFoodKind::Food && !Food->bBrushTool && !Food->IsWrongIngredient();
         };
@@ -596,8 +619,8 @@ void UMCGameplayHUD::RefreshState()
         {
             bool HasWrong=GS->bSingleDayLoop && HasExitPieces;
             for(const auto& Piece:Hero->FoodCollection->Pieces) if(IsValid(Piece) && Piece->IsWrongIngredient()) { HasWrong=true; break; }
-            Hint=HasWrong?FString::Printf(TEXT("СТОПКА %d/6 · В КРАСНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num())
-                :FString::Printf(TEXT("СТОПКА %d/6 · В ЗЕЛЁНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num());
+            Hint=HasWrong?FString::Printf(TEXT("СТОПКА %d/%d · В КРАСНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num(),Hero->FoodCollection->EffectiveCapacity())
+                :FString::Printf(TEXT("СТОПКА %d/%d · В ЗЕЛЁНУЮ · Q БРОСИТЬ"),Hero->FoodCollection->Pieces.Num(),Hero->FoodCollection->EffectiveCapacity());
         }
         if(Hero->IsYawning()) Hint=TEXT("ЗЕВАНИЕ · WASD + SHIFT · БЕГИ ПРОТИВ ПОТОКА");
         if(Hero->HeldFood) Hint=GS->bSingleDayLoop && Hero->HeldFood->FoodData.Kind==EMCFoodKind::Spicy?TEXT("ПЕРЕЦ — В КРАСНУЮ / ВЫХОД · Q БРОСИТЬ")

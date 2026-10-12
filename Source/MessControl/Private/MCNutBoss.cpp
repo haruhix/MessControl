@@ -1,4 +1,5 @@
 #include "MCNutBoss.h"
+#include "MCPerkComponent.h"
 #include "MCGameDirector.h"
 #include "MCNutBossAnimInstance.h"
 #include "MCCombatFeedbackComponent.h"
@@ -413,13 +414,16 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
     const bool Shielded=Source && IsShieldProtectingFrom(Source->GetActorLocation());
+    auto* Perks=UMCPerkComponent::ForActor(Source);
+    if(Perks) Damage=Perks->WeaponDamage(Damage,this);
     const float ShieldBefore=ShieldHealth;
     VisualHitAt=Now(); VisualHitDirection=Source?(Source->GetActorLocation()-GetActorLocation()).GetSafeNormal2D():-GetActorForwardVector();
     if(Shielded) {
         // Durability consumes the incoming tool damage. Only the protected part
         // gets reduced; a breaking hit's overflow immediately deals full damage.
         const float ProtectedDamage=FMath::Min(Damage,ShieldHealth);
-        ShieldHealth=FMath::Max(0.f,ShieldHealth-ProtectedDamage);
+        const float ShieldBonus=Perks && !Perks->bRogueExtraHit?Perks->RogueValue(EMCRogueStat::ShieldDamage):1.f;
+        ShieldHealth=FMath::Max(0.f,ShieldHealth-Damage*ShieldBonus);
         Damage=ProtectedDamage*BossSettings.ShieldFrontDamageScale+(Damage-ProtectedDamage);
         const bool Broken=ShieldHealth<=0;
         if(Broken || VisualHitAt-ShieldHitAt>=.15) {
@@ -431,7 +435,10 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     // A light tool hit registers through the ordinary contact path, without
     // cancelling an entire boss attack each time four workers swing together.
     const float Before=Health;
-    const float Applied=Super::ReceiveToolDamage(Damage,Source);
+    float Applied=0;
+    if(Perks) {TGuardValue<bool> Resolved(Perks->bRogueExtraHit,true);Applied=Super::ReceiveToolDamage(Damage,Source);}
+    else Applied=Super::ReceiveToolDamage(Damage,Source);
+    if(Perks && (Applied>0 || ShieldHealth<ShieldBefore)) Perks->NotifyWeaponHit(this);
     if(Shielded && Applied<=0) {
         RefreshPresentation();ForceNetUpdate();
         if(!ActorHasTag(TEXT("MC.LegacyCombatFeedback"))) {
@@ -692,9 +699,13 @@ void AMCNutBoss::DamageArea(FVector Center,float Radius,float Damage,float Push,
         AMCToothCharacter* Hero=*It; if(!IsLiveTarget(Hero) || (HitSet && HitSet->Contains(Hero))) continue;
         const FVector Delta=Hero->GetActorLocation()-Center;
         const float Reach=Radius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius();
-        if(Delta.SizeSquared2D()>FMath::Square(Reach) || FMath::Abs(Delta.Z)>230 || !HasLineOfSight(Hero,Center+FVector(0,0,80))) continue;
+        if(Delta.SizeSquared2D()>FMath::Square(Reach) || FMath::Abs(Delta.Z)>230) {
+            if(Hero==Target) if(auto* Perks=UMCPerkComponent::ForActor(Hero)) Perks->NotifyDodgedAttack();
+            continue;
+        }
+        if(!HasLineOfSight(Hero,Center+FVector(0,0,80))) continue;
         FVector Direction=Delta.GetSafeNormal2D(); if(Direction.IsNearlyZero()) Direction=AttackForward;
-        if(!Hero->Status->Damage(Damage,Direction,this)) continue;
+        if(!Hero->Status->Damage(Damage,Direction,this,Attack==EMCNutBossAttack::NutRain?EMCRogueDamageKind::FallingNut:EMCRogueDamageKind::Ordinary)) continue;
         if(HitSet) HitSet->Add(Hero);
         PushPlayer(Hero,Direction,Push);
     }

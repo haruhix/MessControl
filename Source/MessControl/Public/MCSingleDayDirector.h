@@ -67,6 +67,8 @@ class MESSCONTROL_API AMCSingleDayDirector : public AActor
 public:
     AMCSingleDayDirector();
     void Initialize(UMCDayPlan* Plan, UMCSingleDayProfile* Profile, UMCGameDirectorProfile* InterludeProfile);
+    const UMCSingleDayProfile* GetRunProfile() const { return Settings; }
+    const UMCGameDirectorProfile* GetSupportProfile() const { return DirectorProfile; }
     void BeginFirstPerk();
     int32 ChooseNutSeriesSize(int32 Minimum,int32 Maximum,int32 CompletedSeries) const;
     bool ShouldFinishNutRain(int32 CompletedSeries,int32 MinimumSeries,float RainAge,float TargetSeconds) const;

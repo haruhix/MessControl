@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "max_speed": 1000.0,
+  "forward_travel": 333.5957005620003,
+  "health_after_wall": 70.0,
+  "body_after_wall": "<MCBodyState.RAGDOLL: 1>",
+  "release_did_not_stop": true
+}

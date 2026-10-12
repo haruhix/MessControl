@@ -1,0 +1,61 @@
+{
+  "perks": {
+    "positive": 36,
+    "negative": 24,
+    "risky": 12,
+    "total": 72,
+    "fallback_boosters": 3,
+    "saved_table_rows": 98
+  },
+  "automation": {
+    "passed": 4,
+    "failed": 0
+  },
+  "solo_PIE": {
+    "keyboard_reroll": true,
+    "contract_cancel_and_confirm": true,
+    "risky_altar": true,
+    "saw": {
+      "passed": true,
+      "max_speed": 1000.0,
+      "forward_travel": 333.5957005620003,
+      "health_after_wall": 70.0,
+      "body_after_wall": "<MCBodyState.RAGDOLL: 1>",
+      "release_did_not_stop": true
+    },
+    "fury": {
+      "passed": true,
+      "max_speed": 700.0,
+      "distance_without_walk_input": 335.6619640065563,
+      "seconds": 5.000032398849726,
+      "rotation_samples": 30,
+      "queued_after": 2
+    },
+    "grenade_self_damage": 60,
+    "mouthwash_cleared_coffee": true
+  },
+  "editor_restored": {
+    "map": "/Game/Maps/L_Mouth.L_Mouth",
+    "camera": [
+      [
+        1764.586037861811,
+        -425.33243402144217,
+        537.4282898019285
+      ],
+      [
+        -12.024531364440913,
+        167.9337921142578,
+        0.0
+      ]
+    ],
+    "dirty": [],
+    "PIE_running": false,
+    "restored_performance": {
+      "throttle": true,
+      "slate": 1,
+      "fps": 0.0
+    }
+  },
+  "network_validation": "deferred; not requested",
+  "cook_package": "not run; not requested"
+}

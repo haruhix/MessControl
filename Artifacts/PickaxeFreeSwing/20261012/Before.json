@@ -1,0 +1,33 @@
+{
+  "project": "D:/PROJECT/GAME/WaifuTD/MessControl/",
+  "map": null,
+  "pie": true,
+  "paused": false,
+  "dirty_maps": [],
+  "dirty_assets": [],
+  "camera": [
+    [
+      724.1769408057364,
+      8.035952744081555,
+      408.59063426509357
+    ],
+    [
+      0.0,
+      -10.612191200256348,
+      171.1846466064453
+    ]
+  ],
+  "player": {
+    "location": [
+      2197.430721852595,
+      43.94452289640745,
+      -122.05653546412714
+    ],
+    "rotation": [
+      0.0,
+      0.0,
+      -173.36227416992188
+    ],
+    "slot": "<MCToolSlot.PICKAXE: 1>"
+  }
+}

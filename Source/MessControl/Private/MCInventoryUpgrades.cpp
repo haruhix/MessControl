@@ -27,10 +27,16 @@ uint8 UMCInventoryComponent::UpgradeMask() const
 {
     uint8 Mask=0;for(uint8 I=1;I<=4;++I) if(HasUpgrade(EMCToolUpgrade(I))) Mask|=1<<(I-1);return Mask;
 }
-float UMCInventoryComponent::CleaningSpeedMultiplier() const {return HasUpgrade(EMCToolUpgrade::MeshaBrush)?2.f:1.f;}
+float UMCInventoryComponent::RogueAttackRate() const
+{const auto* Perks=UMCPerkComponent::ForActor(GetOwner());return Perks?Perks->RogueValue(EMCRogueStat::AttackRate):1.f;}
+float UMCInventoryComponent::MeleeReach(float Base) const
+{const auto* Perks=UMCPerkComponent::ForActor(GetOwner());return Selected==EMCToolSlot::Pickaxe && Perks?Perks->RogueValue(EMCRogueStat::PickaxeReach,Base):Base;}
+float UMCInventoryComponent::CleaningSpeedMultiplier() const
+{const auto* Perks=UMCPerkComponent::ForActor(GetOwner());return (HasUpgrade(EMCToolUpgrade::MeshaBrush)?2.f:1.f)*(Perks?Perks->RogueValue(EMCRogueStat::BrushPower):1.f);}
 float UMCInventoryComponent::CleaningRadius(float DirtRadius) const
 {
-    return HasUpgrade(EMCToolUpgrade::MeshaBrush)?FMath::Clamp(DirtRadius,36.f,240.f):36.f;
+    const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
+    return (HasUpgrade(EMCToolUpgrade::MeshaBrush)?FMath::Clamp(DirtRadius,36.f,240.f):36.f)*(Perks?Perks->RogueValue(EMCRogueStat::BrushWidth):1.f);
 }
 FVector UMCInventoryComponent::BrushContactLocal() const
 {
@@ -43,8 +49,18 @@ float UMCInventoryComponent::SprayReach() const
 }
 bool UMCInventoryComponent::IsChainsawRunning() const
 {
-    return Hero && Selected==EMCToolSlot::Knife && HasUpgrade(EMCToolUpgrade::Chainsaw) && Hero->IsPrimaryHeld()
+    return bChainsawRunning && Hero && Selected==EMCToolSlot::Knife && HasUpgrade(EMCToolUpgrade::Chainsaw)
         && Hero->CanWork() && !Hero->bInCoffee && !Hero->HeldFood && !Hero->ClingTooth && ShouldPresentTool();
+}
+void UMCInventoryComponent::StartChainsaw()
+{
+    if(const auto* Perks=UMCPerkComponent::ForActor(Hero);Perks && Perks->IsFuryActive()) return;
+    if(!Hero || !Hero->HasAuthority() || bChainsawRunning || Now()<SawStunEndsAt
+        || Selected!=EMCToolSlot::Knife || !HasUpgrade(EMCToolUpgrade::Chainsaw)
+        || !Hero->CanWork() || Hero->bInCoffee || Hero->HeldFood || Hero->ClingTooth || !ShouldPresentTool()) return;
+    bChainsawRunning=true;
+    CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement())->CancelDash();
+    Hero->ForceNetUpdate();
 }
 bool UMCInventoryComponent::IsUsingWatergun() const
 {
@@ -172,10 +188,11 @@ float UMCInventoryComponent::WaterChargeFraction() const
     return 0.f;
 }
 int32 UMCInventoryComponent::WaterMagazineCapacity() const {return FMath::Clamp(Settings?Settings->WatergunMagazineSize:30,1,300);}
-float UMCInventoryComponent::WaterFireInterval() const {return FMath::Max(.01f,Settings?Settings->WatergunFireInterval:.1f);}
+float UMCInventoryComponent::WaterFireInterval() const {return FMath::Max(.01f,Settings?Settings->WatergunFireInterval:.1f)/RogueAttackRate();}
 void UMCInventoryComponent::CancelUpgradeUse()
 {
     bChargingWater=false;bWaterTriggerActive=false;
+    if(bChainsawRunning) {bChainsawRunning=false;if(Hero) Hero->ForceNetUpdate();}
     if(Hero && bSawMotionActive) Hero->GetCharacterMovement()->RemoveRootMotionSourceByID(SawMotionId);
     bSawMotionActive=false;
 }
@@ -186,17 +203,24 @@ void UMCInventoryComponent::EndPlay(const EEndPlayReason::Type Reason)
 void UMCInventoryComponent::TickChainsaw(float Dt)
 {
     auto* Movement=Hero->GetCharacterMovement();
+    // Death, capture and leaving the playable work state still clean up the tool.
+    // Releasing the use button never clears the latched running state.
+    if(bChainsawRunning && !IsChainsawRunning()) CancelUpgradeUse();
     const bool Run=IsChainsawRunning() && (Movement->IsMovingOnGround() || Movement->IsFalling());
     if(GetOwner()->HasAuthority() || Hero->IsLocallyControlled()) {
         if(Run) {
-            const FVector Pull=Hero->GetActorForwardVector().GetSafeNormal2D()*260;
+            // Override walking input so the saw propels a stationary player and
+            // pressing backwards cannot brake its continuous forward motion.
+            const FVector Pull=Hero->GetActorForwardVector().GetSafeNormal2D()*1000;
             auto Current=bSawMotionActive?Movement->GetRootMotionSourceByID(SawMotionId):nullptr;
             if(Current.IsValid() && !Current->Status.HasFlag(ERootMotionSourceStatusFlags::MarkedForRemoval))
                 static_cast<FMCLocomotionRootMotionSource*>(Current.Get())->Force=Pull;
             else {
                 auto Source=MakeShared<FMCLocomotionRootMotionSource>();Source->InstanceName=TEXT("MCChainsawPull");
-                Source->Priority=120;Source->AccumulateMode=ERootMotionAccumulateMode::Additive;
+                Source->Priority=120;Source->AccumulateMode=ERootMotionAccumulateMode::Override;
                 Source->Duration=-1;Source->Force=Pull;Source->Settings.SetFlag(ERootMotionSourceSettingsFlags::IgnoreZAccumulate);
+                Source->FinishVelocityParams.Mode=ERootMotionFinishVelocityMode::SetVelocity;
+                Source->FinishVelocityParams.SetVelocity=FVector(0,0,Movement->Velocity.Z);
                 SawMotionId=Movement->ApplyRootMotionSource(Source);bSawMotionActive=true;
             }
         } else if(bSawMotionActive) {Movement->RemoveRootMotionSourceByID(SawMotionId);bSawMotionActive=false;}
@@ -221,7 +245,8 @@ void UMCInventoryComponent::HandleChainsawCollision(AActor* Other,const FHitResu
         float(-FVector::DotProduct(SweptVelocity,Hit.ImpactNormal)));
     if(IntoWall<120 || Now()<SawStunEndsAt) return;
     Hero->CancelGameplayInput();CancelUpgradeUse();SawStunEndsAt=Now()+2.5;
-    Hero->Status->Damage(30.f,-Hero->GetActorForwardVector());
+    const auto* Perks=UMCPerkComponent::ForActor(Hero);
+    Hero->Status->Damage(Perks?Perks->RogueValue(EMCRogueStat::ChainsawCrashDamage,30):30.f,-Hero->GetActorForwardVector(),nullptr,EMCRogueDamageKind::Chainsaw);
     const float Fall=FMath::Max(650.f,Hero->ToothPhysics->Settings.FallThreshold+100.f);
     Hero->ToothPhysics->ApplyHit(-Hero->GetActorForwardVector()*Fall+FVector(0,0,130),Hit.ImpactPoint);
     AMCReactionVFX::Spawn(GetWorld(),Hit.ImpactPoint,EMCReactionEffect::Impact,.6f,65);Hero->ForceNetUpdate();
@@ -289,6 +314,7 @@ void UMCInventoryComponent::FireWaterShot()
                 Player->ToothPhysics->ApplyHit(Direction.GetSafeNormal()*85+FVector(0,0,12),Hit.ImpactPoint);
         }
         else if(auto* Throat=Cast<AMCThroat>(Hit.GetActor())) Throat->ReactToWaterTickle(Hero,Hit.ImpactPoint);
+        if(auto* Perks=UMCPerkComponent::ForActor(Hero)) Perks->TryWaterRicochet(Hit.GetActor(),Power,Hit.ImpactPoint);
         AMCReactionVFX::Spawn(GetWorld(),End,EMCReactionEffect::WaterImpact,.15f,40,Hit.ImpactNormal);
     }
     AMCReactionVFX::Spawn(GetWorld(),Origin,EMCReactionEffect::WaterShot,.1f,12,Direction,FVector::Distance(Origin,End));
@@ -303,6 +329,8 @@ void UMCInventoryComponent::FireWaterShot()
 void UMCInventoryComponent::TickUpgrades(float Dt)
 {
     if(!Hero) return;TickChainsaw(Dt);
+    const float Reach=MeleeReach()/180.f;
+    if(!FMath::IsNearlyEqual(Reach,LastRogueReach)) {LastRogueReach=Reach;RefreshMesh();}
     UpdateWatergunInput();
 }
 void UMCInventoryComponent::UpdateWatergunInput()

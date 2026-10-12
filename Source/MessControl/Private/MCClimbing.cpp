@@ -1,4 +1,5 @@
 #include "MCToothMovementComponent.h"
+#include "MCPerkComponent.h"
 #include "MCToothCharacter.h"
 #include "MCFoodActor.h"
 #include "MCArenaTooth.h"
@@ -44,7 +45,9 @@ bool UMCToothMovementComponent::CanAttemptJump() const
 bool UMCToothMovementComponent::DoJump(bool bReplayingMoves,float DeltaTime)
 {
     if(IsClimbing()) { JumpFromWall(); return true; }
-    return Super::DoJump(bReplayingMoves,DeltaTime);
+    const float Base=JumpZVelocity;
+    if(const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner)) JumpZVelocity*=FMath::Sqrt(Perks->RogueValue(EMCRogueStat::JumpHeight));
+    const bool Jumped=Super::DoJump(bReplayingMoves,DeltaTime);JumpZVelocity=Base;return Jumped;
 }
 void UMCToothMovementComponent::JumpFromWall()
 {

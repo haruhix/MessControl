@@ -1,0 +1,170 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": {
+    "one_press_starts": true,
+    "release_keeps_running": true,
+    "distance_without_walk_cm": 566.6696988046169,
+    "speed_without_walk_cm_s": 1000.0,
+    "perk_offer_waits_for_stop": true,
+    "repeat_press_and_tool_switch_blocked": true,
+    "backwards_input_cannot_brake": true,
+    "wall_stops_saw": true,
+    "wall_damage": 30.0,
+    "wall_knockdown": true,
+    "perk_offer_available_after_stop": true,
+    "no_automatic_restart_or_repeated_damage": true
+  },
+  "samples": [
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 83.33389833569527
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 100.00069811940193
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 116.6674979031086
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 133.3342008292675
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 150.00100061297417
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 166.66780039668083
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 183.3346001803875
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 200.0012993812561
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 216.6679985821247
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 233.33479836583138
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 250.00150129199028
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 266.66830107569695
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 283.3351008594036
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 300.0019006431103
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 316.6685998439789
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 333.33539962768555
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 350.0021994113922
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 366.6688986122608
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 383.3356015384197
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 400.00230073928833
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 416.66899994015694
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 433.3357997238636
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 450.00259950757027
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 466.66939929127693
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 483.33609849214554
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 500.0028982758522
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 516.6696012020111
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 533.3363004028797
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 550.0029996037483
+    },
+    {
+      "stage": "no_walk_input",
+      "speed_cm_s": 1000.0,
+      "distance_cm": 566.6696988046169
+    }
+  ]
+}

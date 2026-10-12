@@ -15,4 +15,7 @@ public:
     /** Extent is the box half-size in centimetres. Reuses only the volume owned by this helper. */
     UFUNCTION(BlueprintCallable, Category="Mess Control|Roguelike|Navigation")
     static bool ConfigureBossNavigation(UWorld* World,FVector Center,FVector Extent);
+    /** Solo PIE review only; changes temporary play-world state, never saved assets. */
+    UFUNCTION(BlueprintCallable, Category="Mess Control|Roguelike|Review")
+    static FString ReviewRogueGameplay(UWorld* World,FName Action);
 };

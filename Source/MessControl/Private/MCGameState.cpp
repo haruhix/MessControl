@@ -1,4 +1,18 @@
 #include "MCGameState.h"
+
+void AMCGameState::SetRogueEventEnabled(FName Event,bool Enabled)
+{
+    if(!HasAuthority() || Event.IsNone()) return;
+    if(Enabled) RogueOptionalEvents.AddUnique(Event); else RogueOptionalEvents.Remove(Event);
+    ForceNetUpdate();
+}
+void AMCGameState::SetRogueNightActive(bool Active)
+{
+    if(!HasAuthority()) return;
+    bRogueNightActive=Active;
+    if(Active) RogueOptionalEvents.AddUnique(TEXT("NightMeal"));
+    ForceNetUpdate();
+}
 #include "MCProgressionComponent.h"
 #include "MCSingleDayDirector.h"
 #include "MCArenaTooth.h"
@@ -25,6 +39,8 @@ void AMCGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLife
     DOREPLIFETIME(AMCGameState,bSingleDayLoop);
     DOREPLIFETIME(AMCGameState,SingleDayDirector);
     DOREPLIFETIME(AMCGameState,TeamToolUpgrades);
+    DOREPLIFETIME(AMCGameState,RogueOptionalEvents);
+    DOREPLIFETIME(AMCGameState,bRogueNightActive);
     DOREPLIFETIME(AMCGameState,DirectorState);
     DOREPLIFETIME(AMCGameState,DirectorDecisionLog);
     DOREPLIFETIME(AMCGameState,bLobbyWaiting);

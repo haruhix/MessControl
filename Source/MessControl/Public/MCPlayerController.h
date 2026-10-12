@@ -67,9 +67,16 @@ public:
     UFUNCTION(BlueprintCallable, Category="Shift") void RequestRestart();
     UFUNCTION(Client, Reliable) void ClientShowRewardOpening(AMCRewardChest* Chest, double ServerEndsAt);
     UFUNCTION(Client, Reliable) void ClientShowPerkChoices(AMCRewardChest* Chest, const TArray<FName>& IDs, EMCPerkPolarity Polarity);
+    UFUNCTION(Client,Reliable) void ClientShowRogueChoices(AMCRewardChest* Chest,const FMCRogueChestOffer& Offer);
+    UFUNCTION(Server,Reliable) void ServerConfirmRogueReward(AMCRewardChest* Chest,bool Accept);
     UFUNCTION(Server, Reliable) void ServerChooseRewardPerk(AMCRewardChest* Chest, int32 ChoiceIndex);
     UFUNCTION(Client, Reliable) void ClientClosePerkChoices(AMCRewardChest* Chest);
     UFUNCTION(BlueprintCallable, Category="Rewards") void ChooseRewardPerk(int32 ChoiceIndex);
+    void RerollLevelPerks();
+    void ActivateRogueBooster();
+    UFUNCTION(Server,Reliable) void ServerActivateRogueBooster();
+    void ConfirmRogueReward(bool Accept);
+    UFUNCTION(Server,Reliable) void ServerRerollLevelPerks(FGuid OfferId);
     /** Reconstructs a durable owner-only level offer without requiring a chest or pawn. */
     void RefreshLevelPerkChoices();
     UFUNCTION(Server, Reliable) void ServerChooseLevelPerk(FGuid OfferId,int32 ChoiceIndex);

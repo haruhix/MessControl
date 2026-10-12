@@ -1,4 +1,5 @@
 #include "MCFoodCollectionComponent.h"
+#include "MCPerkComponent.h"
 #include "MCFoodActor.h"
 #include "MCFoodStackSettings.h"
 #include "MCToothCharacter.h"
@@ -91,9 +92,14 @@ void UMCFoodCollectionComponent::RebuildStackLayout()
         Height+=Extent;Food->StackPickup.SlotHeight=Height;Height+=Extent+Food->FoodData.Stack.SafeLayerGap();
     }
 }
+int32 UMCFoodCollectionComponent::EffectiveCapacity() const
+{
+    const auto* Perks=UMCPerkComponent::ForActor(GetOwner());
+    return FMath::RoundToInt(Perks?Perks->RogueValue(EMCRogueStat::CarryCapacity,MaxPieces):FMath::Clamp(float(MaxPieces),1.f,10.f));
+}
 bool UMCFoodCollectionComponent::Collect(AMCFoodActor* Food)
 {
-    if(!GetOwner()->HasAuthority() || !bCollecting || Pieces.Num()>=FMath::Clamp(MaxPieces,1,8) || !CanCollect(Food)) return false;
+    if(!GetOwner()->HasAuthority() || !bCollecting || Pieces.Num()>=EffectiveCapacity() || !CanCollect(Food)) return false;
     RebuildStackLayout();
     float Height=Food->PrepareHorizontalStackPose(&Food->FoodData.Stack,Pieces.Num());
     for(const auto& Piece:Pieces) if(IsValid(Piece)) Height+=Piece->StackHalfHeight()*2+Piece->FoodData.Stack.SafeLayerGap();
@@ -144,7 +150,10 @@ void UMCFoodCollectionComponent::ReleaseFrom(int32 Index,bool Throw,FVector Impu
                 // Ordinary drops inherit the carrier's motion; Q still throws forwards.
                 F->Body->SetPhysicsLinearVelocity((Throw?Motion.Linear:H->GetVelocity())+Impulse);
                 F->Body->SetPhysicsAngularVelocityInRadians(Motion.Angular);
-                if(Throw) F->Body->AddImpulse(H->GetActorForwardVector()*500+FVector(0,0,180),NAME_None,true);
+                if(Throw) {
+                    const auto* Perks=UMCPerkComponent::ForActor(H);
+                    F->Body->AddImpulse((H->GetActorForwardVector()*500+FVector(0,0,180))*(Perks?Perks->RogueValue(EMCRogueStat::ThrowImpulse):1.f),NAME_None,true);
+                }
             }
         }
         Pieces.RemoveAt(I);

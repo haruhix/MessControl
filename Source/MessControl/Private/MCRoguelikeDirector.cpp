@@ -128,6 +128,17 @@ void AMCRoguelikeDirector::TrySpawnReward()
     const FTransform Transform(Rotation,Best);
     auto* Chest=GetWorld()->SpawnActorDeferred<AMCRewardChest>(ChestClass,Transform,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Chest) return;
+    TArray<FName> Scratch;
+    bool CanContract=false,CanRisk=false;
+    for(auto* Player:Players) if(auto* PS=Player->GetPlayerState<AMCPlayerState>();PS && PS->Perks && PS->PersonalChoicesTaken>=2) {
+        CanRisk|=PS->Perks->BuildRogueOffer(EMCPerkPolarity::Risky,int32(Random.GetCurrentSeed()),Scratch);
+        TArray<FName> Rewards;
+        CanContract|=PS->Perks->BuildRogueOffer(EMCPerkPolarity::Negative,int32(Random.GetCurrentSeed()),Scratch)
+            && PS->Perks->BuildRogueOffer(EMCPerkPolarity::Positive,int32(Random.GetCurrentSeed())^0x52455744,Rewards,false,true);
+    }
+    const float KindRoll=Random.FRand();
+    if(CanContract && KindRoll<.15f) Chest->RogueKind=EMCRogueRewardKind::CursedContract;
+    else if(CanRisk && KindRoll>=.15f && KindRoll<.30f) Chest->RogueKind=EMCRogueRewardKind::RiskyAltar;
     Chest->InitializeReward(Best,Best+FVector(0,0,Height),int32(Random.GetUnsignedInt()),LoadedTable,SelectionPolicy,BestZone);
     ActiveChests.Add(Chest); --PendingRewards; ++RewardsSpawned;
     NextRewardAt=GetWorld()->GetTimeSeconds()+(FMath::IsFinite(RewardCooldown)?FMath::Max(0.f,RewardCooldown):8.f);

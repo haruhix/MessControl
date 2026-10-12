@@ -1,4 +1,5 @@
 #include "MCMouthSurface.h"
+#include "MCPerkComponent.h"
 #include "MCCoffeeWipe.h"
 #include "MCInventoryComponent.h"
 #include "MCTongue.h"
@@ -57,6 +58,13 @@ void AMCMouthSurface::SetLiquidDepositMask(const TArray<uint8>& Mask)
 }
 void AMCMouthSurface::OnRep_Wipe() { bWipeDirty=true; }
 
+void AMCMouthSurface::ClearLiquidForBooster()
+{
+    if(!HasAuthority() || bUlcer) return;
+    WipeMask.Init(0,FMCCoffeeWipe::Count);WipeFractional.Reset();
+    Status->ClearCoffeeForBooster();
+    OnRep_Wipe();ForceNetUpdate();
+}
 float AMCMouthSurface::RemainingLiquid() const
 {
     int32 Total=0; float Left=0;
@@ -134,7 +142,9 @@ bool AMCMouthSurface::BrushLiquid(AMCToothCharacter* Worker,float Seconds)
     const FVector2D From=Previous && FVector2D::Distance(*Previous,UV)<.3?*Previous:UV;
     Worker->BrushContact->Contact(this,Point,Normal,&Base);
     if(!Worker->BrushContact->IsWorkReady()) return true;
-    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,Worker->Inventory->CleaningRadius(LiquidHalfSize)/(2*LiquidHalfSize),Seconds,&WipeFractional,Worker->Inventory->CleaningSpeedMultiplier())) OnRep_Wipe();
+    if (FMCCoffeeWipe::Stroke(WipeMask,From,UV,Worker->Inventory->CleaningRadius(LiquidHalfSize)/(2*LiquidHalfSize),Seconds,&WipeFractional,Worker->Inventory->CleaningSpeedMultiplier())) {
+        OnRep_Wipe();if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Point);
+    }
     BrushDirection=(UV-From).IsNearlyZero()?Side:(UV-From).GetSafeNormal();
     BrushUV=UV; PreviousBrush.Add(Worker,UV);
     BrushAt=Now;

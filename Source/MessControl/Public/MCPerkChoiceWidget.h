@@ -31,6 +31,7 @@ class MESSCONTROL_API UMCPerkChoiceWidget : public UUserWidget
 public:
     void ShowChoices(const TArray<FName>& IDs, EMCPerkPolarity Polarity);
     void ShowLevelChoices(const TArray<FName>& IDs,int32 TeamLevel,int32 PendingChoices);
+    void ShowRogueChoices(const FMCRogueChestOffer& Offer);
     void UpdateLevelChoiceHeader(int32 TeamLevel,int32 PendingChoices);
     void SetSelectionPending(bool bPending);
     bool IsShowingChoices() const { return bShowingChoices; }
@@ -39,11 +40,14 @@ protected:
     virtual FReply NativeOnKeyDown(const FGeometry& Geometry, const FKeyEvent& Event) override;
 private:
     void BuildChoices(const TArray<FName>& IDs,EMCPerkPolarity Polarity,bool bPersonal);
+    void AddAction(const FText& Text,int32 Index);
     UPROPERTY() TObjectPtr<UTextBlock> Title;
     UPROPERTY() TObjectPtr<UTextBlock> Subtitle;
     UPROPERTY() TObjectPtr<UHorizontalBox> Cards;
+    UPROPERTY() TObjectPtr<UHorizontalBox> Actions;
     UPROPERTY() TObjectPtr<UTextBlock> Hint;
     UPROPERTY() TArray<TObjectPtr<UMCPerkCardButton>> Buttons;
     bool bShowingChoices = false;
     bool bSelectionPending = false;
+    bool bLevelPanel=false,bOptionalReward=false,bConfirming=false;
 };

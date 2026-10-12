@@ -1,4 +1,5 @@
 #include "MCBossCharacter.h"
+#include "MCPerkComponent.h"
 #include "MCGameDirector.h"
 #include "MCBossAnimInstance.h"
 #include "MCBossAIController.h"
@@ -219,7 +220,10 @@ float AMCBossCharacter::ReceiveBossDamage(float Damage,AActor* DamageCauser)
 {
     if (!HasAuthority() || IsActorBeingDestroyed() || !CanReceiveWeaponHit()
         || !FMath::IsFinite(Damage) || Damage<=0.f) return 0.f;
+    auto* Perks=UMCPerkComponent::ForActor(DamageCauser);
+    if(Perks) Damage=Perks->WeaponDamage(Damage,this);
     const float Applied=FMath::Min(Runtime.Health,Damage);
+    if(Perks && Applied>0) Perks->NotifyWeaponHit(this);
     Runtime.Health-=Applied;
     AActor* Source=IsValid(DamageCauser)?DamageCauser->GetInstigator():nullptr;
     if(!IsValid(Source)) Source=IsValid(DamageCauser)?DamageCauser:nullptr;

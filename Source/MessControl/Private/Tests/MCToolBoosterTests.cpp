@@ -102,7 +102,10 @@ bool FMCToolBoosterMechanics::RunTest(const FString&) {
     TestEqual(TEXT("Ordinary pickaxe keeps its locomotion speed"),I->MovementMultiplier(),1.f);
     I->ServerSelect(EMCToolSlot::Brush);
     P->ServerGrantReward(ToolID(TEXT("Chainsaw")));I->ServerSelect(EMCToolSlot::Knife);T.A->ServerSetPrimary(true);
-    TestTrue(TEXT("Held input starts the continuous saw"),I->IsChainsawRunning());TestEqual(TEXT("Saw speeds up locomotion"),I->MovementMultiplier(),1.4f);
+    TestTrue(TEXT("One press starts the continuous saw"),I->IsChainsawRunning());TestEqual(TEXT("Saw speeds up locomotion"),I->MovementMultiplier(),1.4f);
+    T.A->ServerSetPrimary(false);TestTrue(TEXT("Releasing use leaves the saw running"),I->IsChainsawRunning());
+    I->ServerSelect(EMCToolSlot::Brush);TestEqual(TEXT("Switching tools cannot cancel the saw"),I->Selected,EMCToolSlot::Knife);
+    T.A->ServerSetPrimary(true);T.A->ServerSetPrimary(false);TestTrue(TEXT("Another press cannot switch the saw off"),I->IsChainsawRunning());
     T.B->SetActorLocation(T.A->GetActorLocation()+FVector(130,0,0));I->SawContact();
     TestEqual(TEXT("Saw pushes allies without reducing health"),T.B->Status->State.Health,1000.f);
     const float Hurt=T.B->Status->State.Health;I->SawContact();TestEqual(TEXT("Saw cannot damage an ally every frame"),T.B->Status->State.Health,Hurt);
@@ -117,6 +120,7 @@ bool FMCToolBoosterMechanics::RunTest(const FString&) {
     TestEqual(TEXT("Frontal wall crash damages the user"),T.A->Status->State.Health,970.f);
     TestEqual(TEXT("Wall crash causes actual knockdown"),T.A->ToothPhysics->GetBodyState(),EMCBodyState::Ragdoll);
     TestFalse(TEXT("Crash cancels the saw input"),T.A->IsPrimaryHeld());
+    TestFalse(TEXT("Wall crash switches the saw off"),I->IsChainsawRunning());
     // A fresh standing user exercises automatic fire, magazines, reloads and mode switches.
     auto* Shooter=T.Worker(FVector(-1000,0,10000));I=Shooter->Inventory;T.Perks(Shooter)->ServerGrantReward(ToolID(TEXT("Watergun")));
     I->ServerSelect(EMCToolSlot::Spray);TestEqual(TEXT("Care reaches ten metres"),I->SprayReach(),1000.f);

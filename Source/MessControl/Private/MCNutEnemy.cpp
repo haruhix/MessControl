@@ -1,4 +1,5 @@
 #include "MCNutEnemy.h"
+#include "MCPerkComponent.h"
 
 #include "MCFoodActor.h"
 #include "MCGameState.h"
@@ -99,11 +100,19 @@ FVector AMCNutEnemy::GetToolTargetPoint(FVector From) const
     return GetActorLocation()+(From-GetActorLocation()).GetClampedToMaxSize(Settings.BodyRadius);
 }
 
+void AMCNutEnemy::ApplyRogueSlow(float Multiplier,float Seconds)
+{
+    if(!HasAuthority()) return;
+    RogueSlowMultiplier=FMath::Clamp(Multiplier,.1f,1.f);RogueSlowUntil=GetWorld()->GetTimeSeconds()+FMath::Max(0.f,Seconds);
+}
 float AMCNutEnemy::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
 {
     if(!HasAuthority() || !CanReceiveToolHit() || !FMath::IsFinite(Damage) || Damage<=0
         || (Source && (Source->GetWorld()!=GetWorld() || !IsLiveTarget(Source)))) return 0;
+    auto* Perks=UMCPerkComponent::ForActor(Source);
+    if(Perks) Damage=Perks->WeaponDamage(Damage,this);
     const float Applied=FMath::Min(Health,Damage); Health-=Applied; HitAt=GetWorld()->GetTimeSeconds();
+    if(Perks && Applied>0) Perks->NotifyWeaponHit(this);
     ReportDamageFeedback(Source,Applied);
     if(IsValid(Source)) Target=Source;
     // A hit interrupts the telegraphed bite and gives the worker time to move.
@@ -161,7 +170,8 @@ void AMCNutEnemy::MoveOnTongue(FVector Direction,float Dt)
     // than asking a static navmesh to follow an out-of-date tongue.
     for(const float Angle:{0.f,45.f,-45.f,90.f,-90.f})
     {
-        const FVector Step=Direction.RotateAngleAxis(Angle,FVector::UpVector)*Settings.MoveSpeed*FMath::Min(Dt,.1f);
+        const float Slow=GetWorld()->GetTimeSeconds()<RogueSlowUntil?RogueSlowMultiplier:1.f;
+        const FVector Step=Direction.RotateAngleAxis(Angle,FVector::UpVector)*Settings.MoveSpeed*Slow*FMath::Min(Dt,.1f);
         FHitResult Floor;
         if(!Tongue->InteriorSurfacePoint(Position+Step,Settings.BodyRadius+5,Floor)) continue;
         const FVector Goal=Floor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4);
@@ -206,6 +216,7 @@ void AMCNutEnemy::Tick(float Dt)
     {
         if(HasAttackContact(AttackTarget.Get()))
             AttackTarget->Status->Damage(Settings.AttackDamage,(AttackTarget->GetActorLocation()-GetActorLocation()).GetSafeNormal2D(),this);
+        else if(IsLiveTarget(AttackTarget.Get())) if(auto* Perks=UMCPerkComponent::ForActor(AttackTarget.Get())) Perks->NotifyDodgedAttack();
         bAttackPending=false; AttackTarget.Reset(); NextAttackAt=Now+Settings.AttackCooldown;
     }
     if(!IsLiveTarget(Target)) return;

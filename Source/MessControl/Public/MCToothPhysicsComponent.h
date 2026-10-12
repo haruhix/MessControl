@@ -36,6 +36,7 @@ public:
     bool SetActiveRagdollMode(EMCActiveRagdollMode Mode);
     void SubmitAnimationTargets(const TArray<FTransform>& Pose,const FReferenceSkeleton& Ref,float Dt);
     float RecoveryAlpha() const;
+    float EffectiveRecoverySeconds(float Base) const;
     FVector PhysicalLocation() const;
     int32 KnockdownCount = 0;
     int32 RecoveryCount = 0;

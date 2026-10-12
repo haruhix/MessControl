@@ -6,6 +6,9 @@
 #include "MCPerkComponent.generated.h"
 
 class UMCPerkEffect;
+class AMCToothCharacter;
+class UPointLightComponent;
+class UTextRenderComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMCOnPerksChanged);
 
@@ -17,6 +20,39 @@ class MESSCONTROL_API UMCPerkComponent : public UActorComponent
 public:
     UMCPerkComponent();
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+    virtual void TickComponent(float Dt,ELevelTick Type,FActorComponentTickFunction* Tick) override;
+    static UMCPerkComponent* ForActor(const AActor* Actor);
+    float RogueValue(EMCRogueStat Stat,float Base=1.f,AActor* Target=nullptr,FName ExtraStack=NAME_None) const;
+    float WeaponDamage(float Base,AActor* Target) const;
+    float IncomingDamage(float Base,EMCRogueDamageKind Kind) const;
+    void NotifyWeaponHit(AActor* Target);
+    void NotifyDodgedAttack();
+    void NotifyCleaned(FVector Point);
+    void NotifyFoodDelivered();
+    int32 FoodExperienceBonus(int32 Base);
+    void TryWaterRicochet(AActor* First,float BaseDamage,FVector HitPoint);
+    void RefreshRogueTuning();
+    bool IsRogueEligible(FName ID) const;
+    bool HasRunEvent(FName Event) const;
+    bool IsNightActive() const;
+    bool HasNearbyAlly(float Radius) const;
+    int32 RoguePolarityStacks(EMCPerkPolarity Polarity) const;
+    bool BuildRogueOffer(EMCPerkPolarity Polarity,int32 Seed,TArray<FName>& Out,bool Early=false,bool RareOnly=false,
+        bool GuaranteeRare=false,const TArray<FName>& Excluded=TArray<FName>(),bool IncludeTools=true) const;
+    FString RoguePreview(FName ID) const;
+    bool GetFogNavigation(FVector& Point) const;
+    void AddBoosterCharge(FName ID);
+    bool ActivateBooster();
+    void OnRogueKnockdown();
+    bool IsFuryActive() const;
+    void TickRogueBoosters(float Dt);
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Boosters") TArray<FName> BoosterQueue;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Boosters") bool bGrenadeArmed=false;
+    UPROPERTY(Replicated) double FuryUntil=-100;
+    bool bRogueExtraHit=false;
+    UPROPERTY(Replicated) double CounterReadyUntil=-100;
+    UPROPERTY(Replicated) double CleanSpeedUntil=-100;
+    UPROPERTY(Replicated) double DeliverySlowUntil=-100;
 
     /** Authority-only API, intentionally not a client RPC. Reward actors validate claims first. */
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Perks")
@@ -84,4 +120,21 @@ private:
     TMap<FName, int32> AppliedStacks;
     bool bDefinitionsLoaded = false;
     bool bRebuilding = false;
+    bool ActivationMatches(EMCRogueActivation Condition,AActor* Target) const;
+    bool HasRecentAllyHit(AActor* Target) const;
+    bool HasMeaningfulRogueChange(FName ID) const;
+    void ClearRogueRuntime();
+    TWeakObjectPtr<AMCToothCharacter> TunedHero;
+    TWeakObjectPtr<UPointLightComponent> NightLight;
+    TWeakObjectPtr<UTextRenderComponent> GrenadeCue;
+    TMap<TWeakObjectPtr<AActor>,double> RecentWeaponHits;
+    TArray<TWeakObjectPtr<AActor>> RogueActors;
+    double NextCounterAt=-100,NextTeamStrikeAt=-100,NextCleanHealAt=-100,NextFoamAt=-100;
+    double NextRicochetAt=-100;
+    double DeliveryXPResidual=0;
+    UPROPERTY(Replicated) FVector FuryDirection=FVector::ForwardVector;
+    uint16 FuryMotionID=0;
+    bool bFuryMotion=false;
+    double NextFuryHitAt=-100;
+    void RogueBurst(bool Grenade);
 };

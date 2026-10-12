@@ -14,6 +14,7 @@
 #include "MCExpressionComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -32,7 +33,7 @@ namespace
 {
 bool ValidRow(const FMCPerkDefinition* Row)
 {
-    return Row && (Row->Polarity==EMCPerkPolarity::Positive || Row->Polarity==EMCPerkPolarity::Negative)
+    return Row && uint8(Row->Polarity)<=uint8(EMCPerkPolarity::Risky)
         && FMath::IsFinite(Row->Weight) && Row->Weight>0 && Row->MaxStacks>0
         && (!Row->EffectClass || !Row->EffectClass->HasAnyClassFlags(CLASS_Abstract));
 }
@@ -91,6 +92,10 @@ AMCRewardChest::AMCRewardChest()
     Approach=CreateDefaultSubobject<USphereComponent>(TEXT("LivingPlayerApproach")); Approach->SetupAttachment(Scene);
     Approach->InitSphereRadius(OpenRadius); Approach->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Approach->SetCollisionResponseToAllChannels(ECR_Ignore); Approach->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);
+    RogueLabel=CreateDefaultSubobject<UTextRenderComponent>(TEXT("RogueRewardLabel"));RogueLabel->SetupAttachment(Scene);
+    RogueLabel->SetRelativeLocation(FVector(0,0,160));RogueLabel->SetWorldSize(22);
+    RogueLabel->SetHorizontalAlignment(EHTA_Center);RogueLabel->SetVerticalAlignment(EVRTA_TextCenter);
+    RogueLabel->SetCollisionEnabled(ECollisionEnabled::NoCollision);RogueLabel->SetCastShadow(false);
     PerkTable=TSoftObjectPtr<UDataTable>(FSoftObjectPath(TEXT("/Game/Gameplay/Roguelike/DT_Perks.DT_Perks")));
     ConfigureGeometry();
 }
@@ -177,7 +182,7 @@ void AMCRewardChest::RollMimic()
     const float Chance=FMath::IsFinite(MimicChance)?FMath::Clamp(MimicChance,0.f,1.f):.2f;
     // Keep the existing loot stream untouched, including its first polarity draw.
     FRandomStream MimicRoll(RollSeed^0x4D494D49);
-    bMimic=MimicTestOverride>=0?MimicTestOverride!=0:MimicRoll.FRand()<Chance;
+    bMimic=MimicTestOverride>=0?MimicTestOverride!=0:RogueKind==EMCRogueRewardKind::Ordinary && MimicRoll.FRand()<Chance;
 }
 
 void AMCRewardChest::ForceMimicForTest(bool Enabled)
@@ -248,7 +253,8 @@ void AMCRewardChest::EndRescue(AMCToothCharacter* Player)
 float AMCRewardChest::RescueProgress() const
 {
     if(Stage!=EMCRewardChestStage::MimicOccupied || !IsValid(RescuePlayer)) return 0.f;
-    return FMath::Clamp(float((ServerNow()-RescueStartedAt)/FMath::Max(.1f,RescueSeconds)),0.f,1.f);
+    const auto* Perks=UMCPerkComponent::ForActor(RescuePlayer);
+    return FMath::Clamp(float((ServerNow()-RescueStartedAt)*(Perks?Perks->RogueValue(EMCRogueStat::RescueRate):1.f)/FMath::Max(.1f,RescueSeconds)),0.f,1.f);
 }
 
 FVector AMCRewardChest::FindMimicReleaseLocation(const AMCToothCharacter* Player) const
@@ -360,6 +366,11 @@ void AMCRewardChest::UpdateRewardEffectsVisibility(bool Suppressed)
 
 void AMCRewardChest::RefreshPresentation()
 {
+    if(RogueLabel) {
+        RogueLabel->SetText(FText::FromString(RogueKind==EMCRogueRewardKind::CursedContract?TEXT("ПРОКЛЯТЫЙ ДОГОВОР"):RogueKind==EMCRogueRewardKind::RiskyAltar?TEXT("СИЛА С ЦЕНОЙ"):TEXT("")));
+        RogueLabel->SetTextRenderColor(RogueKind==EMCRogueRewardKind::CursedContract?FColor(255,80,120):FColor(255,175,60));
+        RogueLabel->SetVisibility(Stage!=EMCRewardChestStage::Exhausted);
+    }
     SetActorHiddenInGame(!bRewardInitialized);
     const bool Landed=bRewardInitialized && Stage>=EMCRewardChestStage::Landed;
     Solid->SetCollisionEnabled(Landed?ECollisionEnabled::QueryAndPhysics:ECollisionEnabled::NoCollision);
@@ -385,6 +396,10 @@ void AMCRewardChest::SetStage(EMCRewardChestStage Next)
 {
     if(!HasAuthority()) return;
     Stage=Next; StageStartedAt=ServerNow(); RefreshPresentation(); ForceNetUpdate();
+    if(RogueLabel) {
+        RogueLabel->SetText(FText::FromString(RogueKind==EMCRogueRewardKind::CursedContract?TEXT("ПРОКЛЯТЫЙ ДОГОВОР"):RogueKind==EMCRogueRewardKind::RiskyAltar?TEXT("СИЛА С ЦЕНОЙ"):TEXT("")));
+        RogueLabel->SetTextRenderColor(RogueKind==EMCRogueRewardKind::CursedContract?FColor(255,80,120):FColor(255,175,60));
+    }
 }
 
 void AMCRewardChest::Tick(float Dt)
@@ -425,7 +440,8 @@ void AMCRewardChest::Tick(float Dt)
             if(bMimic) { CaptureOpener(); return; }
             SetStage(EMCRewardChestStage::Open);
             if(IsValid(OpeningPlayer) && OpeningPlayer->Expression) OpeningPlayer->Expression->PlayChestCelebration();
-            if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
+            if(RogueKind!=EMCRogueRewardKind::Ordinary) PublishRogueOffer();
+            else if(IsValid(OpeningPlayer)) if(auto* PC=Cast<AMCPlayerController>(OpeningPlayer->GetController()))
                 PC->ClientShowPerkChoices(this,LootIDs,Polarity);
         }
     }
@@ -501,7 +517,10 @@ bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
     const FVector Eye=Player->GetActorLocation()+FVector(0,0,35),Center=Solid->Bounds.Origin;
     if(GetWorld()->LineTraceSingleByChannel(Block,Eye,Center,ECC_Visibility,Query)) return false;
     LootIDs.Reset();
-    if(!bMimic) {
+    if(!bMimic && RogueKind!=EMCRogueRewardKind::Ordinary) {
+        if(!PrepareRogueLoot(PS->Perks)) return false;ForceNetUpdate();
+    }
+    if(!bMimic && RogueKind==EMCRogueRewardKind::Ordinary) {
         TArray<FName> Positive,Negative; EligibleRows(RewardTable,PS->Perks,Positive,Negative);
         if(Positive.Num()<3 && Negative.Num()<3) return false;
         FRandomStream Roll(RollSeed);
@@ -516,17 +535,20 @@ bool AMCRewardChest::BeginLockpicking(AMCToothCharacter* Player)
                     && PS->Perks->CanGrantPerk(ID)) Tools.Add(ID);
             Tools.Sort([](FName A,FName B){return A.LexicalLess(B);});
         }
-        Polarity=Positive.Num()<3?EMCPerkPolarity::Negative:Negative.Num()<3?EMCPerkPolarity::Positive:
-            (Roll.RandRange(0,1)==0?EMCPerkPolarity::Positive:EMCPerkPolarity::Negative);
+        if(Positive.Num()<3) return false;
+        Polarity=EMCPerkPolarity::Positive;
         if(!Tools.IsEmpty() && Positive.Num()>=3) Polarity=EMCPerkPolarity::Positive;
-        TArray<FName> Pool=Polarity==EMCPerkPolarity::Positive?Positive:Negative;
-        for(int32 I=0;I<3;++I) {
-            double Total=0; for(FName ID:Pool) Total+=RewardTable->FindRow<FMCPerkDefinition>(ID,TEXT("Loot weight"),false)->Weight;
-            double Draw=Roll.FRand()*Total; int32 Selected=Pool.Num()-1;
-            for(int32 J=0;J<Pool.Num();++J) { Draw-=RewardTable->FindRow<FMCPerkDefinition>(Pool[J],TEXT("Loot draw"),false)->Weight; if(Draw<0) { Selected=J; break; } }
-            LootIDs.Add(Pool[Selected]); Pool.RemoveAt(Selected);
+        if(!PS->Perks->BuildRogueOffer(EMCPerkPolarity::Positive,RollSeed,LootIDs,false,false,false,TArray<FName>(),false)) {
+            for(FName ID:{FName(TEXT("Fallback_Mouthwash")),FName(TEXT("Fallback_BrushFury")),FName(TEXT("Fallback_Grenade"))})
+                if(PS->Perks->CanGrantPerk(ID)) LootIDs.Add(ID);
         }
-        if(Polarity==EMCPerkPolarity::Positive && !Tools.IsEmpty()) LootIDs[ToolRoll.RandRange(0,2)]=Tools[ToolRoll.RandRange(0,Tools.Num()-1)];
+        if(!Tools.IsEmpty() && LootIDs.Num()==3) {
+            // Keep the chest's rare tool roll separate; replace an existing legendary if needed.
+            int32 Slot=ToolRoll.RandRange(0,2);
+            if(Rarity==EMCPerkRarity::Legendary) for(int32 I=0;I<3;++I)
+                if(PS->Perks->FindDefinition(LootIDs[I])->Rarity==EMCPerkRarity::Legendary) Slot=I;
+            LootIDs[Slot]=Tools[ToolRoll.RandRange(0,Tools.Num()-1)];
+        }
         ForceNetUpdate();
         if(LootIDs.Num()!=3) return false;
         for(FName ID:LootIDs) if(!PS->Perks->CanGrantPerk(ID)) return false;
@@ -571,6 +593,12 @@ bool AMCRewardChest::TryChooseCard(AMCToothCharacter* Player,int32 Index)
     const FName ChosenID=LootIDs[Index];
     const auto* Row=RewardTable->FindRow<FMCPerkDefinition>(ChosenID,TEXT("Reward card"),false);
     if(!ValidRow(Row) || Row->Polarity!=Polarity) return false;
+    if(RogueKind==EMCRogueRewardKind::CursedContract) {
+        if(ContractStep==0) {ContractCurse=ChosenID;ContractStep=1;LootIDs=ContractRewards;Polarity=EMCPerkPolarity::Positive;}
+        else if(ContractStep==1) {ContractReward=ChosenID;ContractStep=2;}
+        else return false;
+        ForceNetUpdate();PublishRogueOffer();return true;
+    }
     TGuardValue<bool> Guard(bClaimInProgress,true);
     if(!PS->Perks->ServerGrantReward(ChosenID)) return false;
     ClaimedMask=7;
@@ -596,6 +624,7 @@ void AMCRewardChest::ResetPlacedReward()
     const FVector AuthoredLanding=bRewardInitialized?LandingPoint:GetActorLocation();
     GetWorldTimerManager().ClearTimer(ApproachTimer); SetLifeSpan(0);
     ReleaseCaptive(); ReleaseOpener(); LootIDs.Reset(); ClaimedMask=0; bReported=false; bClaimInProgress=false;
+    ContractRewards.Reset();ContractCurses.Reset();ContractCurse=ContractReward=NAME_None;ContractStep=0;
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     InitializeReward(AuthoredLanding,AuthoredLanding,int32(FCrc::StrCrc32(*GetName()))^(State?State->RunSeed:0),
         PerkTable.LoadSynchronous(),EMCRewardSelectionPolicy::ChooseOne,IsValid(PlacedDropZone)?PlacedDropZone.Get():DropZone.Get());
@@ -620,6 +649,8 @@ void AMCRewardChest::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AMCRewardChest,SelectionPolicy); DOREPLIFETIME(AMCRewardChest,Stage); DOREPLIFETIME(AMCRewardChest,StageStartedAt);
     DOREPLIFETIME(AMCRewardChest,LandingPoint); DOREPLIFETIME(AMCRewardChest,FallStart); DOREPLIFETIME(AMCRewardChest,LootIDs);
     DOREPLIFETIME(AMCRewardChest,Polarity); DOREPLIFETIME(AMCRewardChest,ClaimedMask); DOREPLIFETIME(AMCRewardChest,bRewardInitialized);
+    DOREPLIFETIME(AMCRewardChest,RogueKind);DOREPLIFETIME(AMCRewardChest,ContractRewards);DOREPLIFETIME(AMCRewardChest,ContractCurses);
+    DOREPLIFETIME(AMCRewardChest,ContractCurse);DOREPLIFETIME(AMCRewardChest,ContractReward);DOREPLIFETIME(AMCRewardChest,ContractStep);
     DOREPLIFETIME(AMCRewardChest,OpeningPlayer);
     DOREPLIFETIME(AMCRewardChest,bMimic); DOREPLIFETIME(AMCRewardChest,CaptivePlayer); DOREPLIFETIME(AMCRewardChest,RescuePlayer);
     DOREPLIFETIME(AMCRewardChest,RescueStartedAt); DOREPLIFETIME(AMCRewardChest,CapturedEntryLocation);

@@ -30,9 +30,13 @@ def object_path(asset_path):
 def package_file(asset_path):
     asset_path = object_path(asset_path)
     package = asset_path.split(".")[0]
-    if not package.startswith("/Game/") or ".." in package.split("/"):
-        raise RuntimeError("Expected a project asset: " + asset_path)
-    return Path(u.Paths.project_content_dir()) / (package[6:] + ".uasset")
+    if ".." in package.split("/"):
+        raise RuntimeError("Invalid package path: " + asset_path)
+    for mount, content_dir in (("/Game/", u.Paths.project_content_dir()),
+                               ("/Engine/", u.Paths.engine_content_dir())):
+        if package.startswith(mount):
+            return Path(content_dir) / (package[len(mount):] + ".uasset")
+    raise RuntimeError("Unsupported asset mount: " + asset_path)
 
 
 def rows(table):

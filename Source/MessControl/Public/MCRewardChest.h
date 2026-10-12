@@ -11,6 +11,7 @@ class USceneComponent;
 class UStaticMeshComponent;
 class UInstancedStaticMeshComponent;
 class USphereComponent;
+class UTextRenderComponent;
 class AMCRewardDropZone;
 class AMCPerkPickup;
 class AMCToothCharacter;
@@ -44,6 +45,17 @@ public:
     static EMCPerkRarity RollToolRarity(int32 Seed,float LegendaryPercent,float RarePercent);
     bool BeginLockpicking(AMCToothCharacter* Player);
     bool TryChooseCard(AMCToothCharacter* Player,int32 Index);
+    bool ConfirmRogueContract(AMCToothCharacter* Player);
+    bool DeclineRogueReward(AMCToothCharacter* Player);
+    FMCRogueChestOffer GetRogueOffer() const;
+    void PublishRogueOffer();
+    bool PrepareRogueLoot(UMCPerkComponent* Perks);
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadOnly,Category="Rewards|Roguelike") EMCRogueRewardKind RogueKind=EMCRogueRewardKind::Ordinary;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Roguelike") TArray<FName> ContractRewards;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Roguelike") TArray<FName> ContractCurses;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Roguelike") FName ContractCurse;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Roguelike") FName ContractReward;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Rewards|Roguelike") uint8 ContractStep=0;
     AMCToothCharacter* GetOpener() const { return OpeningPlayer; }
     UFUNCTION(BlueprintPure,Category="Rewards|Mimic") AMCToothCharacter* GetCapturedPlayer() const { return CaptivePlayer; }
     UFUNCTION(BlueprintPure,Category="Rewards|Mimic") bool IsMimicActive() const;
@@ -68,6 +80,7 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UInstancedStaticMeshComponent> MimicLowerTeeth;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UInstancedStaticMeshComponent> MimicUpperTeeth;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USphereComponent> Approach;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UTextRenderComponent> RogueLabel;
     UPROPERTY(EditDefaultsOnly,BlueprintReadOnly,Category="Rewards",meta=(ClampMin="0.05",ClampMax="2")) float ModelScale=.35f;
     /** Lid seating adjustment in mesh units, applied before ModelScale. */
     UPROPERTY(EditAnywhere,BlueprintReadOnly,Category="Rewards") float LidSeatOffset=0.f;

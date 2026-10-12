@@ -86,6 +86,8 @@ struct FMCBrushedWarmPatch
     UPROPERTY(BlueprintReadOnly) FVector Anchor=FVector::ZeroVector;
     UPROPERTY(BlueprintReadOnly) float Cleaned=0;
     UPROPERTY(BlueprintReadOnly) double LastBrushedAt=0;
+    UPROPERTY(BlueprintReadOnly) float RefreezeSeconds=12;
+    UPROPERTY(BlueprintReadOnly) float RadiusMultiplier=1;
 };
 
 /** Break the central crystal, transfer between warm zones and dodge cold spells. */

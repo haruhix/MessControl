@@ -1,4 +1,5 @@
 #include "MCFogBrawlEvent.h"
+#include "MCPerkComponent.h"
 #include "MCFogBrawlPresentationComponent.h"
 #include "MCArenaTooth.h"
 #include "MCGameState.h"
@@ -241,7 +242,7 @@ void AMCFogBrawlEvent::ResolveStrike()
             {
                 Movement->CancelDash(); Movement->RestoreBraceForMove(FMCBraceMovementState());
             }
-            if(Hero->Status->Damage(LastDamagePerGuard,Direction))
+            if(Hero->Status->Damage(LastDamagePerGuard,Direction,this,EMCRogueDamageKind::Brace))
             {
                 const FVector Velocity=Direction*LastImpulse+FVector::UpVector*70;
                 if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Velocity,Hero->GetActorLocation());

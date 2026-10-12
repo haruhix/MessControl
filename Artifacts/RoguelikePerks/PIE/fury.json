@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "max_speed": 700.0,
+  "distance_without_walk_input": 335.6619640065563,
+  "seconds": 5.000032398849726,
+  "rotation_samples": 30,
+  "queued_after": 2
+}

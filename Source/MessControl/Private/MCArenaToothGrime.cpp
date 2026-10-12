@@ -1,4 +1,5 @@
 #include "MCArenaTooth.h"
+#include "MCPerkComponent.h"
 #include "MCSurfaceWipe.h"
 #include "MCInventoryComponent.h"
 #include "MCToothCharacter.h"
@@ -267,6 +268,13 @@ void AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet)
     OnRep_Grime(); ForceNetUpdate();
 }
 
+void AMCArenaTooth::ClearGrimeForBooster()
+{
+    if(!HasAuthority()) return;
+    GrimeMask.Init(0,FMCSurfaceWipe::Count);PreciseGrimeMask.Init(0,FMCSurfaceWipe::Count);
+    Status->ClearCoffeeForBooster();
+    OnRep_Grime();ForceNetUpdate();
+}
 float AMCArenaTooth::RemainingGrime() const
 {
     float Total=0,Left=0;
@@ -365,7 +373,9 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
     Worker->BrushContact->Contact(this,Hit.ImpactPoint,Hit.ImpactNormal,&SelectedPoint);
     if(!Worker->BrushContact->IsWorkReady()) { History.At=Now; return true; }
     const float DirtRadius=GrimeRelief?FMath::Clamp(float(GrimeRelief->Bounds.SphereRadius)*.6f,36.f,120.f):36.f;
-    if(FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,Worker->Inventory->CleaningRadius(DirtRadius),Seconds,&PreciseGrimeMask,Worker->Inventory->CleaningSpeedMultiplier())) OnRep_Grime();
+    if(FMCSurfaceWipe::Stroke(GrimeMask,Continuous?History.UV:UV,UV,Dimensions,Worker->Inventory->CleaningRadius(DirtRadius),Seconds,&PreciseGrimeMask,Worker->Inventory->CleaningSpeedMultiplier())) {
+        OnRep_Grime();if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(Hit.ImpactPoint);
+    }
     History.UV=UV; History.At=Now; BrushAt=Now;
     const float Left=RemainingGrime();
     const int32 RemainingLayers=Left<.025f?0:FMath::Max(1,FMath::CeilToInt(Left*Status->State.CoffeeTotal));

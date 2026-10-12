@@ -125,7 +125,7 @@ bool FMCInvisiblePickaxe::RunTest(const FString&) {
     double Highest=-MAX_flt;
     for(int32 Corner=0;Corner<8;++Corner) Highest=FMath::Max(Highest,Presented.TransformPosition(Bounds.Origin+FVector(Corner&1?Bounds.BoxExtent.X:-Bounds.BoxExtent.X,Corner&2?Bounds.BoxExtent.Y:-Bounds.BoxExtent.Y,Corner&4?Bounds.BoxExtent.Z:-Bounds.BoxExtent.Z)).Z);
     Wrist.AddToTranslation(FVector(0,0,Floor->GetActorLocation().Z+10-Highest-20));
-    TestTrue(TEXT("An exposed pickaxe corrects a wrist pose whose mesh penetrates the floor"),I->ShouldPresentTool() && !I->ConstrainPickaxeGrip(Wrist).IsNearlyZero());
+    TestTrue(TEXT("An exposed ordinary pickaxe preserves its wrist pose through the floor"),I->ShouldPresentTool() && I->ConstrainPickaxeGrip(Wrist).IsNearlyZero());
     auto CheckHidden=[&](const TCHAR* Context) {
         TestFalse(*FString::Printf(TEXT("%s hides the selected pickaxe"),Context),I->ShouldPresentTool());
         TestTrue(*FString::Printf(TEXT("%s leaves the existing hand contact unchanged despite the same floor penetration"),Context),I->ConstrainPickaxeGrip(Wrist).IsNearlyZero());
@@ -137,7 +137,7 @@ bool FMCInvisiblePickaxe::RunTest(const FString&) {
     T.H->HeldFood=Food;CheckHidden(TEXT("Carrying food"));T.H->HeldFood=nullptr;
     T.H->Grip->Frame.Food=Food;CheckHidden(TEXT("A reaching grip before its blend"));T.H->Grip->Frame.Food=nullptr;
     T.H->AnimationOrderFlight=1;CheckHidden(TEXT("Flight to the uvula"));T.H->AnimationOrderFlight=0;
-    TestTrue(TEXT("Dropping the object and leaving traversal restores pickaxe presentation"),I->ShouldPresentTool() && !I->ConstrainPickaxeGrip(Wrist).IsNearlyZero());
+    TestTrue(TEXT("Dropping the object and leaving traversal restores unrestricted pickaxe presentation"),I->ShouldPresentTool() && I->ConstrainPickaxeGrip(Wrist).IsNearlyZero());
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCSprayProtection,"MessControl.Inventory.HoldSprayAndPreserveProgress",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)

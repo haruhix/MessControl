@@ -41,7 +41,7 @@ TArray<FWorker> Workers(UWorld* World)
         if(It->IsActorBeingDestroyed() || !It->Status || !It->Status->IsAlive() || !It->FoodCollection
             || !It->CanWork() || !It->ToothPhysics || !It->ToothPhysics->CanAct()) continue;
         auto& Worker=Out.AddDefaulted_GetRef();Worker.Hero=*It;
-        Worker.Capacity=FMath::Clamp(It->FoodCollection->MaxPieces,1,8);
+        Worker.Capacity=It->FoodCollection->EffectiveCapacity();
         Worker.Held=FMath::Clamp(It->FoodCollection->Pieces.Num(),0,Worker.Capacity);
         const auto* Move=It->GetCharacterMovement();
         const float Speed=Move?Move->GetMaxSpeed():340.f;
