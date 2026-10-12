@@ -47,6 +47,14 @@ struct FFixture
         return Result;
     }
 
+    void Curve(UAnimSequence* Clip,FName Name,float Value)
+    {
+        const FAnimationCurveIdentifier Id(Name,ERawCurveTrackTypes::RCT_Float);
+        auto& Controller=Clip->GetController();
+        Controller.AddCurve(Id,AACF_DefaultCurve,false);
+        Controller.SetCurveKeys(Id,{FRichCurveKey(0,Value),FRichCurveKey(Clip->GetPlayLength(),Value)},false);
+    }
+
     FFixture()
     {
         GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
@@ -195,11 +203,87 @@ bool FMCNutBossMageMeleeAnimationTest::RunTest(const FString&)
     T.Settings.MageMeleeAnimation=nullptr; T.Configure(EMCNutBossRole::Mage);
     T.Phase(EMCNutBossAttack::Melee,EMCNutBossState::Recovery,.05,.9);
     Snapshot=T.Snapshot();
-    TestNotNull(TEXT("Older mage profiles retain the cast fallback"),Find(Snapshot,T.Cast));
-    TestTrue(TEXT("The old cast fallback preserves its existing overlays"),Snapshot.Cast>.9f);
+    TestNotNull(TEXT("Older mage profiles retain idle beneath the procedural shove"),Find(Snapshot,T.Idle));
+    TestEqual(TEXT("The procedural shove keeps spell-palm IK disabled"),Snapshot.Cast,0.f);
+    TestTrue(TEXT("The missing authored clip retains the melee gesture"),Snapshot.Melee>.9f);
     T.Settings.MageMeleeAnimation=T.Clip(100,30,NewObject<USkeleton>()); T.Configure(EMCNutBossRole::Mage);
     T.Phase(EMCNutBossAttack::Melee,EMCNutBossState::Recovery,.05,.9);
-    TestNotNull(TEXT("An incompatible melee skeleton falls back to cast"),Find(T.Snapshot(),T.Cast));
+    TestNotNull(TEXT("An incompatible melee skeleton retains the procedural idle fallback"),Find(T.Snapshot(),T.Idle));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossMageCastGestureTest,"MessControl.CoreLoop.NutBoss.Animation.MageCastGesturesAndPalmContact",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossMageCastGestureTest::RunTest(const FString&)
+{
+    using namespace MCNutBossAnimationTestsPrivate;
+    FFixture T; T.Configure(EMCNutBossRole::Mage);
+    T.Phase(EMCNutBossAttack::Fireball,EMCNutBossState::Telegraph,.45,.9);
+    auto Snapshot=T.Snapshot();
+    TestEqual(TEXT("Gathering uses the authored clip phase"),Snapshot.CastProgress,.275f,.001f);
+    TestEqual(TEXT("The gathering hand stays free of emitter IK"),Snapshot.CastHandAlignmentWeight(),0.f);
+
+    T.Phase(EMCNutBossAttack::Fireball,EMCNutBossState::Recovery,0,.9);
+    Snapshot=T.Snapshot();
+    TestEqual(TEXT("The release frame retains exact palm alignment"),Snapshot.CastHandAlignmentWeight(),.85f,.001f);
+    T.Phase(EMCNutBossAttack::Fireball,EMCNutBossState::Recovery,.54,.9);
+    Snapshot=T.Snapshot();
+    TestEqual(TEXT("The follow-through hand returns to the authored performance"),Snapshot.CastHandAlignmentWeight(),0.f);
+
+    for(const double Age:{0.,.5,2.,3.9}) {
+        T.Phase(EMCNutBossAttack::NutRain,EMCNutBossState::Executing,Age,4.);
+        Snapshot=T.Snapshot();
+        TestEqual(TEXT("The entire rain channel retains palm contact"),Snapshot.CastHandAlignmentWeight(),.85f,.001f);
+    }
+    T.Settings.MageCastReleaseFraction=.7f; T.Configure(EMCNutBossRole::Mage);
+    T.Phase(EMCNutBossAttack::Fireball,EMCNutBossState::Recovery,0,.9);
+    TestEqual(TEXT("A tuned release moves the palm-contact window with the impact"),T.Snapshot().CastHandAlignmentWeight(),.85f,.001f);
+    T.Settings.MageCastReleaseFraction=.9f; T.Configure(EMCNutBossRole::Mage);
+    for(const double Age:{0.,.5,2.,3.9}) {
+        T.Phase(EMCNutBossAttack::NutRain,EMCNutBossState::Executing,Age,4.);
+        TestEqual(TEXT("A late tuned release cannot fade palm contact during the rain channel"),T.Snapshot().CastHandAlignmentWeight(),.85f,.001f);
+    }
+    T.Phase(EMCNutBossAttack::Teleport,EMCNutBossState::Telegraph,.325,.65);
+    TestEqual(TEXT("Teleport gestures remain free of projectile palm IK"),T.Snapshot().CastHandAlignmentWeight(),0.f);
+    T.Phase(EMCNutBossAttack::Melee,EMCNutBossState::Recovery,0,.9);
+    TestEqual(TEXT("The melee shove remains free of projectile palm IK"),T.Snapshot().CastHandAlignmentWeight(),0.f);
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossAuthoredSpellTest,"MessControl.CoreLoop.NutBoss.Animation.AuthoredSpellGesturesAndChannel",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossAuthoredSpellTest::RunTest(const FString&)
+{
+    using namespace MCNutBossAnimationTestsPrivate;
+    FFixture T;
+    T.Curve(T.Cast,TEXT("MCSpellGesture"),1);
+    auto* Rain=T.Clip(200,30);
+    T.Curve(Rain,TEXT("MCSpellGesture"),1);
+    T.Curve(Rain,TEXT("MCSpellChannelEnd"),.85f);
+    T.Curve(Rain,TEXT("MCSpellChannelPeriod"),1.1f);
+    T.Settings.MageRainAnimation=Rain;
+    T.Configure(EMCNutBossRole::Mage);
+    T.Phase(EMCNutBossAttack::Fireball,EMCNutBossState::Telegraph,.89,.9);
+    auto Snapshot=T.Snapshot();
+    const int32 CastKey=Snapshot.VisualKey;
+    TestTrue(TEXT("A marked cast retains the coordinated authored palm poses"),Snapshot.bAuthoredSpellGestures);
+    TestEqual(TEXT("Fixed emitter IK cannot flatten either authored hand"),Snapshot.CastHandAlignmentWeight(),0.f);
+    T.Phase(EMCNutBossAttack::Fireball,EMCNutBossState::Recovery,0,.9);
+    TestEqual(TEXT("Changing server phase does not restart the cast transition blend"),T.Snapshot().VisualKey,CastKey);
+    int32 ChannelKey=0;
+    for(const double Age:{0.,.275,.825,1.1,2.475,3.9}) {
+        T.Phase(EMCNutBossAttack::NutRain,EMCNutBossState::Executing,Age,4.);
+        Snapshot=T.Snapshot();
+        auto* Sample=Find(Snapshot,Rain);
+        if(!TestNotNull(TEXT("Rain uses the marked authored clip"),Sample)) return false;
+        const float Expected=.55f+.30f*float(FMath::Fmod(Age/1.1,1.));
+        TestEqual(TEXT("The complete channel advances forward through its closed gesture loop"),Sample->Seconds/Rain->GetPlayLength(),Expected,.002f);
+        TestEqual(TEXT("Both rain palms remain free for continuous conducting"),Snapshot.CastHandAlignmentWeight(),0.f);
+        ChannelKey=Snapshot.VisualKey;
+    }
+    T.Phase(EMCNutBossAttack::NutRain,EMCNutBossState::Recovery,0,1.4);
+    Snapshot=T.Snapshot();
+    TestEqual(TEXT("Channel recovery starts after the authored loop segment"),Find(Snapshot,Rain)->Seconds/Rain->GetPlayLength(),.85f,.001f);
+    TestTrue(TEXT("Rain blends from an interrupted channel pose into its exit"),Snapshot.VisualKey!=ChannelKey);
+    T.Phase(EMCNutBossAttack::Melee,EMCNutBossState::Recovery,0,.9);
+    TestFalse(TEXT("The independently authored shove does not use spell metadata"),T.Snapshot().bAuthoredSpellGestures);
     return true;
 }
 #endif

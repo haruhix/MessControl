@@ -141,27 +141,30 @@ private:
         const auto LeftHand=PoseBone(Pose,Input,EMCNutPoseBone::LeftHand);
         const auto RightHand=PoseBone(Pose,Input,EMCNutPoseBone::RightHand);
         const float Alive=1-Input.Death;
-        const float Breath=FMath::Sin(float(Input.ServerTime)*2.4f)*Alive;
-        const float Stride=FMath::Sin(float(Input.ServerTime)*6.28f);
+        const float Procedural=1-Input.AuthoredTankMotionWeight;
+        const float Breath=FMath::Sin(float(Input.ServerTime)*2.4f)*Alive*Procedural;
+        const float Stride=FMath::Sin(float(Input.ServerTime)*6.28f)*Procedural;
         const float Cast=Input.Cast*Alive;
         const float Channel=FMath::Sin(float(Input.ServerTime)*5)*Input.Channel;
-        const float Recoil=Hit*(1-.6f*FMath::SmoothStep(0.f,.2f,ShieldHit))*Alive;
-        Rotate(Torso,FRotator(Breath*.8f+ForwardSpeed*-3+AimPitch*.12f*Cast-Recoil*9,
-            AimYaw*.2f*Cast,SideSpeed*-4+Recoil*HitDirection.Y*10));
+        const float Recoil=Hit*(1-Input.AuthoredTankHitWeight)*(1-.6f*FMath::SmoothStep(0.f,.2f,ShieldHit))*Alive;
+        Rotate(Torso,FRotator(Breath*.8f+ForwardSpeed*-3*Procedural+AimPitch*.12f*Cast-Recoil*9,
+            AimYaw*.2f*Cast,SideSpeed*-4*Procedural+Recoil*HitDirection.Y*10));
         Rotate(Head,FRotator(AimPitch*.2f*Alive-Recoil*5,AimYaw*.25f*Alive,Breath*.6f));
-        Rotate(LeftArm,FRotator((-Guard*13-ShieldHit*10)*Alive+AimPitch*.25f*Cast,-Guard*8*Alive+AimYaw*.25f*Cast,
+        if(!Input.bAuthoredSpellGestures) {
+        Rotate(LeftArm,FRotator((-Guard*13*Procedural-ShieldHit*10)*Alive+AimPitch*.25f*Cast,-Guard*8*Alive*Procedural+AimYaw*.25f*Cast,
             Input.bMage?Cast*(-5+Channel*2):0));
         Rotate(RightArm,FRotator(AimPitch*.55f*Cast-Input.Release*14,
             AimYaw*.55f*Cast,Input.bMage?Channel*3:Stride*ForwardSpeed*2));
         Rotate(LeftHand,FRotator(Channel*3+AimPitch*.2f*Cast,AimYaw*.2f*Cast+Cast*FMath::Sin(Input.CastProgress*PI)*8,0));
         Rotate(RightHand,FRotator(AimPitch*.2f*Cast+Input.Release*8,AimYaw*.2f*Cast,Channel*4));
+        }
         if(Torso.GetInt()!=INDEX_NONE) {
             FVector Translation=Pose[Torso].GetTranslation();
             Translation=FMath::Lerp(Translation,Pose.GetBoneContainer().GetRefPoseTransform(Torso).GetTranslation(),double(Airborne));
             Translation.Z+=Breath*.45f+FMath::Abs(Stride)*FMath::Abs(ForwardSpeed)*.6f;
             Pose[Torso].SetTranslation(Translation);
         }
-        if(Input.bMage) MatchCastHand(Pose,Input,Cast*.85f);
+        if(Input.bMage) MatchCastHand(Pose,Input,Input.CastHandAlignmentWeight()*Alive);
         if(Input.bMage && Input.Melee>.001f && !Input.bHasMeleeClip) {
             // A custom profile without a compatible melee clip still has a
             // physical windup/thrust/recovery, never the spell-emitter palm IK.
