@@ -1,0 +1,376 @@
+{
+  "passed": true,
+  "scope": "One owned standalone PIE; real shield hits, scheduled fire nut, scheduled summon and unchanged native fuses",
+  "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\Report.json",
+  "source_report_sha256": "9b001def47ac7d255dc5e73f3d77329ecef254c9f09d72ef948287e8e8fe138f",
+  "native_checks": {
+    "native_individual_drop_intervals_1_5_to_3_seconds": true,
+    "actual_review_target_location_rotation_verified": true,
+    "opening_nuts_persist_without_player_breaks": true,
+    "two_bosses_after_last_landing_without_cleanup_gate": true,
+    "shield_face_review_camera_verified": true,
+    "live_shield_break_chips_360_material_no_collision": true,
+    "ordinary_primary_hits_damage_shield_and_boss": true,
+    "native_crack_growth_following_shield_bone": true,
+    "native_break_changes_mesh_to_unshielded_variant": true,
+    "live_fire_flames_380_core_100": true,
+    "scheduled_fire_nut_projectile_and_terminal_impact": true,
+    "optional_real_pickaxe_disarms_summon": true,
+    "native_summon_clock_remaining_verified": true,
+    "native_spark_section_bounded_visible_material_verified": true,
+    "unchanged_native_fuses_expire_and_remove_visuals": true,
+    "actual_visual_pulse_acceleration_observed": true
+  },
+  "fixture_tuning": {
+    "preview_shield_max_health": 160.0,
+    "initial_preview_shield_health": 160.0,
+    "ordinary_base_pickaxe_damage": 40.0,
+    "equipment_profile": "/Game/Data/DA_Equipment.DA_Equipment",
+    "equipment_profile_read_source": "Public MCInventoryComponent.Profile; native BeginPlay loads this into its private Settings cache, with the same 40 damage fallback",
+    "tank_move_speed": 0.0,
+    "mage_move_speed": 0.0,
+    "boss_floor_cm": [
+      -247.40021452203706,
+      -16.691591099897725,
+      53.25623261928558
+    ],
+    "player_floor_cm": [
+      37.59978547796294,
+      -16.691591099897725,
+      53.886849761009216
+    ],
+    "mage_floor_cm": [
+      -247.40021452203706,
+      683.3084089001022,
+      82.99373495578766
+    ],
+    "reason": "Initial durability and position-only staging keep the short visual clip readable; subsequent health loss is real held-primary damage"
+  },
+  "optional_pickaxe_kill": {
+    "status": "killed_by_held_primary",
+    "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_8",
+    "started_at": 44.06666896492243,
+    "initial_health": 40.0,
+    "initial_remaining": 5.0,
+    "approach_floor_cm": [
+      -751.8082216227424,
+      1295.8357404255828,
+      31.60733032226608
+    ],
+    "observed_at": 44.316668977960944
+  },
+  "natural_expired_summons": [
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_0",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_1",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_2",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_3",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_4",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_5",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_6",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_7",
+    "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutKamikaze_9"
+  ],
+  "runtime_patch_evidence": {
+    "fire": [
+      {
+        "game_seconds": 37.60000196099281,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 37.68333529867232,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 37.766668636351824,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 37.85000197403133,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 37.933335311710835,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 38.01666864939034,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 38.100001987069845,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 38.18333532474935,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 38.266668662428856,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutSpellProjectile_0",
+        "flames_vertices": 380,
+        "core_vertices": 100,
+        "flames_visible": true,
+        "core_visible": true,
+        "no_collision": true
+      }
+    ],
+    "shield_chips": [
+      {
+        "game_seconds": 34.60000180453062,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 34.683335142210126,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 34.76666847988963,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 34.85000181756914,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 34.93333515524864,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.01666849292815,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.10000183060765,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.18333516828716,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.26666850596666,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.35000184364617,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.433335181325674,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.51666851900518,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.600001856684685,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.68333519436419,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      },
+      {
+        "game_seconds": 35.766668532043695,
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCNutCombatEffect_17",
+        "vertices": 360,
+        "triangles": 120,
+        "material_parent": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture.M_NutShieldFracture",
+        "visible": true,
+        "no_collision": true
+      }
+    ]
+  },
+  "restored_settings": true,
+  "observed_pulse_interval_seconds": {
+    "early": 0.6750000352039933,
+    "late": 0.30000001564621925
+  },
+  "live_coding": [
+    {
+      "result": "Succeeded and applied in editor",
+      "compile_seconds": 340.58
+    },
+    {
+      "result": "Succeeded and applied in editor",
+      "compile_seconds": 27.47
+    }
+  ],
+  "material": {
+    "asset": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture",
+    "compiled": true,
+    "saved": true,
+    "shading": "DefaultLit",
+    "texture_samples": 0
+  },
+  "visual_review": {
+    "shield_frames": [
+      26,
+      28,
+      39
+    ],
+    "fire_frames": [
+      79
+    ],
+    "summon_frames": [
+      195
+    ],
+    "conclusion": "Lit dark fissures, shaped target contour, thick shell chips, visible burning walnut and bounded fuse accents inspected in actual scene captures."
+  },
+  "source_file_sha256": {
+    "AGENTS.md": "9ab09bf69c11efb1aa9208d9e1fb895401cbeb0f3ef12e7addd311a639d7417e",
+    "Docs/VFXReferences.md": "3fd6f87754cf3398e53e276c31839ecaff81cc7ad055323f393eed7c17197184",
+    "Docs/NutVFXPolish/AssetManifest.json": "e96246b2bdec3a20da4d7111b5a425c985c5aa43fe6ec5e2688062f7f7749080",
+    "Source/MessControl/Private/MCNutCombatEffect.cpp": "a7b513d982e6d7bead1b078059f11a67d6d01ea4b6244190da7b00d51a213066",
+    "Source/MessControl/Private/MCNutShellShardVisuals.h": "f9cc4af005cbe1803a1da11f74b0843c05c389c8cde54277ceb6ffe2eccac5e9",
+    "Source/MessControl/Private/MCNutShieldCrackLayout.h": "22f66f81d04cf57e0941735c892f13b37b19d38a771864ae29be13b9923c8a99",
+    "Source/MessControl/Private/MCNutSpellProjectile.cpp": "7a72efd95fa4b9f6db083782c75c02c46c6ea624eea95d5a5bce21e46d233109",
+    "Source/MessControl/Private/MCNutKamikaze.cpp": "a89883423f9be439b2574babd3162809a0eef83338b9d7710f58297721a7f23d",
+    "Tools/Blender/bake_nut_shield_crack_layout.py": "7ee98712696dd8fec54c81c0387f07dbe1a026d775016b33725fc0c46688fd09",
+    "Tools/Unreal/author_nut_shell_surface_mcp.py": "2cd96b05a642a25bbc10b93f740709a198597c846d0f6c8f64d700446bb2b30a",
+    "Tools/Unreal/check_nut_vfx_polish_solo.py": "6b92d2943fa893dc3d36f753d5024fca4d980c52a8e13459af4d129fa2ec7f53",
+    "Content/Gameplay/VFX/NutCombat/M_NutShieldFracture.uasset": "21f847c01084c473cbeead8efc15b09ff54580b07db5638c56470a08f7c13cdb"
+  },
+  "limitations": [
+    "Natural F3 rain and boss entrance precede the clips; position-only dodging protects the observer.",
+    "The shield starts with four base Pickaxe hits of durability as an explicit PIE preview fixture; native default 500 is covered separately.",
+    "Both boss walking speeds and unrelated readiness clocks are isolated only in PIE; boss/projectile damage and player health stay native.",
+    "Held primary input damages the shield; no Python damage resolver or attack helper is invoked.",
+    "Crack component/clock telemetry must be paired with inspection of the genuine rendered footage.",
+    "No content saves, network, complete battle, build, cook or package.",
+    "Summon readiness and observer/review-camera positions are explicit PIE fixtures; no summon speed, health, damage, radius or fuse is changed.",
+    "Pickaxe kill is optional and attempted only at a supported isolated approach; the remaining summons must detonate naturally.",
+    "ProceduralMeshLibrary exposes vertices/triangles but no vertex colors; spark alpha and visual quality require inspection of the genuine footage.",
+    "Pulse intervals are measured from actual visual-scale peaks; inadequate sampling is reported instead of inventing acceleration evidence.",
+    "LiveCoding integration in the open editor; no separately requested cold Editor build.",
+    "No network, complete battle balance, cook/package or broad performance benchmark.",
+    "Two missing screenshot requests are recorded by the encoder; no invented poses or time interpolation.",
+    "Final artistic acceptance is left to review of delivered previews."
+  ],
+  "git_integration": {
+    "colleague_commits": [
+      "bc434d90",
+      "d3e5973b"
+    ],
+    "base_commit_after_download": "d3e5973b31568ea62985411f9ad0db3427bef094",
+    "validated_before_colleague_update": true,
+    "build_or_pie_after_download": false,
+    "candidate_diff_from_validated_local_source": [
+      {
+        "path": "Source/MessControl/Private/MCNutCombatEffect.cpp",
+        "change": "Preexisting TickInterval=0 is excluded; committed constructor retains base 1/30 tick interval."
+      }
+    ]
+  }
+}

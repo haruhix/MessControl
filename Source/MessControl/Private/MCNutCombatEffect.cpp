@@ -1,6 +1,7 @@
 #include "MCNutCombatEffect.h"
 #include "MCNutCombatVisuals.h"
 #include "MCNutShieldCrackLayout.h"
+#include "MCNutShellShardVisuals.h"
 #include "MCGameState.h"
 #include "MCNutBoss.h"
 #include "MCTongue.h"
@@ -70,7 +71,7 @@ void ShieldFissure(MCNutCombatVisuals::FMesh& Mesh,const MCNutShieldCrackLayout:
     const int32 Rows=FMath::Min(Path.Count,FMath::CeilToInt(Last)+1);
     if(Rows<2) return;
     const int32 First=Mesh.Points.Num();
-    const FLinearColor Core(.008f,.003f,.0015f),Lip(.20f,.075f,.018f),Rim(.28f,.09f,.015f);
+    const FLinearColor Core(.009f,.004f,.002f),Lip(.31f,.16f,.066f),Rim(.48f,.20f,.035f);
     const FVector Side=FVector::CrossProduct(Normal,FVector::UpVector).GetSafeNormal();
     const FVector Up=FVector::CrossProduct(Side,Normal).GetSafeNormal();
     for(int32 Row=0;Row<Rows;++Row) {
@@ -87,6 +88,8 @@ void ShieldFissure(MCNutCombatVisuals::FMesh& Mesh,const MCNutShieldCrackLayout:
             FVector Point=FMath::Lerp(Before.Points[Column],After.Points[Column],Blend);
             FVector VertexNormal=FMath::Lerp(Before.Normals[Column],After.Normals[Column],Blend).GetSafeNormal();
             Point=Middle+(Point-Middle)*Width;
+            // Raised raw lips catch scene light; the interior remains a dark gap.
+            if(!Path.Rim && (Column==0 || Column==4)) Point+=VertexNormal*.18f*Width;
             if(!Authored) {
                 const FVector Relative=Point-Center;
                 Point=FVector(FallbackRadius*1.08f,FVector::DotProduct(Relative,Side),FVector::DotProduct(Relative,Up));
@@ -192,19 +195,31 @@ void AMCNutCombatEffect::UpdateShieldDamageVisual(AMCNutBoss* Boss)
     }
     if(!Cracks->GetMaterial(0)) {Cracks->SetVisibility(false);return;}
     const float Damage=FMath::Clamp(1-Boss->ShieldHealth/FMath::Max(1.f,Boss->BossSettings.ShieldMaxHealth),0.f,1.f);
-    // Bone attachment updates the geometry transform automatically; rebuild only
-    // when durability changes, including several small tool hits in one frame.
+    // Bone attachment updates transforms. CPD keeps peer-local growth state;
+    // a brief transition lets the split propagate instead of popping on a hit.
     const FName Socket=Bone;
     USceneComponent* Parent=Authored?static_cast<USceneComponent*>(Boss->TankModel.Get()):Boss->Body.Get();
     const bool AttachmentChanged=Cracks->GetAttachParent()!=Parent || Cracks->GetAttachSocketName()!=Socket;
     if(AttachmentChanged) Cracks->AttachToComponent(Parent,FAttachmentTransformRules::SnapToTargetIncludingScale,Socket);
     const auto& Cached=Cracks->GetCustomPrimitiveData().Data;
-    if(!Cracks->GetProcMeshSection(0) || AttachmentChanged || Cached.IsEmpty() || FMath::Abs(Cached[0]-Damage)>.0001f) {
+    const float Time=float(Boss->GetWorld()->GetGameState()?Boss->GetWorld()->GetGameState()->GetServerWorldTimeSeconds():Boss->GetWorld()->GetTimeSeconds());
+    const bool Reset=!Cracks->GetProcMeshSection(0) || AttachmentChanged || Cached.Num()<4;
+    const float LastShown=Reset?Damage:Cached[0];
+    const bool NewHit=!Reset && FMath::Abs(Cached[2]-Damage)>.0001f;
+    const float From=Reset?Damage:NewHit?LastShown:Cached[1];
+    const float Started=Reset || NewHit?Time:Cached[3];
+    const float Shown=FMath::Lerp(From,Damage,FMath::SmoothStep(0.f,.14f,Time-Started));
+    if(Reset || NewHit) {
+        Cracks->SetCustomPrimitiveDataFloat(1,From);
+        Cracks->SetCustomPrimitiveDataFloat(2,Damage);
+        Cracks->SetCustomPrimitiveDataFloat(3,Started);
+    }
+    if(Reset || FMath::Abs(LastShown-Shown)>.00001f) {
         using namespace MCNutCombatVisuals;
         FMesh Detail;
         for(const auto& Path:MCNutShieldCrackLayout::Paths)
-            ShieldFissure(Detail,Path,Damage,Authored,Boss->Settings.BodyRadius);
-        Detail.Upload(Cracks);Cracks->SetCustomPrimitiveDataFloat(0,Damage);
+            ShieldFissure(Detail,Path,Shown,Authored,Boss->Settings.BodyRadius);
+        Detail.Upload(Cracks);Cracks->SetCustomPrimitiveDataFloat(0,Shown);
     }
     Cracks->SetVisibility(true);
 }
@@ -437,7 +452,7 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
         MagicMID->SetScalarParameterValue(TEXT("Age"),0);
         MagicMID->SetScalarParameterValue(TEXT("Progress"),1);
         MagicMID->SetScalarParameterValue(TEXT("Beam"),1);
-        MagicMID->SetVectorParameterValue(TEXT("Tint"),FLinearColor(1.f,.66f,.16f));
+        MagicMID->SetVectorParameterValue(TEXT("Tint"),FLinearColor(.65f,.31f,.085f));
     }
     FMesh Detail;
     if(Shield) {
@@ -454,20 +469,19 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
                 Center+(Horizontal*FMath::Cos(B)+Vertical*FMath::Sin(B))*RB,Forward,Flash*.88f);
         }
         if(Broken) {
-            // The breaking hit tears a shield-sized fracture web apart before
-            // the shell pieces fall. Ordinary impacts keep the compact flash.
-            const float Spread=FMath::Clamp(Age/.30f,0.f,1.f);
-            const float Fade=1-FMath::SmoothStep(.08f,.42f,Age);
-            const float Reach=FMath::Clamp(Cue.Radius*.55f,45.f,130.f);
-            for(int32 Branch=0;Branch<9;++Branch) {
-                const float Angle=Branch*2*PI/9+.25f;
+            // Short outward splinters accent the physical shell fragments.
+            const float Spread=FMath::Clamp(Age/.18f,0.f,1.f);
+            const float Fade=1-FMath::SmoothStep(.035f,.18f,Age);
+            const float Reach=FMath::Clamp(Cue.Radius*.21f,18.f,55.f);
+            for(int32 Branch=0;Branch<5;++Branch) {
+                const float Angle=Branch*2.39996f+.25f;
                 const FVector Radial=Horizontal*FMath::Cos(Angle)+Vertical*FMath::Sin(Angle);
                 const FVector Tangent=FVector::CrossProduct(Forward,Radial).GetSafeNormal();
                 const FVector A=Center+Radial*Reach*(.12f+Spread*.3f)+Forward*Age*40;
                 const FVector B=Center+Radial*Reach*(.50f+Spread*.55f)+Tangent*Reach*.12f+Forward*Age*40;
                 const FVector C=Center+Radial*Reach*(.88f+Spread*.72f)+Forward*Age*40;
-                CrackSegment(Detail,A,B,Forward,2.2f*(1-Spread*.65f),Fade*.95f);
-                CrackSegment(Detail,B,C,Forward,1.3f*(1-Spread*.65f),Fade*.8f);
+                CrackSegment(Detail,A,B,Forward,1.4f*(1-Spread*.65f),Fade*.35f);
+                CrackSegment(Detail,B,C,Forward,.8f*(1-Spread*.65f),Fade*.25f);
             }
         }
     } else {
@@ -489,7 +503,7 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
     const FVector Up=HasGround?Ground.ImpactNormal:FVector::UpVector;
     const FVector Right=FVector::VectorPlaneProject(Forward,Up).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
     const FVector Side=FVector::CrossProduct(Up,Right).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
-    if(HasGround) {
+    if(HasGround && !Shield) {
         const float RingEnd=Broken?.36f:Shield?.24f:Total;
         const float Phase=FMath::Clamp(Age/RingEnd,0.f,1.f),Fade=1-FMath::SmoothStep(.08f,RingEnd,Age);
         const float Radius=FMath::Clamp(Cue.Radius*(Broken?.42f:.27f),35.f,115.f)*FMath::Lerp(.40f,1.15f,Phase);
@@ -505,11 +519,12 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
     if(!bBurstPresented) {
         bBurstPresented=true;
         Debris->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Gameplay/CoreLoop/SM_Walnut_HalfShell.SM_Walnut_HalfShell")));
-        const int32 Count=Broken?16:Shield?4:5;
+        const int32 Count=Broken?12:Shield?4:5;
         for(int32 I=0;I<Count;++I) Debris->AddInstance(FTransform(FVector::ZeroVector));
         // Late replication reconstructs the tail without replaying an old burst.
         if(HasGround && Age<.12f) PlayBurst(DustImpactSystem.LoadSynchronous(),Ground.ImpactPoint+Up*8,Up,Broken?1.2f:.35f);
-        if(Shield && Age<.12f) PlayBurst(ShieldHitSystem.LoadSynchronous(),Cue.Origin,Forward,Broken?1.5f:.4f);
+        if(Shield && Age<.12f) PlayBurst(ShieldHitSystem.LoadSynchronous(),Cue.Origin,Forward,Broken?.6f:.3f);
+        if(Broken) Flames->SetMaterial(0,ShieldFractureMaterial.LoadSynchronous());
     }
     const float Tail=1-FMath::SmoothStep(Total*.55f,Total,Age);
     const FVector Start=(Shield?Cue.Origin:HasGround?Ground.ImpactPoint+Up*14:GroundPoint)-GetActorLocation();
@@ -523,10 +538,38 @@ void AMCNutCombatEffect::PresentTankImpact(float Age)
             const float Height=FVector::DotProduct(Point-(Ground.ImpactPoint-GetActorLocation()),Up);
             if(Height<3) Point+=Up*(3-Height);
         }
-        const float Size=Random.FRandRange(Broken?7.f:3.f,Broken?17.f:4.8f)/MeshRadius(Debris->GetStaticMesh())*Tail;
+        const float Size=Random.FRandRange(Broken?1.4f:3.f,Broken?3.2f:4.8f)/MeshRadius(Debris->GetStaticMesh())*Tail;
         Debris->UpdateInstanceTransform(I,FTransform(FRotator(I*37+Age*260,I*71+Age*190,I*53),Point,FVector(Size,Size*.65f,Size)),false,I==Debris->GetInstanceCount()-1,true);
     }
     Debris->SetVisibility(Visible && Debris->GetStaticMesh());
+    if(Broken && Flames->GetMaterial(0)) {
+        FMesh Shell;
+        FRandomStream Pieces(Cue.Seed+913);
+        const float Drift=(1-FMath::Exp(-Age*2.8f))/2.8f;
+        const float Fade=1-FMath::SmoothStep(Total*.76f,Total,Age);
+        for(int32 I=0;I<5;++I) {
+            const float Angle=I*2.39996f+Pieces.FRandRange(-.25f,.25f);
+            const FVector Radial=Horizontal*FMath::Cos(Angle)+Vertical*FMath::Sin(Angle);
+            const float Speed=Pieces.FRandRange(155.f,265.f);
+            FVector Point=Start+Radial*Cue.Radius*.06f+(Forward*Speed*.65f+Radial*Speed+Up*115.f)*Drift-Up*(270.f*Age*Age);
+            if(HasGround) {
+                const float Height=FVector::DotProduct(Point-(Ground.ImpactPoint-GetActorLocation()),Up);
+                if(Height<4) Point+=Up*(4-Height);
+            }
+            const FQuat Orientation=FRotationMatrix::MakeFromZ(Forward).ToQuat()
+                *FRotator(I*51+Age*(I%2==0?225.f:-170.f),I*73+Age*130.f,I*41).Quaternion();
+            const float Size=FMath::Clamp(Cue.Radius*Pieces.FRandRange(.12f,.23f),11.f,32.f);
+            const int32 First=Shell.Points.Num();
+            MCNutShellShardVisuals::Shard(Shell,FTransform(Orientation,Point),Size,Cue.Seed+I*131,Fade);
+            if(HasGround) {
+                float Lowest=MAX_flt;
+                for(int32 V=First;V<Shell.Points.Num();++V)
+                    Lowest=FMath::Min(Lowest,float(FVector::DotProduct(Shell.Points[V]-(Ground.ImpactPoint-GetActorLocation()),Up)));
+                if(Lowest<1.5f) for(int32 V=First;V<Shell.Points.Num();++V) Shell.Points[V]+=Up*(1.5f-Lowest);
+            }
+        }
+        Shell.Upload(Flames);Flames->SetVisibility(Visible);
+    }
 }
 
 void AMCNutCombatEffect::Present(float Age)

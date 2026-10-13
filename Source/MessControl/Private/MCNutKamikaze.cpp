@@ -21,6 +21,33 @@ namespace
 {
 float SafeValue(float Value,float Default,float Minimum,float Maximum)
 {return FMath::Clamp(FMath::IsFinite(Value)?Value:Default,Minimum,Maximum);}
+
+void RenderFuseSparks(UProceduralMeshComponent* Component,float Phase,float Progress,float Remaining,float Duration)
+{
+    const float EndWindow=FMath::Min(1.5f,Duration*.38f);
+    const float Urgency=1-FMath::SmoothStep(0.f,EndWindow,Remaining);
+    if(Urgency<=.001f) {Component->SetMeshSectionVisible(1,false);return;}
+    MCNutCombatVisuals::FMesh Sparks;
+    constexpr int32 Count=6;
+    Sparks.Points.Reserve(Count*8);Sparks.Normals.Reserve(Count*8);Sparks.UV.Reserve(Count*8);
+    Sparks.Colors.Reserve(Count*8);Sparks.Tangents.Reserve(Count*8);Sparks.Indices.Reserve(Count*12);
+    for(int32 Index=0;Index<Count;++Index) {
+        const float Cycle=Phase/(2*PI)*.55f+Index*.618034f;
+        const float T=FMath::Frac(Cycle);
+        const float Angle=Index*2.39996f+FMath::FloorToFloat(Cycle)*1.13f;
+        const FVector Direction=FVector(FMath::Cos(Angle),FMath::Sin(Angle),.7f+.08f*Index).GetSafeNormal();
+        const FVector Side=FVector::CrossProduct(Direction,FVector::UpVector).GetSafeNormal();
+        const FVector Across=FVector::CrossProduct(Direction,Side).GetSafeNormal();
+        const FVector Point=FVector(0,0,18+18*Progress)+Direction*((24+48*Urgency)*T)
+            -FVector(0,0,18*T*T);
+        const float Alpha=Urgency*FMath::Sin(T*PI)*.80f;
+        const FLinearColor Color(FMath::Frac(Index*.37f),.85f,0,Alpha);
+        const float Length=FMath::Lerp(2.5f,6.5f,Urgency)*(1-T*.55f);
+        Sparks.Quad(Point,Side,Direction,1.1f,Length,Color);
+        Sparks.Quad(Point,Across,Direction,.85f,Length,Color);
+    }
+    Sparks.Upload(Component,1);Component->SetMeshSectionVisible(1,true);
+}
 }
 
 AMCNutKamikaze::AMCNutKamikaze()
@@ -54,7 +81,10 @@ void AMCNutKamikaze::BeginPlay()
     Super::BeginPlay();
     if(IsValid(Tongue)) AddTickPrerequisiteActor(Tongue);
     if(GetNetMode()!=NM_DedicatedServer) {
-        if(auto* Material=FuseMaterial.LoadSynchronous()) FuseMID=FuseFlame->CreateDynamicMaterialInstance(0,Material);
+        if(auto* Material=FuseMaterial.LoadSynchronous()) {
+            FuseMID=FuseFlame->CreateDynamicMaterialInstance(0,Material);
+            FuseFlame->SetMaterial(1,FuseMID);
+        }
         if(auto* Material=WarningMaterial.LoadSynchronous()) WarningMID=BlastWarning->CreateDynamicMaterialInstance(0,Material);
         PresentFuse(ServerNow());
     }
@@ -98,16 +128,21 @@ void AMCNutKamikaze::PresentFuse(double Time)
     const float Duration=FMath::Max(.1f,float(FuseExplodesAt-FuseStartedAt));
     const float Progress=FMath::Clamp(1.f-Remaining/Duration,0.f,1.f);
     const float Age=FMath::Max(0.f,float(Time-FuseStartedAt));
-    // A growing pulse and accelerating fuse are readable before the final blast footprint appears.
-    const float Pulse=.5f+.5f*FMath::Sin(Age*(5.f+Progress*15.f));
+    // Integrate the rising frequency against the absolute fuse clock. This
+    // stays continuous for every authored duration, including a late client.
+    const float VisualAge=FMath::Min(Age,Duration);
+    const float Phase=5.f*VisualAge+21.f*Duration*Progress*Progress*Progress/3.f;
+    const float Pulse=.5f+.5f*FMath::Sin(Phase);
     const float Swell=1.f+Progress*.12f+Pulse*Progress*.08f;
     Visual->SetRelativeScale3D(Visual->GetRelativeScale3D()*Swell);
     Label->SetText(FText::FromString(FString::Printf(TEXT("%d HP | %.1f s"),FMath::CeilToInt(Health),Remaining)));
     Label->SetTextRenderColor(FColor(255,FMath::RoundToInt(FMath::Lerp(190.f,45.f,Progress)),30));
     if(FuseMID) {
         FuseFlame->SetRelativeLocation(Visual->GetRelativeLocation()+FVector(0,0,Settings.BodyRadius*.8f));
-        FuseMID->SetScalarParameterValue(TEXT("FireAge"),Age);
-        MCNutCombatVisuals::RenderFlames(FuseFlame,7.f+Progress*5.f,Age,.8f);
+        const float FireAge=Phase/5.f;
+        FuseMID->SetScalarParameterValue(TEXT("FireAge"),FireAge);
+        MCNutCombatVisuals::RenderFlames(FuseFlame,(7.f+Progress*5.f)*(1+Pulse*Progress*.07f),FireAge,.75f+Pulse*Progress*.17f);
+        RenderFuseSparks(FuseFlame,Phase,Progress,Remaining,Duration);
         FuseFlame->SetVisibility(true);
     }
     FHitResult Floor;

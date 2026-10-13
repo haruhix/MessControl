@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "art_direction_brief": "Docs/VFXReferences.md",
+  "engine": "Unreal Engine 5.8.1",
+  "target": "Windows Editor, perspective gameplay camera, actual L_Mouth lighting",
+  "assets": [
+    {
+      "id": "nut-shield-fracture",
+      "role": "persistent shield damage and target contour",
+      "path": "Content/Gameplay/VFX/NutCombat/M_NutShieldFracture.uasset",
+      "status": "validated-solo-preview",
+      "technical": {
+        "texture_samples": 0,
+        "alpha": "masked",
+        "roughness": 0.94,
+        "shading": "lit",
+        "collision_role": "none",
+        "maximum_layout_vertices": 2795
+      },
+      "visual_locks": [
+        "existing shield shape",
+        "dark cavity",
+        "warm rough lip",
+        "hand bone attachment"
+      ],
+      "source": {
+        "kind": "project-authored",
+        "url_or_tool": "Tools/Unreal/author_nut_shell_surface_mcp.py; Tools/Blender/bake_nut_shield_crack_layout.py",
+        "creator": "MessControl project",
+        "created_at": "2026-10-13",
+        "license": "Project-authored modifications; no external artwork copied",
+        "prompt_or_source_record": "Existing ArtSource/NutTank/SK_NutTank.fbx is read-only; guides listed in Docs/VFXReferences.md"
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "approved_by": "User approved implementation scope; rendered previews delivered for review"
+      }
+    },
+    {
+      "id": "nut-shell-break-chips",
+      "role": "five large cosmetic fragments plus small shell crumbs",
+      "path": "Source/MessControl/Private/MCNutShellShardVisuals.h",
+      "status": "validated-solo-preview",
+      "technical": {
+        "large_parts": 5,
+        "large_part_vertices_total": 360,
+        "small_instances": 12,
+        "anchor": "shield contact",
+        "collision_role": "none",
+        "material": "M_NutShieldFracture"
+      },
+      "visual_locks": [
+        "shell thickness",
+        "rough inner face",
+        "irregular outline",
+        "fast impulse then slower fall"
+      ],
+      "source": {
+        "kind": "project-authored",
+        "url_or_tool": "Native procedural closed geometry",
+        "creator": "MessControl project",
+        "created_at": "2026-10-13",
+        "license": "Project-authored; existing small-shell mesh reused"
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "approved_by": "User approved implementation scope; rendered previews delivered for review"
+      }
+    },
+    {
+      "id": "nut-fire-flight",
+      "role": "readable burning walnut with directional tail",
+      "path": "Source/MessControl/Private/MCNutSpellProjectile.cpp",
+      "status": "validated-solo-preview",
+      "technical": {
+        "flame_layers": 2,
+        "ribbons_total": 10,
+        "flame_vertices": 380,
+        "halo_vertices": 100,
+        "anchor": "actual projectile position",
+        "collision_role": "visual geometry has none; native projectile sweep unchanged"
+      },
+      "visual_locks": [
+        "whole walnut visible",
+        "open halo center",
+        "orange and yellow fire",
+        "tail opposite actual flight"
+      ],
+      "source": {
+        "kind": "project-authored",
+        "url_or_tool": "Existing M_ReactionFire, M_NutFireCore, M_NutArcane, NS_NutEmberTrail and SM_Walnut_Whole",
+        "creator": "MessControl project",
+        "created_at": "2026-10-13",
+        "license": "Existing project assets reused; no external artwork imported"
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "approved_by": "User approved implementation scope; rendered previews delivered for review"
+      }
+    },
+    {
+      "id": "nut-summon-fuse",
+      "role": "accelerating pulse and final fuse sparks",
+      "path": "Source/MessControl/Private/MCNutKamikaze.cpp",
+      "status": "validated-solo-preview",
+      "technical": {
+        "spark_count_max": 6,
+        "spark_vertices_max": 48,
+        "material": "Existing M_ReactionFire",
+        "anchor": "existing FuseFlame component",
+        "collision_role": "none",
+        "clock": "existing authoritative fuse deadline"
+      },
+      "visual_locks": [
+        "small accents",
+        "increasing urgency",
+        "native warning radius",
+        "effects disappear with actor"
+      ],
+      "source": {
+        "kind": "project-authored",
+        "url_or_tool": "Bounded native geometry with existing fuse material",
+        "creator": "MessControl project",
+        "created_at": "2026-10-13",
+        "license": "Project-authored modifications; no external artwork imported"
+      },
+      "verification": {
+        "native_scale_reviewed": true,
+        "in_engine_reviewed": true,
+        "technical_checks_passed": true,
+        "approved_by": "User approved implementation scope; rendered previews delivered for review"
+      }
+    }
+  ]
+}

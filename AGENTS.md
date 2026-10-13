@@ -30,3 +30,10 @@ Implement and integrate small mechanics promptly. By default, validate changes w
 # Change descriptions and changelog
 
 Every commit description and pull request description must include a concise changelog of what was added or changed. State the resulting behavior, new animations/assets/tools and the validation actually performed. Identify previews awaiting approval and deferred integration or validation explicitly. Update descriptions when the final scope changes; do not describe abandoned work as delivered.
+
+# VFX research and authoring
+
+- For new or substantially improved VFX, research practical tutorials and original artist breakdowns before authoring. Prefer original creators and official Unreal documentation; reuse already reviewed references when they still fit the task.
+- Choose techniques that can be reproduced in this project's Unreal version with available tools and assets. Explain which visual elements to adapt, the required assets, and any deferred parts.
+- Keep a reusable reference library in `Docs/VFXReferences.md`: source links, applicable effects, implementation notes, and the status of techniques actually tried in MessControl.
+- Evaluate effects in the gameplay camera and lighting, including clear danger cues, material identity, timing and particle/transparency cost. Use short preview videos when motion is important and recording is practical.

@@ -1,0 +1,46 @@
+{
+  "base_commit": "d3e5973b31568ea62985411f9ad0db3427bef094",
+  "validation": "Two LiveCoding integrations and 16 focused solo checks before colleague update; no post-update cold build or PIE.",
+  "excluded_preexisting_paths": [
+    ".agents/ue-project-context.md",
+    "ArtSource/NutAnimationStyle/AnimationList.md",
+    "Config/DefaultEditor.ini",
+    "Docs/BossAI.md",
+    "Docs/LiveCodingNotes.md",
+    "MessControl.uproject",
+    "Source/MessControl/MessControl.Build.cs",
+    "Source/MessControl/Private/MCBossAnimInstance.cpp",
+    "Source/MessControl/Private/MCBossCharacter.cpp",
+    "Source/MessControl/Private/MCDevCommands.cpp",
+    "Source/MessControl/Private/MCDevPanelWidget.cpp",
+    "Source/MessControl/Private/MCNutBoss.cpp",
+    "Source/MessControl/Private/MCNutBossAnimInstance.cpp",
+    "Source/MessControl/Private/MCToothAnimInstance.cpp",
+    "Source/MessControl/Private/MCVFXLab.cpp",
+    "Source/MessControl/Private/MCVFXLabBossStation.cpp",
+    "Source/MessControl/Public/MCDevCommands.h",
+    "Source/MessControl/Public/MCDevPanelWidget.h",
+    "Source/MessControl/Public/MCNutBoss.h",
+    "Tools/Blender/author_nut_tank_abilities_v2.py",
+    "Tools/Blender/author_nut_tank_style.py",
+    "Tools/Blender/export_nut_style_v2.py"
+  ],
+  "excluded_hunk": {
+    "path": "Source/MessControl/Private/MCNutCombatEffect.cpp",
+    "working_tick_interval": 0,
+    "committed_tick_interval": "1/30",
+    "working_normalized_sha256": "a7b513d982e6d7bead1b078059f11a67d6d01ea4b6244190da7b00d51a213066",
+    "candidate_normalized_sha256": "bfc835c6d644a857cdb833e2fc34244d5c9fa77a04717b5298e4084030c6f621"
+  },
+  "working_source_bytes_preserved": true,
+  "candidate_source_sha256": {
+    "Source/MessControl/Private/MCNutKamikaze.cpp": "a89883423f9be439b2574babd3162809a0eef83338b9d7710f58297721a7f23d",
+    "Source/MessControl/Private/MCNutShieldCrackLayout.h": "0e701d4865a6f59197a0ed34c1fa6b873ce34548357e02e39758d2b123d287d4",
+    "Source/MessControl/Private/MCNutSpellProjectile.cpp": "7a72efd95fa4b9f6db083782c75c02c46c6ea624eea95d5a5bce21e46d233109",
+    "Source/MessControl/Private/MCNutShellShardVisuals.h": "f9cc4af005cbe1803a1da11f74b0843c05c389c8cde54277ceb6ffe2eccac5e9",
+    "Tools/Blender/bake_nut_shield_crack_layout.py": "7ee98712696dd8fec54c81c0387f07dbe1a026d775016b33725fc0c46688fd09",
+    "Tools/Unreal/author_nut_shell_surface_mcp.py": "2cd96b05a642a25bbc10b93f740709a198597c846d0f6c8f64d700446bb2b30a",
+    "Tools/Unreal/check_nut_vfx_polish_solo.py": "6b92d2943fa893dc3d36f753d5024fca4d980c52a8e13459af4d129fa2ec7f53",
+    "Source/MessControl/Private/MCNutCombatEffect.cpp": "bfc835c6d644a857cdb833e2fc34244d5c9fa77a04717b5298e4084030c6f621"
+  }
+}

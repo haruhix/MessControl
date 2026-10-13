@@ -1,0 +1,1669 @@
+{
+  "source_reports": [
+    {
+      "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\Report.json",
+      "sha256": "9b001def47ac7d255dc5e73f3d77329ecef254c9f09d72ef948287e8e8fe138f",
+      "native_report_passed": true,
+      "scope": "One owned standalone PIE; real shield hits, scheduled fire nut, scheduled summon and unchanged native fuses",
+      "fixture_tuning": {
+        "preview_shield_max_health": 160.0,
+        "initial_preview_shield_health": 160.0,
+        "ordinary_base_pickaxe_damage": 40.0,
+        "equipment_profile": "/Game/Data/DA_Equipment.DA_Equipment",
+        "equipment_profile_read_source": "Public MCInventoryComponent.Profile; native BeginPlay loads this into its private Settings cache, with the same 40 damage fallback",
+        "tank_move_speed": 0.0,
+        "mage_move_speed": 0.0,
+        "boss_floor_cm": [
+          -247.40021452203706,
+          -16.691591099897725,
+          53.25623261928558
+        ],
+        "player_floor_cm": [
+          37.59978547796294,
+          -16.691591099897725,
+          53.886849761009216
+        ],
+        "mage_floor_cm": [
+          -247.40021452203706,
+          683.3084089001022,
+          82.99373495578766
+        ],
+        "reason": "Initial durability and position-only staging keep the short visual clip readable; subsequent health loss is real held-primary damage"
+      },
+      "limitations": [
+        "Natural F3 rain and boss entrance precede the clips; position-only dodging protects the observer.",
+        "The shield starts with four base Pickaxe hits of durability as an explicit PIE preview fixture; native default 500 is covered separately.",
+        "Both boss walking speeds and unrelated readiness clocks are isolated only in PIE; boss/projectile damage and player health stay native.",
+        "Held primary input damages the shield; no Python damage resolver or attack helper is invoked.",
+        "Crack component/clock telemetry must be paired with inspection of the genuine rendered footage.",
+        "No content saves, network, complete battle, build, cook or package.",
+        "Summon readiness and observer/review-camera positions are explicit PIE fixtures; no summon speed, health, damage, radius or fuse is changed.",
+        "Pickaxe kill is optional and attempted only at a supported isolated approach; the remaining summons must detonate naturally.",
+        "ProceduralMeshLibrary exposes vertices/triangles but no vertex colors; spark alpha and visual quality require inspection of the genuine footage.",
+        "Pulse intervals are measured from actual visual-scale peaks; inadequate sampling is reported instead of inventing acceleration evidence."
+      ],
+      "native_checks": {
+        "native_individual_drop_intervals_1_5_to_3_seconds": true,
+        "actual_review_target_location_rotation_verified": true,
+        "opening_nuts_persist_without_player_breaks": true,
+        "two_bosses_after_last_landing_without_cleanup_gate": true,
+        "shield_face_review_camera_verified": true,
+        "live_shield_break_chips_360_material_no_collision": true,
+        "ordinary_primary_hits_damage_shield_and_boss": true,
+        "native_crack_growth_following_shield_bone": true,
+        "native_break_changes_mesh_to_unshielded_variant": true,
+        "live_fire_flames_380_core_100": true,
+        "scheduled_fire_nut_projectile_and_terminal_impact": true,
+        "optional_real_pickaxe_disarms_summon": true,
+        "native_summon_clock_remaining_verified": true,
+        "native_spark_section_bounded_visible_material_verified": true,
+        "unchanged_native_fuses_expire_and_remove_visuals": true,
+        "actual_visual_pulse_acceleration_observed": true
+      },
+      "restored_settings": true
+    }
+  ],
+  "timing": "Separate actual game-time windows; every written source frame is retained with its timestamp. No temporal interpolation or time scaling.",
+  "presentation": "30 fps H.264 output repeats real captures; final hold is the median requested source interval. Demux/output timing quantization is explicitly recorded.",
+  "missing_policy": "Missing screenshot requests are listed, not filled with invented frames. Real intervals across missing requests are preserved.",
+  "visual_approval": "Pending inspection of the actual gameplay/VFX footage; successful encoding is not visual approval.",
+  "windows": {
+    "wizard_summon": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutWizardSummon.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutWizardSummon.ffconcat",
+      "requested": 105,
+      "available": 105,
+      "missing_requests": [],
+      "source_start_game_seconds": 42.18333553336561,
+      "source_end_game_seconds": 51.68333602882922,
+      "source_intervals_preserved_seconds": 9.50000049546361,
+      "final_image_hold_seconds": 0.08333333767950535,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 9.583333833143115,
+      "duration_quantization_seconds": -0.016666833143114346,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 9.566667,
+      "encoded_frame_count": 287,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutWizardSummonStart.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00127.png",
+          "game_seconds": 42.18333553336561,
+          "sha256": "aa720d82dccc12d8e12a2b9a7a9cf3a01d1aadc2b85ddffd6a1b3a51b28ece19"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutWizardSummonMidway.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00179.png",
+          "game_seconds": 47.000002451241016,
+          "sha256": "b2d58de5879a183104d0dff2aa183683549665fc63f6c2a6f57935a3eccc5b51"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutWizardSummonComplete.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00231.png",
+          "game_seconds": 51.68333602882922,
+          "sha256": "93f2488d30712737adf01817fdb62ccdbaffe46d4e05fec2fae01ba725f44381"
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00127.png",
+          "game_seconds": 42.18333553336561,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "aa720d82dccc12d8e12a2b9a7a9cf3a01d1aadc2b85ddffd6a1b3a51b28ece19"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00128.png",
+          "game_seconds": 42.26666887104511,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "87c6d4b1877a2d3652711add4e556877b5a4a6ebc12217ef38e8b633c97fda66"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00129.png",
+          "game_seconds": 42.35000220872462,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "cb7b9bbdb19154c7c5872b3f300fcf66c66c8ecbee1a043bef88c653d71175f7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00130.png",
+          "game_seconds": 42.43333554640412,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5a823bf91608d17b3bd2bbabc7fdc7320ef266c9c211f28e067480a7519c5a93"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00131.png",
+          "game_seconds": 42.51666888408363,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "68a36466d898ef5221faae7b49cccfba3f7d6c02c348cbda7361404e74e77a6a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00132.png",
+          "game_seconds": 42.600002221763134,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "6deb14fbb5fbe0af84dc59fa5e83542984cca7876845d8e58273b72f8a362a24"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00133.png",
+          "game_seconds": 42.68333555944264,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "fbff4ae1237ea6e4a5c99f82e2eed63d5dedc9d7372c9e3d4c09931329b5239a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00134.png",
+          "game_seconds": 42.766668897122145,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7303eba4de7efe42ad29ec59b2c5f7c1b624155b719cc6044d57cb9a98dc92a7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00135.png",
+          "game_seconds": 42.85000223480165,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5be7cfa1f6c142cb3ae833935aba5a32a0dfdbf9f40efc8151862ed5f4f6b021"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00136.png",
+          "game_seconds": 42.933335572481155,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "f3a5cd079881a37b5b967dfd50c3d80b6d6a651fdf678e7b8d224514f83ec328"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00137.png",
+          "game_seconds": 43.01666891016066,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "3873ac6b45905bc62a821b5bb8d60acda2c85d873cb9da729377ade886dbe3d7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00138.png",
+          "game_seconds": 43.100002247840166,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "f1e50e51ec46c57d85f1cb74d8725923d8e53bc9a27c9f354a846b59c09269a3"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00139.png",
+          "game_seconds": 43.18333558551967,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "3a69c0eeb8a98bd0c5f91d08aced5057575cf144e9ee7468da69715adac61a00"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00140.png",
+          "game_seconds": 43.26666892319918,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7d1c47e8e15c9baece21b939ec0c6b04c0ce40d2cbce9bb9cba3dea1896971bd"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00141.png",
+          "game_seconds": 43.35000226087868,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "9801487202c75fca5b945aa7880e6fa5d7ca6500c4eafd6a8704672baf71cddf"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00142.png",
+          "game_seconds": 43.43333559855819,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "bacf43727349d90be571a0eabfc5522507689fa7ef590f61fc1c6f1c13b69e09"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00143.png",
+          "game_seconds": 43.51666893623769,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "4fbfbe89c01ba36aa9fdd56bd9ae85caa21202a0805b988fbd7e8efff643a422"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00144.png",
+          "game_seconds": 43.6000022739172,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "95b701b05ba1ec9ea500f142eac000d4fcf65a771ac57cf06516cd51fa97d8c5"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00145.png",
+          "game_seconds": 43.6833356115967,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "524af03361473603a045a2d6f5d1ca95e96884715294943d95acba29126310b4"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00146.png",
+          "game_seconds": 43.76666894927621,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "097b15d7047b8e62bd83cfe91f03ed78cc1d816f0abc347d7055c589c2ebf5b5"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00147.png",
+          "game_seconds": 43.850002286955714,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b68e2a14660957336437140c1680cfb03f46d0b3a546aa2260c03717b94cf21c"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00148.png",
+          "game_seconds": 43.93333562463522,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "29b4faea4b5a3105f068d30d960611fcfa7d7ee4508c0802f7c04722d506c9b1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00149.png",
+          "game_seconds": 44.016668962314725,
+          "held_duration_seconds": 0.11666667275130749,
+          "sha256": "53a92e44c8cab35006731ec38083b9b7a808931a9b2b6b6cc87173e2b8642b3c"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00150.png",
+          "game_seconds": 44.13333563506603,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8fdb97a7db2899c0205196a5dc3c745b4650a42dcc90f79d35f72e3b5e87189b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00151.png",
+          "game_seconds": 44.21666897274554,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1484f1fcd3b03427f94d1f829376e60677e1d4f7b1c1d939c7599d81f0d34227"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00152.png",
+          "game_seconds": 44.30000231042504,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "2307dcf3c8caa27c5ef7ecd8a42bef8cafb795bbe0ffb15ae2f88e9b7790c44b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00153.png",
+          "game_seconds": 44.43333565071225,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "6794dd4d61d6d68fe73523ddb332078fb85e0cd12ee79d84a24359af7cddf516"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00154.png",
+          "game_seconds": 44.51666898839176,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "9167ac978fb3f214e581cb4f81b9b00c5aeec60587c39caa6035951fd76298f2"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00155.png",
+          "game_seconds": 44.60000232607126,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "a438144f98c651b036f4b6c72f438db59ebda765050d853f7b60c6f35b685de5"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00156.png",
+          "game_seconds": 44.73333566635847,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "fcf2dc5715878c73c9db8d64827c7f9534ac612af4909fee7b3e7c59608a7ecd"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00157.png",
+          "game_seconds": 44.816669004037976,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "93370780eeb841a0975603df4183e5d2d63696b5ee69ee6129f6fe526c7b77b7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00158.png",
+          "game_seconds": 44.90000234171748,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "5f4b4015b2c0f05b1be907c0eff5e80cf5c787d4b5618f8f1f231f08a8bc758a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00159.png",
+          "game_seconds": 45.03333568200469,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "099a92fb8a8abe6cd6739c33c78e6c7f2792146f0b401d3439ded0281a652b50"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00160.png",
+          "game_seconds": 45.116669019684196,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "ea8e2ee06fd266dfa4dec80924427a8fcdf0750e51c016b1b824f81a426c6223"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00161.png",
+          "game_seconds": 45.2000023573637,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "560f905f2d29c3789b92c3c5a78e7144bbf1a17c026f7aa83ca0f465f5ed344f"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00162.png",
+          "game_seconds": 45.33333569765091,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "c937a4c876532681c52b8d0afddb17cf757c55945342101e810f162170a6b732"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00163.png",
+          "game_seconds": 45.416669035330415,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5c906ee5c857f871d225e2cd38356b2bcc1363952fb908121dda14ccab59bddc"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00164.png",
+          "game_seconds": 45.50000237300992,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "2af975ca1479e272b11813a1373b8e171ec47ba64f7cffe29821d8d29862411d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00165.png",
+          "game_seconds": 45.63333571329713,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "2cc61e26124f3004ce97efca1683cc3a33f06a32f3178902a629fcf7ee6af349"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00166.png",
+          "game_seconds": 45.716669050976634,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "ec46095a5e66dfda0cfe8cc897d60ce4555213bb93a9f4a02df527eb760394f7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00167.png",
+          "game_seconds": 45.80000238865614,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "7f972717ee49e6fbe0ef688cf75e6ee2e2355363132107dc751506aa97622004"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00168.png",
+          "game_seconds": 45.93333572894335,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "d5b2c27cb69c32e9278b0e2596108d411065c3b347665c1dd8f6f7107ea54387"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00169.png",
+          "game_seconds": 46.01666906662285,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "a5d20506abae05a3ca9dce68c3371862db18f84e2eb7721687ec567025400132"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00170.png",
+          "game_seconds": 46.10000240430236,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "68e4dd13c2c450df51dbee0d42fc5d881d4ee85586ca5bafc8dea1cda351abc4"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00171.png",
+          "game_seconds": 46.23333574458957,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "d4cde889fbf99295a958749f44922875039594b32d5758639ff53e68d9c08443"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00172.png",
+          "game_seconds": 46.31666908226907,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "6a489eaf6deeee4356d1b1ac29be57c8efb54113b8bdd6f9cc64b422940b8c1d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00173.png",
+          "game_seconds": 46.40000241994858,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "7b81c8b601b91f4ee731cbdc742d80f3b2a789af2815e172a4ddb732bbd9c8e2"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00174.png",
+          "game_seconds": 46.533335760235786,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "bd8ec2daff7613d91819ca8054db2b733e42f640dd1844db4adca30f6c4399ee"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00175.png",
+          "game_seconds": 46.61666909791529,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "6c856457806c11472775fdfa16c95fee017d09da6fb4efff385c463938393e2d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00176.png",
+          "game_seconds": 46.7000024355948,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "bdc07fd4a61b931b51f5e90e3c3a1638f36e99a57e0e878689777648204a0aac"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00177.png",
+          "game_seconds": 46.833335775882006,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "14c3751eebd1c98cbf9664dacad8d013781c710a2fc9368182a6e54881d8fda8"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00178.png",
+          "game_seconds": 46.91666911356151,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "07a8505e57103884d1f304201033fd289dfe749d4082abdf4f906859112b7d3b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00179.png",
+          "game_seconds": 47.000002451241016,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "b2d58de5879a183104d0dff2aa183683549665fc63f6c2a6f57935a3eccc5b51"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00180.png",
+          "game_seconds": 47.133335791528225,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8e27d06389ff6ac1601cfcb291ef8446a58d597c1a600499ee559a940c7bfb03"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00181.png",
+          "game_seconds": 47.21666912920773,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7ac395057e147e5bed3cccf0fecf2c4bdb3b7c9907027fddf9a21f918b44571b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00182.png",
+          "game_seconds": 47.300002466887236,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "a383109c1651cfe35f82f5ae55901a9bf451b37bfc143b42dd53579f281616a0"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00183.png",
+          "game_seconds": 47.433335807174444,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "64acb15d6b95674eb368689d599b2ba5f98c0d16ab57bea6c11c7d8bf9a32e5a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00184.png",
+          "game_seconds": 47.51666914485395,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "fff6ed865871654355816dfc63b135d7a7a17cee1fd6287501d9ad5efa99f637"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00185.png",
+          "game_seconds": 47.600002482533455,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "7627c784d93fd021ec9328dd8a00150c793e1a62727f9e13af758109126f78de"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00186.png",
+          "game_seconds": 47.73333582282066,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7bf506e03e3267baaf58a47134f6bf4a03e08266729a19a1f92faecb2e1fbf01"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00187.png",
+          "game_seconds": 47.81666916050017,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "bb6dd483a4ca1b6a69e67e5013dee4fee13953167b43505bfce31cc269a3a260"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00188.png",
+          "game_seconds": 47.900002498179674,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "ac3abeb7f93cf3686ebfd60b99eb413434ca66014f7ce871f100d4ad285b76c0"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00189.png",
+          "game_seconds": 48.03333583846688,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "4ca5fb3e54f0cb164174ea88e281fd17549a6cc236f760dd2ac97cd0d184cd11"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00190.png",
+          "game_seconds": 48.11666917614639,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "a27ae4a0dc233a624bedd283fdf247d03215e00c84c1ba9242540af4060e4ce2"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00191.png",
+          "game_seconds": 48.20000251382589,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "b3b6042eb210d8cba8ed0bae6f6110433f072dd136f4b4828a9b190670e0b56d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00192.png",
+          "game_seconds": 48.3333358541131,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "cfebd3b0192ed1dafa389cf960153ed4c927083755f220e890a8c634e8f1d2cf"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00193.png",
+          "game_seconds": 48.41666919179261,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "6cbc63f0db1901c3bf2d0ab16684977ed597811d0cb6a5c3b1301f658bef20ba"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00194.png",
+          "game_seconds": 48.50000252947211,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "17f10d38d6f4db82d2f8b51a3105e00d4343d37e5260377e7d4bd09c777d9ab0"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00195.png",
+          "game_seconds": 48.63333586975932,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "c89d7376a15f9ed1484b8d7a4de8194796b803cdf70f48392e2f71370d6563f7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00196.png",
+          "game_seconds": 48.71666920743883,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "c94c49b9ab07b6bf71aee554c2cd3796caed8e6c9dc85cefa261991ff9c5aaea"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00197.png",
+          "game_seconds": 48.80000254511833,
+          "held_duration_seconds": 0.13333334028720856,
+          "sha256": "67aa984ee2e020c8316ff43deaa8512c5450ffb4e58673b355b3d990436636af"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00198.png",
+          "game_seconds": 48.93333588540554,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "ec255e2764a26ac91e0d5bac36ac1a22fdbb03ebbfaf339c2ab7bb6a55ab67a9"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00199.png",
+          "game_seconds": 49.016669223085046,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "9703b4ffc387dc50c9094900150deb3062df3ee0d40006d060a6cf898ff63044"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00200.png",
+          "game_seconds": 49.10000256076455,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e55fc66ca91c67919c543073775c66b1496c3441095ed5cdcfa23c4366b328bd"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00201.png",
+          "game_seconds": 49.18333589844406,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "94e562047b6b9c52851abb6332c43c272b7819481813113740cf837d575a67e7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00202.png",
+          "game_seconds": 49.26666923612356,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "0b9ff08140fc3c0533946627b42070faddb3e5f8c8fa8f71f0471b8416be0d44"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00203.png",
+          "game_seconds": 49.35000257380307,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "05438eb4c953f82bdbc9e1683e6c2e55ac44125502dc0cf3394ea23a15d1ae65"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00204.png",
+          "game_seconds": 49.43333591148257,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8de16e8d1e2b290578db39cb8df457e6c09ad5df7305a1c038eb6164ec681a84"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00205.png",
+          "game_seconds": 49.51666924916208,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "6855016fbc63ca42ee6ff174e841a6bda5b6366271dc0685473fe07c72a6d3ba"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00206.png",
+          "game_seconds": 49.60000258684158,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b3296e81823da88c0bd4add30bfa1036a4e8911d594d497a53beb3be6eef31d8"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00207.png",
+          "game_seconds": 49.68333592452109,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1db0b9d5bc50d62352229bf41b37e6e47670268cfca2ae342d7ea258e2b1d4e9"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00208.png",
+          "game_seconds": 49.766669262200594,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5bcb04d8d1435c2741dc2fb4e40b181389e3a7f68abf8697c95585238680138a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00209.png",
+          "game_seconds": 49.8500025998801,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "0931fab7404ee9c3c646d57d7e5c8c6711394acd11a748cc75fdac999cd1c7ff"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00210.png",
+          "game_seconds": 49.933335937559605,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "f70973289a2a92ff604c8d98d6becd7f2081479463b51e450c2f3322892db459"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00211.png",
+          "game_seconds": 50.01666927523911,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7001fb121387529ab3e08559f8bfcce62bffbcfaa17cf038493ee7bc0b6fece1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00212.png",
+          "game_seconds": 50.100002612918615,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b3ab22b9e7b7a30201008c4b60b8859898ecfd1da1eb285ff42d4cae05651d95"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00213.png",
+          "game_seconds": 50.18333595059812,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "2918c32cdf87ac42235b4b1689d130a75d4415235549786e7524046358417e10"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00214.png",
+          "game_seconds": 50.266669288277626,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "9ce5de89b8df4ee0ff02178a1c60fc1e1b3f3554a6f7e638fdd4c0f0e7185510"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00215.png",
+          "game_seconds": 50.35000262595713,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7d8f40cafba51c475cebf5c12ddaba70648374288a1a67a04dc505bf9ded992b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00216.png",
+          "game_seconds": 50.43333596363664,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "a37ab7749e27b8d6c1bfa05bf7f00240955cda6ac010f19154779336c862c4c2"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00217.png",
+          "game_seconds": 50.51666930131614,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "26fb0e54f1301e2d3cf196d0861013875d7aa8312c0a00d4e01084b330ca538e"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00218.png",
+          "game_seconds": 50.60000263899565,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "fa5bf04f908745b340bfd4bd3f6e026a51039df06dd9902196bdf4d240e2051b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00219.png",
+          "game_seconds": 50.68333597667515,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "d4c265166aa220324104d6085e5120065f63827b57a867ecab4e578f4506fc17"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00220.png",
+          "game_seconds": 50.76666931435466,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8299c532dfdf56b7acb602dd55973887ff6d6c35beeaa9d2f06313415d1ca2bf"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00221.png",
+          "game_seconds": 50.85000265203416,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5f811de0fbd6c367fac7cdcf4ccf1f4f354639a164f10e3c9dc2546e4e369b2f"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00222.png",
+          "game_seconds": 50.93333598971367,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8158b70af47f9b0317d91bbc440a0440827af08f0e70914e04192f8e23cf2ae1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00223.png",
+          "game_seconds": 51.016669327393174,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1adcffd69de64b4b021aa05671130c62b8361621e2e6d18f5a574ac8853f7e48"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00224.png",
+          "game_seconds": 51.10000266507268,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1d3efb8ef4dc549066edf81c4e343849bcefb357d93bebe129aaecb61bb22761"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00225.png",
+          "game_seconds": 51.183336002752185,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e3b13c65ecc37689c4faced85f2add192bf1083178643ac7da67dfd45e82c40d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00226.png",
+          "game_seconds": 51.26666934043169,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8b0772f8a1536b74c75635fe39fb7e705eb8faae271466cd053be8ff3a6abbae"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00227.png",
+          "game_seconds": 51.350002678111196,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "bef9091fc43700fb2252ee58360f43262efb282ce63ad527dbba4c7b73a123d1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00228.png",
+          "game_seconds": 51.4333360157907,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7f0133afb67a98b82e32754f8270291bb177f038d2a31655e1f39208aeb0b6b0"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00229.png",
+          "game_seconds": 51.516669353470206,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "660c4a294ef4cb6732c2d8490f32868b5778f03a3d12717e003cf675c8d6ea45"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00230.png",
+          "game_seconds": 51.60000269114971,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b35e0a94bed2de822e4d2f4478e943ba4f52669911b24956669e152b63684b9d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00231.png",
+          "game_seconds": 51.68333602882922,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "93f2488d30712737adf01817fdb62ccdbaffe46d4e05fec2fae01ba725f44381"
+        }
+      ],
+      "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\Report.json",
+      "source_report_sha256": "9b001def47ac7d255dc5e73f3d77329ecef254c9f09d72ef948287e8e8fe138f",
+      "video_sha256": "eb5eeba492abc233b16cee9b3c799d4a5593890d849f2db21f7c0d75e27debee",
+      "observed_median_source_hz": 11.999999374151262,
+      "source_capture_hz": 12.0,
+      "source_frames_unchanged": true
+    },
+    "shield_damage": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutShieldDamage.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutShieldDamage.ffconcat",
+      "requested": 55,
+      "available": 54,
+      "missing_requests": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00054.png",
+          "phase": "shield_break_tail",
+          "time": 36.10000188276172,
+          "clip_window": "shield_damage",
+          "camera_evidence": {
+            "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "requested_view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "location_error_cm": 0.0,
+            "actual_camera_cm": [
+              -107.6204833871451,
+              -589.9772771451483,
+              412.6850437639623
+            ],
+            "requested_camera_cm": [
+              -107.6204833871451,
+              -589.9772771451483,
+              412.6850437639623
+            ],
+            "rotation_error_degrees": 0.0,
+            "actual_rotation_degrees": {
+              "pitch": -29.04416035329383,
+              "yaw": 110.97250629034717,
+              "roll": 4.173380578719686e-07
+            },
+            "requested_rotation_degrees": {
+              "pitch": -29.04416035329383,
+              "yaw": 110.97250629034717,
+              "roll": 4.173380578719686e-07
+            }
+          }
+        }
+      ],
+      "source_start_game_seconds": 31.600001648068428,
+      "source_end_game_seconds": 36.01666854508221,
+      "source_intervals_preserved_seconds": 4.4166668970137835,
+      "final_image_hold_seconds": 0.08333333767950535,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 4.500000234693289,
+      "duration_quantization_seconds": -2.3469328880310059e-07,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.08333333767950535,
+      "encoded_duration_seconds": 4.5,
+      "encoded_frame_count": 135,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutShieldDamageStart.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00000.png",
+          "game_seconds": 31.600001648068428,
+          "sha256": "0a197354e146b521342064c44bc391a5245aebd03395ce60635258a1eb683d8b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutShieldDamageMidway.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00027.png",
+          "game_seconds": 33.85000176541507,
+          "sha256": "84beb025139badfcb7b24a7902f593431768674314e3a6efced14033fbf0c79a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutShieldDamageComplete.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00053.png",
+          "game_seconds": 36.01666854508221,
+          "sha256": "38ca39904bc541bf2b1fe543012ee57720c894b7ce5278c4f7f0af8f8883d9cb"
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00000.png",
+          "game_seconds": 31.600001648068428,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "0a197354e146b521342064c44bc391a5245aebd03395ce60635258a1eb683d8b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00001.png",
+          "game_seconds": 31.683334985747933,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "2af777301cc1a6d866287a6016d424191fa791c2af2140973e0c2fd83101aee6"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00002.png",
+          "game_seconds": 31.76666832342744,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "28b594cb1cea1c0813831e68a29fa36151a78a17e4ab719bb2611aa8e0431d6a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00003.png",
+          "game_seconds": 31.850001661106944,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "915c2f0656bffe0ad5d7671a6965edbe8db0f121252e790c6962f587b0231761"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00004.png",
+          "game_seconds": 31.93333499878645,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "eee421e803eb3b8d45d5238f77cd18c9c3d86ed1c271579c132e9a43ac096bec"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00005.png",
+          "game_seconds": 32.016668336465955,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "bcf82cb582b8b876ca7e3c23652fa414c37a24e4669518504afc5e3afa7e6fd5"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00006.png",
+          "game_seconds": 32.10000167414546,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e22b9f16ba017dd5d159fcdf79f806e30020287c26bd2e97fa3006654a7b5ae1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00007.png",
+          "game_seconds": 32.183335011824965,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "08c20975e2d1162538ced2b81de725f4b9f83d8ba63789d07eba2f2c2a58f6d5"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00008.png",
+          "game_seconds": 32.26666834950447,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "54c3f45c9b9a2037d8d435a00669aa36357cf574885de2aec898636b40731e36"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00009.png",
+          "game_seconds": 32.350001687183976,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "3f6e413d640fed6032f45c8a1fa3b3ccffad52e8845ddca4340374f39fd36f12"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00010.png",
+          "game_seconds": 32.43333502486348,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5fd5148f9d3da9ef97da4782d7a5368085bd1246438631eb0758c1892c26c4ea"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00011.png",
+          "game_seconds": 32.51666836254299,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "ec1ad051efe19e4e2d3e0d69252b02bc737dc82d8e4b05f6f6b1937d9c59163a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00012.png",
+          "game_seconds": 32.60000170022249,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b66439062293af7bf64545929f43f599d7d42de69428ba103ee3fb769f7690f9"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00013.png",
+          "game_seconds": 32.683335037902,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1f2f674b21caca5696ae0cf0603ecede2de8ff538a2d78848c2ec9dd1edf2c85"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00014.png",
+          "game_seconds": 32.7666683755815,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b4f26c8bdc87d227fda4e0d4fb4b459504a701b2a252328ba6df40206e6116d1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00015.png",
+          "game_seconds": 32.85000171326101,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "03c7b2c728621ad60428ae7858b9a59779edea58b691953774d9977233b0b063"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00016.png",
+          "game_seconds": 32.933335050940514,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "d3049486f553e7f1352926213a80742468eb744da0379888a73161eaf2f911c6"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00017.png",
+          "game_seconds": 33.01666838862002,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "06198e385d66a0fa942c900f2d6a23dd8510f35d0cdfe35e0524690700ea1931"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00018.png",
+          "game_seconds": 33.100001726299524,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "9c16cf40865ed66ef4ab0c0c2bde6c27dc99f3501f7260f59e4fc9a38faff307"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00019.png",
+          "game_seconds": 33.18333506397903,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8ad19f0177a84dcc5a8432d13e766c76442a6fe37bcbeae438e2f0f2fcf11173"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00020.png",
+          "game_seconds": 33.266668401658535,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "fb75b105604d715b42403a7bd1332f4bd5c498ff14754af47dbb5e82416bb22f"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00021.png",
+          "game_seconds": 33.35000173933804,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "ba4460dc041b3120b4c12412972dc0acc55acbaf981f8ebee13e9d78600ae421"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00022.png",
+          "game_seconds": 33.433335077017546,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "494306be0e6e907d8422c13e78c306b5ba99fea57738944f37307e6cae0fcad7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00023.png",
+          "game_seconds": 33.51666841469705,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b8e2bab08926b4104c08a897fe65d0d35d12a18e6e2c6123b33157e8ce468a35"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00024.png",
+          "game_seconds": 33.600001752376556,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "663ecea0fd2990c07c5806c1a602a0e6129938e78e8a0a32cf8839860f8ce0f7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00025.png",
+          "game_seconds": 33.68333509005606,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "4664cafeae0ef75fd8e7e850eadd133e48eb0113ef21502c82cf43ef465c29cc"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00026.png",
+          "game_seconds": 33.76666842773557,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5405eb2e0d80f8e7fec9de250f8d4e48753e54d5aa8af26528b71d300cc3ba55"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00027.png",
+          "game_seconds": 33.85000176541507,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "84beb025139badfcb7b24a7902f593431768674314e3a6efced14033fbf0c79a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00028.png",
+          "game_seconds": 33.93333510309458,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "588c8519110d54a4d0300b3b051a9ac20c30ddec6dd036796e0aedada16e176b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00029.png",
+          "game_seconds": 34.01666844077408,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "97d8e64b65232cd71e943a015b6a778f1d809d22398bbbc17e18a2b5e01baaa0"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00030.png",
+          "game_seconds": 34.10000177845359,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "30b68b7bcd02a20ff9ce295646f2c36422b906563fa9f56b4089e6f3ce6f1fab"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00031.png",
+          "game_seconds": 34.183335116133094,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e6e2565dc84aa69372a8b31589ddca56378fd72efbb84791ff9880d2277eb866"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00032.png",
+          "game_seconds": 34.2666684538126,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b5672325f3724b19dd1246bfe0998b3cdcc41de0a922263d42016b455c1b925a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00033.png",
+          "game_seconds": 34.350001791492105,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "82be7a10413c0e895a5522b5f9bb9c777347b089e6b3eeeef47f2374a6ad9a1e"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00034.png",
+          "game_seconds": 34.43333512917161,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "91013e5a209d201f5355a59fd31e113ba4b1dc34a30c47cb5a894c6226a6c085"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00035.png",
+          "game_seconds": 34.516668466851115,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b7c304260a2f5347eea98aad64a9422642ee649d500ba269cee7bebe05e42939"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00036.png",
+          "game_seconds": 34.60000180453062,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "38d643b12b54f36e21e023f7d63fe0d28a389fb939d4061c83ad59c30dffdb3a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00037.png",
+          "game_seconds": 34.683335142210126,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "47111379c3fdc391177894f8971cfc63ceabb0d044c1c074d72f556ccd45cf81"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00038.png",
+          "game_seconds": 34.76666847988963,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "91f381b143f9d1f9d811fabdfa0235b9d256a97b1e20a8d7a56a32f8498d85ea"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00039.png",
+          "game_seconds": 34.85000181756914,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "3eef1c587e90e800243af285860e7a1a93c9a5f69f6469b3caf3303d09798ad2"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00040.png",
+          "game_seconds": 34.93333515524864,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "f2f8e165ef3b194463eb1441989632ef6f16ea187fc58557c262ad620695afa3"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00041.png",
+          "game_seconds": 35.01666849292815,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "efad3879c99a2f25702dd852382a5502b1f8a68eed12b5953da5a7d6e879b027"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00042.png",
+          "game_seconds": 35.10000183060765,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "a0f1c42acde030eec72926bef5fe2a96dda0475e7339dd83a1c225d933458bd5"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00043.png",
+          "game_seconds": 35.18333516828716,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "4d8004a6270b07487f40d0729c805e51968788bc0159157d482a26666902c7e4"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00044.png",
+          "game_seconds": 35.26666850596666,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "dbf9ba9973e9f0d5910ee0ee31e65b4b0508784a56ea97735ae3713212f2138f"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00045.png",
+          "game_seconds": 35.35000184364617,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "05cd9a654071f300850944d2f7dc22094cb2e89f8eb8f1daa66842d52b6cb505"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00046.png",
+          "game_seconds": 35.433335181325674,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "cd239f9acdc004ebb10552952f49c347ac1dca5423133a2cc594e7a9bda17a4a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00047.png",
+          "game_seconds": 35.51666851900518,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8c8d01987bd7920d0dd0ca115b381c198ab1f26512defe66f907ecb63e509e0e"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00048.png",
+          "game_seconds": 35.600001856684685,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "912564110d5cb1de7bc63776b7d59fd1b770263ce9afc1cc4959159132b84527"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00049.png",
+          "game_seconds": 35.68333519436419,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "0b38bf8490b8bea0076c3b80b3fe06b3fb9213f5e51c52178dcc1a1465802102"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00050.png",
+          "game_seconds": 35.766668532043695,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "35c6e0e78b8b2816509f9ef73f91b39d7e084cefcfdd13264a979b8e4f24a094"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00051.png",
+          "game_seconds": 35.8500018697232,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "24d4cc9b69e70d761d4bfcab0e582029b53879a0613e8e1db74bcf09113cfdfe"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00052.png",
+          "game_seconds": 35.933335207402706,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "c0d693ded4c3df5255a8a2f2090394011078d9dc70dd64dc45f18b72dca10980"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00053.png",
+          "game_seconds": 36.01666854508221,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "38ca39904bc541bf2b1fe543012ee57720c894b7ce5278c4f7f0af8f8883d9cb"
+        }
+      ],
+      "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\Report.json",
+      "source_report_sha256": "9b001def47ac7d255dc5e73f3d77329ecef254c9f09d72ef948287e8e8fe138f",
+      "video_sha256": "b8e1689384de55edeabd18981ad3f76e19099e5688f371233f376c702034e34c",
+      "observed_median_source_hz": 11.999999374151262,
+      "source_capture_hz": 12.0,
+      "source_frames_unchanged": true
+    },
+    "fire_nut": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutFireNut.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutFireNut.ffconcat",
+      "requested": 72,
+      "available": 71,
+      "missing_requests": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00126.png",
+          "phase": "fire_nut",
+          "time": 42.1000021956861,
+          "clip_window": "fire_nut",
+          "camera_evidence": {
+            "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "requested_view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "location_error_cm": 0.0,
+            "actual_camera_cm": [
+              650.7946815540336,
+              431.86551623814694,
+              453.4241018295288
+            ],
+            "requested_camera_cm": [
+              650.7946815540336,
+              431.86551623814694,
+              453.4241018295288
+            ],
+            "rotation_error_degrees": 0.0,
+            "actual_rotation_degrees": {
+              "pitch": -20.414708813426557,
+              "yaw": -103.24051991518718,
+              "roll": -2.789590752039952e-07
+            },
+            "requested_rotation_degrees": {
+              "pitch": -20.414708813426557,
+              "yaw": -103.24051991518718,
+              "roll": -2.789590752039952e-07
+            }
+          }
+        }
+      ],
+      "source_start_game_seconds": 36.18333522044122,
+      "source_end_game_seconds": 42.0166688580066,
+      "source_intervals_preserved_seconds": 5.833333637565374,
+      "final_image_hold_seconds": 0.08333333767950535,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "target_presentation_duration_seconds": 5.91666697524488,
+      "duration_quantization_seconds": -0.016666975244879367,
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.08333333767950535,
+      "encoded_duration_seconds": 5.9,
+      "encoded_frame_count": 177,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutFireNutStart.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00055.png",
+          "game_seconds": 36.18333522044122,
+          "sha256": "2897ea21dd2e40552149eca398ffc89325776bb5ef9290d9011bdef4feaa2b70"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutFireNutMidway.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00090.png",
+          "game_seconds": 39.10000203922391,
+          "sha256": "1b596e05f8e8c5010eef1039e9de5f5a06c2ff8e9faa79d0d7fd7b3458ab17f1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\NutVFXPolish_20261013\\NutFireNutComplete.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00125.png",
+          "game_seconds": 42.0166688580066,
+          "sha256": "c0ea283116ddb106a83715b8348af4942fea9470686123f59b6687045a07a7b4"
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00055.png",
+          "game_seconds": 36.18333522044122,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "2897ea21dd2e40552149eca398ffc89325776bb5ef9290d9011bdef4feaa2b70"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00056.png",
+          "game_seconds": 36.26666855812073,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "07b73a008f742a2bf73b449bccf42368cfb7499d22d83db17c963512dc315ad3"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00057.png",
+          "game_seconds": 36.35000189580023,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "803c946a17e814b120ed7fbe1f18404484712c60882c53c59077bff844d9a1a8"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00058.png",
+          "game_seconds": 36.43333523347974,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "d5bc1de2ac2e2d3447bf716338b5ad1a57f3781ed09164407ea7b0d68dadd3d8"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00059.png",
+          "game_seconds": 36.516668571159244,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "9441fab31c92232e29e7b64d7401f06b9aea71d8c297fa0fbc25cf01daf3434f"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00060.png",
+          "game_seconds": 36.60000190883875,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "fd9c7fcb088c62bc8637a2cd9d9c697f4d15d863ffddd0281bdb800d91110f96"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00061.png",
+          "game_seconds": 36.683335246518254,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5cc7d4043c4b715b60313e1d40947f4c8e2affd1a1062a2ec1adfa3d5d92799a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00062.png",
+          "game_seconds": 36.76666858419776,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b80606895b64164ceb5dbc315d9d7979ee35a71aa8c1052cb422295f6a2ef5ee"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00063.png",
+          "game_seconds": 36.850001921877265,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e26fb64456767f89cb5afd93603e4f50dab4f8a43687326a85e355eff4b1d97f"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00064.png",
+          "game_seconds": 36.93333525955677,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "47f6665384181d5155ab16224ec04e6f34f60def4f8182ac5a35b2bd9cc51fb4"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00065.png",
+          "game_seconds": 37.016668597236276,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "a3e8ad8d0d3951de2b0cce54f14eb67a36218c808001bdc0fca4e218e38e2351"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00066.png",
+          "game_seconds": 37.10000193491578,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "f350153dbecbde2507eb3667ebc1b450caacfd00634769c7ddd917fefec83c65"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00067.png",
+          "game_seconds": 37.183335272595286,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "00f0eb6b497c6575f788f50982f037f678821860ddf177d255db11b847a3061e"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00068.png",
+          "game_seconds": 37.26666861027479,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "4663a0cab802ea5466934289593b2df42cfd23fcb062368f2744dcbf5f5827bb"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00069.png",
+          "game_seconds": 37.3500019479543,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "0b5b869ff9fc32d2c96e813ba529cb7730ad05d4528cac622c3b4ba0518f2f9a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00070.png",
+          "game_seconds": 37.4333352856338,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "edb83f621305c5f9fb43a563ef3f5e6a81e1f9c5198deea0166f086d11cb1bde"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00071.png",
+          "game_seconds": 37.51666862331331,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "a9f6f648c3249c94f7a5498aad6372fa486072038544c8f40ea0c41fb2f9649d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00072.png",
+          "game_seconds": 37.60000196099281,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "55f640feeb78385209e717d24f8a563414f175b5e37e6a7d2bee4e34b3550237"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00073.png",
+          "game_seconds": 37.68333529867232,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "610ab5e615d2202bb0f32cb2638feb520119b82480c291a37cc95e5608d0553d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00074.png",
+          "game_seconds": 37.766668636351824,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "c8af69746f6353ae6a1eb11425a98b7943ebb62abeabf40ee64b1c9ce5b6a7e6"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00075.png",
+          "game_seconds": 37.85000197403133,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "f9e16348bed5f9fea91d00d91bf9e83af221a2f466a321120dfec4889429042e"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00076.png",
+          "game_seconds": 37.933335311710835,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "2459fc8c280f8e6b1424cd5e67f0ab5f0751f425f8e7ebe6bc10f3aebdf0127e"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00077.png",
+          "game_seconds": 38.01666864939034,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "026b57e016e618d7a5ba6d4cd9a3cadd80ef88777e9d0c341691a9997bd028c1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00078.png",
+          "game_seconds": 38.100001987069845,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e0295ebaad88582847662f4a72220539a852e619279de660a95f63792e51e706"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00079.png",
+          "game_seconds": 38.18333532474935,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7d1b8bb30fc44ad8aea68292708db0f88b5dcc4bca6d95428691c5780317bd27"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00080.png",
+          "game_seconds": 38.266668662428856,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1cae36b8a828af0b540b3e4f93be04512f479014cd3b42b9f0a04e630a34fd44"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00081.png",
+          "game_seconds": 38.35000200010836,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b809e8b22b2dc717c4e70930434d700d1bc827e0530973a4893d920f3f497a6d"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00082.png",
+          "game_seconds": 38.43333533778787,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "f47b44ea2a1b30ee5b80a72a17ea337fad96c134834173b59af0081712a29126"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00083.png",
+          "game_seconds": 38.51666867546737,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "d0df8d14c28aac093aa23aac6eb1cc4d048f446dce5e8e4b84895e935203cc4c"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00084.png",
+          "game_seconds": 38.60000201314688,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "29dc95b12babd9b6561e7ea59b5b62e4d960c2b0778bd151762a76a99c5b8f59"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00085.png",
+          "game_seconds": 38.68333535082638,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e454744458800f29d32d83c010c02282494ee14b7a4b46536cd2f19cad56e371"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00086.png",
+          "game_seconds": 38.76666868850589,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1ab8bf458b6f847061c9de0ced5ce646a738f3a3812534b92f65407baf1603e7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00087.png",
+          "game_seconds": 38.85000202618539,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "7a82f6c6bc3d29c30cb2b6a9176ac5e2a0fd61b130eee9362dc8cbd4463adfb5"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00088.png",
+          "game_seconds": 38.9333353638649,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b2e2385a77669789f6951e77cc008525238d931a11d2a4b3f98d0e63db3eb175"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00089.png",
+          "game_seconds": 39.016668701544404,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "3eeae12a290020e80ae6ace769290645449e8d6fc9625df2a477c233cdb4104c"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00090.png",
+          "game_seconds": 39.10000203922391,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1b596e05f8e8c5010eef1039e9de5f5a06c2ff8e9faa79d0d7fd7b3458ab17f1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00091.png",
+          "game_seconds": 39.183335376903415,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5bdc1690084ec35196278140e767620c44d7bedd2126bd8d52f8c5e7dfcaac21"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00092.png",
+          "game_seconds": 39.26666871458292,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5a1da878305c8af268c69a2fb950b106345f0e5d3868e0182c2e410abfd6aefb"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00093.png",
+          "game_seconds": 39.350002052262425,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b46db6a29c2776f0db3d79b57d7061d635c0dae1c9b98280ffebe8af4a46e3fa"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00094.png",
+          "game_seconds": 39.43333538994193,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "629a0d9896293c5c78ece87b00e04cb451fa23863d65c6d1213c0d2c63c5586a"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00095.png",
+          "game_seconds": 39.516668727621436,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "2587bdfc96db3052e76ab6365706387d1ded53f2b2914d2917f4e17681ae6285"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00096.png",
+          "game_seconds": 39.60000206530094,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "524e3d66cc45c682fd7ddfcbdb59b013ce3c7106413693265b510734a03df373"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00097.png",
+          "game_seconds": 39.68333540298045,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "c14a2af2d0d1bbb53c9e4f608dface17c019092d3f21c56f9a0478d8ec728833"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00098.png",
+          "game_seconds": 39.76666874065995,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "124c61741ccf71878808ca60bc2ad8bb356eae6abe748ae9e5a20e41b8d0c195"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00099.png",
+          "game_seconds": 39.85000207833946,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e2e792622b10cff8e2ba416317e49ce495014ac3f58c2b36f22c2df0ca074e81"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00100.png",
+          "game_seconds": 39.93333541601896,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "43f92c74280a6ec74670d8de54b1e94c02a539c6d77f070350b9ae70294700c4"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00101.png",
+          "game_seconds": 40.01666875369847,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "2bb45e0c1adfdfe99bb371a2b87e5ea8052ad8616437f967ed7852a24a3746e1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00102.png",
+          "game_seconds": 40.100002091377974,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "19c57b24ed21d8f9a9f9ae0fce4ffbb3a9a95ac1c2bf09114b2f9877714d339c"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00103.png",
+          "game_seconds": 40.18333542905748,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e747d94f19baea881d55e9d6ee5b12b50c79922c14eb1777c83f403db261f39c"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00104.png",
+          "game_seconds": 40.266668766736984,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "81bc961bf286ab420f7d3ea32c6a0db6342bba906a5ba8b89a10477d7c0e7aa7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00105.png",
+          "game_seconds": 40.35000210441649,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "8b16cabff026a4bb5e1c46b046f88adc72d315ecbd34a3067ff7d3a5cb1740e7"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00106.png",
+          "game_seconds": 40.433335442095995,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "795688d8dcc707982299ecbbe0a760c73e3ecd9f6d0e4327433dba818e36abfd"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00107.png",
+          "game_seconds": 40.5166687797755,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "34c3261246eed79cc2bc6b145b5601809de2b8a3047c8cad48ae93c78c59cd2c"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00108.png",
+          "game_seconds": 40.600002117455006,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "9f6a6a4f50246b4d174968da3c8c445875c36f10493918f9231cbc1fb164a482"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00109.png",
+          "game_seconds": 40.68333545513451,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "43046ead8da784aca209981cb9c51a3acf6524eac06e5c60c8dafd8b950d2333"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00110.png",
+          "game_seconds": 40.766668792814016,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "83acb6a0497522f9fc212bb1295e11b847a1d655fbfff5c35bcf5cc2146d1ae8"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00111.png",
+          "game_seconds": 40.85000213049352,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "0965e265501b904b50efd7f8bab2714b7ff4516be06d7c4c4c1125ae0dcdb93f"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00112.png",
+          "game_seconds": 40.93333546817303,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "80f9a4d19b8607f21008bdb4a0f5f59ceee8fa8dd4601c67296d459fc6e4d58f"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00113.png",
+          "game_seconds": 41.01666880585253,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "1b0c438630c4928d518493fda19835bafd51f5c8b2948f83e6bdfd6277d04759"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00114.png",
+          "game_seconds": 41.10000214353204,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "577f6f6ab3b7bad18fbdb2620c81ecd9625888f374ecc4fb96e7552a8f83c363"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00115.png",
+          "game_seconds": 41.18333548121154,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "5aa5447e2c6506e4811ad989c3232fbc3e1a098bd33df7598123435d9d9adaf3"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00116.png",
+          "game_seconds": 41.26666881889105,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "07b25c401e5222c16cb5dd646dab07009f813ce85eec5a06214dc08d777d72c1"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00117.png",
+          "game_seconds": 41.350002156570554,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "c3ae8597357f3fd2c61b698115c916deff09cc54fbc3be98525fbcc46ff1227b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00118.png",
+          "game_seconds": 41.43333549425006,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "b94bfaff6467cee4277b9b7d4fda615e438bce6954eadf95f044419f52e7c9e3"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00119.png",
+          "game_seconds": 41.516668831929564,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "953b8d90e25065abea9488bdbfcd4160cb39bbebce3662c7bfe750ed23eabc45"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00120.png",
+          "game_seconds": 41.60000216960907,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "e9716286b19c4c94971f5af84c9cadac0aec478111ba91f3750c3bac8c1a2360"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00121.png",
+          "game_seconds": 41.683335507288575,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "2da824bd49f62d70a443eecd9bb28cc2318472d7e19c022e39cd39e54b99ee79"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00122.png",
+          "game_seconds": 41.76666884496808,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "efc57fb5467697059e7477c3bf6ee67b73ecea0a4bbe1efeb4b3317a2d7b6475"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00123.png",
+          "game_seconds": 41.850002182647586,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "9b71f2ec2d04b08eb453262866c0971092b101ceed2bda1d9d30403cd1abe1dd"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00124.png",
+          "game_seconds": 41.93333552032709,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "37da5633e874cad8d9d87eee182ece749f64c02a959dde4478e82e7a3646176b"
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\frames\\00125.png",
+          "game_seconds": 42.0166688580066,
+          "held_duration_seconds": 0.08333333767950535,
+          "sha256": "c0ea283116ddb106a83715b8348af4942fea9470686123f59b6687045a07a7b4"
+        }
+      ],
+      "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutVFXPolishSolo\\Runs\\20261013T143146Z_e50b7a01\\Report.json",
+      "source_report_sha256": "9b001def47ac7d255dc5e73f3d77329ecef254c9f09d72ef948287e8e8fe138f",
+      "video_sha256": "223169b4f6b244c5b644b09087e077cef27c6dce817f6e0e85130b1e73454813",
+      "observed_median_source_hz": 11.999999374151262,
+      "source_capture_hz": 12.0,
+      "source_frames_unchanged": true
+    }
+  },
+  "decode_passed": true
+}
