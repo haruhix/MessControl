@@ -1,0 +1,545 @@
+{
+  "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\Report.json",
+  "native_report_passed": true,
+  "timing": "Separate real game-time windows; all written sequence images included. No interpolation or time scaling.",
+  "source_capture_hz": null,
+  "windows": {
+    "entry": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowExpansion.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowExpansion.ffconcat",
+      "requested": 42,
+      "available": 42,
+      "missing_requests": [],
+      "source_start_game_seconds": 4.033333543688059,
+      "source_end_game_seconds": 10.866667233407497,
+      "source_intervals_preserved_seconds": 6.8333336897194386,
+      "final_image_hold_seconds": 0.1666666753590107,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "requested_missing_initial_seconds": 0.0,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 7.166667,
+      "encoded_frame_count": 215,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowExpansionStart.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00000.png",
+          "game_seconds": 4.033333543688059
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowExpansionMidway.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00021.png",
+          "game_seconds": 7.5333337262272835
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowExpansionComplete.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00041.png",
+          "game_seconds": 10.866667233407497
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00000.png",
+          "game_seconds": 4.033333543688059,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00001.png",
+          "game_seconds": 4.2000002190470695,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00002.png",
+          "game_seconds": 4.36666689440608,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00003.png",
+          "game_seconds": 4.533333569765091,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00004.png",
+          "game_seconds": 4.700000245124102,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00005.png",
+          "game_seconds": 4.866666920483112,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00006.png",
+          "game_seconds": 5.033333595842123,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00007.png",
+          "game_seconds": 5.200000271201134,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00008.png",
+          "game_seconds": 5.366666946560144,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00009.png",
+          "game_seconds": 5.533333621919155,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00010.png",
+          "game_seconds": 5.700000297278166,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00011.png",
+          "game_seconds": 5.8666669726371765,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00012.png",
+          "game_seconds": 6.033333647996187,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00013.png",
+          "game_seconds": 6.200000323355198,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00014.png",
+          "game_seconds": 6.366666998714209,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00015.png",
+          "game_seconds": 6.533333674073219,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00016.png",
+          "game_seconds": 6.70000034943223,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00017.png",
+          "game_seconds": 6.866667024791241,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00018.png",
+          "game_seconds": 7.033333700150251,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00019.png",
+          "game_seconds": 7.200000375509262,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00020.png",
+          "game_seconds": 7.366667050868273,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00021.png",
+          "game_seconds": 7.5333337262272835,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00022.png",
+          "game_seconds": 7.700000401586294,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00023.png",
+          "game_seconds": 7.866667076945305,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00024.png",
+          "game_seconds": 8.033333752304316,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00025.png",
+          "game_seconds": 8.200000427663326,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00026.png",
+          "game_seconds": 8.366667103022337,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00027.png",
+          "game_seconds": 8.533333778381348,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00028.png",
+          "game_seconds": 8.700000453740358,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00029.png",
+          "game_seconds": 8.866667129099369,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00030.png",
+          "game_seconds": 9.03333380445838,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00031.png",
+          "game_seconds": 9.20000047981739,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00032.png",
+          "game_seconds": 9.366667155176401,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00033.png",
+          "game_seconds": 9.533333830535412,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00034.png",
+          "game_seconds": 9.700000505894423,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00035.png",
+          "game_seconds": 9.866667181253433,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00036.png",
+          "game_seconds": 10.033333856612444,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00037.png",
+          "game_seconds": 10.200000531971455,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00038.png",
+          "game_seconds": 10.366667207330465,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00039.png",
+          "game_seconds": 10.533333882689476,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00040.png",
+          "game_seconds": 10.700000558048487,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00041.png",
+          "game_seconds": 10.866667233407497,
+          "held_duration_seconds": 0.1666666753590107
+        }
+      ]
+    },
+    "return": {
+      "video": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowReturn.mp4",
+      "concat_manifest": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowReturn.ffconcat",
+      "requested": 40,
+      "available": 38,
+      "missing_requests": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00042.png",
+          "phase": "wait_in_native_warm_zone",
+          "time": 43.383335595950484,
+          "camera": {
+            "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "camera_manager_location_cm": [
+              1014.2809626986316,
+              -2569.509537227321,
+              872.2536219358444
+            ],
+            "requested_camera_location_cm": [
+              1014.2809626986316,
+              -2569.509537227321,
+              872.2536219358444
+            ],
+            "location_error_cm": 0.0
+          },
+          "clip_window": "return",
+          "cold_expiry_game_seconds": 45.383333614096045
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00078.png",
+          "phase": "rest_local_aura_hold",
+          "time": 49.38333590887487,
+          "camera": {
+            "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "camera_manager_location_cm": [
+              1014.2809626986316,
+              -2569.509537227321,
+              872.2536219358444
+            ],
+            "requested_camera_location_cm": [
+              1014.2809626986316,
+              -2569.509537227321,
+              872.2536219358444
+            ],
+            "location_error_cm": 0.0
+          },
+          "clip_window": "return",
+          "cold_expiry_game_seconds": 45.383333614096045
+        }
+      ],
+      "source_start_game_seconds": 43.550002271309495,
+      "source_end_game_seconds": 49.8833359349519,
+      "source_intervals_preserved_seconds": 6.3333336636424065,
+      "final_image_hold_seconds": 0.1666666753590107,
+      "final_hold_policy": "Median requested capture interval; a presentation hold, not a source timestamp.",
+      "requested_missing_initial_seconds": 0.1666666753590107,
+      "requested_missing_final_seconds": 0.0,
+      "encoded_duration_seconds": 6.633333,
+      "encoded_frame_count": 199,
+      "codec": "h264",
+      "width": 1280,
+      "height": 720,
+      "full_decode": "PASS",
+      "posters": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowReturnStart.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00043.png",
+          "game_seconds": 43.550002271309495
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowReturnMidway.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00062.png",
+          "game_seconds": 46.7166691031307
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\KenneySnowReturnComplete.png",
+          "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00081.png",
+          "game_seconds": 49.8833359349519
+        }
+      ],
+      "source_sequence": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00043.png",
+          "game_seconds": 43.550002271309495,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00044.png",
+          "game_seconds": 43.716668946668506,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00045.png",
+          "game_seconds": 43.883335622027516,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00046.png",
+          "game_seconds": 44.05000229738653,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00047.png",
+          "game_seconds": 44.21666897274554,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00048.png",
+          "game_seconds": 44.38333564810455,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00049.png",
+          "game_seconds": 44.55000232346356,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00050.png",
+          "game_seconds": 44.71666899882257,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00051.png",
+          "game_seconds": 44.88333567418158,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00052.png",
+          "game_seconds": 45.05000234954059,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00053.png",
+          "game_seconds": 45.2166690248996,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00054.png",
+          "game_seconds": 45.38333570025861,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00055.png",
+          "game_seconds": 45.55000237561762,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00056.png",
+          "game_seconds": 45.716669050976634,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00057.png",
+          "game_seconds": 45.883335726335645,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00058.png",
+          "game_seconds": 46.050002401694655,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00059.png",
+          "game_seconds": 46.216669077053666,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00060.png",
+          "game_seconds": 46.38333575241268,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00061.png",
+          "game_seconds": 46.55000242777169,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00062.png",
+          "game_seconds": 46.7166691031307,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00063.png",
+          "game_seconds": 46.88333577848971,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00064.png",
+          "game_seconds": 47.05000245384872,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00065.png",
+          "game_seconds": 47.21666912920773,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00066.png",
+          "game_seconds": 47.38333580456674,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00067.png",
+          "game_seconds": 47.55000247992575,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00068.png",
+          "game_seconds": 47.71666915528476,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00069.png",
+          "game_seconds": 47.88333583064377,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00070.png",
+          "game_seconds": 48.050002506002784,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00071.png",
+          "game_seconds": 48.216669181361794,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00072.png",
+          "game_seconds": 48.383335856720805,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00073.png",
+          "game_seconds": 48.550002532079816,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00074.png",
+          "game_seconds": 48.71666920743883,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00075.png",
+          "game_seconds": 48.88333588279784,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00076.png",
+          "game_seconds": 49.05000255815685,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00077.png",
+          "game_seconds": 49.21666923351586,
+          "held_duration_seconds": 0.3333333507180214
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00079.png",
+          "game_seconds": 49.55000258423388,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00080.png",
+          "game_seconds": 49.71666925959289,
+          "held_duration_seconds": 0.1666666753590107
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\frames\\00081.png",
+          "game_seconds": 49.8833359349519,
+          "held_duration_seconds": 0.1666666753590107
+        }
+      ]
+    }
+  },
+  "decode_passed": true,
+  "exact_review_stills": [
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\05_native_reverse_radial_front.png",
+      "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\screenshots\\05_native_reverse_radial_front.png",
+      "game_seconds": 46.983335783705115
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Artifacts\\KenneySnowPowder_20261013\\06_reverse_complete_local_aura_and_slick_ice.png",
+      "source_file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\KenneySnowPowderSolo\\Runs\\20261013T025612Z_0060c00e\\screenshots\\06_reverse_complete_local_aura_and_slick_ice.png",
+      "game_seconds": 48.78333587758243
+    }
+  ],
+  "timing_quantization": "Encoded 30 fps presentation repeats captured images; source timing remains recorded in manifest. Output timestamps are quantized by image demuxing and video frame cadence."
+}

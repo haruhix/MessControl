@@ -1,0 +1,22 @@
+{
+  "video": "E:/DEVGAME/MessControl/Artifacts/IcePhaseTransition_20261013/IcePhaseExpansion.mp4",
+  "poster": "E:/DEVGAME/MessControl/Artifacts/IcePhaseTransition_20261013/IcePhaseExpansion.png",
+  "genuine_source_frames": 42,
+  "game_duration": 6.8333336897194386,
+  "encoded": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1280,
+        "height": 720,
+        "nb_frames": "212"
+      }
+    ],
+    "format": {
+      "duration": "7.066667"
+    }
+  },
+  "timestamps": "E:/DEVGAME/MessControl/Artifacts/IcePhaseTransition_20261013/IcePhaseExpansion.ffconcat"
+}

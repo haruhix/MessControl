@@ -59,6 +59,10 @@ struct FMCIcicleStrike
     UPROPERTY(BlueprintReadOnly) double ImpactAt=0;
     UPROPERTY(BlueprintReadOnly) int32 Id=0;
     UPROPERTY(BlueprintReadOnly) bool bImpacted=false;
+    /** Prison warnings are cancelled as soon as this player's feet are freed. */
+    UPROPERTY(BlueprintReadOnly) TObjectPtr<AMCToothCharacter> Prisoner;
+    UPROPERTY(BlueprintReadOnly) bool bPrisonPunishment=false;
+    UPROPERTY(BlueprintReadOnly) bool bCancelled=false;
 };
 
 /** A pickaxe-breakable crystal disables only the circle which owns it. */
@@ -90,7 +94,7 @@ struct FMCBrushedWarmPatch
     UPROPERTY(BlueprintReadOnly) float RadiusMultiplier=1;
 };
 
-/** Break the central crystal, transfer between warm zones and dodge cold spells. */
+/** Two-stage winter boss; native lab fixtures retain their original scripted event. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCIceEvent : public AActor
 {
@@ -108,6 +112,15 @@ public:
     bool HitWithPickaxe(AMCToothCharacter* Hero,float Damage);
     bool HitObstructionWithPickaxe(AMCToothCharacter* Hero,float Damage,FVector& Point);
     float FrostAmount() const;
+    /** Stateless presentation uses the replicated start of each global-cold cycle. */
+    static constexpr float PhaseTransitionChargeSeconds=.45f;
+    static constexpr float PhaseTransitionSweepSeconds=2.6f;
+    static constexpr float PhaseTransitionClimateSeconds=.65f;
+    float PhaseTransitionAge() const;
+    float PhaseReturnAge() const;
+    float PhaseTransitionProgress() const;
+    float PhaseTransitionRadius() const;
+    float ClimateContribution() const;
     float CircleDuration(int32 Index) const;
     float SafeRadius() const;
     float NextSafeRadius() const;
@@ -123,6 +136,31 @@ public:
     bool HasAuthoredCandy() const;
     FVector CrystalWorldPosition(const FMCIceZoneCrystal& Crystal,const FHitResult& Floor,double Time) const;
     float GroundWaveRadius(double Time) const;
+    UFUNCTION(BlueprintPure,Category="Ice|Cold Throne") bool UsesColdThroneContract() const { return !bLabEvent; }
+    UFUNCTION(BlueprintPure,Category="Ice|Cold Throne") bool IsGlobalColdActive() const;
+    UFUNCTION(BlueprintPure,Category="Ice|Cold Throne") float ColdThroneSecondsRemaining() const;
+    UFUNCTION(BlueprintPure,Category="Ice|Cold Throne") float ColdThroneCooldownRemaining() const;
+    UFUNCTION(BlueprintPure,Category="Ice|Cold Throne") bool IsInsideColdThrone(FVector WorldPoint) const;
+    UFUNCTION(BlueprintPure,Category="Ice|Attacks") float GetAbilityCooldownRemaining(EMCCandyAttack Kind) const;
+    void CancelPrisonFor(const AMCToothCharacter* Hero);
+
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Cold Throne",meta=(ClampMin="1",Units="s")) float ColdThroneActiveSeconds=40;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Cold Throne",meta=(ClampMin="1",Units="s")) float ColdThroneRestSeconds=40;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ice|Cold Throne") bool bColdThroneActive=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ice|Cold Throne") double ColdThroneEndsAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ice|Cold Throne") double NextColdThroneAt=0;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="1",Units="s")) float IceBombCooldownSeconds=5;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="1",Units="s")) float ColdWaveCooldownSeconds=10;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="1",Units="s")) float IcePrisonCooldownSeconds=15;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="3",ClampMax="5",Units="s")) float IcePrisonEscapeSeconds=4;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="50",Units="cm")) float IceBombRadius=300;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="0")) float IceBombDamage=20;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="0")) float IceBombPush=650;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="50",Units="cm")) float IcePrisonRadius=300;
+    UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Attacks",meta=(ClampMin="0")) float IcePrisonDamage=10;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ice|Attacks") double NextIceBombAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ice|Attacks") double NextColdWaveAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Ice|Attacks") double NextIcePrisonAt=0;
 
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Body;
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> CandyVisual;
@@ -148,7 +186,7 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Ice",meta=(ClampMin="1")) float CandyHealthPerPlayer=1440;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice",meta=(ClampMin="1",Units="s")) float ArrivalSeconds=3;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice",meta=(ClampMin="4",Units="s")) float FreezeSeconds=12;
-    /** Reference thaw time; the winter thaw rate is half this reference rate. */
+    /** Reference thaw time; warm zones reduce the freeze meter at half this reference rate. */
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice",meta=(ClampMin="1",Units="s")) float ThawSeconds=4;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Circles",meta=(ClampMin="20",Units="s")) float CircleSeconds=45;
     UPROPERTY(EditAnywhere,Replicated,BlueprintReadWrite,Category="Ice|Circles",meta=(ClampMin="0",Units="s")) float CircleStepSeconds=5;
@@ -202,6 +240,7 @@ public:
     UPROPERTY(Replicated,BlueprintReadOnly) FVector NovaDirection=FVector::ForwardVector;
 private:
     friend class AMCVFXLabIceStation;
+    friend class FMCIceBossPhaseTest;
     // Native lab stations explicitly own their participants and never take over a match.
     UPROPERTY(Replicated) bool bLabEvent=false;
     TArray<TWeakObjectPtr<AMCToothCharacter>> LabParticipants;
@@ -224,6 +263,9 @@ private:
     void BeginNova();
     void ResolveNova();
     void UpdateBossAttacks(double Time);
+    void UpdateColdThrone(double Time);
+    void ResolveIceBomb();
+    bool CanStrikePrisoner(const FMCIcicleStrike& Strike) const;
     bool BeginBossAttack(EMCCandyAttack Kind);
     void ResolveScream();
     void UpdateGroundWave(double Time);

@@ -41,6 +41,8 @@ private:
     void RetireBurst(UNiagaraComponent* Component);
     void StopLoops();
     void UpdateWindSheet(const AMCIceEvent& Event, double ServerTime, float Strength, bool bWarning);
+    void UpdateColdThronePresentation(const AMCIceEvent& Event, float DeltaSeconds, double ServerTime);
+    void UpdateBombPresentation(const AMCIceEvent& Event, double ServerTime);
     void UpdateFrozenFeet(const AMCIceEvent& Event);
     void UpdateHealthLabels(const AMCIceEvent& Event, double ServerTime);
     UFUNCTION() void OnBurstFinished(UNiagaraComponent* Component);
@@ -62,6 +64,9 @@ private:
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> Wind;
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> Snow;
     UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> CoreCharge;
+    UPROPERTY(Transient) TObjectPtr<UNiagaraComponent> BombCharge;
+    UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> WinterWisps;
+    UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> WinterSnow;
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> VortexWisps;
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> VortexSnow;
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> CrystalCharges;
@@ -71,6 +76,7 @@ private:
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> Bursts;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UProceduralMeshComponent> WindSheet;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> CrystalFacets;
+    UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> BombFacets;
     UPROPERTY(Transient) TArray<TObjectPtr<UStaticMeshComponent>> FootFacets;
     UPROPERTY(Transient) TArray<TObjectPtr<UNiagaraComponent>> FootMotes;
     UPROPERTY(Transient) TObjectPtr<UTextRenderComponent> CoreHealthLabel;
@@ -88,6 +94,9 @@ private:
     double LastSheetUpdate=-100;
     double LastCrystalUpdate=-100;
     int32 LastImpactStrikeId=0;
+    int32 LastBombImpactSerial=0;
+    float WinterStrength=0;
+    bool bWasGlobalCold=false;
     bool bInitialized=false;
     bool bWasActive=false;
     bool bFinishing=false;

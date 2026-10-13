@@ -110,7 +110,7 @@ void AMCColdColaEvent::SetFrost(float Amount)
     for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It)
         if(*It!=this && !It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
     for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
-        if(!It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
+        if(!It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->ClimateContribution());
     if(auto* MPC=LoadObject<UMaterialParameterCollection>(nullptr,TEXT("/Game/Gameplay/Cold/MPC_MouthClimate.MPC_MouthClimate")))
         GetWorld()->GetParameterCollectionInstance(MPC)->SetScalarParameterValue(TEXT("ColdAmount"),Amount);
 }

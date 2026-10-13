@@ -1,6 +1,7 @@
 #include "MCIceEvent.h"
 #include "MCPerkComponent.h"
 #include "MCIceEventVFX.h"
+#include "Algo/MinElement.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Engine/SkeletalMesh.h"
@@ -8,6 +9,7 @@
 #include "MCFreezeBarWidget.h"
 #include "MCGameMode.h"
 #include "MCGameState.h"
+#include "MCGameDirector.h"
 #include "MCInventoryComponent.h"
 #include "MCBrushContactComponent.h"
 #include "MCLocomotionSurface.h"
@@ -207,6 +209,18 @@ void AMCIceEvent::Start()
     BossVortexSeconds=FMath::IsFinite(BossVortexSeconds)?FMath::Clamp(BossVortexSeconds,.5f,12.f):5.f;
     BossFrostRadius=FMath::IsFinite(BossFrostRadius)?FMath::Clamp(BossFrostRadius,100.f,1500.f):700.f;
     BossFreezeMultiplier=FMath::IsFinite(BossFreezeMultiplier)?FMath::Clamp(BossFreezeMultiplier,1.f,5.f):2.f;
+    auto Seconds=[](float Value,float Default,float Maximum) {return FMath::Clamp(FMath::IsFinite(Value)?Value:Default,1.f,Maximum);};
+    ColdThroneActiveSeconds=Seconds(ColdThroneActiveSeconds,40,120);
+    ColdThroneRestSeconds=Seconds(ColdThroneRestSeconds,40,120);
+    IceBombCooldownSeconds=Seconds(IceBombCooldownSeconds,5,90);
+    ColdWaveCooldownSeconds=Seconds(ColdWaveCooldownSeconds,10,90);
+    IcePrisonCooldownSeconds=Seconds(IcePrisonCooldownSeconds,15,90);
+    IcePrisonEscapeSeconds=FMath::Clamp(FMath::IsFinite(IcePrisonEscapeSeconds)?IcePrisonEscapeSeconds:4.f,3.f,5.f);
+    IceBombRadius=FMath::Clamp(FMath::IsFinite(IceBombRadius)?IceBombRadius:300.f,50.f,900.f);
+    IcePrisonRadius=FMath::Clamp(FMath::IsFinite(IcePrisonRadius)?IcePrisonRadius:300.f,50.f,900.f);
+    IceBombDamage=FMath::Clamp(FMath::IsFinite(IceBombDamage)?IceBombDamage:20.f,0.f,100.f);
+    IcePrisonDamage=FMath::Clamp(FMath::IsFinite(IcePrisonDamage)?IcePrisonDamage:10.f,0.f,100.f);
+    IceBombPush=FMath::Clamp(FMath::IsFinite(IceBombPush)?IceBombPush:650.f,0.f,2000.f);
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     Random.Initialize((State?State->RunSeed:41)^FMath::Rand()^0x1ce2026);
     FHitResult Floor;
@@ -221,7 +235,11 @@ void AMCIceEvent::Start()
     NextNovaAt=CircleStartedAt+NovaIntervalSeconds;
     BossAttack=FMCCandyAttackState(); ExtinguishedZones.Reset(); WaveHitHeroes.Reset(); bSecondPhase=false;
     NextBossAttackAt=CircleStartedAt+6; NextScreamAt=0;
-    if(bUseAnimatedBossAttacks && !bLabEvent)
+    bColdThroneActive=false; ColdThroneEndsAt=NextColdThroneAt=0;
+    NextIceBombAt=CircleStartedAt+IceBombCooldownSeconds;
+    NextColdWaveAt=CircleStartedAt+ColdWaveCooldownSeconds;
+    NextIcePrisonAt=0;
+    if(UsesColdThroneContract())
     {
         NextZoneCrystalAt=CircleStartedAt+6; NextNovaAt=CircleStartedAt+12;
         AttackRecoverySeconds=FMath::Clamp(FMath::IsFinite(AttackRecoverySeconds)?AttackRecoverySeconds:5.f,2.f,12.f);
@@ -230,6 +248,7 @@ void AMCIceEvent::Start()
         ScreamWarningSeconds=FMath::Clamp(FMath::IsFinite(ScreamWarningSeconds)?ScreamWarningSeconds:2.f,1.5f,5.f);
         ScreamCooldownSeconds=FMath::Clamp(FMath::IsFinite(ScreamCooldownSeconds)?ScreamCooldownSeconds:24.f,16.f,90.f);
     }
+    if(UsesColdThroneContract()) NextBossAttackAt=CircleStartedAt;
     Stage=EMCIceEventStage::Arrival;
     const FBox Bounds=Tongue->Surface->Bounds.GetBox();
     SlipperyFloor=GetWorld()->SpawnActor<AMCLocomotionSurface>(Bounds.GetCenter(),FRotator::ZeroRotator);
@@ -246,6 +265,116 @@ void AMCIceEvent::Start()
 float AMCIceEvent::FrostAmount() const
 {
     return IsActive()?FMath::Clamp(float((Now()-StartedAt)/FMath::Max(1.f,ArrivalSeconds)),0.f,1.f):0;
+}
+
+float AMCIceEvent::PhaseTransitionAge() const
+{
+    // EndsAt is updated by the existing server clock. Late clients enter at
+    // its current age, and the next cold cycle has the same readable front.
+    return IsGlobalColdActive()?float(FMath::Max(0.,Now()-(ColdThroneEndsAt-ColdThroneActiveSeconds))):-1.f;
+}
+
+float AMCIceEvent::PhaseTransitionProgress() const
+{
+    const float Age=PhaseTransitionAge();
+    if(Age>=0) return FMath::Clamp((Age-PhaseTransitionChargeSeconds)/PhaseTransitionSweepSeconds,0.f,1.f);
+    const float ReturnAge=PhaseReturnAge();
+    // First clear the environment blanket, then retract the white tongue
+    // frost to the permanent local aura during the forty-second rest.
+    return ReturnAge>=0?1-FMath::Clamp((ReturnAge-PhaseTransitionClimateSeconds)/PhaseTransitionSweepSeconds,0.f,1.f):0.f;
+}
+
+float AMCIceEvent::PhaseReturnAge() const
+{
+    const double Age=Now()-ColdThroneEndsAt;
+    return UsesColdThroneContract() && Stage==EMCIceEventStage::Active && bSecondPhase
+        && !IsGlobalColdActive() && ColdThroneEndsAt>0 && Age>=0?float(Age):-1.f;
+}
+
+float AMCIceEvent::PhaseTransitionRadius() const
+{
+    FHitResult Floor;
+    if(!IsValid(Tongue) || !Tongue->Surface || !AnchorFloor(CandyAnchor,Floor)) return BossFrostRadius;
+    const FBox Bounds=Tongue->Surface->Bounds.GetBox();
+    const float X=float(FMath::Max(FMath::Abs(Bounds.Min.X-Floor.ImpactPoint.X),FMath::Abs(Bounds.Max.X-Floor.ImpactPoint.X)));
+    const float Y=float(FMath::Max(FMath::Abs(Bounds.Min.Y-Floor.ImpactPoint.Y),FMath::Abs(Bounds.Max.Y-Floor.ImpactPoint.Y)));
+    const float EndRadius=FMath::Max(BossFrostRadius,FMath::Sqrt(X*X+Y*Y)+100.f);
+    return FMath::Lerp(BossFrostRadius,EndRadius,PhaseTransitionProgress());
+}
+
+float AMCIceEvent::ClimateContribution() const
+{
+    if(!UsesColdThroneContract()) return FrostAmount();
+    if(!bSecondPhase) return 0.f;
+    const float Age=PhaseTransitionAge();
+    if(Age<0)
+    {
+        const float ReturnAge=PhaseReturnAge();
+        return ReturnAge>=0?FrostAmount()*(1-FMath::SmoothStep(0.f,PhaseTransitionClimateSeconds,ReturnAge)):0.f;
+    }
+    // Preserve the radial tongue front before fading in the environment frost.
+    const float ClimateBlend=FMath::SmoothStep(PhaseTransitionChargeSeconds+PhaseTransitionSweepSeconds,
+        PhaseTransitionChargeSeconds+PhaseTransitionSweepSeconds+PhaseTransitionClimateSeconds,Age);
+    return FrostAmount()*ClimateBlend;
+}
+
+bool AMCIceEvent::IsGlobalColdActive() const
+{
+    return UsesColdThroneContract() && Stage==EMCIceEventStage::Active && bSecondPhase
+        && bColdThroneActive && Now()<ColdThroneEndsAt;
+}
+
+float AMCIceEvent::ColdThroneSecondsRemaining() const
+{
+    return IsGlobalColdActive()?float(FMath::Max(0.,ColdThroneEndsAt-Now())):0.f;
+}
+
+float AMCIceEvent::ColdThroneCooldownRemaining() const
+{
+    return UsesColdThroneContract() && IsActive() && bSecondPhase && !IsGlobalColdActive()
+        ?float(FMath::Max(0.,NextColdThroneAt-Now())):0.f;
+}
+
+bool AMCIceEvent::IsInsideColdThrone(FVector WorldPoint) const
+{
+    FHitResult Floor;
+    return IsActive() && !WorldPoint.ContainsNaN() && AnchorFloor(CandyAnchor,Floor)
+        && FVector::DistSquaredXY(WorldPoint,Floor.ImpactPoint)<=FMath::Square(BossFrostRadius)
+        && FMath::Abs(WorldPoint.Z-Floor.ImpactPoint.Z)<180;
+}
+
+float AMCIceEvent::GetAbilityCooldownRemaining(EMCCandyAttack Kind) const
+{
+    const double Due=Kind==EMCCandyAttack::MiniCandy?NextIceBombAt:
+        Kind==EMCCandyAttack::FloorHit?NextColdWaveAt:Kind==EMCCandyAttack::Scream?NextIcePrisonAt:0;
+    return float(FMath::Max(0.,Due-Now()));
+}
+
+void AMCIceEvent::UpdateColdThrone(double Time)
+{
+    if(!HasAuthority() || !UsesColdThroneContract()) return;
+    if(!bSecondPhase && CandyHealth<=MaxCandyHealth*.5f)
+    {
+        bSecondPhase=true;
+        bColdThroneActive=true;
+        ColdThroneEndsAt=Time+ColdThroneActiveSeconds;
+        NextColdThroneAt=ColdThroneEndsAt+ColdThroneRestSeconds;
+        NextIcePrisonAt=Time;
+        ForceNetUpdate();
+    }
+    if(!bSecondPhase) return;
+    if(bColdThroneActive && Time>=ColdThroneEndsAt)
+    {bColdThroneActive=false; ForceNetUpdate();}
+    if(!bColdThroneActive && Time>=NextColdThroneAt)
+    {
+        // Preserve the authored 40/40 rhythm even after a long paused frame.
+        const double Period=double(ColdThroneActiveSeconds)+ColdThroneRestSeconds;
+        const double Start=NextColdThroneAt+FMath::FloorToDouble((Time-NextColdThroneAt)/Period)*Period;
+        ColdThroneEndsAt=Start+ColdThroneActiveSeconds;
+        NextColdThroneAt=ColdThroneEndsAt+ColdThroneRestSeconds;
+        bColdThroneActive=Time<ColdThroneEndsAt;
+        ForceNetUpdate();
+    }
 }
 
 float AMCIceEvent::CircleDuration(int32 Index) const
@@ -267,6 +396,13 @@ float AMCIceEvent::NextSafeRadius() const
 
 bool AMCIceEvent::IsCircleBlocked(int32 Index) const
 {
+    if(UsesColdThroneContract())
+    {
+        FHitResult Floor;
+        const FVector Anchor=Index==CircleIndex?SafeAnchor:NextSafeAnchor;
+        if((Index==CircleIndex || (bNextCircle && Index==CircleIndex+1))
+            && AnchorFloor(Anchor,Floor) && IsInsideColdThrone(Floor.ImpactPoint)) return true;
+    }
     return ExtinguishedZones.Contains(Index) || ZoneCrystals.ContainsByPredicate([Index](const FMCIceZoneCrystal& Crystal)
         {return Crystal.ZoneIndex==Index && Crystal.bLanded && Crystal.Health>0;});
 }
@@ -274,6 +410,7 @@ bool AMCIceEvent::IsCircleBlocked(int32 Index) const
 bool AMCIceEvent::IsSafePoint(FVector WorldPoint) const
 {
     if(!IsActive() || WorldPoint.ContainsNaN()) return false;
+    if(UsesColdThroneContract() && IsInsideColdThrone(WorldPoint)) return false;
     auto Inside=[&](FVector Anchor,float Radius)
     {
         FHitResult Floor;
@@ -292,6 +429,8 @@ bool AMCIceEvent::IsSafePoint(FVector WorldPoint) const
 
 float AMCIceEvent::BrushedWarmRadius(const FMCBrushedWarmPatch& Patch) const
 {
+    FHitResult Floor;
+    if(UsesColdThroneContract() && AnchorFloor(Patch.Anchor,Floor) && IsInsideColdThrone(Floor.ImpactPoint)) return 0;
     const float Clean=FMath::Clamp(Patch.Cleaned-float(FMath::Max(0.,Now()-Patch.LastBrushedAt))/FMath::Max(1.f,Patch.RefreezeSeconds),0.f,1.f);
     return FMath::Max(50.f,BrushWarmRadius)*Patch.RadiusMultiplier*FMath::Sqrt(Clean);
 }
@@ -317,6 +456,8 @@ bool AMCIceEvent::BrushIceUnderfoot(AMCToothCharacter* Hero,float Seconds)
     if(!Tongue->SurfacePoint(Aim,BrushFloor)) return false;
     Hero->BrushContact->Contact(this,BrushFloor.ImpactPoint,BrushFloor.ImpactNormal);
     if(!Hero->BrushContact->IsWorkReady()) return true;
+    // The permanent strong aura immediately closes a brushed warm patch.
+    if(UsesColdThroneContract() && IsInsideColdThrone(Floor.ImpactPoint)) return true;
     BrushedWarmPatches.RemoveAll([this](const FMCBrushedWarmPatch& Patch){return BrushedWarmRadius(Patch)<1;});
     int32 Index=INDEX_NONE;
     for(int32 I=0;I<BrushedWarmPatches.Num();++I) {
@@ -518,8 +659,6 @@ float AMCIceEvent::FreezeAmount(const AMCToothCharacter* Hero) const
 void AMCIceEvent::UpdateFreeze(float DeltaSeconds)
 {
     TArray<FMCPlayerFreeze> Updated;
-    FHitResult BossFloor;
-    const bool bBossFloor=AnchorFloor(CandyAnchor,BossFloor);
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         auto* Hero=*It;
@@ -529,10 +668,13 @@ void AMCIceEvent::UpdateFreeze(float DeltaSeconds)
         if(Hero->IsFreezingToDeath()) {Player.Amount=1.f;Player.bSafe=false;continue;}
         const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
         Player.bSafe=IsSafePoint(Feet);
-        const bool NearBoss=bBossFloor && FVector::DistSquared2D(Feet,BossFloor.ImpactPoint)<=FMath::Square(BossFrostRadius)
-            && FMath::Abs(Feet.Z-BossFloor.ImpactPoint.Z)<180;
+        const bool NearBoss=IsInsideColdThrone(Feet);
+        // Eternal winter makes the floor slippery; only the throne aura and
+        // the second-stage global cold grow the lethal meter.
+        const bool AmbientCold=!UsesColdThroneContract() || IsGlobalColdActive();
         const float Rate=Player.bSafe?-.5f/FMath::Max(1.f,ThawSeconds):
-            (NearBoss?BossFreezeMultiplier:1.f)/FMath::Max(1.f,FreezeSeconds);
+            NearBoss?BossFreezeMultiplier/FMath::Max(1.f,FreezeSeconds):
+            AmbientCold?1.f/FMath::Max(1.f,FreezeSeconds):0.f;
         const auto* Perks=UMCPerkComponent::ForActor(Hero);
         const float Gain=Rate>0 && Perks?Perks->RogueValue(EMCRogueStat::FreezeRate):1.f;
         Player.Amount=FMath::Clamp(FreezeAmount(Hero)+DeltaSeconds*Rate*Gain,0.f,1.f);
@@ -552,11 +694,19 @@ AMCToothCharacter* AMCIceEvent::ChooseTarget()
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         FHitResult Floor;
-        if(!IsParticipant(*It) || !It->GetController() || !It->Status || !It->Status->IsAlive() || It->SwallowedBy || It->IsMimicCaptured()) continue;
+        if(!IsParticipant(*It) || !It->GetController() || !It->Status || !It->Status->IsAlive()
+            || It->IsFreezingToDeath() || It->IsActorBeingDestroyed() || It->SwallowedBy || It->IsMimicCaptured()) continue;
         const FVector Feet=It->GetActorLocation()-FVector(0,0,It->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
         if(Tongue->SurfacePoint(Feet,Floor) && FMath::Abs(Feet.Z-Floor.ImpactPoint.Z)<150) Candidates.Add(*It);
     }
-    return Candidates.IsEmpty()?nullptr:Candidates[Random.RandRange(0,Candidates.Num()-1)];
+    if(Candidates.IsEmpty()) return nullptr;
+    if(UsesColdThroneContract())
+    {
+        if(auto* Director=AMCGameDirector::Find(GetWorld())) return Director->ChooseBossTarget(this,Candidates,FacingPlayer);
+        return *Algo::MinElementBy(Candidates,[this](const AMCToothCharacter* Hero)
+            {return FVector::DistSquaredXY(Hero->GetActorLocation(),GetActorLocation());});
+    }
+    return Candidates[Random.RandRange(0,Candidates.Num()-1)];
 }
 
 void AMCIceEvent::QueueIcicle(AMCToothCharacter* Target)
@@ -611,7 +761,7 @@ void AMCIceEvent::ResolveNova()
     if(!HasAuthority() || !bNovaWarning) return;
     bNovaWarning=false; FHitResult Center;
     if(!AnchorFloor(CandyAnchor,Center)) return;
-    if(bUseAnimatedBossAttacks && !bLabEvent) {UpdateGroundWave(Now()); ForceNetUpdate(); return;}
+    if(UsesColdThroneContract() || (bUseAnimatedBossAttacks && !bLabEvent)) {UpdateGroundWave(Now()); ForceNetUpdate(); return;}
     for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         auto* Hero=*It;
@@ -669,6 +819,48 @@ void AMCIceEvent::UpdateGroundWave(double Time)
 
 bool AMCIceEvent::BeginBossAttack(EMCCandyAttack Kind)
 {
+    if(UsesColdThroneContract())
+    {
+        if(!HasAuthority() || Stage!=EMCIceEventStage::Active || Kind==EMCCandyAttack::None
+            || (Kind==EMCCandyAttack::Scream && !bSecondPhase)
+            || GetAbilityCooldownRemaining(Kind)>0 || Now()<BossAttack.EndsAt) return false;
+        auto* Target=ChooseTarget(); FHitResult Floor;
+        if(!Target || !Tongue->SurfacePoint(Target->GetActorLocation(),Floor)) return false;
+        FMCCandyAttackState Attack; Attack.Kind=Kind; Attack.Serial=BossAttack.Serial+1;
+        Attack.StartedAt=Attack.AnimationAt=Now();
+        Attack.TargetAnchor=Tongue->GetActorTransform().InverseTransformPosition(Floor.ImpactPoint);
+        if(Kind==EMCCandyAttack::MiniCandy)
+        {
+            Attack.TargetRadius=IceBombRadius;
+            Attack.ImpactAt=Attack.StartedAt+13.f/24.f+CrystalFlightSeconds;
+            Attack.EndsAt=Attack.ImpactAt+.3;
+            NextIceBombAt=Attack.StartedAt+IceBombCooldownSeconds;
+        }
+        else if(Kind==EMCCandyAttack::FloorHit)
+        {
+            Attack.TargetRadius=NovaRange;
+            Attack.ImpactAt=Attack.StartedAt+.75;
+            Attack.EndsAt=Attack.ImpactAt+WaveTravelSeconds;
+            bNovaWarning=true; NovaImpactAt=Attack.ImpactAt; WaveHitHeroes.Reset();
+            NextColdWaveAt=Attack.StartedAt+ColdWaveCooldownSeconds;
+        }
+        else if(Kind==EMCCandyAttack::Scream)
+        {
+            Attack.TargetRadius=IcePrisonRadius;
+            Attack.ImpactAt=Attack.StartedAt+ScreamWarningSeconds;
+            Attack.AnimationAt=Attack.ImpactAt-.5;
+            Attack.EndsAt=FMath::Max(Attack.ImpactAt+.35,
+                Attack.AnimationAt+(ScreamAnimation?ScreamAnimation->GetPlayLength():1.583f));
+            NextIcePrisonAt=Attack.StartedAt+IcePrisonCooldownSeconds;
+        }
+        else return false;
+        FacingPlayer=Target;
+        BossAttack=Attack;
+        // Separate ability cooldowns choose the next available cast. A brief
+        // recovery avoids overlapping clips without adding another 5 s delay.
+        NextBossAttackAt=Attack.EndsAt+.35;
+        ForceNetUpdate(); return true;
+    }
     FMCCandyAttackState Attack; Attack.Kind=Kind; Attack.Serial=BossAttack.Serial+1;
     Attack.StartedAt=Attack.AnimationAt=Now();
     if(Kind==EMCCandyAttack::MiniCandy)
@@ -724,10 +916,84 @@ bool AMCIceEvent::BeginBossAttack(EMCCandyAttack Kind)
     ForceNetUpdate(); return true;
 }
 
+void AMCIceEvent::ResolveIceBomb()
+{
+    if(!HasAuthority() || BossAttack.bResolved || BossAttack.Kind!=EMCCandyAttack::MiniCandy) return;
+    BossAttack.bResolved=true;
+    FHitResult Floor; if(!AnchorFloor(BossAttack.TargetAnchor,Floor)) return;
+    for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+    {
+        auto* Hero=*It;
+        if(!IsParticipant(Hero) || !Hero->GetController() || !Hero->Status || !Hero->Status->IsAlive()
+            || Hero->IsFreezingToDeath() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
+        const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+        if(FVector::DistSquaredXY(Feet,Floor.ImpactPoint)>FMath::Square(BossAttack.TargetRadius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius())
+            || FMath::Abs(Feet.Z-Floor.ImpactPoint.Z)>260) continue;
+        FHitResult Obstacle; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIceBombContact),false,this);
+        Query.AddIgnoredActor(Tongue); Query.AddIgnoredActor(Hero);
+        if(GetWorld()->LineTraceSingleByChannel(Obstacle,Floor.ImpactPoint+Floor.ImpactNormal*80,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
+        const FVector Out=(Hero->GetActorLocation()-Floor.ImpactPoint).GetSafeNormal2D(UE_SMALL_NUMBER,Hero->GetActorForwardVector());
+        Hero->Status->Damage(IceBombDamage,Out,this);
+        if(!Hero->Status->IsAlive()) continue;
+        const FVector Impulse=Out*IceBombPush+Floor.ImpactNormal*180;
+        if(Hero->ToothPhysics) Hero->ToothPhysics->ApplyHit(Impulse,Hero->GetActorLocation());
+        else Hero->LaunchCharacter(Impulse,false,false);
+    }
+    ForceNetUpdate();
+}
+
+bool AMCIceEvent::CanStrikePrisoner(const FMCIcicleStrike& Strike) const
+{
+    const auto* Hero=Strike.Prisoner.Get();
+    return !Strike.bCancelled && (!Strike.bPrisonPunishment || (IsValid(Hero) && IsParticipant(Hero)
+        && Hero->Status && Hero->Status->IsAlive() && Hero->HasFrozenLegs()
+        && !Hero->IsFreezingToDeath() && !Hero->SwallowedBy && !Hero->IsMimicCaptured()));
+}
+
+void AMCIceEvent::CancelPrisonFor(const AMCToothCharacter* Hero)
+{
+    if(!HasAuthority() || !Hero) return;
+    bool bChanged=false;
+    for(auto& Strike:Strikes)
+        if(Strike.bPrisonPunishment && Strike.Prisoner==Hero && !Strike.bImpacted && !Strike.bCancelled)
+        {Strike.bCancelled=true;bChanged=true;}
+    // A clear can be called while a strike is resolving. Defer removals to Tick.
+    if(bChanged) ForceNetUpdate();
+}
+
 void AMCIceEvent::ResolveScream()
 {
     if(BossAttack.bResolved) return;
     BossAttack.bResolved=true;
+    if(UsesColdThroneContract())
+    {
+        if(!HasAuthority() || !bSecondPhase) return;
+        FHitResult Floor; if(!AnchorFloor(BossAttack.TargetAnchor,Floor)) return;
+        for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+        {
+            auto* Hero=*It;
+            if(!IsParticipant(Hero) || !Hero->GetController() || !Hero->Status || !Hero->Status->IsAlive()
+                || Hero->IsFreezingToDeath() || Hero->SwallowedBy || Hero->IsMimicCaptured()) continue;
+            const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+            FHitResult HeroFloor;
+            if(!Tongue->SurfacePoint(Feet,HeroFloor)
+                || FVector::DistSquaredXY(Feet,Floor.ImpactPoint)>FMath::Square(BossAttack.TargetRadius+Hero->GetCapsuleComponent()->GetScaledCapsuleRadius())
+                || FMath::Abs(Feet.Z-HeroFloor.ImpactPoint.Z)>150) continue;
+            FHitResult Obstacle; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCIcePrisonContact),false,this);
+            Query.AddIgnoredActor(Tongue); Query.AddIgnoredActor(Hero);
+            if(GetWorld()->LineTraceSingleByChannel(Obstacle,Floor.ImpactPoint+Floor.ImpactNormal*60,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
+            const FVector Out=(Hero->GetActorLocation()-Floor.ImpactPoint).GetSafeNormal2D(UE_SMALL_NUMBER,FVector::ForwardVector);
+            Hero->Status->Damage(IcePrisonDamage,Out,this);
+            Hero->FreezeLegs(NovaFootHealth);
+            if(!Hero->HasFrozenLegs()) continue;
+            FrozenLegHeroes.AddUnique(Hero);
+            auto& Strike=Strikes.AddDefaulted_GetRef();
+            Strike.Anchor=Tongue->GetActorTransform().InverseTransformPosition(HeroFloor.ImpactPoint);
+            Strike.ImpactAt=Now()+FMath::Clamp(IcePrisonEscapeSeconds,3.f,5.f);
+            Strike.Id=++StrikeSerial; Strike.Prisoner=Hero; Strike.bPrisonPunishment=true;
+        }
+        ForceNetUpdate(); return;
+    }
     if(BossAttack.TargetZone<CircleIndex || BossAttack.TargetZone>CircleIndex+(bNextCircle?1:0)) return;
     FHitResult Floor; if(!AnchorFloor(BossAttack.TargetAnchor,Floor)) return;
     ExtinguishedZones.AddUnique(BossAttack.TargetZone);
@@ -746,6 +1012,26 @@ void AMCIceEvent::ResolveScream()
 
 void AMCIceEvent::UpdateBossAttacks(double Time)
 {
+    if(UsesColdThroneContract())
+    {
+        UpdateColdThrone(Time);
+        if(!BossAttack.bResolved && Time>=BossAttack.ImpactAt)
+        {
+            if(BossAttack.Kind==EMCCandyAttack::MiniCandy) ResolveIceBomb();
+            else if(BossAttack.Kind==EMCCandyAttack::FloorHit)
+            {BossAttack.bResolved=true; ResolveNova(); ForceNetUpdate();}
+            else if(BossAttack.Kind==EMCCandyAttack::Scream) ResolveScream();
+        }
+        if(BossAttack.Kind==EMCCandyAttack::FloorHit) UpdateGroundWave(Time);
+        if(Time<NextBossAttackAt) return;
+        EMCCandyAttack Choice=EMCCandyAttack::None; double Oldest=Time+1;
+        auto Ready=[&](EMCCandyAttack Kind,double Due) {if(Due<=Time && Due<Oldest){Oldest=Due;Choice=Kind;}};
+        if(bSecondPhase) Ready(EMCCandyAttack::Scream,NextIcePrisonAt);
+        Ready(EMCCandyAttack::FloorHit,NextColdWaveAt);
+        Ready(EMCCandyAttack::MiniCandy,NextIceBombAt);
+        if(Choice!=EMCCandyAttack::None && !BeginBossAttack(Choice)) NextBossAttackAt=Time+.2;
+        return;
+    }
     if(!bSecondPhase && CandyHealth<=MaxCandyHealth*.5f)
     {bSecondPhase=true; NextScreamAt=Time+3; ForceNetUpdate();}
     if(BossAttack.Kind==EMCCandyAttack::FloorHit)
@@ -789,6 +1075,7 @@ void AMCIceEvent::PresentCandyAnimation(double Time)
 void AMCIceEvent::ResolveIcicle(FMCIcicleStrike& Strike)
 {
     if(!HasAuthority() || Strike.bImpacted) return;
+    if(!CanStrikePrisoner(Strike)) {Strike.bCancelled=true;ForceNetUpdate();return;}
     Strike.bImpacted=true;
     FHitResult Floor;
     if(!AnchorFloor(Strike.Anchor,Floor)) return;
@@ -805,7 +1092,7 @@ void AMCIceEvent::ResolveIcicle(FMCIcicleStrike& Strike)
         if(GetWorld()->LineTraceSingleByChannel(Obstacle,Floor.ImpactPoint+Floor.ImpactNormal*45,Hero->GetActorLocation(),ECC_Visibility,Query)) continue;
         FVector Direction=(Hero->GetActorLocation()-Floor.ImpactPoint).GetSafeNormal2D();
         if(Direction.IsNearlyZero()) Direction=FVector::ForwardVector;
-        if(Hero->Status->Damage(IcicleDamage,Direction) && Hero->ToothPhysics)
+        if(Hero->Status->Damage(IcicleDamage,Direction,this) && Hero->ToothPhysics)
             Hero->ToothPhysics->ApplyHit(Direction*220+Floor.ImpactNormal*90,Hero->GetActorLocation());
     }
     ForceNetUpdate();
@@ -867,7 +1154,7 @@ void AMCIceEvent::Tick(float DeltaSeconds)
             if(CandyHealth<=0) { Finish(); return; }
             UpdateCircles(Time);
             if(!IsActive()) return;
-            const bool bAnimated=bUseAnimatedBossAttacks && !bLabEvent;
+            const bool bAnimated=UsesColdThroneContract() || (bUseAnimatedBossAttacks && !bLabEvent);
             if(bAnimated) UpdateBossAttacks(Time);
             else if(Time>=NextZoneCrystalAt) {QueueZoneCrystal(); NextZoneCrystalAt=Time+ZoneCrystalIntervalSeconds;}
             for(auto& Crystal:ZoneCrystals) if(!Crystal.bLanded && Time>=Crystal.ImpactAt) ResolveZoneCrystal(Crystal);
@@ -875,8 +1162,9 @@ void AMCIceEvent::Tick(float DeltaSeconds)
             else if(!bAnimated && !bNovaWarning && Time>=NextNovaAt) BeginNova();
             UpdateFreeze(DeltaSeconds);
             if(!bAnimated) UpdateIcicleSeries(Time);
-            for(auto& Strike:Strikes) if(!Strike.bImpacted && Time>=Strike.ImpactAt) ResolveIcicle(Strike);
-            Strikes.RemoveAll([Time](const FMCIcicleStrike& Strike){ return Time>Strike.ImpactAt+1; });
+            Strikes.RemoveAll([this](const FMCIcicleStrike& Strike){return Strike.bCancelled || (!Strike.bImpacted && !CanStrikePrisoner(Strike));});
+            for(auto& Strike:Strikes) if(!Strike.bImpacted && !Strike.bCancelled && Time>=Strike.ImpactAt) ResolveIcicle(Strike);
+            Strikes.RemoveAll([Time](const FMCIcicleStrike& Strike){ return Strike.bCancelled || Time>Strike.ImpactAt+1; });
         }
     }
     RefreshPresentation(DeltaSeconds);
@@ -925,8 +1213,10 @@ void AMCIceEvent::RefreshFloorGuides()
             IsCircleBlocked(CircleIndex+1));
     for(const auto& Strike:Strikes)
     {
-        if(!AnchorFloor(Strike.Anchor,Floor) || Time>Strike.ImpactAt+1) continue;
-        const float Progress=FMath::Clamp(1.f-float((Strike.ImpactAt-Time)/FMath::Max(1.f,IcicleWarningSeconds)),0.f,1.f);
+        if(Strike.bCancelled || (!Strike.bImpacted && !CanStrikePrisoner(Strike))
+            || !AnchorFloor(Strike.Anchor,Floor) || Time>Strike.ImpactAt+1) continue;
+        const float Warning=Strike.bPrisonPunishment?IcePrisonEscapeSeconds:IcicleWarningSeconds;
+        const float Progress=FMath::Clamp(1.f-float((Strike.ImpactAt-Time)/FMath::Max(1.f,Warning)),0.f,1.f);
         const float Pulse=.82f+.18f*FMath::Sin(Progress*PI*(4+Progress*6));
         const FLinearColor Color=Strike.bImpacted?FLinearColor(.25f,.8f,1.f):FLinearColor(1.f,.12f+.18f*Progress,.08f)*Pulse;
         Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,IcicleRadius,6+2*Progress,Color,!Strike.bImpacted);
@@ -952,12 +1242,21 @@ void AMCIceEvent::RefreshFloorGuides()
             }
         }
     }
-    if(bUseAnimatedBossAttacks && BossAttack.Kind==EMCCandyAttack::FloorHit && Time>=NovaImpactAt && Time<=NovaImpactAt+WaveTravelSeconds)
+    if((UsesColdThroneContract() || bUseAnimatedBossAttacks) && BossAttack.Kind==EMCCandyAttack::FloorHit && Time>=NovaImpactAt && Time<=NovaImpactAt+WaveTravelSeconds)
     {
         if(AnchorFloor(CandyAnchor,Floor))
             Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,FMath::Max(8.f,GroundWaveRadius(Time)),28,FLinearColor(.65f,.93f,1.f));
     }
-    if(BossAttack.Kind==EMCCandyAttack::Scream && Time<BossAttack.EndsAt && AnchorFloor(BossAttack.TargetAnchor,Floor))
+    if(UsesColdThroneContract() && BossAttack.Kind==EMCCandyAttack::MiniCandy && Time<BossAttack.ImpactAt
+        && AnchorFloor(BossAttack.TargetAnchor,Floor))
+    {
+        const float Progress=FMath::Clamp(float((Time-BossAttack.StartedAt)/FMath::Max(.1,BossAttack.ImpactAt-BossAttack.StartedAt)),0.f,1.f);
+        const FLinearColor Color=FLinearColor(1.f,.2f,.08f)*(.85f+.15f*FMath::Sin(float(Time)*12));
+        Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,BossAttack.TargetRadius,9,Color,true);
+        Mesh.Ring(Tongue,Transform,Floor.ImpactPoint,FMath::Max(5.f,BossAttack.TargetRadius*Progress),4,Color);
+    }
+    if(BossAttack.Kind==EMCCandyAttack::Scream && Time<BossAttack.EndsAt
+        && (!UsesColdThroneContract() || Time<BossAttack.ImpactAt) && AnchorFloor(BossAttack.TargetAnchor,Floor))
     {
         const bool bWarning=Time<BossAttack.ImpactAt;
         const float Progress=FMath::Clamp(float((Time-BossAttack.StartedAt)/FMath::Max(.1,BossAttack.ImpactAt-BossAttack.StartedAt)),0.f,1.f);
@@ -1044,6 +1343,9 @@ void AMCIceEvent::RefreshFreezeBars()
         auto* Hero=Player.Hero.Get();
         if(!IsValid(Hero) || !Hero->Status || !Hero->Status->IsAlive()) continue;
         int32 Index=BarHeroes.IndexOfByPredicate([Hero](const TWeakObjectPtr<AMCToothCharacter>& Item){return Item.Get()==Hero;});
+        const FVector Feet=Hero->GetActorLocation()-FVector(0,0,Hero->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+        const bool bShow=!UsesColdThroneContract() || Player.Amount>.002f || IsGlobalColdActive() || IsInsideColdThrone(Feet);
+        if(Index==INDEX_NONE && !bShow) continue;
         if(Index==INDEX_NONE)
         {
             auto* Bar=NewObject<UWidgetComponent>(this);
@@ -1054,6 +1356,7 @@ void AMCIceEvent::RefreshFreezeBars()
             Bar->SetWidgetClass(UMCFreezeBarWidget::StaticClass()); Bar->RegisterComponent(); AddInstanceComponent(Bar);
             Index=FreezeBars.Add(Bar); BarHeroes.Add(Hero); Bar->InitWidget();
         }
+        FreezeBars[Index]->SetVisibility(bShow);
         if(auto* Widget=Cast<UMCFreezeBarWidget>(FreezeBars[Index]->GetUserWidgetObject())) Widget->SetFreeze(Player.Amount,Player.bSafe);
     }
 }
@@ -1146,9 +1449,22 @@ void AMCIceEvent::RefreshFrostSurface()
         Material=FrostSurface->CreateDynamicMaterialInstance(0,Parent);
     }
     if(!Material) return;
-    FHitResult SafeFloor,NextFloor;
+    FHitResult SafeFloor,NextFloor,FrostFloor;
     const bool bSafe=!IsCircleBlocked(CircleIndex) && AnchorFloor(SafeAnchor,SafeFloor);
     const bool bNext=bNextCircle && !IsCircleBlocked(CircleIndex+1) && AnchorFloor(NextSafeAnchor,NextFloor);
+    // Between global-cold cycles, slick ice remains and only the local aura
+    // carries white frost. The sweep expands and retracts independently.
+    const float TransitionAge=PhaseTransitionAge();
+    const float ReturnAge=PhaseReturnAge();
+    const bool bSweep=(TransitionAge>=0 && PhaseTransitionProgress()<1.f)
+        || (ReturnAge>=0 && ReturnAge<PhaseTransitionClimateSeconds+PhaseTransitionSweepSeconds);
+    const bool bLocalFrost=UsesColdThroneContract() && (!IsGlobalColdActive() || bSweep) && AnchorFloor(CandyAnchor,FrostFloor);
+    Material->SetScalarParameterValue(TEXT("Frost Zone Enabled"),bLocalFrost?1.f:0.f);
+    Material->SetVectorParameterValue(TEXT("Frost Zone Center"),FLinearColor(bLocalFrost?FrostFloor.ImpactPoint:FVector::ZeroVector));
+    Material->SetScalarParameterValue(TEXT("Frost Zone Radius"),bSweep?PhaseTransitionRadius():BossFrostRadius);
+    Material->SetScalarParameterValue(TEXT("Frost Zone Height"),180.f);
+    Material->SetScalarParameterValue(TEXT("Frost Sweep"),bSweep?1.f:0.f);
+    Material->SetScalarParameterValue(TEXT("Frost Aura Radius"),BossFrostRadius);
     Material->SetScalarParameterValue(TEXT("IceAmount"),FrostAmount());
     Material->SetScalarParameterValue(TEXT("Warm Enabled"),bSafe?1.f:0.f);
     Material->SetScalarParameterValue(TEXT("Warm Radius"),SafeRadius());
@@ -1227,7 +1543,8 @@ void AMCIceEvent::RefreshPresentation(float DeltaSeconds)
         FRotator Rotation=Floor.ImpactNormal.Rotation()+FRotator(-90,0,0);
         FVector Direction=IsValid(FacingPlayer)?(FacingPlayer->GetActorLocation()-Floor.ImpactPoint).GetSafeNormal2D():GetActorForwardVector();
         // Only the current cast owns its aim. Idle and arrival face living players.
-        if(Stage==EMCIceEventStage::Active && BossAttack.TargetZone!=INDEX_NONE && Now()<BossAttack.EndsAt && IsValid(Tongue))
+        if(Stage==EMCIceEventStage::Active && (BossAttack.TargetZone!=INDEX_NONE || (UsesColdThroneContract() && BossAttack.TargetRadius>0))
+            && Now()<BossAttack.EndsAt && IsValid(Tongue))
         {
             Direction=(Tongue->GetActorTransform().TransformPosition(BossAttack.TargetAnchor)-Floor.ImpactPoint).GetSafeNormal2D();
         }
@@ -1261,7 +1578,8 @@ void AMCIceEvent::RefreshPresentation(float DeltaSeconds)
     const double Time=Now();
     for(int32 I=0;I<IcicleMeshes.Num();++I)
     {
-        const bool bShow=Strikes.IsValidIndex(I) && AnchorFloor(Strikes[I].Anchor,Floor)
+        const bool bShow=Strikes.IsValidIndex(I) && !Strikes[I].bCancelled
+            && (Strikes[I].bImpacted || CanStrikePrisoner(Strikes[I])) && AnchorFloor(Strikes[I].Anchor,Floor)
             && Time>=Strikes[I].ImpactAt-.55 && Time<Strikes[I].ImpactAt+.18f;
         UStaticMeshComponent* Part=IcicleMeshes[I]; Part->SetVisibility(bShow);
         if(!bShow) continue;
@@ -1279,11 +1597,13 @@ void AMCIceEvent::SetClimate()
 {
     if(bLabEvent) return;
     if(GetNetMode()==NM_DedicatedServer || !Climate) return;
-    float Amount=IsActorBeingDestroyed()?0:FrostAmount();
+    // Phase one retains the tongue's slick ice but reserves dense frost for
+    // its local aura. Cola and phase two keep their existing global climate.
+    float Amount=IsActorBeingDestroyed()?0:ClimateContribution();
     for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It)
         if(!It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
     for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
-        if(*It!=this && !It->bLabEvent && !It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->FrostAmount());
+        if(*It!=this && !It->bLabEvent && !It->IsActorBeingDestroyed()) Amount=FMath::Max(Amount,It->ClimateContribution());
     if(auto* Instance=GetWorld()->GetParameterCollectionInstance(Climate)) Instance->SetScalarParameterValue(TEXT("ColdAmount"),Amount);
 }
 
@@ -1296,6 +1616,7 @@ void AMCIceEvent::PublishManualHUD()
     const FString Title=IsComplete()?TEXT("ЛЕДЯНОЙ КРИСТАЛЛ РАЗБИТ"):bFailed?TEXT("ЗИМА НЕ ЗАПУСТИЛАСЬ"):TEXT("ЗИМА БЛИЗКО");
     const FString Instruction=IsComplete()?TEXT("Лёд растаял. Выбери следующее событие в F3."):
         Stage==EMCIceEventStage::Arrival?TEXT("Падает ледяной кристалл. Найди тёплую зону у края; приготовь кирку (слот 2)."):
+        UsesColdThroneContract()?TEXT("Перепрыгивай волну холода. Согревайся в тёплых зонах и чисти лёд щёткой; рядом с боссом тепло сразу закрывается. Из тюрьмы освобождай ноги киркой до падения сосулек."):
         bUseAnimatedBossAttacks?TEXT("Разбей ледяную конфету киркой. Тёплая зона защищает от волны. Уходи из отмеченной зоны перед падением льда и криком; разбивай лёд на ногах."):
         TEXT("Разбей центральный кристалл. Перебегай между тёплыми зонами; разбивай мешающие согреванию кристаллы и лёд на ногах.");
     const int32 Left=IsComplete()?0:FMath::CeilToInt(CandyHealth),Total=FMath::CeilToInt(MaxCandyHealth);
@@ -1317,6 +1638,8 @@ void AMCIceEvent::ClearGameplay()
     CircleHandoffAt=0; NextCircleRetryAt=0; CrystalSerial=0;
     BossAttack=FMCCandyAttackState(); ExtinguishedZones.Reset(); WaveHitHeroes.Reset();
     bSecondPhase=false; NextBossAttackAt=NextScreamAt=0; FacingPlayer=nullptr;
+    bColdThroneActive=false; ColdThroneEndsAt=NextColdThroneAt=0;
+    NextIceBombAt=NextColdWaveAt=NextIcePrisonAt=0;
     SeriesTarget.Reset(); SeriesShotsLeft=0; NextIcicleAt=NextSeriesShotAt=NextZoneCrystalAt=NextNovaAt=0;
     Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
@@ -1452,4 +1775,10 @@ void AMCIceEvent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
     DOREPLIFETIME(AMCIceEvent,CrystalFlightSeconds); DOREPLIFETIME(AMCIceEvent,WaveTravelSeconds);
     DOREPLIFETIME(AMCIceEvent,FacingPlayer);
     DOREPLIFETIME(AMCIceEvent,BrushedWarmPatches);
+    DOREPLIFETIME(AMCIceEvent,ColdThroneActiveSeconds); DOREPLIFETIME(AMCIceEvent,ColdThroneRestSeconds);
+    DOREPLIFETIME(AMCIceEvent,bColdThroneActive); DOREPLIFETIME(AMCIceEvent,ColdThroneEndsAt); DOREPLIFETIME(AMCIceEvent,NextColdThroneAt);
+    DOREPLIFETIME(AMCIceEvent,IceBombCooldownSeconds); DOREPLIFETIME(AMCIceEvent,ColdWaveCooldownSeconds); DOREPLIFETIME(AMCIceEvent,IcePrisonCooldownSeconds);
+    DOREPLIFETIME(AMCIceEvent,IcePrisonEscapeSeconds); DOREPLIFETIME(AMCIceEvent,IceBombRadius); DOREPLIFETIME(AMCIceEvent,IceBombDamage);
+    DOREPLIFETIME(AMCIceEvent,IceBombPush); DOREPLIFETIME(AMCIceEvent,IcePrisonRadius); DOREPLIFETIME(AMCIceEvent,IcePrisonDamage);
+    DOREPLIFETIME(AMCIceEvent,NextIceBombAt); DOREPLIFETIME(AMCIceEvent,NextColdWaveAt); DOREPLIFETIME(AMCIceEvent,NextIcePrisonAt);
 }

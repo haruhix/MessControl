@@ -1,0 +1,4951 @@
+{
+  "status": "passed",
+  "passed": true,
+  "checks": {
+    "normal_first_perk_and_f3_start": true,
+    "actual_wide_camera_view_target_and_location": true,
+    "native_bomb_scheduler_and_resolve_observed": true,
+    "native_ground_wave_froze_standing_player": true,
+    "native_primary_pickaxe_freed_wave_frozen_feet": true
+  },
+  "samples": [
+    {
+      "game_seconds": 4.033333543688059,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.44765496256525
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.133333548903465,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.56775689127704
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.233333554118872,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.69625115397321
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.333333559334278,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.83109307291937
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.4333335645496845,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.97014641764679
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.533333569765091,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.11124444010858
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.633333574980497,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.25214409831256
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.733333580195904,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.3906176090556
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.83333358541131,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.52449822429082
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 4.933333590626717,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.65166497233855
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.033333595842123,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.77010369304253
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.1333336010575294,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.8779680729262
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.233333606272936,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.97353386882548
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.333333611488342,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.05532097820134
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.433333616703749,
+      "phase": "local_aura",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.12201714519438
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.NONE: 0>",
+      "attack_serial": 0,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.533333621919155,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.17256951335929
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.6333336271345615,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.2061998844539
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.733333632349968,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.22235894207193
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.833333637565374,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.22080254558841
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 5.933333642780781,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.20156121258145
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.033333647996187,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.16492486004324
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.133333653211594,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.11147332195816
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.233333658427,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.04204583172464
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.3333336636424065,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.95775628094424
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.433333668857813,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.85991692547634
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.533333674073219,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.75006890301626
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.633333679288626,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.62995171551711
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.733333684504032,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.50147271161171
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.8333336897194386,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.36663079266725
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 6.933333694934845,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.22757744794154
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.033333700150251,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.08647942548146
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.133333705365658,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.94559502606825
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.233333710581064,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.80712151532691
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.333333715796471,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.67324090009339
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.433333721011877,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.54607415204737
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.5333337262272835,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.42762017255603
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.63333373144269,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.31977105146314
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.733333736658096,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.22418999677649
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.833333741873503,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.1424181461914
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 7.933333747088909,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.07572197920007
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.033333752304316,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.0251543522478
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.133333757519722,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        124.99153923994396
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.233333762735128,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        124.97536492353856
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.333333767950535,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        124.97692132002379
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.433333773165941,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        124.99616265303246
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.533333778381348,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.03279900557237
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.633333783596754,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.08626580244822
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.73333378881216,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.15567803389439
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.833333794027567,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.23998284346555
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 8.933333799242973,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.3378069401461
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.03333380445838,
+      "phase": "bomb_flight_and_impact",
+      "health": 100.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.44765496260788
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.133333809673786,
+      "phase": "bomb_flight_and_impact",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        138.56410484650488,
+        863.3824099416533,
+        112.27765928923782
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.233333814889193,
+      "phase": "bomb_flight_and_impact",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        195.4733063996893,
+        863.5118943972338,
+        124.49826686991848
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.333333820104599,
+      "phase": "bomb_flight_and_impact",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        253.66907515436873,
+        863.6243507022549,
+        127.51760652971264
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.433333825320005,
+      "phase": "bomb_flight_and_impact",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        312.66607032974304,
+        863.7669127199414,
+        120.63025801259275
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.533333830535412,
+      "phase": "bomb_flight_and_impact",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        371.41309399470373,
+        863.9345775433205,
+        104.16683584536068
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.633333835750818,
+      "phase": "bomb_flight_and_impact",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": true,
+      "hero_cm": [
+        421.0055398890742,
+        866.1981477491936,
+        98.65687876193994
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.733333840966225,
+      "phase": "bomb_flight_and_impact",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        449.54799621176153,
+        866.8623415748826,
+        98.36208084336104
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.833333846181631,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        476.85052581834447,
+        870.9500083372445,
+        93.67297438537672
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 9.933333851397038,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        497.8305655046701,
+        873.1970121119037,
+        90.23887443840702
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.033333856612444,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        509.5375025468116,
+        876.7284681313823,
+        89.81664116702002
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.13333386182785,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        514.8359935760965,
+        880.6453001651458,
+        89.64190669504859
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.233333867043257,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.364985223233,
+        881.506797549065,
+        89.69331413330714
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.333333872258663,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0034491963647,
+        881.3829029424915,
+        89.48569815437551
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.43333387747407,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.6419090173953,
+        881.2776448936713,
+        89.26732966054551
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.533333882689476,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.7708330886512,
+        881.3497963553457,
+        89.42038494712904
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.633333887904882,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.7527392826428,
+        881.2990131506859,
+        89.42018320367642
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.733333893120289,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.8054390116771,
+        881.3175742147367,
+        89.47849987465239
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.833333898335695,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.8428748290389,
+        881.3315249283033,
+        89.5150042901801
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 10.933333903551102,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.8857892958175,
+        881.3513027356936,
+        89.53699987668884
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.033333908766508,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.925901528518,
+        881.3789188048543,
+        89.54113370791865
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.133333913981915,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.9568619929362,
+        881.4062131850978,
+        89.52972458267313
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.233333919197321,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        515.9914607874953,
+        881.4294263569536,
+        89.5020384786819
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.333333924412727,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0152778209788,
+        881.4429882664275,
+        115.40124511718781
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.433333929628134,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0152778209788,
+        881.4429882664275,
+        115.40124511718781
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.53333393484354,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0152778209788,
+        881.4429882664275,
+        115.40124511718781
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.633333940058947,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0152778209788,
+        881.4429882664275,
+        115.40124511718781
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.733333945274353,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0152778209788,
+        881.4429882664275,
+        115.40124511718781
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.83333395048976,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0152778209788,
+        881.4429882664275,
+        115.40124511718781
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 11.933333955705166,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0152778209788,
+        881.4429882664275,
+        115.40124511718781
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.033333960920572,
+      "phase": "bomb_recovery",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        516.0152778209788,
+        881.4429882664275,
+        115.40124511718781
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.MINI_CANDY: 1>",
+      "attack_serial": 1,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.133333966135979,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.47291493415918
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.233333971351385,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.38520741462878
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.333333976566792,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.97936940193432
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.433333981782198,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.77427601814611
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.533333986997604,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.6335136890454
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.63333399221301,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.51925587654625
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.733333997428417,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.42185902596117
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.833334002643824,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.33953785896983
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 12.93333400785923,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.27270436287694
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.033334013074636,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.22210621834654
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.133334018290043,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.18846058846458
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.23333402350545,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.17228627205918
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.333334028720856,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.17384266854441
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.433334033936262,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.19308400155307
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.533334039151669,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.22972035409299
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.633334044367075,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.28318715096884
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.733334049582481,
+      "phase": "cold_wave",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.35259938241501
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.833334054797888,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.43690419198617
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 13.933334060013294,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.53474354745578
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.0333340652287,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.6445763111285
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.133334070444107,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.86474537851217
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.233334075659513,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.28445363046615
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.33333408087492,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.69758534433419
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.433334086090326,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.10255360605379
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.533334091305733,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.49775624277339
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.63333409652114,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        127.88145375253987
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.733334101736546,
+      "phase": "wave_crest_continues",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        128.25193715097822
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.833334106951952,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        128.60752797129157
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 14.933334112167358,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        128.94654774668305
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 160.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.033334117382765,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        129.26744008066828
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 120.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.133334122598171,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        129.56875538828632
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 120.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.233334127813578,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        129.8491814136778
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 120.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.333334133028984,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        130.1075890064521
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 120.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.43333413824439,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        130.34306263926544
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 120.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.533334143459797,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        130.55491566661004
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 120.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.633334148675203,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        130.74267506602496
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 120.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.73333415389061,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        130.90611195567425
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 80.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.833334159106016,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.0452721119251
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 80.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 15.933334164321423,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.16050648692595
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 80.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.03333416953683,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.25236439708306
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 80.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.133334174752235,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.3217003345839
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 80.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.233334179967642,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.36959767345195
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 80.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.33333418518305,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.3974297047028
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 40.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.433334190398455,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.40672230724272
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 40.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.53333419561386,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.399260759392
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 40.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.633334200829268,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.37696766857255
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 40.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.733334206044674,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.34196400646402
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 40.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.83333421126008,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.29644703869144
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 40.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 16.933334216475487,
+      "phase": "native_pickaxe_rescue",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        131.2427361011923
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": true,
+      "ice_leg_health": 40.0,
+      "primary_held": true,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 17.033334221690893,
+      "phase": "capture_flush",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        128.3894035816619
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 17.1333342269063,
+      "phase": "capture_flush",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.74589467052994
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 17.233334232121706,
+      "phase": "capture_flush",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        126.17689442639016
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 17.333334237337112,
+      "phase": "capture_flush",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.91969227795352
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 17.43333424255252,
+      "phase": "capture_flush",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.75718617443874
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 17.533334247767925,
+      "phase": "capture_flush",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.62861561779897
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    },
+    {
+      "game_seconds": 17.63333425298333,
+      "phase": "capture_flush",
+      "health": 80.0,
+      "freeze_amount": 0.0,
+      "safe": false,
+      "hero_cm": [
+        120.79468162445517,
+        863.3084089011129,
+        125.51785206799514
+      ],
+      "boss_phase_two": false,
+      "global_cold": false,
+      "global_seconds_remaining": 0.0,
+      "global_cooldown_remaining": 0.0,
+      "attack": "<MCCandyAttack.FLOOR_HIT: 2>",
+      "attack_serial": 2,
+      "frozen_legs": false,
+      "ice_leg_health": 0.0,
+      "primary_held": false,
+      "prison_strikes": []
+    }
+  ],
+  "screenshots": [
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\screenshots\\01_whole_boss_local_aura.png",
+      "phase": "local_aura",
+      "time": 5.516666954383254,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\screenshots\\02_bomb_after_native_impact.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 9.783333843573928,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\screenshots\\03_ground_wave_frozen_feet.png",
+      "phase": "cold_wave",
+      "time": 13.766667384654284,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\screenshots\\04_wave_native_pickaxe_rescue.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 16.96666755154729,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    }
+  ],
+  "frames": [
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00000.png",
+      "phase": "local_aura",
+      "time": 4.033333543688059,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00001.png",
+      "phase": "local_aura",
+      "time": 4.2000002190470695,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00002.png",
+      "phase": "local_aura",
+      "time": 4.36666689440608,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00003.png",
+      "phase": "local_aura",
+      "time": 4.533333569765091,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00004.png",
+      "phase": "local_aura",
+      "time": 4.700000245124102,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00005.png",
+      "phase": "local_aura",
+      "time": 4.866666920483112,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00006.png",
+      "phase": "local_aura",
+      "time": 5.033333595842123,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00007.png",
+      "phase": "local_aura",
+      "time": 5.200000271201134,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00008.png",
+      "phase": "local_aura",
+      "time": 5.366666946560144,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00009.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 5.533333621919155,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00010.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 5.700000297278166,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00011.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 5.8666669726371765,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00012.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 6.033333647996187,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00013.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 6.200000323355198,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00014.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 6.366666998714209,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00015.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 6.533333674073219,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00016.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 6.70000034943223,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00017.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 6.866667024791241,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00018.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 7.033333700150251,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00019.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 7.200000375509262,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00020.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 7.366667050868273,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00021.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 7.5333337262272835,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00022.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 7.700000401586294,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00023.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 7.866667076945305,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00024.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 8.033333752304316,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00025.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 8.200000427663326,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00026.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 8.366667103022337,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00027.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 8.533333778381348,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00028.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 8.700000453740358,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00029.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 8.866667129099369,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00030.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 9.03333380445838,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00031.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 9.20000047981739,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00032.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 9.366667155176401,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00033.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 9.533333830535412,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00034.png",
+      "phase": "bomb_flight_and_impact",
+      "time": 9.700000505894423,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00035.png",
+      "phase": "bomb_recovery",
+      "time": 9.866667181253433,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00036.png",
+      "phase": "bomb_recovery",
+      "time": 10.033333856612444,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00037.png",
+      "phase": "bomb_recovery",
+      "time": 10.200000531971455,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00038.png",
+      "phase": "bomb_recovery",
+      "time": 10.366667207330465,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00039.png",
+      "phase": "bomb_recovery",
+      "time": 10.533333882689476,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00040.png",
+      "phase": "bomb_recovery",
+      "time": 10.700000558048487,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00041.png",
+      "phase": "bomb_recovery",
+      "time": 10.866667233407497,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00042.png",
+      "phase": "bomb_recovery",
+      "time": 11.033333908766508,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00043.png",
+      "phase": "bomb_recovery",
+      "time": 11.200000584125519,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00044.png",
+      "phase": "bomb_recovery",
+      "time": 11.36666725948453,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00045.png",
+      "phase": "bomb_recovery",
+      "time": 11.53333393484354,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00046.png",
+      "phase": "bomb_recovery",
+      "time": 11.70000061020255,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00047.png",
+      "phase": "bomb_recovery",
+      "time": 11.866667285561562,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00048.png",
+      "phase": "bomb_recovery",
+      "time": 12.033333960920572,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00049.png",
+      "phase": "cold_wave",
+      "time": 12.200000636279583,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00050.png",
+      "phase": "cold_wave",
+      "time": 12.366667311638594,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00051.png",
+      "phase": "cold_wave",
+      "time": 12.533333986997604,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00052.png",
+      "phase": "cold_wave",
+      "time": 12.700000662356615,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00053.png",
+      "phase": "cold_wave",
+      "time": 12.866667337715626,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00054.png",
+      "phase": "cold_wave",
+      "time": 13.033334013074636,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00055.png",
+      "phase": "cold_wave",
+      "time": 13.200000688433647,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00056.png",
+      "phase": "cold_wave",
+      "time": 13.366667363792658,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00057.png",
+      "phase": "cold_wave",
+      "time": 13.533334039151669,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00058.png",
+      "phase": "cold_wave",
+      "time": 13.70000071451068,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00059.png",
+      "phase": "wave_crest_continues",
+      "time": 13.86666738986969,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00060.png",
+      "phase": "wave_crest_continues",
+      "time": 14.0333340652287,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00061.png",
+      "phase": "wave_crest_continues",
+      "time": 14.200000740587711,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00062.png",
+      "phase": "wave_crest_continues",
+      "time": 14.366667415946722,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00063.png",
+      "phase": "wave_crest_continues",
+      "time": 14.533334091305733,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00064.png",
+      "phase": "wave_crest_continues",
+      "time": 14.700000766664743,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00065.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 14.866667442023754,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00066.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 15.033334117382765,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00067.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 15.200000792741776,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00068.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 15.366667468100786,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00069.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 15.533334143459797,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00070.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 15.700000818818808,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00071.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 15.866667494177818,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00072.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 16.03333416953683,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00073.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 16.20000084489584,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00074.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 16.36666752025485,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00075.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 16.53333419561386,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00076.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 16.700000870972872,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00077.png",
+      "phase": "native_pickaxe_rescue",
+      "time": 16.866667546331882,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00078.png",
+      "phase": "capture_flush",
+      "time": 17.033334221690893,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00079.png",
+      "phase": "capture_flush",
+      "time": 17.200000897049904,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00080.png",
+      "phase": "capture_flush",
+      "time": 17.366667572408915,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    },
+    {
+      "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IceBossAttacksSolo\\Runs\\20261012T221442Z_998212c7\\frames\\00081.png",
+      "phase": "capture_flush",
+      "time": 17.533334247767925,
+      "camera": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "camera_manager_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "requested_camera_location_cm": [
+          -929.2053183755448,
+          790.808408901113,
+          813.7203332185745
+        ],
+        "location_error_cm": 0.0
+      }
+    }
+  ],
+  "scope": "One owned standalone PIE; whole boss/player visual capture of native bomb and cold wave",
+  "fixture_tuning": [
+    {
+      "game_seconds": 1.0333333872258663,
+      "NextIceBombAt": 301.03333338722587,
+      "NextColdWaveAt": 301.03333338722587,
+      "NextIcePrisonAt": 301.03333338722587,
+      "reason": "Only the named cast is ready; normal authoritative scheduler and cast timings remain unchanged"
+    },
+    {
+      "game_seconds": 1.0333333872258663,
+      "SafeAnchor": [
+        469.3054420103619,
+        -10.416436183426487,
+        230.4338610172269
+      ],
+      "reason": "Temporary supported warm circle outside the strong aura keeps the only player alive for visual review"
+    },
+    {
+      "game_seconds": 5.516666954383254,
+      "NextIceBombAt": 5.516666954383254,
+      "NextColdWaveAt": 305.51666695438325,
+      "NextIcePrisonAt": 305.51666695438325,
+      "reason": "Only the named cast is ready; normal authoritative scheduler and cast timings remain unchanged"
+    },
+    {
+      "game_seconds": 9.783333843573928,
+      "NextIceBombAt": 309.7833338435739,
+      "NextColdWaveAt": 309.7833338435739,
+      "NextIcePrisonAt": 309.7833338435739,
+      "reason": "Only the named cast is ready; normal authoritative scheduler and cast timings remain unchanged"
+    },
+    {
+      "game_seconds": 12.050000628456473,
+      "SafeAnchor": [
+        -565.2428487914991,
+        310.01665661180624,
+        217.66470336914062
+      ],
+      "reason": "Restore the original distant circle before the wave; its native warm-zone immunity remains unchanged"
+    },
+    {
+      "game_seconds": 12.050000628456473,
+      "NextIceBombAt": 312.0500006284565,
+      "NextColdWaveAt": 12.050000628456473,
+      "NextIcePrisonAt": 312.0500006284565,
+      "reason": "Only the named cast is ready; normal authoritative scheduler and cast timings remain unchanged"
+    },
+    {
+      "game_seconds": 13.766667384654284,
+      "NextIceBombAt": 313.7666673846543,
+      "NextColdWaveAt": 313.7666673846543,
+      "NextIcePrisonAt": 313.7666673846543,
+      "reason": "Only the named cast is ready; normal authoritative scheduler and cast timings remain unchanged"
+    }
+  ],
+  "limitations": [
+    "Only phase one is captured here; the separate phase probe covers global cold and prison rescue.",
+    "Temporary far warm-circle placement and ability ready times isolate readable casts; encounter balance is not assessed.",
+    "No network validation, cook, package or performance test."
+  ],
+  "world": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth",
+  "last_phase": "capture_flush",
+  "outside_placement_geometry": {
+    "tongue_center_cm": [
+      120.7946815540335,
+      -16.691591099897725,
+      -157.74637806415558
+    ],
+    "tongue_half_extent_cm": [
+      2454.6326405071372,
+      1542.952617746369,
+      247.81285655498556
+    ],
+    "boss_cm": [
+      120.79468162445511,
+      -16.691591098887073,
+      53.622039794921875
+    ],
+    "safe_cm": [
+      -338.2314245241974,
+      -1081.7000677841868,
+      61.049468994140256
+    ],
+    "strong_aura_radius_cm": 700.0,
+    "safe_circle_radius_cm": 330.0,
+    "delivery_geometry": [
+      {
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCFoodDisposal_1",
+        "center_cm": [
+          -1260.0,
+          -100.0,
+          0.0
+        ],
+        "unscaled_half_extent_cm": [
+          260.0,
+          1000.0,
+          300.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCThroat_0",
+        "center_cm": [
+          1510.8000102639198,
+          -25.0,
+          -105.59999853372574
+        ],
+        "unscaled_half_extent_cm": [
+          190.0,
+          650.0,
+          240.0
+        ],
+        "scale": [
+          1.6399999633431435,
+          1.6399999633431435,
+          1.6399999633431435
+        ]
+      }
+    ],
+    "rejected": {
+      "no_floor": 0,
+      "warm_circle": 0,
+      "strong_aura": 0,
+      "delivery": 0,
+      "unsupported_footprint": 0
+    }
+  },
+  "outside_fixture": {
+    "floor_cm": [
+      120.79468162445517,
+      863.3084089011129,
+      73.81862664222717
+    ],
+    "boss_distance_cm": 880.0,
+    "strong_aura_radius_cm": 700.0,
+    "original_safe_circle_cm": [
+      -338.2314245241974,
+      -1081.7000677841868,
+      61.049468994140256
+    ],
+    "expected_knockback_clearance_cm": 750.0,
+    "expected_push_direction": "World +X from yaw=0",
+    "selection": "Supported lateral point plus 750 cm push corridor outside both actual native intake geometries"
+  },
+  "review_camera": {
+    "location_cm": [
+      -929.2053183755448,
+      790.808408901113,
+      813.7203332185745
+    ],
+    "target_cm": [
+      120.79468162445514,
+      423.3084089011129,
+      163.72033321857452
+    ],
+    "fov": 90.0,
+    "boss_floor_cm": [
+      120.79468162445511,
+      -16.691591098887073,
+      53.622039794921875
+    ],
+    "player_floor_cm": [
+      120.79468162445517,
+      863.3084089011129,
+      73.81862664222717
+    ],
+    "boss_player_separation_cm": 880.0
+  },
+  "bomb": {
+    "serial": 1,
+    "health_before": 100.0,
+    "health_after": 80.0,
+    "hero_after_cm": [
+      463.5590235330781,
+      868.2933057121736,
+      96.14658544057916
+    ],
+    "target_radius_cm": 300.0
+  },
+  "wave": {
+    "serial": 2,
+    "observed_ice_health_changes": [
+      160.0,
+      120.0,
+      80.0,
+      40.0,
+      0.0
+    ]
+  },
+  "owned_pie_end_requested": true,
+  "error": null,
+  "restored_settings": true,
+  "wall_seconds": 36.10899999999674,
+  "video_source_report": "E:/DEVGAME/MessControl/Saved/Checks/IceBossAttacksSolo/Runs/20261012T221442Z_998212c7/Report.json",
+  "video_excluded_frames": []
+}

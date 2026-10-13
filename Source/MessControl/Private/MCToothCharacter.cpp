@@ -246,6 +246,9 @@ void AMCToothCharacter::ClearFrozenLegs()
 {
     if(!HasAuthority() || IceLegHealth<=0) return;
     IceLegHealth=0.f; OnRep_IceLegHealth(); ForceNetUpdate();
+    if(UWorld* World=GetWorld())
+        for(TActorIterator<AMCIceEvent> It(World);It;++It)
+            if(!It->IsActorBeingDestroyed()) It->CancelPrisonFor(this);
 }
 bool AMCToothCharacter::HitFrozenLegsWithPickaxe(AMCToothCharacter* Worker,float Damage)
 {
@@ -269,7 +272,12 @@ bool AMCToothCharacter::HitFrozenLegsWithPickaxe(AMCToothCharacter* Worker,float
         if(GetWorld()->LineTraceSingleByChannel(Block,Worker->GetActorLocation(),GetActorLocation(),ECC_Visibility,Query)) return false;
     }
     IceLegHealth=FMath::Max(0.f,IceLegHealth-Damage); OnRep_IceLegHealth(); ForceNetUpdate();
-    if(!HasFrozenLegs()) Worker->NotifyTaskFeedback(true,GetActorLocation()-FVector(0,0,35));
+    if(!HasFrozenLegs()) {
+        if(UWorld* World=GetWorld())
+            for(TActorIterator<AMCIceEvent> It(World);It;++It)
+                if(!It->IsActorBeingDestroyed()) It->CancelPrisonFor(this);
+        Worker->NotifyTaskFeedback(true,GetActorLocation()-FVector(0,0,35));
+    }
     return true;
 }
 void AMCToothCharacter::OnRep_IceLegHealth()

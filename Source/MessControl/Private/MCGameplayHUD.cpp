@@ -227,8 +227,14 @@ void UMCGameplayHUD::RefreshGameplayAlerts()
         Observe(*It,TEXT("Cola"),It->bActive,It->StartedAt,TEXT("ХОЛОДНАЯ КОЛА · БЕРЕГИСЬ ЛЬДА!"));
     for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
         Observe(*It,TEXT("CoffeeWave"),It->bActive && It->bRiverFlood,It->StartedAt,TEXT("КОФЕЙНАЯ ВОЛНА · ДЕРЖИСЬ!"));
-    for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
-        Observe(*It,TEXT("Ice"),It->IsActive(),It->StartedAt,TEXT("МОРОЗ · ДЕРЖИСЬ В ТЁПЛОЙ ЗОНЕ!"));
+    for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) {
+        const bool Active=It->IsActive();
+        Observe(*It,TEXT("Ice"),Active,It->StartedAt,It->UsesColdThroneContract()
+            ?TEXT("ВЕЧНАЯ ЗИМА · БЕРЕГИСЬ АУРЫ БОССА!")
+            :TEXT("МОРОЗ · ДЕРЖИСЬ В ТЁПЛОЙ ЗОНЕ!"));
+        Observe(*It,TEXT("ColdThrone"),Active && It->UsesColdThroneContract() && It->bColdThroneActive,
+            It->ColdThroneEndsAt,TEXT("ХОЛОДНЫЙ ТРОН II · ВСЯ АРЕНА ЗАМЕРЗАЕТ!"),3.5f);
+    }
     for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)
         Observe(*It,TEXT("Fog"),It->IsActive(),It->StartedAt,TEXT("ДРАКА В ТУМАНЕ · ЗАЩИЩАЙТЕ ЗУБ!"));
     for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) {
@@ -711,10 +717,18 @@ void UMCGameplayHUD::RefreshState()
             else Hint=TEXT("ТУМАН СГУЩАЕТСЯ · ИЩИ ПУЛЬСИРУЮЩИЙ КРАСНЫМ ЗУБ");
             break;
         }
-        if(Hero->HasFrozenLegs() && Hero->CanWork())
+        if(Hero->HasFrozenLegs() && Hero->CanWork()) {
             Hint=Inv->Selected==EMCToolSlot::Pickaxe
                 ?TEXT("НОГИ ВО ЛЬДУ · УДЕРЖИВАЙ ЛКМ КИРКОЙ")
                 :TEXT("НОГИ ВО ЛЬДУ · 2 — КИРКА · УДЕРЖИВАЙ ЛКМ");
+            double PrisonImpactAt=MAX_dbl;
+            for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It)
+                for(const auto& Strike:It->Strikes)
+                    if(Strike.bPrisonPunishment && Strike.Prisoner==Hero && !Strike.bImpacted && !Strike.bCancelled)
+                        PrisonImpactAt=FMath::Min(PrisonImpactAt,Strike.ImpactAt);
+            if(PrisonImpactAt<MAX_dbl)
+                Hint+=FString::Printf(TEXT(" · СОСУЛЬКИ ЧЕРЕЗ %.1f С"),FMath::Max(0.,PrisonImpactAt-Now));
+        }
         Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
     }
     if(auto* Results=Find(TEXT("ResultsPanel")))

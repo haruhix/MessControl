@@ -1,0 +1,65 @@
+{
+  "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IcePhaseReturnSolo\\Runs\\20261013T004843Z_479f6ea0\\Report.json",
+  "native_report_passed": true,
+  "windows": {
+    "entry": {
+      "requested": 42,
+      "available": 42,
+      "missing_requests": [],
+      "reason": "All requested files available."
+    },
+    "return": {
+      "requested": 40,
+      "available": 38,
+      "missing_requests": [
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IcePhaseReturnSolo\\Runs\\20261013T004843Z_479f6ea0\\frames\\00042.png",
+          "phase": "wait_in_native_warm_zone",
+          "time": 43.383335595950484,
+          "camera": {
+            "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "camera_manager_location_cm": [
+              1014.2809626986316,
+              -2569.509537227321,
+              872.2536219358444
+            ],
+            "requested_camera_location_cm": [
+              1014.2809626986316,
+              -2569.509537227321,
+              872.2536219358444
+            ],
+            "location_error_cm": 0.0
+          },
+          "clip_window": "return",
+          "cold_expiry_game_seconds": 45.383333614096045
+        },
+        {
+          "file": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\IcePhaseReturnSolo\\Runs\\20261013T004843Z_479f6ea0\\frames\\00078.png",
+          "phase": "rest_local_aura_hold",
+          "time": 49.38333590887487,
+          "camera": {
+            "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "review_camera": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+            "camera_manager_location_cm": [
+              1014.2809626986316,
+              -2569.509537227321,
+              872.2536219358444
+            ],
+            "requested_camera_location_cm": [
+              1014.2809626986316,
+              -2569.509537227321,
+              872.2536219358444
+            ],
+            "location_error_cm": 0.0
+          },
+          "clip_window": "return",
+          "cold_expiry_game_seconds": 45.383333614096045
+        }
+      ],
+      "reason": "Two sequence requests coincided with still captures and produced no separate sequence file. Original requests and still images are retained; encoder includes written genuine sequence files only."
+    }
+  },
+  "decode_passed": true,
+  "visual_qa_passed": true
+}

@@ -1,0 +1,22 @@
+{
+  "video": "E:/DEVGAME/MessControl/Artifacts/IceBossStages_20261013/IceBossStages.mp4",
+  "poster": "E:/DEVGAME/MessControl/Artifacts/IceBossStages_20261013/IceBossStages.png",
+  "genuine_source_frames": 70,
+  "game_duration": 11.666667275130749,
+  "encoded": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1280,
+        "height": 720,
+        "nb_frames": "357"
+      }
+    ],
+    "format": {
+      "duration": "11.900000"
+    }
+  },
+  "timestamps": "E:/DEVGAME/MessControl/Artifacts/IceBossStages_20261013/IceBossStages.ffconcat"
+}

@@ -29,6 +29,12 @@ const FName SizeParameter(TEXT("User.ParticleSize"));
 const FName MeshParameter(TEXT("User.MeshScale"));
 const FName MaterialParameter(TEXT("User.FXMaterial"));
 const FLinearColor IceColor(.42f,.79f,1.f,1.f);
+const FLinearColor DangerColor(1.f,.18f,.08f,1.f);
+const FName PhasePowderName(TEXT("M_IcePhasePowder"));
+constexpr int32 PhaseFrontSectorCount=12;
+constexpr int32 PhaseFrontLayerCount=3;
+constexpr int32 PhaseFrontComponentCount=PhaseFrontSectorCount*PhaseFrontLayerCount;
+constexpr int32 AmbientWinterSectorCount=4;
 
 bool FloorAt(const AMCIceEvent& Event, FVector Anchor, FHitResult& Hit)
 {
@@ -48,6 +54,15 @@ float CrystalFallProgress(const FMCIceZoneCrystal& Crystal,double Time)
 FVector CrystalPosition(const AMCIceEvent& Event,const FMCIceZoneCrystal& Crystal,const FHitResult& Floor,double Time)
 {
     return Event.CrystalWorldPosition(Crystal,Floor,Time);
+}
+
+bool CanPresentStrike(const FMCIcicleStrike& Strike)
+{
+    if(Strike.bCancelled) return false;
+    if(!Strike.bPrisonPunishment || Strike.bImpacted) return true;
+    const auto* Hero=Strike.Prisoner.Get();
+    return IsValid(Hero) && Hero->HasFrozenLegs() && Hero->Status && Hero->Status->IsAlive()
+        && !Hero->IsFreezingToDeath() && !Hero->IsMimicCaptured() && !Hero->SwallowedBy && !Hero->IsHidden();
 }
 }
 
@@ -88,12 +103,31 @@ void AMCIceEventVFX::BeginPlay()
     // A soft pointer does not prevent GC. Burst-only systems also need explicit
     // ownership when a client has not spawned their first rendered instance yet.
     auto Retain=[this](UObject* Asset) {if(Asset) LoadedAssets.AddUnique(Asset);};
-    LoadedAssets.Reserve(12);
+    LoadedAssets.Reserve(17);
     Retain(WindSystem.LoadSynchronous()); Retain(SnowSystem.LoadSynchronous()); Retain(MistSystem.LoadSynchronous());
     Retain(ShardSystem.LoadSynchronous()); Retain(ChargeSystem.LoadSynchronous());
     Retain(WindSheetMaterial.LoadSynchronous()); Retain(WispMaterial.LoadSynchronous()); Retain(SnowMaterial.LoadSynchronous());
     Retain(MistMaterial.LoadSynchronous()); Retain(ChargeMaterial.LoadSynchronous());
     Retain(CrystalMesh.LoadSynchronous()); Retain(CrystalMaterial.LoadSynchronous());
+    // Keep the optional phase-front powder alive without changing the shared
+    // wind/attack materials. /Game/Gameplay is included by the cook settings.
+    auto* PhasePowderMaterial=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(
+        TEXT("/Game/Gameplay/Cold/VFX/M_IcePhasePowder.M_IcePhasePowder"))).LoadSynchronous();
+    Retain(PhasePowderMaterial);
+    auto* PhasePowderSystem=TSoftObjectPtr<UNiagaraSystem>(FSoftObjectPath(
+        TEXT("/Game/Gameplay/Cold/VFX/NS_IcePhasePowder.NS_IcePhasePowder"))).LoadSynchronous();
+    Retain(PhasePowderSystem);
+    const TCHAR* PhasePowderMaterialPaths[]={
+        TEXT("/Game/Gameplay/Cold/VFX/MI_IcePowderLow.MI_IcePowderLow"),
+        TEXT("/Game/Gameplay/Cold/VFX/MI_IcePowderBody.MI_IcePowderBody"),
+        TEXT("/Game/Gameplay/Cold/VFX/MI_IcePowderHigh.MI_IcePowderHigh")};
+    UMaterialInterface* PhasePowderMaterials[PhaseFrontLayerCount];
+    for(int32 Layer=0;Layer<PhaseFrontLayerCount;++Layer)
+    {
+        auto* Material=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(PhasePowderMaterialPaths[Layer])).LoadSynchronous();
+        Retain(Material);
+        PhasePowderMaterials[Layer]=Material?Material:PhasePowderMaterial?PhasePowderMaterial:WispMaterial.Get();
+    }
     if(CrystalMesh.Get())
     {
         // The artist's material has no instanced-mesh usage. Ordinary shells
@@ -107,10 +141,30 @@ void AMCIceEventVFX::BeginPlay()
             Facet->bReceivesDecals=false; Facet->SetVisibility(false);
             Facet->RegisterComponent(); AddInstanceComponent(Facet); CrystalFacets.Add(Facet);
         }
+        for(int32 I=0;I<3;++I)
+        {
+            auto* Facet=NewObject<UStaticMeshComponent>(this,FName(*FString::Printf(TEXT("IceBombFacet%d"),I)));
+            Facet->SetupAttachment(GetRootComponent()); Facet->ComponentTags.Add(TEXT("MC_IceBombProjectile"));
+            Facet->SetStaticMesh(CrystalMesh.Get()); Facet->SetMaterial(0,CrystalMaterial.Get());
+            Facet->SetCollisionEnabled(ECollisionEnabled::NoCollision); Facet->SetGenerateOverlapEvents(false);
+            Facet->SetCanEverAffectNavigation(false); Facet->SetCastShadow(false); Facet->bReceivesDecals=false;
+            Facet->SetVisibility(false); Facet->RegisterComponent(); AddInstanceComponent(Facet); BombFacets.Add(Facet);
+        }
     }
     Wind=MakeLoop(TEXT("WindWisps"),WindSystem.Get(),WispMaterial.Get());
     Snow=MakeLoop(TEXT("WindSnow"),SnowSystem.Get(),SnowMaterial.Get());
     CoreCharge=MakeLoop(TEXT("CoreCharge"),ChargeSystem.Get(),ChargeMaterial.Get());
+    BombCharge=MakeLoop(TEXT("IceBombCharge"),ChargeSystem.Get(),ChargeMaterial.Get());
+    // Dedicated front components let the powder drain naturally. Ambient wind
+    // keeps its own four components, so live puffs never change material.
+    for(int32 I=0;I<PhaseFrontComponentCount+AmbientWinterSectorCount;++I)
+    {
+        const bool bPhaseFront=I<PhaseFrontComponentCount;
+        auto* Material=bPhaseFront?PhasePowderMaterials[I/PhaseFrontSectorCount]:WispMaterial.Get();
+        auto* System=bPhaseFront && PhasePowderSystem?PhasePowderSystem:WindSystem.Get();
+        WinterWisps.Add(MakeLoop(*FString::Printf(TEXT("GlobalWinterWisps%d"),I),System,Material));
+        WinterSnow.Add(MakeLoop(*FString::Printf(TEXT("GlobalWinterSnow%d"),I),SnowSystem.Get(),SnowMaterial.Get()));
+    }
     for(int32 I=0;I<3;++I)
     {
         VortexWisps.Add(MakeLoop(*FString::Printf(TEXT("VortexWisps%d"),I),WindSystem.Get(),WispMaterial.Get()));
@@ -122,7 +176,9 @@ void AMCIceEventVFX::BeginPlay()
         CrystalTrails.Add(MakeLoop(*FString::Printf(TEXT("FallingCrystalTrail%d"),I),WindSystem.Get(),WispMaterial.Get()));
         WarmMotes.Add(MakeLoop(*FString::Printf(TEXT("WarmMotes%d"),I),ChargeSystem.Get(),ChargeMaterial.Get()));
     }
-    for(int32 I=0;I<3;++I)
+    // A prison can catch the whole party. Warning capacity matches the bounded
+    // frozen-foot presentation instead of hiding the fourth player's danger.
+    for(int32 I=0;I<8;++I)
         IcicleCharges.Add(MakeLoop(*FString::Printf(TEXT("IcicleCharge%d"),I),ChargeSystem.Get(),ChargeMaterial.Get()));
     if(auto* Material=WindSheetMaterial.Get())
     {
@@ -328,12 +384,151 @@ void AMCIceEventVFX::UpdateHealthLabels(const AMCIceEvent& Event,double ServerTi
     }
 }
 
+void AMCIceEventVFX::UpdateColdThronePresentation(const AMCIceEvent& Event,float DeltaSeconds,double ServerTime)
+{
+    const auto* PowderAsset=LoadedAssets.FindByPredicate([](const TObjectPtr<UObject>& Asset)
+        {return IsValid(Asset.Get()) && Asset->GetFName()==PhasePowderName;});
+    auto* PowderMaterial=PowderAsset?Cast<UMaterialInterface>(PowderAsset->Get()):nullptr;
+    const bool bGlobal=Event.UsesColdThroneContract() && Event.IsGlobalColdActive();
+    const float PhaseAge=Event.PhaseTransitionAge();
+    const float ReturnAge=Event.PhaseReturnAge();
+    const float Progress=Event.PhaseTransitionProgress();
+    const bool bReturning=ReturnAge>=AMCIceEvent::PhaseTransitionClimateSeconds && Progress>0.f;
+    const bool bFront=(PhaseAge>=AMCIceEvent::PhaseTransitionChargeSeconds && Progress<1.f) || bReturning;
+    const float GlobalStrength=Event.UsesColdThroneContract()?Event.ClimateContribution():0.f;
+    if(!bInitialized)
+    {
+        WinterStrength=GlobalStrength;
+        bWasGlobalCold=bGlobal;
+    }
+    else WinterStrength=FMath::FInterpTo(WinterStrength,GlobalStrength,DeltaSeconds,4.f);
+    if(bGlobal && !bWasGlobalCold)
+        PlayBurst(MistSystem.Get(),PowderMaterial?PowderMaterial:MistMaterial.Get(),LastCorePoint+FVector(0,0,100),.45f,
+            FVector::OneVector,FVector2D(330,270),FLinearColor(.9f,.97f,1.f,.8f));
+    bWasGlobalCold=bGlobal;
+
+    FBox Bounds(ForceInit);
+    if(IsValid(Event.Tongue) && Event.Tongue->Surface) Bounds=Event.Tongue->Surface->Bounds.GetBox();
+    const FVector Center=Bounds.IsValid?Bounds.GetCenter():LastCorePoint;
+    const FVector Extent=Bounds.IsValid?Bounds.GetExtent():FVector(900,900,0);
+    const float FrontRadius=bFront?Event.PhaseTransitionRadius():0.f;
+    for(int32 Sector=0;Sector<WinterWisps.Num();++Sector)
+    {
+        if(bFront && Sector<PhaseFrontComponentCount)
+        {
+            // Stagger low spray, rolling body and rising powder around the
+            // native front. Mirror trailing offsets when it travels inward.
+            const int32 Layer=Sector/PhaseFrontSectorCount;
+            const int32 LayerSector=Sector%PhaseFrontSectorCount;
+            const float FlowSign=bReturning?-1.f:1.f;
+            const float Age=float(ServerTime-Event.StartedAt);
+            const float Ripple=FMath::Sin(Age*2.1f+LayerSector*1.73f+Layer*2.4f);
+            const float Angle=(LayerSector+Layer*.31f)*2*PI/PhaseFrontSectorCount
+                +.035f*FMath::Sin(Age*.9f+LayerSector+Layer*1.7f);
+            const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0);
+            const FVector Tangent(-Ray.Y,Ray.X,0);
+            constexpr float RadiusOffsets[]={-90.f,15.f,-150.f};
+            constexpr float Heights[]={35.f,110.f,190.f};
+            constexpr float Lift[]={.12f,.35f,.6f};
+            constexpr float Speeds[]={.16f,.20f,.12f};
+            constexpr float Rates[]={3.f,3.f,2.f};
+            constexpr float Widths[]={.82f,1.f,.7f};
+            constexpr float Aspects[]={.9f,1.05f,.95f};
+            const float Radius=FMath::Max(30.f,FrontRadius+FlowSign*RadiusOffsets[Layer]+Ripple*24.f);
+            const FVector Direction=Ray*FlowSign+Tangent*(Ripple*.16f)+FVector(0,0,Lift[Layer]);
+            FHitResult Floor;
+            const bool bEnabled=IsValid(Event.Tongue)
+                && Event.Tongue->SurfacePoint(LastCorePoint+Ray*Radius,Floor);
+            const FVector Point=bEnabled?Floor.ImpactPoint+Floor.ImpactNormal*(Heights[Layer]+Ripple*18.f):FVector::ZeroVector;
+            const float Fade=bReturning?FMath::SmoothStep(0.f,.12f,Progress):1-FMath::SmoothStep(.88f,1.f,Progress);
+            const float PowderWidth=FMath::Clamp(FrontRadius*.42f,300.f,650.f)*Widths[Layer]*(1+Ripple*.08f);
+            const FLinearColor PowderColors[]={FLinearColor(.66f,.8f,.91f,.65f),
+                FLinearColor(.9f,.96f,1.f,.8f),FLinearColor(.97f,.99f,1.f,.5f)};
+            // Powder clouds accompany the outward cold release only. The
+            // returning frost front stays clear while its fine snow contracts.
+            SetLoop(WinterWisps[Sector],bEnabled && !bReturning,Point,Direction.Rotation(),Rates[Layer]*Fade,Speeds[Layer],
+                FVector2D(PowderWidth,PowderWidth*Aspects[Layer]),PowderColors[Layer]);
+            // Extra layers carry powder only; retain the original snow budget.
+            SetLoop(WinterSnow[Sector],bEnabled && Layer==0,Point+FVector(0,0,45),Direction.Rotation(),24*Fade,2.2f,
+                FVector2D(4.5f,28),FLinearColor(.85f,.97f,1.f,.95f));
+            continue;
+        }
+        if(Sector<PhaseFrontComponentCount)
+        {
+            SetLoop(WinterWisps[Sector],false,FVector::ZeroVector,FRotator::ZeroRotator,0,0,FVector2D::ZeroVector,IceColor);
+            SetLoop(WinterSnow[Sector],false,FVector::ZeroVector,FRotator::ZeroRotator,0,0,FVector2D::ZeroVector,IceColor);
+            continue;
+        }
+        const int32 AmbientSector=Sector-PhaseFrontComponentCount;
+        const FVector Offset((AmbientSector<2?-.45f:.45f)*Extent.X,(AmbientSector%2?-.4f:.4f)*Extent.Y,0);
+        FHitResult Floor;
+        const bool bEnabled=!bFront && WinterStrength>.02f && IsValid(Event.Tongue)
+            && Event.Tongue->SurfacePoint(Center+Offset,Floor);
+        const float Drift=.15f*FMath::Sin(float(ServerTime)*.45f+AmbientSector);
+        const FVector Direction(.45f+Drift,-1.f,.08f);
+        const FVector Point=bEnabled?Floor.ImpactPoint+FVector(0,0,145+(AmbientSector%2)*65):FVector::ZeroVector;
+        SetLoop(WinterWisps[Sector],bEnabled,Point,Direction.Rotation(),16*WinterStrength,1.2f,
+            FVector2D(145,30),FLinearColor(.64f,.86f,1.f,.55f));
+        SetLoop(WinterSnow[Sector],bEnabled,Point+FVector(0,0,65),Direction.Rotation(),24*WinterStrength,1.35f,
+            FVector2D(3.5f,20),FLinearColor(.8f,.96f,1.f,.8f));
+    }
+}
+
+void AMCIceEventVFX::UpdateBombPresentation(const AMCIceEvent& Event,double ServerTime)
+{
+    const auto& Attack=Event.BossAttack;
+    FHitResult Floor;
+    const bool bBomb=Event.UsesColdThroneContract() && Attack.Kind==EMCCandyAttack::MiniCandy
+        && ServerTime<Attack.EndsAt && FloorAt(Event,Attack.TargetAnchor,Floor);
+    const bool bWarning=bBomb && ServerTime<Attack.ImpactAt;
+    const float Progress=bWarning?FMath::Clamp(float((ServerTime-Attack.StartedAt)
+        /FMath::Max(.1,Attack.ImpactAt-Attack.StartedAt)),0.f,1.f):0.f;
+    SetLoop(BombCharge,bWarning,bWarning?Floor.ImpactPoint+Floor.ImpactNormal*26:FVector::ZeroVector,
+        FRotator::ZeroRotator,9+24*Progress,.3f,FVector2D(7+5*Progress,7+5*Progress),DangerColor);
+
+    // The existing shard mesh becomes a small tumbling cluster. Its collision
+    // is disabled; the replicated attack owns the hit and push at the marker.
+    const double ReleasedAt=Attack.StartedAt+13.f/24.f;
+    const bool bFlight=bWarning && ServerTime>=ReleasedAt;
+    const float Flight=bFlight?FMath::Clamp(float((ServerTime-ReleasedAt)
+        /FMath::Max(.1,Attack.ImpactAt-ReleasedAt)),0.f,1.f):0.f;
+    const FVector From=Event.Body?Event.Body->Bounds.Origin+FVector(0,0,Event.Body->Bounds.BoxExtent.Z*.65f):Event.GetActorLocation();
+    const FVector Center=bFlight?FMath::Lerp(From,Floor.ImpactPoint+Floor.ImpactNormal*45,Flight)
+        +FVector(0,0,FMath::Sin(Flight*PI)*240):FVector::ZeroVector;
+    for(int32 I=0;I<BombFacets.Num();++I)
+    {
+        auto* Facet=BombFacets[I].Get();
+        Facet->SetVisibility(bFlight);
+        if(!bFlight || !CrystalMesh.Get()) continue;
+        const FBox Bounds=CrystalMesh.Get()->GetBoundingBox();
+        const FVector Size=Bounds.GetSize();
+        const FVector Scale(48/FMath::Max(1.,Size.X),44/FMath::Max(1.,Size.Y),82/FMath::Max(1.,Size.Z));
+        const float Angle=I*2*PI/3+float(ServerTime-ReleasedAt)*6;
+        const FQuat Rotation=FRotator(Flight*360+I*30,Angle*180/PI,35+I*45).Quaternion();
+        const FVector Position=Center+FVector(FMath::Cos(Angle)*18,FMath::Sin(Angle)*18,0);
+        Facet->SetWorldLocationAndRotation(Position-Rotation.RotateVector(Bounds.GetCenter()*Scale),Rotation);
+        Facet->SetWorldScale3D(Scale);
+    }
+    if(bBomb && ServerTime>=Attack.ImpactAt && Attack.Serial>LastBombImpactSerial)
+    {
+        LastBombImpactSerial=Attack.Serial;
+        if(ServerTime<=Attack.ImpactAt+.5)
+        {
+            const FVector Point=Floor.ImpactPoint+Floor.ImpactNormal*22;
+            PlayBurst(ShardSystem.Get(),nullptr,Point,1.35f,FVector(.11,.14,.24),FVector2D::ZeroVector,IceColor);
+            PlayBurst(MistSystem.Get(),MistMaterial.Get(),Point,1.4f,FVector::OneVector,FVector2D(150,110),IceColor);
+        }
+    }
+}
+
 void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSeconds, double ServerTime)
 {
     if(bFinishing || !Event.IsActive()) return;
     FHitResult CoreFloor;
     if(!FloorAt(Event,Event.CandyAnchor,CoreFloor)) return;
     LastCorePoint=CoreFloor.ImpactPoint;
+    UpdateColdThronePresentation(Event,DeltaSeconds,ServerTime);
+    UpdateBombPresentation(Event,ServerTime);
     UpdateFrozenFeet(Event); UpdateHealthLabels(Event,ServerTime);
     if(HasCrystalVisuals())
     {
@@ -375,7 +570,7 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
         if(Event.NovaImpactAt>0 && ServerTime>=Event.NovaImpactAt && ServerTime<Event.NovaImpactAt+Event.BossVortexSeconds)
             BlastStartedAt=Event.NovaImpactAt;
         for(const auto& Strike:Event.Strikes)
-            if(ServerTime>Strike.ImpactAt+.5) LastImpactStrikeId=FMath::Max(LastImpactStrikeId,Strike.Id);
+            if(CanPresentStrike(Strike) && ServerTime>Strike.ImpactAt+.5) LastImpactStrikeId=FMath::Max(LastImpactStrikeId,Strike.Id);
         for(const auto& Crystal:Event.ZoneCrystals)
             PreviousCrystals.Add(Crystal.ZoneIndex,{Crystal.Anchor,Crystal.Health,Crystal.Id,Crystal.bLanded || ServerTime>=Crystal.ImpactAt});
         for(const auto& Player:Event.Players)
@@ -393,7 +588,7 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
 
     for(const auto& Strike:Event.Strikes)
     {
-        if(Strike.Id<=LastImpactStrikeId || ServerTime<Strike.ImpactAt) continue;
+        if(!CanPresentStrike(Strike) || Strike.Id<=LastImpactStrikeId || ServerTime<Strike.ImpactAt) continue;
         LastImpactStrikeId=Strike.Id;
         FHitResult Floor;
         if(ServerTime>Strike.ImpactAt+.5 || !FloorAt(Event,Strike.Anchor,Floor)) continue;
@@ -460,10 +655,12 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
     for(const auto& Strike:Event.Strikes)
     {
         FHitResult Floor;
-        if(ChargeIndex>=IcicleCharges.Num() || ServerTime>=Strike.ImpactAt || !FloorAt(Event,Strike.Anchor,Floor)) continue;
-        const float Progress=FMath::Clamp(1-float((Strike.ImpactAt-ServerTime)/Event.IcicleWarningSeconds),0.f,1.f);
+        if(ChargeIndex>=IcicleCharges.Num() || !CanPresentStrike(Strike) || ServerTime>=Strike.ImpactAt || !FloorAt(Event,Strike.Anchor,Floor)) continue;
+        const float WarningSeconds=Strike.bPrisonPunishment?Event.IcePrisonEscapeSeconds:Event.IcicleWarningSeconds;
+        const float Progress=FMath::Clamp(1-float((Strike.ImpactAt-ServerTime)/FMath::Max(.1f,WarningSeconds)),0.f,1.f);
         SetLoop(IcicleCharges[ChargeIndex++],true,Floor.ImpactPoint+Floor.ImpactNormal*35,
-            FRotator::ZeroRotator,6+12*Progress,.28f,FVector2D(6+4*Progress,6+4*Progress),FLinearColor(.35f,.8f,1,.75f));
+            FRotator::ZeroRotator,6+18*Progress,.28f,FVector2D(6+5*Progress,6+5*Progress),
+            Strike.bPrisonPunishment?DangerColor:FLinearColor(.35f,.8f,1,.75f));
     }
     while(ChargeIndex<IcicleCharges.Num())
         SetLoop(IcicleCharges[ChargeIndex++],false,FVector::ZeroVector,FRotator::ZeroRotator,0,0,FVector2D::ZeroVector,IceColor);
@@ -500,14 +697,25 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
     }
     const bool bWarning=Event.bNovaWarning && ServerTime<Event.NovaImpactAt;
     const float BlastAge=float(ServerTime-BlastStartedAt);
-    const bool bFloorWave=Event.bUseAnimatedBossAttacks && Event.BossAttack.Kind==EMCCandyAttack::FloorHit;
+    const bool bFloorWave=(Event.UsesColdThroneContract() || Event.bUseAnimatedBossAttacks)
+        && Event.BossAttack.Kind==EMCCandyAttack::FloorHit;
     const bool bBlast=BlastAge>=0 && BlastAge<(bFloorWave?Event.WaveTravelSeconds:Event.BossVortexSeconds);
     const float ChargeProgress=bWarning?FMath::Clamp(1-float((Event.NovaImpactAt-ServerTime)/(bFloorWave?.75f:Event.NovaWarningSeconds)),0.f,1.f):0.f;
-    const float Ambient=bActive?.3f:0.f;
-    const float Strength=bWarning?.5f+.35f*ChargeProgress:bBlast?Ambient+.7f*(1-FMath::SmoothStep(Event.BossVortexSeconds*.6f,Event.BossVortexSeconds,BlastAge)):Ambient;
-    const float Reach=bBlast?(bFloorWave?FMath::Max(60.f,Event.GroundWaveRadius(ServerTime)):Event.NovaRange):Event.BossFrostRadius;
+    const bool bColdThrone=Event.UsesColdThroneContract();
+    const float Ambient=bColdThrone?.34f:bActive?.3f:0.f;
+    const float Strength=bColdThrone?Ambient+(bWarning?.2f*ChargeProgress:bBlast?.15f:0.f):
+        bWarning?.5f+.35f*ChargeProgress:bBlast?Ambient+.7f*(1-FMath::SmoothStep(Event.BossVortexSeconds*.6f,Event.BossVortexSeconds,BlastAge)):Ambient;
+    // The permanent throne stays at its true radius while the separate low
+    // crest travels outward. Its aura no longer pretends to expand with a wave.
+    const float Reach=bColdThrone?Event.BossFrostRadius:
+        bBlast?(bFloorWave?FMath::Max(60.f,Event.GroundWaveRadius(ServerTime)):Event.NovaRange):Event.BossFrostRadius;
+    const float PhaseAge=Event.PhaseTransitionAge();
+    const bool bPhaseCharge=PhaseAge>=0 && PhaseAge<AMCIceEvent::PhaseTransitionChargeSeconds;
+    const float PhaseCharge=bPhaseCharge?PhaseAge/AMCIceEvent::PhaseTransitionChargeSeconds:0.f;
     SetLoop(CoreCharge,true,Event.GetActorLocation()+FVector(0,0,200),FRotator::ZeroRotator,
-        bWarning?14+28*ChargeProgress:7.f,bWarning?.75f:.3f,FVector2D(bWarning?14:8,bWarning?14:8),IceColor);
+        bPhaseCharge?35+65*PhaseCharge:bWarning?14+28*ChargeProgress:7.f,
+        bPhaseCharge?1.2f:bWarning?.75f:.3f,
+        FVector2D(bPhaseCharge?24+18*PhaseCharge:bWarning?14:8,bPhaseCharge?24+18*PhaseCharge:bWarning?14:8),IceColor);
     // Four simultaneous tangent emitters surround the crystal. The procedural
     // spiral below supplies continuous coverage between those particle trails.
     for(int32 Sector=0;Sector<4;++Sector)
@@ -526,9 +734,10 @@ void AMCIceEventVFX::UpdateFromEvent(const AMCIceEvent& Event, float DeltaSecond
     if(Strength>0 && SheetMID)
     {
         SheetMID->SetScalarParameterValue(TEXT("Age"),float(ServerTime-Event.StartedAt));
-        SheetMID->SetScalarParameterValue(TEXT("FlowSpeed"),bWarning?.8f:bBlast?1.7f:.5f);
-        SheetMID->SetScalarParameterValue(TEXT("Opacity"),bWarning?.5f:bBlast?.65f:.4f);
-        if(ServerTime>=LastSheetUpdate+.05)
+        SheetMID->SetScalarParameterValue(TEXT("FlowSpeed"),bColdThrone?.6f+WinterStrength*.6f:bWarning?.8f:bBlast?1.7f:.5f);
+        SheetMID->SetScalarParameterValue(TEXT("Opacity"),bColdThrone?.42f:bWarning?.5f:bBlast?.65f:.4f);
+        const double SheetInterval=bColdThrone && !(bFloorWave && bBlast)?.1:.05;
+        if(ServerTime>=LastSheetUpdate+SheetInterval)
         {
             LastSheetUpdate=ServerTime;
             UpdateWindSheet(Event,ServerTime,Strength,bWarning);
@@ -579,11 +788,13 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
         }
     };
     const float BlastAge=float(ServerTime-BlastStartedAt);
-    const bool bFloorWave=Event.bUseAnimatedBossAttacks && Event.BossAttack.Kind==EMCCandyAttack::FloorHit;
+    const bool bFloorWave=(Event.UsesColdThroneContract() || Event.bUseAnimatedBossAttacks)
+        && Event.BossAttack.Kind==EMCCandyAttack::FloorHit;
     const bool bBlast=BlastAge>=0 && BlastAge<(bFloorWave?Event.WaveTravelSeconds:Event.BossVortexSeconds);
-    const float Reach=bBlast?(bFloorWave?FMath::Max(60.f,Event.GroundWaveRadius(ServerTime)):
+    const bool bColdThrone=Event.UsesColdThroneContract();
+    const float Reach=bColdThrone?Event.BossFrostRadius:bBlast?(bFloorWave?FMath::Max(60.f,Event.GroundWaveRadius(ServerTime)):
         FMath::Lerp(Event.BossFrostRadius,Event.NovaRange,FMath::Clamp(BlastAge/.65f,0.f,1.f))):Event.BossFrostRadius;
-    Vortex(LastCorePoint,Reach,bBlast?(bFloorWave?95.f:380.f):260.f,float(ServerTime-Event.StartedAt),Strength,12,false);
+    Vortex(LastCorePoint,Reach,bColdThrone?165.f:bBlast?(bFloorWave?95.f:380.f):260.f,float(ServerTime-Event.StartedAt),Strength,12,false);
     if(bFloorWave && bBlast && IsValid(Event.Tongue))
     {
         // A low continuous crest follows the same radius as the foot-freeze hit.
@@ -594,9 +805,10 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
             FHitResult A,B;
             const float Angle=Segment*2*PI/Segments,NextAngle=(Segment+1)*2*PI/Segments;
             const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0),NextRay(FMath::Cos(NextAngle),FMath::Sin(NextAngle),0);
-            if(!Event.Tongue->SurfacePoint(LastCorePoint+Ray*Reach,A) || !Event.Tongue->SurfacePoint(LastCorePoint+NextRay*Reach,B)) continue;
+            const float WaveRadius=FMath::Max(60.f,Event.GroundWaveRadius(ServerTime));
+            if(!Event.Tongue->SurfacePoint(LastCorePoint+Ray*WaveRadius,A) || !Event.Tongue->SurfacePoint(LastCorePoint+NextRay*WaveRadius,B)) continue;
             const int32 First=Vertices.Num();
-            const float Height=55+14*FMath::Sin(Angle*13+BlastAge*8);
+            const float Height=bColdThrone?10+2*FMath::Sin(Angle*13+BlastAge*8):55+14*FMath::Sin(Angle*13+BlastAge*8);
             const FVector Points[]={A.ImpactPoint+A.ImpactNormal*4,A.ImpactPoint+A.ImpactNormal*Height,
                 B.ImpactPoint+B.ImpactNormal*Height,B.ImpactPoint+B.ImpactNormal*4};
             for(int32 Corner=0;Corner<4;++Corner)
@@ -608,6 +820,125 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
                 Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(FVector(-Ray.Y,Ray.X,0)).GetSafeNormal(),false));
             }
             Indices.Append({First,First+2,First+1,First,First+3,First+2});
+        }
+    }
+    auto GroundRing=[&](FVector Center,float Radius,float Height,FLinearColor Color,int32 Segments)
+    {
+        if(!IsValid(Event.Tongue) || Radius<1) return;
+        FHitResult Previous;
+        bool bPrevious=Event.Tongue->SurfacePoint(Center+FVector(Radius,0,0),Previous);
+        for(int32 Segment=1;Segment<=Segments;++Segment)
+        {
+            const float Angle=Segment*2*PI/Segments;
+            const FVector Ray(FMath::Cos(Angle),FMath::Sin(Angle),0);
+            FHitResult Current;
+            const bool bCurrent=Event.Tongue->SurfacePoint(Center+Ray*Radius,Current);
+            if(bPrevious && bCurrent)
+            {
+                const int32 First=Vertices.Num();
+                const FVector Points[]={Previous.ImpactPoint+Previous.ImpactNormal*5,
+                    Previous.ImpactPoint+Previous.ImpactNormal*Height,
+                    Current.ImpactPoint+Current.ImpactNormal*Height,
+                    Current.ImpactPoint+Current.ImpactNormal*5};
+                for(int32 Corner=0;Corner<4;++Corner)
+                {
+                    Vertices.Add(Transform.InverseTransformPosition(Points[Corner]));
+                    Normals.Add(Transform.InverseTransformVectorNoScale(Ray).GetSafeNormal());
+                    UV.Add(FVector2D(Corner>=2?1.f:0.f,Corner==1 || Corner==2?1.f:0.f));
+                    Colors.Add(Color);
+                    Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(FVector(-Ray.Y,Ray.X,0)).GetSafeNormal(),false));
+                }
+                Indices.Append({First,First+2,First+1,First,First+3,First+2});
+            }
+            Previous=Current; bPrevious=bCurrent;
+        }
+    };
+    if(bColdThrone)
+    {
+        GroundRing(LastCorePoint,Event.BossFrostRadius,25,FLinearColor(.3f,.8f,1.f,.7f),48);
+        const float PhaseAge=Event.PhaseTransitionAge(),PhaseProgress=Event.PhaseTransitionProgress();
+        const float ReturnAge=Event.PhaseReturnAge();
+        const bool bReturning=ReturnAge>=0 && ReturnAge<AMCIceEvent::PhaseTransitionClimateSeconds+AMCIceEvent::PhaseTransitionSweepSeconds;
+        if((PhaseAge>=0 && PhaseProgress<1.f) || bReturning)
+        {
+            // The visual ring uses the material's synchronized radius, never
+            // the gameplay wave radius. Project it onto the breathing tongue.
+            const float Radius=Event.PhaseTransitionRadius();
+            const float Charge=bReturning?1.f:FMath::Clamp(PhaseAge/AMCIceEvent::PhaseTransitionChargeSeconds,0.f,1.f);
+            const float Fade=bReturning?FMath::SmoothStep(0.f,.12f,PhaseProgress):1-FMath::SmoothStep(.9f,1.f,PhaseProgress);
+            GroundRing(LastCorePoint,Radius,55+45*Charge,FLinearColor(.65f,.9f,1.f,.8f*Fade),96);
+            GroundRing(LastCorePoint,FMath::Max(Event.BossFrostRadius,Radius-65.f),35,
+                FLinearColor(.82f,.97f,1.f,.55f*Fade),96);
+        }
+        FHitResult Floor;
+        if(Event.BossAttack.Kind==EMCCandyAttack::MiniCandy && ServerTime<Event.BossAttack.EndsAt
+            && FloorAt(Event,Event.BossAttack.TargetAnchor,Floor))
+        {
+            const auto& Attack=Event.BossAttack;
+            if(ServerTime<Attack.ImpactAt)
+            {
+                const float Progress=FMath::Clamp(float((ServerTime-Attack.StartedAt)
+                    /FMath::Max(.1,Attack.ImpactAt-Attack.StartedAt)),0.f,1.f);
+                GroundRing(Floor.ImpactPoint,Attack.TargetRadius,28,DangerColor,48);
+                GroundRing(Floor.ImpactPoint,Attack.TargetRadius*(.25f+.75f*Progress),13,DangerColor,32);
+            }
+            else
+            {
+                const float Age=float(ServerTime-Attack.ImpactAt);
+                GroundRing(Floor.ImpactPoint,Attack.TargetRadius*(.4f+.6f*FMath::Clamp(Age/.3f,0.f,1.f)),
+                    40,FLinearColor(.7f,.94f,1.f,FMath::Clamp(1-Age/.5f,0.f,1.f)),48);
+            }
+        }
+        for(const auto& Strike:Event.Strikes)
+        {
+            if(!Strike.bPrisonPunishment || !CanPresentStrike(Strike) || ServerTime>=Strike.ImpactAt
+                || !FloorAt(Event,Strike.Anchor,Floor)) continue;
+            const float Progress=FMath::Clamp(1-float((Strike.ImpactAt-ServerTime)
+                /FMath::Max(.1f,Event.IcePrisonEscapeSeconds)),0.f,1.f);
+            const float Pulse=.7f+.3f*FMath::Sin(float(ServerTime)*8+Progress*6);
+            GroundRing(Floor.ImpactPoint,Event.IcicleRadius,20,DangerColor*Pulse,32);
+            GroundRing(Floor.ImpactPoint,Event.IcicleRadius*(.15f+.85f*Progress),12,DangerColor,24);
+        }
+        if(WinterStrength>.02f && IsValid(Event.Tongue) && Event.Tongue->Surface)
+        {
+            // Sparse ribbons cross the whole tissue while the global phase is
+            // active. Project each point to the live tongue; leave holes outside
+            // it rather than showing wind across unreachable space.
+            const FBox Bounds=Event.Tongue->Surface->Bounds.GetBox();
+            const FVector Center=Bounds.GetCenter(),Extent=Bounds.GetExtent();
+            constexpr int32 Segments=24;
+            for(int32 Band=0;Band<3;++Band)
+            {
+                FHitResult Previous; bool bPrevious=false;
+                for(int32 Segment=0;Segment<=Segments;++Segment)
+                {
+                    const float Fraction=Segment/float(Segments);
+                    const FVector Point=Center+FVector(Extent.X*(Fraction*1.8f-.9f),
+                        Extent.Y*((Band-1)*.48f+.12f*FMath::Sin(Fraction*PI*2+float(ServerTime)*.5f+Band)),0);
+                    FHitResult Current;
+                    const bool bCurrent=Event.Tongue->SurfacePoint(Point,Current);
+                    if(bPrevious && bCurrent)
+                    {
+                        const int32 First=Vertices.Num();
+                        const float Height=80+Band*50,Width=16+6*FMath::Sin(float(ServerTime)+Fraction*9);
+                        const FVector Points[]={Previous.ImpactPoint+Previous.ImpactNormal*(Height-Width),
+                            Previous.ImpactPoint+Previous.ImpactNormal*(Height+Width),
+                            Current.ImpactPoint+Current.ImpactNormal*(Height+Width),
+                            Current.ImpactPoint+Current.ImpactNormal*(Height-Width)};
+                        const FVector Tangent=(Current.ImpactPoint-Previous.ImpactPoint).GetSafeNormal();
+                        for(int32 Corner=0;Corner<4;++Corner)
+                        {
+                            Vertices.Add(Transform.InverseTransformPosition(Points[Corner]));
+                            Normals.Add(Transform.InverseTransformVectorNoScale(FVector::RightVector));
+                            UV.Add(FVector2D((Segment-1+(Corner>=2?1:0))/float(Segments),Corner==1 || Corner==2?1.f:0.f));
+                            Colors.Add(FLinearColor(.75f,.92f,1.f,WinterStrength*.65f));
+                            Tangents.Add(FProcMeshTangent(Transform.InverseTransformVectorNoScale(Tangent),false));
+                        }
+                        Indices.Append({First,First+2,First+1,First,First+3,First+2});
+                    }
+                    Previous=Current; bPrevious=bCurrent;
+                }
+            }
         }
     }
     for(const auto& Crystal:Event.ZoneCrystals)
@@ -623,7 +954,7 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
         Vortex(Center,bFalling?145.f:Event.ZoneCrystalVortexRadius,bFalling?280.f:180.f,
             float(ServerTime-Crystal.SpawnedAt),Weight,6,bFalling);
     }
-    if(Event.BossAttack.Kind==EMCCandyAttack::Scream && ServerTime>=Event.BossAttack.ImpactAt && ServerTime<Event.BossAttack.EndsAt)
+    if(!bColdThrone && Event.BossAttack.Kind==EMCCandyAttack::Scream && ServerTime>=Event.BossAttack.ImpactAt && ServerTime<Event.BossAttack.EndsAt)
     {
         FHitResult Floor;
         if(FloorAt(Event,Event.BossAttack.TargetAnchor,Floor))
@@ -637,7 +968,11 @@ void AMCIceEventVFX::UpdateWindSheet(const AMCIceEvent& Event, double ServerTime
 
 void AMCIceEventVFX::StopLoops()
 {
-    for(auto* Component:{Wind.Get(),Snow.Get(),CoreCharge.Get()})
+    for(auto* Component:{Wind.Get(),Snow.Get(),CoreCharge.Get(),BombCharge.Get()})
+        if(IsValid(Component)) Component->DeactivateImmediate();
+    for(UNiagaraComponent* Component:WinterWisps)
+        if(IsValid(Component)) Component->DeactivateImmediate();
+    for(UNiagaraComponent* Component:WinterSnow)
         if(IsValid(Component)) Component->DeactivateImmediate();
     for(UNiagaraComponent* Component:CrystalCharges)
         if(IsValid(Component)) Component->DeactivateImmediate();
@@ -656,12 +991,14 @@ void AMCIceEventVFX::StopLoops()
     WindSheet->SetVisibility(false);
     for(UStaticMeshComponent* Facet:CrystalFacets)
         if(IsValid(Facet)) Facet->SetVisibility(false);
+    for(UStaticMeshComponent* Facet:BombFacets)
+        if(IsValid(Facet)) Facet->SetVisibility(false);
     for(UStaticMeshComponent* Facet:FootFacets)
         if(IsValid(Facet)) Facet->SetVisibility(false);
     if(IsValid(CoreHealthLabel)) CoreHealthLabel->SetVisibility(false);
     for(UTextRenderComponent* Label:CrystalHealthLabels)
         if(IsValid(Label)) Label->SetVisibility(false);
-    PreviousCrystals.Reset(); PreviousFeet.Reset();
+    PreviousCrystals.Reset(); PreviousFeet.Reset(); WinterStrength=0;
 }
 
 void AMCIceEventVFX::FinishPresentation(FVector CoreFloorPoint)
