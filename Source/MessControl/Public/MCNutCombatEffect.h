@@ -6,6 +6,7 @@
 #include "MCNutCombatEffect.generated.h"
 
 class AMCTongue;
+class AMCNutBoss;
 class UProceduralMeshComponent;
 class UInstancedStaticMeshComponent;
 class UNiagaraComponent;
@@ -52,6 +53,9 @@ public:
         FVector Origin,FVector Target,float Radius,float WindupSeconds,float ActiveSeconds,int32 Seed=0,
         float DetailRadius=90,int32 DropCount=8,float DropCadence=.5f);
     static FVector GetNutRainDropPoint(FVector Center,float Radius,int32 Seed,int32 Index);
+    /** Peer-local surface cracks follow the shield bone, without modifying artist materials. */
+    static void UpdateShieldDamageVisual(AMCNutBoss* Boss);
+    static FVector GetShieldContactOrigin(const AMCNutBoss* Boss);
     static constexpr int32 MaxRainDrops=24;
     static constexpr float DropFlightSeconds=.8f;
     UFUNCTION(BlueprintCallable,Category="Nut Combat") void Cancel();
@@ -80,6 +84,7 @@ public:
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UMaterialInterface> ShadowMaterial;
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UMaterialInterface> FlameMaterial;
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UMaterialInterface> MagicMaterial;
+    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UMaterialInterface> ShieldFractureMaterial;
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UMaterialInterface> StormMaterial;
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UNiagaraSystem> DustImpactSystem;
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|VFX") TSoftObjectPtr<UNiagaraSystem> FireImpactSystem;
@@ -92,6 +97,7 @@ private:
     double Now() const;
     void InitializeMaterials();
     void Present(float Age);
+    void PresentTankImpact(float Age);
     void Burst(FVector Point,bool bFire,float Scale=1);
     void PlayBurst(UNiagaraSystem* System,FVector Point,FVector Direction,float Scale=1);
     void PresentMagic(float Age,FVector Floor,FVector Normal,FVector Right,FVector Side,float Fade);

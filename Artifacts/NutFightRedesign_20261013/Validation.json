@@ -1,0 +1,166 @@
+{
+  "engine": "Unreal Engine 5.8.1",
+  "base_commit": "86ccd04faede1a1aa93da9facb139e041cfeb0cd",
+  "native_tests": {
+    "passed": 17,
+    "failed": 0,
+    "scope": "17 focused native cases across approved Editor builds; final shield path rerun after fracture update"
+  },
+  "exact_editor_build": {
+    "result": "Succeeded",
+    "exit_code": 0,
+    "head": "86ccd04faede1a1aa93da9facb139e041cfeb0cd",
+    "workspace": "C:/Users/user/.codex/worktrees/nut-fight-verify/MessControl",
+    "target": "MessControlEditor Win64 Development",
+    "maximum_parallel_actions": 4,
+    "actions_completed": 4,
+    "execution_seconds": 39.55,
+    "build_accelerator_seconds": 37.76,
+    "exact_candidate_hashes_checked": 31,
+    "compiled_native_candidate_hashes_passed_before_and_after_build": true,
+    "exact_current_candidate_hashes_passed_after_python_probe_update": true,
+    "primary_source_or_index_modified": false,
+    "worktree_index_staged": false,
+    "asset_lfs_hydration_or_download": false,
+    "editor_opened": false,
+    "network_tests_run": false,
+    "compiled_scope_generation_completed_at_utc": "2026-10-13T08:05:15.568112+00:00",
+    "latest_scope_generation_completed_at_utc": "2026-10-13T08:10:57.526874+00:00",
+    "python_probe_updated_after_runtime_build": true,
+    "python_probe_syntax_verified": true,
+    "python_probe_sha256": "06fc54dde04621343cc3107e5fe53754f595f4102adb0286d308b2fc3e080843",
+    "final_shield_sample_count": 559,
+    "final_shield_path_count": 15,
+    "final_shield_primary_lf_sha256": "77520d97cc750f231a274a83325a36c381bc4c2d6d78b014df43187f4309e875",
+    "final_shield_candidate_lf_sha256": "77520d97cc750f231a274a83325a36c381bc4c2d6d78b014df43187f4309e875",
+    "final_shield_isolated_lf_sha256": "77520d97cc750f231a274a83325a36c381bc4c2d6d78b014df43187f4309e875",
+    "final_shield_lf_bytes": 222782,
+    "earlier_cold_scope_build": "Earlier399SampleBuild/ExactCommitBuild.json",
+    "earlier_cold_scope_build_is_final_layout_evidence": false,
+    "notes": "Final incremental compile/link used the559-sample/15-path header and updated reproducible baker. A subsequent Python-only probe revision uses public procedural geometry inspection and was syntax-verified; every compiled native candidate remains byte-identical to the final successful build. Fresh31-file hashes match the latest scope. The earlier cold399-sample build is retained as historical evidence only. No isolated runtime rendering is claimed."
+  },
+  "gameplay": {
+    "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutFightRedesignSolo\\Runs\\20261013T072644Z_27648af7\\Report.json",
+    "source_sha256": "58b5fb7fcb79f295a477891d385944c04aeb2a9b3e5686414b3ab46feef0bb4d",
+    "checks": {
+      "native_individual_drop_intervals_1_5_to_3_seconds": true,
+      "actual_review_target_location_rotation_verified": true,
+      "opening_nuts_persist_without_player_breaks": true,
+      "two_bosses_after_last_landing_without_cleanup_gate": true,
+      "wizard_rain_preserves_existing_whole_nut_supply": true,
+      "wizard_rain_spawns_real_persistent_nuts": true,
+      "all_available_nuts_become_already_armed_summons": true,
+      "real_primary_pickaxe_kills_armed_summon_before_detonation": true,
+      "unchanged_native_fuses_detonate_remaining_summons": true
+    },
+    "boss_arrival": {
+      "game_seconds": 23.583334563300014,
+      "rain_age": 22.56666784361005,
+      "last_airborne_sample_at": 23.433334555476904,
+      "remaining_whole": 10
+    },
+    "summon_count": {
+      "before": 18,
+      "actual": 18
+    },
+    "limitations": [
+      "Position-only PIE dodging and review camera preserve the observer; this is not a balance/skill test.",
+      "Boss readiness timestamps isolate real wizard rain and summon; native attack states and fuse durations remain unchanged.",
+      "Held primary Pickaxe input tests killing a summon; no Python damage or native attack helper is called.",
+      "No network, full battle, build, cook, package, saved content, shield or Knight validation here."
+    ]
+  },
+  "effects": {
+    "source_report": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\NutFightVFXSolo\\Runs\\20261013T080851Z_35695291\\Report.json",
+    "source_sha256": "348b0f2124e39fc9c33693f700b946173760315242579bc95ee79c48be5799f1",
+    "checks": {
+      "native_individual_drop_intervals_1_5_to_3_seconds": true,
+      "actual_review_target_location_rotation_verified": true,
+      "opening_nuts_persist_without_player_breaks": true,
+      "two_bosses_after_last_landing_without_cleanup_gate": true,
+      "shield_face_review_camera_verified": true,
+      "ordinary_primary_hits_damage_shield_and_boss": true,
+      "native_crack_growth_following_shield_bone": true,
+      "native_break_changes_mesh_to_unshielded_variant": true,
+      "scheduled_fire_nut_projectile_and_terminal_impact": true
+    },
+    "shield_hits": [
+      {
+        "game_seconds": 32.683335037902,
+        "before": 160.0,
+        "after": 120.0,
+        "boss_health": 1392.0
+      },
+      {
+        "game_seconds": 33.35000173933804,
+        "before": 120.0,
+        "after": 80.0,
+        "boss_health": 1384.0
+      },
+      {
+        "game_seconds": 34.01666844077408,
+        "before": 80.0,
+        "after": 40.0,
+        "boss_health": 1376.0
+      },
+      {
+        "game_seconds": 34.60000180453062,
+        "before": 40.0,
+        "after": 0.0,
+        "boss_health": 1368.0
+      }
+    ],
+    "fixture_tuning": {
+      "preview_shield_max_health": 160.0,
+      "initial_preview_shield_health": 160.0,
+      "ordinary_base_pickaxe_damage": 40.0,
+      "equipment_profile": "/Game/Data/DA_Equipment.DA_Equipment",
+      "equipment_profile_read_source": "Public MCInventoryComponent.Profile; native BeginPlay loads this into its private Settings cache, with the same 40 damage fallback",
+      "tank_move_speed": 0.0,
+      "mage_move_speed": 0.0,
+      "boss_floor_cm": [
+        -247.40021452203706,
+        -248.13448376185306,
+        70.0006674528122
+      ],
+      "player_floor_cm": [
+        37.59978547796294,
+        -248.13448376185306,
+        71.0343610048294
+      ],
+      "mage_floor_cm": [
+        -247.40021452203706,
+        451.86551623814694,
+        85.52216398715973
+      ],
+      "reason": "Initial durability and position-only staging keep the short visual clip readable; subsequent health loss is real held-primary damage"
+    },
+    "native_vertex_counts": [
+      1390,
+      1740,
+      2380
+    ],
+    "material": "/Game/Gameplay/VFX/NutCombat/M_NutShieldFracture",
+    "limitations": [
+      "Natural F3 rain and boss entrance precede the clips; position-only dodging protects the observer.",
+      "The shield starts with four base Pickaxe hits of durability as an explicit PIE preview fixture; native default 500 is covered separately.",
+      "Both boss walking speeds and unrelated readiness clocks are isolated only in PIE; boss/projectile damage and player health stay native.",
+      "Held primary input damages the shield; no Python damage resolver or attack helper is invoked.",
+      "Crack component/clock telemetry must be paired with inspection of the genuine rendered footage.",
+      "No content saves, network, complete battle, build, cook or package."
+    ]
+  },
+  "visual_review": {
+    "fracture": "PASS: actual healthy, 25%, 75%, and shatter frames inspected; uneven dark fissures and shell debris",
+    "fire": "PASS: actual player-sized burning nut, directional trail and impact inspected",
+    "scope": "Local visual QA of the short fixtures, not a full-battle balance review"
+  },
+  "deferred": [
+    "Multiplayer/network",
+    "Full battle and balance playthrough",
+    "Cook",
+    "Packaging"
+  ],
+  "video_timing": "Separate actual game-time windows; every written source frame is retained with its timestamp. No temporal interpolation or time scaling.",
+  "missing_capture_policy": "Missing screenshot requests are listed, not filled with invented frames. Real intervals across missing requests are preserved."
+}

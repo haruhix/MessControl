@@ -112,6 +112,8 @@ private:
     bool bMeleeBetweenAbilities=true;
     bool bResolved=false;
     int32 RainDropsResolved=0;
+    int32 MeleeHitsResolved=0;
+    float PlannedRollSeconds=12;
     TSet<TWeakObjectPtr<AMCToothCharacter>> AttackHits;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RainHitAt;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RollHitAt;
@@ -128,6 +130,9 @@ private:
     EMCNutBossRole CachedAnimationRole=EMCNutBossRole::Tank;
     FVector LastTankPresentationLocation=FVector::ZeroVector,TankPresentationMotion=FVector::ZeroVector;
     double LastTankPresentationAt=-1;
+    FVector LastTankRollLocation=FVector::ZeroVector;
+    FQuat TankRollWorldRotation=FQuat::Identity;
+    bool bTankRollRotationInitialized=false;
     bool bTankWasBall=false;
     TArray<TWeakObjectPtr<AActor>> ActiveAttacks;
     TArray<FVector> SummonPositions;

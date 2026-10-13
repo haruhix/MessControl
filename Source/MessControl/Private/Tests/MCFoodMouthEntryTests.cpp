@@ -1,6 +1,7 @@
 #if WITH_DEV_AUTOMATION_TESTS
 #include "Misc/AutomationTest.h"
 #include "MCFoodActor.h"
+#include "MCNutRainEvent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -203,6 +204,55 @@ bool FMCNutCollisionCracks::RunTest(const FString&)
     Event->Tags.Add(TEXT("MCNutRain"));Event->BeginMouthEntry(FVector(0,0,-650),140);
     T.Contact(Event,Ordinary,Ordinary->Body,FVector::UpVector);
     TestFalse(TEXT("A walnut cannot auto-fracture unrelated ordinary food"),Ordinary->IsDisposed());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCBossNutCollisionPreservesSupply,
+    "MessControl.Food.MouthEntry.BossEncounterWalnutsPersistUntilPlayersBreak",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCBossNutCollisionPreservesSupply::RunTest(const FString&)
+{
+    FMouthEntryWorld T;
+    auto* Encounter=T.World->SpawnActor<AMCNutRainEvent>();
+    Encounter->Settings.bBossEncounter=true;
+    auto* Lower=T.Food(FVector(-4000,0,1800));
+    auto* Incoming=T.Food(FVector(-4000,0,2000));
+    Lower->SetOwner(Encounter); Incoming->SetOwner(Encounter);
+    Lower->Batch=Incoming->Batch=992;
+    Lower->Tags.Add(TEXT("MCNutRain")); Incoming->Tags.Add(TEXT("MCNutRain"));
+    const float LowerHealth=Lower->Health,IncomingHealth=Incoming->Health;
+    Incoming->BeginMouthEntry(FVector(0,0,-650),140);
+    T.Contact(Incoming,Lower,Lower->Body,FVector::UpVector);
+    TestFalse(TEXT("An incoming encounter nut does not destroy ground summon supply"),Lower->IsDisposed());
+    TestFalse(TEXT("The incoming encounter nut remains whole after the contact"),Incoming->IsDisposed());
+    TestEqual(TEXT("The struck encounter nut retains its full durability"),Lower->Health,LowerHealth);
+    TestEqual(TEXT("The incoming encounter nut retains its full durability"),Incoming->Health,IncomingHealth);
+    int32 Fragments=0;
+    for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->Batch==992 && It->bFragment) ++Fragments;
+    TestEqual(TEXT("Collision cannot replace encounter nuts with fragments"),Fragments,0);
+    Lower->HitFood(LowerHealth+1.f,FVector::ForwardVector,T.Hero);
+    TestTrue(TEXT("A player's ordinary tool damage can still break a preserved encounter nut"),Lower->IsDisposed());
+    TestFalse(TEXT("Breaking one nut by hand does not fracture its neighbor"),Incoming->IsDisposed());
+
+    // Protect a boss-owned ground nut even if the incoming tagged nut has no owner.
+    auto* Protected=T.Food(FVector(-6000,0,1800));
+    auto* Ownerless=T.Food(FVector(-6000,0,2000));
+    Protected->SetOwner(Encounter);
+    Protected->Tags.Add(TEXT("MCNutRain")); Ownerless->Tags.Add(TEXT("MCNutRain"));
+    Ownerless->BeginMouthEntry(FVector(0,0,-650),140);
+    T.Contact(Ownerless,Protected,Protected->Body,FVector::UpVector);
+    TestFalse(TEXT("An ownerless incoming walnut cannot auto-break boss-owned ground supply"),Protected->IsDisposed());
+
+    auto* Legacy=T.World->SpawnActor<AMCNutRainEvent>();
+    Legacy->Settings.bBossEncounter=false;
+    auto* LegacyLower=T.Food(FVector(-8000,0,1800));
+    auto* LegacyIncoming=T.Food(FVector(-8000,0,2000));
+    LegacyLower->SetOwner(Legacy); LegacyIncoming->SetOwner(Legacy);
+    LegacyLower->Tags.Add(TEXT("MCNutRain")); LegacyIncoming->Tags.Add(TEXT("MCNutRain"));
+    LegacyIncoming->BeginMouthEntry(FVector(0,0,-650),140);
+    T.Contact(LegacyIncoming,LegacyLower,LegacyLower->Body,FVector::UpVector);
+    TestTrue(TEXT("An explicitly legacy event retains its previous nut collision fracture"),LegacyLower->IsDisposed());
+    TestTrue(TEXT("Legacy incoming nuts retain their previous fracture"),LegacyIncoming->IsDisposed());
     return true;
 }
 #endif

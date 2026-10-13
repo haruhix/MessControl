@@ -16,6 +16,44 @@
 #include "NiagaraSystem.h"
 #include "Net/UnrealNetwork.h"
 
+namespace
+{
+// The ribbons wrap a three-dimensional nut and stream opposite its flight.
+// Their shape is bounded by projectile radius and recent travel, not world Z.
+void RenderFlyingFire(UProceduralMeshComponent* Component,float Radius,float Age,FVector Direction,float Travel)
+{
+    using namespace MCNutCombatVisuals;
+    const FVector Side=FVector::CrossProduct(Direction,FVector::UpVector).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
+    const FVector Up=FVector::CrossProduct(Side,Direction).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
+    FMesh Data;
+    constexpr int32 Ribbons=6,Rows=16;
+    const float Length=FMath::Clamp(Travel,Radius*2.8f,Radius*8.f);
+    for(int32 Ribbon=0;Ribbon<Ribbons;++Ribbon) {
+        const float Phase=Ribbon*2*PI/Ribbons;
+        const FVector Across=Side*FMath::Cos(Phase)+Up*FMath::Sin(Phase);
+        const FVector Radial=FVector::CrossProduct(Direction,Across).GetSafeNormal();
+        const int32 First=Data.Points.Num();
+        for(int32 Row=0;Row<=Rows;++Row) {
+            const float T=Row/float(Rows);
+            const float Width=Radius*(1.05f-FMath::SmoothStep(0.f,1.f,T))
+                *(1+.12f*FMath::Sin(T*19-Age*20+Phase));
+            const FVector Center=Direction*(Radius*.45f-Length*T)
+                +Radial*(FMath::Sin(T*15-Age*17+Phase)*Radius*.18f*T)
+                +Up*(Radius*.30f*T*T);
+            const float Alpha=(1-FMath::SmoothStep(.55f,1.f,T))*(Ribbon%2==0?.78f:.56f);
+            for(int32 Edge=0;Edge<2;++Edge) {
+                Data.Points.Add(Center+Across*((Edge*2-1)*Width));
+                Data.Normals.Add(Radial);Data.UV.Add(FVector2D(float(Edge),T));
+                Data.Colors.Add(FLinearColor(Ribbon/float(Ribbons),.9f,0,Alpha));
+                Data.Tangents.Add(FProcMeshTangent(Across,false));
+            }
+            if(Row>0) {const int32 V=First+(Row-1)*2;Data.Indices.Append({V,V+1,V+3,V,V+3,V+2});}
+        }
+    }
+    Data.Upload(Component);
+}
+}
+
 AMCNutSpellProjectile::AMCNutSpellProjectile()
 {
     bReplicates=true;bAlwaysRelevant=true;SetReplicateMovement(false);SetNetUpdateFrequency(20);
@@ -50,7 +88,7 @@ AMCNutSpellProjectile* AMCNutSpellProjectile::Spawn(AActor* Source,AMCTongue* Su
     auto* Shot=Source->GetWorld()->SpawnActorDeferred<AMCNutSpellProjectile>(StaticClass(),Pose,Source,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     if(!Shot) return nullptr;
     Shot->SourceActor=Source;Shot->Tongue=Surface;Shot->Damage=FMath::Clamp(Amount,1.f,35.f);
-    Shot->Flight.Start=Start;Shot->Flight.Target=Target;Shot->Flight.Radius=FMath::Clamp(Radius,8.f,65.f);
+    Shot->Flight.Start=Start;Shot->Flight.Target=Target;Shot->Flight.Radius=FMath::Clamp(Radius,8.f,90.f);
     Shot->Flight.Seconds=FMath::Clamp(FVector::Dist(Start,Target)/FMath::Clamp(Speed,100.f,1800.f),.1f,8.f);
     Shot->Flight.StartedAt=Shot->Now();Shot->FinishSpawning(Pose);return Shot;
 }
@@ -120,37 +158,44 @@ void AMCNutSpellProjectile::Tick(float DeltaSeconds)
     const float Extent=Nut->GetStaticMesh()?Nut->GetStaticMesh()->GetBounds().BoxExtent.GetMax():1.f;
     Nut->SetRelativeScale3D(FVector(Flight.Radius*.85f/FMath::Max(.1f,Extent)));
     Nut->SetRelativeRotation(FRotator(Age*160,Age*100,Age*65));
-    Flames->SetVisibility(FireMID!=nullptr);
-    if(FireMID) {FireMID->SetScalarParameterValue(TEXT("FireAge"),Age);MCNutCombatVisuals::RenderFlames(Flames,Flight.Radius,Age,1,(Flight.Start-Flight.Target).GetSafeNormal()*Flight.Radius*2.8f);}
     const FVector Direction=(Flight.Target-Flight.Start).GetSafeNormal(SMALL_NUMBER,FVector::ForwardVector);
     const FVector Side=FVector::CrossProduct(Direction,FVector::UpVector).GetSafeNormal(SMALL_NUMBER,FVector::RightVector);
     const FVector Up=FVector::CrossProduct(Side,Direction).GetSafeNormal(SMALL_NUMBER,FVector::UpVector);
+    const float History=FMath::Min(Age,.42f);
+    const float Travel=FVector::Dist(PositionAt(Age),PositionAt(Age-History));
+    Flames->SetVisibility(FireMID!=nullptr);
+    if(FireMID) {
+        FireMID->SetScalarParameterValue(TEXT("FireAge"),Age);
+        RenderFlyingFire(Flames,Flight.Radius,Age,Direction,Travel);
+    }
     if(CoreMID) {
         MCNutCombatVisuals::FMesh Glow;
-        const float Size=Flight.Radius*1.2f*(1+.035f*FMath::Sin(Age*22));
-        Glow.Quad(FVector::ZeroVector,Side,Up,Size,Size);
-        Glow.Quad(FVector::ZeroVector,Direction,Up,Size,Size,FLinearColor(1,1,1,.75f));
-        Glow.Quad(FVector::ZeroVector,Direction,Side,Size,Size,FLinearColor(1,1,1,.75f));
+        const float Size=Flight.Radius*1.05f*(1+.035f*FMath::Sin(Age*22));
+        // A translucent halo keeps the walnut silhouette visible inside the heat.
+        Glow.Quad(FVector::ZeroVector,Side,Up,Size,Size,FLinearColor(1,1,1,.42f));
+        Glow.Quad(FVector::ZeroVector,Direction,Up,Size,Size,FLinearColor(1,1,1,.28f));
+        Glow.Quad(FVector::ZeroVector,Direction,Side,Size,Size,FLinearColor(1,1,1,.28f));
         Glow.Upload(Core);CoreMID->SetScalarParameterValue(TEXT("Age"),Age);
     }
     if(WakeMID) {
         MCNutCombatVisuals::FMesh Ribbon;
         constexpr int32 Segments=12;
-        const float History=FMath::Min(Age,.38f);
         for(int32 Index=0;Index<Segments;++Index) {
             const float Fraction=Index/float(Segments);
             const FVector From=PositionAt(Age-History*Fraction)-GetActorLocation();
             const FVector To=PositionAt(Age-History*(Index+1)/float(Segments))-GetActorLocation();
             const float Length=FVector::Dist(From,To);
             if(Length<.05f) continue;
-            const float Width=Flight.Radius*.5f*(1-Fraction);
-            const FLinearColor Alpha(1,1,1,.65f*(1-Fraction));
+            const float Width=Flight.Radius*.32f*(1-Fraction);
+            const FLinearColor Alpha(1,1,1,.42f*(1-Fraction));
             Ribbon.Quad((From+To)*.5f,Direction,Side,Length*.52f,Width,Alpha);
             Ribbon.Quad((From+To)*.5f,Direction,Up,Length*.52f,Width*.8f,Alpha);
         }
         if(!Ribbon.Points.IsEmpty()) Ribbon.Upload(Wake);
         Wake->SetVisibility(!Ribbon.Points.IsEmpty());WakeMID->SetScalarParameterValue(TEXT("Age"),Age);
     }
+    Trail->SetWorldRotation((-Direction).Rotation());
+    Trail->SetWorldScale3D(FVector(FMath::Clamp(Flight.Radius/28.f,1.f,2.5f)));
     if(!bTrailStarted && Trail->GetAsset()) {bTrailStarted=true;Trail->Activate(true);}
 }
 

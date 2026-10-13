@@ -23,7 +23,7 @@ struct MESSCONTROL_API FMCNutEnemySettings
     void Sanitize();
 };
 
-/** A directed dodge phase followed by two bosses; continuous rain is retained for legacy fixtures. */
+/** A dense 20–25 second dodge phase followed by two bosses; legacy fixtures retain their authored rain. */
 USTRUCT(BlueprintType)
 struct MESSCONTROL_API FMCNutRainSettings
 {
@@ -32,11 +32,12 @@ struct MESSCONTROL_API FMCNutRainSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Encounter") bool bBossEncounter=true;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="4", ClampMax="8")) int32 MinimumSeries=4;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="4", ClampMax="8")) int32 MaximumSeries=8;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="2", ClampMax="4")) int32 MinimumNutsPerSeries=2;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="2", ClampMax="4")) int32 MaximumNutsPerSeries=4;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="1.5", ClampMax="2.5", Units="s")) float MinimumDropSeconds=1.5f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="1.5", ClampMax="2.5", Units="s")) float MaximumDropSeconds=2.5f;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="4", ClampMax="8", Units="s")) float SeriesRestSeconds=4;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="4", ClampMax="12")) int32 MinimumNutsPerSeries=6;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="4", ClampMax="12")) int32 MaximumNutsPerSeries=10;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="1.5", ClampMax="3", Units="s")) float MinimumDropSeconds=1.5f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="1.5", ClampMax="3", Units="s")) float MaximumDropSeconds=3.f;
+    /** Kept for older packages; continuous boss rain does not use series pauses. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Series", meta=(ClampMin="0", ClampMax="8", Units="s")) float SeriesRestSeconds=0;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Appearance", meta=(ClampMin="150", ClampMax="220", Units="cm")) float LargeNutHeight=180;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="0", ClampMax="40")) float ImpactDamageLimit=18;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="80", ClampMax="480", Units="cm")) float ImpactRadius=300;
@@ -44,7 +45,7 @@ struct MESSCONTROL_API FMCNutRainSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Encounter") FMCNutBossSettings Boss;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="1", ClampMax="120")) int32 NutCount=30;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="0", ClampMax="30")) int32 NutsPerExtraPlayer=8;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="3", ClampMax="60", Units="s")) float RainSeconds=40;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="3", ClampMax="60", Units="s", ToolTip="Boss encounter: 20–25 seconds from first launch through the final landing, including flight.")) float RainSeconds=22.5f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="0.5", ClampMax="6", Units="s", ToolTip="After the last launch, wait for its flight before awakening the newest surviving nuts.")) float SettleSeconds=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain") FMCFoodEntrySettings Entry;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Rain", meta=(ClampMin="60", ClampMax="650", Units="cm")) float ClusterRadius=260;

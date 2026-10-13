@@ -2,8 +2,11 @@
 #include "Misc/AutomationTest.h"
 #include "MCFoodActor.h"
 #include "MCNutEnemy.h"
+#include "MCNutBoss.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
 #include "MCNutRainEvent.h"
+#include "MCNutLandingShadow.h"
 #include "MCNutRainProfile.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
@@ -26,8 +29,13 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainLimits,"MessControl.CoreLoop.NutRain.
 bool FMCNutRainLimits::RunTest(const FString&)
 {
     FMCNutRainSettings Settings;
-    TestEqual(TEXT("Directed rain stays at least forty seconds"),Settings.RainSeconds,40.f);
-    TestEqual(TEXT("Directed rain has a bounded eight by four launch ceiling"),Settings.RainCountForPlayers(4),32);
+    TestEqual(TEXT("Directed rain includes final flight inside twenty to twenty-five seconds"),Settings.RainSeconds,22.5f);
+    TestEqual(TEXT("Directed rain derives its count from duration and individual drop spacing"),Settings.RainCountForPlayers(4),10);
+    Settings.RainSeconds=40; Settings.MinimumDropSeconds=1.5f; Settings.MaximumDropSeconds=2.5f; Settings.SeriesRestSeconds=4;
+    Settings.MinimumNutsPerSeries=2; Settings.MaximumNutsPerSeries=4; Settings.Sanitize();
+    TestEqual(TEXT("Saved forty-second profile is migrated into the approved duration"),Settings.RainSeconds,25.f);
+    TestTrue(TEXT("Individual drops retain one-and-a-half to three second reaction time"),Settings.MinimumDropSeconds>=1.5f && Settings.MaximumDropSeconds<=3.f);
+    TestEqual(TEXT("Saved multi-second pauses are removed for continuous rain"),Settings.SeriesRestSeconds,0.f);
     Settings.bBossEncounter=false;
     TestEqual(TEXT("Solo prototype launches 30 nuts"),Settings.RainCountForPlayers(1),30);
     TestEqual(TEXT("Solo prototype can awaken four surviving nuts"),Settings.EnemyCountForPlayers(1),4);
@@ -153,35 +161,137 @@ bool FMCNutDirectedEncounter::RunTest(const FString&)
 {
     FNutRainWorld T;
     T.Profile->Settings.bBossEncounter=true;
-    T.Profile->Settings.RainSeconds=40;
+    T.Profile->Settings.RainSeconds=22.5f;
     T.Profile->Settings.MinimumNutsPerSeries=T.Profile->Settings.MaximumNutsPerSeries=2;
     auto* Cube=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
     T.Profile->Settings.Boss.WholeMesh=Cube; T.Profile->Settings.Boss.ShellMesh=Cube; T.Profile->Settings.Boss.KernelMesh=Cube;
     T.Event->Start(nullptr,T.Profile.Get());
     const int32 Batch=T.Event->Nuts[0]->Batch;
     TestTrue(TEXT("Rain walnuts have the configured player-sized height"),FMath::IsNearlyEqual(float(T.Event->Nuts[0]->Visual->Bounds.BoxExtent.Z*2),180.f,1.f));
-    T.Step(39);
-    TestEqual(TEXT("Forty-second dodge phase cannot start bosses early"),T.Event->Stage,EMCNutRainStage::Rainfall);
+    TestTrue(TEXT("Director's storm lasts between twenty and twenty-five seconds"),T.Event->Settings.RainSeconds>=20 && T.Event->Settings.RainSeconds<=25);
+    TestTrue(TEXT("The rain schedule continuously covers the storm with individual launches"),T.Event->PlannedLaunchTimes.Num()>=8);
+    TestTrue(TEXT("The last scheduled launch reserves its flight inside the storm"),
+        FMath::IsNearlyEqual(T.Event->PlannedLaunchTimes.Last()+T.Event->Settings.Entry.FlightSeconds,T.Event->Settings.RainSeconds,.01f));
+    for(int32 Index=0;Index<T.Event->PlannedLandings.Num();++Index)
+        TestTrue(TEXT("Boss cataclysm starts directly above its advertised landing"),
+            FVector::DistSquared2D(T.Event->LaunchLocations[Index],T.Event->PlannedLandings[Index])<1.f);
+    T.Step(19);
+    TestEqual(TEXT("The minimum twenty-second dodge phase cannot start bosses early"),T.Event->Stage,EMCNutRainStage::Rainfall);
     for(AMCFoodActor* Food:T.Event->Nuts) if(IsValid(Food) && !Food->IsDisposed()) Food->Dispose();
-    T.Step(12);
+    T.Step(7);
     TestFalse(TEXT("Directed encounter starts successfully"),T.Event->bFailed);
-    TestTrue(TEXT("At least four complete series precede bosses"),T.Event->CompletedSeries>=4);
+    TestTrue(TEXT("Several individual drops precede bosses"),T.Event->CompletedSeries>=4);
     TestEqual(TEXT("Removing every existing walnut cannot cancel the two bosses"),T.Event->Bosses.Num(),2);
     TestEqual(TEXT("Falling bosses remain part of the alive encounter"),T.Event->BossesLeft,2);
     TestFalse(TEXT("An untouched encounter cannot complete on a deadline"),T.Event->IsComplete());
     const auto& Times=T.Event->PlannedLaunchTimes;
     for(int32 I=1;I<Times.Num();++I) {
         const float Gap=Times[I]-Times[I-1];
-        if(I%2==1) TestTrue(TEXT("Nuts inside a series have reaction time"),Gap>=1.49f && Gap<=2.57f);
-        else TestTrue(TEXT("Complete series have a four-second breather"),Gap>=3.99f && Gap<=4.07f);
+        TestTrue(TEXT("Every individual drop follows the approved one-and-a-half to three second interval"),Gap>=1.499f && Gap<=3.001f);
     }
-    for(AMCNutEnemy* Enemy:T.Event->Enemies) if(IsValid(Enemy)) Enemy->ReceiveToolDamage(100000,nullptr);
+    const int32 SpellBefore=T.Event->NutsSpawned;
+    TestTrue(TEXT("Wizard rain targeting outside the playable interest area falls back to a real reachable nut"),
+        T.Event->SpawnSpellNut(FVector(100000,100000,0),12345));
+    TestEqual(TEXT("Fallback spell rain registers exactly one real food actor"),T.Event->NutsSpawned,SpellBefore+1);
+    if(T.Event->NutsSpawned>SpellBefore) {
+        const FVector Landing=T.Event->PlannedLandings.Last();
+        FHitResult ValidFloor;
+        TestTrue(TEXT("Fallback nut's actual telegraphed footprint stays reachable and clear of delivery lanes"),
+            T.Tongue->GameplaySpawnFootprint(Landing,T.Event->Settings.ImpactRadius,ValidFloor));
+        TestTrue(TEXT("Fallback spell nut uses the real mouth-entry flight"),T.Event->Nuts.Last()->IsMouthEntryActive());
+        TestTrue(TEXT("Fallback spell nut has an independently owned visible warning actor"),
+            !T.Event->LandingShadows.IsEmpty() && IsValid(T.Event->LandingShadows.Last()));
+    }
+    // A native obstacle/food contact can leave the enum Falling after entry has
+    // ended. Exercise the actual food body/floor support, not an enum-only mock.
+    FHitResult Support;
+    if(!TestTrue(TEXT("Fixture has a supported tongue point for a resting whole nut"),T.Tongue->SurfacePoint(FVector::ZeroVector,Support))) return false;
+    const FTransform RestPose(Support.ImpactPoint+FVector(0,0,30));
+    auto* RestingNut=T.World->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),RestPose,T.Event,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+    FRandomStream FixtureRandom(17);
+    RestingNut->ConfigureItem(TEXT("Walnut"),*T.Menu->FindRow<FMCFoodRow>(TEXT("Walnut"),TEXT("resting rain nut fixture")),FixtureRandom);
+    RestingNut->Tags.AddUnique(TEXT("MCNutRain")); RestingNut->Batch=Batch; RestingNut->FinishSpawning(RestPose);
+    RestingNut->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
+    RestingNut->Phase=EMCFoodPhase::Falling; T.Event->Nuts.Add(RestingNut);
+    TArray<AMCFoodActor*> Available;
+    T.Event->GetAvailableRainNuts(Available);
+    TestTrue(TEXT("Resting supported Falling nut remains eligible for the wizard's summon"),Available.Contains(RestingNut));
+    RestingNut->SetActorLocation(Support.ImpactPoint+FVector(0,0,800),false,nullptr,ETeleportType::TeleportPhysics);
+    T.Event->GetAvailableRainNuts(Available);
+    TestFalse(TEXT("An actual airborne Falling nut cannot be summoned"),Available.Contains(RestingNut));
+    RestingNut->SetActorLocation(Support.ImpactPoint-FVector(0,0,120),false,nullptr,ETeleportType::TeleportPhysics);
+    T.Event->GetAvailableRainNuts(Available);
+    TestFalse(TEXT("A resting nut below the tongue is not mistaken for ground support"),Available.Contains(RestingNut));
+    RestingNut->SetActorLocation(RestPose.GetLocation(),false,nullptr,ETeleportType::TeleportPhysics);
+    RestingNut->BeginMouthEntry(FVector(0,0,-50),0,RestPose.GetLocation());
+    T.Event->GetAvailableRainNuts(Available);
+    TestFalse(TEXT("Active mouth entry remains ineligible even near the supporting floor"),Available.Contains(RestingNut));
+    auto* SpareCreep=T.World->SpawnActor<AMCNutEnemy>();
+    T.Event->RegisterEncounterEnemy(SpareCreep);
+    TestTrue(TEXT("A newly registered ordinary enemy is initially alive"),SpareCreep->IsEncounterAlive());
+    for(AMCNutBoss* Boss:T.Event->Bosses) if(IsValid(Boss)) Boss->ReceiveToolDamage(100000,nullptr);
     T.Step(.1f);
-    TestTrue(TEXT("Defeating both bosses and every creep unlocks the encounter"),T.Event->IsComplete());
+    TestTrue(TEXT("Defeating both bosses unlocks the encounter without a leftover summon gate"),T.Event->IsComplete());
+    TestTrue(TEXT("Remaining summons are removed when both bosses are defeated"),!IsValid(SpareCreep) || SpareCreep->IsActorBeingDestroyed());
     T.Event->Stop();
     int32 Left=0; for(TActorIterator<AMCFoodActor> It(T.World);It;++It) if(It->Batch==Batch) ++Left;
     TestEqual(TEXT("Encounter reset also removes cracked walnut fragments"),Left,0);
     TestEqual(TEXT("Encounter reset releases boss handles"),T.Event->Bosses.Num(),0);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutRainGroundSpacing,"MessControl.CoreLoop.NutRain.GroundSpacingAndExplicitSpellFallback",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutRainGroundSpacing::RunTest(const FString&)
+{
+    FNutRainWorld T;
+    T.Profile->Settings.bBossEncounter=true;
+    auto* Cube=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube"));
+    T.Profile->Settings.Boss.WholeMesh=Cube; T.Profile->Settings.Boss.ShellMesh=Cube; T.Profile->Settings.Boss.KernelMesh=Cube;
+    T.Event->Start(nullptr,T.Profile.Get());
+    if(!TestTrue(TEXT("Opening rain has a real whole nut"),!T.Event->Nuts.IsEmpty())) return false;
+    auto* First=T.Event->Nuts[0].Get();
+    // This placement-only fixture puts the first native food on its advertised
+    // floor. The actor's normal Tick ends entry when its phase becomes Free.
+    // No spawn/clearance helper is bypassed for any subsequent nut.
+    const auto RestOnFloor=[&](AMCFoodActor* Food,FVector Point) {
+        FHitResult Floor;
+        if(!IsValid(Food) || !T.Tongue->SurfacePoint(Point,Floor)) return false;
+        Food->SetActorLocation(Floor.ImpactPoint+FVector(0,0,Food->Body->GetScaledBoxExtent().Z+5),false,nullptr,ETeleportType::TeleportPhysics);
+        Food->Body->SetPhysicsLinearVelocity(FVector::ZeroVector);
+        Food->Phase=EMCFoodPhase::Free; Food->Tick(.01f);
+        return !Food->IsMouthEntryActive() && !Food->IsDisposed();
+    };
+    if(!TestTrue(TEXT("First whole nut is resting and no longer in mouth entry"),RestOnFloor(First,T.Event->PlannedLandings[0]))) return false;
+    T.Step(3.1f);
+    if(!TestTrue(TEXT("Normal opening scheduler launches the next individual nut"),T.Event->Nuts.Num()>=2)) return false;
+    auto* Second=T.Event->Nuts[1].Get();
+    const auto Clearance=[&](const AMCFoodActor* A,const AMCFoodActor* B) {
+        return FMath::Max(T.Event->Settings.LargeNutHeight*1.15f,
+            float(A->Body->GetScaledBoxExtent().Size2D()+B->Body->GetScaledBoxExtent().Size2D())+24.f);
+    };
+    TestTrue(TEXT("Opening placement reserves the resting whole nut's physical footprint"),
+        FVector::Dist2D(T.Event->PlannedLandings[1],First->GetActorLocation())>=Clearance(First,Second)-.1f);
+    if(!TestTrue(TEXT("Second occupied footprint is also a resting whole nut"),RestOnFloor(Second,T.Event->PlannedLandings[1]))) return false;
+    for(int32 Index=2;Index<T.Event->Nuts.Num();++Index) if(IsValid(T.Event->Nuts[Index])) T.Event->Nuts[Index]->Dispose();
+    // The dedicated placement fixture skips boss creation and disables the
+    // event tick so its synthetic Enemies stage cannot trigger a victory gate.
+    T.Event->SetActorTickEnabled(false); T.Event->Stage=EMCNutRainStage::Enemies;
+    const int32 Before=T.Event->NutsSpawned;
+    if(!TestTrue(TEXT("Explicit wizard candidate on a ground nut falls back to another reachable landing"),
+        T.Event->SpawnSpellNut(First->GetActorLocation(),77123))) return false;
+    TestEqual(TEXT("Explicit fallback still creates exactly one real food actor"),T.Event->NutsSpawned,Before+1);
+    auto* Incoming=T.Event->Nuts.Last().Get();
+    const FVector Landing=T.Event->PlannedLandings.Last();
+    TestTrue(TEXT("Explicit spell fallback clears the first occupied ground footprint"),
+        FVector::Dist2D(Landing,First->GetActorLocation())>=Clearance(First,Incoming)-.1f);
+    TestTrue(TEXT("Explicit spell fallback also clears the second occupied ground footprint"),
+        FVector::Dist2D(Landing,Second->GetActorLocation())>=Clearance(Second,Incoming)-.1f);
+    FHitResult Floor;
+    TestTrue(TEXT("Spaced spell nut still lands in a reachable gameplay footprint"),
+        T.Tongue->GameplaySpawnFootprint(Landing,T.Event->Settings.ImpactRadius,Floor));
+    TestTrue(TEXT("Ground reservations preserve both existing whole nuts for later summons"),!First->IsDisposed() && !Second->IsDisposed());
+    TestTrue(TEXT("Spaced spell food still uses real entry and an owned landing warning"),
+        Incoming->IsMouthEntryActive() && IsValid(T.Event->LandingShadows.Last()));
     return true;
 }
 #endif

@@ -93,7 +93,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement") float MageMoveSpeed=120;
     /** Fixed durability for the tank shield; independent of party health scaling. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield", meta=(ClampMin="1",ClampMax="10000")) float ShieldMaxHealth=500;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield") float ShieldFrontDamageScale=.35f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield", meta=(ClampMin="0.2",ClampMax="0.2")) float ShieldFrontDamageScale=.2f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield") float ShieldHalfAngle=55;
     /** Minimum seconds after recovery before any special attack, including teleport. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Cooldown", meta=(ClampMin="0",ClampMax="10",Units="s")) float SpecialAttackGap=3;
@@ -115,7 +115,9 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollDamage=16;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollWindup=1.2f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll", meta=(Units="s")) float RollCooldown=40;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll", meta=(ClampMin="3",ClampMax="12",Units="s")) float RollDuration=8;
+    /** The Director's encounter random stream chooses a duration within this range. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll", meta=(ClampMin="12",ClampMax="20",Units="s")) float RollDuration=12;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll", meta=(ClampMin="12",ClampMax="20",Units="s")) float RollDurationMax=20;
     /** Vulnerable recovery after the longer roll finishes. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll", meta=(ClampMin="0.5",ClampMax="8",Units="s")) float RollRecoverySeconds=3.5f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Roll") float RollSpeed=520;
@@ -133,7 +135,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballWindup=.9f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball", meta=(Units="s")) float FireballCooldown=8;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballSpeed=550;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballRadius=28;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fireball") float FireballRadius=65;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon", meta=(Units="s")) float SummonCooldown=22;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") int32 SummonCount=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") int32 MaxLiveCreeps=8;

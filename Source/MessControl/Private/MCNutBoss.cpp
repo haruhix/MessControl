@@ -7,6 +7,8 @@
 #include "MCNutCombatEffect.h"
 #include "MCNutSpellProjectile.h"
 #include "MCNutRainEvent.h"
+#include "MCNutKamikaze.h"
+#include "MCFoodActor.h"
 #include "MCGameState.h"
 #include "MCArenaTooth.h"
 #include "MCTongue.h"
@@ -102,6 +104,7 @@ void AMCNutBoss::ConfigureEncounter(AMCTongue* OnTongue,AMCNutRainEvent* OwnerEv
 void AMCNutBoss::BeginPlay()
 {
     Super::BeginPlay(); BossSettings.Sanitize(); Settings.MaxHealth=Health;
+    bTankRollRotationInitialized=false;
     TankModel->AddTickPrerequisiteActor(this);
     MageModel->AddTickPrerequisiteActor(this);
     if(GetNetMode()==NM_DedicatedServer) {TankModel->SetComponentTickEnabled(false);MageModel->SetComponentTickEnabled(false);}
@@ -174,8 +177,7 @@ void AMCNutBoss::RefreshPresentation()
     auto* Shell=BossSettings.ShellMesh.LoadSynchronous();
     SetCenteredMesh(Shield,Shell,BossSettings.TankHeight*.65f,FVector(Settings.BodyRadius*.88f,0,-5),FRotator(0,90,0));
     Shield->SetVisibility(ShieldHealth>0 && !HasTankModel && !bDefeated && BossRole==EMCNutBossRole::Tank && State!=EMCNutBossState::Falling
-        && State!=EMCNutBossState::Recovery && !(State==EMCNutBossState::Executing
-            && (Attack==EMCNutBossAttack::Charge || Attack==EMCNutBossAttack::Jump || Attack==EMCNutBossAttack::Roll)));
+        && State==EMCNutBossState::Idle);
     SetCenteredMesh(OpenShell,Shell,BossSettings.MageHeight,FVector(-Settings.BodyRadius*.38f,0,-12),FRotator(0,-20,-22));
     OpenShell->SetVisibility(!bDefeated && BossRole==EMCNutBossRole::Mage && !MageMesh);
     Kernel->SetVisibility(false); // the inherited main mesh is the exposed kernel for the mage
@@ -322,8 +324,22 @@ void AMCNutBoss::BuildAnimationSnapshot(const USkeletalMeshComponent* Model,FMCN
         Out.Airborne=State==EMCNutBossState::Executing?1.f:0.f;
     } else if(Active && Attack==EMCNutBossAttack::Melee && !Out.bMage) {
         AttackClip=EMCNutBossClip::Melee;
-        Phase=Telegraph?BossSettings.TankMeleeImpactFraction*WindupProgress:
-            FMath::Lerp(BossSettings.TankMeleeImpactFraction,1.f,RecoveryProgress);
+        const float Contact=BossSettings.TankMeleeImpactFraction;
+        const float Since=float(Time-ResolveAt);
+        // Reuse the authored windup/contact/recoil continuously for two swings.
+        // The last contact uses the authored landing pose as the ground strike.
+        if(Telegraph) Phase=Contact*WindupProgress;
+        else if(Recovery) {AttackClip=EMCNutBossClip::Jump;Phase=FMath::Lerp(BossSettings.TankJumpImpactFraction,1.f,RecoveryProgress);}
+        else if(Since<.18f) Phase=FMath::Lerp(Contact,1.f,FMath::Clamp(Since/.18f,0.f,1.f));
+        else if(Since<.35f) Phase=Contact*FMath::Clamp((Since-.18f)/.17f,0.f,1.f);
+        else if(Since<.55f) Phase=FMath::Lerp(Contact,1.f,FMath::Clamp((Since-.35f)/.2f,0.f,1.f));
+        else {
+            AttackClip=EMCNutBossClip::Jump;
+            Phase=FMath::Lerp(BossSettings.TankJumpTakeoffFraction,BossSettings.TankJumpImpactFraction,
+                FMath::Clamp((Since-.55f)/.3f,0.f,1.f));
+        }
+        // Clip changes crossfade through the proxy; each swing gets its own key.
+        if(!Telegraph && !Recovery) Out.VisualKey=2400+(Since<.18f?0:Since<.35f?1:Since<.55f?2:3);
     } else if(Active && Attack==EMCNutBossAttack::Charge) {
         AttackClip=Telegraph?EMCNutBossClip::ChargeTell:Recovery?EMCNutBossClip::ChargeRecovery:EMCNutBossClip::ChargeLoop;
         Phase=Telegraph?WindupProgress:RecoveryProgress;
@@ -492,9 +508,29 @@ void AMCNutBoss::PresentTankModel(double Time)
     Visual->SetVisibility(!HasWarrior && BallWeight<.999f);
     Feedback->SetVisualTarget(BallWeight>.5f?static_cast<UMeshComponent*>(TankBall.Get()):
         HasWarrior?static_cast<UMeshComponent*>(TankModel.Get()):Visual.Get());
-    const float RollAge=FMath::Clamp(float(Time-ResolveAt),0.f,BossSettings.RollDuration);
-    const float Pitch=Rolling || Returning?FMath::Fmod(RollAge*BossSettings.RollSpeed/FMath::Max(1.f,Settings.BodyRadius)*180.f/PI,360.f):0;
-    const FRotator Rotation(Pitch,0,0);
+    const FQuat ParentRotation=GetActorQuat();
+    const bool ShowingBall=BallWeight>.001f || (!HasWarrior && (Rolling || Returning));
+    if(!ShowingBall) bTankRollRotationInitialized=false;
+    FQuat Rotation=FQuat::Identity;
+    if(ShowingBall) {
+        if(!bTankRollRotationInitialized) {
+            TankRollWorldRotation=ParentRotation; LastTankRollLocation=Position;
+            bTankRollRotationInitialized=true;
+        } else if(Rolling) {
+            FVector Travel=Position-LastTankRollLocation; Travel.Z=0;
+            const float Distance=Travel.Size();
+            if(Distance>KINDA_SMALL_NUMBER && Distance<200.f) {
+                // Physical rolling: top of the ball moves with travel, while
+                // its contact point moves against it. World-space accumulation
+                // also keeps orientation continuous through turns and bounces.
+                const FVector Axis=FVector::CrossProduct(FVector::UpVector,Travel/Distance);
+                const float Radius=FMath::Max(1.f,(TankBall->GetStaticMesh()?BossSettings.TankBallHeight:BossSettings.TankHeight)*.5f);
+                TankRollWorldRotation=(FQuat(Axis,Distance/Radius)*TankRollWorldRotation).GetNormalized();
+            }
+        }
+        LastTankRollLocation=Position;
+        Rotation=(ParentRotation.Inverse()*TankRollWorldRotation).GetNormalized();
+    }
     if(BallWeight>.001f) {
         const FVector Scale=TankBallScale*(BallWeight*DeathScale);
         TankBall->SetRelativeScale3D(Scale); TankBall->SetRelativeRotation(Rotation);
@@ -513,9 +549,9 @@ void AMCNutBoss::PresentTankModel(double Time)
 
 bool AMCNutBoss::IsShieldProtectingFrom(FVector SourcePoint) const
 {
-    if(BossRole!=EMCNutBossRole::Tank || ShieldHealth<=0 || !CanReceiveToolHit() || State==EMCNutBossState::Recovery
-        || (State==EMCNutBossState::Executing
-            && (Attack==EMCNutBossAttack::Charge || Attack==EMCNutBossAttack::Jump || Attack==EMCNutBossAttack::Roll))) return false;
+    // Guard exists only in the matching visible stance. Every cast, attack and
+    // recovery lowers it, so a player can read the full-damage window from the pose.
+    if(BossRole!=EMCNutBossRole::Tank || ShieldHealth<=0 || !CanReceiveToolHit() || State!=EMCNutBossState::Idle) return false;
     const FVector Towards=(SourcePoint-GetActorLocation()).GetSafeNormal2D();
     return !Towards.IsNearlyZero() && FVector::DotProduct(Towards,GetActorForwardVector())>=FMath::Cos(FMath::DegreesToRadians(BossSettings.ShieldHalfAngle));
 }
@@ -530,18 +566,18 @@ float AMCNutBoss::ReceiveToolDamage(float Damage,AMCToothCharacter* Source)
     const float ShieldBefore=ShieldHealth;
     VisualHitAt=Now(); VisualHitDirection=Source?(Source->GetActorLocation()-GetActorLocation()).GetSafeNormal2D():-GetActorForwardVector();
     if(Shielded) {
-        // Durability consumes the incoming tool damage. Only the protected part
-        // gets reduced; a breaking hit's overflow immediately deals full damage.
-        const float ProtectedDamage=FMath::Min(Damage,ShieldHealth);
+        // The incoming hit damages shield durability and deals 20% to the boss.
+        // A broken shield stops protecting subsequent hits, not half of this hit.
         const float ShieldBonus=Perks && !Perks->bRogueExtraHit?Perks->RogueValue(EMCRogueStat::ShieldDamage):1.f;
         ShieldHealth=FMath::Max(0.f,ShieldHealth-Damage*ShieldBonus);
-        Damage=ProtectedDamage*BossSettings.ShieldFrontDamageScale+(Damage-ProtectedDamage);
+        Damage*=BossSettings.ShieldFrontDamageScale;
         const bool Broken=ShieldHealth<=0;
         if(Broken) ShieldBrokenAt=VisualHitAt;
         if(Broken || VisualHitAt-ShieldHitAt>=.15) {
             ShieldHitAt=VisualHitAt;
+            const FVector Contact=AMCNutCombatEffect::GetShieldContactOrigin(this);
             TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::ShieldHit,
-                GetActorLocation()+VisualHitDirection*Settings.BodyRadius,GetActorLocation(),Settings.BodyRadius*(Broken?1.4f:1.f),0,Broken?.65f:.32f,AttackSeed));
+                Contact,Contact-GetActorForwardVector()*Settings.BodyRadius,Settings.BodyRadius*(Broken?1.4f:1.f),0,Broken?1.2f:.32f,AttackSeed));
         }
     }
     // A light tool hit registers through the ordinary contact path, without
@@ -750,7 +786,8 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
         for(float Distance:{500.f,350.f,200.f})
             if(LockSurfacePoint(LockedStart+AttackForward*Distance,Settings.BodyRadius+5,LockedTarget)) {Valid=true;break;}
         if(!Valid) { Recover(.6f); return; }
-        Cue=EMCNutCombatCue::RollTell; CueRadius=Settings.BodyRadius+25; ActiveSeconds=BossSettings.RollDuration;
+        PlannedRollSeconds=Random.FRandRange(BossSettings.RollDuration,BossSettings.RollDurationMax);
+        Cue=EMCNutCombatCue::RollTell; CueRadius=Settings.BodyRadius+25; ActiveSeconds=PlannedRollSeconds;
     } else if(Next==EMCNutBossAttack::Jump) {
         Windup=BossSettings.JumpWindup;
         const FVector Candidate=LockedStart+(LockedTarget-LockedStart).GetClampedToMaxSize(BossSettings.ChargeDistance);
@@ -763,29 +800,33 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
         Windup=1.1f; CueRadius=45; Cue=EMCNutCombatCue::SummonTell;
         SummonPositions.Reset();
         const float CreepRadius=IsValid(EncounterOwner)?FMath::Clamp(EncounterOwner->Settings.Enemy.BodyRadius,20.f,80.f):BossSettings.CreepHeight*.5f;
-        const int32 Count=FMath::Min(4,BossSettings.SummonCount+(PartyPlayers-1)/2);
-        for(int32 Index=0;Index<Count;++Index) for(int32 Try=0;Try<20;++Try) {
-            const float Angle=Random.FRandRange(-PI,PI),Distance=Random.FRandRange(Settings.BodyRadius+CreepRadius+60,Settings.BodyRadius+CreepRadius+260);
-            FHitResult Floor; const FVector Point=GetActorLocation()+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Distance;
-            if(Tongue->GameplaySpawnFootprint(Point,CreepRadius,Floor)) {
-                const FVector Spawn=Floor.ImpactPoint+FVector(0,0,CreepRadius+4);
-                if(SummonPositions.ContainsByPredicate([&](FVector Other){return FVector::DistSquared2D(Other,Spawn)<FMath::Square(CreepRadius*2+20);})) continue;
-                SummonPositions.Add(Spawn); break;
-            }
-        }
+        TArray<AMCFoodActor*> Available;
+        if(IsValid(EncounterOwner)) EncounterOwner->GetAvailableRainNuts(Available);
+        for(const auto* Nut:Available) SummonPositions.Add(Nut->GetActorLocation());
         for(FVector Point:SummonPositions) TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,Cue,Point,Point,CreepRadius+10,Windup,.3f,AttackSeed));
     } else if(Next==EMCNutBossAttack::NutRain) {
         Windup=BossSettings.RainWindup;
-        if(!LockSurfacePoint(LockedTarget,BossSettings.RainRadius*.5f,LockedTarget)) { Recover(.6f); return; }
+        const float LandingMargin=IsValid(EncounterOwner)?EncounterOwner->Settings.ImpactRadius:BossSettings.RainImpactRadius;
+        FHitResult RainFloor;
+        // A player may stand near a tongue edge or in a delivery lane. That
+        // cannot silently cancel every cast; select a reachable storm centre.
+        if(!Tongue->GameplaySpawnFootprint(LockedTarget,LandingMargin,RainFloor)
+            && !Tongue->RandomGameplayInterestPoint(Random,LandingMargin,0,TConstArrayView<FVector>(),RainFloor)
+            && !Tongue->RandomGameplaySpawnPoint(Random,LandingMargin,0,TConstArrayView<FVector>(),RainFloor)) {
+            Recover(.6f); return;
+        }
+        LockedTarget=RainFloor.ImpactPoint+FVector(0,0,Settings.BodyRadius+4);
         Cue=EMCNutCombatCue::NutRain; CueRadius=BossSettings.RainRadius; ActiveSeconds=BossSettings.RainActiveSeconds;
     } else {
         bMeleeBetweenAbilities=false;
         LockedTarget=LockedStart+AttackForward*BossSettings.MeleeRange;
+        if(BossRole==EMCNutBossRole::Tank) ActiveSeconds=1.f;
     }
-    bResolved=false; AttackHits.Reset(); RainHitAt.Reset(); RollHitAt.Reset(); RainDropsResolved=0;
+    bResolved=false; AttackHits.Reset(); RainHitAt.Reset(); RollHitAt.Reset(); RainDropsResolved=0; MeleeHitsResolved=0;
     AttackStartedAt=Time; ResolveAt=Time+Windup;
     const bool Sustained=Next==EMCNutBossAttack::Charge || Next==EMCNutBossAttack::Roll
-        || Next==EMCNutBossAttack::Jump || Next==EMCNutBossAttack::NutRain;
+        || Next==EMCNutBossAttack::Jump || Next==EMCNutBossAttack::NutRain
+        || (Next==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank);
     const float Recovery=Next==EMCNutBossAttack::Jump?1.7f:Sustained?1.4f:Next==EMCNutBossAttack::Summon?1.2f:.9f;
     StartAttackCooldown(ResolveAt+(Sustained?ActiveSeconds:0.f)+RecoverySeconds(Recovery));
     Enter(EMCNutBossState::Telegraph,Windup);
@@ -794,8 +835,13 @@ void AMCNutBoss::BeginAttack(EMCNutBossAttack Next)
             GetCastOrigin(),LockedTarget,Settings.BodyRadius,Windup,Next==EMCNutBossAttack::NutRain?ActiveSeconds:.25f,AttackSeed));
     else if(Next==EMCNutBossAttack::Roll)
         TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::Transform,LockedStart,LockedTarget,Settings.BodyRadius,Windup,.3f,AttackSeed));
-    if(Next!=EMCNutBossAttack::Summon) TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,Cue,LockedStart,LockedTarget,
+    if(Next!=EMCNutBossAttack::Summon && !(Next==EMCNutBossAttack::NutRain && IsValid(EncounterOwner))) TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,Cue,LockedStart,LockedTarget,
         CueRadius,Windup,ActiveSeconds,AttackSeed,BossSettings.RainImpactRadius,BossSettings.RainDrops,BossSettings.RainActiveSeconds/BossSettings.RainDrops));
+    if(Next==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank) {
+        const FVector Slam=LockedStart+AttackForward*BossSettings.MeleeRange*.55f;
+        TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,EMCNutCombatCue::JumpTell,Slam,Slam,
+            BossSettings.MeleeRange*.8f,Windup+.85f,.12f,AttackSeed));
+    }
 }
 
 bool AMCNutBoss::HasLineOfSight(const AMCToothCharacter* Hero,FVector From) const
@@ -864,8 +910,17 @@ void AMCNutBoss::ExecuteRoll(float Dt)
     if(Time>=AttackEndAt) {Recover(1.4f);return;}
     if(!IsLiveTarget(Target) || Time>=NextTargetAt) SelectTarget(false);
     const float FrameSeconds=FMath::Min(Dt,.25f);
-    if(IsLiveTarget(Target)) {
-        const FVector Desired=(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D();
+    {
+        FVector Desired=IsLiveTarget(Target)?(Target->GetActorLocation()-GetActorLocation()).GetSafeNormal2D():AttackForward;
+        FVector Ahead;
+        if(!LockSurfacePoint(GetActorLocation()+AttackForward*BossSettings.RollSpeed*.7f,Settings.BodyRadius+5,Ahead)) {
+            // Start a bounded turn before the arena edge. Actual blocking hits
+            // still reflect momentum, but normal pursuit never snaps toward a target.
+            for(float Angle:{30.f,-30.f,60.f,-60.f,90.f,-90.f,120.f,-120.f,150.f,-150.f}) {
+                const FVector Probe=AttackForward.RotateAngleAxis(Angle,FVector::UpVector);
+                if(LockSurfacePoint(GetActorLocation()+Probe*BossSettings.RollSpeed*.7f,Settings.BodyRadius+5,Ahead)) {Desired=Probe;break;}
+            }
+        }
         if(!Desired.IsNearlyZero()) {
             const float Delta=FMath::Clamp(FMath::FindDeltaAngleDegrees(AttackForward.Rotation().Yaw,Desired.Rotation().Yaw),
                 -BossSettings.RollTurnDegreesPerSecond*FrameSeconds,BossSettings.RollTurnDegreesPerSecond*FrameSeconds);
@@ -900,24 +955,32 @@ void AMCNutBoss::ExecuteRoll(float Dt)
         }
     }
     SetActorRotation(AttackForward.Rotation());
+    // Rebase the rolling sphere against the final parent yaw in this frame.
+    PresentTankModel(Time);
 }
 
 void AMCNutBoss::SummonCreeps()
 {
-    int32 Live=0;
-    for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It)
-        if(!Cast<AMCNutBoss>(*It) && It->GetOwner()==EncounterOwner && It->IsEncounterAlive()) ++Live;
-    UStaticMesh* Mesh=BossSettings.KernelMesh.LoadSynchronous(); if(!Mesh || !IsValid(EncounterOwner)) return;
-    for(FVector Point:SummonPositions) {
-        if(Live>=BossSettings.MaxLiveCreeps) break;
+    if(!HasAuthority() || !IsValid(EncounterOwner) || !IsValid(Tongue)) return;
+    // Resolve from the remaining ground nuts, not a count captured during the
+    // tell. Breaking a marked nut before release prevents that summon.
+    TArray<AMCFoodActor*> Available;
+    EncounterOwner->GetAvailableRainNuts(Available);
+    UStaticMesh* Fallback=BossSettings.WholeMesh.LoadSynchronous();
+    for(auto* Nut:Available) {
+        UStaticMesh* Mesh=Nut->ItemMesh?Nut->ItemMesh.Get():Fallback;
+        if(!Mesh) continue;
         FMCNutEnemySettings Creep=EncounterOwner->Settings.Enemy;
         Creep.MaxHealth=BossSettings.CreepHealth; Creep.BodyRadius=FMath::Clamp(Creep.BodyRadius,20.f,80.f);
-        FHitResult Floor; if(!Tongue->GameplaySpawnFootprint(Point,Creep.BodyRadius,Floor)) continue;
+        Creep.MoveSpeed=260;
+        FHitResult Floor; if(!Tongue->GameplaySpawnFootprint(Nut->GetActorLocation(),Creep.BodyRadius,Floor)) continue;
         const FTransform Pose(AttackForward.Rotation(),Floor.ImpactPoint+FVector(0,0,Creep.BodyRadius+4));
-        auto* Enemy=GetWorld()->SpawnActorDeferred<AMCNutEnemy>(AMCNutEnemy::StaticClass(),Pose,EncounterOwner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+        auto* Enemy=GetWorld()->SpawnActorDeferred<AMCNutKamikaze>(AMCNutKamikaze::StaticClass(),Pose,EncounterOwner,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
         if(!Enemy) continue;
-        Enemy->ConfigureEnemy(Tongue,Mesh,HeightScale(Mesh,BossSettings.CreepHeight),Creep); Enemy->FinishSpawning(Pose);
-        EncounterOwner->RegisterEncounterEnemy(Enemy); ++Live;
+        if(!Enemy->ConfigureKamikaze(Tongue,Mesh,HeightScale(Mesh,BossSettings.CreepHeight),Creep)) {Enemy->Destroy();continue;}
+        Enemy->FinishSpawning(Pose);
+        EncounterOwner->RegisterEncounterEnemy(Enemy);
+        Nut->Dispose();
     }
     SummonPositions.Reset();
 }
@@ -933,6 +996,8 @@ void AMCNutBoss::Recover(float Seconds)
 float AMCNutBoss::RecoverySeconds(float Requested) const
 {
     if(BossRole!=EMCNutBossRole::Tank || Attack==EMCNutBossAttack::None) return Requested;
+    if(Attack==EMCNutBossAttack::Melee) return 2.f;
+    if(Attack==EMCNutBossAttack::Jump) return 1.f;
     const float Minimum=Attack==EMCNutBossAttack::Roll?BossSettings.RollRecoverySeconds:
         Attack==EMCNutBossAttack::Melee?1.2f:BossSettings.TankRecoverySeconds;
     return FMath::Max(Requested,Minimum);
@@ -963,7 +1028,8 @@ void AMCNutBoss::ExecuteAttack(float Dt)
         if(Time<ResolveAt) return;
         const float Duration=Attack==EMCNutBossAttack::Charge?float(FVector::Dist2D(LockedStart,LockedTarget))/BossSettings.ChargeSpeed
             :Attack==EMCNutBossAttack::Jump?BossSettings.JumpFlightSeconds:Attack==EMCNutBossAttack::NutRain?BossSettings.RainActiveSeconds
-            :Attack==EMCNutBossAttack::Roll?BossSettings.RollDuration:.1f;
+            :Attack==EMCNutBossAttack::Roll?PlannedRollSeconds:
+            Attack==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank?1.f:.1f;
         Enter(EMCNutBossState::Executing,Duration);
     }
     if(Attack==EMCNutBossAttack::Teleport) {
@@ -1005,15 +1071,27 @@ void AMCNutBoss::ExecuteAttack(float Dt)
     } else if(Attack==EMCNutBossAttack::NutRain) {
         const double Cadence=BossSettings.RainActiveSeconds/BossSettings.RainDrops;
         for(int32 Budget=0;RainDropsResolved<BossSettings.RainDrops && Time>=ResolveAt+RainDropsResolved*Cadence && Budget<2;++Budget,++RainDropsResolved) {
-            TSet<TWeakObjectPtr<AMCToothCharacter>> RecentlyHit;
-            for(const auto& Pair:RainHitAt) if(Time-Pair.Value<BossSettings.RainHitGap) RecentlyHit.Add(Pair.Key);
-            const auto Before=RecentlyHit;
-            // Rain is one sustained storm region. Falling nuts illustrate its
-            // pulses; their individual impact decorations never deal extra damage.
-            DamageArea(LockedTarget,BossSettings.RainRadius,BossSettings.RainDamage,70,&RecentlyHit);
-            for(const auto& Hero:RecentlyHit) if(!Before.Contains(Hero)) RainHitAt.Add(Hero,Time);
+            // The warning and contact damage belong to each real falling food.
+            // No invisible whole-region damage is added to the same cast.
+            if(IsValid(EncounterOwner)) EncounterOwner->SpawnSpellNut(
+                AMCNutCombatEffect::GetNutRainDropPoint(LockedTarget,BossSettings.RainRadius,AttackSeed,RainDropsResolved),
+                int32(uint32(AttackSeed)+uint32(RainDropsResolved)));
         }
         if(Time>=AttackEndAt && RainDropsResolved>=BossSettings.RainDrops) Recover(1.4f);
+    } else if(Attack==EMCNutBossAttack::Melee && BossRole==EMCNutBossRole::Tank) {
+        constexpr float Contacts[]={0.f,.35f,.85f};
+        while(MeleeHitsResolved<UE_ARRAY_COUNT(Contacts) && Time>=ResolveAt+Contacts[MeleeHitsResolved]) {
+            AttackHits.Reset();
+            const bool GroundHit=MeleeHitsResolved==2;
+            const FVector Center=GroundHit?LockedStart+AttackForward*BossSettings.MeleeRange*.55f:LockedStart;
+            if(!GroundHit) for(TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
+                if(FVector::DotProduct((It->GetActorLocation()-LockedStart).GetSafeNormal2D(),AttackForward)<.35f) AttackHits.Add(*It);
+            DamageArea(Center,BossSettings.MeleeRange*(GroundHit?.8f:1.f),BossSettings.MeleeDamage,BossSettings.TankMeleePush,&AttackHits);
+            TrackAttackActor(AMCNutCombatEffect::Spawn(this,Tongue,GroundHit?EMCNutCombatCue::SlamImpact:EMCNutCombatCue::MeleeSlash,
+                Center,GroundHit?Center:LockedTarget,BossSettings.MeleeRange*(GroundHit?.8f:1.f),0,GroundHit?.6f:.22f,AttackSeed+MeleeHitsResolved));
+            ++MeleeHitsResolved;
+        }
+        if(Time>=AttackEndAt) Recover(2.f);
     } else if(!bResolved) {
         bResolved=true;
         if(Attack==EMCNutBossAttack::Fireball) {
@@ -1039,6 +1117,7 @@ void AMCNutBoss::ExecuteAttack(float Dt)
 void AMCNutBoss::Tick(float Dt)
 {
     AActor::Tick(Dt); const double Time=Now(); TickPresentation(Time); PresentTankModel(Time);
+    AMCNutCombatEffect::UpdateShieldDamageVisual(this);
     if(!HasAuthority() || bDefeated) return;
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     if(Game && (Game->Phase==EMCShiftPhase::Won || Game->Phase==EMCShiftPhase::Lost)) {CancelAttacks();return;}
@@ -1060,7 +1139,7 @@ void AMCNutBoss::Tick(float Dt)
     if(LabStation.IsValid()) return;
     if(!IsLiveTarget(Target) || Time>=NextTargetAt) SelectTarget(false);
     if(!IsLiveTarget(Target)) return;
-    if(BossRole==EMCNutBossRole::Mage && Time>=NextSpecialAt && Time>=NextTeleportAt && IsMageFocused()) {
+    if(BossRole==EMCNutBossRole::Mage && !IsValid(EncounterOwner) && Time>=NextSpecialAt && Time>=NextTeleportAt && IsMageFocused()) {
         BeginTeleport();
         if(State==EMCNutBossState::Telegraph) return;
     }
@@ -1068,21 +1147,23 @@ void AMCNutBoss::Tick(float Dt)
     if(!Direction.IsNearlyZero()) SetActorRotation(Direction.Rotation());
     const double Distance=FVector::Dist2D(GetActorLocation(),Target->GetActorLocation());
     const bool SpecialReady=Time>=NextSpecialAt && (BossRole==EMCNutBossRole::Tank?
-        Time>=NextRollAt || Time>=NextJumpAt || Time>=NextChargeAt:
+        Time>=NextRollAt || Time>=NextJumpAt:
         Time>=NextRainAt || Time>=NextSummonAt || Time>=NextFireballAt);
     // Close combat has a turn between specials; once it resolves, ready special
     // abilities retain priority. During cooldowns ordinary swings can continue.
-    if(Time>=NextMeleeAt && (bMeleeBetweenAbilities || !SpecialReady)
+    if((BossRole==EMCNutBossRole::Tank || !IsValid(EncounterOwner)) && Time>=NextMeleeAt && (bMeleeBetweenAbilities || !SpecialReady)
         && Distance<BossSettings.MeleeRange*.95f && HasLineOfSight(Target,GetActorLocation())) {
         BeginAttack(EMCNutBossAttack::Melee);return;
     }
     if(Time>=NextSpecialAt && BossRole==EMCNutBossRole::Tank) {
         if(Time>=NextRollAt) {BeginAttack(EMCNutBossAttack::Roll);return;}
         if(Time>=NextJumpAt) {BeginAttack(EMCNutBossAttack::Jump);return;}
-        if(Time>=NextChargeAt) {BeginAttack(EMCNutBossAttack::Charge);return;}
     } else if(Time>=NextSpecialAt && BossRole==EMCNutBossRole::Mage) {
         if(Time>=NextRainAt) {BeginAttack(EMCNutBossAttack::NutRain);return;}
-        if(Time>=NextSummonAt) {BeginAttack(EMCNutBossAttack::Summon);return;}
+        if(Time>=NextSummonAt && IsValid(EncounterOwner)) {
+            TArray<AMCFoodActor*> Available; EncounterOwner->GetAvailableRainNuts(Available);
+            if(!Available.IsEmpty()) {BeginAttack(EMCNutBossAttack::Summon);return;}
+        }
         if(Time>=NextFireballAt) {BeginAttack(EMCNutBossAttack::Fireball);return;}
     }
     if(BossRole==EMCNutBossRole::Tank && Distance>BossSettings.MeleeRange*.8f) MoveOnTongue(Direction,Dt);

@@ -1,0 +1,209 @@
+{
+  "head": "86ccd04faede1a1aa93da9facb139e041cfeb0cd",
+  "workspace": "C:\\Users\\user\\.codex\\worktrees\\nut-fight-verify\\MessControl",
+  "scope_manifest_sha256": "3c375d9520fb27d976ee9d9bec991e483caa29461bfdc8a13aa2506928ffb61d",
+  "task_patch_sha256": "dd39e3dc0536deb079d5617f8939536fb59a39704367d3ac577efbe924d08e08",
+  "files": [
+    {
+      "path": "Source/MessControl/Private/MCFoodActor.cpp",
+      "expected_sha256": "2b2f52f945fb01c99049491193b79a945f6f976cd4e84bc4f57598673d24faa1",
+      "actual_sha256": "2b2f52f945fb01c99049491193b79a945f6f976cd4e84bc4f57598673d24faa1",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCFoodEnvironment.cpp",
+      "expected_sha256": "1754a43ba5ab054b011e8ea81379bebba0430b2ac008ba17f5051812475acc43",
+      "actual_sha256": "1754a43ba5ab054b011e8ea81379bebba0430b2ac008ba17f5051812475acc43",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCGameplayHUD.cpp",
+      "expected_sha256": "d435110eac09f939b3fbad7140b92bb5e6b130fdaff85d6e741a25a3d17a6981",
+      "actual_sha256": "d435110eac09f939b3fbad7140b92bb5e6b130fdaff85d6e741a25a3d17a6981",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutBoss.cpp",
+      "expected_sha256": "3c0b742766b1e7f4f940a5f69256f68ff87f9e2f44c48e628bc2d1e0cc73d0e2",
+      "actual_sha256": "3c0b742766b1e7f4f940a5f69256f68ff87f9e2f44c48e628bc2d1e0cc73d0e2",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutBossTypes.cpp",
+      "expected_sha256": "84b1cc3fad7bb976f0588cf22e9fac48473471b2de7d98998aaaad41e6c54939",
+      "actual_sha256": "84b1cc3fad7bb976f0588cf22e9fac48473471b2de7d98998aaaad41e6c54939",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutCombatEffect.cpp",
+      "expected_sha256": "5bc5ba46b17f1dbb9d27a365353a4e80a096c8c6eb7552097db7ed6995577491",
+      "actual_sha256": "5bc5ba46b17f1dbb9d27a365353a4e80a096c8c6eb7552097db7ed6995577491",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutRainEvent.cpp",
+      "expected_sha256": "51b7e96b57e6df2e80c8df2927cf263a827c3336da3ef08f85d02f4c90a47d36",
+      "actual_sha256": "51b7e96b57e6df2e80c8df2927cf263a827c3336da3ef08f85d02f4c90a47d36",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutRainProfile.cpp",
+      "expected_sha256": "84a2ce8829972fcdaede1fee68604ed1bc249a7769fab8a2aadb5eff69a2c776",
+      "actual_sha256": "84a2ce8829972fcdaede1fee68604ed1bc249a7769fab8a2aadb5eff69a2c776",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutSpellProjectile.cpp",
+      "expected_sha256": "e3bcb9f9b4d6db0af991817f8c2ce18e92f9956536689296059c4c12be859fda",
+      "actual_sha256": "e3bcb9f9b4d6db0af991817f8c2ce18e92f9956536689296059c4c12be859fda",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCSingleDayDirector.cpp",
+      "expected_sha256": "b822d61ff45c8c1eed4075e762a58521c4310fc80807023010f77b40551ef121",
+      "actual_sha256": "b822d61ff45c8c1eed4075e762a58521c4310fc80807023010f77b40551ef121",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Public/MCNutBoss.h",
+      "expected_sha256": "f233eaf4b150a5b0205126440fef70545b5e03d8d5469c9683a51aa92b96eab0",
+      "actual_sha256": "f233eaf4b150a5b0205126440fef70545b5e03d8d5469c9683a51aa92b96eab0",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Public/MCNutBossTypes.h",
+      "expected_sha256": "b2b782cf8e96f1167b8df9e0fef22ae126450c7f8863828e8a141cedabac5add",
+      "actual_sha256": "b2b782cf8e96f1167b8df9e0fef22ae126450c7f8863828e8a141cedabac5add",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Public/MCNutCombatEffect.h",
+      "expected_sha256": "65a590455aadaf97379730e6e6080fe247a954d27b2f26a118c73e19f7c23458",
+      "actual_sha256": "65a590455aadaf97379730e6e6080fe247a954d27b2f26a118c73e19f7c23458",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Public/MCNutRainEvent.h",
+      "expected_sha256": "9cdc6f9370d9cd29a132fb10d10132c7f40a71c1147f51148e0d203d278acd5f",
+      "actual_sha256": "9cdc6f9370d9cd29a132fb10d10132c7f40a71c1147f51148e0d203d278acd5f",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Public/MCNutRainProfile.h",
+      "expected_sha256": "630dbe5c839cbd067e4e7efd5c5fd718a26631c44b0c9904a5c4d0346beeca2e",
+      "actual_sha256": "630dbe5c839cbd067e4e7efd5c5fd718a26631c44b0c9904a5c4d0346beeca2e",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/Tests/MCNutBossCombatTests.cpp",
+      "expected_sha256": "618fd9d2450458888ae58d3b97b209352699d4b652ab5b8c7f76136ffb7e9b73",
+      "actual_sha256": "618fd9d2450458888ae58d3b97b209352699d4b652ab5b8c7f76136ffb7e9b73",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/Tests/MCNutRainTests.cpp",
+      "expected_sha256": "0ec582c68e9ff41e82b08a22c9937a0d842f47a9e1782c8672f3642d277cbd17",
+      "actual_sha256": "0ec582c68e9ff41e82b08a22c9937a0d842f47a9e1782c8672f3642d277cbd17",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCDevPanelWidget.cpp",
+      "expected_sha256": "685243469c153021f332042e272d2a8ff4f9380b9757d003c8a8b8666d9ee56f",
+      "actual_sha256": "685243469c153021f332042e272d2a8ff4f9380b9757d003c8a8b8666d9ee56f",
+      "passed": true
+    },
+    {
+      "path": "Tools/Unreal/author_nut_landing_shadow.py",
+      "expected_sha256": "d03638f06fbdb01c56a5064c9aad1a445f32e1e80072a3374c6f0f42d0672101",
+      "actual_sha256": "d03638f06fbdb01c56a5064c9aad1a445f32e1e80072a3374c6f0f42d0672101",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/Tests/MCFoodMouthEntryTests.cpp",
+      "expected_sha256": "bde145aa64b7e0a9574c0af550de5992af5826bcfec0292d569f7d4e686bed19",
+      "actual_sha256": "bde145aa64b7e0a9574c0af550de5992af5826bcfec0292d569f7d4e686bed19",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutKamikaze.cpp",
+      "expected_sha256": "26a1ecbb0e49ae130571c33d156ddaa54ce33717df9fb980cfac7744f3c8384c",
+      "actual_sha256": "26a1ecbb0e49ae130571c33d156ddaa54ce33717df9fb980cfac7744f3c8384c",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Public/MCNutKamikaze.h",
+      "expected_sha256": "6b98750892be968bc9dfe1bbeaa05095a3acfc2ec6695a5dc13ff479065d969a",
+      "actual_sha256": "6b98750892be968bc9dfe1bbeaa05095a3acfc2ec6695a5dc13ff479065d969a",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/Tests/MCNutKamikazeTests.cpp",
+      "expected_sha256": "4d82579e17f66b16233a5f9cade71bdf0d7256ec9ef987561e9c5ed30b857e04",
+      "actual_sha256": "4d82579e17f66b16233a5f9cade71bdf0d7256ec9ef987561e9c5ed30b857e04",
+      "passed": true
+    },
+    {
+      "path": "Source/MessControl/Private/MCNutShieldCrackLayout.h",
+      "expected_sha256": "77520d97cc750f231a274a83325a36c381bc4c2d6d78b014df43187f4309e875",
+      "actual_sha256": "77520d97cc750f231a274a83325a36c381bc4c2d6d78b014df43187f4309e875",
+      "passed": true
+    },
+    {
+      "path": "Tools/Blender/bake_nut_shield_crack_layout.py",
+      "expected_sha256": "596d0a94b8e91b1ec50f15ab8d03c963d7910e65e1b253e2e9788687656968d3",
+      "actual_sha256": "596d0a94b8e91b1ec50f15ab8d03c963d7910e65e1b253e2e9788687656968d3",
+      "passed": true
+    },
+    {
+      "path": "Tools/Unreal/check_nut_fight_redesign_solo.py",
+      "expected_sha256": "9674eb13a5c0aa4f90781bd516fa0ee3cbe50df69f39a63cedb3d3baa9666331",
+      "actual_sha256": "9674eb13a5c0aa4f90781bd516fa0ee3cbe50df69f39a63cedb3d3baa9666331",
+      "passed": true
+    },
+    {
+      "path": "Tools/Unreal/check_nut_fight_vfx_solo.py",
+      "expected_sha256": "06fc54dde04621343cc3107e5fe53754f595f4102adb0286d308b2fc3e080843",
+      "actual_sha256": "06fc54dde04621343cc3107e5fe53754f595f4102adb0286d308b2fc3e080843",
+      "passed": true
+    },
+    {
+      "path": "Tools/Unreal/encode_nut_fight_capture.py",
+      "expected_sha256": "f996049bbe44a717bee0c97fafe4fd26182f01e98dc2b0bbc2af48e687505b23",
+      "actual_sha256": "f996049bbe44a717bee0c97fafe4fd26182f01e98dc2b0bbc2af48e687505b23",
+      "passed": true
+    },
+    {
+      "path": "Tools/Unreal/author_nut_shield_fracture_mcp.py",
+      "expected_sha256": "4a89eef46f7bf2f2c00809579a8eb8b79eeafcbabe59d35fdb7c0a49b1b7f426",
+      "actual_sha256": "4a89eef46f7bf2f2c00809579a8eb8b79eeafcbabe59d35fdb7c0a49b1b7f426",
+      "passed": true
+    },
+    {
+      "path": "Content/Gameplay/CoreLoop/M_NutLandingShadow.uasset",
+      "expected_sha256": "4fcdde38f43b7253a923b4c1a8213ded7a336a81cfb625b5b718d3c773c52c50",
+      "actual_sha256": "4fcdde38f43b7253a923b4c1a8213ded7a336a81cfb625b5b718d3c773c52c50",
+      "passed": true
+    },
+    {
+      "path": "Content/Gameplay/VFX/NutCombat/M_NutShieldFracture.uasset",
+      "expected_sha256": "04c097ce50febefe9512731fcbac25149be4e207a74e8329e75afc3b641995a3",
+      "actual_sha256": "04c097ce50febefe9512731fcbac25149be4e207a74e8329e75afc3b641995a3",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "staged_changes": "",
+  "verified_at_utc": "2026-10-13T08:11:22.941280+00:00",
+  "scope_generation_completed_at_utc": "2026-10-13T08:10:57.526874+00:00",
+  "shield_layout_exact": {
+    "primary_raw_sha256": "f2366ad474d64a86d04c75f2325afb3822de98cacc71e2e3697fa7d7225cd5c3",
+    "primary_lf_sha256": "77520d97cc750f231a274a83325a36c381bc4c2d6d78b014df43187f4309e875",
+    "candidate_lf_sha256": "77520d97cc750f231a274a83325a36c381bc4c2d6d78b014df43187f4309e875",
+    "isolated_lf_sha256": "77520d97cc750f231a274a83325a36c381bc4c2d6d78b014df43187f4309e875",
+    "primary_lf_bytes": 222782,
+    "isolated_lf_bytes": 222782,
+    "sample_count": 559,
+    "path_count": 15,
+    "passed": true
+  }
+}

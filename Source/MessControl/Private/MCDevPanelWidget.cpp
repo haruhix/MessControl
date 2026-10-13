@@ -155,7 +155,7 @@ void UMCDevPanelWidget::RefreshActions()
     const UMCDayPlan* Plan=Mode?Mode->FirstDayPlan.LoadSynchronous():GS?GS->DayPlan.Get():nullptr;
     if (!Plan) Plan=LoadObject<UMCDayPlan>(nullptr,TEXT("/Game/Data/DA_Day01.DA_Day01"));
     AddText(Steps,TEXT("КЛЮЧЕВЫЕ СОБЫТИЯ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
-    AddAction(Steps,TEXT("Ореховый катаклизм — начать"),TEXT("Чистая арена: ореховые серии, затем бой с ореховыми боссами. Обычная последовательность приостановлена."),EMCDevAction::NutEncounter);
+    AddAction(Steps,TEXT("Ореховый катаклизм — начать"),TEXT("Непрерывный дождь 20–25 с, орех каждые 1.5–3 с; затем Рыцарь и Колдун. За орехи нет XP. Обычная последовательность приостановлена."),EMCDevAction::NutEncounter);
     AddAction(Steps,TEXT("Ореховый катаклизм — остановить тест"),TEXT("Убирает орехи, боссов и осколки, созданные тестом F3."),EMCDevAction::StopNutEncounter);
     AddAction(Steps,TEXT("Зима близко — начать"),TEXT("Разбей центральный кристалл киркой (слот 2). Зоны у края работают 45→20 с и перекрываются на 10 с. Разбивай кристаллы, отключающие согревание, и лёд на своих ногах; уклоняйся от серий по три сосульки и конуса бури."),EMCDevAction::IceEvent);
     AddAction(Steps,TEXT("Зима близко — остановить тест"),TEXT("Убирает кристаллы, зоны, сосульки и бурю; сбрасывает общий холод и освобождает ноги."),EMCDevAction::StopIceEvent);

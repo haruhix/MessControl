@@ -106,15 +106,13 @@ int32 AMCSingleDayDirector::ChooseNutSeriesSize(int32 Minimum,int32 Maximum,int3
     if (Variation<.1f) --Size; else if (Variation>.9f) ++Size;
     return FMath::Clamp(Size,Low,High);
 }
-bool AMCSingleDayDirector::ShouldFinishNutRain(int32 CompletedSeries,int32 MinimumSeries,float RainAge,float TargetSeconds) const
+bool AMCSingleDayDirector::ShouldFinishNutRain(int32 /*CompletedSeries*/,int32 /*MinimumSeries*/,float RainAge,float TargetSeconds) const
 {
-    const float Target=FMath::IsFinite(TargetSeconds)?FMath::Max(40.f,TargetSeconds):40.f;
-    const int32 Required=FMath::Max(4,MinimumSeries);
-    if (!FMath::IsFinite(RainAge) || CompletedSeries<Required || RainAge<Target) return false;
-    const auto Team=MCSingleDayDirectorPrivate::ObserveTeam(GetWorld());
-    if (MCSingleDayDirectorPrivate::NeedsRelief(Team)) return true;
-    // A healthy team may receive one extra series, bounded to eight more seconds.
-    return !MCSingleDayDirectorPrivate::IsHealthy(Team) || CompletedSeries>Required || RainAge>=Target+8.f;
+    const float Target=FMath::IsFinite(TargetSeconds)?FMath::Clamp(TargetSeconds,20.f,25.f):22.5f;
+    if (!FMath::IsFinite(RainAge) || RainAge<Target) return false;
+    // Team pressure already chose storm density and duration at the start.
+    // Once the final nut lands, do not add a breather or wait for debris cleanup.
+    return true;
 }
 void AMCSingleDayDirector::Record(const FString& Decision)
 {
@@ -285,9 +283,9 @@ void AMCSingleDayDirector::BeginNuts()
     FRandomStream Roll((GS?GS->RunSeed:0)+KeyEventIndex*7919);
     VariantIndex=Variants.IsEmpty()?0:Roll.RandRange(0,Variants.Num()-1);
     UMCNutRainProfile* Variant=Variants.IsValidIndex(VariantIndex)?Variants[VariantIndex].LoadSynchronous():nullptr;
-    Record(FString::Printf(TEXT("Ключевое событие %d: ореховые серии и боссы; обычные события приостановлены"),KeyEventIndex+1));
+    Record(FString::Printf(TEXT("Ключевое событие %d: непрерывный ореховый катаклизм и два босса; обычные события приостановлены"),KeyEventIndex+1));
     NutEvent->Start(Mechanics,Variant);
-    Publish(TEXT("ОРЕХОВЫЙ ДОЖДЬ"),TEXT("Продержитесь под дождём. Разбивайте твёрдые орехи киркой и получайте XP."));
+    Publish(TEXT("ОРЕХОГЕДДОН"),TEXT("Уклоняйтесь от красных зон падения, затем победите Рыцаря и Колдуна. Разбитые орехи уменьшают будущий призыв; XP за них не начисляется."));
     UE_LOG(LogTemp,Display,TEXT("MC_SINGLE_DAY NUTS variant=%d"),VariantIndex);
     ForceNetUpdate();
 }
@@ -421,8 +419,8 @@ void AMCSingleDayDirector::Tick(float Dt)
         if(NutEvent->bFailed) { Fail(TEXT("Не удалось запустить ореховый дождь. Проверьте язык и коллизию орехов.")); return; }
         if(NutEvent->IsComplete()) BeginDirector();
         else if(NutEvent->Stage==EMCNutRainStage::Enemies)
-            Publish(TEXT("ОРЕХОВЫЙ БОЙ"),TEXT("Победите ореховых боссов и всех врагов. Кирка и нож наносят им урон."),NutEvent->EnemiesLeft,FMath::Max(GS->TasksTotal,NutEvent->EnemiesLeft));
-        else Publish(TEXT("ОРЕХОВЫЙ ДОЖДЬ"),TEXT("Продержитесь до конца катаклизма. Следите за летящими орехами."));
+            Publish(TEXT("ОРЕХОВЫЙ БОЙ"),TEXT("Победите Рыцаря и Колдуна. Разбивайте орехи до призыва и убивайте малых саммонов до взрыва."),NutEvent->BossesLeft,2);
+        else Publish(TEXT("ОРЕХОГЕДДОН"),TEXT("Переживите катаклизм: уклоняйтесь от красных зон падения. После последнего ореха прибудут два босса."));
     }
     else if(Stage==EMCSingleDayStage::Director && InterludeEndsAt>0 && GS->GetServerWorldTimeSeconds()>=InterludeEndsAt) {
         if (IsLegacyTimedFinale()) BeginBoss();

@@ -16,6 +16,62 @@
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
 
+namespace
+{
+bool IsSupportedRainNut(const AMCFoodActor* Food,const AMCTongue* Tongue,float NutHeight)
+{
+    if(!IsValid(Food) || Food->IsMouthEntryActive()) return false;
+    if(Food->Phase==EMCFoodPhase::Free || Food->Phase==EMCFoodPhase::Stuck) return true;
+    if(Food->Phase!=EMCFoodPhase::Falling || !IsValid(Tongue) || !Food->Body) return false;
+    // Food/obstacle contacts can stop entry without setting the food's
+    // WorldStatic-only landing phase. Use the actual floor and motion for that
+    // resting case, consistently for the boss gate and the wizard's summons.
+    FHitResult Floor;
+    if(!Tongue->SurfacePoint(Food->GetActorLocation(),Floor)) return false;
+    const float Bottom=float(Food->GetActorLocation().Z-Food->Body->GetScaledBoxExtent().Z);
+    const float Height=Bottom-float(Floor.ImpactPoint.Z);
+    return Height>=-45.f && Height<=NutHeight+45.f && Food->GetVelocity().Size()<=180.f;
+}
+
+struct FNutLandingReservation
+{
+    FVector Point;
+    float BodyRadius=0;
+};
+
+void CollectNutLandingReservations(const TArray<TObjectPtr<AMCFoodActor>>& Nuts,const AMCTongue* Tongue,
+    float NutHeight,TArray<FNutLandingReservation>& Out)
+{
+    Out.Reset();
+    for(const AMCFoodActor* Food:Nuts) {
+        if(!IsValid(Food) || Food->IsActorBeingDestroyed() || Food->IsDisposed() || Food->bFragment
+            || Food->StackCarrier || !Food->Holders.IsEmpty() || !Food->Body) continue;
+        const bool Airborne=Food->IsMouthEntryActive();
+        if(!Airborne && !IsSupportedRainNut(Food,Tongue,NutHeight)) continue;
+        // A live whole ground nut is part of the future summon pool. Incoming
+        // nuts must not stack on it or stop entry before reaching the tongue
+        // surface advertised by their warning. Held food and fragments do not
+        // reserve a new rainfall footprint.
+        Out.Add({Airborne?Food->WorkPosition():Food->GetActorLocation(),float(Food->Body->GetScaledBoxExtent().Size2D())});
+    }
+}
+
+float NutLandingClearance(float NewRadius,float OldRadius,float NutHeight)
+{
+    // The horizontal box diagonal conservatively encloses a rotating body.
+    // Keep the existing minimum and a small physical gap, rather than reserving
+    // the much larger damage-warning radius and exhausting the arena.
+    return FMath::Max(NutHeight*1.15f,NewRadius+OldRadius+24.f);
+}
+
+bool IsNutLandingClear(FVector Candidate,float NewRadius,float NutHeight,TConstArrayView<FNutLandingReservation> Reserved)
+{
+    for(const auto& Item:Reserved)
+        if(FVector::DistSquared2D(Candidate,Item.Point)<FMath::Square(NutLandingClearance(NewRadius,Item.BodyRadius,NutHeight))) return false;
+    return true;
+}
+}
+
 AMCNutRainEvent::AMCNutRainEvent()
 {
     bReplicates=true; bAlwaysRelevant=true; SetNetUpdateFrequency(5);
@@ -35,7 +91,15 @@ void AMCNutRainEvent::Start(UMCDayPlan* Plan,UMCNutRainProfile* Profile)
         if(It->Status && It->Status->IsAlive()) ++Players;
     PartyPlayers=FMath::Clamp(Players,1,8);
     RainTargetCount=Settings.RainCountForPlayers(Players); EnemyTargetCount=Settings.EnemyCountForPlayers(Players);
-    if(Settings.bBossEncounter) EnemyTargetCount=FMath::Min(EnemyTargetCount,Settings.Boss.MaxLiveCreeps);
+    if(Settings.bBossEncounter) {
+        // The fight opens with exactly two bosses. Summons come from ground nuts,
+        // rather than an unrelated quota of enemies at the transition.
+        EnemyTargetCount=0;
+        const auto* State=GetWorld()->GetGameState<AMCGameState>();
+        const auto* Director=State?State->SingleDayDirector.Get():nullptr;
+        const int32 Intensity=Director?Director->ChooseNutSeriesSize(6,10,0):8;
+        Settings.RainSeconds=FMath::Lerp(20.f,25.f,float(Intensity-6)/4.f);
+    }
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     Random.Initialize(int32(uint32(State?State->RunSeed:41)^0x4E555453u)); FoodBatch=10000+int32(GetUniqueID());
     // Irregular bursts and quiet gaps share the same bounded count and duration.
@@ -74,8 +138,9 @@ void AMCNutRainEvent::Start(UMCDayPlan* Plan,UMCNutRainProfile* Profile)
         return;
     }
     SetActorTickEnabled(true); Enter(EMCNutRainStage::Rainfall);
+    RainStartedAt=StageStartedAt;
     if(Settings.bBossEncounter) BeginSeries(); else SpawnNut();
-    Record(FString::Printf(TEXT("Орехи: дождь %.0f с, минимум %d очереди, по %d–%d ореха; другие события закрыты"),Settings.RainSeconds,Settings.MinimumSeries,Settings.MinimumNutsPerSeries,Settings.MaximumNutsPerSeries));
+    Record(FString::Printf(TEXT("Орехи: непрерывный катаклизм %.1f с, %d падений с интервалом 1.5–3 с; после последнего приземления — Рыцарь и Колдун"),Settings.RainSeconds,RainTargetCount));
     UE_LOG(LogTemp,Display,TEXT("MC_NUT_RAIN_START players=%d target=%d enemies=%d seconds=%.1f"),Players,RainTargetCount,EnemyTargetCount,Settings.RainSeconds);
 }
 
@@ -105,13 +170,40 @@ void AMCNutRainEvent::BeginSeries()
 {
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
     const auto* Director=State?State->SingleDayDirector.Get():nullptr;
-    SeriesDropsLeft=Director?Director->ChooseNutSeriesSize(Settings.MinimumNutsPerSeries,Settings.MaximumNutsPerSeries,CompletedSeries)
-        :Random.RandRange(Settings.MinimumNutsPerSeries,Settings.MaximumNutsPerSeries);
-    ++SeriesIndex; ClusterDropsLeft=0;
-    Record(FString::Printf(TEXT("Орехи: очередь %d, %d падения; пауза %.0f с после очереди"),SeriesIndex,SeriesDropsLeft,Settings.SeriesRestSeconds));
-    const double Time=GetWorld()->GetTimeSeconds();
-    PlannedLaunchTimes.Add(float(Time-StageStartedAt)); SpawnNut(); --SeriesDropsLeft;
-    NextDropAt=Time+Random.FRandRange(Settings.MinimumDropSeconds,Settings.MaximumDropSeconds);
+    // Every individual drop stays 1.5–3 seconds apart. Reserve the last flight
+    // inside the 20–25 second phase; there are no pauses between series.
+    const float Window=FMath::Max(.1f,Settings.RainSeconds-Settings.Entry.FlightSeconds);
+    const int32 Intensity=Director?Director->ChooseNutSeriesSize(6,10,0):8;
+    const float Preferred=FMath::Lerp(Settings.MaximumDropSeconds,Settings.MinimumDropSeconds,float(Intensity-6)/4.f);
+    float MinInterval=Settings.MinimumDropSeconds,MaxInterval=Settings.MaximumDropSeconds;
+    int32 MinimumGaps=FMath::Max(1,FMath::CeilToInt(Window/MaxInterval));
+    int32 MaximumGaps=FMath::Max(1,FMath::FloorToInt(Window/MinInterval));
+    if(MinimumGaps>MaximumGaps) {
+        // A designer can set equal endpoints that do not divide the phase
+        // duration. Keep the approved reaction-time bounds rather than silently
+        // squeeze the final gap to fit that impossible narrower range.
+        MinInterval=1.5f; MaxInterval=3.f;
+        MinimumGaps=FMath::Max(1,FMath::CeilToInt(Window/MaxInterval));
+        MaximumGaps=FMath::Max(MinimumGaps,FMath::FloorToInt(Window/MinInterval));
+    }
+    const int32 Gaps=FMath::Clamp(FMath::RoundToInt(Window/Preferred),MinimumGaps,MaximumGaps);
+    TArray<float> Intervals; Intervals.Init(Window/Gaps,Gaps);
+    // Pair transfers preserve the exact sum without ever compressing a gap
+    // below its reaction-time bound when normalizing the end of the storm.
+    for(int32 Pass=0;Pass<Gaps*4;++Pass) {
+        const int32 A=Random.RandRange(0,Gaps-1),B=Random.RandRange(0,Gaps-1);
+        if(A==B) continue;
+        const float Low=FMath::Max(MinInterval-Intervals[A],Intervals[B]-MaxInterval);
+        const float High=FMath::Min(MaxInterval-Intervals[A],Intervals[B]-MinInterval);
+        const float Change=Random.FRandRange(Low,High);
+        Intervals[A]+=Change; Intervals[B]-=Change;
+    }
+    PlannedLaunchTimes.Add(0); float Total=0;
+    for(const float Gap:Intervals) { Total+=Gap; PlannedLaunchTimes.Add(Total); }
+    RainTargetCount=PlannedLaunchTimes.Num();
+    SeriesIndex=1; ClusterDropsLeft=0;
+    SpawnNut(); SeriesDropsLeft=RainTargetCount-DropsAttempted;
+    NextDropAt=RainStartedAt+(PlannedLaunchTimes.Num()>1?PlannedLaunchTimes[1]:Window);
     ForceNetUpdate();
 }
 
@@ -120,31 +212,42 @@ void AMCNutRainEvent::Enter(EMCNutRainStage Next)
     Stage=Next; StageStartedAt=GetWorld()->GetTimeSeconds(); ForceNetUpdate();
 }
 
-void AMCNutRainEvent::SpawnNut()
+bool AMCNutRainEvent::SpawnNut(TOptional<FVector> Candidate)
 {
     ++DropsAttempted;
-    if(!IsValid(Tongue)) return;
+    if(!IsValid(Tongue)) return false;
     FTransform Pose(FRotator(0,Random.FRandRange(-180,180),0));
     auto* Food=GetWorld()->SpawnActorDeferred<AMCFoodActor>(AMCFoodActor::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-    if(!Food) return;
+    if(!Food) return false;
     Food->ConfigureItem(NutRowName,NutRow,Random); Food->Batch=FoodBatch; Food->Tags.AddUnique(TEXT("MCNutRain"));
     const auto* Collision=Cast<UMCFoodBodyComponent>(Food->Body);
     if(!Collision || !Collision->HasMeshCollision())
     {
         Food->Destroy(); bFailed=true;
         UE_LOG(LogTemp,Error,TEXT("MC_NUT_RAIN_FAILED walnut needs baked food collision; run author_nut_rain.py"));
-        return;
+        return false;
     }
     const float Margin=FMath::Max(float(Food->Body->GetScaledBoxExtent().Size2D()+18),Settings.ImpactRadius);
+    const float BodyRadius=float(Food->Body->GetScaledBoxExtent().Size2D());
     FHitResult Floor;
-    if(!ChooseLanding(Margin,Floor)) { Food->Destroy(); return; }
+    bool FoundFloor=Candidate.IsSet() && Tongue->GameplaySpawnFootprint(Candidate.GetValue(),Margin,Floor);
+    if(FoundFloor && Settings.bBossEncounter) {
+        TArray<FNutLandingReservation> Reserved;
+        CollectNutLandingReservations(Nuts,Tongue,Settings.LargeNutHeight,Reserved);
+        FoundFloor=IsNutLandingClear(Floor.ImpactPoint,BodyRadius,Settings.LargeNutHeight,Reserved);
+    }
+    // A wizard can target a player in a delivery strip or at the tongue edge.
+    // Preserve the rain spell by moving that individual nut to a reachable
+    // gameplay footprint; its real landing warning advertises the new point.
+    if(!FoundFloor) FoundFloor=ChooseLanding(Margin,BodyRadius,Floor);
+    if(!FoundFloor) { Food->Destroy(); return false; }
     const FVector Landing=Floor.ImpactPoint+FVector(0,0,Food->Body->GetScaledBoxExtent().Z+5);
     FVector Start,Velocity;
-    if(!Settings.Entry.BuildTrajectory(Tongue->Surface->Bounds.GetBox(),Landing,GetWorld()->GetGravityZ(),Start,Velocity)) { Food->Destroy(); return; }
+    if(!Settings.Entry.BuildTrajectory(Tongue->Surface->Bounds.GetBox(),Landing,GetWorld()->GetGravityZ(),Start,Velocity)) { Food->Destroy(); return false; }
     const FBox Bounds=Tongue->Surface->Bounds.GetBox();
     const float Angle=Random.FRandRange(-PI,PI),Outside=Settings.Entry.OutsideDistance*Random.FRandRange(.5f,1.5f);
-    Start.X=Bounds.GetCenter().X+FMath::Cos(Angle)*(Bounds.GetExtent().X+Outside);
-    Start.Y=Bounds.GetCenter().Y+FMath::Sin(Angle)*(Bounds.GetExtent().Y+Outside);
+    Start.X=Settings.bBossEncounter?Landing.X:Bounds.GetCenter().X+FMath::Cos(Angle)*(Bounds.GetExtent().X+Outside);
+    Start.Y=Settings.bBossEncounter?Landing.Y:Bounds.GetCenter().Y+FMath::Sin(Angle)*(Bounds.GetExtent().Y+Outside);
     Start.Z=FMath::Max(Landing.Z,Bounds.Max.Z)+FMath::Clamp(Settings.Entry.EntryHeight*Random.FRandRange(.75f,1.2f),150.f,900.f);
     Velocity=(Landing-Start-FVector(0,0,GetWorld()->GetGravityZ())*(.5f*Settings.Entry.FlightSeconds*Settings.Entry.FlightSeconds))/Settings.Entry.FlightSeconds;
     Pose.SetLocation(Start); Food->FinishSpawning(Pose);
@@ -155,29 +258,82 @@ void AMCNutRainEvent::SpawnNut()
             Settings.ImpactDamageLimit,Settings.ImpactPushSpeed);
         Shadow->FinishSpawning(ShadowPose); LandingShadows.Add(Shadow);
     } else {
-        Food->Destroy(); bFailed=true; return;
+        Food->Destroy(); bFailed=true; return false;
     }
     Food->BeginMouthEntry(Velocity,Settings.Entry.PushSpeed,Landing);
     PlannedLandings.Add(Landing); LaunchLocations.Add(Start);
-    Nuts.Add(Food); ++NutsSpawned; ForceNetUpdate();
+    Nuts.Add(Food); ++NutsSpawned; ForceNetUpdate(); return true;
 }
 
-bool AMCNutRainEvent::ChooseLanding(float Margin,FHitResult& Floor)
+bool AMCNutRainEvent::SpawnSpellNut(FVector Candidate,int32 Seed)
 {
+    if(!HasAuthority() || Stage!=EMCNutRainStage::Enemies || !Settings.bBossEncounter || Candidate.ContainsNaN()) return false;
+    const FRandomStream SavedRandom=Random;
+    const int32 SavedAttempts=DropsAttempted;
+    Random.Initialize(Seed);
+    const bool Spawned=SpawnNut(Candidate);
+    Random=SavedRandom; DropsAttempted=SavedAttempts;
+    return Spawned;
+}
+
+void AMCNutRainEvent::GetAvailableRainNuts(TArray<AMCFoodActor*>& Out) const
+{
+    Out.Reset();
+    for(AMCFoodActor* Food:Nuts) {
+        if(!IsValid(Food) || Food->IsActorBeingDestroyed() || Food->IsDisposed() || Food->bFragment || Food->StackCarrier
+            || !Food->Holders.IsEmpty() || !Food->ActorHasTag(TEXT("MCNutRain"))
+            || !IsSupportedRainNut(Food,Tongue,Settings.LargeNutHeight)) continue;
+        Out.Add(Food);
+    }
+}
+
+bool AMCNutRainEvent::AreRainDropsResolved() const
+{
+    for(const AMCFoodActor* Food:Nuts) {
+        if(!IsValid(Food) || Food->IsActorBeingDestroyed() || Food->IsDisposed() || Food->StackCarrier || !Food->Holders.IsEmpty()) continue;
+        if(!IsSupportedRainNut(Food,Tongue,Settings.LargeNutHeight)) return false;
+    }
+    return true;
+}
+
+bool AMCNutRainEvent::ChooseLanding(float Margin,float NutBodyRadius,FHitResult& Floor)
+{
+    TArray<FVector> OccupiedLandings;
+    TArray<FNutLandingReservation> Reserved;
+    float BodySeparation=0;
+    if(Settings.bBossEncounter) {
+        CollectNutLandingReservations(Nuts,Tongue,Settings.LargeNutHeight,Reserved);
+        BodySeparation=Settings.LargeNutHeight*1.15f;
+        for(const auto& Item:Reserved) {
+            OccupiedLandings.Add(Item.Point);
+            BodySeparation=FMath::Max(BodySeparation,NutLandingClearance(NutBodyRadius,Item.BodyRadius,Settings.LargeNutHeight));
+        }
+    } else for(const AMCFoodActor* Food:Nuts)
+        if(IsValid(Food) && !Food->IsDisposed() && Food->IsMouthEntryActive()) OccupiedLandings.Add(Food->WorkPosition());
+    // Keep bodies apart in flight while allowing warning circles to overlap.
+    // Airborne and ground whole nuts both reserve body space. Warning circles
+    // may still overlap; no fallback can override physical clearance.
+    const auto IsClear=[&](FVector Point) {
+        return !Settings.bBossEncounter || IsNutLandingClear(Point,NutBodyRadius,Settings.LargeNutHeight,Reserved);
+    };
     if(ClusterDropsLeft<=0) {
-        if(!Tongue->RandomGameplaySpawnPoint(Random,Margin,0,TConstArrayView<FVector>(),Floor)) return false;
-        ClusterCenter=Floor.ImpactPoint; ClusterDropsLeft=Random.RandRange(2,6);
+        bool Found=false;
+        if(Settings.bBossEncounter && Random.FRand()<.65f)
+            Found=Tongue->RandomGameplayInterestPoint(Random,Margin,BodySeparation,OccupiedLandings,Floor);
+        if(!Found) Found=Tongue->RandomGameplaySpawnPoint(Random,Margin,BodySeparation,OccupiedLandings,Floor);
+        if(!Found) return false;
+        ClusterCenter=Floor.ImpactPoint; ClusterDropsLeft=Random.RandRange(2,3);
     }
     --ClusterDropsLeft;
     for(int32 Attempt=0;Attempt<24;++Attempt) {
         const float Angle=Random.FRandRange(-PI,PI);
         const float Distance=Settings.ClusterRadius*(Random.FRand()+Random.FRand())*.5f;
         const FVector Candidate=ClusterCenter+FVector(FMath::Cos(Angle),FMath::Sin(Angle),0)*Distance;
-        if(Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor)) return true;
+        if(IsClear(Candidate) && Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor)) return true;
     }
     // A clipped patch can move to a new valid patch; the delivery lanes remain excluded.
     ClusterDropsLeft=0;
-    return Tongue->RandomGameplaySpawnPoint(Random,Margin,0,TConstArrayView<FVector>(),Floor);
+    return Tongue->RandomGameplaySpawnPoint(Random,Margin,BodySeparation,OccupiedLandings,Floor);
 }
 
 void AMCNutRainEvent::AwakenLastNuts()
@@ -226,22 +382,9 @@ void AMCNutRainEvent::SpawnBossEncounter()
         bFailed=true; Record(TEXT("Орехи: не удалось разместить двух боссов; этап остановлен"));
         Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return;
     }
-    UStaticMesh* Kernel=Settings.Boss.KernelMesh.LoadSynchronous();
-    if(!Kernel) { bFailed=true; Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return; }
-    const FVector Scale(Settings.Boss.CreepHeight/FMath::Max(.001,Kernel->GetBounds().BoxExtent.Z*2));
-    FMCNutEnemySettings Creep=Settings.Enemy; Creep.MaxHealth=Settings.Boss.CreepHealth; Creep.Sanitize();
-    const float CreepSeparation=FMath::Max(Creep.BodyRadius*2.f+12.f,
-        FMath::Max(Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Tank),Settings.Boss.BodyRadiusForRole(EMCNutBossRole::Mage))+Creep.BodyRadius+20.f);
-    for(int32 Index=0;Index<EnemyTargetCount;++Index) {
-        FHitResult Floor; if(!Tongue->RandomGameplaySpawnPoint(Random,Creep.BodyRadius+10,CreepSeparation,Occupied,Floor)) continue;
-        const FTransform Pose(Floor.ImpactPoint+FVector(0,0,Creep.BodyRadius+4));
-        auto* Enemy=GetWorld()->SpawnActorDeferred<AMCNutEnemy>(AMCNutEnemy::StaticClass(),Pose,this,nullptr,ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
-        if(!Enemy) continue;
-        Enemy->ConfigureEnemy(Tongue,Kernel,Scale,Creep); Enemy->FinishSpawning(Pose); RegisterEncounterEnemy(Enemy); Occupied.Add(Floor.ImpactPoint);
-    }
     BossesLeft=2;
-    Record(FString::Printf(TEXT("Орехи: %d очереди; высажены танк, маг и %d крипов. Переход ждёт победы"),CompletedSeries,EnemiesLeft-2));
-    UE_LOG(LogTemp,Display,TEXT("MC_NUT_ENCOUNTER_START series=%d nuts=%d bosses=2 creeps=%d"),CompletedSeries,NutsSpawned,EnemiesLeft-2);
+    Record(FString::Printf(TEXT("Орехи: после %d падений прибыли Рыцарь и Колдун. Для победы нужно убить обоих"),NutsSpawned));
+    UE_LOG(LogTemp,Display,TEXT("MC_NUT_ENCOUNTER_START series=%d nuts=%d bosses=2 creeps=0"),CompletedSeries,NutsSpawned);
 }
 
 void AMCNutRainEvent::Tick(float Dt)
@@ -254,21 +397,14 @@ void AMCNutRainEvent::Tick(float Dt)
     if(Stage==EMCNutRainStage::Rainfall)
     {
         if(Settings.bBossEncounter) {
-            const double Time=GetWorld()->GetTimeSeconds();
-            if(SeriesDropsLeft>0 && Time>=NextDropAt) {
-                PlannedLaunchTimes.Add(float(Time-StageStartedAt)); SpawnNut(); --SeriesDropsLeft;
-                if(SeriesDropsLeft>0) NextDropAt=Time+Random.FRandRange(Settings.MinimumDropSeconds,Settings.MaximumDropSeconds);
-                else { ++CompletedSeries; NextDropAt=Time+Settings.SeriesRestSeconds; ForceNetUpdate(); }
-            }
+            for(int32 Burst=0;DropsAttempted<PlannedLaunchTimes.Num() && Age>=PlannedLaunchTimes[DropsAttempted] && Burst<4;++Burst) SpawnNut();
+            CompletedSeries=DropsAttempted; SeriesIndex=DropsAttempted;
+            SeriesDropsLeft=FMath::Max(0,RainTargetCount-DropsAttempted);
+            NextDropAt=DropsAttempted<PlannedLaunchTimes.Num()?RainStartedAt+PlannedLaunchTimes[DropsAttempted]:0;
             if(bFailed) { Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return; }
-            if(SeriesDropsLeft==0 && Time>=NextDropAt) {
-                const auto* Director=GS?GS->SingleDayDirector.Get():nullptr;
-                const bool Finish=Director?Director->ShouldFinishNutRain(CompletedSeries,Settings.MinimumSeries,float(Age),Settings.RainSeconds)
-                    :CompletedSeries>=Settings.MinimumSeries && Age>=Settings.RainSeconds;
-                if(Finish || CompletedSeries>=Settings.MaximumSeries && Age>=Settings.RainSeconds) {
-                    if(NutsSpawned==0) { bFailed=true; Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return; }
-                    RainTargetCount=NutsSpawned; Enter(EMCNutRainStage::Settling);
-                } else if(CompletedSeries<Settings.MaximumSeries) BeginSeries();
+            if(DropsAttempted>=PlannedLaunchTimes.Num()) {
+                if(NutsSpawned==0) { bFailed=true; Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); return; }
+                RainTargetCount=NutsSpawned; Enter(EMCNutRainStage::Settling);
             }
             return;
         }
@@ -281,8 +417,20 @@ void AMCNutRainEvent::Tick(float Dt)
             Enter(EMCNutRainStage::Settling);
         }
     }
-    else if(Stage==EMCNutRainStage::Settling && Age>=Settings.SettleSeconds) {
-        if(Settings.bBossEncounter) SpawnBossEncounter(); else AwakenLastNuts();
+    else if(Stage==EMCNutRainStage::Settling) {
+        if(Settings.bBossEncounter) {
+            const auto* Director=GS?GS->SingleDayDirector.Get():nullptr;
+            const float RainAge=float(GetWorld()->GetTimeSeconds()-RainStartedAt);
+            const bool Ready=Director?Director->ShouldFinishNutRain(CompletedSeries,Settings.MinimumSeries,RainAge,Settings.RainSeconds)
+                :RainAge>=Settings.RainSeconds;
+            const bool Resolved=AreRainDropsResolved();
+            if(Ready && Resolved) SpawnBossEncounter();
+            else if(!Resolved && RainAge>Settings.RainSeconds+10.f) {
+                bFailed=true; Record(TEXT("Орехи: падение не завершилось на доступной поверхности; тест события остановлен"));
+                UE_LOG(LogTemp,Error,TEXT("MC_NUT_RAIN_FAILED final drop did not resolve after bounded recovery"));
+                Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false);
+            }
+        } else if(Age>=Settings.SettleSeconds) AwakenLastNuts();
     }
     else if(Stage==EMCNutRainStage::Enemies)
     {
@@ -292,7 +440,13 @@ void AMCNutRainEvent::Tick(float Dt)
         for(const AMCNutBoss* Boss:Bosses) if(IsValid(Boss) && Boss->IsEncounterAlive()) ++AliveBosses;
         if(BossesLeft!=AliveBosses) { BossesLeft=AliveBosses; Record(FString::Printf(TEXT("Орехи: боссов осталось %d"),BossesLeft)); ForceNetUpdate(); }
         if(EnemiesLeft!=Alive) { EnemiesLeft=Alive; ForceNetUpdate(); }
-        if(EnemiesLeft==0) { Record(TEXT("Орехи: оба босса и все крипы побеждены; директор снова управляет промежутком")); Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false); }
+        if(Settings.bBossEncounter?BossesLeft==0:EnemiesLeft==0) {
+            if(Settings.bBossEncounter) for(AMCNutEnemy* Enemy:Enemies)
+                if(IsValid(Enemy) && !Cast<AMCNutBoss>(Enemy)) Enemy->Destroy();
+            EnemiesLeft=0;
+            Record(TEXT("Орехи: оба босса побеждены; директор снова управляет промежутком"));
+            Enter(EMCNutRainStage::Complete); SetActorTickEnabled(false);
+        }
     }
 }
 
@@ -310,7 +464,7 @@ void AMCNutRainEvent::Stop()
     Nuts.Reset(); Enemies.Reset(); Bosses.Reset(); EncounterActors.Reset(); LandingShadows.Reset(); PlannedLaunchTimes.Reset(); PlannedLandings.Reset(); LaunchLocations.Reset();
     ClusterDropsLeft=0; Tongue=nullptr; ActiveProfile=nullptr;
     EnemiesLeft=0; Stage=EMCNutRainStage::Idle; FoodBatch=0; ForceNetUpdate();
-    SeriesIndex=CompletedSeries=SeriesDropsLeft=BossesLeft=0; NextDropAt=0;
+    SeriesIndex=CompletedSeries=SeriesDropsLeft=BossesLeft=0; NextDropAt=0; RainStartedAt=0;
 }
 
 void AMCNutRainEvent::EndPlay(const EEndPlayReason::Type Reason)

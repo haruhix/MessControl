@@ -1,0 +1,173 @@
+{
+  "scope": "17 focused native cases across approved Editor builds; final shield path rerun after fracture update",
+  "passed": 17,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "MessControl.CoreLoop.NutBoss.Animation.AuthoredSpellGesturesAndChannel",
+      "state": "Success",
+      "duration": 0.060979198664426804,
+      "errors": [],
+      "warnings": [
+        "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_0' has no render data",
+        "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_0' has no render data",
+        "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_0' has no render data",
+        "LogAnimation: Skeletal Mesh asset 'SkeletalMesh_0' has no render data"
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutBoss.ComboGroundHitAndTwoSecondRecovery",
+      "state": "Success",
+      "duration": 2.051912546157837,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutBoss.DropAndDirectionalShield",
+      "state": "Success",
+      "duration": 0.33150339126586914,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutBoss.JumpAreaHitsOnceAndAllowsEscape",
+      "state": "Success",
+      "duration": 1.0661031007766724,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutBoss.RollDurationAndPredictableSteering",
+      "state": "Success",
+      "duration": 2.9270243644714355,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutBoss.SafeSettingsAndPartyHealth",
+      "state": "Success",
+      "duration": 0.009283501654863358,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.CoreLoop.NutBoss.SummonsRemainAfterDefeatAndResetCleansChildren",
+      "state": "Success",
+      "duration": 0.8793026804924011,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutKamikaze.KillCancelsBlastAndDamage",
+      "state": "Success",
+      "duration": 0.2435545027256012,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutKamikaze.NearestLivePursuitAndTimedDamage",
+      "state": "Success",
+      "duration": 0.4733583927154541,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutKamikaze.SpawnFuseExpiresWithoutContact",
+      "state": "Success",
+      "duration": 0.14170719683170319,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutRain.DirectedSeriesAndGuaranteedBossGate",
+      "state": "Success",
+      "duration": 0.8950651288032532,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutRain.SafeCountsAndCadence",
+      "state": "Success",
+      "duration": 0.014337301254272461,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.CoreLoop.NutVFX.ServerSweepHitsOnceAndCancels",
+      "state": "Success",
+      "duration": 0.1320118010044098,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutBoss.EdgeTargetStillCastsRealRain",
+      "state": "Success",
+      "duration": 0.5761584043502808,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.CoreLoop.NutRain.GroundSpacingAndExplicitSpellFallback",
+      "state": "Success",
+      "duration": 0.17775769531726837,
+      "errors": [],
+      "warnings": [
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds.",
+        "PIE: Calling GetSectionFromStaticMesh on Cube but 'Allow CPU Access' is not enabled. This is required for converting StaticMesh to ProceduralMeshComponent in cooked builds."
+      ]
+    },
+    {
+      "name": "MessControl.Food.MouthEntry.BossEncounterWalnutsPersistUntilPlayersBreak",
+      "state": "Success",
+      "duration": 0.14406520128250122,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "name": "MessControl.Food.MouthEntry.FallingWalnutsCrackWithoutContactChains",
+      "state": "Success",
+      "duration": 0.11087120324373245,
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "sources": [
+    "NativeFinal.json",
+    "NativeBoundary.json",
+    "NativePersistence.json",
+    "NativeShieldFracture.json"
+  ]
+}

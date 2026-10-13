@@ -239,8 +239,8 @@ void UMCGameplayHUD::RefreshGameplayAlerts()
         Observe(*It,TEXT("Fog"),It->IsActive(),It->StartedAt,TEXT("ДРАКА В ТУМАНЕ · ЗАЩИЩАЙТЕ ЗУБ!"));
     for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) {
         const bool Active=It->Stage!=EMCNutRainStage::Idle && It->Stage!=EMCNutRainStage::Complete;
-        // SeriesIndex advances for each authored rain; settling/enemy phases do not repeat the alarm.
-        Observe(*It,TEXT("NutRain"),Active,It->SeriesIndex,TEXT("ОРЕХОВЫЙ ДОЖДЬ · СМОТРИ ВВЕРХ!"));
+        // The opening rain is continuous; settling/enemy phases do not repeat the alarm.
+        Observe(*It,TEXT("NutRain"),Active,It->Settings.bBossEncounter?0:It->SeriesIndex,TEXT("ОРЕХОГЕДДОН · СМОТРИ ВВЕРХ!"));
     }
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
         const bool Active=It->Runtime.AnimationPreview==EMCBossAnimationPreview::None
@@ -248,7 +248,7 @@ void UMCGameplayHUD::RefreshGameplayAlerts()
         Observe(*It,TEXT("Boss"),Active,0,TEXT("БОСС ВО РТУ · ПРИГОТОВЬТЕСЬ!"),3.5f);
     }
     for(TActorIterator<AMCNutBoss> It(GetWorld());It;++It) {
-        const FString Message=It->BossRole==EMCNutBossRole::Tank?TEXT("БОСС · ОРЕХ ТАНК!"):TEXT("БОСС · ОРЕХ МАГ!");
+        const FString Message=It->BossRole==EMCNutBossRole::Tank?TEXT("БОСС · ОРЕХОВЫЙ РЫЦАРЬ!"):TEXT("БОСС · ОРЕХОВЫЙ КОЛДУН!");
         Observe(*It,TEXT("NutBoss"),It->IsEncounterAlive(),0,Message,3.5f);
     }
     if(GS->CurrentEvent && (LastAlertDayEvent.Get()!=GS->CurrentEvent || LastAlertStepStartedAt!=GS->StepStartedAt)) {
@@ -607,6 +607,14 @@ void UMCGameplayHUD::RefreshState()
         Text(TEXT("CooldownValue"),Automatic?(Inv->bWaterReloading?FString::Printf(TEXT("%.1f с"),Cool):FString::Printf(TEXT("%d/%d"),Inv->WaterAmmo,Inv->WaterMagazineCapacity())):FString::Printf(TEXT("%.1f"),Cool));
         Bar(TEXT("CooldownProgress"),Automatic && !Inv->bWaterReloading?float(Inv->WaterAmmo)/Inv->WaterMagazineCapacity():1-Cool/Inv->CooldownSeconds());
         FString Hint=Inv->Selected==EMCToolSlot::Pickaxe?TEXT("ЛКМ · ДРОБИТЬ · ЕДА → XP"):Inv->Selected==EMCToolSlot::Knife?TEXT("ЛКМ · РАЗБИТЬ ЕДУ → XP"):Inv->Selected==EMCToolSlot::Spray?TEXT("УДЕРЖИВАЙ ЛКМ · ЛЕЧИТЬ ЯЗВУ"):TEXT("ЛКМ · ЧИСТИТЬ");
+        if(Inv->Selected==EMCToolSlot::Pickaxe || Inv->Selected==EMCToolSlot::Knife) {
+            for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It) {
+                if(It->Settings.bBossEncounter && It->Stage!=EMCNutRainStage::Idle && It->Stage!=EMCNutRainStage::Complete) {
+                    Hint=TEXT("ЛКМ · ДРОБИТЬ · ОРЕХИ БЕЗ XP");
+                    break;
+                }
+            }
+        }
         if(Inv->Selected==EMCToolSlot::Knife && Inv->HasUpgrade(EMCToolUpgrade::Chainsaw)) Hint=Inv->IsChainsawRunning()?TEXT("БЕНЗОПИЛА ТЯНЕТ ВПЕРЁД · СТЕНА ОСТАНОВИТ · 30 УРОНА"):TEXT("ЛКМ · ЗАПУСТИТЬ · ОСТАНОВКА ТОЛЬКО ОБ СТЕНУ");
         if(Inv->Selected==EMCToolSlot::Spray && Inv->HasUpgrade(EMCToolUpgrade::Watergun)) Hint=Inv->bPressureMode?(Inv->bWaterReloading?TEXT("ПЕРЕЗАРЯДКА · УДЕРЖИВАЙ ЛКМ ДЛЯ ПРОДОЛЖЕНИЯ     4 · РЕЖИМ"):TEXT("УДЕРЖИВАЙ ЛКМ · АВТОМАТИЧЕСКАЯ СТРЕЛЬБА     4 · РЕЖИМ")):TEXT("УДЕРЖИВАЙ ЛКМ · ТУШИТЬ И ЛЕЧИТЬ     4 · РЕЖИМ");
         if(!Inv->IsChainsawRunning()) Hint+=TEXT("     ПКМ · ДЕРЖАТЬСЯ");

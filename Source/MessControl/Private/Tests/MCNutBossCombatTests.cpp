@@ -3,6 +3,8 @@
 #include "MCNutBoss.h"
 #include "MCNutCombatEffect.h"
 #include "MCNutSpellProjectile.h"
+#include "MCNutKamikaze.h"
+#include "MCFoodActor.h"
 #include "MCNutRainEvent.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
@@ -110,9 +112,20 @@ bool FMCNutBossShieldTest::RunTest(const FString&)
     T.Boss->SetActorTickEnabled(false);
     auto* Hero=T.AddHero(T.Boss->GetActorLocation()+FVector(180,0,16));
     TestTrue(TEXT("A source directly ahead meets the directional shield"),T.Boss->IsShieldProtectingFrom(Hero->GetActorLocation()));
-    TestTrue(TEXT("A shield still takes a real fraction of the normal hit"),FMath::IsNearlyEqual(T.Boss->ReceiveToolDamage(40,Hero),14.f));
+    TestTrue(TEXT("A guarded hit damages the boss by twenty percent"),FMath::IsNearlyEqual(T.Boss->ReceiveToolDamage(40,Hero),8.f));
+    TestEqual(TEXT("The same hit damages the shield's own durability"),T.Boss->ShieldHealth,460.f);
     Hero->SetActorLocation(T.Boss->GetActorLocation()-FVector(180,0,-16));
     TestEqual(TEXT("A rear hit applies the whole tool damage"),T.Boss->ReceiveToolDamage(40,Hero),40.f);
+    Hero->SetActorLocation(T.Boss->GetActorLocation()+FVector(180,0,16));
+    for(const auto State:{EMCNutBossState::Telegraph,EMCNutBossState::Executing,EMCNutBossState::Recovery}) {
+        T.Boss->State=State; T.Boss->Attack=EMCNutBossAttack::Melee;
+        TestFalse(TEXT("The visible non-guard attack pose cannot protect the front"),T.Boss->IsShieldProtectingFrom(Hero->GetActorLocation()));
+        TestEqual(TEXT("Attacking and recovery take full front damage"),T.Boss->ReceiveToolDamage(40,Hero),40.f);
+    }
+    T.Boss->State=EMCNutBossState::Idle; T.Boss->ShieldHealth=10;
+    TestEqual(TEXT("Even a breaking guarded hit deals twenty percent to the boss"),T.Boss->ReceiveToolDamage(40,Hero),8.f);
+    TestEqual(TEXT("The shield is now broken"),T.Boss->ShieldHealth,0.f);
+    TestEqual(TEXT("The next front hit is no longer protected"),T.Boss->ReceiveToolDamage(40,Hero),40.f);
     const float Before=T.Boss->Health;
     TestEqual(TEXT("NaN damage is rejected"),T.Boss->ReceiveToolDamage(std::numeric_limits<float>::quiet_NaN(),Hero),0.f);
     Hero->Status->Damage(1000);
@@ -121,26 +134,28 @@ bool FMCNutBossShieldTest::RunTest(const FString&)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossChargeTest,"MessControl.CoreLoop.NutBoss.ChargeLocksTrajectoryBeforeExecution",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCNutBossChargeTest::RunTest(const FString&)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossRollTest,"MessControl.CoreLoop.NutBoss.RollDurationAndPredictableSteering",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossRollTest::RunTest(const FString&)
 {
     MCNutBossTestsPrivate::FFixture T; T.AddBoss();
     auto* Hero=T.AddHero(FVector(150,0,130));
-    if(!TestTrue(TEXT("The tank schedules a visible charge windup"),T.WaitFor(EMCNutBossAttack::Charge,EMCNutBossState::Telegraph))) return false;
-    const FVector Start=T.Boss->LockedStart,End=T.Boss->LockedTarget,Forward=T.Boss->AttackForward;
+    if(!TestTrue(TEXT("The knight schedules a visible rolling windup"),T.WaitFor(EMCNutBossAttack::Roll,EMCNutBossState::Telegraph,25))) return false;
+    const FVector End=T.Boss->LockedTarget,Forward=T.Boss->AttackForward;
     const float Before=Hero->Status->State.Health;
     Hero->SetActorLocation(FVector(150,650,130));
     T.Step(.5f);
     TestEqual(TEXT("The warning endpoint does not home after the target dodges"),T.Boss->LockedTarget,End);
     TestEqual(TEXT("The attack forward remains fixed through the warning"),T.Boss->AttackForward,Forward);
-    TestEqual(TEXT("A warning cannot apply charge damage early"),Hero->Status->State.Health,Before);
-    if(!TestTrue(TEXT("The charge enters execution"),T.WaitFor(EMCNutBossAttack::Charge,EMCNutBossState::Executing,3))) return false;
-    TestFalse(TEXT("Charge execution exposes the shield"),T.Boss->IsShieldProtectingFrom(T.Boss->GetActorLocation()+Forward*200));
-    T.Step(.4f);
-    TestTrue(TEXT("The moving boss follows the original straight lane"),FMath::Abs(T.Boss->GetActorLocation().Y-Start.Y)<3);
-    TestEqual(TEXT("A player who left the lane avoids its hit"),Hero->Status->State.Health,Before);
-    FVector Escape;
-    TestFalse(TEXT("An off-lane player is not reported inside the charge threat"),T.Boss->IsPlayerInThreat(Hero,Escape));
+    TestEqual(TEXT("A warning cannot apply rolling damage early"),Hero->Status->State.Health,Before);
+    if(!TestTrue(TEXT("The roll enters execution"),T.WaitFor(EMCNutBossAttack::Roll,EMCNutBossState::Executing,3))) return false;
+    const double Duration=T.Boss->AttackEndAt-T.Boss->StateStartedAt;
+    TestTrue(TEXT("The roll lasts twelve to twenty seconds"),Duration>=12 && Duration<=20);
+    TestFalse(TEXT("Rolling exposes the shield"),T.Boss->IsShieldProtectingFrom(T.Boss->GetActorLocation()+Forward*200));
+    const float BeforeTurn=T.Boss->AttackForward.Rotation().Yaw;
+    Hero->SetActorLocation(T.Boss->GetActorLocation()+FVector(0,500,16));
+    T.Step(1.f/60);
+    TestTrue(TEXT("Pursuit turns at the authored angular speed, without snapping"),
+        FMath::Abs(FMath::FindDeltaAngleDegrees(BeforeTurn,T.Boss->AttackForward.Rotation().Yaw))<=T.Boss->BossSettings.RollTurnDegreesPerSecond/60.f+.01f);
     return true;
 }
 
@@ -162,6 +177,32 @@ bool FMCNutBossJumpTest::RunTest(const FString&)
     TestEqual(TEXT("Leaving the advertised radius avoids the landing hit"),Outside->Status->State.Health,OutsideBefore);
     const float After=Inside->Status->State.Health; T.Step(.5f);
     TestEqual(TEXT("Recovery does not repeat the landing damage"),Inside->Status->State.Health,After);
+    TestEqual(TEXT("The landing opens exactly a one-second damage window"),T.Boss->AttackEndAt-T.Boss->StateStartedAt,1.);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossComboTest,"MessControl.CoreLoop.NutBoss.ComboGroundHitAndTwoSecondRecovery",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossComboTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T; T.AddBoss(); T.Step(1.4f);
+    T.Boss->NextJumpAt=T.Boss->NextRollAt=T.Boss->NextSpecialAt=10000;
+    T.Boss->NextMeleeAt=0;
+    auto* Hero=T.AddHero(T.Boss->GetActorLocation()+FVector(300,0,16));
+    if(!TestTrue(TEXT("Close range starts the combo warning"),T.WaitFor(EMCNutBossAttack::Melee,EMCNutBossState::Telegraph,1))) return false;
+    const FVector ExpectedSlam=T.Boss->LockedStart+T.Boss->AttackForward*T.Boss->BossSettings.MeleeRange*.55f;
+    Hero->SetActorLocation(FVector(1300,900,130)); // Exercise the advertised dodge before any contact.
+    const float Before=Hero->Status->State.Health;
+    T.Step(T.Boss->BossSettings.MeleeWindup+1.05f);
+    TestEqual(TEXT("The complete combo enters recovery"),T.Boss->State,EMCNutBossState::Recovery);
+    TestEqual(TEXT("The combo opens exactly two seconds of recovery"),T.Boss->AttackEndAt-T.Boss->StateStartedAt,2.);
+    TestEqual(TEXT("Leaving the locked combo footprint avoids all its hits"),Hero->Status->State.Health,Before);
+    bool GroundImpact=false;
+    for(TActorIterator<AMCNutCombatEffect> It(T.World);It;++It)
+        if(It->SourceActor==T.Boss && It->Cue.Type==EMCNutCombatCue::SlamImpact)
+            GroundImpact|=FVector::DistSquared(It->Cue.Target,ExpectedSlam)<1.f;
+    TestTrue(TEXT("The last blow's ground VFX shares the actual damage centre"),GroundImpact);
+    T.Step(1.8f);
+    TestEqual(TEXT("The knight remains inactive throughout the damage window"),T.Boss->State,EMCNutBossState::Recovery);
     return true;
 }
 
@@ -169,16 +210,24 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossSummonTest,"MessControl.CoreLoop.NutB
 bool FMCNutBossSummonTest::RunTest(const FString&)
 {
     MCNutBossTestsPrivate::FFixture T; T.AddBoss(EMCNutBossRole::Mage,1,1); T.Step(11.5f);
+    for(int32 Index=0;Index<3;++Index) {
+        auto* Nut=T.World->SpawnActor<AMCFoodActor>(FVector(-200+Index*180,350,100),FRotator::ZeroRotator);
+        FMCFoodRow Row; Row.WholeMeshes={T.Cube}; Row.FragmentMeshes={T.Cube}; Row.Resistance=EMCFoodResistance::Hard;
+        FRandomStream Random(Index+1); Nut->ConfigureItem(TEXT("Walnut"),Row,Random);
+        Nut->Tags.AddUnique(TEXT("MCNutRain")); Nut->SetOwner(T.Event); Nut->Phase=EMCFoodPhase::Free;
+        T.Event->Nuts.Add(Nut);
+    }
     T.AddHero(FVector(100,0,130));
     if(!TestTrue(TEXT("The mage advertises a summon before creating enemies"),T.WaitFor(EMCNutBossAttack::Summon,EMCNutBossState::Telegraph,2))) return false;
     T.Step(1.25f);
     AMCNutEnemy* Creep=nullptr; int32 Count=0;
     for(TActorIterator<AMCNutEnemy> It(T.World);It;++It) if(!Cast<AMCNutBoss>(*It) && It->IsEncounterAlive()) {Creep=*It;++Count;}
-    if(!TestEqual(TEXT("Summoning obeys the live enemy cap"),Count,1)) return false;
+    if(!TestEqual(TEXT("Every available ground nut becomes a summon, regardless of old live cap"),Count,3)) return false;
+    TestTrue(TEXT("The summoned nut has a running fuse from spawn"),Cast<AMCNutKamikaze>(Creep) && Cast<AMCNutKamikaze>(Creep)->GetFuseSecondsRemaining()>0);
     TestTrue(TEXT("Summoned creeps belong to the event for reset cleanup"),Creep->GetOwner()==T.Event);
     TestTrue(TEXT("One common knife hit leaves the weak creep alive"),Creep->ReceiveToolDamage(25,nullptr)>0 && Creep->IsEncounterAlive());
     TestTrue(TEXT("The second knife hit defeats the weak creep"),Creep->ReceiveToolDamage(25,nullptr)>0 && !Creep->IsEncounterAlive());
-    // A separate live child must remain an objective after the summoner dies.
+    // A separate live child survives one boss; killing both resolves the encounter.
     FMCNutEnemySettings Weak=T.Event->Settings.Enemy; Weak.MaxHealth=40;
     auto* Remaining=T.World->SpawnActor<AMCNutEnemy>();
     Remaining->SetActorLocation(FVector(500,500,45)); Remaining->SetOwner(T.Event);
@@ -186,11 +235,41 @@ bool FMCNutBossSummonTest::RunTest(const FString&)
     T.Boss->ReceiveToolDamage(100000,nullptr);
     TestTrue(TEXT("Boss defeat leaves existing creeps to finish"),Remaining->IsEncounterAlive());
     int32 Attacks=0;
-    for(TActorIterator<AMCNutCombatEffect> It(T.World);It;++It) if(It->SourceActor==T.Boss && !It->IsActorBeingDestroyed()) ++Attacks;
+    for(TActorIterator<AMCNutCombatEffect> It(T.World);It;++It)
+        if(It->SourceActor==T.Boss && !It->IsActorBeingDestroyed() && It->Cue.Type!=EMCNutCombatCue::DeathBurst) ++Attacks;
     for(TActorIterator<AMCNutSpellProjectile> It(T.World);It;++It) if(It->SourceActor==T.Boss && !It->IsActorBeingDestroyed()) ++Attacks;
-    TestEqual(TEXT("Defeat cancels owned attack actors immediately"),Attacks,0);
+    TestEqual(TEXT("Defeat cancels owned attacks while retaining its cosmetic death burst"),Attacks,0);
     T.Event->Stop();
     TestTrue(TEXT("An explicit event reset destroys the surviving creep"),Remaining->IsActorBeingDestroyed());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCNutBossBoundaryRainTest,"MessControl.CoreLoop.NutBoss.EdgeTargetStillCastsRealRain",EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCNutBossBoundaryRainTest::RunTest(const FString&)
+{
+    MCNutBossTestsPrivate::FFixture T;
+    auto* Profile=NewObject<UMCNutRainProfile>(T.World);
+    Profile->Settings.Boss.WholeMesh=T.Cube;
+    Profile->Settings.Boss.ShellMesh=T.Cube;
+    Profile->Settings.Boss.KernelMesh=T.Cube;
+    T.Event->Start(nullptr,Profile);
+    T.Event->SetActorTickEnabled(false);
+    T.AddBoss(EMCNutBossRole::Mage); T.Step(1.4f);
+    T.Event->Stage=EMCNutRainStage::Enemies;
+    T.Event->Settings.bBossEncounter=true;
+    T.Boss->NextMeleeAt=T.Boss->NextFireballAt=T.Boss->NextSummonAt=T.Boss->NextTeleportAt=10000;
+    T.Boss->NextSpecialAt=T.Boss->NextRainAt=0;
+    T.AddHero(FVector(1540,1120,130));
+    if(!TestTrue(TEXT("A target at the tongue edge still receives an actual rain windup"),
+        T.WaitFor(EMCNutBossAttack::NutRain,EMCNutBossState::Telegraph,3))) return false;
+    const int32 Before=T.Event->NutsSpawned;
+    T.Step(T.Boss->BossSettings.RainWindup+1.2f);
+    TestTrue(TEXT("The edge-target cast releases real persistent nuts"),T.Event->NutsSpawned>Before);
+    for(const AMCFoodActor* Nut:T.Event->Nuts) if(IsValid(Nut) && !Nut->IsDisposed()) {
+        FHitResult Floor;
+        TestTrue(TEXT("Every relocated drop has a reachable gameplay footprint"),
+            T.Tongue->GameplaySpawnFootprint(Nut->WorkPosition(),T.Event->Settings.ImpactRadius,Floor));
+    }
     return true;
 }
 #endif

@@ -15,7 +15,7 @@ class AMCNutBoss;
 UENUM(BlueprintType)
 enum class EMCNutRainStage : uint8 { Idle, Rainfall, Settling, Enemies, Complete };
 
-/** Rain is timed; the hostile aftermath ends only when every awakened nut is defeated. */
+/** Dense timed rain leads straight into two bosses; ground debris never gates the fight. */
 UCLASS(Blueprintable)
 class MESSCONTROL_API AMCNutRainEvent : public AActor
 {
@@ -31,6 +31,10 @@ public:
     void Stop();
     void TrackEncounterActor(AActor* Actor);
     void RegisterEncounterEnemy(AMCNutEnemy* Enemy);
+    /** Wizard rain uses the same real food, warning and cleanup ownership as the opening storm. */
+    bool SpawnSpellNut(FVector Candidate,int32 Seed);
+    /** Available whole ground nuts only. The caller disposes one after its summon was successfully created. */
+    void GetAvailableRainNuts(TArray<AMCFoodActor*>& Out) const;
     UPROPERTY(Replicated, BlueprintReadOnly) EMCNutRainStage Stage=EMCNutRainStage::Idle;
     UPROPERTY(Replicated, BlueprintReadOnly) double StageStartedAt=0;
     UPROPERTY(Replicated, BlueprintReadOnly) int32 NutsSpawned=0;
@@ -53,12 +57,13 @@ public:
     UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly) TArray<FVector> LaunchLocations;
 private:
     void Enter(EMCNutRainStage Next);
-    void SpawnNut();
+    bool SpawnNut(TOptional<FVector> Candidate=TOptional<FVector>());
     void AwakenLastNuts();
     void BeginSeries();
     void SpawnBossEncounter();
     void Record(const FString& Decision);
-    bool ChooseLanding(float Margin,FHitResult& Floor);
+    bool ChooseLanding(float Margin,float NutBodyRadius,FHitResult& Floor);
+    bool AreRainDropsResolved() const;
     UPROPERTY() TObjectPtr<UMCNutRainProfile> ActiveProfile;
     UPROPERTY() TObjectPtr<AMCTongue> Tongue;
     UPROPERTY() FMCFoodRow NutRow;
@@ -68,5 +73,6 @@ private:
     int32 ClusterDropsLeft=0;
     int32 DropsAttempted=0,FoodBatch=0;
     int32 PartyPlayers=1;
+    double RainStartedAt=0;
     UPROPERTY() TArray<TObjectPtr<AActor>> EncounterActors;
 };

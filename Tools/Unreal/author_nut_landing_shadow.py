@@ -22,7 +22,7 @@ float scan=(1-smoothstep(.025,.055,abs(r-fillRadius)))*.28*progress;
 float inside=1-smoothstep(.97,1,r);
 float visible=saturate(Strength*8);
 float density=(boundary*.78+fill+scan)*inside;
-float3 tint=lerp(float3(1.8,.52,.025),float3(2.2,.12,.015),progress);
+float3 tint=lerp(float3(.10,.0002,.0001),float3(.18,.0004,.0002),progress);
 return float4(tint*density, saturate(density*visible));
 """
 
@@ -89,7 +89,7 @@ def build_ring(material, editor):
     for key, value in dict(r=False, g=False, b=False, a=True).items():
         alpha.set_editor_property(key, value)
     black = editor.create_material_expression(material, u.MaterialExpressionConstant3Vector, -150, 320)
-    black.set_editor_property("constant", u.LinearColor(.025, .008, .004, 1))
+    black.set_editor_property("constant", u.LinearColor(.55, .005, .002, 1))
     for target in (color, alpha):
         # The mask's displayed first pin is unnamed; an empty name selects input 0.
         if not editor.connect_material_expressions(ring, "", target, ""):
@@ -98,6 +98,14 @@ def build_ring(material, editor):
                          (alpha, u.MaterialProperty.MP_OPACITY), (black, u.MaterialProperty.MP_BASE_COLOR)):
         if not editor.connect_material_property(node, "", target):
             raise RuntimeError("Could not connect landing ring output " + str(target))
+    # Keep the warning red under the arena lights instead of adding a white
+    # specular highlight on the curved tongue.
+    for value, target, y in ((0., u.MaterialProperty.MP_SPECULAR, 450),
+                             (1., u.MaterialProperty.MP_ROUGHNESS, 560)):
+        scalar = editor.create_material_expression(material, u.MaterialExpressionConstant, -150, y)
+        scalar.set_editor_property("r", value)
+        if not editor.connect_material_property(scalar, "", target):
+            raise RuntimeError("Could not connect landing ring surface response " + str(target))
     u.EditorAssetLibrary.set_metadata_tag(material, "MCNutLandingMaterialVersion", "2")
 
 

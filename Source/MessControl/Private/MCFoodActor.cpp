@@ -10,6 +10,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCGripComponent.h"
 #include "MCFoodCollectionComponent.h"
+#include "MCNutRainEvent.h"
 #include "MCDeliveryZoneVisualComponent.h"
 #include "MCReactionVFX.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -329,6 +330,8 @@ void AMCFoodActor::AwardDelivery()
     bDeliveryScored=true;
     if (auto* Tutorial=AMCTutorialDirector::Find(GetWorld()))
         if (LastHandledBy) Tutorial->NotifyAction(Cast<AMCToothCharacter>(LastHandledBy->GetPawn()),EMCTutorialAction::FoodDelivered,this);
+    // Encounter debris can be cleared, but neither the nut nor its pieces grant XP.
+    if(ActorHasTag(TEXT("MCNutRain"))) return;
     if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) {
         Mode->AwardTaskToPlayerState(LastHandledBy,EMCScoreTask::Food);
         if(auto* Perks=UMCPerkComponent::ForActor(LastHandledBy);Perks && FoodData.Kind!=EMCFoodKind::ForeignObject) {
@@ -362,15 +365,19 @@ void AMCFoodActor::OnHit(UPrimitiveComponent*,AActor* Other,UPrimitiveComponent*
         && Hit.ImpactNormal.Z>.55f && PrePhysicsVelocity.Z<-140)
         ReactToImpact(FMath::Clamp(-PrePhysicsVelocity.Z/650.f,.15f,1.f));
     if (!HasAuthority() || IsDisposed() || Phase==EMCFoodPhase::Carried || !IsValid(Other)) return;
-    // Only an incoming event walnut can crack another whole event walnut.
-    // Resting contacts, carried pieces and fragments cannot chain this hazard.
+    // Legacy incoming walnuts can crack one another. In the two-boss encounter,
+    // ground nuts must remain available until workers break them or the wizard summons them.
     if(bMouthEntry && !bFragment && Holders.IsEmpty() && ActorHasTag(TEXT("MCNutRain")) && PrePhysicsVelocity.Z<-140)
         if(auto* Nut=Cast<AMCFoodActor>(Other); Nut && !Nut->IsDisposed() && !Nut->bFragment
             && !Nut->StackCarrier && Nut->Holders.IsEmpty() && Nut->ActorHasTag(TEXT("MCNutRain")))
         {
+            const auto* IncomingEvent=Cast<AMCNutRainEvent>(GetOwner());
+            const auto* StruckEvent=Cast<AMCNutRainEvent>(Nut->GetOwner());
+            const bool BossEncounterNut=(IsValid(IncomingEvent) && IncomingEvent->Settings.bBossEncounter)
+                || (IsValid(StruckEvent) && StruckEvent->Settings.bBossEncounter);
             const FVector Approach=-Hit.ImpactNormal.GetSafeNormal();
             const float ClosingSpeed=FVector::DotProduct(PrePhysicsVelocity-Nut->GetVelocity(),Approach);
-            if(Hit.bBlockingHit && FMath::IsFinite(ClosingSpeed) && ClosingSpeed>=Settings.ImpactSpeed) {
+            if(!BossEncounterNut && Hit.bBlockingHit && FMath::IsFinite(ClosingSpeed) && ClosingSpeed>=Settings.ImpactSpeed) {
                 const FVector Direction=(Nut->GetActorLocation()-GetActorLocation()).GetSafeNormal();
                 Nut->HitFood(FMath::Max(1.f,Nut->Health),Direction);
                 HitFood(FMath::Max(1.f,Health),-Direction);
@@ -548,6 +555,7 @@ void AMCFoodActor::Tick(float Dt)
     if(GetNetMode()==NM_DedicatedServer) return;
     FString Caption=Phase==EMCFoodPhase::Stuck?FString::Printf(TEXT("LMB + MOVE TO CENTRE\nPULL %.0f%% | %d GRIPS"),PullProgress*100,Holders.Num()):Phase==EMCFoodPhase::Carried?TEXT("RELEASE LMB: DROP | Q: THROW"):TEXT("HOLD LMB: PICK UP / DRAG");
     if (!UsesLegacyGrip()) Caption=StackCarrier?TEXT("LMB: DROP STACK | Q: THROW"):
+        (ActorHasTag(TEXT("MCNutRain")) || Cast<AMCNutRainEvent>(GetOwner()))?(IsHardFood()?TEXT("PICKAXE: BREAK"):TEXT("KNIFE: BREAK")):
         IsHardFood()?TEXT("PICKAXE: BREAK FOR XP"):TEXT("KNIFE: BREAK FOR XP");
     if (!ItemName.IsNone()) Caption=FString::Printf(TEXT("%s | HP %.0f | %.1f kg\n%s | %s"),*FoodData.Label.ToString(),Health,Settings.Mass,*Caption,bSpoiled?TEXT("SPOILED"):FoodData.Kind==EMCFoodKind::Spicy?*FString::Printf(TEXT("%.1fs %s"),FuseRemaining(),bFusePaused?TEXT("PAUSED"):TEXT("THROW INTO THROAT")):FoodData.Kind==EMCFoodKind::ForeignObject?TEXT("FOREIGN OBJECT"):*FString::Printf(TEXT("SPOIL %.0fs"),FMath::Max(0.,SpoilAt-(GetWorld()->GetGameState()?GetWorld()->GetGameState()->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds()))));
     if (bBrushTool) Caption=TEXT("LMB: PICK UP BRUSH\nQ: THROW OVERBOARD");
@@ -967,7 +975,7 @@ bool AMCFoodActor::HitFood(float Damage,FVector Direction,AMCToothCharacter* Wor
     if(FoodData.Kind==EMCFoodKind::Food && !bDeliveryScored && !Fragmented) {
         bDeliveryScored=true;
         if(Worker) {
-            if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>())
+            if(auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>(); Mode && !ActorHasTag(TEXT("MCNutRain")))
                 Mode->AwardTaskToPlayerState(Worker->GetPlayerState<AMCPlayerState>(),EMCScoreTask::Food);
             Worker->NotifyTaskFeedback(true,GetActorLocation());
         }

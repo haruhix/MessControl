@@ -30,16 +30,23 @@ void FMCNutRainSettings::Sanitize()
     NutCount=FMath::Clamp(NutCount,1,120); NutsPerExtraPlayer=FMath::Clamp(NutsPerExtraPlayer,0,30);
     EnemyCount=FMath::Clamp(EnemyCount,0,16); EnemiesPerExtraPlayer=FMath::Clamp(EnemiesPerExtraPlayer,0,4);
     MinimumSeries=FMath::Clamp(MinimumSeries,4,8); MaximumSeries=FMath::Clamp(MaximumSeries,MinimumSeries,8);
-    MinimumNutsPerSeries=FMath::Clamp(MinimumNutsPerSeries,2,4); MaximumNutsPerSeries=FMath::Clamp(MaximumNutsPerSeries,MinimumNutsPerSeries,4);
-    MinimumDropSeconds=SafeNutValue(MinimumDropSeconds,1.5f,1.5f,2.5f);
-    MaximumDropSeconds=SafeNutValue(MaximumDropSeconds,2.5f,MinimumDropSeconds,2.5f);
-    SeriesRestSeconds=SafeNutValue(SeriesRestSeconds,4,4,8);
+    // Migrate the old saved profile in memory. Legacy non-boss fixtures keep
+    // their own count and duration; no editor package rewrite is required.
+    if(bBossEncounter) {
+        if(MinimumNutsPerSeries<=2) MinimumNutsPerSeries=6;
+        if(MaximumNutsPerSeries<=4) MaximumNutsPerSeries=10;
+        SeriesRestSeconds=0;
+    }
+    MinimumNutsPerSeries=FMath::Clamp(MinimumNutsPerSeries,4,12); MaximumNutsPerSeries=FMath::Clamp(MaximumNutsPerSeries,MinimumNutsPerSeries,12);
+    MinimumDropSeconds=SafeNutValue(MinimumDropSeconds,1.5f,1.5f,3.f);
+    MaximumDropSeconds=SafeNutValue(MaximumDropSeconds,3.f,MinimumDropSeconds,3.f);
+    SeriesRestSeconds=SafeNutValue(SeriesRestSeconds,0,0,8.f);
     LargeNutHeight=SafeNutValue(LargeNutHeight,180,150,220); Boss.Sanitize();
     ImpactDamageLimit=SafeNutValue(ImpactDamageLimit,18,0,40);
     if(FMath::IsNearlyEqual(ImpactRadius,180.f)) ImpactRadius=300.f;
     ImpactRadius=SafeNutValue(ImpactRadius,300,80,480);
     ImpactPushSpeed=SafeNutValue(ImpactPushSpeed,260,0,500);
-    RainSeconds=SafeNutValue(RainSeconds,40,bBossEncounter?40:3,60); Entry.Sanitize(); Enemy.Sanitize();
+    RainSeconds=SafeNutValue(RainSeconds,22.5f,bBossEncounter?20:3,bBossEncounter?25:60); Entry.Sanitize(); Enemy.Sanitize();
     ClusterRadius=SafeNutValue(ClusterRadius,260,60,650);
     LandingShadowOpacity=SafeNutValue(LandingShadowOpacity,.20f,.03f,.35f);
     SettleSeconds=SafeNutValue(SettleSeconds,2,.5f,6);
@@ -49,7 +56,10 @@ void FMCNutRainSettings::Sanitize()
 int32 FMCNutRainSettings::RainCountForPlayers(int32 Players) const
 {
     FMCNutRainSettings Copy=*this; Copy.Sanitize();
-    if(Copy.bBossEncounter) return Copy.MaximumSeries*Copy.MaximumNutsPerSeries;
+    if(Copy.bBossEncounter) {
+        const float Window=FMath::Max(0.f,Copy.RainSeconds-Copy.Entry.FlightSeconds);
+        return FMath::Max(2,FMath::RoundToInt(Window/((Copy.MinimumDropSeconds+Copy.MaximumDropSeconds)*.5f))+1);
+    }
     return FMath::Clamp(Copy.NutCount+Copy.NutsPerExtraPlayer*(FMath::Clamp(Players,1,8)-1),1,120);
 }
 
