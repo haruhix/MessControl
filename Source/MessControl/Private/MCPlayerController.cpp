@@ -11,6 +11,7 @@
 #include "MCGameDirector.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "GameFramework/WorldSettings.h"
 #include "Engine/GameInstance.h"
 #include "MCSteamSessionSubsystem.h"
 #include "MCScoreboardWidget.h"
@@ -71,9 +72,17 @@ void AMCPlayerController::HideScoreboard()
 void AMCPlayerController::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if (HasAuthority() && bPerkChoicePauseRequested && !HasAuthoritativePerkChoice())
+        ServerSetPerkChoicePause_Implementation(false);
     if (!IsLocalController()) return;
     if (GetWorld()->GetTimeSeconds()>=NextFrontEndCheck) { NextFrontEndCheck=GetWorld()->GetTimeSeconds()+.1; RefreshFrontEnd(); }
-    if (GetWorld()->GetTimeSeconds()>=NextLevelChoiceCheck) { NextLevelChoiceCheck=GetWorld()->GetTimeSeconds()+.1; RefreshLevelPerkChoices(); }
+    // Choice maintenance must keep running while gameplay time and timers are paused.
+    if (GetWorld()->GetRealTimeSeconds()>=NextLevelChoiceCheck) {
+        NextLevelChoiceCheck=GetWorld()->GetRealTimeSeconds()+.1;
+        if (ActiveRewardChest.IsValid() || RewardPawn.IsValid()) CheckRewardUI();
+        RefreshLevelPerkChoices();
+        UpdatePerkChoicePause();
+    }
     if (bBossIntroPlaying) return;
     // UI input mode can swallow the release event when a menu opens while Tab is held.
     if (ScoreboardWidget && ScoreboardWidget->IsVisible() && !IsInputKeyDown(EKeys::Tab)) HideScoreboard();
@@ -292,6 +301,7 @@ void AMCPlayerController::ToggleTuning() { if (IsRewardInteractionActive() || bB
 void AMCPlayerController::ToggleConnection() { if (IsRewardInteractionActive() || bBossIntroPlaying) return; if (EmoteWidget) EmoteWidget->SetVisibility(ESlateVisibility::Collapsed); if (DevPanel) DevPanel->SetVisibility(ESlateVisibility::Collapsed); if (PrototypeWidget) { PrototypeWidget->ToggleConnection(); UpdateInputMode(); } }
 void AMCPlayerController::UpdateInputMode()
 {
+    UpdatePerkChoicePause();
     if (bLobbyUIOpen || bPauseMenuOpen || bTutorialMenuInput)
     {
         bShowMouseCursor=true;
@@ -337,6 +347,45 @@ void AMCPlayerController::UpdateInputMode()
 bool AMCPlayerController::IsRewardMenuOpen() const
 {
     return PerkChoiceWidget && PerkChoiceWidget->IsInViewport() && PerkChoiceWidget->IsVisible();
+}
+
+void AMCPlayerController::UpdatePerkChoicePause()
+{
+    if (!IsLocalController()) return;
+    const bool bOpen=IsRewardMenuOpen() && PerkChoiceWidget->IsShowingChoices();
+    if (bOpen==bPerkChoicePauseSent) return;
+    bPerkChoicePauseSent=bOpen;
+    ServerSetPerkChoicePause(bOpen);
+}
+
+bool AMCPlayerController::HasAuthoritativePerkChoice() const
+{
+    const auto* Hero=Cast<AMCToothCharacter>(GetPawn());
+    const auto* State=GetPlayerState<AMCPlayerState>();
+    if (!Hero || !Hero->Status || !Hero->Status->IsAlive() || !State) return false;
+    if (State->LevelUpOffer.IsValid()) return true;
+    const auto* Chest=Hero->RewardInteraction.Get();
+    return IsValid(Chest) && Chest->Stage==EMCRewardChestStage::Open && Chest->OpeningPlayer==Hero;
+}
+
+bool AMCPlayerController::CanUnpausePerkChoice()
+{
+    return !bPerkChoicePauseRequested || !HasAuthoritativePerkChoice();
+}
+
+void AMCPlayerController::ServerSetPerkChoicePause_Implementation(bool bOpen)
+{
+    if (bOpen==bPerkChoicePauseRequested || (bOpen && !HasAuthoritativePerkChoice())) return;
+    auto* Mode=GetWorld()->GetAuthGameMode();
+    if (!Mode) return;
+    bPerkChoicePauseRequested=bOpen;
+    // Register one delegate per chooser, even when another player already paused.
+    // Unreal replicates the world pause and removes a departing controller's delegate.
+    if (bOpen) {
+        if (!Mode->SetPause(this,FCanUnpause::CreateUObject(this,&AMCPlayerController::CanUnpausePerkChoice)))
+            bPerkChoicePauseRequested=false;
+    } else Mode->ClearPause();
+    GetWorldSettings()->ForceNetUpdate();
 }
 
 bool AMCPlayerController::IsRewardInteractionActive() const
@@ -472,7 +521,11 @@ void AMCPlayerController::RefreshLevelPerkChoices()
     // Opening its menu would otherwise cancel the tool and halt the player.
     if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());Hero && Hero->Inventory->bChainsawRunning) return;
     if(const auto* PS=GetPlayerState<AMCPlayerState>();PS && PS->Perks && PS->Perks->IsFuryActive()) return;
-    if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());!Hero || !Hero->Status->IsAlive() || Hero->HasFrozenLegs()
+    if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());!Hero || !Hero->Status->IsAlive()) {
+        if (ActiveLevelOfferId.IsValid()) CloseRewardUI();
+        return;
+    }
+    if(const auto* Hero=Cast<AMCToothCharacter>(GetPawn());Hero->HasFrozenLegs()
         || Hero->IsMimicCaptured() || !Hero->ToothPhysics->CanAct()) return;
     if(!ActiveLevelOfferId.IsValid()) if(const auto* Director=AMCGameDirector::Find(GetWorld());Director && Director->IsManagingEvents()
         && !Director->CanStartRewardInteraction()) return;
@@ -544,6 +597,8 @@ void AMCPlayerController::CloseRewardUI(bool bRestoreInput)
     RewardPawn.Reset();
     bRewardChoicePending=false;
     if (PerkChoiceWidget) PerkChoiceWidget->RemoveFromParent();
+    UpdatePerkChoicePause();
+    if (HasAuthority()) ServerSetPerkChoicePause_Implementation(false);
     if (bRestoreInput && IsLocalController()) UpdateInputMode();
 }
 

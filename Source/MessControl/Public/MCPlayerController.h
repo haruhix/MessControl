@@ -82,6 +82,8 @@ public:
     UFUNCTION(Server, Reliable) void ServerChooseLevelPerk(FGuid OfferId,int32 ChoiceIndex);
     UFUNCTION(Client, Reliable) void ClientLevelPerkChoiceResolved(FGuid OfferId,bool bAccepted);
     UFUNCTION(BlueprintPure, Category="Rewards") bool IsRewardMenuOpen() const;
+    /** An open choice panel pauses the shared world until every chooser is done. */
+    UFUNCTION(Server, Reliable) void ServerSetPerkChoicePause(bool bOpen);
     bool IsRewardInteractionActive() const;
     UFUNCTION(Client, Reliable) void ClientPlayBossIntro(AMCBossCharacter* Boss);
     UFUNCTION(BlueprintPure, Category="Boss") bool IsBossIntroPlaying() const;
@@ -123,6 +125,11 @@ private:
     bool PrepareRewardInteraction(AMCRewardChest* Chest);
     void CloseRewardUI(bool bRestoreInput=true);
     void CheckRewardUI();
+    void UpdatePerkChoicePause();
+    bool HasAuthoritativePerkChoice() const;
+    bool CanUnpausePerkChoice();
+    bool bPerkChoicePauseSent=false;
+    bool bPerkChoicePauseRequested=false;
     TWeakObjectPtr<AMCRewardChest> ActiveRewardChest;
     TWeakObjectPtr<APawn> RewardPawn;
     FTimerHandle RewardUITimer;

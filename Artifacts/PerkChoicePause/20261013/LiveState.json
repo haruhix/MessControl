@@ -1,0 +1,14 @@
+{
+  "action": "inspect",
+  "paused": false,
+  "pauseable": true,
+  "menu": false,
+  "time": 64.38845440745354,
+  "pending": 0,
+  "offer": "<Struct 'Guid' (0x0000018AD5132F68) {}>",
+  "ids": [],
+  "reroll": false,
+  "taken": 2,
+  "health": 100.0,
+  "chest_step": null
+}
