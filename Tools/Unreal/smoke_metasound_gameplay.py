@@ -2,8 +2,9 @@
 
 Run through remote_python.py with no existing PIE session. All fixtures and
 changes live in a temporary PIE world; no content packages are modified.
-The helper never calls ExperimentalAudio.Play directly. The
-MC_AUDIO_EXPERIMENT log demonstrates genuine gameplay event routing.
+The helper never calls ExperimentalAudio.Play directly. Gameplay now selects
+sources from DA_MouthSounds; MC_AUDIO_PALETTE logs demonstrate this routing.
+Historical AudioExperiments/GameplaySmoke.json predates that change.
 """
 import builtins
 import json
@@ -24,11 +25,11 @@ class GameplayAudioSmoke:
         self.levels = u.get_editor_subsystem(u.LevelEditorSubsystem)
         if self.levels.is_in_play_in_editor():
             raise RuntimeError("An existing PIE session is active; this smoke requires its own temporary session")
-        self.path = root / "Artifacts" / "AudioExperiments" / "GameplaySmoke.json"
+        self.path = root / "Saved" / "AudioDARouting" / "GameplaySmoke.json"
         self.path.parent.mkdir(parents=True, exist_ok=True)
         command_line = u.SystemLibrary.get_command_line()
         log_argument = re.search(r'(?:^|\s)-(?:abslog|log)=(?:"([^"]+)"|(\S+))', command_line, re.IGNORECASE)
-        self.log_path = Path(log_argument.group(1) or log_argument.group(2)) if log_argument else root / "Saved" / "MetaSoundPlayEditorFinal.log"
+        self.log_path = Path(log_argument.group(1) or log_argument.group(2)) if log_argument else root / "Saved" / "Logs" / "MessControl.log"
         if not self.log_path.is_absolute():
             self.log_path = Path(u.Paths.project_log_dir()) / self.log_path
         self.log_offset = self.log_path.stat().st_size if self.log_path.exists() else 0
@@ -38,14 +39,23 @@ class GameplayAudioSmoke:
         self.phase = "waiting_pie"
         self.requested_at = time.monotonic()
         self.phase_at = self.requested_at
-        self.report = {"status": "running", "scope": "owned PIE gameplay fixtures", "checks": {}}
+        self.report = {"status": "running", "scope": "owned solo PIE gameplay fixtures; DA source routing", "audio_output_recorded": False, "checks": {}}
         self.previous_enabled = u.SystemLibrary.get_console_variable_int_value("mc.Audio.Experiments")
         self.previous_log = u.SystemLibrary.get_console_variable_int_value("mc.Audio.ExperimentLog")
         self.previous_idle = u.SystemLibrary.get_console_variable_int_value("t.IdleWhenNotForeground")
+        self.previous_app_volume = u.SystemLibrary.get_console_variable_int_value("au.DisableAppVolume")
+        self.play_settings = u.load_object(None, "/Script/UnrealEd.Default__LevelEditorPlaySettings")
+        self.solo_settings = dict(playNetMode="PIE_Standalone", playNumberOfClients=1,
+                                  runUnderOneProcess=True, bLaunchSeparateServer=False, enableGameSound=True)
+        self.original_play_settings = u.ToolsetLibrary.get_object_properties(self.play_settings, list(self.solo_settings))
+        self.performance_settings = u.get_default_object(u.load_class(None, "/Script/UnrealEd.EditorPerformanceSettings"))
+        self.previous_throttle = self.performance_settings.get_editor_property("bThrottleCPUWhenNotForeground")
         self.next_swing = 0.0
         self.statics = u.get_default_object(u.GameplayStatics)
         self.movement_speed = 0.0
         self.brush_progress = 0.0
+        self.recording = False
+        self.capture_path = self.path.parent / ("GameplayAudio_" + str(time.time_ns()) + ".wav")
         self.write_report()
 
     def write_report(self):
@@ -56,9 +66,13 @@ class GameplayAudioSmoke:
         u.SystemLibrary.execute_console_command(world, command)
 
     def start(self):
+        if not u.ToolsetLibrary.set_object_properties(self.play_settings, json.dumps(self.solo_settings)):
+            raise RuntimeError("Could not configure solo PIE with game sound")
+        self.performance_settings.set_editor_property("bThrottleCPUWhenNotForeground", False)
         self.console("mc.Audio.Experiments 1")
         self.console("mc.Audio.ExperimentLog 1")
         self.console("t.IdleWhenNotForeground 0")
+        self.console("au.DisableAppVolume 1")
         self.callback = u.register_slate_post_tick_callback(self.tick)
         self.levels.editor_request_begin_play()
         u.log("MC_AUDIO_GAMEPLAY_SMOKE_STARTED")
@@ -70,11 +84,18 @@ class GameplayAudioSmoke:
         if self.hero:
             self.hero.call_method("ServerSetPrimary", args=(False,))
             self.hero.set_sprint_input_held(False)
+        if self.recording and self.world:
+            u.AudioMixerLibrary.stop_recording_output(self.world, u.AudioRecordingExportType.WAV_FILE,
+                                                     self.capture_path.stem, str(self.capture_path.parent), None)
+            self.recording = False
         self.console("mc.Audio.Experiments " + str(self.previous_enabled))
         self.console("mc.Audio.ExperimentLog " + str(self.previous_log))
         self.console("t.IdleWhenNotForeground " + str(self.previous_idle))
+        self.console("au.DisableAppVolume " + str(self.previous_app_volume))
         if self.levels.is_in_play_in_editor():
             self.levels.editor_request_end_play()
+        u.ToolsetLibrary.set_object_properties(self.play_settings, self.original_play_settings)
+        self.performance_settings.set_editor_property("bThrottleCPUWhenNotForeground", self.previous_throttle)
 
     def spawn(self, cls, location):
         transform = u.Transform(location=location)
@@ -91,6 +112,13 @@ class GameplayAudioSmoke:
         self.hero = u.GameplayStatics.get_player_pawn(self.world, 0)
         if not isinstance(self.hero, u.MCToothCharacter):
             raise RuntimeError("PIE did not spawn MCToothCharacter")
+        self.palette = self.hero.get_editor_property("sound_palette")
+        if not self.palette or self.palette.get_path_name() != "/Game/Data/DA_MouthSounds.DA_MouthSounds":
+            raise RuntimeError("Player does not use DA_MouthSounds")
+        self.report["palette"] = self.palette.get_path_name()
+        u.AudioMixerLibrary.start_recording_output(self.world, 60.0, None)
+        self.recording = True
+        self.report["audio_capture_requested"] = str(self.capture_path)
         self.gs = u.GameplayStatics.get_game_state(self.world)
         self.gs.set_editor_property("dev_manual_events", True)
         self.gs.set_editor_property("physical_brushes", False)
@@ -119,6 +147,12 @@ class GameplayAudioSmoke:
         self.phase = name
         self.phase_at = time.monotonic()
         self.next_swing = 0.0
+        # Both legacy CVar values must continue to use the DA. This covers the
+        # switch without a second playthrough or changing any authored package.
+        if name in ("walk", "knife"):
+            self.console("mc.Audio.Experiments 0")
+        elif name in ("pickaxe", "brush"):
+            self.console("mc.Audio.Experiments 1")
         u.log("MC_AUDIO_GAMEPLAY_STAGE " + name)
 
     def setup_food(self, hard):
@@ -209,7 +243,26 @@ class GameplayAudioSmoke:
     def finish(self):
         expected = {"Step", "KnifeSwing", "KnifeHit", "PickaxeSwing", "PickaxeHit", "Brush"}
         log = self.log_path.read_bytes()[self.log_offset:].decode("utf-8", errors="replace") if self.log_path.exists() else ""
-        events = re.findall(r"MC_AUDIO_EXPERIMENT event=(\w+)", log)
+        rows = re.findall(r"MC_AUDIO_PALETTE event=(\w+) key=(\w+) palette=(\S+) path=(\S+) class=(\S+) volume=(\S+) pitch=(\S+) intensity=(\S+) speed=(\S+)", log)
+        events = [row[0] for row in rows]
+        self.report["selected_sources"] = [dict(zip(("event", "key", "palette", "path", "class", "volume", "pitch", "intensity", "speed"), row)) for row in rows]
+        entries = self.palette.get_editor_property("events")
+        aliases = {"KnifeSwing": "Whoosh", "PickaxeSwing": "Whoosh", "KnifeHit": "Hit", "PickaxeHit": "Hit"}
+        routing_errors = []
+        for row in rows:
+            event, key, palette, path, sound_class, volume, pitch, intensity, speed = row
+            if event not in expected:
+                continue
+            expected_key = event if u.Name(event) in entries else aliases.get(event, event)
+            entry = entries.get(u.Name(expected_key))
+            allowed = [sound.get_path_name() for sound in entry.get_editor_property("sounds") if sound] if entry else []
+            if key != expected_key or path not in allowed or palette != self.palette.get_path_name():
+                routing_errors.append(row)
+            elif abs(float(volume) - entry.get_editor_property("volume")) > .002:
+                routing_errors.append(row)
+            elif not (entry.get_editor_property("pitch_min") - .002 <= float(pitch) <= max(entry.get_editor_property("pitch_min"), entry.get_editor_property("pitch_max")) + .002):
+                routing_errors.append(row)
+        self.report["routing_errors"] = routing_errors
         self.report["gameplay_event_counts"] = {event: events.count(event) for event in sorted(expected)}
         self.report["log_path"] = str(self.log_path)
         seen = set(events)
@@ -222,7 +275,7 @@ class GameplayAudioSmoke:
             "approach_candidates_tried": self.brush_candidate_index + 1,
         }
         checks = self.report["checks"]
-        passed = not self.report["missing_gameplay_events"] and checks["walking"]["peak_speed"] > 100 and checks["walking"]["travel_cm"] > 100 and checks["knife"]["damage"] > 0 and checks["pickaxe"]["damage"] > 0 and self.brush_progress > 0
+        passed = not routing_errors and not self.report["missing_gameplay_events"] and checks["walking"]["peak_speed"] > 100 and checks["walking"]["travel_cm"] > 100 and checks["knife"]["damage"] > 0 and checks["pickaxe"]["damage"] > 0 and self.brush_progress > 0
         self.report["status"] = "passed" if passed else "failed"
         self.write_report()
         self.cleanup()
@@ -232,6 +285,8 @@ class GameplayAudioSmoke:
         try:
             now = time.monotonic()
             elapsed = now - self.phase_at
+            if now - self.requested_at > 60.0:
+                raise RuntimeError("Focused palette audio smoke exceeded 60 seconds")
             if self.hero:
                 # Day-one setup can reapply physical-brush/shift defaults after
                 # BeginPlay. Keep this temporary fixture in its chosen mode.
@@ -242,11 +297,20 @@ class GameplayAudioSmoke:
                 worlds = u.EditorLevelLibrary.get_pie_worlds(False)
                 if worlds:
                     self.world = worlds[0]
+                    self.pc = u.GameplayStatics.get_player_controller(self.world, 0)
                     self.stage("startup")
                 elif now - self.requested_at > 45:
                     raise RuntimeError("No PIE world after 45 seconds")
             elif self.phase == "startup" and elapsed > 3.0:
-                self.setup()
+                if self.pc.is_reward_menu_open():
+                    self.pc.choose_reward_perk(0)
+                    self.report["first_perk_selected_through_real_menu"] = True
+                    self.stage("perk_resolution")
+                else:
+                    self.setup()
+            elif self.phase == "perk_resolution" and elapsed > .5:
+                if not self.pc.is_reward_menu_open():
+                    self.setup()
             elif self.phase == "walk":
                 self.hero.set_sprint_input_held(elapsed > 2.5)
                 self.hero.add_movement_input(u.Vector(1, 0, 0), 1.0, False)

@@ -1181,48 +1181,34 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     const float PoseEase=1-FMath::Exp(-16.f*DeltaSeconds);
     AnimationBob=FMath::Lerp(AnimationBob,Bob*(1-.85f*GripBlend),PoseEase);
     AnimationPitch=FMath::Lerp(AnimationPitch,(Pitch+(Status->IsLoose()?FMath::Sin(Time*7)*7:0))*(1-GripBlend),PoseEase);
-    if(!UMCExperimentalAudioComponent::IsEnabled())
+    if(!bHandling) SoundAccumulator=0;
+    FootstepSoundCooldown=FMath::Max(0.f,FootstepSoundCooldown-DeltaSeconds);
+    const bool CanHearActions=GetNetMode()!=NM_DedicatedServer && ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation;
+    const bool FootPlanted=FMath::FloorToInt(PreviousAudioGait/PI)!=FMath::FloorToInt(Gait/PI);
+    if(CanHearActions && GetCharacterMovement()->IsMovingOnGround() && GroundSpeed>15.f && Speed>.05f && FootPlanted && FootstepSoundCooldown<=0)
     {
-        SoundAccumulator += DeltaSeconds;
-        if (ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation && SoundAccumulator > (bWork ? 0.28f : 0.34f) && SoundPalette && (bWork || (Speed > 0.2f && !bAir)))
-        { SoundAccumulator = 0; SoundPalette->Play(this,bBrushing ? TEXT("Brush") : bHandling ? TEXT("Pull") : TEXT("Step"),GetActorLocation()); }
-        BrushSoundAccumulator=0;
-        FootstepSoundCooldown=0;
+        const float Pace=FMath::Clamp(GroundSpeed/FMath::Max(1.f,CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->WalkSpeed*1.5f),0.f,1.f);
+        if(SoundPalette) SoundPalette->PlayWithParameters(this,TEXT("Step"),GetActorLocation(),FMath::Lerp(.35f,.8f,Pace),Pace);
+        FootstepSoundCooldown=.13f;
     }
-    else
+    // Match the contact that actually cleans; rendered wrist placement is for foam.
+    const bool BrushTouching=CanHearActions && bBrushing && HasBrush() && BrushContact && BrushContact->IsWorkReady();
+    if(BrushTouching)
     {
-        if(!bHandling) SoundAccumulator=0;
-        FootstepSoundCooldown=FMath::Max(0.f,FootstepSoundCooldown-DeltaSeconds);
-        const bool CanHearActions=GetNetMode()!=NM_DedicatedServer && ToothPhysics->CanAct() && !Swimming && !bPreviewAnimation;
-        const bool FootPlanted=FMath::FloorToInt(PreviousAudioGait/PI)!=FMath::FloorToInt(Gait/PI);
-        if(CanHearActions && GetCharacterMovement()->IsMovingOnGround() && GroundSpeed>15.f && Speed>.05f && FootPlanted && FootstepSoundCooldown<=0)
+        BrushSoundAccumulator+=DeltaSeconds;
+        const float StrokeSeconds=.28f/FMath::Clamp(AnimationSettings.Tempo,.5f,2.f);
+        if(BrushSoundAccumulator>=StrokeSeconds)
         {
-            const float Pace=FMath::Clamp(GroundSpeed/FMath::Max(1.f,CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->WalkSpeed*1.5f),0.f,1.f);
-            if(!ExperimentalAudio->Play(TEXT("Step"),GetActorLocation(),FMath::Lerp(.35f,.8f,Pace),Pace) && SoundPalette)
-                SoundPalette->Play(this,TEXT("Step"),GetActorLocation());
-            FootstepSoundCooldown=.13f;
+            BrushSoundAccumulator=FMath::Fmod(BrushSoundAccumulator,StrokeSeconds);
+            const float BrushPace=FMath::Clamp((AnimationSettings.Tempo-.5f)/1.5f,0.f,1.f);
+            if(SoundPalette) SoundPalette->PlayWithParameters(this,TEXT("Brush"),BrushContact->ContactPoint(),.65f,BrushPace);
         }
-        // Match the contact that actually cleans; rendered wrist placement is for foam.
-        const bool BrushTouching=CanHearActions && bBrushing && HasBrush() && BrushContact && BrushContact->IsWorkReady();
-        if(BrushTouching)
-        {
-            BrushSoundAccumulator+=DeltaSeconds;
-            const float StrokeSeconds=.28f/FMath::Clamp(AnimationSettings.Tempo,.5f,2.f);
-            if(BrushSoundAccumulator>=StrokeSeconds)
-            {
-                BrushSoundAccumulator=FMath::Fmod(BrushSoundAccumulator,StrokeSeconds);
-                const float BrushPace=FMath::Clamp((AnimationSettings.Tempo-.5f)/1.5f,0.f,1.f);
-                if(!ExperimentalAudio->Play(TEXT("Brush"),BrushContact->ContactPoint(),.65f,BrushPace) && SoundPalette)
-                    SoundPalette->Play(this,TEXT("Brush"),BrushContact->ContactPoint());
-            }
-        }
-        else BrushSoundAccumulator=0;
-        // Pull remains in the existing palette during this focused experiment.
-        if(CanHearActions && bHandling && SoundPalette)
-        {
-            SoundAccumulator+=DeltaSeconds;
-            if(SoundAccumulator>.28f) { SoundAccumulator=0; SoundPalette->Play(this,TEXT("Pull"),GetActorLocation()); }
-        }
+    }
+    else BrushSoundAccumulator=0;
+    if(CanHearActions && bHandling && SoundPalette)
+    {
+        SoundAccumulator+=DeltaSeconds;
+        if(SoundAccumulator>.28f) { SoundAccumulator=0; SoundPalette->Play(this,TEXT("Pull"),GetActorLocation()); }
     }
 }
 void AMCToothCharacter::SwingBrush()
@@ -1255,17 +1241,15 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
 void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot)
 {
     SwingStartedAt=StartedAt; CalculusTarget=AimTooth; CalculusContactLocal=LocalPoint; CalculusNormalLocal=LocalNormal;
-    const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeSwing")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeSwing")):NAME_None;
-    if((Event.IsNone() || !ExperimentalAudio->Play(Event,GetActorLocation(),.65f,.5f)) && SoundPalette)
-        SoundPalette->Play(this,TEXT("Whoosh"),GetActorLocation());
+    const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeSwing")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeSwing")):FName(TEXT("Whoosh"));
+    if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,GetActorLocation(),.65f,.5f);
 }
 void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 ToolSlot,float Intensity)
 {
     if(IsLocallyControlled() && IsPlayerControlled()) if(auto* PlayerCamera=Cast<UMCPlayerCameraComponent>(Camera))
         PlayerCamera->AddCombatConfirm(.35f+.65f*FMath::Clamp(Intensity,0.f,1.f));
-    const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):NAME_None;
-    if((Event.IsNone() || !ExperimentalAudio->Play(Event,Location,Intensity,.5f)) && SoundPalette)
-        SoundPalette->Play(this,TEXT("Hit"),Location);
+    const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):FName(TEXT("Hit"));
+    if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,Location,Intensity,.5f);
 }
 float AMCToothCharacter::GetToolSwingElapsed() const
 {

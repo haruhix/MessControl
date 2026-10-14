@@ -1,7 +1,6 @@
 #include "MCExperimentalAudioComponent.h"
 #include "MCToothCharacter.h"
 #include "MCDataAssets.h"
-#include "AudioParameter.h"
 #include "Components/AudioComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
@@ -15,9 +14,7 @@
 namespace
 {
     TAutoConsoleVariable<int32> CVarAudioExperiments(TEXT("mc.Audio.Experiments"),1,
-        TEXT("0: original sound palette. 1: experimental MetaSounds with palette fallback."));
-    TAutoConsoleVariable<int32> CVarAudioExperimentLog(TEXT("mc.Audio.ExperimentLog"),0,
-        TEXT("Log experimental sound events and normalized graph inputs for editor checks."));
+        TEXT("Deprecated compatibility CVar; gameplay always uses the character's SoundPalette. Audition with mc.Audio.Compare."));
     const TCHAR* const ExperimentEvents[]={TEXT("Step"),TEXT("KnifeSwing"),TEXT("KnifeHit"),TEXT("PickaxeSwing"),TEXT("PickaxeHit"),TEXT("Brush")};
 
     void AudioMessage(const FString& Message,FColor Color=FColor::Cyan,float Seconds=5.f)
@@ -33,15 +30,8 @@ namespace
         return Player && Player->IsLocalController()?Cast<AMCToothCharacter>(Player->GetPawn()):nullptr;
     }
 
-    FName LegacyEvent(FName Event)
-    {
-        if(Event==TEXT("KnifeSwing") || Event==TEXT("PickaxeSwing")) return TEXT("Whoosh");
-        if(Event==TEXT("KnifeHit") || Event==TEXT("PickaxeHit")) return TEXT("Hit");
-        return Event;
-    }
-
     FAutoConsoleCommandWithWorldAndArgs AudioStatusCommand(TEXT("mc.Audio.Status"),
-        TEXT("Show the current local character's experimental sound paths, classes and selection mode."),
+        TEXT("Show the local character's gameplay palette routes and separate manual audition assets."),
         FConsoleCommandWithWorldAndArgsDelegate::CreateLambda([](const TArray<FString>&,UWorld* World)
         {
             if(auto* Hero=CurrentAudioHero(World); Hero && Hero->ExperimentalAudio) Hero->ExperimentalAudio->ShowStatus();
@@ -49,7 +39,7 @@ namespace
         }));
 
     FAutoConsoleCommandWithWorldAndArgs AudioCompareCommand(TEXT("mc.Audio.Compare"),
-        TEXT("Compare 2 original then 2 current experimental short sounds in 2D. Usage: mc.Audio.Compare Step|KnifeSwing|KnifeHit|PickaxeSwing|PickaxeHit|Brush"),
+        TEXT("Compare 2 current palette then 2 manual experimental short sounds in 2D. Usage: mc.Audio.Compare Step|KnifeSwing|KnifeHit|PickaxeSwing|PickaxeHit|Brush"),
         FConsoleCommandWithWorldAndArgsDelegate::CreateLambda([](const TArray<FString>& Args,UWorld* World)
         {
             if(Args.Num()!=1)
@@ -76,10 +66,10 @@ UMCExperimentalAudioComponent::UMCExperimentalAudioComponent()
 
 bool UMCExperimentalAudioComponent::IsEnabled()
 {
-    return CVarAudioExperiments.GetValueOnGameThread()!=0;
+    return true;
 }
 
-USoundBase* UMCExperimentalAudioComponent::ResolveSound(FName Event,FString& FailureReason)
+USoundBase* UMCExperimentalAudioComponent::ResolveAuditionSound(FName Event,FString& FailureReason)
 {
     FailureReason.Reset();
     const auto* Path=Sounds.Find(Event);
@@ -98,8 +88,8 @@ USoundBase* UMCExperimentalAudioComponent::ResolveSound(FName Event,FString& Fai
     USoundBase* Sound=LoadedSounds.FindRef(Event);
     if(!Sound)
     {
-        // An experiment may be authored after this actor's CDO was constructed.
-        // Do not cache a failed load or warn every time its original sound plays.
+        // An audition asset may be authored after this actor's CDO was constructed.
+        // Failed loads remain retryable and never affect gameplay routing.
         if(!FPackageName::DoesPackageExist(RequestedPath.GetLongPackageName()))
         {
             FailureReason=TEXT("package_missing");
@@ -119,45 +109,38 @@ USoundBase* UMCExperimentalAudioComponent::ResolveSound(FName Event,FString& Fai
 
 bool UMCExperimentalAudioComponent::Play(FName Event,FVector Location,float Intensity,float Speed)
 {
-    if(!IsEnabled() || !GetWorld() || GetNetMode()==NM_DedicatedServer) return false;
-    FString FailureReason;
-    USoundBase* Sound=ResolveSound(Event,FailureReason);
-    if(!Sound)
-    {
-        if(CVarAudioExperimentLog.GetValueOnGameThread()!=0)
-        {
-            const auto* Path=Sounds.Find(Event);
-            UE_LOG(LogTemp,Display,TEXT("MC_AUDIO_FALLBACK event=%s reason=%s path=%s owner=%s"),
-                *Event.ToString(),*FailureReason,Path?*Path->ToString():TEXT("<none>"),*GetNameSafe(GetOwner()));
-        }
-        return false;
-    }
-    if(!InitialParameters) InitialParameters=NewObject<UInitialActiveSoundParams>(this);
-    InitialParameters->Reset(2);
-    InitialParameters->AudioParams.Emplace(FName(TEXT("Intensity")),FMath::Clamp(Intensity,0.f,1.f));
-    InitialParameters->AudioParams.Emplace(FName(TEXT("Speed")),FMath::Clamp(Speed,0.f,1.f));
-    UGameplayStatics::PlaySoundAtLocation(this,Sound,Location,FRotator::ZeroRotator,
-        1.f,1.f,0.f,nullptr,nullptr,GetOwner(),InitialParameters);
-    if(CVarAudioExperimentLog.GetValueOnGameThread()!=0)
-        UE_LOG(LogTemp,Display,TEXT("MC_AUDIO_EXPERIMENT event=%s intensity=%.3f speed=%.3f owner=%s net=%d path=%s class=%s"),
-            *Event.ToString(),FMath::Clamp(Intensity,0.f,1.f),FMath::Clamp(Speed,0.f,1.f),*GetNameSafe(GetOwner()),int32(GetNetMode()),
-            *Sound->GetPathName(),*Sound->GetClass()->GetName());
-    return true;
+    const auto* Hero=Cast<AMCToothCharacter>(GetOwner());
+    return Hero && Hero->SoundPalette && Hero->SoundPalette->PlayWithParameters(this,Event,Location,Intensity,Speed);
 }
 
 void UMCExperimentalAudioComponent::ShowStatus()
 {
-    AudioMessage(FString::Printf(TEXT("Аудио: mc.Audio.Experiments=%d; игрок %s"),
-        CVarAudioExperiments.GetValueOnGameThread(),*GetNameSafe(GetOwner())),FColor::Cyan,10.f);
+    const auto* Hero=Cast<AMCToothCharacter>(GetOwner());
+    const auto* Palette=Hero?Hero->SoundPalette.Get():nullptr;
+    AudioMessage(FString::Printf(TEXT("Игра: SoundPalette=%s; mc.Audio.Experiments=%d больше не меняет источник."),
+        *GetPathNameSafe(Palette),CVarAudioExperiments.GetValueOnGameThread()),FColor::Cyan,10.f);
     for(const TCHAR* Event:ExperimentEvents)
     {
+        FName Key;
+        const auto* Entry=Palette?Palette->ResolveEvent(FName(Event),&Key):nullptr;
+        FString Variants;
+        if(Entry && Entry->Volume>0.f)
+            for(const auto& Candidate:Entry->Sounds)
+                if(IsValid(Candidate.Get()))
+                {
+                    if(!Variants.IsEmpty()) Variants+=TEXT(", ");
+                    Variants+=FString::Printf(TEXT("%s [%s]"),*Candidate->GetPathName(),*Candidate->GetClass()->GetName());
+                }
+        const FString Details=Variants.IsEmpty()?FString(TEXT("тишина")):FString::Printf(TEXT("volume=%.2f pitch=%.2f..%.2f; %s"),
+            Entry->Volume,Entry->PitchMin,FMath::Max(Entry->PitchMin,Entry->PitchMax),*Variants);
+        AudioMessage(FString::Printf(TEXT("DA %s → %s; %s"),Event,*Key.ToString(),*Details),FColor::Cyan,10.f);
         FString FailureReason;
-        if(USoundBase* Sound=ResolveSound(FName(Event),FailureReason))
-            AudioMessage(FString::Printf(TEXT("%s → %s [%s]"),Event,*Sound->GetPathName(),*Sound->GetClass()->GetName()),FColor::Cyan,10.f);
+        if(USoundBase* Sound=ResolveAuditionSound(FName(Event),FailureReason))
+            AudioMessage(FString::Printf(TEXT("Только Compare %s → %s [%s]"),Event,*Sound->GetPathName(),*Sound->GetClass()->GetName()),FColor::Green,10.f);
         else
         {
             const auto* Path=Sounds.Find(FName(Event));
-            AudioMessage(FString::Printf(TEXT("%s → старая палитра (%s; %s)"),Event,*FailureReason,
+            AudioMessage(FString::Printf(TEXT("Только Compare %s → недоступен (%s; %s)"),Event,*FailureReason,
                 Path?*Path->ToString():TEXT("<none>")),FColor::Yellow,10.f);
         }
     }
@@ -173,16 +156,16 @@ void UMCExperimentalAudioComponent::BeginComparison(FName Event,UMCSoundPalette*
         return;
     }
     if(!GetWorld() || !GetWorld()->IsGameWorld() || GetNetMode()==NM_DedicatedServer) return;
-    const auto* Legacy=Palette?Palette->Events.Find(LegacyEvent(Event)):nullptr;
-    if(!Legacy || !Legacy->Sounds.ContainsByPredicate([](const auto& Sound){return IsValid(Sound.Get());}))
+    const auto* Entry=Palette?Palette->ResolveEvent(Event):nullptr;
+    if(!Entry || Entry->Volume<=0.f || !Entry->Sounds.ContainsByPredicate([](const auto& Sound){return IsValid(Sound.Get());}))
     {
-        AudioMessage(TEXT("Сравнение: в текущей старой палитре нет звука для этого события."),FColor::Yellow);
+        AudioMessage(TEXT("Сравнение: текущее событие в SoundPalette молчит."),FColor::Yellow);
         return;
     }
     FString FailureReason;
-    if(!ResolveSound(Event,FailureReason))
+    if(!ResolveAuditionSound(Event,FailureReason))
     {
-        AudioMessage(FString::Printf(TEXT("Сравнение: новый %s недоступен (%s)."),*Event.ToString(),*FailureReason),FColor::Yellow);
+        AudioMessage(FString::Printf(TEXT("Сравнение: эксперимент %s недоступен (%s)."),*Event.ToString(),*FailureReason),FColor::Yellow);
         return;
     }
     StopComparison();
@@ -198,7 +181,7 @@ void UMCExperimentalAudioComponent::AdvanceComparison()
     }
     if(!GetWorld() || ComparisonStep>=4)
     {
-        AudioMessage(TEXT("Сравнение завершено: два старых, затем два новых. Режим игры не менялся."));
+        AudioMessage(TEXT("Сравнение завершено: два из DA, затем два эксперимента. Источник игры не менялся."));
         StopComparison();
         return;
     }
@@ -208,17 +191,17 @@ void UMCExperimentalAudioComponent::AdvanceComparison()
     FString FailureReason;
     if(Original)
     {
-        const auto* Entry=ComparisonPalette?ComparisonPalette->Events.Find(LegacyEvent(ComparisonEvent)):nullptr;
+        const auto* Entry=ComparisonPalette?ComparisonPalette->ResolveEvent(ComparisonEvent):nullptr;
         if(Entry)
         {
             TArray<USoundBase*> ValidSounds;
             for(const auto& Candidate:Entry->Sounds) if(IsValid(Candidate.Get())) ValidSounds.Add(Candidate.Get());
             if(!ValidSounds.IsEmpty()) Sound=ValidSounds[FMath::RandRange(0,ValidSounds.Num()-1)];
             Volume=Entry->Volume;
-            Pitch=(Entry->PitchMin+FMath::Max(Entry->PitchMin,Entry->PitchMax))*.5f;
+            Pitch=FMath::FRandRange(Entry->PitchMin,FMath::Max(Entry->PitchMin,Entry->PitchMax));
         }
     }
-    else Sound=ResolveSound(ComparisonEvent,FailureReason);
+    else Sound=ResolveAuditionSound(ComparisonEvent,FailureReason);
     if(!Sound)
     {
         AudioMessage(FString::Printf(TEXT("Сравнение остановлено: %s (%s)."),*ComparisonEvent.ToString(),*FailureReason),FColor::Yellow);
@@ -238,11 +221,11 @@ void UMCExperimentalAudioComponent::AdvanceComparison()
     ComparisonAudio->AttenuationOverrides.bSpatialize=false;
     ComparisonAudio->SetFloatParameter(TEXT("Intensity"),.65f);
     ComparisonAudio->SetFloatParameter(TEXT("Speed"),.5f);
-    const TCHAR* Label=Original?TEXT("Старый"):TEXT("Новый");
+    const TCHAR* Label=Original?TEXT("DA"):TEXT("Эксперимент");
     AudioMessage(FString::Printf(TEXT("%s %d/2: %s"),Label,ComparisonStep%2+1,*ComparisonEvent.ToString()),
         Original?FColor::Yellow:FColor::Green,.9f);
     UE_LOG(LogTemp,Display,TEXT("MC_AUDIO_COMPARE event=%s phase=%s sample=%d path=%s class=%s intensity=.65 speed=.5 volume=%.3f pitch=%.3f"),
-        *ComparisonEvent.ToString(),Original?TEXT("old"):TEXT("new"),ComparisonStep%2+1,
+        *ComparisonEvent.ToString(),Original?TEXT("palette"):TEXT("experiment"),ComparisonStep%2+1,
         *Sound->GetPathName(),*Sound->GetClass()->GetName(),Volume,Pitch);
     ComparisonAudio->Play();
     ++ComparisonStep;

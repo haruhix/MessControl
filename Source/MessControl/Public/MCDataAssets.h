@@ -8,6 +8,7 @@ class UPhysicsAsset;
 class UMaterialInterface;
 class UAnimSequence;
 class UStaticMesh;
+class UInitialActiveSoundParams;
 
 // Maps gameplay roles to an artist's skeleton without renaming the source rig.
 UCLASS(BlueprintType)
@@ -77,9 +78,15 @@ class MESSCONTROL_API UMCSoundPalette : public UPrimaryDataAsset
 {
     GENERATED_BODY()
 public:
-    // Step, Jump, Brush, Pull, Repair, Complete, DayStart, Win, Lose.
+    // Step, Brush, KnifeSwing/KnifeHit, PickaxeSwing/PickaxeHit, Jump, Pull, Repair, Complete, DayStart, Win, Lose.
+    // Missing tool events use Whoosh/Hit; an explicitly empty event stays silent.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") TMap<FName, FMCSoundVariation> Events;
     UFUNCTION(BlueprintCallable, Category="Audio") void Play(UObject* WorldContext, FName Event, FVector Location) const;
+    const FMCSoundVariation* ResolveEvent(FName Event, FName* ResolvedEvent = nullptr) const;
+    // True means the palette owns the event, including intentional silence; it does not guarantee audibility.
+    bool PlayWithParameters(UObject* WorldContext, FName Event, FVector Location, float Intensity = .65f, float Speed = .5f) const;
+private:
+    UPROPERTY(Transient) mutable TObjectPtr<UInitialActiveSoundParams> InitialParameters;
 };
 
 UCLASS(BlueprintType)

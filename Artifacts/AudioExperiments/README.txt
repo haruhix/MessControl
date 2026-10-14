@@ -1,5 +1,23 @@
 MetaSound: экспериментальная озвучка MessControl
 
+Изменение маршрутизации (15 октября 2026):
+Игровые шаги, щётка, взмахи и попадания берут источники из DA_MouthSounds.
+В DA допустимы SoundWave, SoundCue и MetaSoundSource; применяются его Volume
+и PitchMin/PitchMax, а MetaSound получает Intensity/Speed. Если отдельных
+KnifeSwing/PickaxeSwing/KnifeHit/PickaxeHit нет, используются Whoosh/Hit.
+Пустой существующий ключ намеренно выключает соответствующее событие.
+mc.Audio.Status показывает палитру. mc.Audio.Compare явно сравнивает DA
+с ExperimentalAudio.Sounds. mc.Audio.Experiments больше не выбирает
+источник игрового звука. Ниже — исторические результаты эксперимента v1/v2;
+старые GameplaySmoke/ComparisonVerification не валидируют новую маршрутизацию.
+Проверено 15 октября 2026: MessControlEditor собран, PaletteRouting прошёл,
+solo PIE подтвердил все 6 событий из DA, очистку щёткой и попадания ножа/кирки.
+Записан полный 16-bit stereo PCM микшера (15.296с, 48кГц), без клиппинга.
+Текущий smoke_metasound_gameplay.py сохраняет отчёт и уникальный WAV в
+Saved/AudioDARouting; после окончания экспорт проверяется отдельным
+verify_palette_audio_capture.py. Пакеты DA/WAV не изменялись. Сетевые проверки
+и повторная проверка параметров экспериментальных DSP-графов не проводились.
+
 Обновление v2 (5 октября 2026):
 Первые MetaSound и прежние WAV использовали похожие шум/синус/огибающую.
 Переработаны попадания: нож — короткий pop + отдельный шумовой срез;

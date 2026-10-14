@@ -1,4 +1,8 @@
-"""Verify audio Status/Compare commands in one temporary MessControl PIE.
+"""Historical pre-DA verification of audio Status/Compare commands.
+
+This script expects the former experimental gameplay route and logs; it must
+not be used to validate current DA routing. Use smoke_metasound_gameplay.py
+for the current gameplay check. Kept for reproducing the earlier experiment.
 
 Run through remote_python.py after building the comparison commands. This checks
 the actual console commands, four labelled slots, mode preservation, reflection
