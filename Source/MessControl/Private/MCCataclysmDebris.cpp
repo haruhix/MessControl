@@ -275,8 +275,8 @@ void AMCCataclysmDebris::Advance(float DeltaSeconds, double Now)
     FVector Next = Start;
     if (RetireAt < 0.)
     {
-        const FVector Direction = Flood->StormStreamDirection().GetSafeNormal2D();
         const FVector Current = Flood->FlowAtPosition(Start, this);
+        const FVector Direction = Current.GetSafeNormal2D(UE_SMALL_NUMBER,Flood->StormStreamDirection());
         const float Speed = FMath::Clamp(280.f + SpeedOffset + .22f * float(FVector::DotProduct(Current, Direction)), 260.f, 440.f);
         const FVector Across = (Current - Direction * FVector::DotProduct(Current, Direction)).GetClampedToMaxSize(35.f);
         DriftVelocity = Direction * Speed + Across;

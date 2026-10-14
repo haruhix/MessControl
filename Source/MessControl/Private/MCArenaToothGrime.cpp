@@ -240,15 +240,15 @@ void AMCArenaTooth::ResetGrime()
 }
 void AMCArenaTooth::OnRep_Grime() { bGrimeDirty=true; }
 
-void AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet)
+bool AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet)
 {
-    if (!HasAuthority() || !IsAvailable() || !Visual->GetStaticMesh()) return;
+    if (!HasAuthority() || !IsAvailable() || !Visual->GetStaticMesh()) return false;
     if (!bGrimeReliefBuilt) BuildGrimeRelief();
     const FTransform Transform=Visual->GetComponentTransform();
     bool Touched=false;
     for (const auto& Sample:GrimeSamples)
         if (Sample.Weight>.1f && IsWet(Transform.TransformPosition(Sample.Point))) { Touched=true; break; }
-    if (!Touched) return;
+    if (!Touched) return false;
     const FBoxSphereBounds Bounds=Appearance.Mesh?Appearance.Mesh->GetBounds():Visual->GetStaticMesh()->GetBounds();
     TArray<uint8> Deposited;
     if (Status->NeedsCare(true) && GrimeMask.Num()==FMCSurfaceWipe::Count) Deposited=GrimeMask;
@@ -262,10 +262,11 @@ void AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet)
     bool Brushable=false;
     for (const auto& Sample:GrimeSamples)
         if (Sample.Weight>.1f && FMCSurfaceWipe::Sample(Deposited,Sample.UV)>.25f) { Brushable=true; break; }
-    if (!Brushable) return;
+    if (!Brushable) return false;
     Status->ApplyCoffee(1.f);
     GrimeMask=MoveTemp(Deposited); PreciseGrimeMask.Reset();
     OnRep_Grime(); ForceNetUpdate();
+    return true;
 }
 
 void AMCArenaTooth::ClearGrimeForBooster()
@@ -281,9 +282,10 @@ float AMCArenaTooth::RemainingGrime() const
     for(const auto& S:GrimeSamples) { Total+=S.Weight; Left+=S.Weight*FMath::Clamp((FMCSurfaceWipe::Sample(GrimeMask,S.UV)-.25f)/.75f,0.f,1.f); }
     return Total>0?Left/Total:1.f;
 }
-void AMCArenaTooth::GetDirtyContactSamples(TArray<FVector>& Points,TArray<FVector>& Normals)
+void AMCArenaTooth::GetDirtyContactSamples(TArray<FVector>& Points,TArray<FVector>& Normals,TArray<FVector>* MaskUVs)
 {
     Points.Reset(); Normals.Reset();
+    if(MaskUVs) MaskUVs->Reset();
     if(!IsAvailable() || !Status->NeedsCare(true)) return;
     if(!bGrimeReliefBuilt) BuildGrimeRelief();
     const FTransform Transform=Visual->GetComponentTransform();
@@ -292,6 +294,7 @@ void AMCArenaTooth::GetDirtyContactSamples(TArray<FVector>& Points,TArray<FVecto
         if(FMCSurfaceWipe::Sample(GrimeMask,Sample.UV)<=.25f) continue;
         Points.Add(Transform.TransformPosition(Sample.Point));
         Normals.Add(Transform.TransformVectorNoScale(Sample.Normal).GetSafeNormal());
+        if(MaskUVs) MaskUVs->Add(Sample.UV);
     }
 }
 bool AMCArenaTooth::FindDirtyContact(AMCToothCharacter* Worker,FVector& Point,FVector& Normal,int32 Preferred)

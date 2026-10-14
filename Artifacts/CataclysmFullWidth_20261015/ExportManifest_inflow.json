@@ -1,0 +1,195 @@
+{
+  "exported_utc": "2026-10-14T16:45:50.285215+00:00",
+  "exclude_nonclient_frames_requested": true,
+  "previews": [
+    {
+      "mode": "inflow",
+      "clip": "inflow_arrival",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_arrival.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_arrival.png",
+      "video_sha256": "56b2a396500f72d33aa969e3ca6e2fa45b9764a2f88ed5f8cee4625a940149c5",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_arrival.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_arrival.ffconcat",
+      "genuine_source_frames": 53,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 10.950000571087003,
+      "source_time_end_seconds": 15.28333413042128,
+      "source_game_span_seconds": 4.333333559334278,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Pending root inspection of actual video",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "131"
+          }
+        ],
+        "format": {
+          "duration": "4.366667"
+        }
+      }
+    },
+    {
+      "mode": "inflow",
+      "clip": "inflow_holding",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_holding.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_holding.png",
+      "video_sha256": "08cfba2b210e4c7d88fa6cf51dbf66bd8847922f330ff29a148dd030734e2511",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_holding.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_holding.ffconcat",
+      "genuine_source_frames": 46,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 15.466667473316193,
+      "source_time_end_seconds": 19.30000100657344,
+      "source_game_span_seconds": 3.833333533257246,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Pending root inspection of actual video",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "116"
+          }
+        ],
+        "format": {
+          "duration": "3.866667"
+        }
+      }
+    },
+    {
+      "mode": "inflow",
+      "clip": "inflow_gameplay",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_gameplay.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_gameplay.png",
+      "video_sha256": "0d80abaca6c797b6bf8834c9b765f9ce797adbb425d609ac9fcf50a32e22d6a3",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_gameplay.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_gameplay.ffconcat",
+      "genuine_source_frames": 42,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 19.383334344252944,
+      "source_time_end_seconds": 22.800001189112663,
+      "source_game_span_seconds": 3.4166668448597193,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Pending root inspection of actual video",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "103"
+          }
+        ],
+        "format": {
+          "duration": "3.433333"
+        }
+      }
+    }
+  ],
+  "reports": [
+    {
+      "mode": "inflow",
+      "report": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Report_inflow.json",
+      "report_sha256": "53d147dbd95529b0888a22dacabbb31f4eb9cea249745769210771fec44ea5c2",
+      "source_sha256": {
+        "Source/MessControl/Private/MCCataclysmEvent.cpp": "d9fddacec4647963e85698a1fe2e6beeb2bc02f1b117737ed3932a53d8596c79",
+        "Source/MessControl/Private/MCCataclysmRaft.cpp": "605371825e01899902957ca695731a378311582ab9914c0ab2982a930796e2d0",
+        "Source/MessControl/Private/MCCataclysmJelly.cpp": "16af7f62bc86d38c54f9db27c86bbcb438bc4c99da76e2205f3fe7506c604257",
+        "Source/MessControl/Private/MCToothMovementComponent.cpp": "90b77a49550bd0ffe8ab9c3199d8a3efb5124a4c6d490256e1bbf6da774efb3a",
+        "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8",
+        "Tools/Unreal/probe_cataclysm_inflow_solo.py": "df1801b4db333f9d891dd9ab0a138a593a0aaf44c06906a46d982cfcf723f112",
+        "Source/MessControl/Public/MCCoffeeFlood.h": "aac1c8b4b261486205cacd69182178e74d636a12b1610c06ac18236f81269082",
+        "Source/MessControl/Private/MCCoffeeFlood.cpp": "f8353a1de3cd3ea500ea233e4888da9666a75bed3599e4d20b431a0e8376df77",
+        "Source/MessControl/Private/MCCoffeeVisuals.cpp": "c4c5f1ad24bc767bff430ab523990ca97c7b98cbcecb19ca41b7a48602e4c0c9",
+        "Source/MessControl/Private/MCCataclysmStormMath.h": "0d27a207bdd65cefc5c8282419a1c6f15d45357380c9a0894fdc78bb79ca16dc"
+      },
+      "checks": {
+        "real_f3_64_starts_untuned_raft_event": true,
+        "front_reaches_entrance_middle_throat_in_order": true,
+        "unreached_throat_stays_dry_while_entrance_is_wet": true,
+        "legacy_overhead_jet_and_crown_hidden": true,
+        "continuous_throat_outlet_visible_during_holding": true,
+        "sustained_downstream_current_at_all_three_probes": true,
+        "off_axis_current_converges_into_throat": true,
+        "holding_chop_continues_after_initial_front": true,
+        "both_mouth_sides_stay_wet_and_flow_toward_throat": true,
+        "throat_outflow_lip_spans_full_mouth_width": true,
+        "native_player_camera_clip_verified_against_hero_component": true,
+        "real_engine_frames_have_hashes_and_camera_evidence": true
+      },
+      "fixture_tuning": {},
+      "limitations": [
+        "Default fill/hold/drain timings, health, water forces, swimming reserve and native hazards remain unchanged.",
+        "The unrelated single-day scheduler is paused and restored; the Cataclysm event, liquid, debris, rafts and game clock keep ticking.",
+        "The local observer may be placed on a real raft after arrival. Only actor position is assigned; movement mode, velocity, body state and water membership are not forced.",
+        "Temporary review cameras capture arrival and the throat. If the original observer is alive and possessed, the last 3.5 Holding seconds switch to its actual native PlayerCamera, with one ordinary camera-orbit input toward the throat; no camera-component transform or lens tuning is assigned. These are not hardware-input playthroughs.",
+        "Three fixed inlet/middle/near-throat XY points read the actual public native StormWetWeightAt, SurfaceHeightAt and StormCurrentAt getters. A fourth off-axis point reads converging current.",
+        "Continuous outlet means the native throat ribbon during Holding, not the final Draining phase.",
+        "The probe stops after eight seconds of Holding; natural final tail/drain timing, whole-event cleanup, balance, GPU cost and multiplayer remain deferred.",
+        "SHOWUI screenshots are genuine engine frames at up to 12 Hz with per-frame camera metadata and SHA256 hashes; artistic quality still requires visual review."
+      ],
+      "manual_checkpoints": [],
+      "integrity_verified_source_frames": 142,
+      "accepted_client_frames": 141,
+      "excluded_nonclient_frames": [
+        {
+          "source_frame_index": 58,
+          "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00058.png",
+          "sha256": "cf47ada7307cc7caf0a6264aebe54713c0b587baae3f8044cc11237b38a4de68",
+          "time": 15.88333416171372,
+          "width": 2311,
+          "height": 1122,
+          "clip_window": "inflow_holding",
+          "reason": "PNG dimensions are neither 1280x720 game client nor 1286x760 floating client window; excluded with explicit --exclude-nonclient-frames",
+          "integrity_validation": "Source SHA256, PNG chunks/CRC, metadata dimensions and game timestamp verified; source file left unchanged"
+        }
+      ],
+      "capture_validation": "Export uses a client-sized subset; excluded captures are not gameplay preview evidence"
+    }
+  ],
+  "limitations": [
+    "Sampled genuine engine screenshots do not record every game frame.",
+    "CFR output repeats source images at their actual game-time intervals; no interpolation or title cards.",
+    "Excluded nonclient captures stay recorded in report metadata. Their genuine time gaps remain as holds of preceding accepted frames; no wrong viewport is resized into output.",
+    "PlayerCamera metadata does not establish the screenshot surface; visual review of accepted client captures remains necessary.",
+    "The terminal 1 ms and 30 fps duration rounding are presentation padding, not additional observed gameplay.",
+    "Telemetry and successful encoding do not establish visual quality; inspect the previews in the gameplay camera."
+  ]
+}

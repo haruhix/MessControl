@@ -10,12 +10,16 @@
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
+#include "MCCoffeeWipe.h"
+#include "MCSurfaceWipe.h"
 #include "CollisionQueryParams.h"
 #include "CollisionShape.h"
 #include "MCArenaTooth.h"
 #include "Components/SceneComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "Engine/StaticMesh.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerState.h"
 #include "Net/UnrealNetwork.h"
@@ -57,8 +61,12 @@ bool AMCCataclysmEvent::Start(const UMCDayPlan* Plan,EMCCataclysmVariant Choice,
     DrinkPlan->FloodHeight=FMath::Max(155.f,DrinkPlan->FloodHeight);
     WarningSeconds=FMath::Clamp(FMath::IsFinite(WarningSeconds)?WarningSeconds:2.f,.5f,8.f);
     MaxDirtPatches=FMath::Clamp(MaxDirtPatches,4,32);
+    MaxPaintTiles=FMath::Clamp(MaxPaintTiles,4,24);
     DirtBatch=Batch>0?Batch:100000+int32(GetUniqueID()%1000000);
     CareBaselines.Reset();
+    PaintTiles.Reset();PendingPaintTiles.Reset();PaintGridSize=FIntPoint::ZeroValue;
+    DeathPaintToothSamples.Reset();PaintTilesCreated=0;PaintTileCount=0;PaintStrokesAccepted=0;PaintCoverageCells=0;PaintWetCells=0;PaintDistanceCm=0;
+    DeathPaintBursts=0;DeathPaintCoverageAddedCells=0;DeathPaintTeethTouched=0;
     for(TActorIterator<AActor> It(GetWorld());It;++It)
         if(Cast<AMCArenaTooth>(*It) || (Cast<AMCToothCharacter>(*It) && Cast<AMCToothCharacter>(*It)->GetPlayerState()
             && !Cast<AMCToothCharacter>(*It)->GetPlayerState()->IsOnlyASpectator()))
@@ -205,6 +213,7 @@ void AMCCataclysmEvent::UpdateFloatingDebris()
 void AMCCataclysmEvent::RegisterDirtyPatch(FVector Center,float Radius,bool bDeathBurst)
 {
     if(!HasAuthority() || !IsRunning() || !Tongue || Center.ContainsNaN() || !FMath::IsFinite(Radius)) return;
+    if(bDeathBurst) {DepositDeathPaint(Center,FMath::Clamp(Radius,160.f,400.f));return;}
     float Half=FMath::Clamp(Radius,65.f,300.f);
     FHitResult Floor;bool Found=false;
     for(int32 Attempt=0;Attempt<4 && !Found;++Attempt) {
@@ -214,13 +223,13 @@ void AMCCataclysmEvent::RegisterDirtyPatch(FVector Center,float Radius,bool bDea
     if(!Found || Tongue->GameplaySpawnZone(Floor.ImpactPoint)<0) return;
     TArray<AMCMouthSurface*> Patches;
     AMCMouthSurface* Nearest=nullptr;float Best=MAX_flt;
-    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==DirtBatch && !It->bUlcer) {
+    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==DirtBatch && !It->bUlcer && !It->bPaintTile) {
         Patches.Add(*It);const float Distance=FVector::DistSquared2D(It->GetActorLocation(),Floor.ImpactPoint);
         if(Distance<Best) {Best=Distance;Nearest=*It;}
     }
     if(Nearest && Best<FMath::Square(FMath::Max(90.f,Half))) {
-        // One source can re-dirty the same footprint; it cannot create an unbounded actor trail.
-        Nearest->ResetLiquid();Nearest->Status->ApplyCoffee(1);Nearest->ForceNetUpdate();return;
+        // Seed dirt is authored once. A later source never resets unrelated cleaned coverage.
+        return;
     }
     if(Patches.Num()>=MaxDirtPatches) return;
     const FTransform Pose(FRotationMatrix::MakeFromZX(Floor.ImpactNormal,FVector::ForwardVector).ToQuat(),Floor.ImpactPoint+Floor.ImpactNormal*5);
@@ -229,22 +238,223 @@ void AMCCataclysmEvent::RegisterDirtyPatch(FVector Center,float Radius,bool bDea
     Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=Half;Patch->Batch=DirtBatch;
     Patch->LiquidSeed=Random.RandRange(1,MAX_int32);Patch->Tags.AddUnique(TEXT("MCCataclysmDirt"));
     Patch->FinishSpawning(Pose);Patch->Status->ApplyCoffee(1);Patch->ForceNetUpdate();
-    if(bDeathBurst) UE_LOG(LogTemp,Display,TEXT("MC_CATACLYSM JELLY_SPLAT radius=%.1f patch=%s"),Half,*Patch->GetName());
+}
+bool AMCCataclysmEvent::InitializePaintGrid()
+{
+    if(PaintGridSize.X>0 && PaintGridSize.Y>0) return true;
+    const FBox Bounds=Tongue->Surface->Bounds.GetBox();
+    if(!Bounds.IsValid) return false;
+    const float Near=FMath::Clamp(FMath::IsFinite(Tongue->GameplaySpawnNearDepth)?Tongue->GameplaySpawnNearDepth:.18f,0.f,.95f);
+    const float Far=FMath::Clamp(FMath::IsFinite(Tongue->GameplaySpawnFarDepth)?Tongue->GameplaySpawnFarDepth:.82f,Near+.05f,1.f);
+    const FVector2D Extent(Bounds.GetSize().X*(Far-Near),Bounds.GetSize().Y);
+    PaintGridOrigin=FVector2D(Bounds.Max.X-Bounds.GetSize().X*Far,Bounds.Min.Y);
+    // Paint owns its separate bounded canvas budget. Wave residue and seed blobs
+    // retain their existing cleanup contract without consuming trail resolution.
+    PaintTileWidth=1200.f;
+    do {
+        PaintGridSize=FIntPoint(FMath::Max(1,FMath::CeilToInt(Extent.X/PaintTileWidth)),FMath::Max(1,FMath::CeilToInt(Extent.Y/PaintTileWidth)));
+        if(PaintGridSize.X*PaintGridSize.Y<=MaxPaintTiles) return true;
+        PaintTileWidth+=100.f;
+    } while(PaintTileWidth<=3200.f);
+    PaintGridSize=FIntPoint::ZeroValue;return false;
+}
+bool AMCCataclysmEvent::DepositSupportedPaintSegment(FVector From,FVector To,float Radius,const TFunction<bool(FVector)>& CoverageAllowed)
+{
+    if(!InitializePaintGrid()) return false;
+    bool Changed=false;
+    const FVector2D A(From),B(To);
+    const FVector2D Low(FMath::Min(A.X,B.X)-Radius,FMath::Min(A.Y,B.Y)-Radius);
+    const FVector2D High(FMath::Max(A.X,B.X)+Radius,FMath::Max(A.Y,B.Y)+Radius);
+    const auto Cell=[&](FVector2D P) {
+        const FVector2D Local=(P-PaintGridOrigin)/PaintTileWidth;
+        return FIntPoint(FMath::Clamp(FMath::FloorToInt(Local.X),0,PaintGridSize.X-1),FMath::Clamp(FMath::FloorToInt(Local.Y),0,PaintGridSize.Y-1));
+    };
+    const FIntPoint Min=Cell(Low),Max=Cell(High);
+    for(int32 Y=Min.Y;Y<=Max.Y;++Y) for(int32 X=Min.X;X<=Max.X;++X) {
+        const FIntPoint Key(X,Y);
+        auto* Patch=PaintTiles.FindRef(Key).Get();
+        if(!IsValid(Patch)) {
+            int32 Used=0;
+            for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==DirtBatch && It->bPaintTile) ++Used;
+            if(Used>=MaxPaintTiles) continue;
+            const FVector2D XY=PaintGridOrigin+FVector2D(X+.5,Y+.5)*PaintTileWidth;
+            FVector Center(XY.X,XY.Y,From.Z+5);
+            FHitResult Floor;
+            if(Tongue->SurfacePoint(Center,Floor)) Center.Z=Floor.ImpactPoint.Z+5;
+            const FTransform Pose(FRotator::ZeroRotator,Center);
+            Patch=GetWorld()->SpawnActorDeferred<AMCMouthSurface>(AMCMouthSurface::StaticClass(),Pose,this);
+            if(!Patch) continue;
+            Patch->bRandomizeLiquidSize=false;Patch->LiquidHalfSize=PaintTileWidth*.5f;Patch->Batch=DirtBatch;
+            Patch->LiquidMaterial=TSoftObjectPtr<UMaterialInterface>(FSoftObjectPath(TEXT("/Game/Cataclysm/Jelly/M_CataclysmPaintTrail.M_CataclysmPaintTrail")));
+            Patch->Tags.AddUnique(TEXT("MCCataclysmDirt"));Patch->Tags.AddUnique(TEXT("MCCataclysmPaintTile"));
+            Patch->InitializePaintTile(Tongue);Patch->FinishSpawning(Pose);PaintTiles.Add(Key,Patch);
+            ++PaintTilesCreated;
+        }
+        if(Patch->DepositPaintStroke(From,To,Radius,CoverageAllowed)) {PendingPaintTiles.Add(Patch);Changed=true;}
+    }
+    return Changed;
+}
+void AMCCataclysmEvent::RegisterPaintStroke(FVector From,FVector To,float Radius)
+{
+    if(!HasAuthority() || !IsRunning() || !Tongue || From.ContainsNaN() || To.ContainsNaN() || !FMath::IsFinite(Radius) || Radius<=0) return;
+    Radius=FMath::Clamp(Radius,20.f,400.f);
+    // A teleport has no traversed path. Deposit only its supported destination.
+    if(FVector::DistSquared2D(From,To)>FMath::Square(360.f) || FMath::Abs(From.Z-To.Z)>100.f) From=To;
+    if(!InitializePaintGrid()) return;
+    const float Length=FVector::Dist2D(From,To);
+    const int32 Steps=FMath::Max(1,FMath::CeilToInt(Length/FMath::Min(Radius*.5f,24.f)));
+    const float Margin=Radius+PaintTileWidth/FMCCoffeeWipe::Size*.7072f+Length/Steps*.5f;
+    FVector Previous=FVector::ZeroVector;bool Connected=false,Accepted=false;
+    for(int32 I=0;I<=Steps;++I) {
+        const FVector Candidate=FMath::Lerp(From,To,float(I)/Steps);
+        FHitResult Floor;
+        if(!Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor) || Floor.ImpactNormal.Z<.65f) {Connected=false;continue;}
+        const FVector Point=Floor.ImpactPoint;
+        if(DepositSupportedPaintSegment(Connected?Previous:Point,Point,Radius)) {
+            if(Connected) PaintDistanceCm+=FVector::Dist2D(Previous,Point);
+            Accepted=true;
+        }
+        Previous=Point;Connected=true;
+    }
+    if(Accepted) ++PaintStrokesAccepted;
+}
+void AMCCataclysmEvent::FlushPaintTiles()
+{
+    for(const auto& Entry:PendingPaintTiles) if(auto* Patch=Entry.Get()) Patch->FlushPaintDeposit();
+    PendingPaintTiles.Reset();
+}
+void AMCCataclysmEvent::DepositDeathPaint(FVector Center,float Radius)
+{
+    if(!InitializePaintGrid()) return;
+    const auto WetCells=[&]() {int32 Count=0;for(const auto& Entry:PaintTiles) if(auto* Tile=Entry.Value.Get())
+        for(uint8 Cell:Tile->WipeMask) Count+=Cell>63;return Count;};
+    const int32 BeforeWet=WetCells();
+    ++DeathPaintBursts;
+    const FVector Splash=Center+FVector(0,0,90);
+    FCollisionQueryParams SplashQuery(SCENE_QUERY_STAT(MCJellyFloorPaintOcclusion),false,this);
+    SplashQuery.AddIgnoredActor(Tongue);
+    for(const auto& Jelly:Jellies) if(IsValid(Jelly)) SplashQuery.AddIgnoredActor(Jelly);
+    const TFunction<bool(FVector)> PaintAllowed=[&](FVector Point) {
+        FHitResult Floor,Block;
+        if(!Tongue->SurfacePoint(Point,Floor) || Floor.ImpactNormal.Z<.65f) return false;
+        return !GetWorld()->LineTraceSingleByChannel(Block,Splash,Floor.ImpactPoint+Floor.ImpactNormal*3.f,ECC_Visibility,SplashQuery);
+    };
+    // The center forms a broad balloon spill; spoke capsules carry the thrown paint.
+    // Footprint checks shorten it near delivery caps, gums and unsupported edges.
+    for(float R=Radius*.82f;R>=45.f;R*=.74f) {
+        FHitResult Floor;
+        if(Tongue->GameplaySpawnFootprint(Center,R+PaintTileWidth/FMCCoffeeWipe::Size*.7072f,Floor)) {
+            DepositSupportedPaintSegment(Floor.ImpactPoint,Floor.ImpactPoint,R,PaintAllowed);break;
+        }
+    }
+    const float Heading=Random.FRandRange(0,2*PI);
+    for(int32 I=0;I<12;++I) {
+        const float Angle=Heading+I*2*PI/12+Random.FRandRange(-.09f,.09f);
+        const FVector Direction(FMath::Cos(Angle),FMath::Sin(Angle),0);
+        const FVector End=Center+Direction*Radius*Random.FRandRange(1.25f,1.7f);
+        const float Width=Random.FRandRange(22.f,40.f);
+        const float Length=FVector::Dist2D(Center,End);
+        const int32 Steps=FMath::Max(1,FMath::CeilToInt(Length/FMath::Min(Width*.5f,24.f)));
+        const float Margin=Width+PaintTileWidth/FMCCoffeeWipe::Size*.7072f+Length/Steps*.5f;
+        FVector Previous=Center;bool Connected=false,Accepted=false;
+        for(int32 Step=0;Step<=Steps;++Step) {
+            FHitResult Floor;
+            const FVector Candidate=FMath::Lerp(Center,End,float(Step)/Steps);
+            // Thrown paint stops at its first gap or blocker. It cannot restart
+            // on reachable tissue on the far side of a wall or delivery lane.
+            if(!Tongue->GameplaySpawnFootprint(Candidate,Margin,Floor) || !PaintAllowed(Floor.ImpactPoint)
+                || (Connected && FMath::Abs(Floor.ImpactPoint.Z-Previous.Z)>45.f)) break;
+            if(DepositSupportedPaintSegment(Connected?Previous:Floor.ImpactPoint,Floor.ImpactPoint,Width,PaintAllowed)) {
+                if(Connected) PaintDistanceCm+=FVector::Dist2D(Previous,Floor.ImpactPoint);
+                Accepted=true;
+            }
+            Previous=Floor.ImpactPoint;Connected=true;
+        }
+        if(Accepted) ++PaintStrokesAccepted;
+    }
+    // Existing 3D grime coverage preserves previous stains. Only visible nearby
+    // tooth samples with an unobstructed splash path receive the new coating.
+    const float Reach=Radius*1.7f;
+    for(TActorIterator<AMCArenaTooth> It(GetWorld());It;++It) {
+        if(!It->IsAvailable() || !It->Visual->GetStaticMesh()) continue;
+        auto* Tooth=*It;
+        if(FVector::DistSquared(Tooth->Visual->Bounds.GetBox().GetClosestPointTo(Splash),Splash)>FMath::Square(Reach)) continue;
+        const TArray<uint8> Before=Tooth->Status->NeedsCare(true)?Tooth->GrimeMask:TArray<uint8>();
+        const bool Deposited=Tooth->DepositLiquidGrime([&](FVector Point) {
+            if(FVector::DistSquared(Point,Splash)>FMath::Square(Reach)) return false;
+            FCollisionQueryParams Query(SCENE_QUERY_STAT(MCJellyPaintOcclusion),false,this);
+            Query.AddIgnoredActor(Tongue);
+            for(const auto& Jelly:Jellies) if(IsValid(Jelly)) Query.AddIgnoredActor(Jelly);
+            FHitResult Block;
+            if(!GetWorld()->LineTraceSingleByChannel(Block,Splash,Point,ECC_Visibility,Query)) return true;
+            // A hit on the target crown is allowed only at the contacted surface,
+            // never through its opposite side or an intervening tooth/wall.
+            return Block.GetActor()==Tooth && FVector::DistSquared(Block.ImpactPoint,Point)<FMath::Square(24.f);
+        });
+        // A rejected deposit leaves a clean tooth's unused volume cells intact.
+        // Only newly increased samples that the real brush can acquire belong
+        // to this event; raw bounding-volume voxels are not work targets.
+        if(!Deposited || !Tooth->Status->NeedsCare(true)) continue;
+        TArray<FVector> Points,Normals,MaskUVs;
+        Tooth->GetDirtyContactSamples(Points,Normals,&MaskUVs);
+        TArray<FDeathPaintSample>* Owned=nullptr;
+        for(int32 Index=0;Index<MaskUVs.Num();++Index) {
+            // Damage meshes can have different bounds. Use the native brush's
+            // original-crown sample coordinates rather than reprojecting a chip.
+            const FVector UV=MaskUVs[Index];
+            const float Baseline=Before.Num()==FMCSurfaceWipe::Count?FMCSurfaceWipe::Sample(Before,UV):0.f;
+            const float Current=FMCSurfaceWipe::Sample(Tooth->GrimeMask,UV);
+            if(Current<=FMath::Max(.25f,Baseline)+.005f) continue;
+            if(!Owned) Owned=&DeathPaintToothSamples.FindOrAdd(Tooth);
+            auto* Existing=Owned->FindByPredicate([&](const FDeathPaintSample& Sample){return Sample.UV.Equals(UV,.0001);});
+            if(Existing) Existing->Baseline=FMath::Min(Existing->Baseline,Baseline);
+            else {FDeathPaintSample Sample;Sample.UV=UV;Sample.Baseline=Baseline;Owned->Add(Sample);}
+        }
+        if(Owned) ++DeathPaintTeethTouched;
+    }
+    FlushPaintTiles();
+    DeathPaintCoverageAddedCells+=FMath::Max(0,WetCells()-BeforeWet);
+    UE_LOG(LogTemp,Display,TEXT("MC_CATACLYSM JELLY_SPLAT radius=%.1f tiles=%d"),Radius,PaintTiles.Num());
 }
 void AMCCataclysmEvent::ObserveConsequences()
 {
     JelliesLeft=0;for(AMCCataclysmJelly* Jelly:Jellies) if(IsValid(Jelly) && Jelly->IsEncounterAlive()) ++JelliesLeft;
     DirtLeft=0;
-    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==DirtBatch && !It->bUlcer && !It->IsClean()) ++DirtLeft;
+    PaintCoverageCells=0;PaintWetCells=0;
+    PaintTileCount=0;
+    for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It) if(It->Batch==DirtBatch && !It->bUlcer) {
+        if(!It->IsClean()) ++DirtLeft;
+        if(It->bPaintTile) {
+            ++PaintTileCount;
+            for(uint8 Cell:It->LiquidDepositMask) PaintCoverageCells+=Cell>63;
+            for(uint8 Cell:It->WipeMask) PaintWetCells+=Cell>63;
+        }
+    }
+    TSet<TWeakObjectPtr<UMCToothStatusComponent>> CountedCare;
     for(const auto& Base:CareBaselines) if(auto* Status=Base.Status.Get();Status && Status->IsAlive()) {
         if(const auto* Tooth=Cast<AMCArenaTooth>(Status->GetOwner());Tooth && !Tooth->IsAvailable()) continue;
-        if(Status->CoffeeAmount()>Base.Amount+.01f) ++DirtLeft;
+        if(Status->CoffeeAmount()>Base.Amount+.01f) {++DirtLeft;CountedCare.Add(Status);}
+    }
+    for(const auto& Entry:DeathPaintToothSamples) if(auto* Tooth=Entry.Key.Get();Tooth && Tooth->IsAvailable()
+        && Tooth->Status->NeedsCare(true) && !CountedCare.Contains(Tooth->Status)) {
+        for(const FDeathPaintSample& Sample:Entry.Value)
+            if(FMCSurfaceWipe::Sample(Tooth->GrimeMask,Sample.UV)>FMath::Max(.25f,Sample.Baseline)+.005f) {
+                ++DirtLeft;break;
+            }
     }
     DirtTotal=FMath::Max(DirtTotal,DirtLeft);ForceNetUpdate();
+}
+bool AMCCataclysmEvent::IsPaintWetAt(FVector Point) const
+{
+    // Clients reconstruct this query from the replicated tile actors as well.
+    if(GetWorld()) for(TActorIterator<AMCMouthSurface> It(GetWorld());It;++It)
+        if(It->Batch==DirtBatch && It->bPaintTile && It->IsPaintWetAt(Point)) return true;
+    return false;
 }
 void AMCCataclysmEvent::Tick(float Dt)
 {
     Super::Tick(Dt);if(!HasAuthority()) return;
+    FlushPaintTiles();
     if(IsComplete()) {
         // A completed refuge is retired only when its last rider has stepped off.
         for(int32 Index=Rafts.Num()-1;Index>=0;--Index)
@@ -305,7 +515,7 @@ FString AMCCataclysmEvent::Title() const
 FString AMCCataclysmEvent::Instruction() const
 {
     if(Phase==EMCCataclysmPhase::Cleanup) return TEXT("Очистите пятна, затронутые зубы и себя щёткой. C + ЛКМ — самоочистка.");
-    if(Phase==EMCCataclysmPhase::JellyFight) return TEXT("Убейте живучих желе, затем закончите уборку. Перед смертью желе раздувается и пачкает область вокруг.");
+    if(Phase==EMCCataclysmPhase::JellyFight) return TEXT("Желе рисует грязные дорожки. Убейте желе и очистите следы. Перед смертью оно раздувается и разбрызгивает краску вокруг.");
     if(Phase==EMCCataclysmPhase::Flooding || Phase==EMCCataclysmPhase::BranchWarning)
         return TEXT("По двое на плот. Щётка + ЛКМ — грести по направлению камеры; WASD — ходить. Гребите против течения и компенсируйте вращение. ПКМ — поручень / залезть. Берегитесь мусора!");
     if(Phase==EMCCataclysmPhase::Complete) return TEXT("Источники грязи устранены, последствия убраны.");
@@ -347,4 +557,8 @@ void AMCCataclysmEvent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
     DOREPLIFETIME(AMCCataclysmEvent,bFailed);DOREPLIFETIME(AMCCataclysmEvent,StartedAt);DOREPLIFETIME(AMCCataclysmEvent,PhaseStartedAt);
     DOREPLIFETIME(AMCCataclysmEvent,DirtBatch);DOREPLIFETIME(AMCCataclysmEvent,JelliesLeft);DOREPLIFETIME(AMCCataclysmEvent,DirtLeft);
     DOREPLIFETIME(AMCCataclysmEvent,DirtTotal);DOREPLIFETIME(AMCCataclysmEvent,Liquid);DOREPLIFETIME(AMCCataclysmEvent,Rafts);DOREPLIFETIME(AMCCataclysmEvent,Jellies);
+    DOREPLIFETIME(AMCCataclysmEvent,PaintTilesCreated);DOREPLIFETIME(AMCCataclysmEvent,PaintStrokesAccepted);
+    DOREPLIFETIME(AMCCataclysmEvent,PaintTileCount);
+    DOREPLIFETIME(AMCCataclysmEvent,PaintCoverageCells);DOREPLIFETIME(AMCCataclysmEvent,PaintWetCells);DOREPLIFETIME(AMCCataclysmEvent,PaintDistanceCm);
+    DOREPLIFETIME(AMCCataclysmEvent,DeathPaintBursts);DOREPLIFETIME(AMCCataclysmEvent,DeathPaintCoverageAddedCells);DOREPLIFETIME(AMCCataclysmEvent,DeathPaintTeethTouched);
 }

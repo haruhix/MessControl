@@ -1,0 +1,91 @@
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" MessControlEditor Win64 Development -Project=E:/DEVGAME/MessControl/MessControl.uproject -WaitMutex -NoHotReloadFromIDE
+Log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (16 physical cores, 32 logical cores)
+  Executing up to 16 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (E:\DEVGAME\MessControl).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for MessControlEditor (working set of source files changed)
+UHT compiled-in object format Default
+UHT processed MessControlEditor in 9.2940064 seconds (6 generated files written)
+Building MessControlEditor...
+===== Toolchain Information =====
+Using ISPC compiler (E:\UE\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35222 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from KawaiiPhysicsSequencer unity file: KawaiiPhysicsSequencerModule.cpp, KawaiiPhysicsSequencerMultiplierRegistry.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierSection.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTemplate.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTrack.cpp
+[Adaptive Build] Excluded from MessControl unity file: MCAnimationComparisonSubsystem.cpp, MCArenaTooth.cpp, MCArenaToothGrime.cpp, MCBossAnimInstance.cpp, MCBossCharacter.cpp, MCCataclysmDebris.cpp, MCCataclysmEvent.cpp, MCCataclysmJelly.cpp, MCCoffeeFlood.cpp, MCCoffeeVisuals.cpp, MCCoffeeWipe.cpp, MCDamageUlcer.cpp, MCDevCommands.cpp, MCDevPanelWidget.cpp, MCMouthLiquid.cpp, MCMouthSurface.cpp, MCNutBoss.cpp, MCNutBossAnimInstance.cpp, MCNutCombatEffect.cpp, MCSecondaryAnimationSolver.cpp, MCToothAnimInstance.cpp, MCVFXLab.cpp, MCVFXLabBossStation.cpp, MCCoffeePuddleTests.cpp, MCToothPianoSmoke.cpp
+[Adaptive Build] Excluded from KawaiiPhysics unity file: AnimNode_KawaiiPhysics.cpp, AnimNode_KawaiiPhysicsCollision.cpp, AnimNode_KawaiiPhysicsDebug.cpp, AnimNode_KawaiiPhysicsModifyBones.cpp, AnimNode_KawaiiPhysicsSharedPublisher.cpp, AnimNode_KawaiiPhysicsSimulation.cpp, AnimNode_KawaiiPhysicsSyncBone.cpp, KawaiiPhysics.cpp, KawaiiPhysicsBoneConstraintsDataAsset.cpp, KawaiiPhysicsCustomExternalForce.cpp, KawaiiPhysicsDeveloperSettings.cpp, KawaiiPhysicsGroundProvider.cpp, KawaiiPhysicsLibrary.cpp, KawaiiPhysicsLimitsDataAsset.cpp, KawaiiPhysicsMirrorTableCache.cpp, KawaiiPhysicsMirrorUtils.cpp, KawaiiPhysicsPresetDataAsset.cpp, KawaiiPhysicsSharedCollisionSubsystem.cpp, KawaiiPhysicsSharedPublisherTypes.cpp, KawaiiPhysicsSharedTags.cpp, KawaiiPhysicsSimpleWorldCollision.cpp, KawaiiPhysicsSyncBone.cpp, KawaiiPhysicsWindPresetDataAsset.cpp, KawaiiPhysicsWindPresetTags.cpp, AnimNotifyState_KawaiiPhysicsAddExternalForce.cpp, AnimNotifyState_KawaiiPhysicsSetAlpha.cpp, AnimNotifyState_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsAddExternalForce.cpp, AnimNotify_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsTriggerGust.cpp, KawaiiPhysicsExternalForce.cpp, KawaiiPhysicsExternalForce_Basic.cpp, KawaiiPhysicsExternalForce_Curve.cpp, KawaiiPhysicsExternalForce_Gravity.cpp, KawaiiPhysicsExternalForce_ProceduralWind.cpp, KawaiiPhysicsExternalForce_Wind.cpp
+[Adaptive Build] Excluded from KawaiiPhysicsEd unity file: AnimGraphNode_KawaiiPhysics.cpp, AnimGraphNode_KawaiiPhysicsSharedPublisher.cpp, KawaiiPhysicsAuditCommandlet.cpp, KawaiiPhysicsEd.cpp, KawaiiPhysicsEditMode.cpp, KawaiiPhysicsEditorLibrary.cpp, KawaiiPhysicsEditorTabFactories.cpp, KawaiiPhysicsEdStyle.cpp, KawaiiPhysicsEdWindowUtils.cpp, KawaiiPhysicsMcpCommentNode.cpp, KawaiiPhysicsPresetDataAssetDetails.cpp, KawaiiPhysicsPresetDiffSnapshot.cpp, SKawaiiPhysicsNodeAuditWindow.cpp, SKawaiiPhysicsPresetDiffWindow.cpp, SKawaiiPhysicsWindScopeEditPanel.cpp, SKawaiiPhysicsWindScopeWindow.cpp, KawaiiPhysicsSettingsMultiplierSectionSummary.cpp, KawaiiPhysicsSettingsMultiplierTrackEditor.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 33 action(s)
+  CPU 16 physical cores, 32 logical cores
+  Memory 31.91 GB physical, 55.97 GB/65.6 GB committed
+  UBA Storage capacity 40 GB
+[1/33] Compile [x64] MCArenaTooth.cpp
+[2/33] Compile [x64] MCArenaToothGrime.cpp
+[3/33] Compile [x64] MCCataclysmEvent.cpp
+[4/33] Compile [x64] MCCataclysmJelly.cpp
+[5/33] Compile [x64] MCCoffeeFlood.cpp
+[6/33] Compile [x64] MCCoffeePuddleTests.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(94,117): warning C4305: 'argument': truncation from 'double' to 'float'
+    TestTrue(TEXT("A crossing pen stroke deposits paint"),FMCCoffeeWipe::Deposit(Mask,Deposited,{-.1,.25},{1.1,.25},.038));
+                                                                                                                    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(100,80): warning C4305: 'argument': truncation from 'double' to 'float'
+    for(int32 I=0;I<30;++I) FMCCoffeeWipe::Stroke(Mask,{.2,.25},{.35,.25},.065,.1);
+                                                                               ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(100,75): warning C4305: 'argument': truncation from 'double' to 'float'
+    for(int32 I=0;I<30;++I) FMCCoffeeWipe::Stroke(Mask,{.2,.25},{.35,.25},.065,.1);
+                                                                          ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(103,59): warning C4305: 'argument': truncation from 'double' to 'float'
+    FMCCoffeeWipe::Deposit(Mask,Deposited,{.7,.6},{.8,.6},.038);
+                                                          ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(106,62): warning C4305: 'argument': truncation from 'double' to 'float'
+    FMCCoffeeWipe::Deposit(Mask,Deposited,{.25,.25},{.3,.25},.038);
+                                                             ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(110,115): warning C4305: 'argument': truncation from 'double' to 'float'
+    TestFalse(TEXT("Distant deposits change no tile cells"),FMCCoffeeWipe::Deposit(Mask,Deposited,{-3,-3},{-2,-2},.038));
+                                                                                                                  ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(114,67): warning C4305: 'argument': truncation from 'double' to 'float'
+    FMCCoffeeWipe::Deposit(Right,RightDeposit,{-.6,.25},{.25,.25},.038);
+                                                                  ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(120,121): warning C4305: 'argument': truncation from 'double' to 'float'
+    TestTrue(TEXT("Allowed splash coverage is deposited"),FMCCoffeeWipe::Deposit(Clipped,ClippedDeposit,{.1,.5},{.9,.5},.1,nullptr,
+                                                                                                                        ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\Tests\MCCoffeePuddleTests.cpp(125,121): warning C4305: 'argument': truncation from 'double' to 'float'
+    TestFalse(TEXT("A fully occluded splash is rejected"),FMCCoffeeWipe::Deposit(Clipped,ClippedDeposit,{.6,.5},{.8,.5},.1,nullptr,
+                                                                                                                        ^
+[7/33] Compile [x64] MCCoffeeVisuals.cpp
+[8/33] Compile [x64] MCCoffeeWipe.cpp
+[9/33] Compile [x64] MCDamageUlcer.cpp
+[10/33] Compile [x64] MCDevCommands.cpp
+[11/33] Compile [x64] MCDevPanelWidget.cpp
+[12/33] Compile [x64] MCMouthLiquid.cpp
+[13/33] Compile [x64] MCMouthSurface.cpp
+[14/33] Compile [x64] MCNutBoss.cpp
+[15/33] Compile [x64] MCToothAnimInstance.cpp
+[16/33] Compile [x64] MCToothPianoSmoke.cpp
+[17/33] Compile [x64] MCVFXLabBossStation.cpp
+[18/33] Compile [x64] Module.MessControl.1.cpp
+[19/33] Compile [x64] Module.MessControl.10.cpp
+[20/33] Compile [x64] Module.MessControl.11.cpp
+[21/33] Compile [x64] Module.MessControl.12.cpp
+[22/33] Compile [x64] Module.MessControl.13.cpp
+[23/33] Compile [x64] Module.MessControl.2.cpp
+[24/33] Compile [x64] Module.MessControl.3.cpp
+[25/33] Compile [x64] Module.MessControl.4.cpp
+[26/33] Compile [x64] Module.MessControl.5.cpp
+[27/33] Compile [x64] Module.MessControl.6.cpp
+[28/33] Compile [x64] Module.MessControl.7.cpp
+[29/33] Compile [x64] Module.MessControl.8.cpp
+[30/33] Compile [x64] Module.MessControl.9.cpp
+[31/33] Link [x64] UnrealEditor-MessControl.dll
+[32/33] Link [x64] UnrealEditor-MessControl.lib
+[33/33] WriteMetadata MessControlEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 345.90 seconds
+Output binary: E:\UE\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 359.48 seconds
+Trace written to file C:\Users\user\AppData\Local\UnrealBuildTool\Trace.uba with size 53.0kb

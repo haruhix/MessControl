@@ -1,0 +1,2627 @@
+{
+  "metadata": {
+    "mode": "paint",
+    "clip": "jelly_paint_trail",
+    "video": "E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/jelly_paint_trail.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/jelly_paint_trail.png",
+    "video_sha256": "b7a90f0aed8e4ff5c4270e6648cc8f3b8da8c184236ce2f4d41632824f2c9d42",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/jelly_paint_trail.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/jelly_paint_trail.ffconcat",
+    "genuine_source_frames": 89,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 9.016667136922479,
+    "source_time_end_seconds": 20.75000108219683,
+    "source_game_span_seconds": 11.733333945274353,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 0.0,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "353"
+        }
+      ],
+      "format": {
+        "duration": "11.766667"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.13333334028720856,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00054.png",
+      "time": 9.016667136922479,
+      "sha256": "50a0f538bd9b8862714fe1faf39c9f896063e340f54c60cad83dd63c614a7720",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1070120,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -387.7679892945862,
+          -1128.4694331417184,
+          567.1185760498045
+        ],
+        "expected_cm": [
+          -387.7679892945862,
+          -1128.4694331417184,
+          567.1185760498045
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00055.png",
+      "time": 9.150000477209687,
+      "sha256": "a3bc790646f19e8438772087ebabcf8eccacc9c1f2b61474d1e43637eadefd5e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1076914,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -359.2682846315206,
+          -1128.5638599480812,
+          568.8172607421873
+        ],
+        "expected_cm": [
+          -359.2682846315206,
+          -1128.5638599480812,
+          568.8172607421873
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00056.png",
+      "time": 9.283333817496896,
+      "sha256": "615aa5e8985d7704f58fac0808a1203f38f1d8fa4267da6da434b7c847e61575",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1075954,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -330.7685806479035,
+          -1128.658225723069,
+          570.6504211425779
+        ],
+        "expected_cm": [
+          -330.7685806479035,
+          -1128.658225723069,
+          570.6504211425779
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00057.png",
+      "time": 9.416667157784104,
+      "sha256": "ff73f1d566d90016fd4bee4c1e95706e1e3e496b0936aff1e89a0383ec80cee9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1068147,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -311.7687766332615,
+          -1128.7212583024777,
+          571.7899017333982
+        ],
+        "expected_cm": [
+          -311.7687766332615,
+          -1128.7212583024777,
+          571.7899017333982
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00058.png",
+      "time": 9.550000498071313,
+      "sha256": "aac010b2d666c84584714c3ad5d4c30554d7175e4fbe27a5d9210ea26017ae2a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1077649,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -283.2690706112985,
+          -1128.8158071715907,
+          573.4574432373045
+        ],
+        "expected_cm": [
+          -283.2690706112985,
+          -1128.8158071715907,
+          573.4574432373045
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00059.png",
+      "time": 9.683333838358521,
+      "sha256": "7758be4e3d48c410cad605ea24874fc510be95e33f37c7aa6e713063e3b73289",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1074888,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -254.7693666276814,
+          -1128.9101729465783,
+          575.2234191894529
+        ],
+        "expected_cm": [
+          -254.7693666276814,
+          -1128.9101729465783,
+          575.2234191894529
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00060.png",
+      "time": 9.81666717864573,
+      "sha256": "0575e22506f110b3d7c533cc7b10f449f7f33ba7bf0fab23b07f3732923128f5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1070722,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -235.7695632924881,
+          -1128.973144494612,
+          576.3136596679685
+        ],
+        "expected_cm": [
+          -235.7695632924881,
+          -1128.973144494612,
+          576.3136596679685
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00061.png",
+      "time": 9.950000518932939,
+      "sha256": "1f99fe6a4285639a0006a35e8497ad94a99e15105a1ab3318785b86da9de75bf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1076358,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -218.32273444881025,
+          -1119.6640291020597,
+          577.2775726318357
+        ],
+        "expected_cm": [
+          -218.32273444881025,
+          -1119.6640291020597,
+          577.2775726318357
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00062.png",
+      "time": 10.083333859220147,
+      "sha256": "9c969e4a1cd68820f842917ed702ecd000656b1f8945c118d9ff255bed885bba",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1071408,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -222.98166132060055,
+          -1091.5474631234274,
+          576.7671813964843
+        ],
+        "expected_cm": [
+          -222.98166132060055,
+          -1091.5474631234274,
+          576.7671813964843
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00063.png",
+      "time": 10.216667199507356,
+      "sha256": "f163e050635b48ae9a0c01598c12c53025eb8e579bbf796f6dae59fbd3eadb22",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1066824,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -226.08761234197777,
+          -1072.803106148131,
+          576.235137939453
+        ],
+        "expected_cm": [
+          -226.08761234197777,
+          -1072.803106148131,
+          576.235137939453
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00064.png",
+      "time": 10.350000539794564,
+      "sha256": "d3e0f9f579e5c7712def2e71ee1e43d6ece6633c4725619a69aefeac27673907",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1076427,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -230.7465388740436,
+          -1044.6865706851863,
+          575.3038330078124
+        ],
+        "expected_cm": [
+          -230.7465388740436,
+          -1044.6865706851863,
+          575.3038330078124
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00065.png",
+      "time": 10.483333880081773,
+      "sha256": "e69a7c8cda63664e37ee9691618a7462e77170a594133735fc98e8d93b1b3b76",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1073421,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -235.4054657458339,
+          -1016.5700047065541,
+          574.0028533935546
+        ],
+        "expected_cm": [
+          -235.4054657458339,
+          -1016.5700047065541,
+          574.0028533935546
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00066.png",
+      "time": 10.616667220368981,
+      "sha256": "daa1241e181e4faaf2446f4cb5f6623c3ca81a5358e9a77597290edbe7d947b7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1078783,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -244.68379940077443,
+          -1001.6688283688106,
+          572.9769744873046
+        ],
+        "expected_cm": [
+          -244.68379940077443,
+          -1001.6688283688106,
+          572.9769744873046
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00067.png",
+      "time": 10.75000056065619,
+      "sha256": "304cda0a31bd9b113513669cfde088a7f33f4a8d3a81aeb77d280e558263b330",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094939,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -260.276298093651,
+          -984.4931914100453,
+          571.3451118252268
+        ],
+        "expected_cm": [
+          -260.276298093651,
+          -984.4931914100453,
+          571.3451118252268
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00068.png",
+      "time": 10.883333900943398,
+      "sha256": "c64df8558fa23d2bc03ddd742ba98c6c97543e98e9c6d547bf2f58beaaaebf01",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1089026,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -279.0721649431523,
+          -963.738378773749,
+          569.2175903320311
+        ],
+        "expected_cm": [
+          -279.0721649431523,
+          -963.738378773749,
+          569.2175903320311
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00069.png",
+      "time": 11.016667241230607,
+      "sha256": "0f65a695b38f6ba39c7684877181399f4f83347c008a0bddcbcbf7ed33bfbf4e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1081519,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -286.7144857778153,
+          -946.3467594370153,
+          567.7915649414061
+        ],
+        "expected_cm": [
+          -286.7144857778153,
+          -946.3467594370153,
+          567.7915649414061
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00070.png",
+      "time": 11.150000581517816,
+      "sha256": "182ecaa06fab6717d8f418e16bf825784c9d42b083054fae1ce6e246c783e508",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1091477,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -295.68843666938074,
+          -919.3104611562655,
+          565.4035186767577
+        ],
+        "expected_cm": [
+          -295.68843666938074,
+          -919.3104611562655,
+          565.4035186767577
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00071.png",
+      "time": 11.283333921805024,
+      "sha256": "a515715828ac50d4fecb8e5e3455c498d295fa1e4145fb44c5e33958d215243a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1089495,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -301.58297903870357,
+          -891.4402398863823,
+          562.9533538818358
+        ],
+        "expected_cm": [
+          -301.58297903870357,
+          -891.4402398863823,
+          562.9533538818358
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00072.png",
+      "time": 11.416667262092233,
+      "sha256": "b16c0106bfa86e858c27696bf79a2df7cef4cbc6a1038693a0913cf26e822eb9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1086620,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -297.03835363614337,
+          -890.8283221623005,
+          563.0720487406132
+        ],
+        "expected_cm": [
+          -297.03835363614337,
+          -890.8283221623005,
+          563.0720487406132
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00073.png",
+      "time": 11.550000602379441,
+      "sha256": "148052435381907789533393719635b34c8ef33b596a30564beabdb92e66ccd7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094138,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -292.801149131809,
+          -887.5693582710153,
+          562.8462120005686
+        ],
+        "expected_cm": [
+          -292.801149131809,
+          -887.5693582710153,
+          562.8462120005686
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00074.png",
+      "time": 11.68333394266665,
+      "sha256": "f9e24145ffeddf2dc3040dc5e5a6416a21c79ef0e482db2238822057337a5d7c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1086627,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -285.4912544941262,
+          -868.2505434652744,
+          560.9959869384764
+        ],
+        "expected_cm": [
+          -285.4912544941262,
+          -868.2505434652744,
+          560.9959869384764
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00075.png",
+      "time": 11.816667282953858,
+      "sha256": "e3cbd721e993756949bca8db0920f4534a34c5b5be12a82499d90911daa1acde",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1077743,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -276.31190614545244,
+          -861.1868782290396,
+          560.6972942780102
+        ],
+        "expected_cm": [
+          -276.31190614545244,
+          -861.1868782290396,
+          560.6972942780102
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00076.png",
+      "time": 11.950000623241067,
+      "sha256": "d7f8b9d4b6a6e98e8ce8b8a66d7305fde1a765e0a51574a2a4eddb0c5abde142",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1088924,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -257.6374743053419,
+          -847.9733421261922,
+          560.001720819684
+        ],
+        "expected_cm": [
+          -257.6374743053419,
+          -847.9733421261922,
+          560.001720819684
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00077.png",
+      "time": 12.083333963528275,
+      "sha256": "51fc528fa2d739b97b4b627a4417a3fa89d7421d39cd9a0959014f037ba89b18",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1088432,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -231.6633287589966,
+          -842.7558864331412,
+          560.2048950195311
+        ],
+        "expected_cm": [
+          -231.6633287589966,
+          -842.7558864331412,
+          560.2048950195311
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00078.png",
+      "time": 12.216667303815484,
+      "sha256": "7d9ceb45623adc23d50fb2238fee48954c045b317f1324d575620f67da955f2b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1082719,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -212.72421602936356,
+          -844.2756785691909,
+          560.8917083740233
+        ],
+        "expected_cm": [
+          -212.72421602936356,
+          -844.2756785691909,
+          560.8917083740233
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00079.png",
+      "time": 12.350000644102693,
+      "sha256": "f4e4219ddc216844fc12532be1616f6067b1964200a621627fd9e35d896948e6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1095774,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -184.31554710477621,
+          -846.5553515154214,
+          561.9414672851561
+        ],
+        "expected_cm": [
+          -184.31554710477621,
+          -846.5553515154214,
+          561.9414672851561
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00080.png",
+      "time": 12.483333984389901,
+      "sha256": "d73178a9de8be24e97942623c512da7a6a9b8dbba8925e0fa416872f60c1c707",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1091930,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -155.90687801032664,
+          -848.835039719496,
+          562.9473876953124
+        ],
+        "expected_cm": [
+          -155.90687801032664,
+          -848.835039719496,
+          562.9473876953124
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00081.png",
+      "time": 12.61666732467711,
+      "sha256": "275ebce2eb967d01c80c314d4154d30938b0ca403cddeb32857df456df149ac8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1083925,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -155.6864747818663,
+          -829.8363373030187,
+          561.1459655761719
+        ],
+        "expected_cm": [
+          -155.6864747818663,
+          -829.8363373030187,
+          561.1459655761719
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00082.png",
+      "time": 12.750000664964318,
+      "sha256": "49db1df2c6a22356533be75865d132dbaa2d08c81c17fc087cb61b50e4a53017",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1091017,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -155.35586985424425,
+          -801.3382913072247,
+          558.2811889648438
+        ],
+        "expected_cm": [
+          -155.35586985424425,
+          -801.3382913072247,
+          558.2811889648438
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00083.png",
+      "time": 12.883334005251527,
+      "sha256": "7f6e43cec715c34d9dec9eee422a0060896fd90cb572b80ae447a50079d8127c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1089518,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -155.0252649266224,
+          -772.8402453114309,
+          555.4751586914062
+        ],
+        "expected_cm": [
+          -155.0252649266224,
+          -772.8402453114309,
+          555.4751586914062
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00084.png",
+      "time": 13.016667345538735,
+      "sha256": "4c705855fb1b72316fb58c4ff419d54b53dcf092ffbdd8d297847d7ef781646c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1082506,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -154.8048618680241,
+          -753.8415276371098,
+          553.7466583251953
+        ],
+        "expected_cm": [
+          -154.8048618680241,
+          -753.8415276371098,
+          553.7466583251953
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00085.png",
+      "time": 13.150000685825944,
+      "sha256": "aa9ed48332514b0ea2369cbb9fa1c9702ac0abf1a4c9fce54474008d62b49a8d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094865,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -154.47425702533337,
+          -725.343474012394,
+          551.2295684814453
+        ],
+        "expected_cm": [
+          -154.47425702533337,
+          -725.343474012394,
+          551.2295684814453
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00086.png",
+      "time": 13.283334026113153,
+      "sha256": "c5b795682044e439cc64b627fe7433d1d4f25ede51fc18af434ddd3fab805ecd",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1095987,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -154.14365226757354,
+          -696.8454127587563,
+          549.3708190917969
+        ],
+        "expected_cm": [
+          -154.14365226757354,
+          -696.8454127587563,
+          549.3708190917969
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00087.png",
+      "time": 13.416667366400361,
+      "sha256": "8bc6fa7afd05816d6bfef1eefb80cbc59628ffb69cb027cccf2ad0f8d88a70b5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1092471,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -153.92324920897545,
+          -677.8466950844354,
+          548.2127838134766
+        ],
+        "expected_cm": [
+          -153.92324920897545,
+          -677.8466950844354,
+          548.2127838134766
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00088.png",
+      "time": 13.55000070668757,
+      "sha256": "04ed91cc6284f868d9d8645139672db2eb714ef196567906c4aa9c0b32c4635d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1096568,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -153.59264449368106,
+          -649.3486300163368,
+          547.2736511230469
+        ],
+        "expected_cm": [
+          -153.59264449368106,
+          -649.3486300163368,
+          547.2736511230469
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00089.png",
+      "time": 13.683334046974778,
+      "sha256": "a7ec3cd75644270d30fcfa0e591b2197f4961e0b27a34792cf29ba8c69f0f729",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094516,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -153.26203995886544,
+          -620.850548736779,
+          546.8012847900391
+        ],
+        "expected_cm": [
+          -153.26203995886544,
+          -620.850548736779,
+          546.8012847900391
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00090.png",
+      "time": 13.816667387261987,
+      "sha256": "a0dc4c4dac67627078edce681abdee4fa4cbd88b8e814d608c28fc868ccf1a0a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1087341,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -153.04163697458193,
+          -601.8518243871514,
+          547.1398315429688
+        ],
+        "expected_cm": [
+          -153.04163697458193,
+          -601.8518243871514,
+          547.1398315429688
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00091.png",
+      "time": 13.950000727549195,
+      "sha256": "33efdc32cdfe75700ef242a786e5550b05eb79cb97ce2c51e5319327884028d8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1093945,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -152.71103255654657,
+          -573.3537326178262,
+          548.1156311035156
+        ],
+        "expected_cm": [
+          -152.71103255654657,
+          -573.3537326178262,
+          548.1156311035156
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00092.png",
+      "time": 14.083334067836404,
+      "sha256": "f77707b990b60f8ae2d361db16933859daa8530a42992db76c4b2764a88c8860",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1097332,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -152.3804282234421,
+          -544.8556332195791,
+          549.8328094482422
+        ],
+        "expected_cm": [
+          -152.3804282234421,
+          -544.8556332195791,
+          549.8328094482422
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00093.png",
+      "time": 14.216667408123612,
+      "sha256": "51cd9675e4a5bf39838e7a52ca565bac4fd9e1b3af58d15d405186e25b7b73c8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094218,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -154.19533149415247,
+          -525.942490042011,
+          551.2206115722656
+        ],
+        "expected_cm": [
+          -154.19533149415247,
+          -525.942490042011,
+          551.2206115722656
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00094.png",
+      "time": 14.350000748410821,
+      "sha256": "41e2c960f7026f3b9fc5279d010e9b00ab03e717542c383265e0fcdf47c2692e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1102067,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -156.91768640021814,
+          -497.5727752756586,
+          553.4607543945312
+        ],
+        "expected_cm": [
+          -156.91768640021814,
+          -497.5727752756586,
+          553.4607543945312
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00095.png",
+      "time": 14.48333408869803,
+      "sha256": "adb2795593daed65f77037ddfc9072480088286870850a48cfb595286757f09a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1096546,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -159.64004113642136,
+          -469.2030757671499,
+          556.2738189697266
+        ],
+        "expected_cm": [
+          -159.64004113642136,
+          -469.2030757671499,
+          556.2738189697266
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00096.png",
+      "time": 14.616667428985238,
+      "sha256": "c2b4f0bc4e2481bc3885abf5de5d74abc62ec1cf79cfdbc745675f1f5f65b7b7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1085399,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -161.45494423726973,
+          -450.28994784742554,
+          558.1174163818359
+        ],
+        "expected_cm": [
+          -161.45494423726973,
+          -450.28994784742554,
+          558.1174163818359
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00097.png",
+      "time": 14.750000769272447,
+      "sha256": "dcc435b616a168e47d62ba3e15f083a8b0719d4c75153f66ce30b10713cb0313",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094757,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -164.17729888854183,
+          -421.9202559678388,
+          561.0074462890625
+        ],
+        "expected_cm": [
+          -164.17729888854183,
+          -421.9202559678388,
+          561.0074462890625
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00098.png",
+      "time": 14.883334109559655,
+      "sha256": "92ae2deb64f72cc267b7c6621732e36701c0946e29be951ef671430218954e75",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1101939,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -166.8996537096764,
+          -393.5505488304083,
+          563.9374084472656
+        ],
+        "expected_cm": [
+          -166.8996537096764,
+          -393.5505488304083,
+          563.9374084472656
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00099.png",
+      "time": 15.016667449846864,
+      "sha256": "5a32e972c1a45f32296e51e630defd0958e8997a612dd87f264e0ee7f4a8498b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1093113,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -168.714557150249,
+          -374.6373903949964,
+          565.7318878173828
+        ],
+        "expected_cm": [
+          -168.714557150249,
+          -374.6373903949964,
+          565.7318878173828
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00100.png",
+      "time": 15.150000790134072,
+      "sha256": "f8be21860879c622f0ceef35fb196f8364788f85f6afa104475568d28eb5e476",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1101639,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -171.43691231110756,
+          -346.26765274187824,
+          568.372055053711
+        ],
+        "expected_cm": [
+          -171.43691231110756,
+          -346.26765274187824,
+          568.372055053711
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00101.png",
+      "time": 15.28333413042128,
+      "sha256": "9a61c6bdc7aa9157202b7280c42cbaea7e8e56d56c10a9c4b3767be865b5a128",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1100284,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -184.14611010817111,
+          -321.9207157528033,
+          569.950164794922
+        ],
+        "expected_cm": [
+          -184.14611010817111,
+          -321.9207157528033,
+          569.950164794922
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00102.png",
+      "time": 15.41666747070849,
+      "sha256": "dfb74adc50b82ea35192f5403216eb712f7fa050a69afa3f235e27aea0c4e206",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1090421,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -195.94779447412452,
+          -307.03041833336067,
+          570.6574707031251
+        ],
+        "expected_cm": [
+          -195.94779447412452,
+          -307.03041833336067,
+          570.6574707031251
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00103.png",
+      "time": 15.550000810995698,
+      "sha256": "54a293d675316acee649affd3c96f1fe3c0f0c7371cf366fad88a0112255b272",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1091704,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -213.65029118681582,
+          -284.6949108330973,
+          571.5876464843751
+        ],
+        "expected_cm": [
+          -213.65029118681582,
+          -284.6949108330973,
+          571.5876464843751
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00104.png",
+      "time": 15.683334151282907,
+      "sha256": "f5d507276aaee2b24886355219d7c194ab2339f1450e7e33eb457c7ffec8a8fd",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1081498,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -231.35284893088237,
+          -262.35940401228254,
+          572.1245117187501
+        ],
+        "expected_cm": [
+          -231.35284893088237,
+          -262.35940401228254,
+          572.1245117187501
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00105.png",
+      "time": 15.816667491570115,
+      "sha256": "073876d33f82bb5d92ac973e45e5a116c9869c809ae16358ceaaeb58df9f1e15",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1073077,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -243.1545950076595,
+          -247.46904624091337,
+          572.4368133544923
+        ],
+        "expected_cm": [
+          -243.1545950076595,
+          -247.46904624091337,
+          572.4368133544923
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00106.png",
+      "time": 15.950000831857324,
+      "sha256": "e632585e62d0f654cad5834a21fc2751234014b949be3e5830bd3a0bd8e35fa0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1080805,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -260.85721446254956,
+          -225.13347906817216,
+          572.7104644775392
+        ],
+        "expected_cm": [
+          -260.85721446254956,
+          -225.13347906817216,
+          572.7104644775392
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00107.png",
+      "time": 16.083334172144532,
+      "sha256": "60f5a11f998d5476f779408a9cabdb1c4639d79207c2d3879d16cbbed9ed663a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1076863,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -278.5598345968883,
+          -202.79785086405604,
+          572.6627502441407
+        ],
+        "expected_cm": [
+          -278.5598345968883,
+          -202.79785086405604,
+          572.6627502441407
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00108.png",
+      "time": 16.21666751243174,
+      "sha256": "20b057f7482443058f961ea3bf5a76b7059defb71ea99bf62f124cae6b4e4c6d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1069324,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -296.0920096972534,
+          -210.12094632974163,
+          571.1864624023439
+        ],
+        "expected_cm": [
+          -296.0920096972534,
+          -210.12094632974163,
+          571.1864624023439
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00109.png",
+      "time": 16.35000085271895,
+      "sha256": "22dd07766d00ffc1408a735173d2cbfda074eedfe8d4e409cf80456c7ee40987",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1078848,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -322.39018097060057,
+          -221.10557325125342,
+          568.9991455078126
+        ],
+        "expected_cm": [
+          -322.39018097060057,
+          -221.10557325125342,
+          568.9991455078126
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00110.png",
+      "time": 16.483334193006158,
+      "sha256": "e252623e0a721f40a60bb3051afca161b185083e433b57298184773777956c4e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1077780,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -348.688352583672,
+          -232.09016965707758,
+          566.7354888916017
+        ],
+        "expected_cm": [
+          -348.688352583672,
+          -232.09016965707758,
+          566.7354888916017
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00111.png",
+      "time": 16.616667533293366,
+      "sha256": "17cbc6fe1bd49d3dfb6a5c0c6431a892bcbd325396ad95cc05b09050efadd540",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1072755,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -366.22046699238626,
+          -239.41323392762718,
+          565.1327514648439
+        ],
+        "expected_cm": [
+          -366.22046699238626,
+          -239.41323392762718,
+          565.1327514648439
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00112.png",
+      "time": 16.750000873580575,
+      "sha256": "c752f72f0a6e7c96155fc5048cb646ad92d7239d7bed7d53b23c288a03f588c3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1080362,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -392.51863758628474,
+          -250.39792188051388,
+          562.678192138672
+        ],
+        "expected_cm": [
+          -392.51863758628474,
+          -250.39792188051388,
+          562.678192138672
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00113.png",
+      "time": 16.883334213867784,
+      "sha256": "5ff8f2a7a890242ffc6277e6c2950835cbb1c429b7377f03261bef059918995a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1082494,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -418.816807840459,
+          -261.3826403490881,
+          560.2276000976564
+        ],
+        "expected_cm": [
+          -418.816807840459,
+          -261.3826403490881,
+          560.2276000976564
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00114.png",
+      "time": 17.016667554154992,
+      "sha256": "39b12d691de6cd3d2bc7a1586261a52da0a088e38f743d7c6ba8a8dcb1f556e0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1080049,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -436.3489212300003,
+          -268.7057961667002,
+          558.5850677490236
+        ],
+        "expected_cm": [
+          -436.3489212300003,
+          -268.7057961667002,
+          558.5850677490236
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00115.png",
+      "time": 17.1500008944422,
+      "sha256": "6f45a2e2baa6c8bffc2d72ea80902e4b36a5dd423b851616842eefb16cec3c17",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1083447,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -409.8355346507558,
+          -258.2522841492207,
+          560.390609741211
+        ],
+        "expected_cm": [
+          -409.8355346507558,
+          -258.2522841492207,
+          560.390609741211
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00116.png",
+      "time": 17.28333423472941,
+      "sha256": "1c7b7ca0857e921557ca804596584a23d20144d6162516fcd6647fd8f382f193",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1080068,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -383.32214841123573,
+          -247.79874161605335,
+          562.142303466797
+        ],
+        "expected_cm": [
+          -383.32214841123573,
+          -247.79874161605335,
+          562.142303466797
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00117.png",
+      "time": 17.416667575016618,
+      "sha256": "fb49521f129352aa52c19be11386af4609e2932f8403d8b17a3e69cd8da37019",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1073644,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -365.64655781137185,
+          -240.82969291681695,
+          563.3733673095704
+        ],
+        "expected_cm": [
+          -365.64655781137185,
+          -240.82969291681695,
+          563.3733673095704
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00118.png",
+      "time": 17.550000915303826,
+      "sha256": "addf92ac905ca08f1be5d3bacf30bc070a3b62016293417c3f097b432b533ef1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1080931,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -339.13317157185156,
+          -230.37615038364993,
+          565.1726531982423
+        ],
+        "expected_cm": [
+          -339.13317157185156,
+          -230.37615038364993,
+          565.1726531982423
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00119.png",
+      "time": 17.683334255591035,
+      "sha256": "a747360b317ab58b8d3fc159fc765f80a9b9e7ccce0f798f1484c61cb480b956",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1078505,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -312.6197853323313,
+          -219.92260785048256,
+          566.8432769775392
+        ],
+        "expected_cm": [
+          -312.6197853323313,
+          -219.92260785048256,
+          566.8432769775392
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00120.png",
+      "time": 17.816667595878243,
+      "sha256": "46664d20d9f759bf37b9209d1495547f67c944ab7f2277a93e59449b6a10de02",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1071383,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -294.94419439274316,
+          -212.95358966693368,
+          568.0180969238282
+        ],
+        "expected_cm": [
+          -294.94419439274316,
+          -212.95358966693368,
+          568.0180969238282
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00121.png",
+      "time": 17.950000936165452,
+      "sha256": "2a58df316c4bfb9e3137e4e04c10f75b0fb679835533dde51594f3dac7afc4b3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1081309,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -268.43080849294734,
+          -202.50001661807903,
+          569.8250274658204
+        ],
+        "expected_cm": [
+          -268.43080849294734,
+          -202.50001661807903,
+          569.8250274658204
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00122.png",
+      "time": 18.08333427645266,
+      "sha256": "3d3b63f8f27c4bd18d41832e9082c36b27a2c2a9b867d986eae187c3b7d47f16",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1077469,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -241.9174225931515,
+          -192.0464435692245,
+          571.6039428710939
+        ],
+        "expected_cm": [
+          -241.9174225931515,
+          -192.0464435692245,
+          571.6039428710939
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00123.png",
+      "time": 18.21666761673987,
+      "sha256": "b27046b7288867c390b96ffc19b99e8463589975ddbb279f30b56ce7fa6f296e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1069325,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -235.38204027192683,
+          -174.20573973562784,
+          572.7548065185548
+        ],
+        "expected_cm": [
+          -235.38204027192683,
+          -174.20573973562784,
+          572.7548065185548
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00124.png",
+      "time": 18.350000957027078,
+      "sha256": "21f6ba852a64440047b01315afb3a4bcd1890788d8d1f7840872d08195b2df92",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1076842,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -225.57869146945336,
+          -147.44474195908924,
+          574.164535522461
+        ],
+        "expected_cm": [
+          -225.57869146945336,
+          -147.44474195908924,
+          574.164535522461
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00125.png",
+      "time": 18.483334297314286,
+      "sha256": "d7ac1b241777fa3a301d9c069578473f296880b1641c7fe2fe9ee44cc99cbec0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1074149,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -215.77540437780385,
+          -120.68368383062398,
+          575.597885131836
+        ],
+        "expected_cm": [
+          -215.77540437780385,
+          -120.68368383062398,
+          575.597885131836
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00126.png",
+      "time": 18.616667637601495,
+      "sha256": "82cf409075465c7ee383e58e8ec11ade46e9e0422fc48e28b10e1d0d5f9d2f23",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1065929,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -209.2398389624541,
+          -102.84297795868156,
+          576.2831115722659
+        ],
+        "expected_cm": [
+          -209.2398389624541,
+          -102.84297795868156,
+          576.2831115722659
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00127.png",
+      "time": 18.750000977888703,
+      "sha256": "001bca5e414280c4e0807dbe5c567d1c13932229627f872b88160eb7b4f0d8c1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1073945,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -199.43655187080458,
+          -76.0819198302163,
+          577.3220367431643
+        ],
+        "expected_cm": [
+          -199.43655187080458,
+          -76.0819198302163,
+          577.3220367431643
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00128.png",
+      "time": 18.883334318175912,
+      "sha256": "70761d60878aecd279feb21e7363d83078b877c6d76a52bc00d122ff33fc0700",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1073281,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -189.63320306833134,
+          -49.320922053677464,
+          578.0591888427737
+        ],
+        "expected_cm": [
+          -189.63320306833134,
+          -49.320922053677464,
+          578.0591888427737
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00129.png",
+      "time": 19.01666765846312,
+      "sha256": "3d58335cca4e2b49d957f138b5055f3cb57123b705258d583b291e3c5201cfbf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1067413,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -183.0976973254592,
+          -31.480338923933573,
+          578.4438629150393
+        ],
+        "expected_cm": [
+          -183.0976973254592,
+          -31.480338923933573,
+          578.4438629150393
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00130.png",
+      "time": 19.15000099875033,
+      "sha256": "2a77e9a66e38edb7f931a70a3d6ea927a2004c6c03e3dcf4e1dc56108100fa5b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1072204,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -196.27787879016864,
+          -13.048710057330595,
+          577.923522949219
+        ],
+        "expected_cm": [
+          -196.27787879016864,
+          -13.048710057330595,
+          577.923522949219
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00131.png",
+      "time": 19.283334339037538,
+      "sha256": "979f933ffc3d8821e6e393ac5a793bbc9b35f91549b689054aa934083987818d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1071234,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -220.94982742681555,
+          1.218417448429932,
+          576.610046386719
+        ],
+        "expected_cm": [
+          -220.94982742681555,
+          1.218417448429932,
+          576.610046386719
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00132.png",
+      "time": 19.416667679324746,
+      "sha256": "a33e3790d9fd47b6144f672ec21a513ae9cf136807e0b09aa618775fcc8caaa2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1065767,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -237.39779227864847,
+          10.729754410436726,
+          575.7065277099612
+        ],
+        "expected_cm": [
+          -237.39779227864847,
+          10.729754410436726,
+          575.7065277099612
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00133.png",
+      "time": 19.550001019611955,
+      "sha256": "338356ca8661a7d8e8bd2d82c3ed594e7767be53a9639899c7e45312584eeaa5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1075115,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -262.06974023584667,
+          24.996820884822,
+          574.2839965820315
+        ],
+        "expected_cm": [
+          -262.06974023584667,
+          24.996820884822,
+          574.2839965820315
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00134.png",
+      "time": 19.683334359899163,
+      "sha256": "c0a3391f7c2cbf0f381b3cce17836165509a5cac6d1eb267f2bad4ca43e2b84d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1074429,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -286.7419926704713,
+          39.26382293058907,
+          572.7562561035159
+        ],
+        "expected_cm": [
+          -286.7419926704713,
+          39.26382293058907,
+          572.7562561035159
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00135.png",
+      "time": 19.816667700186372,
+      "sha256": "e72779aba6eab256d461a7188398036537b6d73acc682d4dc03f155ff753c5b4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1066153,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -303.1901392575321,
+          48.775035791499704,
+          571.5536041259768
+        ],
+        "expected_cm": [
+          -303.1901392575321,
+          48.775035791499704,
+          571.5536041259768
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00136.png",
+      "time": 19.95000104047358,
+      "sha256": "e289f0787a5e9bd78e4cecb93ed00a4816a72c1821bec8c6737ceb1afc32996d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1073859,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -297.7204211232827,
+          66.70214851610524,
+          571.2755432128909
+        ],
+        "expected_cm": [
+          -297.7204211232827,
+          66.70214851610524,
+          571.2755432128909
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00137.png",
+      "time": 20.08333438076079,
+      "sha256": "abe21a387be5ba731eb68e181551c26d7ff9451fdc4988ef4332bc6697a07a5f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1067887,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -277.1798696035853,
+          86.45925385013311,
+          571.7653503417971
+        ],
+        "expected_cm": [
+          -277.1798696035853,
+          86.45925385013311,
+          571.7653503417971
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00138.png",
+      "time": 20.216667721047997,
+      "sha256": "878c8791b25b6885db038cc1807eee64792744031b5edcd4da8d63b4e13304a1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1065247,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -263.4861683639708,
+          99.63063706235994,
+          571.9583892822268
+        ],
+        "expected_cm": [
+          -263.4861683639708,
+          99.63063706235994,
+          571.9583892822268
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00139.png",
+      "time": 20.350001061335206,
+      "sha256": "ad50dec81fc9cf5c859edcefd4162b24fa68f9a4bed2a64acf57b90741cfe376",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1073331,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -242.94561684427345,
+          119.38774239638781,
+          572.0764007568362
+        ],
+        "expected_cm": [
+          -242.94561684427345,
+          119.38774239638781,
+          572.0764007568362
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00140.png",
+      "time": 20.483334401622415,
+      "sha256": "2ada8b3992fea280bda83481659676003d926d7fa9d8369f52a75c41ce9eea67",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1070070,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -222.40506532457607,
+          139.1448477304158,
+          572.1118164062502
+        ],
+        "expected_cm": [
+          -222.40506532457607,
+          139.1448477304158,
+          572.1118164062502
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00141.png",
+      "time": 20.616667741909623,
+      "sha256": "ee4265f9e0694d82cdd8bcaea8b0c5b621f6a5f1ac4ede24639500c9af8e52e0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1062362,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -208.71136408496136,
+          152.31623094264273,
+          572.0654449462893
+        ],
+        "expected_cm": [
+          -208.71136408496136,
+          152.31623094264273,
+          572.0654449462893
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/JellyPaintSolo/Runs/20261014T164131Z_paint_a46c636d/frames/00142.png",
+      "time": 20.75000108219683,
+      "sha256": "3a46d89b59ef35890187814c6545d2deb63fe25d2f366c5a75fe055125090619",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1072241,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -188.170812565264,
+          172.07333627667083,
+          571.9114837646487
+        ],
+        "expected_cm": [
+          -188.170812565264,
+          172.07333627667083,
+          571.9114837646487
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    }
+  ]
+}

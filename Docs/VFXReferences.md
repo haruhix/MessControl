@@ -142,13 +142,81 @@ and waiting sides. Each side has its own 1.5 s clear-fog cue and crown-height
 chevrons. No new shader asset or emitter is required. Runtime coverage, gameplay
 captures and inspection status are recorded in `Artifacts/FogRoulette_20261014`.
 
-The later timing adjustment reduces post-selection preparation to 0.5 s, followed
-by the retained 1.5 s final fog opening: 2 s total until impact. Audio urgency
-uses that shorter preparation interval. Existing cue assets are reused. Three
-targeted rule tests and one short solo F3 timing check passed; measurements are
-in `Artifacts/FogStrikeDelay_20261014`.
-
 The current post-selection delay is 3.5 s: 2 s preparation plus the retained
 1.5 s final fog opening. Existing effects and audio are reused. Three targeted
 timing checks and a short solo F3 check passed after integration; measurements
 are in `Artifacts/FogStrikeDelay35_20261014`.
+
+## Mouth inlet wave and throat outflow — 2026-10-14
+
+This section records the accepted graph-v3 pass. Current graph-v4 coverage is
+documented in the full-mouth section below.
+
+| Original source | Reproducible technique | MessControl adaptation and status |
+|---|---|---|
+| [WIZ459: procedural river shader in UE5](https://realtimevfx.com/t/wip-procedural-river-water-shader-in-ue5/21360) | Relate directional waves, optical flow and foam intensity so the surface reads as moving water. | Reuse the reviewed direction for the Cataclysm branch: a leading wave enters through the mouth inlet, with longitudinal broken foam moving toward the placed throat. Retain the existing coffee/cola material identity. Graph v2 preview exposed steep lateral curtains. The targeted v3 repair is compiled/saved; the fresh arrival/throat/player-camera preview passed focused review (see VisualReview.json). |
+| [Pete Dimitrov: UE5 vortex material, part three](https://petedimitrovart.com/p/amarantos-007-tut03/) | Radius and polar angle transform tiling noise into inward moving, rotating liquid. | Localize inward froth to the throat, using the project's existing liquid-detail texture. Adapt the coordinate technique, without the tutorial's luminous magic colors, separate refraction layer, or creator assets. Inward polar foam is compiled into both graph-v3 presets and remains enabled while the throat is wet, including Holding. Continuous outlet timing passed the solo check and the final preview was reviewed. |
+| [Epic 5.8: coordinate expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/coordinates-material-expressions-in-unreal-engine), [math expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/math-material-expressions-in-unreal-engine) | World-space projection and time-driven UV offsets; dot products select the downstream coordinate and angle/radius select the drain neighborhood. | Use the same inlet, throat, event time and front parameters as native simulation. A material mask cannot determine gameplay containment or collision. Material shader compilation, source-package preservation and a short solo preview are required; network and GPU-cost measurement remain outside this authoring pass. |
+
+The presentation target is an entering, persistent river flowing toward a hole.
+The deep Cataclysm must not reuse the ordinary top-down jet, radial impact mound,
+or a globally rising bathtub plane as its arrival cue. A front crossing the
+arena, faster longitudinal streaks and bounded throat turbulence must agree
+with native current direction. This is an analytic game-water treatment rather
+than a fluid simulation; no external texture or fluid cache is required.
+
+The material migration saved exactly four owned liquid packages under
+`/Game/Cataclysm/Storm`; the spray material was unchanged. All 32 recorded
+source liquid packages retained their SHA256, and the editor had no dirty
+packages before or after authoring. `Artifacts/CataclysmInflow_20261014/MaterialReport.json`
+records graph version 3 and the native math hash. These authoring checks do not
+prove runtime coverage, GPU height agreement, multiplayer behavior or frame cost.
+Source review for that pass confirmed that native `StormHeightAt` and the generated
+WPO use the same wet mask, micro/macro waves, entering crest and continuous
+drain dip. Surface normals take a 2 cm central difference of the whole height
+field, then add the retained texture normal detail. A separate 40 cm material
+border fade softens the arena edge; it does not change native containment.
+The historical v2 material report records the header hash at authoring time;
+a subsequent C++ cast correction changed that hash without changing its formula.
+The v3 report was authored after the native arrival-field correction.
+The first gameplay-camera review found a concrete v2
+failure: applying the whole wet/domain mask to base-depth lowering created
+steep side curtains that refracted the green tongue zones. V3 separates arrival
+from domain clipping, so only the advancing/drying front changes base depth.
+In v3, lateral/outlet taper controlled opacity and wave/drain displacement.
+Native public height returns dry height at wetness <=0.001 to keep rafts off
+invisible water; fully masked GPU vertices retain the smooth base plane.
+Height parity applies to visible wet water, not those invisible vertices.
+The corrected v3 preview passed the focused gameplay-camera review: the incoming
+front, continuous throat outflow and native player-camera wave motion are readable,
+and the reviewed lateral edges no longer show v2 curtains. Evidence is in
+`Artifacts/CataclysmInflow_20261014/VisualReview.json` and the 11.67-second
+`inflow_preview.mp4`. Ten native solo checks passed over arrival plus eight
+seconds of Holding. Final natural recession, full balance, multiplayer and GPU
+validation remain deferred; the v2 preview is not an accepted visual result.
+
+## Full mouth water and gel-pen trail — 2026-10-15
+
+Reuses the original WIZ459 river, Pete Dimitrov polar drain and Sam Perzanowski
+gel references reviewed above. Water graph v4 removes the lateral/outlet taper:
+the whole mouth rectangle receives the passing front, while the drain radius
+only controls local depression and turbulence. The descending lip spans the
+mouth width using the actual source-mesh bounds. Both isolated storm presets
+compiled and saved; source liquid packages remained unchanged. Twelve focused
+solo checks passed, including wet side lanes and a 3811.07 cm outlet lip matching
+the mouth width. Arrival, held outlet and native hero-camera captures were
+reviewed in `Artifacts/CataclysmFullWidth_20261015`; GPU readback/cost and network
+validation remain deferred.
+
+The gel-pen trail uses a separate masked, lit wet-film material driven solely
+by a replicated 64×64 additive coverage mask. It has a small mask-derived
+meniscus, restrained reflected glint and no extra transparent layer or external
+textures. The saved material is `/Game/Cataclysm/Jelly/M_CataclysmPaintTrail`.
+Wandering gel deposits connected strokes; its balloon rupture adds a wide splat
+and bounded radial drops. Cold Editor integration passed, as did two focused
+native tests and nine solo checks. The reviewed clips show connected green
+paths, inflation/pop, a persistent splat and local removal by the ordinary brush.
+The mask edges remain angular and the coating fairly flat; existing white hit
+flashes partly hide the gel silhouette. This center-arena run coated no teeth,
+so nearby tooth presentation and full encounter cleanup remain separate checks.
+Evidence and genuine clips are in `Artifacts/JellyPaint_20261015`.

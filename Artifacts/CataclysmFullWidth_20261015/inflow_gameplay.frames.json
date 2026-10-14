@@ -1,0 +1,1432 @@
+{
+  "metadata": {
+    "mode": "inflow",
+    "clip": "inflow_gameplay",
+    "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_gameplay.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_gameplay.png",
+    "video_sha256": "0d80abaca6c797b6bf8834c9b765f9ce797adbb425d609ac9fcf50a32e22d6a3",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_gameplay.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmFullWidth_20261015/inflow_gameplay.ffconcat",
+    "genuine_source_frames": 42,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 19.383334344252944,
+    "source_time_end_seconds": 22.800001189112663,
+    "source_game_span_seconds": 3.4166668448597193,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 0.0,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "103"
+        }
+      ],
+      "format": {
+        "duration": "3.433333"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00100.png",
+      "time": 19.383334344252944,
+      "sha256": "9729e91b9a7d1bf9755e58a8d738a20b8c7c91ee4e1b86130af398a9d6c511bf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1557619,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1034.5448423116613,
+          -1213.8366193701554,
+          997.9188383139638
+        ],
+        "expected_cm": [
+          -1034.5448423116613,
+          -1213.8366193701554,
+          997.9188383139638
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00101.png",
+      "time": 19.46666768193245,
+      "sha256": "32c165b372e2322be5ad8e67c91eab562276f001159d7418c31e9cbe9be79511",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1432049,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -959.581896150514,
+          -1190.631178617307,
+          1094.8020172842848
+        ],
+        "expected_cm": [
+          -959.581896150514,
+          -1190.631178617307,
+          1094.8020172842848
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00102.png",
+      "time": 19.550001019611955,
+      "sha256": "e43e169fc404a0aff0df4ac201e85cc6c46aad8a9e05ee6a3f6329e96cb0b88c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1421827,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -914.771850163457,
+          -1178.7975478505732,
+          1146.3812225433498
+        ],
+        "expected_cm": [
+          -914.771850163457,
+          -1178.7975478505732,
+          1146.3812225433498
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00103.png",
+      "time": 19.63333435729146,
+      "sha256": "803f364fa4a4d32d6252a8faffdc7c83302b6cf2f537c3bb3c47145375320ad5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1419113,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -887.6416721607192,
+          -1172.752158343287,
+          1176.2787175426643
+        ],
+        "expected_cm": [
+          -887.6416721607192,
+          -1172.752158343287,
+          1176.2787175426643
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00104.png",
+      "time": 19.716667694970965,
+      "sha256": "f49448013fde46cf4078699e930250fb6d52acc7f4ab160c4ac3905f2abef69b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1425616,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -870.239481653968,
+          -1169.5450875899442,
+          1196.6742887915098
+        ],
+        "expected_cm": [
+          -870.239481653968,
+          -1169.5450875899442,
+          1196.6742887915098
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00105.png",
+      "time": 19.80000103265047,
+      "sha256": "b38112883368248ce0481fc91864cd0f497c6724f6c144143252e74fe184436a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1428148,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -858.0510105729885,
+          -1167.752263591399,
+          1213.3052465418627
+        ],
+        "expected_cm": [
+          -858.0510105729885,
+          -1167.752263591399,
+          1213.3052465418627
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00106.png",
+      "time": 19.883334370329976,
+      "sha256": "ffd6c1611e76bd16aebfc9561b3971fa22c367250eadaaa6b4b08657b212500a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1432763,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -848.6036817753599,
+          -1166.6765256341675,
+          1228.582420754657
+        ],
+        "expected_cm": [
+          -848.6036817753599,
+          -1166.6765256341675,
+          1228.582420754657
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00107.png",
+      "time": 19.96666770800948,
+      "sha256": "4436c238d90447242bea1815b7f3c0c6fda569677432ed7918c2688cc2fb022c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1430305,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -840.4875525725909,
+          -1165.9671936006587,
+          1242.7513472451426
+        ],
+        "expected_cm": [
+          -840.4875525725909,
+          -1165.9671936006587,
+          1242.7513472451426
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00108.png",
+      "time": 20.050001045688987,
+      "sha256": "756a2047a43cdc97888f633da144c35d1b965a7b662565b3a8ca01e7846f68ec",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1440206,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -832.1834170991685,
+          -1165.4279314636826,
+          1254.054581760383
+        ],
+        "expected_cm": [
+          -832.1834170991685,
+          -1165.4279314636826,
+          1254.054581760383
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00109.png",
+      "time": 20.133334383368492,
+      "sha256": "5c36fa7360a8c97200c03c08e1735917e4552d1198ed0c900275bca62a6203a9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1425152,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -823.1140500808624,
+          -1164.867822217585,
+          1261.8199711291425
+        ],
+        "expected_cm": [
+          -823.1140500808624,
+          -1164.867822217585,
+          1261.8199711291425
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00110.png",
+      "time": 20.216667721047997,
+      "sha256": "65da26b5b27589819ce13b68771db0bd140e322a3682bc5ab8645f224f25f9d4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1434890,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -813.1010761030583,
+          -1164.2169121016968,
+          1263.617614167857
+        ],
+        "expected_cm": [
+          -813.1010761030583,
+          -1164.2169121016968,
+          1263.617614167857
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00111.png",
+      "time": 20.300001058727503,
+      "sha256": "95ede1f4494b4094f9e439860687ea455157b94c51563a3c5c3b18fcc8b66087",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1426216,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -804.0325299524308,
+          -1163.4486587459721,
+          1257.645192399561
+        ],
+        "expected_cm": [
+          -804.0325299524308,
+          -1163.4486587459721,
+          1257.645192399561
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00112.png",
+      "time": 20.383334396407008,
+      "sha256": "d451722cfee356bc795414b4b2b33044c7c0c4a80d46f26e53a81db280849eca",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1446714,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -796.8445689536142,
+          -1162.5678572942134,
+          1245.2461217161267
+        ],
+        "expected_cm": [
+          -796.8445689536142,
+          -1162.5678572942134,
+          1245.2461217161267
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00113.png",
+      "time": 20.466667734086514,
+      "sha256": "286a7d665b9d41f86fb6bb1568851b6df20bf8a763a9ffebf26bdc212e6d6b37",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1445560,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -791.5138604461396,
+          -1161.5898827455494,
+          1230.2770289463595
+        ],
+        "expected_cm": [
+          -791.5138604461396,
+          -1161.5898827455494,
+          1230.2770289463595
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00114.png",
+      "time": 20.55000107176602,
+      "sha256": "523bd13550b5074833d5c2ac8a18033dd17be0fbf66b5b987f95128fe0deb82c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1424737,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -785.9147623042469,
+          -1160.5597537886017,
+          1216.5956850554508
+        ],
+        "expected_cm": [
+          -785.9147623042469,
+          -1160.5597537886017,
+          1216.5956850554508
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00115.png",
+      "time": 20.633334409445524,
+      "sha256": "aee1d94999978a7ed27c09fd950b3d5341f6519b5a6cc3f8a8d807c66ab6d1f7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1419731,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -779.7276831173717,
+          -1159.6959492587246,
+          1206.5495091611192
+        ],
+        "expected_cm": [
+          -779.7276831173717,
+          -1159.6959492587246,
+          1206.5495091611192
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00116.png",
+      "time": 20.71666774712503,
+      "sha256": "1adfc531ad8fb1fde231aa7e2b5300f21fda3b3f5175202c7d924664c0314084",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1433261,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -774.5560677660199,
+          -1158.922188109186,
+          1203.415702466802
+        ],
+        "expected_cm": [
+          -774.5560677660199,
+          -1158.922188109186,
+          1203.415702466802
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00117.png",
+      "time": 20.800001084804535,
+      "sha256": "46d439a0e124aa60d0de6d33c1ffa78f1f3e7367081e50021af66281c337d85a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1427489,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -769.47448548899,
+          -1158.1152282865087,
+          1207.8768480844456
+        ],
+        "expected_cm": [
+          -769.47448548899,
+          -1158.1152282865087,
+          1207.8768480844456
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00118.png",
+      "time": 20.88333442248404,
+      "sha256": "6d75180929dc76995d50abfa3a096465d6c5d55271074b87acd4f5330b3c9a64",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1437390,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -764.1299532327571,
+          -1157.285262928332,
+          1217.4384848506952
+        ],
+        "expected_cm": [
+          -764.1299532327571,
+          -1157.285262928332,
+          1217.4384848506952
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00119.png",
+      "time": 20.966667760163546,
+      "sha256": "28664ab855b8354b74e8129ebfee5b13be52964c5d7cf7736eb4e68338fbfb83",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1434194,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -758.0883771323676,
+          -1156.466751038615,
+          1228.2448801403143
+        ],
+        "expected_cm": [
+          -758.0883771323676,
+          -1156.466751038615,
+          1228.2448801403143
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00120.png",
+      "time": 21.05000109784305,
+      "sha256": "14df053c1238a132f15936d24009afe1aa53179ddad8cc36d0d3cf82007704f1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1438157,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -751.1849125196826,
+          -1155.6586047095846,
+          1237.3313954540404
+        ],
+        "expected_cm": [
+          -751.1849125196826,
+          -1155.6586047095846,
+          1237.3313954540404
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00121.png",
+      "time": 21.133334435522556,
+      "sha256": "a5950857719ad50b15cbef6f32e4ef0b4ebccb0b0119978a71f2509eb80c1e65",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1428824,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -744.3451546828876,
+          -1154.6733674233496,
+          1244.6295254760907
+        ],
+        "expected_cm": [
+          -744.3451546828876,
+          -1154.6733674233496,
+          1244.6295254760907
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00122.png",
+      "time": 21.21666777320206,
+      "sha256": "36e3894e6ddd090a1c03dce806ec5de245268d84558b7594598deb7f58c70199",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1417561,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -737.4285831980528,
+          -1153.4510702253292,
+          1250.2126278655965
+        ],
+        "expected_cm": [
+          -737.4285831980528,
+          -1153.4510702253292,
+          1250.2126278655965
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00123.png",
+      "time": 21.300001110881567,
+      "sha256": "e9943362f606ed11f15bbed5a9bd2da5198e1e53d1151ca22278f02bd6a01f6b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1412719,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -730.18257438045,
+          -1152.150077799784,
+          1254.1487894839236
+        ],
+        "expected_cm": [
+          -730.18257438045,
+          -1152.150077799784,
+          1254.1487894839236
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00124.png",
+      "time": 21.383334448561072,
+      "sha256": "2a282b43874a312fd4228f3cd0bcf5b6c52f3622a933dff925b02d9ca29ab7e9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1430703,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -722.3036808707946,
+          -1151.0315044078577,
+          1256.2168803576878
+        ],
+        "expected_cm": [
+          -722.3036808707946,
+          -1151.0315044078577,
+          1256.2168803576878
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00125.png",
+      "time": 21.466667786240578,
+      "sha256": "157e2265e4e0ae86d7db50804681ffbff4b7ee753bffbca1b9d97748a870fd3b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1431211,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -713.903523637646,
+          -1150.2958545499314,
+          1255.924191435425
+        ],
+        "expected_cm": [
+          -713.903523637646,
+          -1150.2958545499314,
+          1255.924191435425
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00126.png",
+      "time": 21.550001123920083,
+      "sha256": "cc48ad82e624c3855b51d24aa9c6493900b805c22f894add3a2d3d9f3b3b3179",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1445822,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -705.6247758418374,
+          -1149.7980585529706,
+          1252.859784935563
+        ],
+        "expected_cm": [
+          -705.6247758418374,
+          -1149.7980585529706,
+          1252.859784935563
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00127.png",
+      "time": 21.63333446159959,
+      "sha256": "d20f703bc353cade7b1760433851e5f13dd9437193ca1322fc4d9a9facefe62b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1442256,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -697.9708549215044,
+          -1149.3433031127186,
+          1247.4410089838232
+        ],
+        "expected_cm": [
+          -697.9708549215044,
+          -1149.3433031127186,
+          1247.4410089838232
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00128.png",
+      "time": 21.716667799279094,
+      "sha256": "0fe0743b84c8ebc2e54edb7fff7cfdc746c1b2f234f7336fb1d297f18fad33b2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1440284,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -691.0639337119084,
+          -1148.856161769289,
+          1241.1663435912556
+        ],
+        "expected_cm": [
+          -691.0639337119084,
+          -1148.856161769289,
+          1241.1663435912556
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00129.png",
+      "time": 21.8000011369586,
+      "sha256": "9bb83daf48f0ed7d9b76eb50666894ab4362ea92e7edd5ebe072e985ee6a7231",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1442164,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -684.0806831776895,
+          -1148.4562041275158,
+          1235.0736034728025
+        ],
+        "expected_cm": [
+          -684.0806831776895,
+          -1148.4562041275158,
+          1235.0736034728025
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00130.png",
+      "time": 21.883334474638104,
+      "sha256": "f958b462997400c8e1417ae960d6bd2ae9e6a849621d6615b63d975e1276eab8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1442291,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -677.5179240911218,
+          -1147.9929158169862,
+          1230.233309423049
+        ],
+        "expected_cm": [
+          -677.5179240911218,
+          -1147.9929158169862,
+          1230.233309423049
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00131.png",
+      "time": 21.96666781231761,
+      "sha256": "d25894ef58a8c0d9816e48de2621b9cd0c911d0602f57de5e25c513789f7302c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1426835,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -671.6864793233632,
+          -1147.3223245042163,
+          1227.6321691296066
+        ],
+        "expected_cm": [
+          -671.6864793233632,
+          -1147.3223245042163,
+          1227.6321691296066
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00132.png",
+      "time": 22.050001149997115,
+      "sha256": "13f6ace2048541ae8ac65f80fa7d3b55d7303642470fc66929fb22b0978e6f38",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1422341,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -665.9333442553843,
+          -1146.5627554906378,
+          1227.3891123003991
+        ],
+        "expected_cm": [
+          -665.9333442553843,
+          -1146.5627554906378,
+          1227.3891123003991
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00133.png",
+      "time": 22.13333448767662,
+      "sha256": "654b5f5e1e05f7821911fd1ef81afd6e15df8cbedab7eb51855652b053662272",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1406410,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -659.8835647038409,
+          -1145.7364797062544,
+          1228.6600778233128
+        ],
+        "expected_cm": [
+          -659.8835647038409,
+          -1145.7364797062544,
+          1228.6600778233128
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00134.png",
+      "time": 22.216667825356126,
+      "sha256": "e00a01c26d74c2728b7ea2a3f27ba468bf0ecdbe10115fc1923295c461170f33",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1413074,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -653.2872704462472,
+          -1144.8873980954033,
+          1230.284094938032
+        ],
+        "expected_cm": [
+          -653.2872704462472,
+          -1144.8873980954033,
+          1230.284094938032
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00135.png",
+      "time": 22.30000116303563,
+      "sha256": "4bfd4f27ebe21ccc9facbb3ff50ff1fa9e63aa5e364392c6ee893003ef562616",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1417646,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -646.6826036384025,
+          -1144.1419029244632,
+          1232.0675600028292
+        ],
+        "expected_cm": [
+          -646.6826036384025,
+          -1144.1419029244632,
+          1232.0675600028292
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00136.png",
+      "time": 22.383334500715137,
+      "sha256": "f9ea56922cb78d47d0ee272c5af06f58ea798008b072f6f4554798c214b1c315",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1431360,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -640.0691616597254,
+          -1143.6177584339898,
+          1234.488668758473
+        ],
+        "expected_cm": [
+          -640.0691616597254,
+          -1143.6177584339898,
+          1234.488668758473
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00137.png",
+      "time": 22.466667838394642,
+      "sha256": "d73e9b89cb30ef0192df440f45490ed62d50dd184768e35f7433d216bf883e22",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1429556,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -633.2043588235445,
+          -1143.21980842454,
+          1238.9577772528528
+        ],
+        "expected_cm": [
+          -633.2043588235445,
+          -1143.21980842454,
+          1238.9577772528528
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00138.png",
+      "time": 22.550001176074147,
+      "sha256": "0f3ba7829560f45f29dbe48d4647eaec2897a2d14e54b5661c56bae4790ccf59",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1431596,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -626.1761017388734,
+          -1142.859882760618,
+          1246.1448151018958
+        ],
+        "expected_cm": [
+          -626.1761017388734,
+          -1142.859882760618,
+          1246.1448151018958
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00139.png",
+      "time": 22.633334513753653,
+      "sha256": "841383e4b2f42a0f417d01aad2150c451d69a02fef879615e6ef45f7c53cb8fc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1424472,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -618.8237705897112,
+          -1142.5122959589594,
+          1254.6628674870053
+        ],
+        "expected_cm": [
+          -618.8237705897112,
+          -1142.5122959589594,
+          1254.6628674870053
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00140.png",
+      "time": 22.716667851433158,
+      "sha256": "c43ca07da74aa26f2f306c6e5bb52b54f6c9c395c1b4aec3a2b20c7db80b9214",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1428922,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -610.0803184942419,
+          -1142.3491949903712,
+          1261.7962703428036
+        ],
+        "expected_cm": [
+          -610.0803184942419,
+          -1142.3491949903712,
+          1261.7962703428036
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T164345Z_rafts_8c497773/frames/00141.png",
+      "time": 22.800001189112663,
+      "sha256": "378c158be60296681ff5ce508bb6019d856b0abca86362e567e3cf29953131db",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1397818,
+      "trailing_bytes": 0,
+      "phase": "native_player_camera",
+      "clip_window": "inflow_gameplay",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -599.8756501291816,
+          -1142.1728590109285,
+          1265.8932452955678
+        ],
+        "expected_cm": [
+          -599.8756501291816,
+          -1142.1728590109285,
+          1265.8932452955678
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "gameplay",
+        "field_of_view": 55.0,
+        "expected_basis": "The possessed hero native PlayerCamera component, including its spring-arm collision and ordinary follow/orbit updates; angular feedback is retained"
+      },
+      "client_dimensions": true
+    }
+  ]
+}

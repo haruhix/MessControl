@@ -66,6 +66,13 @@ public:
     void ClearLiquidForBooster();
     // Initial wet coverage, clipped to the path of the liquid that deposited it.
     void SetLiquidDepositMask(const TArray<uint8>& Mask);
+    /** Bounded shared paint canvas; its shape is the mask, rather than a seeded puddle outline. */
+    UPROPERTY(ReplicatedUsing=OnRep_LiquidSize,BlueprintReadOnly,Category="Liquid") bool bPaintTile=false;
+    void InitializePaintTile(AMCTongue* InTongue);
+    bool DepositPaintStroke(FVector From,FVector To,float Radius,const TFunction<bool(FVector)>& CoverageAllowed={});
+    void FlushPaintDeposit();
+    UFUNCTION(BlueprintPure,Category="Liquid") bool IsPaintWetAt(FVector Point) const;
+    UFUNCTION(BlueprintPure,Category="Liquid") bool GetNearestPaintPoint(FVector Near,FVector& Point,FVector& Normal) const;
     // Called only after the character's authoritative reach/tool/occlusion checks.
     bool BrushLiquid(class AMCToothCharacter* Worker,float Seconds);
     bool FindDirtyContact(class AMCToothCharacter* Worker,FVector& Point,FVector& Normal) const;
@@ -90,13 +97,15 @@ private:
     TArray<FVector> LiquidVertices,LiquidNormals;
     TArray<FVector2D> LiquidUV;
     TArray<FProcMeshTangent> LiquidTangents;
-    TMap<TWeakObjectPtr<AActor>,FVector2D> PreviousBrush;
+    struct FBrushStroke { FVector2D UV=FVector2D::ZeroVector; FVector WorldPoint=FVector::ZeroVector; double At=-100,ApproachStartedAt=-100; };
+    TMap<TWeakObjectPtr<AActor>,FBrushStroke> PreviousBrush;
     struct FBrushCenter { FVector Point=FVector::ZeroVector; double At=-100; };
     TMap<TWeakObjectPtr<AActor>,FBrushCenter> BrushCenters;
     TArray<float> WipeFractional;
     TWeakObjectPtr<AMCTongue> BoundTongue;
     float Finish=0,TextureElapsed=0,GeometryElapsed=0,BrushClock=0;
     bool bWipeDirty=true;
+    bool bPaintDepositPending=false;
     UPROPERTY(Replicated) TObjectPtr<class AMCTongue> Tongue;
     UPROPERTY(Replicated) FVector TongueAnchor=FVector::ZeroVector;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;

@@ -1,0 +1,754 @@
+{
+  "passed": true,
+  "scope": "One owned standalone authority PIE; real F3 CataclysmJellies, native wandering/paint and normal Pickaxe/brush LMB",
+  "source_hashes_current": false,
+  "checks": 9,
+  "game_seconds": 33.65000175498426,
+  "wall_seconds": 78.78100000001723,
+  "settings_restored": true,
+  "previews": [
+    {
+      "clip": "jelly_paint_trail",
+      "frames": 89,
+      "seconds": 11.766667,
+      "video": "E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/jelly_paint_trail.mp4",
+      "sha256": "b7a90f0aed8e4ff5c4270e6648cc8f3b8da8c184236ce2f4d41632824f2c9d42"
+    },
+    {
+      "clip": "jelly_paint_rupture",
+      "frames": 55,
+      "seconds": 7.366667,
+      "video": "E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/jelly_paint_rupture.mp4",
+      "sha256": "9b8f64a4ee0e2f4012b8db4271c33b6abbf544752611aa96d38d003d120ab933"
+    },
+    {
+      "clip": "jelly_paint_brush",
+      "frames": 35,
+      "seconds": 4.566667,
+      "video": "E:/DEVGAME/MessControl/Artifacts/JellyPaint_20261015/jelly_paint_brush.mp4",
+      "sha256": "b3f90a531a15c16a4864bfed5f7d6359dbe2f1d5e89521c1d757d33c56041a4f"
+    }
+  ],
+  "scheduler_restored": null,
+  "scheduler_scope": "Restored when a valid single-day scheduler existed; these runs recorded no valid scheduler/pause assignment.",
+  "tests": [
+    "AdditivePaintTile",
+    "PaintTileRealBrush"
+  ],
+  "limitations": [
+    "The initial F3 wave and 12-second wandering observation advance naturally; no jelly tick, steering, health, attack damage or game clock is assigned.",
+    "The unrelated single-day scheduler is paused in this owned PIE and restored; the Cataclysm event/liquid/jellies and hero continue ticking.",
+    "After the wandering observation, the hero is a disclosed position-only fixture following one moving jelly at approximately 88 cm on verified supported floor. Normal held Pickaxe LMB deals all damage.",
+    "A temporary review camera follows the action. The hero is positioned beside an actually wet paint cell for normal held brush LMB; the surviving jelly keeps painting.",
+    "Source policy plus actual empty Target, goal changes and travel corroborate independent wandering. Player proximity is not treated as a reliable pursuit test.",
+    "The native exact-commit death counters identify burst-added wet cells; ordinary global coverage changes alone are not attributed to the rupture.",
+    "Only one jelly is killed. Full encounter cleanup, balance, network behavior, GPU cost and final visual quality remain separate checks.",
+    "No editor map changes, package saves, build/cook/package, native damage/care helpers or broad test suite."
+  ],
+  "recordings": "Genuine engine samples, repeated at 30fps; no interpolation. Floating window chrome cropped; explicit nonclient exclusions remain in manifests.",
+  "initial_attempts": "Retained in original Saved/Checks run directories; first fixtures were corrected for turning, Python-protected telemetry and the native dry-threshold transition. Native gameplay was not relaxed for passing checks.",
+  "trail": {
+    "before": {
+      "jelly": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCataclysmJelly_0",
+        "position_cm": [
+          -826.767792969504,
+          -538.4064310779975,
+          149.93011474609355
+        ],
+        "target": null,
+        "actor_tick_enabled": true,
+        "health": 360.0,
+        "pending": false,
+        "death_started_at": -100.0,
+        "ruptured_at": -100.0,
+        "rupture_count": 0,
+        "wander_goal_cm": [
+          -314.64857966626283,
+          -540.1016074189868,
+          82.26454162597636
+        ],
+        "wander_distance_cm": 0.0,
+        "wander_goal_changes": 1,
+        "paint_stroke_requests": 1,
+        "trail_discontinuities": 0
+      },
+      "paint": {
+        "paint_tiles_created": 2,
+        "paint_tile_count": 0,
+        "paint_strokes_accepted": 2,
+        "paint_coverage_cells": 0,
+        "paint_wet_cells": 0,
+        "paint_distance_cm": 0.0,
+        "death_paint_bursts": 0,
+        "death_paint_coverage_added_cells": 0,
+        "death_paint_teeth_touched": 0
+      }
+    },
+    "after": {
+      "jelly": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCataclysmJelly_0",
+        "position_cm": [
+          -591.7964464482939,
+          766.1306854865652,
+          142.457702636719
+        ],
+        "target": null,
+        "actor_tick_enabled": true,
+        "health": 360.0,
+        "pending": false,
+        "death_started_at": -100.0,
+        "ruptured_at": -100.0,
+        "rupture_count": 0,
+        "wander_goal_cm": [
+          11.757543749342346,
+          -1285.8882703267966,
+          30.239868164062074
+        ],
+        "wander_distance_cm": 2221.9892578125,
+        "wander_goal_changes": 12,
+        "paint_stroke_requests": 120,
+        "trail_discontinuities": 0
+      },
+      "paint": {
+        "paint_tiles_created": 2,
+        "paint_tile_count": 2,
+        "paint_strokes_accepted": 212,
+        "paint_coverage_cells": 599,
+        "paint_wet_cells": 599,
+        "paint_distance_cm": 3760.3388671875,
+        "death_paint_bursts": 0,
+        "death_paint_coverage_added_cells": 0,
+        "death_paint_teeth_touched": 0
+      }
+    },
+    "observed_seconds": 12.00000062584877,
+    "wet_midpoints": [
+      {
+        "point_cm": [
+          -746.018629644243,
+          -538.6739838679212,
+          64.95517086982727
+        ],
+        "segment_length_cm": 9.499954285427812,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -708.019021614959,
+          -538.8000490267384,
+          67.22273421287537
+        ],
+        "segment_length_cm": 9.499954285427812,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -670.0194159637451,
+          -538.925900575743,
+          69.51239705085754
+        ],
+        "segment_length_cm": 9.499953403706286,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -637.5462468633281,
+          -534.35010308804,
+          71.36551332473755
+        ],
+        "segment_length_cm": 9.49994155192337,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -643.758149075945,
+          -496.8613738796034,
+          70.64507579803467
+        ],
+        "segment_length_cm": 9.499971712649282,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -649.9700511186994,
+          -459.3726599290104,
+          69.51680159568787
+        ],
+        "segment_length_cm": 9.499971712649096,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -656.1819535011782,
+          -421.88391546272993,
+          67.78278160095215
+        ],
+        "segment_length_cm": 9.499971712649245,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -680.0108531239987,
+          -397.2908731565435,
+          65.50897859442193
+        ],
+        "segment_length_cm": 5.620492571511193,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -701.0641694900739,
+          -369.42625654238776,
+          62.851935625076294
+        ],
+        "segment_length_cm": 9.49999584276882,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -714.3616114098677,
+          -333.8713824245962,
+          59.776755571365356
+        ],
+        "segment_length_cm": 9.499993281090873,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -720.1584058957835,
+          -301.24842469481143,
+          56.94201219477691
+        ],
+        "segment_length_cm": 2.8748577058676403,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -713.4595520706356,
+          -298.4244245433846,
+          56.634070224712104
+        ],
+        "segment_length_cm": 2.1583630463839945,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -702.2896382934151,
+          -274.741701020233,
+          54.770607709884644
+        ],
+        "segment_length_cm": 9.499962442195224,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -680.2670863936542,
+          -257.85431921170755,
+          53.83928962241225
+        ],
+        "segment_length_cm": 5.264608699293774,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -646.9285505765883,
+          -253.13583446715361,
+          54.35299253463745
+        ],
+        "segment_length_cm": 9.499996830559297,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -609.0503252871845,
+          -256.1754034814091,
+          55.71172881126404
+        ],
+        "segment_length_cm": 9.499996830559287,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -575.851777160746,
+          -254.08536792983762,
+          56.480061054229736
+        ],
+        "segment_length_cm": 9.49998278168987,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -575.410970703825,
+          -216.0879630968831,
+          52.722198247909546
+        ],
+        "segment_length_cm": 9.499982781689845,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -574.9701641619729,
+          -178.0905658928506,
+          49.034204721450806
+        ],
+        "segment_length_cm": 9.499998036536665,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -574.5293578324485,
+          -140.09314961651333,
+          45.640536308288574
+        ],
+        "segment_length_cm": 9.499990409113138,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -574.088551502924,
+          -102.09573334017611,
+          43.08489632606506
+        ],
+        "segment_length_cm": 9.499998036536551,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -573.6477452795634,
+          -64.0983075276865,
+          41.399548053741455
+        ],
+        "segment_length_cm": 9.499994222824789,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -573.2069392101405,
+          -26.10086788777599,
+          40.82449555397034
+        ],
+        "segment_length_cm": 9.500000896820318,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -572.7661332999634,
+          11.896586056363077,
+          42.006447076797485
+        ],
+        "segment_length_cm": 9.500001850248317,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -572.8341540411197,
+          49.872652574812975,
+          44.20302700996399
+        ],
+        "segment_length_cm": 9.500011299167452,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -576.4639605825405,
+          87.69893892994932,
+          47.088562965393066
+        ],
+        "segment_length_cm": 9.50001129916734,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -580.0937669116335,
+          125.52520621278111,
+          50.75707149505615
+        ],
+        "segment_length_cm": 9.500003697016687,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -583.7235731133298,
+          163.35146205223006,
+          54.583839416503906
+        ],
+        "segment_length_cm": 9.500003697016778,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -587.3533795698195,
+          201.17774077844464,
+          58.403873443603516
+        ],
+        "segment_length_cm": 9.500018901317901,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -590.9831864509645,
+          239.00405764926867,
+          61.97365999221802
+        ],
+        "segment_length_cm": 9.500018901318127,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -607.0965159418157,
+          271.80185877191957,
+          64.13770890235901
+        ],
+        "segment_length_cm": 9.49999066848377,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -630.6998548374837,
+          301.58251498190424,
+          65.46380519866943
+        ],
+        "segment_length_cm": 9.500028045069563,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -654.3032852802145,
+          331.36317017271614,
+          66.20169496536255
+        ],
+        "segment_length_cm": 9.500028045069918,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -677.9067779433553,
+          361.1439314889855,
+          66.68697381019592
+        ],
+        "segment_length_cm": 9.500052171173808,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -702.9428937147544,
+          385.3713827285823,
+          66.28343057632446
+        ],
+        "segment_length_cm": 9.500086919398756,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -738.007152368422,
+          370.7251928163839,
+          63.32296276092529
+        ],
+        "segment_length_cm": 9.500030341410016,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -773.0713811858507,
+          356.079064275285,
+          60.33062672615051
+        ],
+        "segment_length_cm": 9.500030341410268,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -808.1356093238305,
+          341.43287470281103,
+          57.038936376571655
+        ],
+        "segment_length_cm": 9.50005323753222,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -843.1998362727754,
+          326.78657832543075,
+          53.80393671989441
+        ],
+        "segment_length_cm": 9.500041789429126,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -834.254432470584,
+          330.00546893381403,
+          54.05334401130676
+        ],
+        "segment_length_cm": 9.499912054699747,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -798.9032507612698,
+          343.9435205587558,
+          56.43387699127197
+        ],
+        "segment_length_cm": 9.49992293161274,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -763.5520692218175,
+          357.88158744154106,
+          58.85597062110901
+        ],
+        "segment_length_cm": 9.499922931612657,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -728.2008875125032,
+          371.8196390664827,
+          61.12194275856018
+        ],
+        "segment_length_cm": 9.499912054699536,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -692.8497061429133,
+          385.7577212071118,
+          63.52136707305908
+        ],
+        "segment_length_cm": 9.499922931612783,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -660.283592270689,
+          402.4137322193125,
+          65.91301798820496
+        ],
+        "segment_length_cm": 9.50001464993599,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -647.2125828232909,
+          438.09508157292527,
+          67.93658876419067
+        ],
+        "segment_length_cm": 9.500057911763793,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -634.1415130239664,
+          473.7764926373617,
+          69.77664017677307
+        ],
+        "segment_length_cm": 9.500057911764113,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -621.070443224642,
+          509.45790370179805,
+          71.17897200584412
+        ],
+        "segment_length_cm": 9.500057911764035,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -607.999341890457,
+          545.1392235588964,
+          72.16933560371399
+        ],
+        "segment_length_cm": 9.499979207119711,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -612.1658875772104,
+          574.5734557021676,
+          72.15459179878235
+        ],
+        "segment_length_cm": 9.500014191725946,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -645.0618186397738,
+          593.5962516889316,
+          70.40015912055969
+        ],
+        "segment_length_cm": 9.500014191725889,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -677.9577486831641,
+          612.6189561286328,
+          68.56761336326599
+        ],
+        "segment_length_cm": 9.500045332114809,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -710.8540140593927,
+          631.6416263156789,
+          66.46930646896362
+        ],
+        "segment_length_cm": 9.5000355454265,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -721.1438462633242,
+          653.4092874552047,
+          65.21950483322144
+        ],
+        "segment_length_cm": 9.50005761158612,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -693.7564441238195,
+          679.7520843953461,
+          65.83352565765381
+        ],
+        "segment_length_cm": 9.500015792617841,
+        "wet": true
+      },
+      {
+        "point_cm": [
+          -666.3690419843149,
+          706.0948813354875,
+          66.07989573478744
+        ],
+        "segment_length_cm": 9.50005761158564,
+        "wet": true
+      }
+    ],
+    "wet_midpoint_ratio": 1.0
+  },
+  "rupture": {
+    "before": {
+      "paint_tiles_created": 2,
+      "paint_tile_count": 2,
+      "paint_strokes_accepted": 212,
+      "paint_coverage_cells": 599,
+      "paint_wet_cells": 599,
+      "paint_distance_cm": 3760.3388671875,
+      "death_paint_bursts": 0,
+      "death_paint_coverage_added_cells": 0,
+      "death_paint_teeth_touched": 0
+    },
+    "committed": {
+      "time": 26.916668070480227,
+      "jelly": {
+        "path": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCCataclysmJelly_0",
+        "position_cm": [
+          -438.1500726020035,
+          536.8274893247275,
+          156.55097961425798
+        ],
+        "target": null,
+        "actor_tick_enabled": true,
+        "health": 0.0,
+        "pending": false,
+        "death_started_at": 26.31666803918779,
+        "ruptured_at": 26.916668070480227,
+        "rupture_count": 1,
+        "wander_goal_cm": [
+          -721.9784615599967,
+          588.50916391338,
+          64.34962463378926
+        ],
+        "wander_distance_cm": 3257.4892578125,
+        "wander_goal_changes": 17,
+        "paint_stroke_requests": 175,
+        "trail_discontinuities": 0
+      },
+      "paint": {
+        "paint_tiles_created": 5,
+        "paint_tile_count": 2,
+        "paint_strokes_accepted": 320,
+        "paint_coverage_cells": 863,
+        "paint_wet_cells": 863,
+        "paint_distance_cm": 8550.91015625,
+        "death_paint_bursts": 1,
+        "death_paint_coverage_added_cells": 643,
+        "death_paint_teeth_touched": 0
+      }
+    },
+    "after_cosmetic_retirement": {
+      "paint_tiles_created": 5,
+      "paint_tile_count": 5,
+      "paint_strokes_accepted": 334,
+      "paint_coverage_cells": 1563,
+      "paint_wet_cells": 1563,
+      "paint_distance_cm": 8817.0849609375,
+      "death_paint_bursts": 1,
+      "death_paint_coverage_added_cells": 643,
+      "death_paint_teeth_touched": 0
+    },
+    "actor_still_valid": false
+  },
+  "brush": {
+    "tile": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCMouthSurface_14",
+    "paint_point_cm": [
+      -409.54517325673237,
+      1018.480791153733,
+      59.47901868820236
+    ],
+    "care_before": 4,
+    "care_after": 2,
+    "fixed_cell_wipe_byte_reduction": 6050,
+    "previously_wet_cells_now_dry": 26,
+    "wipe_sum_before": 12120,
+    "wipe_sum_after": 6070,
+    "actual_brush_contact_seen": true,
+    "event_paint_metrics_before": {
+      "paint_tiles_created": 5,
+      "paint_tile_count": 5,
+      "paint_strokes_accepted": 334,
+      "paint_coverage_cells": 1563,
+      "paint_wet_cells": 1563,
+      "paint_distance_cm": 8817.0849609375,
+      "death_paint_bursts": 1,
+      "death_paint_coverage_added_cells": 643,
+      "death_paint_teeth_touched": 0
+    },
+    "deposit_observation": "Public event coverage counters; the private tile deposit mask is not read. Fixed-cell brush proof uses the public live wipe mask.",
+    "surviving_native_jellies": 1,
+    "paint": {
+      "paint_tiles_created": 5,
+      "paint_tile_count": 5,
+      "paint_strokes_accepted": 378,
+      "paint_coverage_cells": 1708,
+      "paint_wet_cells": 1676,
+      "paint_distance_cm": 9622.6435546875,
+      "death_paint_bursts": 1,
+      "death_paint_coverage_added_cells": 643,
+      "death_paint_teeth_touched": 0
+    }
+  },
+  "visual_review": {
+    "readability": "Connected green paths, inflation/pop, persistent spokes and local pink brush gap are visible.",
+    "polish_limits": [
+      "Angular mask edges and fairly flat coating.",
+      "Large existing white tool-hit flashes obscure the jelly in several frames."
+    ],
+    "deferred": [
+      "Nearby tooth coating was not exercised (zero teeth touched).",
+      "Full cleanup, balance, network clients and GPU cost."
+    ]
+  },
+  "source_hashes_verified_at_capture_finalization": true,
+  "post_merge_scope": {
+    "parent": "1ad1ad5308f5000d5569a3c04d888a627d621297",
+    "change": "Native tooth dirty-contact samples now return optional original-crown mask UVs. Deposit keeps colleague original-crown bounds and our accepted bool.",
+    "validation": "Source/call-site review, conflict-marker/whitespace checks and Python syntax only.",
+    "deferred": "Editor build and merged solo/network gameplay; recorded successful runs and previews predate this integration."
+  }
+}

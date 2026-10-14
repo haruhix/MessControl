@@ -1,8 +1,72 @@
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmStormMath.h"
+#include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 void AMCCoffeeFlood::UpdatePour(float Time)
 {
+    if(IsCataclysmStorm())
+    {
+        // The drink enters along the tongue. The old ceiling jet and radial
+        // crown belong only to the legacy pour, never to this incoming stream.
+        Jet->SetVisibility(false);Crown->SetVisibility(false);
+        const FVector Direction=StormStreamDirection(),Side(-Direction.Y,Direction.X,0);
+        const float HalfWidth=FMath::Abs(Side.X)*HalfSize.X+FMath::Abs(Side.Y)*HalfSize.Y;
+        auto Noise=[](float N){return FMath::Frac(FMath::Abs(FMath::Sin(N*127.1f)*43758.5453f));};
+        TArray<FTransform> Spray;Spray.Reserve(72);
+        for(int32 I=0;I<72;++I)
+        {
+            // Three bounded pools: arrival breakers, continuous entrance spray,
+            // and inward-facing foam lifted by turbulence around the throat.
+            const int32 Group=I/24,Drop=I%24;
+            const float Life=.55f+Noise(I+11)*.35f,Age=FMath::Fmod(Time+Noise(I+91)*Life,Life);
+            const float Born=FMath::Max(0.f,Time-Age),Generation=FMath::FloorToFloat((Time+Noise(I+91)*Life)/Life);
+            const float Across=FMath::Lerp(-HalfWidth*.8f,HalfWidth*.8f,Noise(Drop*4.7f+Generation*13.1f+37));
+            FVector Launch=RiverOrigin+Side*Across;
+            FVector Heading=Direction;
+            bool SourceVisible=Born>.2f;
+            if(Group==0)
+            {
+                const float Front=StormFrontAt(Launch,Born);
+                Launch+=Direction*(Front-145.f);
+                SourceVisible&=Front<RiverLength+120.f;
+            }
+            else if(Group==1) Launch+=Direction*(260.f+Noise(I+23)*220.f);
+            else
+            {
+                const float Angle=Drop*2.399963f+Generation*.7f;
+                const FVector Radial(FMath::Cos(Angle),FMath::Sin(Angle),0);
+                Launch=WaterSettings.DrainPoint+Radial*(120.f+Noise(I+31)*250.f);
+                Heading=(-Radial+FVector(-Radial.Y,Radial.X,0)*.35f).GetSafeNormal2D();
+            }
+            SourceVisible&=StormWetAt(Launch,Born)>.3f;
+            Launch.Z=StormHeightAt(Launch,Born)+12.f;
+            const float Forward=Group==0?RiverSpeed*.38f:MCCataclysmStormMath::OpticalSpeed*(.6f+Noise(I+44)*.25f);
+            const float Lateral=(Noise(I+51)-.5f)*180.f,Up=180.f+Noise(I+27)*240.f;
+            const FVector Travel=Heading*Forward+Side*Lateral;
+            const FVector P=Launch+Travel*Age+FVector(0,0,Up*Age-490.f*Age*Age);
+            const FVector Velocity=Travel+FVector(0,0,Up-980.f*Age);
+            const bool Inside=FMath::Abs(P.X-ArenaCenter.X)<HalfSize.X && FMath::Abs(P.Y-ArenaCenter.Y)<HalfSize.Y;
+            const float Fade=FMath::Min(1.f,Age*16.f)*FMath::Min(1.f,(Life-Age)*8.f);
+            const float Size=SourceVisible && Inside && P.Z>StormHeightAt(P,Time)-3.f?(.10f+Noise(I+17)*.12f)*Fade:0.f;
+            Spray.Emplace(Velocity.Rotation(),P,FVector(Size*2.f,Size,Size));
+        }
+        Drops->SetVisibility(true);Drops->BatchUpdateInstancesTransforms(0,Spray,true,true,true);
+        FVector Outlet=WaterSettings.DrainPoint;Outlet.Z=StormHeightAt(Outlet,Time)+5.f;
+        const float Outflow=StormWetAt(WaterSettings.DrainPoint,Time);
+        DrainRibbon->SetVisibility(Outflow>.05f);
+        DrainRibbon->SetWorldLocationAndRotation(Outlet,Direction.Rotation());
+        // Span the whole mouth lip. The radius of the local sink must not turn
+        // the visible outflow into a narrow chute beside the players.
+        const float SourceWidth=DrainRibbon->GetStaticMesh()?DrainRibbon->GetStaticMesh()->GetBounds().BoxExtent.Y*2.f:100.f;
+        DrainRibbon->SetWorldScale3D(FVector(3.5f,HalfWidth*2.f/FMath::Max(SourceWidth,1.f),2.5f));
+        if(DrainMaterial)
+        {
+            DrainMaterial->SetScalarParameterValue(TEXT("WaterTime"),Time);
+            DrainMaterial->SetScalarParameterValue(TEXT("Strength"),Outflow);
+        }
+        return;
+    }
     if (bRiverFlood)
     {
         Jet->SetVisibility(false); Crown->SetVisibility(false);

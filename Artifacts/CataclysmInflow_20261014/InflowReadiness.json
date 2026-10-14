@@ -1,0 +1,189 @@
+{
+  "status": "passed",
+  "passed": true,
+  "errors": [],
+  "fields": {
+    "liquid.RiverOrigin": {
+      "read": true,
+      "type": "Vector",
+      "value": "<Struct 'Vector' (0x0000017619E89488) {x: 0.000000, y: 0.000000, z: 0.000000}>"
+    },
+    "liquid.RiverSpeed": {
+      "read": true,
+      "type": "float",
+      "value": "1050.0"
+    },
+    "liquid.ArenaCenter": {
+      "read": true,
+      "type": "Vector",
+      "value": "<Struct 'Vector' (0x0000017619E89500) {x: 0.000000, y: 0.000000, z: 0.000000}>"
+    },
+    "liquid.HalfSize": {
+      "read": true,
+      "type": "Vector",
+      "value": "<Struct 'Vector' (0x0000017619E894E8) {x: 1050.000000, y: 740.000000, z: 220.000000}>"
+    },
+    "liquid.Height": {
+      "read": true,
+      "type": "float",
+      "value": "155.0"
+    },
+    "liquid.StartedAt": {
+      "read": true,
+      "type": "float",
+      "value": "0.0"
+    },
+    "liquid.WaterSettings": {
+      "read": true,
+      "type": "MCCoffeeWaterSettings",
+      "value": "<Struct 'MCCoffeeWaterSettings' (0x0000017619E89538) {ripple_height: 6.000000, dry_height: -18.000000, ripple_length: 260.000000, ripple_speed: 1.400000, float_depth: 20.000000, buoyancy_stiffness: 18.000000, vertical_damping: 5.200000, water_drag: 1.800000, swim_stroke_multiplier: 3.000000, swim_float_depth: -5.000000, fill_seconds: 4.000000, drain_seconds: 2.000000, hold_seconds: 0.000000, cycles: 1, inlet: {x: 420.000000, y: -100.000000, z: 1100.000000}, drain_point: {x: 920.000000, y: 0.000000, z: 0.000000}, jet_radius: 85.000000, front_speed: 950.000000, front_width: 110.000000, front_height: 26.000000, impact_impulse: 520.000000, drain_acceleration: 720.000000, drain_radius: 320.000000, drain_depth: 65.000000, use_throat_actor: True}>"
+    },
+    "settings.DrainPoint": {
+      "read": true,
+      "type": "Vector",
+      "value": "<Struct 'Vector' (0x0000017619E89588) {x: 920.000000, y: 0.000000, z: 0.000000}>"
+    },
+    "settings.DryHeight": {
+      "read": true,
+      "type": "float",
+      "value": "-18.0"
+    },
+    "settings.FillSeconds": {
+      "read": true,
+      "type": "float",
+      "value": "4.0"
+    },
+    "settings.HoldSeconds": {
+      "read": true,
+      "type": "float",
+      "value": "0.0"
+    },
+    "settings.DrainSeconds": {
+      "read": true,
+      "type": "float",
+      "value": "2.0"
+    },
+    "liquid.Jet": {
+      "read": true,
+      "type": "MCCoffeeSurfaceComponent",
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:PourJet' (0x00000176EAC55000) Class 'MCCoffeeSurfaceComponent'>"
+    },
+    "liquid.Crown": {
+      "read": true,
+      "type": "MCCoffeeSurfaceComponent",
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:ImpactCrown' (0x00000176EAC55A00) Class 'MCCoffeeSurfaceComponent'>"
+    },
+    "liquid.DrainRibbon": {
+      "read": true,
+      "type": "MCCoffeeSurfaceComponent",
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:ThroatOutflow' (0x00000176EAC56400) Class 'MCCoffeeSurfaceComponent'>"
+    },
+    "liquid.Surface": {
+      "read": true,
+      "type": "MCCoffeeSurfaceComponent",
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:CoffeeSurface' (0x00000176EAC51E00) Class 'MCCoffeeSurfaceComponent'>"
+    },
+    "liquid.StormSurface": {
+      "read": true,
+      "type": "MCCataclysmStormSurfaceComponent",
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:CataclysmStormSurface' (0x0000017619E8C000) Class 'MCCataclysmStormSurfaceComponent'>"
+    },
+    "liquid.StormSpray": {
+      "read": true,
+      "type": "MCCoffeeDropComponent",
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:CataclysmStormSpray' (0x0000017619BDCC00) Class 'MCCoffeeDropComponent'>"
+    },
+    "hero.Camera": {
+      "read": true,
+      "type": "MCPlayerCameraComponent",
+      "value": "<Object '/Script/MessControl.Default__MCToothCharacter:Camera' (0x000001761F9B7800) Class 'MCPlayerCameraComponent'>"
+    },
+    "hero.CameraOrbitSensitivity": {
+      "read": true,
+      "type": "float",
+      "value": "0.18000000715255737"
+    },
+    "hero.Status": {
+      "read": true,
+      "type": "MCToothStatusComponent",
+      "value": "<Object '/Script/MessControl.Default__MCToothCharacter:ToothStatus' (0x000001761FE81A40) Class 'MCToothStatusComponent'>"
+    },
+    "hero.CapsuleComponent": {
+      "read": true,
+      "type": "CapsuleComponent",
+      "value": "<Object '/Script/MessControl.Default__MCToothCharacter:CollisionCylinder' (0x000001761F9D9300) Class 'CapsuleComponent'>"
+    },
+    "camera.FieldOfView": {
+      "read": true,
+      "type": "float",
+      "value": "55.0"
+    },
+    "event.Phase": {
+      "read": true,
+      "type": "MCCataclysmPhase",
+      "value": "<MCCataclysmPhase.DORMANT: 0>"
+    },
+    "event.Variant": {
+      "read": true,
+      "type": "MCCataclysmVariant",
+      "value": "<MCCataclysmVariant.RANDOM: 0>"
+    },
+    "event.bFailed": {
+      "read": true,
+      "type": "bool",
+      "value": "False"
+    },
+    "event.Liquid": {
+      "read": true,
+      "type": "NoneType",
+      "value": "None"
+    },
+    "event.Rafts": {
+      "read": true,
+      "type": "Array",
+      "value": "[]"
+    },
+    "event.DebrisSpawned": {
+      "read": true,
+      "type": "int",
+      "value": "0"
+    },
+    "event.FloodFillSeconds": {
+      "read": true,
+      "type": "float",
+      "value": "4.0"
+    },
+    "event.FloodHoldSeconds": {
+      "read": true,
+      "type": "float",
+      "value": "35.0"
+    },
+    "event.FloodDrainSeconds": {
+      "read": true,
+      "type": "float",
+      "value": "4.0"
+    }
+  },
+  "methods": {
+    "liquid.storm_wet_weight_at": true,
+    "liquid.surface_height_at": true,
+    "liquid.storm_stream_direction": true,
+    "liquid.storm_current_at": true,
+    "liquid.storm_wave_height_at": true,
+    "liquid.get_phase": true,
+    "liquid.is_cataclysm_storm": true,
+    "hero.apply_camera_orbit_input": true,
+    "hero.set_actor_location": true
+  },
+  "project": "E:\\DEVGAME\\MessControl",
+  "editor_world": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie_running": false,
+  "pie_worlds": [],
+  "dirty_maps": [],
+  "dirty_content": [],
+  "read_limits": [
+    "CDO readiness establishes reflection access and wrappers, not live gameplay or shader correctness.",
+    "Dirty package inventories are reported without saving or modifying them.",
+    "Water getters are not invoked on a CDO because active getters require a valid gameplay world."
+  ]
+}

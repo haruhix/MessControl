@@ -47,7 +47,7 @@ public:
     virtual FBoxSphereBounds CalcBounds(const FTransform& LocalToWorld) const override
     {
         FBoxSphereBounds RenderBounds=Super::CalcBounds(LocalToWorld);
-        RenderBounds.BoxExtent.Z+=120.f;RenderBounds.SphereRadius+=120.f;return RenderBounds;
+        RenderBounds.BoxExtent.Z+=800.f;RenderBounds.SphereRadius+=800.f;return RenderBounds;
     }
 };
 
@@ -70,12 +70,13 @@ public:
     UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") float StormStrength() const;
     UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") FVector StormCurrentAt(FVector Position) const;
     UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") float StormWaveHeightAt(FVector Position) const;
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") float StormWetWeightAt(FVector Position) const;
     /** Confirmed authority contact only; a bounded cosmetic burst reuses the spray pool. */
     void NotifyStormImpact(FVector Position,FVector Direction,float Strength=1.f);
     void Stop();
     int32 ResidueBatch=0;
     bool Contains(FVector Position) const;
-    float SurfaceHeightAt(FVector Position) const;
+    UFUNCTION(BlueprintPure,Category="Coffee|Water") float SurfaceHeightAt(FVector Position) const;
     float SurfaceVerticalSpeedAt(FVector Position) const;
     bool IsActive() const { return bActive; }
     UFUNCTION(BlueprintPure) EMCCoffeePhase GetPhase() const;
@@ -90,27 +91,27 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Surface;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMCRiverSurfaceComponent> RiverSurface;
     UPROPERTY(ReplicatedUsing=OnRep_Profile, BlueprintReadOnly) bool bRiverFlood=false;
-    UPROPERTY(Replicated) FVector RiverOrigin=FVector::ZeroVector;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Coffee|Water") FVector RiverOrigin=FVector::ZeroVector;
     UPROPERTY(Replicated) FVector RiverDirection=FVector::ForwardVector;
     UPROPERTY(Replicated) float RiverLength=2100;
     UPROPERTY(Replicated) float RiverWidth=1000;
-    UPROPERTY(Replicated) float RiverSpeed=1050;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Coffee|Water") float RiverSpeed=1050;
     UPROPERTY(Replicated) float RiverDepth=78;
     UPROPERTY(Replicated, BlueprintReadOnly) bool bActive=false;
     UPROPERTY(Replicated, BlueprintReadOnly) float Level=-40;
     UPROPERTY(Replicated, BlueprintReadOnly) int32 Wave=0;
     UPROPERTY(Replicated) int32 Waves=1;
-    UPROPERTY(Replicated) float Height=155;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Coffee|Water") float Height=155;
     UPROPERTY(Replicated) float Flow=320;
     UPROPERTY(Replicated) float Paddle=400;
     UPROPERTY(Replicated) float Reach=160;
-    UPROPERTY(Replicated) FVector HalfSize=FVector(1050,740,220);
-    UPROPERTY(Replicated) FVector ArenaCenter=FVector::ZeroVector;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Coffee|Water") FVector HalfSize=FVector(1050,740,220);
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Coffee|Water") FVector ArenaCenter=FVector::ZeroVector;
     UPROPERTY(Replicated) float InletFloorZ=0;
-    UPROPERTY(Replicated) double StartedAt=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Coffee|Water") double StartedAt=0;
     UPROPERTY(Replicated) float Seconds=6;
     UPROPERTY(ReplicatedUsing=OnRep_Profile) TObjectPtr<UMCCoffeeProfile> Profile;
-    UPROPERTY(Replicated) FMCCoffeeWaterSettings WaterSettings;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Coffee|Water") FMCCoffeeWaterSettings WaterSettings;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Jet;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Crown;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> DrainRibbon;
@@ -131,6 +132,9 @@ private:
     UFUNCTION(NetMulticast,Unreliable) void MulticastStormImpact(FVector Position,FVector Direction,float Strength,int32 ImpactSeed);
     float StormStrengthAt(float Time) const;
     float StormWaveAt(FVector Position,float Time) const;
+    float StormFrontAt(FVector Position,float Time) const;
+    float StormWetAt(FVector Position,float Time) const;
+    float StormHeightAt(FVector Position,float Time) const;
     AMCTongue* FindRiverTongue() const;
     float RiverFloorAt(FVector Position) const;
     float RiverHeightAt(FVector Position,float Time,float FloorZ) const;

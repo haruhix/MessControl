@@ -1,0 +1,199 @@
+{
+  "project": "../../../../../DEVGAME/MessControl/",
+  "cdo": "/Script/MessControl.Default__MCCoffeeFlood",
+  "python_fields": {
+    "RiverOrigin": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'RiverOrigin' for attribute 'RiverOrigin' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "RiverDirection": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'RiverDirection' for attribute 'RiverDirection' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "RiverLength": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'RiverLength' for attribute 'RiverLength' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "RiverSpeed": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'RiverSpeed' for attribute 'RiverSpeed' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "ArenaCenter": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'ArenaCenter' for attribute 'ArenaCenter' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "HalfSize": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'HalfSize' for attribute 'HalfSize' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "WaterSettings": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'WaterSettings' for attribute 'WaterSettings' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "Height": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'Height' for attribute 'Height' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "StartedAt": {
+      "read": false,
+      "error": "MCCoffeeFlood: Property 'StartedAt' for attribute 'StartedAt' on 'MCCoffeeFlood' is protected and cannot be read"
+    },
+    "Jet": {
+      "read": true,
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:PourJet' (0x000002264BF89600) Class 'MCCoffeeSurfaceComponent'>",
+      "type": "MCCoffeeSurfaceComponent"
+    },
+    "Crown": {
+      "read": true,
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:ImpactCrown' (0x000002264BF82800) Class 'MCCoffeeSurfaceComponent'>",
+      "type": "MCCoffeeSurfaceComponent"
+    },
+    "DrainRibbon": {
+      "read": true,
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:ThroatOutflow' (0x000002264BF8A000) Class 'MCCoffeeSurfaceComponent'>",
+      "type": "MCCoffeeSurfaceComponent"
+    },
+    "StormSurface": {
+      "read": true,
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:CataclysmStormSurface' (0x000002264BF0A000) Class 'MCCataclysmStormSurfaceComponent'>",
+      "type": "MCCataclysmStormSurfaceComponent"
+    },
+    "StormSpray": {
+      "read": true,
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:CataclysmStormSpray' (0x000002264BCF3C00) Class 'MCCoffeeDropComponent'>",
+      "type": "MCCoffeeDropComponent"
+    },
+    "Surface": {
+      "read": true,
+      "value": "<Object '/Script/MessControl.Default__MCCoffeeFlood:CoffeeSurface' (0x000002264BF84600) Class 'MCCoffeeSurfaceComponent'>",
+      "type": "MCCoffeeSurfaceComponent"
+    }
+  },
+  "toolset_fields": {
+    "RiverOrigin": {},
+    "RiverDirection": {},
+    "RiverLength": {},
+    "RiverSpeed": {},
+    "ArenaCenter": {},
+    "HalfSize": {},
+    "WaterSettings": {},
+    "Height": {},
+    "StartedAt": {},
+    "Jet": {
+      "Jet": {
+        "refPath": "/Script/MessControl.Default__MCCoffeeFlood:PourJet"
+      }
+    },
+    "Crown": {
+      "Crown": {
+        "refPath": "/Script/MessControl.Default__MCCoffeeFlood:ImpactCrown"
+      }
+    },
+    "DrainRibbon": {
+      "DrainRibbon": {
+        "refPath": "/Script/MessControl.Default__MCCoffeeFlood:ThroatOutflow"
+      }
+    },
+    "StormSurface": {
+      "StormSurface": {
+        "refPath": "/Script/MessControl.Default__MCCoffeeFlood:CataclysmStormSurface"
+      }
+    },
+    "StormSpray": {
+      "StormSpray": {
+        "refPath": "/Script/MessControl.Default__MCCoffeeFlood:CataclysmStormSpray"
+      }
+    },
+    "Surface": {
+      "Surface": {
+        "refPath": "/Script/MessControl.Default__MCCoffeeFlood:CoffeeSurface"
+      }
+    }
+  },
+  "python_settings": {
+    "error": "MCCoffeeFlood: Property 'WaterSettings' for attribute 'WaterSettings' on 'MCCoffeeFlood' is protected and cannot be read"
+  },
+  "event_fields": {
+    "Phase": {
+      "read": true,
+      "value": "<MCCataclysmPhase.DORMANT: 0>"
+    },
+    "Variant": {
+      "read": true,
+      "value": "<MCCataclysmVariant.RANDOM: 0>"
+    },
+    "bFailed": {
+      "read": true,
+      "value": "False"
+    },
+    "Liquid": {
+      "read": true,
+      "value": "None"
+    },
+    "Rafts": {
+      "read": true,
+      "value": "[]"
+    },
+    "DebrisSpawned": {
+      "read": true,
+      "value": "0"
+    },
+    "FloodFillSeconds": {
+      "read": true,
+      "value": "4.0"
+    },
+    "FloodHoldSeconds": {
+      "read": true,
+      "value": "35.0"
+    },
+    "FloodDrainSeconds": {
+      "read": true,
+      "value": "4.0"
+    }
+  },
+  "struct_field_audit": {
+    "DrainPoint": {
+      "read": true,
+      "value": "<Struct 'Vector' (0x0000022708DF5FF0) {x: 920.000000, y: 0.000000, z: 0.000000}>"
+    },
+    "DryHeight": {
+      "read": true,
+      "value": "-18.0"
+    },
+    "FillSeconds": {
+      "read": true,
+      "value": "4.0"
+    },
+    "HoldSeconds": {
+      "read": true,
+      "value": "0.0"
+    },
+    "DrainSeconds": {
+      "read": true,
+      "value": "2.0"
+    }
+  },
+  "pawn_fields": {
+    "Camera": {
+      "read": true,
+      "value": "<Object '/Script/MessControl.Default__MCToothCharacter:Camera' (0x00000226539BD800) Class 'MCPlayerCameraComponent'>"
+    },
+    "CameraOrbitSensitivity": {
+      "read": true,
+      "value": "0.18000000715255737"
+    },
+    "Status": {
+      "read": true,
+      "value": "<Object '/Script/MessControl.Default__MCToothCharacter:ToothStatus' (0x0000022653A35940) Class 'MCToothStatusComponent'>"
+    }
+  },
+  "methods": {
+    "storm_wet_weight_at": true,
+    "storm_stream_direction": true,
+    "storm_current_at": true,
+    "storm_wave_height_at": true,
+    "surface_height_at": true,
+    "get_phase": true,
+    "is_cataclysm_storm": true
+  }
+}

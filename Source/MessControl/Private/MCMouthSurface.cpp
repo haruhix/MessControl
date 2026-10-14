@@ -1,4 +1,5 @@
 #include "MCMouthSurface.h"
+#include "MCCoffeeWipe.h"
 #include "MCTongue.h"
 #include "MCGameState.h"
 #include "MCGameMode.h"
@@ -93,7 +94,7 @@ void AMCMouthSurface::BeginPlay()
     }
     if (auto* Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_Coffee.M_Coffee")))
     { Material=UMaterialInstanceDynamic::Create(Base,this); Visual->SetMaterial(0,Material); }
-    if (HasAuthority()) for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
+    if (HasAuthority() && !Tongue) for (TActorIterator<AMCTongue> It(GetWorld());It;++It)
     {
         FHitResult Hit;
         if (It->SurfacePoint(GetActorLocation(),Hit) && FVector::Dist(Hit.ImpactPoint,GetActorLocation())<35)
@@ -102,7 +103,10 @@ void AMCMouthSurface::BeginPlay()
         }
     }
 }
-bool AMCMouthSurface::IsClean() const { return !bUlcer && Status->State.CoffeeLeft==0; }
+bool AMCMouthSurface::IsClean() const
+{
+    return !bUlcer && (bPaintTile?!FMCCoffeeWipe::HasWetCells(WipeMask):Status->State.CoffeeLeft==0);
+}
 bool AMCMouthSurface::IsNumb() const
 {
     const auto* GS=GetWorld()->GetGameState();
@@ -156,8 +160,10 @@ void AMCMouthSurface::Tick(float Dt)
         {
             // Keep the liquid's UV heading stable as the tongue normal changes.
             // A basis built from Z alone can spin around that normal on nearly flat tissue.
-            const FRotator Rotation=FRotationMatrix::MakeFromZX(Hit.ImpactNormal,FVector::ForwardVector).Rotator();
-            SetActorLocationAndRotation(Hit.ImpactPoint+Hit.ImpactNormal*5,Rotation);
+            const FRotator Rotation=bPaintTile?FRotator::ZeroRotator:FRotationMatrix::MakeFromZX(Hit.ImpactNormal,FVector::ForwardVector).Rotator();
+            const FVector Anchor=Tongue->GetActorTransform().TransformPosition(TongueAnchor);
+            const FVector Position=bPaintTile?FVector(Anchor.X,Anchor.Y,Hit.ImpactPoint.Z+5):Hit.ImpactPoint+Hit.ImpactNormal*5;
+            SetActorLocationAndRotation(Position,Rotation);
         }
     }
     const auto* State=GetWorld()->GetGameState<AMCGameState>();
@@ -241,6 +247,7 @@ void AMCMouthSurface::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
     DOREPLIFETIME(AMCMouthSurface,Tongue); DOREPLIFETIME(AMCMouthSurface,TongueAnchor);
     DOREPLIFETIME(AMCMouthSurface,WipeMask); DOREPLIFETIME(AMCMouthSurface,LiquidSeed);
     DOREPLIFETIME(AMCMouthSurface,LiquidDepositMask);
+    DOREPLIFETIME(AMCMouthSurface,bPaintTile);
     DOREPLIFETIME(AMCMouthSurface,LiquidHalfSize);
     DOREPLIFETIME(AMCMouthSurface,LiquidMaterial);
     DOREPLIFETIME(AMCMouthSurface,LiquidBornAt);

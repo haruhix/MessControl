@@ -7,6 +7,10 @@ Use --mode to export one completed probe, or --all-clips for its other captures.
 exports drowning_countdown; --all-clips also exports fatigue and water death.
 --mode storm reads CataclysmStormSolo/Report_storm.json and exports brush rowing,
 rail and unbraced contact clips, respecting the completed probe's focus.
+--mode inflow reads CataclysmInflowSolo/Report_inflow.json and exports the
+incoming front and continuous inlet-to-throat flow during Holding.
+--mode paint reads JellyPaintSolo/Report_paint.json and exports wandering gel
+trails, paint-balloon rupture and actual brush cleanup.
 Strict capture dimensions are required unless --exclude-nonclient-frames is
 explicitly selected; that flag records and omits only wrong-size captures.
 Only genuine captured PNGs are presented, with their recorded game-time gaps;
@@ -30,6 +34,8 @@ REQUIRED = {
     'jellies': ('jelly_rupture',),
     'drowning': ('drowning_countdown',),
     'storm': ('storm_brush_rowing', 'debris_rail', 'debris_unbraced'),
+    'inflow': ('inflow_arrival', 'inflow_holding'),
+    'paint': ('jelly_paint_trail', 'jelly_paint_rupture', 'jelly_paint_brush'),
 }
 PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
 TERMINAL_PADDING_SECONDS = .001
@@ -238,7 +244,7 @@ def encode_clip(mode, name, frames, output, ffmpeg):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--reports', type=Path, help='Report directory; defaults to Saved/Checks/CataclysmSolo (CataclysmDrowningSolo for drowning)')
-    parser.add_argument('--mode', choices=('both', 'rafts', 'jellies', 'drowning', 'storm'), default='both')
+    parser.add_argument('--mode', choices=('both', 'rafts', 'jellies', 'drowning', 'storm', 'inflow', 'paint'), default='both')
     parser.add_argument('--all-clips', action='store_true', help='Also export common wave, cleanup, and other recorded clip windows')
     parser.add_argument('--exclude-nonclient-frames', action='store_true',
                         help='Explicitly omit wrong-size captures after integrity validation; record every omission and preserve game-time gaps')
@@ -247,7 +253,9 @@ def main():
     args = parser.parse_args()
     modes = ('rafts', 'jellies') if args.mode == 'both' else (args.mode,)
     reports_directory = args.reports or ROOT / ('Saved/Checks/CataclysmDrowningSolo' if args.mode == 'drowning'
-        else 'Saved/Checks/CataclysmStormSolo' if args.mode == 'storm' else 'Saved/Checks/CataclysmSolo')
+        else 'Saved/Checks/CataclysmStormSolo' if args.mode == 'storm'
+        else 'Saved/Checks/CataclysmInflowSolo' if args.mode == 'inflow'
+        else 'Saved/Checks/JellyPaintSolo' if args.mode == 'paint' else 'Saved/Checks/CataclysmSolo')
     reports = [load_report(reports_directory.resolve() / ('Report_' + mode + '.json'), mode,
                            args.all_clips, args.exclude_nonclient_frames) for mode in modes]
     require(args.ffmpeg.is_file() and args.ffmpeg.with_name('ffprobe.exe').is_file(), 'ffmpeg.exe and ffprobe.exe are required')

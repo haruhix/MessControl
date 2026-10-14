@@ -11,6 +11,7 @@ class AMCCataclysmRaft;
 class AMCCataclysmJelly;
 class AMCCataclysmDebris;
 class AMCMouthSurface;
+class AMCArenaTooth;
 class UMCToothStatusComponent;
 
 UENUM(BlueprintType)
@@ -33,6 +34,8 @@ public:
     bool Start(const UMCDayPlan* Plan, EMCCataclysmVariant Choice=EMCCataclysmVariant::Random, int32 Batch=0);
     void Stop(bool bClearEventDirt=false);
     void RegisterDirtyPatch(FVector Center, float Radius, bool bDeathBurst);
+    // Native authoritative gel-pen path, clipped to reachable tongue gameplay zones.
+    void RegisterPaintStroke(FVector From,FVector To,float Radius);
     static AMCCataclysmEvent* FindActive(UWorld* World);
     bool IsRunning() const;
     bool IsComplete() const { return Phase==EMCCataclysmPhase::Complete; }
@@ -46,6 +49,17 @@ public:
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Cataclysm",meta=(ClampMin="1",ClampMax="12")) float FloodDrainSeconds=4.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Cataclysm",meta=(ClampMin="80",ClampMax="1000")) float JellyHealth=360.f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Cataclysm",meta=(ClampMin="4",ClampMax="32")) int32 MaxDirtPatches=16;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Cataclysm|Paint",meta=(ClampMin="4",ClampMax="24")) int32 MaxPaintTiles=16;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") int32 PaintTilesCreated=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") int32 PaintTileCount=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") int32 PaintStrokesAccepted=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") int32 PaintCoverageCells=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") int32 PaintWetCells=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") float PaintDistanceCm=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") int32 DeathPaintBursts=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") int32 DeathPaintCoverageAddedCells=0;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Paint") int32 DeathPaintTeethTouched=0;
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Paint") bool IsPaintWetAt(FVector Point) const;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm") EMCCataclysmVariant Variant=EMCCataclysmVariant::Random;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm") EMCCataclysmPhase Phase=EMCCataclysmPhase::Dormant;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm") bool bCola=false;
@@ -65,6 +79,13 @@ private:
     struct FCareBaseline { TWeakObjectPtr<UMCToothStatusComponent> Status; float Amount=0; };
     TArray<FCareBaseline> CareBaselines;
     TArray<FVector> RaftGroundAnchors;
+    TMap<FIntPoint,TWeakObjectPtr<AMCMouthSurface>> PaintTiles;
+    TSet<TWeakObjectPtr<AMCMouthSurface>> PendingPaintTiles;
+    struct FDeathPaintSample { FVector UV=FVector::ZeroVector; float Baseline=0; };
+    TMap<TWeakObjectPtr<AMCArenaTooth>,TArray<FDeathPaintSample>> DeathPaintToothSamples;
+    FVector2D PaintGridOrigin=FVector2D::ZeroVector;
+    float PaintTileWidth=1200.f;
+    FIntPoint PaintGridSize=FIntPoint::ZeroValue;
     UPROPERTY() TObjectPtr<UMCDayPlan> DrinkPlan;
     UPROPERTY() TObjectPtr<AMCTongue> Tongue;
     FRandomStream Random;
@@ -77,6 +98,10 @@ private:
     void UpdateFloatingDebris();
     void ClearFloatingDebris();
     void SeedDirt(int32 Count);
+    bool InitializePaintGrid();
+    bool DepositSupportedPaintSegment(FVector From,FVector To,float Radius,const TFunction<bool(FVector)>& CoverageAllowed={});
+    void FlushPaintTiles();
+    void DepositDeathPaint(FVector Center,float Radius);
     void ObserveConsequences();
     void PublishManualStatus();
     void RemoveHazardActors();

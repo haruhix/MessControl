@@ -1,0 +1,1472 @@
+{
+  "metadata": {
+    "mode": "inflow",
+    "clip": "inflow_holding",
+    "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmInflow_20261014/inflow_holding.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmInflow_20261014/inflow_holding.png",
+    "video_sha256": "dedcd018f22fa55eaa7116dda3dc5bdbe89f887c063f3b3874674c5d2c91e5e6",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmInflow_20261014/inflow_holding.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmInflow_20261014/inflow_holding.ffconcat",
+    "genuine_source_frames": 46,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 15.466667473316193,
+    "source_time_end_seconds": 19.30000100657344,
+    "source_game_span_seconds": 3.833333533257246,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 0.0,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "116"
+        }
+      ],
+      "format": {
+        "duration": "3.866667"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.1666666753590107,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00053.png",
+      "time": 15.466667473316193,
+      "sha256": "f201155f97e99ab0cc1d1d7cb5587cf0de05b281b20179fe41198aa7e44ba9a6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1302400,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00054.png",
+      "time": 15.550000810995698,
+      "sha256": "c680ef4944cbf120891eacc2aeac17fdc8e0631d9a81b8d18bff1c17342d0b33",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1295729,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00055.png",
+      "time": 15.633334148675203,
+      "sha256": "0a8195a96bf8fbe0b3ea05f09ccdb28ca084be4c8cdfde313a89072cbe42a119",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1283164,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00056.png",
+      "time": 15.716667486354709,
+      "sha256": "191ee1421b7d86d5ac38bfddb636013fc754d794eba052b45d9d10bf0926e8ba",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1294432,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00057.png",
+      "time": 15.800000824034214,
+      "sha256": "45ae8020204300c94cc5a36b52a201ebddcff773aab7fc85f8d950d469a99e4f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1290344,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00059.png",
+      "time": 15.966667499393225,
+      "sha256": "f5a5fc291d47d76450d81778f23202de4fb800ee74a4399464ec46681bfe4838",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1268284,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00060.png",
+      "time": 16.05000083707273,
+      "sha256": "aa2a8e9a91c1909f33982d4e6792101093c9dce82fa8bfe71cc564f7aca447b6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1290636,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00061.png",
+      "time": 16.133334174752235,
+      "sha256": "125f3339a31fa2340bd0b78be7a3500cddfa718981a6418d13b8297cc79a4438",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1286173,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00062.png",
+      "time": 16.21666751243174,
+      "sha256": "e16066f7fc9bfddb87a6b997782b7c61b7bd085bc9d53c367485ee1c0c0eaa42",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1275999,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00063.png",
+      "time": 16.300000850111246,
+      "sha256": "7af58b45c61fa53d13a12c6cdf8dfe45a296b3200fd9fb41b4f9300f6fdf8cf0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1269844,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00064.png",
+      "time": 16.38333418779075,
+      "sha256": "a51e2f9769301f806b845364b2ca201095bad07f9e8b1f5b4ed07fb822742f33",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1286657,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00065.png",
+      "time": 16.466667525470257,
+      "sha256": "9df9c2be840be35d30722fb89b1504e90ab0e47ce823f7246ee5a1c463b56fca",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1285739,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00066.png",
+      "time": 16.550000863149762,
+      "sha256": "b33e6fe90dee2c90e5f8c96c4537984ce1d8aa2c2cc13deb8f492c7ee6c11540",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1284531,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00067.png",
+      "time": 16.633334200829268,
+      "sha256": "5ed078cad201e3e39af86009c2aaa106251f33b6745cacedf9d863be022d45f5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1281583,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00068.png",
+      "time": 16.716667538508773,
+      "sha256": "6cf29ff68ccf118a3caae41ba537125d32aa4edeb7f12e9dcd8d085540defd2b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1297726,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00069.png",
+      "time": 16.800000876188278,
+      "sha256": "4c72cb183932c5bf29e40bff021b2c79c2f7ce12f6d59e170b173dc461daf03d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1293583,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00070.png",
+      "time": 16.883334213867784,
+      "sha256": "a9f72fa3fc868561c188371244c9fedac5370fd2cbcf1811c593ba968e509bfc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1286411,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00071.png",
+      "time": 16.96666755154729,
+      "sha256": "1180db5780d8021b64d8113aa1e18c37f0c85d239dab5036b199b4f17ef4c566",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1278127,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00072.png",
+      "time": 17.050000889226794,
+      "sha256": "0165cb85ddb7304dbc50499fee4f5f80dac92f13ba3e3e863a01f5c517fb0ab1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1286165,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00073.png",
+      "time": 17.1333342269063,
+      "sha256": "b6b097269e571f7a4a54622b94eea24c6194e127ec5f4682768de31e8d7b0380",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1272586,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00074.png",
+      "time": 17.216667564585805,
+      "sha256": "126e951acfda22289207e346707fe243261fb46a29aba0b3beb91a1c208e13be",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1264507,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00075.png",
+      "time": 17.30000090226531,
+      "sha256": "7e2e4c15467e0343ebeb1b2ade55d734ccf890d31e79eeb7b6ad6f6a36ebb651",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1260431,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00076.png",
+      "time": 17.383334239944816,
+      "sha256": "699be2da5a5cdda804de6e4bbfe37d1078424a44ade4c3f01dfc7e35d9de38ef",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1284462,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00077.png",
+      "time": 17.46666757762432,
+      "sha256": "2edbb08128d7804eaaa46e7f043acbf1b77ad2d66cdf580d405449c0bec5c786",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1286579,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00078.png",
+      "time": 17.550000915303826,
+      "sha256": "d2ab732e83a7a69f62d9869ba8da502a2a8a7b3654970c1e1d67f9ac27fd300d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1292235,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00079.png",
+      "time": 17.63333425298333,
+      "sha256": "35c43850c263c9a7ae8d9c88a17be359e182d83eb44e283d99e704e6272947e4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1296408,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00080.png",
+      "time": 17.716667590662837,
+      "sha256": "816435cc93e476b379703775f77f2429a98b31cf2837918efebe42312563ee8d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1303262,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00081.png",
+      "time": 17.800000928342342,
+      "sha256": "ee4c8a2201b9ac06083d61be5416bebb217ba07f69dd376e89abe03b9e76423a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1290932,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00082.png",
+      "time": 17.883334266021848,
+      "sha256": "056dfe0f38b104f64b50f99346d08f2e821fabccb24d3dad4fe230b7d1b0c9e2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1275941,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00083.png",
+      "time": 17.966667603701353,
+      "sha256": "3630706f1aa8b78ea56ef076cc95aed025309d1a6c470c9da7c456a7e2718116",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1263203,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00084.png",
+      "time": 18.05000094138086,
+      "sha256": "23dbd7fd67f7954b203b41c88a51510aeb2660075f83f42c537a6d086005c5fe",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1284804,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00085.png",
+      "time": 18.133334279060364,
+      "sha256": "30f081f1bb1615ef4d39b659fe7f7b6eaefd8ff98036875f635c76628d10704a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1289518,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00086.png",
+      "time": 18.21666761673987,
+      "sha256": "f006416aa77f9f95d0d54571d6d5fadc9caf1213e5bbb618c39f8daf473cbd8c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1291359,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00087.png",
+      "time": 18.300000954419374,
+      "sha256": "d6e5a202ee20b12112efa2206fce39f9741030a3bcae87beb1f3d94edd543071",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1296657,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00088.png",
+      "time": 18.38333429209888,
+      "sha256": "9b8367b322cb813635064769dda3a343b3903d9d03a01814f209253a5514da75",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1301075,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00089.png",
+      "time": 18.466667629778385,
+      "sha256": "34e02a492083332e7f07eded355cc2f11006249d4da3fbebea27dd49e9272f7f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1286208,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00090.png",
+      "time": 18.55000096745789,
+      "sha256": "a9036fdb8ec82e611e3a9aaa315fcae6c24d5cf47aa35f4681e68c8bd476e00a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1273692,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00091.png",
+      "time": 18.633334305137396,
+      "sha256": "cd554cdcf46d31e225127ba972ca55f9d84893b567db62961f1c50fd4f9ece0c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1263623,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00092.png",
+      "time": 18.7166676428169,
+      "sha256": "0cc4a31b877f459d8a51fc9673674f7e0ac646b6e2f5f154870c6e44980c3c4f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1289370,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00093.png",
+      "time": 18.800000980496407,
+      "sha256": "e4dda2d3e833ac544efdda9ca67d4c4cc116b7fdbbbc27c38d4a4b737ec5ff2b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1291828,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00094.png",
+      "time": 18.883334318175912,
+      "sha256": "77df4c5cf42a172b278edd94965ef7709e0a067a3b5c125ff8de144c53d974a2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1295798,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00095.png",
+      "time": 18.966667655855417,
+      "sha256": "f6804cd28b29db8ce110cd55afc590f590442bc2c5e7ebcd5041f5950c75916c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1290174,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00096.png",
+      "time": 19.050000993534923,
+      "sha256": "08b29636b9779912e22cd298cd319bc4f2b353b46339a48090cc7b3fc1f1b309",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1293932,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00097.png",
+      "time": 19.133334331214428,
+      "sha256": "45527862149e6f2ab30386679c9069074e56ae1c3a3c3c02d6cbffe3c5b75119",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1283418,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00098.png",
+      "time": 19.216667668893933,
+      "sha256": "b903177cdec5972492e355ca463420bf106e0f1dc733f67db8741feb587d87ae",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1271003,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmInflowSolo/Runs/20261014T151604Z_rafts_08aea5e4/frames/00099.png",
+      "time": 19.30000100657344,
+      "sha256": "cc78eb834f63cec0d1f8da4954e14096838d832399526e0da4499990114bb985",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1259621,
+      "trailing_bytes": 0,
+      "phase": "continuous_throat_outlet",
+      "clip_window": "inflow_holding",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "expected_cm": [
+          937.8537960879703,
+          -500.36745129424537,
+          695.1720733642578
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "review_view": "throat",
+        "field_of_view": 85.0
+      },
+      "client_dimensions": true
+    }
+  ]
+}

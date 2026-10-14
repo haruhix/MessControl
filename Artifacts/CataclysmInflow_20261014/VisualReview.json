@@ -1,0 +1,25 @@
+{
+  "status": "accepted_for_focused_preview",
+  "graph_version": 3,
+  "basis": "Root inspected contact sheets extracted from all three final videos, plus native source frames 78 and 120.",
+  "images": [
+    "qa_arrival.png",
+    "qa_holding.png",
+    "qa_gameplay.png"
+  ],
+  "observations": [
+    "The entering front travels from the visible mouth entrance across dry tongue; no overhead stream appears.",
+    "Directional foam and broad wave crests continue after arrival.",
+    "The sharp lateral green-reflected curtains found in graph v2 are absent in the reviewed graph-v3 frames.",
+    "Throat spray/outflow persists, with a localized lower surface; no claim of a full fluid simulation.",
+    "The final clip uses the actual possessed hero camera with native spring-arm/follow behavior."
+  ],
+  "limitations": [
+    "Review cameras for arrival/throat, ordinary hero camera for the last clip; normal mouth lighting.",
+    "The existing bright tongue-zone overlays remain visible through the liquid.",
+    "Sampled genuine screenshots are repeated at30fps, without motion interpolation.",
+    "One nonclient capture is retained in source evidence and excluded from playback; game-time gaps are retained.",
+    "No final natural tail/recession, full cleanup/balance playthrough, network clients, GPU readback or GPU profile.",
+    "Native dry height outside the visible wet domain is not intended to match fully masked GPU vertices."
+  ]
+}
