@@ -1,0 +1,68 @@
+{
+  "passed": true,
+  "error": null,
+  "captures": [
+    {
+      "image": "11_IntactFullCrown.png",
+      "health": 100.0,
+      "mesh": "SM_Teeth_R_04",
+      "hero": [
+        -180.13192914989418,
+        1052.5751171912925,
+        116.39073705673422
+      ],
+      "camera": [
+        151.8813698363374,
+        -127.14822582450029,
+        432.51615566478034
+      ],
+      "rotation": [
+        -0.0,
+        -10.0,
+        105.71833801269531
+      ]
+    },
+    {
+      "image": "12_ChippedFullCrown.png",
+      "health": 75.0,
+      "mesh": "SM_Teeth_R_04_Chipped",
+      "hero": [
+        -180.13192914989418,
+        1052.5751171912925,
+        116.4969992637989
+      ],
+      "camera": [
+        151.88026580101814,
+        -127.14633686639263,
+        432.5144194144501
+      ],
+      "rotation": [
+        -0.0,
+        -10.0,
+        105.71833801269531
+      ]
+    },
+    {
+      "image": "13_BrokenFullCrown.png",
+      "health": 35.0,
+      "mesh": "SM_Teeth_R_04_Broken",
+      "hero": [
+        -180.13192914989418,
+        1052.5751171912925,
+        117.26701879506527
+      ],
+      "camera": [
+        151.88025766272335,
+        -127.14630795756716,
+        433.35706904611317
+      ],
+      "rotation": [
+        -0.0,
+        -10.0,
+        105.71833801269531
+      ]
+    }
+  ],
+  "mask_preserved": true,
+  "mode": "same existing R04 arena tooth; ordinary orbit camera at -10 degrees; supported tongue placement; no render-only mesh substitution"
+}

@@ -1,0 +1,119 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "55DBC39345346067F659E8BCF784AA34",
+			"instanceName": "VB-16360",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "D3D12_SM5",
+			"rHI": "D3D12 (SM5)",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.14-14.57.54",
+	"succeeded": 6,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 1.1286790370941162,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "AllAvailableTeethScanAndAccelerate",
+			"fullTestPath": "MessControl.FogBrawl.AllAvailableTeethScanAndAccelerate",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.8527417778968811,
+			"dateTime": "2026.10.14-14.57.53",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "IndependentDefenceAndSharedMarks",
+			"fullTestPath": "MessControl.FogBrawl.IndependentDefenceAndSharedMarks",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.074114300310611725,
+			"dateTime": "2026.10.14-14.57.54",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PlayerCountAndBothSides",
+			"fullTestPath": "MessControl.FogBrawl.PlayerCountAndBothSides",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.098654404282569885,
+			"dateTime": "2026.10.14-14.57.54",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ReplacementKeepsCountSideAndDeadline",
+			"fullTestPath": "MessControl.FogBrawl.ReplacementKeepsCountSideAndDeadline",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.026704799383878708,
+			"dateTime": "2026.10.14-14.57.54",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RightThenLeftOnlySelectedTeeth",
+			"fullTestPath": "MessControl.FogBrawl.RightThenLeftOnlySelectedTeeth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.02342049777507782,
+			"dateTime": "2026.10.14-14.57.54",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ShortageAuthorityAndCleanup",
+			"fullTestPath": "MessControl.FogBrawl.ShortageAuthorityAndCleanup",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.053043298423290253,
+			"dateTime": "2026.10.14-14.57.54",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

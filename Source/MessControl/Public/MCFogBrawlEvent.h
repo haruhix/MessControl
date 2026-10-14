@@ -13,7 +13,23 @@ class UStaticMeshComponent;
 class UMaterialInstanceDynamic;
 
 UENUM(BlueprintType)
-enum class EMCFogBrawlStage : uint8 { Idle, SmokeIn, Warning, Recovery, Complete };
+enum class EMCFogBrawlStage : uint8 { Idle, SmokeIn, Warning, Recovery, Complete, Selection };
+
+UENUM(BlueprintType)
+enum class EMCFogBrawlSide : uint8 { Right, Left };
+
+USTRUCT(BlueprintType)
+struct FMCFogBrawlTarget
+{
+    GENERATED_BODY()
+    UPROPERTY(BlueprintReadOnly) TObjectPtr<AMCArenaTooth> Tooth;
+    UPROPERTY(BlueprintReadOnly) EMCFogBrawlSide Side=EMCFogBrawlSide::Right;
+    UPROPERTY(BlueprintReadOnly) bool bResolved=false;
+    UPROPERTY(BlueprintReadOnly) bool bSaved=false;
+    UPROPERTY(BlueprintReadOnly) bool bMarked=false;
+    UPROPERTY(BlueprintReadOnly) int32 Guards=0;
+    UPROPERTY(BlueprintReadOnly) double ImpactAt=-100;
+};
 
 /** Server-owned strikes against the existing reserve teeth. Clients reconstruct local tells from this state. */
 UCLASS()
@@ -34,12 +50,30 @@ public:
     UFUNCTION(BlueprintPure, Category="Fog Brawl") bool IsGuarding(const AMCToothCharacter* Hero) const;
     UFUNCTION(BlueprintPure, Category="Fog Brawl") bool ShouldRevealMarker(const AMCToothCharacter* Hero) const;
     UFUNCTION(BlueprintPure, Category="Fog Brawl") float WarningRemaining() const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") bool IsFinalWarning() const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") bool CanMarkTarget(const AMCToothCharacter* Hero) const;
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Fog Brawl") bool MarkTarget(AMCToothCharacter* Hero,AMCArenaTooth* ExpectedTarget);
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") AMCArenaTooth* SelectionTooth() const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") int32 SelectionStep() const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") float SelectionProgress() const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") AMCArenaTooth* NearestTarget(const AMCToothCharacter* Hero,bool bCurrentSideOnly=true) const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") AMCArenaTooth* MarkableTarget(const AMCToothCharacter* Hero) const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") bool IsWaveTarget(const AMCArenaTooth* Tooth) const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") bool IsGuardingTooth(const AMCToothCharacter* Hero,const AMCArenaTooth* Tooth) const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") int32 CurrentTargetCount() const;
+    UFUNCTION(BlueprintPure, Category="Fog Brawl") static EMCFogBrawlSide ToothSide(const AMCArenaTooth* Tooth);
 
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") EMCFogBrawlStage Stage=EMCFogBrawlStage::Idle;
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") TObjectPtr<AMCArenaTooth> ActiveTarget;
+    UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") bool bTargetMarked=false;
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") double StartedAt=0;
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") double StageEndsAt=0;
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") double WarningEndsAt=0;
+    UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") TArray<TObjectPtr<AMCArenaTooth>> SelectionTeeth;
+    UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") TArray<FMCFogBrawlTarget> Targets;
+    UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") EMCFogBrawlSide CurrentSide=EMCFogBrawlSide::Right;
+    UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") int32 RoundPlayerCount=0;
+    // Each side's impact is one strike; a right-left pair spends two strikes.
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") int32 StrikesResolved=0;
     UPROPERTY(EditAnywhere, ReplicatedUsing=OnRep_State, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="1",ClampMax="20")) int32 TotalStrikes=5;
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") int32 GuardCount=0;
@@ -53,11 +87,14 @@ public:
     UPROPERTY(ReplicatedUsing=OnRep_State, BlueprintReadOnly, Category="Fog Brawl") FVector LastImpactLocation=FVector::ZeroVector;
 
     UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="0.1")) float SmokeInSeconds=3;
-    UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="1")) float WarningSeconds=4.8f;
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="0.1")) float SearchSeconds=2.f;
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="2")) float SelectionSeconds=7.f;
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="0.1")) float WarningSeconds=1.5f;
     UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="0.5")) float RecoverySeconds=3;
     UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="80")) float GuardRadius=260;
     UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="100")) float MarkerRevealDistance=700;
-    UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="1")) float ReachSeconds=5;
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="1")) float ReachSeconds=7;
+    UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl") FVector StrikeDirection=FVector(0,1,0);
     UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="0")) float DamagePerLivingPlayer=15;
     UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="0")) float FullTeamImpulse=280;
     UPROPERTY(EditAnywhere, Replicated, BlueprintReadWrite, Category="Fog Brawl", meta=(ClampMin="0")) float MaxImpulse=1100;
@@ -68,6 +105,8 @@ public:
 private:
     UFUNCTION() void OnRep_State();
     double Now() const;
+    void BeginSelection();
+    void SelectTargets();
     void BeginWarning();
     void ResolveStrike();
     void Finish(bool bFailure);
@@ -77,9 +116,15 @@ private:
     bool HasClearApproach(const AMCToothCharacter* Hero,const AMCArenaTooth* Target) const;
     FVector ClosestTargetPoint(const AMCToothCharacter* Hero,const AMCArenaTooth* Target) const;
     bool IsLivingTeamMember(const AMCToothCharacter* Hero) const;
+    int32 ParticipantCount() const;
+    bool HasReadyCrew() const;
+    bool RefreshTargets();
+    void CollectAvailable(TArray<AMCArenaTooth*>& Out) const;
+    AMCArenaTooth* GuardTarget(const AMCToothCharacter* Hero) const;
     void FindGuards(TArray<AMCToothCharacter*>& Out) const;
     UPROPERTY() TObjectPtr<UMaterialInterface> PulseMaterial;
     UPROPERTY() TObjectPtr<UMaterialInterface> ToothPulseMaterial;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> ToothPulseMID;
+    UPROPERTY() TMap<TObjectPtr<AMCArenaTooth>,TObjectPtr<UStaticMeshComponent>> ToothGlows;
     FRandomStream Random;
 };

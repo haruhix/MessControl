@@ -331,10 +331,10 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
             Fog->Tags.AddUnique(TEXT("MC_DevKeyEvent")); Fog->Tags.AddUnique(TEXT("DayOne")); Fog->Start();
             if (Fog->bFailed) { Fog->Stop(); Fog->Destroy(); return FText::FromString(TEXT("Потасовке в тумане нужен доступный язык и живые игроки.")); }
             GS->DirectorState.CurrentTitle=TEXT("ПОТАСОВКА В ТУМАНЕ");
-            GS->DirectorState.Instruction=TEXT("Найди пульсирующий красным зуб за 5 секунд. Рядом удерживай ПКМ: урон и отбрасывание делятся между защитниками.");
+            GS->DirectorState.Instruction=TEXT("Переживи пять ударов. Все доступные зубы мигают с ускорением; выбрано по зубу на игрока. Справа, затем слева. У цели держи ПКМ.");
             GS->RecordDirectorDecision(TEXT("F3: чистый тест потасовки в тумане, автоматическая последовательность остановлена"));
             GS->ForceNetUpdate();
-            return FText::FromString(TEXT("Потасовка в тумане: найди пульсирующий красным зуб за 5 секунд. Рядом удерживай ПКМ: урон и отбрасывание делятся между защитниками. F3 — играть."));
+            return FText::FromString(TEXT("Потасовка в тумане: пять ударов, 3,5 секунды от выбора до удара. E у зуба — маяк; ПКМ рядом — защита. F3 — играть."));
         }
         if (Action==EMCDevAction::IceEvent)
         {

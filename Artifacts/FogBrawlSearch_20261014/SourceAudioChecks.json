@@ -1,0 +1,42 @@
+[
+  {
+    "sound": "S_FogBeacon",
+    "channels": 1,
+    "rate": 44100,
+    "seconds": 0.42,
+    "peak": 0.42047119140625,
+    "rms": 0.09355616111289011
+  },
+  {
+    "sound": "S_FogFinal",
+    "channels": 1,
+    "rate": 44100,
+    "seconds": 0.32,
+    "peak": 0.440399169921875,
+    "rms": 0.13804580231535418
+  },
+  {
+    "sound": "S_FogImpact",
+    "channels": 1,
+    "rate": 44100,
+    "seconds": 0.35,
+    "peak": 0.672698974609375,
+    "rms": 0.10852408313994795
+  },
+  {
+    "sound": "S_FogKnock",
+    "channels": 1,
+    "rate": 44100,
+    "seconds": 0.17,
+    "peak": 0.60992431640625,
+    "rms": 0.10153356299990562
+  },
+  {
+    "sound": "S_FogWindup",
+    "channels": 1,
+    "rate": 44100,
+    "seconds": 0.75,
+    "peak": 0.39874267578125,
+    "rms": 0.12119413565080335
+  }
+]

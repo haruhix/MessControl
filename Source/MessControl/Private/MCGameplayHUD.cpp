@@ -776,11 +776,11 @@ void UMCGameplayHUD::RefreshState()
             {
                 const bool Guarding=It->IsGuarding(Hero);
                 FString Direction;
-                if(IsValid(It->ActiveTarget))
+                if(auto* Nearby=It->NearestTarget(Hero,true))
                 {
                     FVector ViewLocation; FRotator ViewRotation=Hero->GetControlRotation();
                     if(const auto* Owner=GetOwningPlayer()) Owner->GetPlayerViewPoint(ViewLocation,ViewRotation);
-                    const FVector Offset=(It->ActiveTarget->GetActorLocation()-Hero->GetActorLocation()).GetSafeNormal2D();
+                    const FVector Offset=(Nearby->GetActorLocation()-Hero->GetActorLocation()).GetSafeNormal2D();
                     FVector Forward=ViewRotation.Vector().GetSafeNormal2D();
                     if(Forward.IsNearlyZero()) Forward=FRotationMatrix(ViewRotation).GetUnitAxis(EAxis::Z).GetSafeNormal2D();
                     const FVector Right=FVector::CrossProduct(FVector::UpVector,Forward);
@@ -788,15 +788,23 @@ void UMCGameplayHUD::RefreshState()
                     Direction=FMath::Abs(Side)>FMath::Abs(Ahead)?Side>0?TEXT("СПРАВА"):TEXT("СЛЕВА")
                         :Ahead>0?TEXT("ВПЕРЕДИ"):TEXT("СЗАДИ");
                 }
-                Hint=Guarding
-                    ?FString::Printf(TEXT("ДЕРЖИ ПКМ · ЗАЩИТНИКОВ %d · УДАР ЧЕРЕЗ %.1f С"),It->GuardCount,FMath::Max(0.,It->WarningEndsAt-Now))
-                    :FString::Printf(TEXT("НАЙДИ ЗУБ %s · РЯДОМ ДЕРЖИ ПКМ · %.1f С"),*Direction,FMath::Max(0.,It->WarningEndsAt-Now));
+                const TCHAR* Side=It->CurrentSide==EMCFogBrawlSide::Right?TEXT("СПРАВА"):TEXT("СЛЕВА");
+                const FString Action=Guarding?TEXT("ДЕРЖИ ПКМ"):FString::Printf(TEXT("К ЗУБУ %s · ДЕРЖИ ПКМ"),*Direction);
+                Hint=FString::Printf(TEXT("УДАР %d/%d %s · ЦЕЛЕЙ %d · %s · %.1f С"),
+                    FMath::Min(It->StrikesResolved+1,It->TotalStrikes),FMath::Max(1,It->TotalStrikes),Side,It->CurrentTargetCount(),
+                    *Action,It->WarningRemaining());
+                if(It->IsFinalWarning()) Hint=TEXT("ПОСЛЕДНЕЕ ПРЕДУПРЕЖДЕНИЕ · ")+Hint;
+                else if(It->CanMarkTarget(Hero)) Hint+=TEXT(" · E — МАЯК КОМАНДЕ");
+                else if(It->bTargetMarked) Hint+=TEXT(" · ЗУБ ОТМЕЧЕН МАЯКОМ");
             }
+            else if(It->Stage==EMCFogBrawlStage::Selection)
+                Hint=FString::Printf(TEXT("МИГАЮТ ВСЕ ДОСТУПНЫЕ ЗУБЫ · ВЫБОР УСКОРЯЕТСЯ · %.1f С"),FMath::Max(0.,It->StageEndsAt-Now));
             else if(It->Stage==EMCFogBrawlStage::Recovery)
-                Hint=It->LastImpactAt<0?TEXT("СОБЕРИТЕСЬ · СЛЕДУЮЩИЙ УДАР ЖДЁТ ГОТОВНОСТИ КОМАНДЫ")
-                    :It->LastGuardCount>0?FString::Printf(TEXT("ЗУБ СПАСЁН · %d ЗАЩИТНИКОВ · %.0f УРОНА КАЖДОМУ"),It->LastGuardCount,It->LastDamagePerGuard)
-                    :TEXT("ЗУБ ВЫБИТ · СОБЕРИТЕСЬ К СЛЕДУЮЩЕМУ УДАРУ");
-            else Hint=TEXT("ТУМАН СГУЩАЕТСЯ · ИЩИ ПУЛЬСИРУЮЩИЙ КРАСНЫМ ЗУБ");
+                Hint=It->StrikesResolved>=It->TotalStrikes?TEXT("ВСЕ УДАРЫ ПЕРЕЖИТЫ")
+                    :It->LastImpactAt<0?TEXT("СОБЕРИТЕСЬ · СОБЫТИЕ ЖДЁТ ГОТОВНОСТИ КОМАНДЫ")
+                    :It->CurrentTargetCount()>0?TEXT("СПРАВА УДАР ЗАВЕРШЁН · ПРИГОТОВЬТЕСЬ К УДАРУ СЛЕВА")
+                    :TEXT("СЕРИЯ ЗАВЕРШЕНА · СЕЙЧАС НОВЫЙ ВЫБОР ЗУБОВ");
+            else Hint=TEXT("ТУМАН СГУЩАЕТСЯ · СКОРО НАЧНЁТСЯ ПЕРЕБОР ВСЕХ ЗУБОВ");
             break;
         }
         if(Hero->HasFrozenLegs() && Hero->CanWork()) {

@@ -1,0 +1,290 @@
+[
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_01_Chipped.SM_Teeth_L_01_Chipped",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -97.76461791992188,
+      -108.20478057861328,
+      -144.8580322265625
+    ],
+    "max": [
+      97.76461791992188,
+      108.20478057861328,
+      144.8580322265625
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_01_Broken.SM_Teeth_L_01_Broken",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -97.76461791992188,
+      -108.20478057861328,
+      -144.8580322265625
+    ],
+    "max": [
+      97.76461791992188,
+      108.20478057861328,
+      101.05014038085938
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_02_Chipped.SM_Teeth_L_02_Chipped",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -95.94571685791016,
+      -111.19331359863281,
+      -139.94094848632812
+    ],
+    "max": [
+      95.81412506103516,
+      114.35362243652344,
+      139.94094848632812
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_02_Broken.SM_Teeth_L_02_Broken",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -95.7411880493164,
+      -111.19331359863281,
+      -139.94094848632812
+    ],
+    "max": [
+      88.95285034179688,
+      114.35362243652344,
+      99.33018493652344
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_03_Chipped.SM_Teeth_L_03_Chipped",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -108.2762451171875,
+      -112.19573974609375,
+      -159.727294921875
+    ],
+    "max": [
+      108.2762451171875,
+      111.99034881591797,
+      152.21075439453125
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_L_03_Broken.SM_Teeth_L_03_Broken",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -107.3670883178711,
+      -112.19573974609375,
+      -159.727294921875
+    ],
+    "max": [
+      107.26220703125,
+      111.99034881591797,
+      135.63539123535156
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_01_Chipped.SM_Teeth_R_01_Chipped",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -97.76460266113281,
+      -107.9560546875,
+      -144.8580322265625
+    ],
+    "max": [
+      97.76460266113281,
+      108.20478057861328,
+      144.8580322265625
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_01_Broken.SM_Teeth_R_01_Broken",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -97.36678314208984,
+      -107.9560546875,
+      -144.8580322265625
+    ],
+    "max": [
+      95.42879486083984,
+      108.20478057861328,
+      94.76240539550781
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_02_Chipped.SM_Teeth_R_02_Chipped",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -95.81413269042969,
+      -114.35362243652344,
+      -139.94094848632812
+    ],
+    "max": [
+      95.91365051269531,
+      114.35362243652344,
+      139.94094848632812
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_02_Broken.SM_Teeth_R_02_Broken",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -95.45713806152344,
+      -114.35362243652344,
+      -139.94094848632812
+    ],
+    "max": [
+      95.75088500976562,
+      114.35362243652344,
+      93.89398193359375
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_03_Chipped.SM_Teeth_R_03_Chipped",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -108.2762451171875,
+      -112.19577026367188,
+      -159.727294921875
+    ],
+    "max": [
+      108.2762451171875,
+      112.19576263427734,
+      159.727294921875
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_03_Broken.SM_Teeth_R_03_Broken",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -108.2762451171875,
+      -112.19577026367188,
+      -159.727294921875
+    ],
+    "max": [
+      108.2762451171875,
+      112.19576263427734,
+      99.47589111328125
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_04_Chipped.SM_Teeth_R_04_Chipped",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -108.74275207519531,
+      -143.194091796875,
+      -165.8113250732422
+    ],
+    "max": [
+      108.74275207519531,
+      143.194091796875,
+      155.72032165527344
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_R_04_Broken.SM_Teeth_R_04_Broken",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -102.01925659179688,
+      -143.194091796875,
+      -165.8113250732422
+    ],
+    "max": [
+      108.74275207519531,
+      143.194091796875,
+      129.2831573486328
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_l_04_Chipped.SM_Teeth_l_04_Chipped",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -108.74271392822266,
+      -142.04071044921875,
+      -165.81129455566406
+    ],
+    "max": [
+      108.74271392822266,
+      143.19406127929688,
+      165.81129455566406
+    ]
+  },
+  {
+    "mesh": "/Game/Gameplay/Arena/Damage/SM_Teeth_l_04_Broken.SM_Teeth_l_04_Broken",
+    "slots": [
+      "MC_Damage_Enamel",
+      "MC_Damage_Dentin",
+      "MC_Damage_Crack"
+    ],
+    "min": [
+      -107.8205337524414,
+      -142.04071044921875,
+      -165.81129455566406
+    ],
+    "max": [
+      108.09394073486328,
+      143.19406127929688,
+      108.1985855102539
+    ]
+  }
+]

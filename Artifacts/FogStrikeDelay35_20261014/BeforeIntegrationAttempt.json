@@ -1,0 +1,6 @@
+{
+  "passed": false,
+  "error": "Traceback (most recent call last):\n  File \"C:/Users/vasil/Documents/ChatGPT/MessControl/fog_delay35_runtime_live.py\", line 32, in tick\n    assert abs(self.m('WarningRemaining')-3.5)<.04\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n",
+  "mode": "single local PIE, real F3, one complete round; TotalStrikes=1; no timeline acceleration",
+  "checks": []
+}

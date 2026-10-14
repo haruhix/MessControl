@@ -1,0 +1,47 @@
+{
+  "implemented": true,
+  "integrated": "Live Coding; class layout retained",
+  "timing": {
+    "preparation_seconds": 2,
+    "final_warning_seconds": 1.5,
+    "selection_to_impact_seconds": 3.5
+  },
+  "tests": {
+    "passed": 3,
+    "failed": 0,
+    "names": [
+      "MessControl.FogBrawl.AllAvailableTeethScanAndAccelerate",
+      "MessControl.FogBrawl.ReplacementKeepsCountSideAndDeadline",
+      "MessControl.FogBrawl.RightThenLeftOnlySelectedTeeth"
+    ]
+  },
+  "solo": {
+    "passed": true,
+    "error": null,
+    "mode": "single local PIE, real F3, one complete round; TotalStrikes=1; no timeline acceleration",
+    "checks": [
+      {
+        "check": "target chosen, exactly 3.5 seconds until impact",
+        "remaining": 3.5,
+        "prepare_seconds": 2.0,
+        "final_seconds": 1.5
+      },
+      {
+        "check": "final warning starts two seconds after selection",
+        "elapsed": 2.003047201782465,
+        "remaining": 1.496952772140503
+      },
+      {
+        "check": "no early hit; actual impact at 3.5 seconds",
+        "elapsed": 3.5014137998223305,
+        "final_warning_observed": 1.4983665980398655
+      },
+      {
+        "check": "round completes and cleans up normally"
+      }
+    ]
+  },
+  "observed_selection_to_impact": 3.5014137998223305,
+  "earlier_attempt": "BeforeIntegrationAttempt.json ran before the native patch was applied; old native constructor still assigned the previous delay. Final solo run uses the integrated native default.",
+  "scope": "One local F3 round after integration, no clock acceleration; targeted rules for both sides/replacement. No network, cook or package run."
+}

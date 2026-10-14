@@ -1,0 +1,190 @@
+{
+  "pie": true,
+  "teeth": [
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_16",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_01.SM_Teeth_L_01",
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_16.MID_M_ArenaToothCareV2_0",
+      "location": [
+        -1743.7886118185863,
+        -1344.037170820775,
+        -199.98040390014623
+      ],
+      "bounds": {
+        "origin": [
+          -1743.7886118185863,
+          -1344.037170820775,
+          -199.98040390014623
+        ],
+        "extent": [
+          203.15448986053474,
+          183.55307014465342,
+          313.97977783307914
+        ]
+      },
+      "health": 100.0
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_17",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_01.SM_Teeth_R_01",
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_17.MID_M_ArenaToothCareV2_0",
+      "location": [
+        -1744.7337428475835,
+        1256.609677802577,
+        -227.27362439600049
+      ],
+      "bounds": {
+        "origin": [
+          -1744.7337428475835,
+          1256.609677802577,
+          -227.27362439600049
+        ],
+        "extent": [
+          203.15448986053474,
+          183.55305582046518,
+          362.1450724718329
+        ]
+      },
+      "health": 100.0
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_18",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_02.SM_Teeth_L_02",
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_18.MID_M_ArenaToothCareV2_0",
+      "location": [
+        -1346.8978385090375,
+        -1505.1240843077726,
+        -105.95588417412134
+      ],
+      "bounds": {
+        "origin": [
+          -1346.8978385090375,
+          -1505.1240843077726,
+          -105.95588417412134
+        ],
+        "extent": [
+          214.69892612457284,
+          179.8910198020936,
+          262.73913078308107
+        ]
+      },
+      "health": 100.0
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_19",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_02.SM_Teeth_R_02",
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_19.MID_M_ArenaToothCareV2_0",
+      "location": [
+        -1381.5533681762772,
+        1448.9457870903423,
+        -105.43743319282427
+      ],
+      "bounds": {
+        "origin": [
+          -1381.5533681762772,
+          1448.9457870903423,
+          -105.43743319282427
+        ],
+        "extent": [
+          220.98563562893497,
+          185.46338417721128,
+          269.38632583618164
+        ]
+      },
+      "health": 100.0
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_20",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_L_03.SM_Teeth_L_03",
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_20.MID_M_ArenaToothCareV2_0",
+      "location": [
+        -894.8685354642585,
+        -1694.6504629169988,
+        -84.86218119852833
+      ],
+      "bounds": {
+        "origin": [
+          -894.8685354642585,
+          -1694.6504629169988,
+          -84.86218119852833
+        ],
+        "extent": [
+          231.73461872376043,
+          289.98402385178287,
+          361.96046780903083
+        ]
+      },
+      "health": 100.0
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_21",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_03.SM_Teeth_R_03",
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_21.MID_M_ArenaToothCareV2_0",
+      "location": [
+        -934.1149864826477,
+        1617.0827107859886,
+        -72.2889022827153
+      ],
+      "bounds": {
+        "origin": [
+          -934.1149864826477,
+          1617.0827107859886,
+          -72.2889022827153
+        ],
+        "extent": [
+          250.33389348336715,
+          203.28865020751957,
+          326.28598080119707
+        ]
+      },
+      "health": 100.0
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_22",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_l_04.SM_Teeth_l_04",
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_22.MID_M_ArenaToothCareV2_0",
+      "location": [
+        -314.89833142181965,
+        -1645.0612975243184,
+        -68.81946563720817
+      ],
+      "bounds": {
+        "origin": [
+          -314.89833142181965,
+          -1645.0612975243184,
+          -68.81946563720817
+        ],
+        "extent": [
+          268.84687870025647,
+          204.16445972442637,
+          311.3107341766357
+        ]
+      },
+      "health": 100.0
+    },
+    {
+      "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_23",
+      "mesh": "/Game/Gameplay/Arena/V2/SM_Teeth_R_04.SM_Teeth_R_04",
+      "material": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCArenaTooth_23.MID_M_ArenaToothCareV2_0",
+      "location": [
+        -333.6898514277691,
+        1598.204416624327,
+        -32.82776056568363
+      ],
+      "bounds": {
+        "origin": [
+          -333.6898514277691,
+          1598.204416624327,
+          -32.82776056568363
+        ],
+        "extent": [
+          345.5927141086042,
+          256.9002687484162,
+          349.53493287284675
+        ]
+      },
+      "health": 100.0
+    }
+  ],
+  "dirty_content": []
+}

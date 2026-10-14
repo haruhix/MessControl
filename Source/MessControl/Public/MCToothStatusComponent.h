@@ -74,6 +74,8 @@ public:
     float PainAlpha() const;
     // Called only after the worker validates a complete continuous tool contact on the server.
     bool CareContact(bool bBrush, AMCToothCharacter* Worker=nullptr);
+    // Inventory validates nozzle range, sight and held input before applying continuous treatment.
+    bool RepairWithTool(float Amount, AMCToothCharacter* Worker);
     FString Summary() const;
     FVector LastDamageDirection=FVector::ForwardVector;
 private:

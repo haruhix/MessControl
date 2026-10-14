@@ -1,0 +1,180 @@
+{
+  "passed": true,
+  "implemented": "16 mesh variants reauthored as unequal 3D convex-hull chips with unique per-tooth seeds, varying depth/width/tilt and distinct branching cracks; severe stage extends the original chip volumes",
+  "geometry": {
+    "passed": true,
+    "teeth": [
+      {
+        "source": "SM_Teeth_L_01",
+        "original_volume": 4.915576075795131,
+        "chipped_volume": 4.414679032754489,
+        "broken_volume": 3.3220952189540895,
+        "seed": 4229577778,
+        "closed_enamel": true
+      },
+      {
+        "source": "SM_Teeth_L_02",
+        "original_volume": 5.241999730124688,
+        "chipped_volume": 4.478254085530985,
+        "broken_volume": 2.6550709915949153,
+        "seed": 3826304422,
+        "closed_enamel": true
+      },
+      {
+        "source": "SM_Teeth_L_03",
+        "original_volume": 7.102410750911135,
+        "chipped_volume": 6.533747929691243,
+        "broken_volume": 4.524901516291485,
+        "seed": 2579330127,
+        "closed_enamel": true
+      },
+      {
+        "source": "SM_Teeth_R_01",
+        "original_volume": 4.9155759207638745,
+        "chipped_volume": 4.3724479784472505,
+        "broken_volume": 2.742125005160511,
+        "seed": 1200847283,
+        "closed_enamel": true
+      },
+      {
+        "source": "SM_Teeth_R_02",
+        "original_volume": 5.241998301354201,
+        "chipped_volume": 4.768227372946786,
+        "broken_volume": 3.2074448532275985,
+        "seed": 3423619388,
+        "closed_enamel": true
+      },
+      {
+        "source": "SM_Teeth_R_03",
+        "original_volume": 7.102408655838959,
+        "chipped_volume": 6.2011826034023345,
+        "broken_volume": 4.587818801581704,
+        "seed": 2711110581,
+        "closed_enamel": true
+      },
+      {
+        "source": "SM_Teeth_R_04",
+        "original_volume": 9.562998585104488,
+        "chipped_volume": 8.381642122567817,
+        "broken_volume": 5.307652296049875,
+        "seed": 3534489471,
+        "closed_enamel": true
+      },
+      {
+        "source": "SM_Teeth_l_04",
+        "original_volume": 9.56299660294903,
+        "chipped_volume": 8.414694008474596,
+        "broken_volume": 5.812822385409765,
+        "seed": 3085964463,
+        "closed_enamel": true
+      }
+    ],
+    "unique_seeds": 8
+  },
+  "fbx_sha256": {
+    "SM_Teeth_L_01_Chipped": "69f1b67953ac85dcec7467282ccfc966b8943e074c0379e40ddb6cc19cebf325",
+    "SM_Teeth_L_01_Broken": "42ac9104b95247d2640eed59cd8282d9876dea5397fb829fad383036d9d73e70",
+    "SM_Teeth_L_02_Chipped": "b2ca538c3041e6072fa1dbed9ca24a84be932552a310998a3e98f3310141e86f",
+    "SM_Teeth_L_02_Broken": "dafda9eb52334ccdb075ee20e24bad4cd0f232965ef91c15fdef87ffd1281251",
+    "SM_Teeth_L_03_Chipped": "174983f2035b2cb83f38d142de2bd4ea6853d963488bcc0a23ab4190fa371b1f",
+    "SM_Teeth_L_03_Broken": "584af7feb007c34730bfd231f6cb54a009574c005001d672f520b21915086434",
+    "SM_Teeth_R_01_Chipped": "968ba2fb299f6b4212cf7fb5c3ebaecc1051323073e1877dbc37d2d465226495",
+    "SM_Teeth_R_01_Broken": "bd88e3a5880f7fca352013ad3d482fe7c9e705bfd654ae0dff806840692ada54",
+    "SM_Teeth_R_02_Chipped": "535704a7bac8c454163b7cef6385b1be3ae7955eac471f47b62c7d649aa0b69b",
+    "SM_Teeth_R_02_Broken": "c76d517ddf4de44fa999086c45a7b06fa3502a468eeccd80c3ded1a140fe9201",
+    "SM_Teeth_R_03_Chipped": "1450cdef20896a941634f87df622e7d3545c6b978df147f339c24302049cc9e8",
+    "SM_Teeth_R_03_Broken": "027bece30aa914125c877207eb04eeb36763bd3e4e993f07ff1133187535ad77",
+    "SM_Teeth_R_04_Chipped": "20f5dcfa37f3a8a331bf806f3380dbed8c7c0ca57af50104b532091a7ab273fb",
+    "SM_Teeth_R_04_Broken": "a6c9d297045a90d505b688d4a108e1db88e14b529ec78d343b632ecf5a6f87ad",
+    "SM_Teeth_l_04_Chipped": "738e05edd7a3c74be6ae1e03125d60e22c488cf38ffc34903f10de5d79de3735",
+    "SM_Teeth_l_04_Broken": "2884602c074c8eb0bd179bd859a9f4f8c25cb5c78c7480b6db181244dd422f70"
+  },
+  "solo_preview": {
+    "passed": true,
+    "error": null,
+    "captures": [
+      {
+        "image": "11_IntactFullCrown.png",
+        "health": 100.0,
+        "mesh": "SM_Teeth_R_04",
+        "neighbor_mesh": "SM_Teeth_R_03",
+        "hero": [
+          -180.13192914989418,
+          1052.5751171912925,
+          116.66214656831744
+        ],
+        "camera": [
+          153.36422860916787,
+          -126.68456464147062,
+          433.0167180577573
+        ],
+        "rotation": [
+          -0.0,
+          -10.006863594055176,
+          105.7908935546875
+        ]
+      },
+      {
+        "image": "12_ChippedFullCrown.png",
+        "health": 75.0,
+        "mesh": "SM_Teeth_R_04_Chipped",
+        "neighbor_mesh": "SM_Teeth_R_03_Chipped",
+        "hero": [
+          -180.13192914989418,
+          1052.5751171912925,
+          116.08919429782566
+        ],
+        "camera": [
+          159.6577630154586,
+          -124.79051479182363,
+          432.9359823615117
+        ],
+        "rotation": [
+          -0.0,
+          -10.035935401916504,
+          106.09822845458984
+        ]
+      },
+      {
+        "image": "13_BrokenFullCrown.png",
+        "health": 35.0,
+        "mesh": "SM_Teeth_R_04_Broken",
+        "neighbor_mesh": "SM_Teeth_R_03_Broken",
+        "hero": [
+          -180.13192914989418,
+          1052.5751171912925,
+          117.05063533788143
+        ],
+        "camera": [
+          159.6577314523597,
+          -124.79040551007097,
+          433.8341682090123
+        ],
+        "rotation": [
+          -0.0,
+          -10.035935401916504,
+          106.09822845458984
+        ]
+      }
+    ],
+    "mask_preserved": true,
+    "mode": "same existing R04 arena tooth; ordinary orbit camera at -10 degrees; supported tongue placement; no render-only mesh substitution"
+  },
+  "visual_review": {
+    "accepted": [
+      "ChippedAllTeeth.png",
+      "BrokenAllTeeth.png",
+      "StagesIrregular.png",
+      "11_IntactFullCrown.png",
+      "12_ChippedFullCrown.png",
+      "13_BrokenFullCrown.png"
+    ],
+    "findings": "The repeating saw/stair silhouette is removed. R04 and R03 show different broken edges at the same health in the ordinary gameplay camera. Unequal facets expose closed fracture caps; no drilled holes. Thin cracks remain small at gameplay distance.",
+    "scope": "All 16 variants reviewed in Blender sheets; one short local solo sequence on neighboring teeth. No new gameplay rules or C++ edits in this pass."
+  },
+  "deferred": [
+    "network testing",
+    "cook/package",
+    "GPU profiling"
+  ]
+}

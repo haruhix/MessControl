@@ -218,7 +218,8 @@ void UMCFogBrawlSmoke::TickClient()
                 if(ClientInitialHealth==0 || !FMath::IsNearlyEqual(Hero->Status->State.Health,ClientInitialHealth-15,.5f)) {Fail(TEXT("Remote player did not receive exactly its fifteen-health share"));return;}
             }
             if(Fog->StrikesResolved==2 && Fog->LastGuardCount==1 && FMath::IsNearlyEqual(Fog->LastDamagePerGuard,30.f,.1f)) ClientSeen|=8;
-            if(Fog->StrikesResolved==3 && Fog->LastGuardCount==0 && IsValid(Fog->ActiveTarget) && Fog->ActiveTarget->State.bLost) ClientSeen|=16;
+            if(Fog->StrikesResolved==3 && Fog->LastGuardCount==0 && IsValid(Fog->ActiveTarget)
+                && Fog->ActiveTarget->State.Health<Fog->ActiveTarget->Settings.MaxHealth) ClientSeen|=16;
             ClientCheckedStrikes=Fog->StrikesResolved;
             UE_LOG(LogTemp,Display,TEXT("MC_FOG_CLIENT_SNAPSHOT strikes=%d target=%s guards=%d damage=%.1f health=%.1f remote_seen=%u"),
                 Fog->StrikesResolved,*GetNameSafe(Fog->ActiveTarget),Fog->LastGuardCount,Fog->LastDamagePerGuard,Hero->Status->State.Health,ClientSeen);
@@ -285,10 +286,11 @@ void UMCFogBrawlSmoke::CheckStrike()
     }
     else
     {
-        if(!PendingTarget || !PendingTarget->State.bLost || PendingTarget->State.Health!=0 || PendingTarget->IsAvailable())
-        {Fail(TEXT("An unguarded strike did not lose the real reserve tooth through normal status"));return;}
+        const float Expected=PendingTarget?FMath::Max(0.f,TargetBeforeHealth-PendingTarget->Settings.MaxHealth/3.f):0;
+        if(!PendingTarget || !FMath::IsNearlyEqual(PendingTarget->State.Health,Expected,.02f))
+        {Fail(TEXT("An unguarded strike did not damage the real reserve crown"));return;}
         auto* GS=GetWorld()->GetGameState<AMCGameState>();
-        if(GS->AvailableArenaTeeth()!=InitialReserve-1) {Fail(TEXT("Missed defence did not reduce the real reserve count"));return;}
+        if(GS->AvailableArenaTeeth()!=InitialReserve-(PendingTarget->State.bLost?1:0)) {Fail(TEXT("Reserve count did not match staged damage"));return;}
     }
     ++CheckedStrikes;
     UE_LOG(LogTemp,Display,TEXT("MC_FOG_CHECK PASS strike=%d guards=%d living=%d damage_each=%.1f impulse=%.1f host_health=%.1f remote_health=%.1f saved=%d"),

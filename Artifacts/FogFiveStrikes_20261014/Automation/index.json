@@ -1,0 +1,74 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "55DBC39345346067F659E8BCF784AA34",
+			"instanceName": "VB-16360",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "D3D12_SM5",
+			"rHI": "D3D12 (SM5)",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.14-15.51.37",
+	"succeeded": 3,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.22733670473098755,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "ExactlyFiveIndividualStrikes",
+			"fullTestPath": "MessControl.FogBrawl.ExactlyFiveIndividualStrikes",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.12368190288543701,
+			"dateTime": "2026.10.14-15.51.36",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PlayerCountAndBothSides",
+			"fullTestPath": "MessControl.FogBrawl.PlayerCountAndBothSides",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.075893104076385498,
+			"dateTime": "2026.10.14-15.51.37",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RightThenLeftOnlySelectedTeeth",
+			"fullTestPath": "MessControl.FogBrawl.RightThenLeftOnlySelectedTeeth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.027761701494455338,
+			"dateTime": "2026.10.14-15.51.37",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

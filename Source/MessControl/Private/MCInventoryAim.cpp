@@ -2,6 +2,8 @@
 #include "MCToothCharacter.h"
 #include "MCMouthSurface.h"
 #include "MCFirePatch.h"
+#include "MCArenaTooth.h"
+#include "MCToothStatusComponent.h"
 #include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 
@@ -76,4 +78,15 @@ bool UMCInventoryComponent::SprayTargetDistance(AActor* Target,FVector Point,flo
     if(Distance<=0 || Distance>SprayReach() || (Delta-Direction*Distance).SizeSquared()>FMath::Square(Radius)) return false;
     FHitResult Hit;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCSprayTreatment),true,Hero);Query.AddIgnoredActor(Target);
     return !GetWorld()->LineTraceSingleByChannel(Hit,Origin,Point,ECC_Visibility,Query);
+}
+AMCArenaTooth* UMCInventoryComponent::FindToothRepairTarget() const
+{
+    if (!Hero || !Hero->IsPrimaryHeld() || !ShouldPresentTool() || !Hero->CanWork() || Hero->bInCoffee
+        || Selected!=EMCToolSlot::Spray || (bPressureMode && HasUpgrade(EMCToolUpgrade::Watergun))) return nullptr;
+    // Use the first physical contact, shared with aiming and water shots. Walls and other teeth occlude repair.
+    FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCToothSprayRepair),true,Hero);
+    const FVector Origin=SprayOrigin();
+    if (!GetWorld()->LineTraceSingleByChannel(Hit,Origin,Origin+SprayDirection()*SprayReach(),ECC_Visibility,Query)) return nullptr;
+    auto* Tooth=Cast<AMCArenaTooth>(Hit.GetActor());
+    return Tooth && Tooth->IsAvailable() && Tooth->Status->NeedsCare(false)?Tooth:nullptr;
 }

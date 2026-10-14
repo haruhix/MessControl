@@ -20,9 +20,9 @@ $taskLog = Join-Path $taskRunFolder 'Automation.log'
 # Inventory focuses tool routing/presentation after character, input and camera changes.
 $taskManifest = [ordered]@{
     'MessControl.FogBrawl' = @(
-        'GenericRMBProtectsReserveAndResolvesOnce','TeamSharesLoadAndLoneDefenderTakesFullLoad',
-        'MissUsesNormalToothLossAndConsumedTargetRestartsWarning','DefenceRequiresNearGroundedLivingCrewAndClearApproach',
-        'CompleteCancelReplaceAndMissingReserve','ClientCannotStartOrResolveStrikes','WaitsForNormalGetupAndStopsAfterShiftTerminal'
+        'PlayerCountAndBothSides','AllAvailableTeethScanAndAccelerate','RightThenLeftOnlySelectedTeeth',
+        'IndependentDefenceAndSharedMarks','ReplacementKeepsCountSideAndDeadline','ShortageAuthorityAndCleanup',
+        'ExactlyFiveIndividualStrikes'
     )
     'MessControl.SingleDay' = @(
         'TutorialExperiencePreservesPawnAndChoices','LegacyFinalBossDeathEndsRun','FailedNutSetupTerminatesRun',

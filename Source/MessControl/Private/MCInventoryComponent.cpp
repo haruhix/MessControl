@@ -554,6 +554,11 @@ void UMCInventoryComponent::TickComponent(float Dt,ELevelTick Type,FActorCompone
             if(Now()-LastSprayAt>.8 && Hero->SoundPalette) Hero->SoundPalette->Play(this,TEXT("Brush"),Target->GetActorLocation());
             LastSprayAt=Now(); SprayReadyAt=0;
         }
+        if (!Fire && !Target)
+            if (auto* Tooth=FindToothRepairTarget(); Tooth && Tooth->Status->RepairWithTool(
+                    FMath::Clamp(Dt,0.f,.1f)*25.f*(HasUpgrade(EMCToolUpgrade::Watergun)?3.f:1.f),Hero)) {
+                LastSprayAt=Now(); SprayReadyAt=0;
+            }
         ReactPlayersToSpray();
     }
     if(!Hero || !Tool) return;

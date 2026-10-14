@@ -1,0 +1,236 @@
+{
+  "passed": true,
+  "error": null,
+  "mode": "single local PIE, real F3, one natural selection and impact",
+  "eligible_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "seen_glowing_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "switches": [
+    {
+      "step": 0,
+      "time": 0.0,
+      "tooth": 2
+    },
+    {
+      "step": 1,
+      "time": 0.847,
+      "tooth": 4
+    },
+    {
+      "step": 2,
+      "time": 1.534,
+      "tooth": 6
+    },
+    {
+      "step": 3,
+      "time": 2.084,
+      "tooth": 8
+    },
+    {
+      "step": 4,
+      "time": 2.526,
+      "tooth": 7
+    },
+    {
+      "step": 5,
+      "time": 2.993,
+      "tooth": 5
+    },
+    {
+      "step": 6,
+      "time": 3.258,
+      "tooth": 3
+    },
+    {
+      "step": 7,
+      "time": 3.509,
+      "tooth": 1
+    },
+    {
+      "step": 8,
+      "time": 3.761,
+      "tooth": 2
+    },
+    {
+      "step": 9,
+      "time": 3.993,
+      "tooth": 4
+    },
+    {
+      "step": 10,
+      "time": 4.21,
+      "tooth": 6
+    },
+    {
+      "step": 11,
+      "time": 4.403,
+      "tooth": 8
+    },
+    {
+      "step": 12,
+      "time": 4.593,
+      "tooth": 7
+    },
+    {
+      "step": 13,
+      "time": 4.769,
+      "tooth": 5
+    },
+    {
+      "step": 14,
+      "time": 4.927,
+      "tooth": 3
+    },
+    {
+      "step": 15,
+      "time": 5.086,
+      "tooth": 1
+    },
+    {
+      "step": 16,
+      "time": 5.234,
+      "tooth": 2
+    },
+    {
+      "step": 17,
+      "time": 5.378,
+      "tooth": 4
+    },
+    {
+      "step": 18,
+      "time": 5.512,
+      "tooth": 6
+    },
+    {
+      "step": 19,
+      "time": 5.643,
+      "tooth": 8
+    },
+    {
+      "step": 20,
+      "time": 5.776,
+      "tooth": 7
+    },
+    {
+      "step": 21,
+      "time": 5.892,
+      "tooth": 5
+    },
+    {
+      "step": 22,
+      "time": 6.009,
+      "tooth": 3
+    },
+    {
+      "step": 23,
+      "time": 6.123,
+      "tooth": 1
+    },
+    {
+      "step": 24,
+      "time": 6.229,
+      "tooth": 2
+    },
+    {
+      "step": 25,
+      "time": 6.336,
+      "tooth": 4
+    },
+    {
+      "step": 26,
+      "time": 6.445,
+      "tooth": 6
+    },
+    {
+      "step": 27,
+      "time": 6.544,
+      "tooth": 8
+    },
+    {
+      "step": 28,
+      "time": 6.641,
+      "tooth": 7
+    },
+    {
+      "step": 29,
+      "time": 6.728,
+      "tooth": 5
+    },
+    {
+      "step": 30,
+      "time": 6.826,
+      "tooth": 3
+    },
+    {
+      "step": 31,
+      "time": 6.915,
+      "tooth": 1
+    }
+  ],
+  "checks": [
+    {
+      "check": "roulette includes every available reserve",
+      "eligible": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "scan_pool": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "check": "only after all teeth flashed, solo selected one random target",
+      "tooth": 4,
+      "warning_seconds": 1.5,
+      "remaining": 8.5
+    },
+    {
+      "check": "final reveal begins within 1.5 seconds",
+      "remaining": 1.4951449632644653
+    },
+    {
+      "check": "exactly one solo impact after final warning",
+      "health": 66.66667175292969,
+      "observed_final_duration": 1.502
+    },
+    {
+      "check": "natural completion clears glows, geometry, fog and sounds"
+    }
+  ],
+  "captures": [
+    "01_RouletteRight.png",
+    "01_RouletteLeft.png",
+    "03_ChosenTarget.png",
+    "04_FinalWarning.png"
+  ]
+}

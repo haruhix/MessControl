@@ -653,6 +653,8 @@ void AMCToothCharacter::StartHandle()
         Move->SetWantsClimb(false); Move->CancelDash();
         bMimicRescueInputHeld=true; ServerSetMimicRescueHeld(Rescue,true); return;
     }
+    for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It)
+        if(auto* Target=It->MarkableTarget(this)) { ServerMarkFogTarget(*It,Target,It->WarningEndsAt); return; }
     if(AMCToothpick::FindPullTarget(this)) {
         FoodCollection->Stop(); StopPrimary();
         CastChecked<UMCToothMovementComponent>(GetCharacterMovement())->SetWantsClimb(false);
@@ -678,6 +680,11 @@ void AMCToothCharacter::StartHandle()
 void AMCToothCharacter::ServerBeginRewardOpening_Implementation(AMCRewardChest* Chest)
 {
     if(IsValid(Chest) && Chest->GetWorld()==GetWorld()) Chest->BeginLockpicking(this);
+}
+void AMCToothCharacter::ServerMarkFogTarget_Implementation(AMCFogBrawlEvent* Event,AMCArenaTooth* ExpectedTarget,double ExpectedWarningEndsAt)
+{
+    if(IsValid(Event) && Event->GetWorld()==GetWorld() && Event->WarningEndsAt==ExpectedWarningEndsAt)
+        Event->MarkTarget(this,ExpectedTarget);
 }
 void AMCToothCharacter::ServerSetMimicRescueHeld_Implementation(AMCRewardChest* Chest,bool Held)
 {
@@ -1611,6 +1618,7 @@ UMCToothStatusComponent* AMCToothCharacter::FindCareTarget(bool bBrush) const
     {
         if (*It==this) continue;
         auto* Candidate=It->FindComponentByClass<UMCToothStatusComponent>();
+        if (!bBrush && Cast<AMCArenaTooth>(*It)) continue;
         if (const auto* Patch=Cast<AMCMouthSurface>(*It); Patch && (Patch->bUlcer || !bBrush)) continue;
         if (!Candidate || !Candidate->NeedsCare(bBrush)) continue;
         FVector Contact=It->GetActorLocation();

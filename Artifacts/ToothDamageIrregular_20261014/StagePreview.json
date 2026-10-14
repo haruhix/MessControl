@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "error": null,
+  "captures": [
+    {
+      "image": "11_IntactFullCrown.png",
+      "health": 100.0,
+      "mesh": "SM_Teeth_R_04",
+      "neighbor_mesh": "SM_Teeth_R_03",
+      "hero": [
+        -180.13192914989418,
+        1052.5751171912925,
+        116.66214656831744
+      ],
+      "camera": [
+        153.36422860916787,
+        -126.68456464147062,
+        433.0167180577573
+      ],
+      "rotation": [
+        -0.0,
+        -10.006863594055176,
+        105.7908935546875
+      ]
+    },
+    {
+      "image": "12_ChippedFullCrown.png",
+      "health": 75.0,
+      "mesh": "SM_Teeth_R_04_Chipped",
+      "neighbor_mesh": "SM_Teeth_R_03_Chipped",
+      "hero": [
+        -180.13192914989418,
+        1052.5751171912925,
+        116.08919429782566
+      ],
+      "camera": [
+        159.6577630154586,
+        -124.79051479182363,
+        432.9359823615117
+      ],
+      "rotation": [
+        -0.0,
+        -10.035935401916504,
+        106.09822845458984
+      ]
+    },
+    {
+      "image": "13_BrokenFullCrown.png",
+      "health": 35.0,
+      "mesh": "SM_Teeth_R_04_Broken",
+      "neighbor_mesh": "SM_Teeth_R_03_Broken",
+      "hero": [
+        -180.13192914989418,
+        1052.5751171912925,
+        117.05063533788143
+      ],
+      "camera": [
+        159.6577314523597,
+        -124.79040551007097,
+        433.8341682090123
+      ],
+      "rotation": [
+        -0.0,
+        -10.035935401916504,
+        106.09822845458984
+      ]
+    }
+  ],
+  "mask_preserved": true,
+  "mode": "same existing R04 arena tooth; ordinary orbit camera at -10 degrees; supported tongue placement; no render-only mesh substitution"
+}

@@ -1,0 +1,27 @@
+{
+  "pie": true,
+  "throttle": true,
+  "slate": 0,
+  "dirty_content": [],
+  "packages": [
+    "DA_ToothDamage",
+    "M_MC_Damage_Crack",
+    "M_MC_Damage_Dentin",
+    "SM_Teeth_L_01_Broken",
+    "SM_Teeth_L_01_Chipped",
+    "SM_Teeth_L_02_Broken",
+    "SM_Teeth_L_02_Chipped",
+    "SM_Teeth_L_03_Broken",
+    "SM_Teeth_L_03_Chipped",
+    "SM_Teeth_l_04_Broken",
+    "SM_Teeth_l_04_Chipped",
+    "SM_Teeth_R_01_Broken",
+    "SM_Teeth_R_01_Chipped",
+    "SM_Teeth_R_02_Broken",
+    "SM_Teeth_R_02_Chipped",
+    "SM_Teeth_R_03_Broken",
+    "SM_Teeth_R_03_Chipped",
+    "SM_Teeth_R_04_Broken",
+    "SM_Teeth_R_04_Chipped"
+  ]
+}

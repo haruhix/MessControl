@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "error": null,
+  "mode": "single local PIE, real F3, one complete round; TotalStrikes=1; no timeline acceleration",
+  "checks": [
+    {
+      "check": "target chosen, exactly two seconds until impact",
+      "remaining": 2.0,
+      "prepare_seconds": 0.5,
+      "final_seconds": 1.5
+    },
+    {
+      "check": "final warning starts half a second after selection",
+      "elapsed": 0.5087637007236481,
+      "remaining": 1.4912363290786743
+    },
+    {
+      "check": "no early hit; actual impact at two seconds",
+      "elapsed": 2.006749998778105,
+      "final_warning_observed": 1.4979862980544567
+    },
+    {
+      "check": "round completes and cleans up normally"
+    }
+  ]
+}

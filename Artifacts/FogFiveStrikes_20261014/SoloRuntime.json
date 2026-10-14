@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "error": null,
+  "mode": "single local PIE; real F3; five default strikes; no limit override or clock acceleration",
+  "observed_impacts": [
+    {
+      "strike": 1,
+      "at": 13.903563506901264,
+      "delay": 3.508322697132826,
+      "hud_left": 4
+    },
+    {
+      "strike": 2,
+      "at": 27.419376011937857,
+      "delay": 3.500890500843525,
+      "hud_left": 3
+    },
+    {
+      "strike": 3,
+      "at": 40.929356411099434,
+      "delay": 3.5046920999884605,
+      "hud_left": 2
+    },
+    {
+      "strike": 4,
+      "at": 54.4359241053462,
+      "delay": 3.505394898355007,
+      "hud_left": 1
+    },
+    {
+      "strike": 5,
+      "at": 67.94785690680146,
+      "delay": 3.503929700702429,
+      "hud_left": 0
+    }
+  ],
+  "checks": [
+    {
+      "check": "warning",
+      "strike": 1,
+      "side": "<MCFogBrawlSide.LEFT: 1>",
+      "remaining": 3.5
+    },
+    {
+      "check": "warning",
+      "strike": 2,
+      "side": "<MCFogBrawlSide.RIGHT: 0>",
+      "remaining": 3.5
+    },
+    {
+      "check": "warning",
+      "strike": 3,
+      "side": "<MCFogBrawlSide.RIGHT: 0>",
+      "remaining": 3.5
+    },
+    {
+      "check": "warning",
+      "strike": 4,
+      "side": "<MCFogBrawlSide.RIGHT: 0>",
+      "remaining": 3.5
+    },
+    {
+      "check": "warning",
+      "strike": 5,
+      "side": "<MCFogBrawlSide.LEFT: 1>",
+      "remaining": 3.5
+    },
+    {
+      "check": "five strikes complete; fog, glows and audio cleared"
+    },
+    {
+      "check": "no sixth warning or impact after completion"
+    }
+  ],
+  "elapsed_wall_seconds": 72.58
+}

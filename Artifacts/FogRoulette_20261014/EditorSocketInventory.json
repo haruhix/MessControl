@@ -1,0 +1,74 @@
+[
+  {
+    "name": "MCArenaToothSocket_0",
+    "label": "ARENA | Tooth 01",
+    "location": [
+      -1743.7886118185863,
+      -1344.037170820775,
+      -199.98040390014623
+    ]
+  },
+  {
+    "name": "MCArenaToothSocket_1",
+    "label": "ARENA | Tooth 03",
+    "location": [
+      -1346.8978385090375,
+      -1505.1240843077726,
+      -105.95588417412134
+    ]
+  },
+  {
+    "name": "MCArenaToothSocket_2",
+    "label": "ARENA | Tooth 05",
+    "location": [
+      -894.8685354642585,
+      -1694.6504629169988,
+      -84.86218119852833
+    ]
+  },
+  {
+    "name": "MCArenaToothSocket_3",
+    "label": "ARENA | Tooth 07",
+    "location": [
+      -314.89833142181965,
+      -1645.0612975243184,
+      -68.81946563720817
+    ]
+  },
+  {
+    "name": "MCArenaToothSocket_4",
+    "label": "ARENA | Tooth 02",
+    "location": [
+      -1744.7337428475835,
+      1256.609677802577,
+      -227.27362439600049
+    ]
+  },
+  {
+    "name": "MCArenaToothSocket_5",
+    "label": "ARENA | Tooth 04",
+    "location": [
+      -1381.5533681762772,
+      1448.9457870903423,
+      -105.43743319282427
+    ]
+  },
+  {
+    "name": "MCArenaToothSocket_6",
+    "label": "ARENA | Tooth 06",
+    "location": [
+      -934.1149864826477,
+      1617.0827107859886,
+      -72.2889022827153
+    ]
+  },
+  {
+    "name": "MCArenaToothSocket_7",
+    "label": "ARENA | Tooth 08",
+    "location": [
+      -333.6898514277691,
+      1598.204416624327,
+      -32.82776056568363
+    ]
+  }
+]

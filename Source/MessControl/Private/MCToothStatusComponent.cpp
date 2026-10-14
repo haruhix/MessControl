@@ -133,6 +133,7 @@ float UMCToothStatusComponent::PainAlpha() const
 }
 bool UMCToothStatusComponent::CareContact(bool bBrush, AMCToothCharacter* Worker)
 {
+    if (!bBrush && Cast<AMCArenaTooth>(GetOwner())) return false;
     if (!GetOwner()->HasAuthority() || !NeedsCare(bBrush)) return false;
     if (bBrush) {--State.CoffeeLeft;if(auto* Perks=UMCPerkComponent::ForActor(Worker)) Perks->NotifyCleaned(GetOwner()->GetActorLocation());}
     else { State.Health=FMath::Min(State.MaxHealth,State.Health+Settings.HealPerContact); State.RepairLeft=FMath::Max(0,State.RepairLeft-1); }
@@ -143,6 +144,23 @@ bool UMCToothStatusComponent::CareContact(bool bBrush, AMCToothCharacter* Worker
             Tutorial->NotifyAction(Worker,Cast<AMCMouthSurface>(GetOwner())?EMCTutorialAction::BrushTongue:EMCTutorialAction::BrushTooth,GetOwner());
         if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,bBrush?EMCScoreTask::Coffee:EMCScoreTask::Repair);
     }
+    return true;
+}
+bool UMCToothStatusComponent::RepairWithTool(float Amount, AMCToothCharacter* Worker)
+{
+    const auto* Arena=Cast<AMCArenaTooth>(GetOwner());
+    if (!Arena || !Arena->HasAuthority() || !Arena->IsAvailable() || !IsValid(Worker)
+        || Worker->GetWorld()!=GetWorld() || !Worker->CanWork() || !NeedsCare(false)
+        || !FMath::IsFinite(Amount) || Amount<=0) return false;
+    State.Health=FMath::Min(State.MaxHealth,State.Health+Amount);
+    if (State.Health>=State.MaxHealth-KINDA_SMALL_NUMBER) {
+        State.Health=State.MaxHealth; State.RepairLeft=0;
+    } else if (State.RepairLeft>0) {
+        State.RepairLeft=FMath::Min(State.RepairLeft,FMath::CeilToInt(Settings.RepairContacts*(1-State.Health/State.MaxHealth)));
+    }
+    Changed(true);
+    if (!NeedsCare(false))
+        if (auto* Mode=GetWorld()->GetAuthGameMode<AMCGameMode>()) Mode->AwardTask(Worker,EMCScoreTask::Repair);
     return true;
 }
 FString UMCToothStatusComponent::Summary() const

@@ -15,6 +15,7 @@
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "GameFramework/WorldSettings.h"
 #include "ProceduralMeshComponent.h"
 
@@ -26,6 +27,7 @@ struct FFogWorld
     AMCFogBrawlEvent* Event=nullptr;
     AMCArenaTooth* Tooth=nullptr;
     TArray<AMCToothCharacter*> Crew;
+    TArray<AMCArenaTooth*> Teeth;
     FFogWorld(int32 TeamSize=1,bool bReserve=true)
     {
         GEngine->CreateNewWorldContext(EWorldType::Game).SetCurrentWorld(World);
@@ -33,16 +35,20 @@ struct FFogWorld
         FURL URL; URL.AddOption(TEXT("game=/Script/Engine.GameModeBase"));
         World->SetGameMode(URL); World->InitializeActorsForPlay(URL); World->BeginPlay();
         Box(FVector(0,0,-10),FVector(2500,2500,10));
-        if(bReserve) Tooth=Reserve(FVector(0,0,100),1);
+        if(bReserve) for(int32 I=0;I<8;++I) {
+            auto* T=Reserve(FVector(-750+(I/2)*500,I%2?500:-500,100),I+1);if(!Tooth) Tooth=T;
+        }
         for(int32 I=0;I<TeamSize;++I)
         {
             const float Angle=I*2*PI/FMath::Max(1,TeamSize);
             auto* Hero=World->SpawnActor<AMCToothCharacter>(FVector(220*FMath::Cos(Angle),220*FMath::Sin(Angle),61),FRotator::ZeroRotator);
-            auto* Controller=World->SpawnActor<APlayerController>(); Controller->Possess(Hero);
+            auto* Controller=World->SpawnActor<APlayerController>();
+            if(!Controller->GetPlayerState<APlayerState>()) Controller->InitPlayerState();
+            Controller->Possess(Hero);
             Hero->SetActorTickEnabled(false); Hero->GetCharacterMovement()->SetComponentTickEnabled(false);
             Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
             Hero->GetMesh()->SetComponentTickEnabled(false); Hero->ToothPhysics->SetComponentTickEnabled(false);
-            // These rule fixtures keep recoil below their fall threshold. A separate case verifies the real 240 threshold wait.
+            // Keep recoil below the fall threshold while checking target allocation independently.
             Hero->ToothPhysics->Settings.FallThreshold=1400;
             Hero->Grip->SetComponentTickEnabled(false); Crew.Add(Hero);
         }
@@ -63,17 +69,27 @@ struct FFogWorld
         auto* Reserve=World->SpawnActor<AMCArenaTooth>(Center,FRotator::ZeroRotator);
         FMCArenaToothSettings Settings; Settings.InitialCalculusEveryNthTooth=0; Reserve->Initialize(Id,Settings);
         Reserve->SetActorTickEnabled(false); Reserve->Body->SetSimulatePhysics(false);
-        Reserve->Body->SetBoxExtent(FVector(80,80,100)); return Reserve;
+        Reserve->Body->SetBoxExtent(FVector(80,80,100)); Teeth.Add(Reserve); return Reserve;
     }
     void Clock(double Time)
     {
         World->GetWorldSettings()->MaxUndilatedFrameTime=3600;
         ++GFrameCounter; World->Tick(LEVELTICK_TimeOnly,FMath::Max(.001f,float(Time-World->GetTimeSeconds())));
     }
-    void Warning()
+    void Selection()
     {
         Event->Start(); Event->SetActorTickEnabled(false);
         Clock(Event->StageEndsAt+.01); Event->Tick(.01f); Event->SetActorTickEnabled(false);
+    }
+    void Warning()
+    {
+        Selection(); Clock(Event->StageEndsAt+.01); Event->Tick(.01f); Event->SetActorTickEnabled(false);
+    }
+    void Guard(AMCToothCharacter* Hero,AMCArenaTooth* Target)
+    {
+        const float Side=AMCFogBrawlEvent::ToothSide(Target)==EMCFogBrawlSide::Right?-1.f:1.f;
+        Hero->SetActorLocation(Target->GetActorLocation()+FVector(0,Side*220,-39));
+        Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);Hero->SetBraceInputHeld(true);
     }
     void Impact()
     {
@@ -86,176 +102,192 @@ struct FFogWorld
 };
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogSoloGuardTest,"MessControl.FogBrawl.GenericRMBProtectsReserveAndResolvesOnce",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogSelectionCountTest,"MessControl.FogBrawl.PlayerCountAndBothSides",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCFogSoloGuardTest::RunTest(const FString&)
+bool FMCFogSelectionCountTest::RunTest(const FString&)
 {
-    MCFogBrawlTestsPrivate::FFogWorld F; F.Warning();
-    if(!TestTrue(TEXT("A single controlled player can receive a strike warning"),F.Event->Stage==EMCFogBrawlStage::Warning && F.Event->ActiveTarget==F.Tooth)) return false;
-    auto* Hero=F.Crew[0]; Hero->SetBraceInputHeld(true);
-    TestTrue(TEXT("Holding generic RMB near the tooth counts without requiring a physical anchor"),F.Event->IsGuarding(Hero));
-    const float Health=Hero->Status->State.Health, ReserveHealth=F.Tooth->State.Health;
-    F.Clock(F.Event->WarningEndsAt-.1); F.Event->Tick(.01f);
-    TestEqual(TEXT("The warning itself does no player damage"),Hero->Status->State.Health,Health);
-    F.Impact();
-    TestEqual(TEXT("A solo defender receives exactly fifteen damage"),Hero->Status->State.Health,Health-15);
-    TestEqual(TEXT("A guarded tooth retains all its current health"),F.Tooth->State.Health,ReserveHealth);
-    TestEqual(TEXT("A solo defender has the ordinary 280cm/s recoil"),F.Event->LastImpulse,280.f);
-    TestFalse(TEXT("Physical brace intent is released before recoil"),Hero->Grip->IsBraceInputHeld());
-    F.Event->Tick(.1f); F.Event->Tick(.1f);
-    TestEqual(TEXT("Later recovery ticks cannot repeat the hit"),Hero->Status->State.Health,Health-15);
-    TestEqual(TEXT("Exactly one strike was spent"),F.Event->StrikesResolved,1);
-    return true;
-}
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogSharedGuardTest,"MessControl.FogBrawl.TeamSharesLoadAndLoneDefenderTakesFullLoad",
-    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCFogSharedGuardTest::RunTest(const FString&)
-{
-    {
-        MCFogBrawlTestsPrivate::FFogWorld F(4); F.Warning();
-        for(auto* Hero:F.Crew) Hero->SetBraceInputHeld(true);
-        F.Impact();
-        TestEqual(TEXT("Four participating defenders are counted on the server"),F.Event->LastGuardCount,4);
-        TestEqual(TEXT("A full team gives each defender the solo damage"),F.Event->LastDamagePerGuard,15.f);
-        TestEqual(TEXT("A full team gives each defender the ordinary recoil"),F.Event->LastImpulse,280.f);
-        for(auto* Hero:F.Crew) TestEqual(TEXT("Every defender receives its share once"),Hero->Status->State.Health,85.f);
-        TestTrue(TEXT("Team protection leaves the tooth available"),F.Tooth->IsAvailable());
-    }
-    {
-        MCFogBrawlTestsPrivate::FFogWorld F(4); F.Warning();
-        F.Crew[0]->SetBraceInputHeld(true); F.Crew[1]->SetBraceInputHeld(true); F.Impact();
-        TestEqual(TEXT("Two guards split a four-player impact"),F.Event->LastGuardCount,2);
-        TestEqual(TEXT("Each of the two guards takes thirty damage"),F.Event->LastDamagePerGuard,30.f);
-        TestEqual(TEXT("Two guards halve the unbounded recoil"),F.Event->LastImpulse,560.f);
-        TestEqual(TEXT("The first guard receives its half"),F.Crew[0]->Status->State.Health,70.f);
-        TestEqual(TEXT("The second guard receives its half"),F.Crew[1]->Status->State.Health,70.f);
-        TestEqual(TEXT("A nearby teammate without RMB takes no shared damage"),F.Crew[2]->Status->State.Health,100.f);
-    }
-    {
-        MCFogBrawlTestsPrivate::FFogWorld F(4); F.Warning(); F.Crew[0]->SetBraceInputHeld(true); F.Impact();
-        TestEqual(TEXT("One guard carries the four-player damage budget"),F.Event->LastDamagePerGuard,60.f);
-        TestEqual(TEXT("One guard's recoil is capped at 1100cm/s"),F.Event->LastImpulse,1100.f);
-        TestEqual(TEXT("The lone guard takes that full share"),F.Crew[0]->Status->State.Health,40.f);
-        TestTrue(TEXT("Even one defender saves the tooth"),F.Tooth->IsAvailable());
-        TestEqual(TEXT("Unbraced teammates take no strike damage"),F.Crew[1]->Status->State.Health,100.f);
-    }
-    return true;
-}
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogMissAndRetargetTest,"MessControl.FogBrawl.MissUsesNormalToothLossAndConsumedTargetRestartsWarning",
-    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCFogMissAndRetargetTest::RunTest(const FString&)
-{
-    {
-        MCFogBrawlTestsPrivate::FFogWorld F; F.Warning(); F.Impact();
-        TestTrue(TEXT("No defenders lose the actual existing reserve tooth"),F.Tooth->State.bLost && F.Tooth->State.Health==0);
-        TestFalse(TEXT("The normal reserve availability rule observes the loss"),F.Tooth->IsAvailable());
-        TestEqual(TEXT("A failed defence still resolves exactly one strike"),F.Event->StrikesResolved,1);
-    }
-    {
-        MCFogBrawlTestsPrivate::FFogWorld F; auto* Second=F.Reserve(FVector(0,300,100),2); F.Warning();
-        auto* Consumed=F.Event->ActiveTarget.Get();
-        if(!TestNotNull(TEXT("The fixture obtains a real reserve target"),Consumed)) return false;
-        auto* Remaining=Consumed==F.Tooth?Second:F.Tooth;
-        Consumed->ConsumeForRespawn(); const double OldDeadline=F.Event->WarningEndsAt;
-        F.Clock(OldDeadline-.1); F.Event->Tick(.01f);
-        TestTrue(TEXT("A consumed reserve is replaced by an available target"),F.Event->ActiveTarget==Remaining && Remaining->IsAvailable());
-        TestTrue(TEXT("The replacement gets a full new warning window"),F.Event->WarningEndsAt>OldDeadline+4);
-        TestEqual(TEXT("Consumption does not spend an event strike"),F.Event->StrikesResolved,0);
-    }
-    return true;
-}
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogGuardGeometryTest,"MessControl.FogBrawl.DefenceRequiresNearGroundedLivingCrewAndClearApproach",
-    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCFogGuardGeometryTest::RunTest(const FString&)
-{
-    MCFogBrawlTestsPrivate::FFogWorld F; F.Warning(); auto* Hero=F.Crew[0]; Hero->SetBraceInputHeld(true);
-    if(!TestTrue(TEXT("The initial nearby grounded defender qualifies"),F.Event->IsGuarding(Hero))) return false;
-    auto* Wall=F.Box(FVector(140,0,100),FVector(15,150,100));
-    TestFalse(TEXT("A wall between the player and tooth prevents defending through it"),F.Event->IsGuarding(Hero));
-    TestFalse(TEXT("A wall also hides the target marker"),F.Event->ShouldRevealMarker(Hero));
-    Wall->Destroy(); Hero->GetCharacterMovement()->SetMovementMode(MOVE_Falling);
-    TestFalse(TEXT("An airborne defender cannot absorb the strike"),F.Event->IsGuarding(Hero));
-    Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-    Hero->SetActorLocation(FVector(650,0,61),false,nullptr,ETeleportType::TeleportPhysics);
-    TestFalse(TEXT("RMB beyond the body's guard radius cannot protect it"),F.Event->IsGuarding(Hero));
-    TestTrue(TEXT("A nearby hero can discover the tell before reaching guard range"),F.Event->ShouldRevealMarker(Hero));
-    Hero->SetActorLocation(FVector(1200,0,61),false,nullptr,ETeleportType::TeleportPhysics);
-    TestFalse(TEXT("A distant hero cannot see the marker through the global fog"),F.Event->ShouldRevealMarker(Hero));
-    return true;
-}
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogLifecycleTest,"MessControl.FogBrawl.CompleteCancelReplaceAndMissingReserve",
-    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCFogLifecycleTest::RunTest(const FString&)
-{
-    {
-        MCFogBrawlTestsPrivate::FFogWorld F; F.Warning();
-        for(int32 I=0;I<F.Event->TotalStrikes;++I)
-        {
-            F.Crew[0]->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-            F.Crew[0]->SetBraceInputHeld(true); F.Impact();
-            // Physics ticks are disabled in this rules fixture. Explicitly finish
-            // the get-up before advancing; the recovery-wait case tests the delay.
-            F.Crew[0]->ToothPhysics->SetThroatCaptured(false);
-            F.Crew[0]->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-            F.NextWarning();
+    for(int32 Players=1;Players<=4;++Players) {
+        MCFogBrawlTestsPrivate::FFogWorld F(Players);F.Warning();
+        TestEqual(TEXT("Exactly one distinct target per participant"),F.Event->Targets.Num(),Players);
+        TestEqual(TEXT("The round records the current participant count"),F.Event->RoundPlayerCount,Players);
+        TSet<AMCArenaTooth*> Unique;int32 Right=0,Left=0;
+        for(const auto& T:F.Event->Targets) {Unique.Add(T.Tooth);T.Side==EMCFogBrawlSide::Right?++Right:++Left;}
+        TestEqual(TEXT("Random choices never repeat a tooth"),Unique.Num(),Players);
+        if(Players>1) {
+            TestTrue(TEXT("Two or more players always get both sides"),Right>0 && Left>0);
+            TestEqual(TEXT("The right side always attacks first"),F.Event->CurrentSide,EMCFogBrawlSide::Right);
         }
-        TestTrue(TEXT("All five actual defences complete the event"),F.Event->IsComplete());
-        TestEqual(TEXT("Completion preserves the final strike count"),F.Event->StrikesResolved,5);
-        TestNull(TEXT("Completion clears the active target"),F.Event->ActiveTarget.Get());
-        TestFalse(TEXT("Completion stops gameplay tick"),F.Event->IsActorTickEnabled());
-        F.Event->Start(); auto* Old=F.Event;
-        F.Event=F.World->SpawnActor<AMCFogBrawlEvent>(); F.Event->Start();
-        TestTrue(TEXT("Starting another fog event replaces the previous owner"),Old->IsActorBeingDestroyed());
-        F.Event->Stop();
-        TestFalse(TEXT("Cancellation cannot be mistaken for successful completion"),F.Event->IsComplete());
-        TestFalse(TEXT("Cancellation stops active rules"),F.Event->IsActive());
-        TestEqual(TEXT("Cancellation clears all pulse geometry"),F.Event->Pulse->GetNumSections(),0);
     }
-    {
-        MCFogBrawlTestsPrivate::FFogWorld F(1,false); F.Warning();
-        TestTrue(TEXT("A missing reachable reserve reports failed setup"),F.Event->bFailed);
-        TestFalse(TEXT("A failed setup cannot report victory"),F.Event->IsComplete());
-        TestFalse(TEXT("A failed setup leaves no active strike rules"),F.Event->IsActive());
+    for(int32 Side=0;Side<2;++Side) {
+        MCFogBrawlTestsPrivate::FFogWorld F(1,false);
+        auto* Only=F.Reserve(FVector(0,Side?500:-500,100),Side?2:1);F.Warning();
+        TestTrue(TEXT("Solo can select a tooth on either side without inventing a second target"),F.Event->Targets.Num()==1 && F.Event->ActiveTarget==Only);
     }
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogAuthorityTest,"MessControl.FogBrawl.ClientCannotStartOrResolveStrikes",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogSelectionScanTest,"MessControl.FogBrawl.AllAvailableTeethScanAndAccelerate",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCFogAuthorityTest::RunTest(const FString&)
+bool FMCFogSelectionScanTest::RunTest(const FString&)
 {
-    MCFogBrawlTestsPrivate::FFogWorld F; F.Event->SetRole(ROLE_SimulatedProxy); F.Event->Start();
-    TestEqual(TEXT("A client cannot start an authoritative event"),F.Event->Stage,EMCFogBrawlStage::Idle);
-    F.Event->Stage=EMCFogBrawlStage::Warning; F.Event->ActiveTarget=F.Tooth; F.Event->WarningEndsAt=0;
-    F.Crew[0]->SetBraceInputHeld(true); F.Event->Tick(5);
-    TestEqual(TEXT("Client presentation cannot hurt the defender"),F.Crew[0]->Status->State.Health,100.f);
-    TestEqual(TEXT("Client presentation cannot hurt the reserve"),F.Tooth->State.Health,100.f);
-    TestEqual(TEXT("Client presentation cannot advance strike count"),F.Event->StrikesResolved,0);
-    F.Event->Stop(); TestEqual(TEXT("A client cannot cancel replicated server state"),F.Event->Stage,EMCFogBrawlStage::Warning);
-    F.Event->SetRole(ROLE_Authority); return true;
+    MCFogBrawlTestsPrivate::FFogWorld F(4);F.Teeth[3]->ConsumeForRespawn();F.Selection();
+    TestEqual(TEXT("Consumed teeth are excluded; every available reserve participates"),F.Event->SelectionTeeth.Num(),7);
+    TestEqual(TEXT("Selection is a distinct stage before random targets are announced"),F.Event->Stage,EMCFogBrawlStage::Selection);
+    TestTrue(TEXT("No target is prematurely locked during the scan"),F.Event->Targets.IsEmpty() && F.Event->ActiveTarget==nullptr);
+    const double End=F.Event->StageEndsAt,Start=End-F.Event->SelectionSeconds;
+    TSet<AMCArenaTooth*> Seen;int32 Early=0,Late=0;
+    for(int32 I=0;I<200;++I) {
+        F.Clock(Start+F.Event->SelectionSeconds*I/200.);
+        if(auto* Tooth=F.Event->SelectionTooth()) Seen.Add(Tooth);
+        if(I==20) Early=F.Event->SelectionStep();
+        if(I==40) Early=F.Event->SelectionStep()-Early;
+        if(I==160) Late=F.Event->SelectionStep();
+        if(I==180) Late=F.Event->SelectionStep()-Late;
+    }
+    TestEqual(TEXT("The moving glow actually visits all seven eligible teeth"),Seen.Num(),7);
+    TestTrue(TEXT("The same time window contains more switches at the end"),Late>Early);
+    F.Clock(End+.01);F.Event->Tick(.01f);
+    TestEqual(TEXT("The scan ends with four exact choices"),F.Event->Targets.Num(),4);
+    TestTrue(TEXT("The first impact is scheduled 3.5 seconds after roulette selection"),FMath::IsNearlyEqual(F.Event->WarningRemaining(),3.5f,.001f));
+    F.Clock(F.Event->WarningEndsAt-1.51);TestFalse(TEXT("Final reveal never starts before 1.5 s"),F.Event->IsFinalWarning());
+    F.Clock(F.Event->WarningEndsAt-1.49);TestTrue(TEXT("The final 1.5 s still opens the fog"),F.Event->IsFinalWarning());
+    return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogRecoveryWaitTest,"MessControl.FogBrawl.WaitsForNormalGetupAndStopsAfterShiftTerminal",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogOrderedWavesTest,"MessControl.FogBrawl.RightThenLeftOnlySelectedTeeth",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
-bool FMCFogRecoveryWaitTest::RunTest(const FString&)
+bool FMCFogOrderedWavesTest::RunTest(const FString&)
 {
-    MCFogBrawlTestsPrivate::FFogWorld F; F.Warning(); auto* Hero=F.Crew[0];
-    Hero->ToothPhysics->Settings.FallThreshold=240; Hero->SetBraceInputHeld(true); F.Impact();
-    if(!TestFalse(TEXT("The ordinary 280 recoil enters the existing ragdoll state"),Hero->CanWork())) return false;
-    F.NextWarning();
-    TestFalse(TEXT("A crew still recovering does not fail the event"),F.Event->bFailed);
-    TestTrue(TEXT("The next warning waits without spending another strike"),F.Event->Stage==EMCFogBrawlStage::Recovery && F.Event->StrikesResolved==1);
-    Hero->ToothPhysics->SetThroatCaptured(false); Hero->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-    F.NextWarning();
-    TestEqual(TEXT("A capable crew receives a full fresh warning after recovery"),F.Event->Stage,EMCFogBrawlStage::Warning);
-    auto* State=F.World->SpawnActor<AMCGameState>(); F.World->SetGameState(State); State->Phase=EMCShiftPhase::Lost;
-    F.Event->Tick(.01f);
-    TestFalse(TEXT("Standalone fog stops when the shift ends"),F.Event->IsActive());
-    TestEqual(TEXT("A terminal shift clears the local pulse"),F.Event->Pulse->GetNumSections(),0);
+    MCFogBrawlTestsPrivate::FFogWorld F(4);F.Event->TotalStrikes=2;F.Warning();
+    TMap<AMCArenaTooth*,EMCFogBrawlSide> Planned;
+    for(const auto& T:F.Event->Targets) Planned.Add(T.Tooth,T.Side);
+    F.Impact();
+    TestEqual(TEXT("The right impact immediately counts as one strike"),F.Event->StrikesResolved,1);
+    for(auto* Tooth:F.Teeth) {
+        const bool Hit=Planned.Contains(Tooth) && Planned[Tooth]==EMCFogBrawlSide::Right;
+        TestTrue(TEXT("Only selected right teeth are damaged by the first impact"),FMath::IsNearlyEqual(Tooth->State.Health,Hit?200.f/3.f:100.f,.01f));
+    }
+    F.NextWarning();TestEqual(TEXT("The next warning is exclusively left"),F.Event->CurrentSide,EMCFogBrawlSide::Left);
+    TestTrue(TEXT("Left also gets a complete 3.5-second warning window"),FMath::IsNearlyEqual(F.Event->WarningRemaining(),3.5f,.001f));
+    F.Impact();
+    TestEqual(TEXT("Right and left are two separate strikes"),F.Event->StrikesResolved,2);
+    for(auto* Tooth:F.Teeth) TestTrue(TEXT("The round hits each selected tooth once and leaves other reserves intact"),
+        FMath::IsNearlyEqual(Tooth->State.Health,Planned.Contains(Tooth)?200.f/3.f:100.f,.01f));
+    F.Event->Tick(.1f);TestEqual(TEXT("Recovery cannot repeat a resolved strike"),F.Event->StrikesResolved,2);
+    F.NextWarning();TestTrue(TEXT("Both configured strikes finish the event"),F.Event->IsComplete());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogFiveStrikesTest,"MessControl.FogBrawl.ExactlyFiveIndividualStrikes",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFogFiveStrikesTest::RunTest(const FString&)
+{
+    for(int32 Players=1;Players<=4;++Players) {
+        MCFogBrawlTestsPrivate::FFogWorld F(Players);F.Warning();
+        TestEqual(TEXT("The production default is five individual strikes"),F.Event->TotalStrikes,5);
+        for(int32 Strike=1;Strike<=5;++Strike) {
+            if(!TestEqual(TEXT("Every scheduled strike has a warning"),F.Event->Stage,EMCFogBrawlStage::Warning)) return false;
+            TestEqual(TEXT("Every selection retains one distinct target per participant"),F.Event->Targets.Num(),Players);
+            if(Players>1) {
+                TestEqual(TEXT("The normal five-strike sequence alternates right then left"),F.Event->CurrentSide,
+                    Strike%2?EMCFogBrawlSide::Right:EMCFogBrawlSide::Left);
+                if(Strike==5) {
+                    TestEqual(TEXT("The final single attack covers the whole player quota"),F.Event->CurrentTargetCount(),Players);
+                    TestFalse(TEXT("The final selection cannot announce a sixth strike"),F.Event->Targets.ContainsByPredicate(
+                        [&](const FMCFogBrawlTarget& T){return T.Side!=F.Event->CurrentSide;}));
+                }
+            }
+            F.Impact();TestEqual(TEXT("Each side impact increments the total exactly once"),F.Event->StrikesResolved,Strike);
+            F.NextWarning();
+            if(Strike<5) {
+                TestFalse(TEXT("The event does not finish before its fifth strike"),F.Event->IsComplete());
+                if(F.Event->Stage==EMCFogBrawlStage::Selection) {
+                    F.Clock(F.Event->StageEndsAt+.01);F.Event->Tick(.01f);F.Event->SetActorTickEnabled(false);
+                }
+            }
+        }
+        TestTrue(TEXT("The fifth individual strike completes the event"),F.Event->IsComplete());
+        TestTrue(TEXT("Completion clears all target and selection cues"),F.Event->Targets.IsEmpty() && F.Event->SelectionTeeth.IsEmpty());
+        const double LastImpact=F.Event->LastImpactAt;
+        F.Clock(F.World->GetTimeSeconds()+100);F.Event->Tick(.1f);
+        TestEqual(TEXT("There is no sixth strike after completion"),F.Event->StrikesResolved,5);
+        TestEqual(TEXT("Completion never produces a later impact"),F.Event->LastImpactAt,LastImpact);
+    }
+    {
+        MCFogBrawlTestsPrivate::FFogWorld F(4);F.Teeth[1]->ConsumeForRespawn();F.Event->TotalStrikes=1;F.Warning();
+        TestEqual(TEXT("The final wave uses the other side when only it can fit the full team"),F.Event->CurrentSide,EMCFogBrawlSide::Left);
+        TestEqual(TEXT("Fallback still gives one target to every participant"),F.Event->CurrentTargetCount(),4);
+        F.Impact();F.NextWarning();TestTrue(TEXT("Fallback also ends after its single remaining strike"),F.Event->IsComplete());
+    }
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogIndependentDefenceTest,"MessControl.FogBrawl.IndependentDefenceAndSharedMarks",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFogIndependentDefenceTest::RunTest(const FString&)
+{
+    MCFogBrawlTestsPrivate::FFogWorld F(4);F.Warning();
+    // Two neighbouring right targets give overlapping guard areas in a valid four-player plan.
+    F.Event->Targets.Reset();
+    for(int32 Index:{0,2,1,3}) {
+        FMCFogBrawlTarget T;T.Tooth=F.Teeth[Index];T.Side=AMCFogBrawlEvent::ToothSide(T.Tooth);F.Event->Targets.Add(T);
+    }
+    F.Event->CurrentSide=EMCFogBrawlSide::Right;F.Event->ActiveTarget=F.Teeth[1];
+    auto* Hero=F.Crew[0];F.Guard(Hero,F.Teeth[1]);
+    TestTrue(TEXT("Ordinary held RMB guards the nearby right target"),F.Event->IsGuardingTooth(Hero,F.Teeth[1]));
+    auto* Marker=F.Crew[1];F.Guard(Marker,F.Teeth[0]);Marker->SetBraceInputHeld(false);
+    TestTrue(TEXT("A player may share the waiting left target before that side attacks"),F.Event->MarkTarget(Marker,F.Teeth[0]));
+    TestTrue(TEXT("The beacon belongs to the selected tooth"),F.Event->Targets[0].bMarked);
+    TestFalse(TEXT("Repeating a marker cannot restart it"),F.Event->MarkTarget(Marker,F.Teeth[0]));
+    TestFalse(TEXT("Unselected/stale teeth cannot be marked"),F.Event->MarkTarget(Marker,F.Teeth[7]));
+    F.Impact();
+    TestEqual(TEXT("The protected tooth retains full health"),F.Teeth[1]->State.Health,100.f);
+    TestTrue(TEXT("The second unguarded right tooth still takes damage"),F.Teeth[3]->State.Health<100);
+    TestEqual(TEXT("One guard takes its target's share of the team load"),Hero->Status->State.Health,85.f);
+    TestEqual(TEXT("The future left target remains untouched"),F.Teeth[0]->State.Health,100.f);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogReplacementTest,"MessControl.FogBrawl.ReplacementKeepsCountSideAndDeadline",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFogReplacementTest::RunTest(const FString&)
+{
+    MCFogBrawlTestsPrivate::FFogWorld F(3);F.Warning();
+    auto* Old=F.Event->ActiveTarget.Get();const auto Side=AMCFogBrawlEvent::ToothSide(Old);
+    const double Deadline=F.Event->WarningEndsAt;Old->ConsumeForRespawn();F.Clock(Deadline-.1);F.Event->Tick(.01f);
+    TestEqual(TEXT("Replacement preserves one target per participant"),F.Event->Targets.Num(),3);
+    TestTrue(TEXT("The consumed tooth is no longer a target"),!F.Event->Targets.ContainsByPredicate([&](const FMCFogBrawlTarget& T){return T.Tooth==Old;}));
+    TestTrue(TEXT("A current-side replacement receives a fresh 3.5-second preparation"),FMath::IsNearlyEqual(F.Event->WarningRemaining(),3.5f,.001f));
+    TestEqual(TEXT("Replacement retains the correct side"),AMCFogBrawlEvent::ToothSide(F.Event->ActiveTarget),Side);
+    TestEqual(TEXT("Replacing a reserve never spends an impact"),F.Event->StrikesResolved,0);
+    F.Event->Stop();TestTrue(TEXT("Cancellation clears the whole selection and plan"),F.Event->Targets.IsEmpty() && F.Event->SelectionTeeth.IsEmpty());
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FMCFogFailureAuthorityTest,"MessControl.FogBrawl.ShortageAuthorityAndCleanup",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FMCFogFailureAuthorityTest::RunTest(const FString&)
+{
+    {
+        MCFogBrawlTestsPrivate::FFogWorld F(2,false);F.Reserve(FVector(0,-500,100),1);F.Reserve(FVector(500,-500,100),3);F.Warning();
+        TestTrue(TEXT("A two-player round cannot silently choose both teeth on the same side"),F.Event->bFailed && !F.Event->IsActive());
+    }
+    {
+        MCFogBrawlTestsPrivate::FFogWorld F(4,false);F.Reserve(FVector(0,500,100),2);F.Reserve(FVector(0,-500,100),1);F.Warning();
+        TestTrue(TEXT("A shortage cannot silently reduce the player quota"),F.Event->bFailed);
+    }
+    {
+        MCFogBrawlTestsPrivate::FFogWorld F;F.Event->SetRole(ROLE_SimulatedProxy);F.Event->Start();
+        TestEqual(TEXT("A client cannot start the authoritative selection"),F.Event->Stage,EMCFogBrawlStage::Idle);
+        F.Event->Stage=EMCFogBrawlStage::Selection;F.Event->StageEndsAt=0;F.Event->Tick(10);
+        TestTrue(TEXT("A client cannot choose or damage targets"),F.Event->Targets.IsEmpty() && F.Teeth[0]->State.Health==100);
+        F.Event->SetRole(ROLE_Authority);F.Event->Stop();
+    }
+    {
+        MCFogBrawlTestsPrivate::FFogWorld F;F.Selection();auto* State=F.World->SpawnActor<AMCGameState>();F.World->SetGameState(State);State->Phase=EMCShiftPhase::Lost;
+        F.Event->Tick(.01f);TestFalse(TEXT("A terminal shift stops even during the all-teeth scan"),F.Event->IsActive());
+        TestTrue(TEXT("Terminal cleanup empties local cues"),F.Event->Pulse->GetNumSections()==0 && F.Event->Targets.IsEmpty() && F.Event->SelectionTeeth.IsEmpty());
+    }
     return true;
 }
 #endif

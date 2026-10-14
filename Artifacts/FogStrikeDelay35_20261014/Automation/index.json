@@ -1,0 +1,74 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "VB",
+			"instance": "55DBC39345346067F659E8BCF784AA34",
+			"instanceName": "VB-16360",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce RTX 5080",
+			"cPUModel": "AMD Ryzen 7 9800X3D 8-Core Processor           ",
+			"rAMInGB": 62,
+			"renderMode": "D3D12_SM5",
+			"rHI": "D3D12 (SM5)",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.10.14-15.26.03",
+	"succeeded": 3,
+	"succeededWithWarnings": 0,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.090578898787498474,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "AllAvailableTeethScanAndAccelerate",
+			"fullTestPath": "MessControl.FogBrawl.AllAvailableTeethScanAndAccelerate",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.049470100551843643,
+			"dateTime": "2026.10.14-15.26.02",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ReplacementKeepsCountSideAndDeadline",
+			"fullTestPath": "MessControl.FogBrawl.ReplacementKeepsCountSideAndDeadline",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.019420299679040909,
+			"dateTime": "2026.10.14-15.26.02",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RightThenLeftOnlySelectedTeeth",
+			"fullTestPath": "MessControl.FogBrawl.RightThenLeftOnlySelectedTeeth",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"55DBC39345346067F659E8BCF784AA34"
+			],
+			"duration": 0.021688498556613922,
+			"dateTime": "2026.10.14-15.26.03",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

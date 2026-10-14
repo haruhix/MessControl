@@ -1,0 +1,70 @@
+{
+  "passed": true,
+  "teeth": [
+    {
+      "source": "SM_Teeth_L_01",
+      "original_volume": 4.915576075795131,
+      "chipped_volume": 4.414679032754489,
+      "broken_volume": 3.3220952189540895,
+      "seed": 4229577778,
+      "closed_enamel": true
+    },
+    {
+      "source": "SM_Teeth_L_02",
+      "original_volume": 5.241999730124688,
+      "chipped_volume": 4.478254085530985,
+      "broken_volume": 2.6550709915949153,
+      "seed": 3826304422,
+      "closed_enamel": true
+    },
+    {
+      "source": "SM_Teeth_L_03",
+      "original_volume": 7.102410750911135,
+      "chipped_volume": 6.533747929691243,
+      "broken_volume": 4.524901516291485,
+      "seed": 2579330127,
+      "closed_enamel": true
+    },
+    {
+      "source": "SM_Teeth_R_01",
+      "original_volume": 4.9155759207638745,
+      "chipped_volume": 4.3724479784472505,
+      "broken_volume": 2.742125005160511,
+      "seed": 1200847283,
+      "closed_enamel": true
+    },
+    {
+      "source": "SM_Teeth_R_02",
+      "original_volume": 5.241998301354201,
+      "chipped_volume": 4.768227372946786,
+      "broken_volume": 3.2074448532275985,
+      "seed": 3423619388,
+      "closed_enamel": true
+    },
+    {
+      "source": "SM_Teeth_R_03",
+      "original_volume": 7.102408655838959,
+      "chipped_volume": 6.2011826034023345,
+      "broken_volume": 4.587818801581704,
+      "seed": 2711110581,
+      "closed_enamel": true
+    },
+    {
+      "source": "SM_Teeth_R_04",
+      "original_volume": 9.562998585104488,
+      "chipped_volume": 8.381642122567817,
+      "broken_volume": 5.307652296049875,
+      "seed": 3534489471,
+      "closed_enamel": true
+    },
+    {
+      "source": "SM_Teeth_l_04",
+      "original_volume": 9.56299660294903,
+      "chipped_volume": 8.414694008474596,
+      "broken_volume": 5.812822385409765,
+      "seed": 3085964463,
+      "closed_enamel": true
+    }
+  ],
+  "unique_seeds": 8
+}

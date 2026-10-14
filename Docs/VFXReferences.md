@@ -92,3 +92,63 @@ occludes hand poses. Storm clips use a temporary FOV 85 camera and approximately
 then restores native hazards before contact trials. See `Docs/Cataclysm.md` and
 `Artifacts/CataclysmStorm_20261014/VisualReview.json` for fixtures and limits.
 No network, added storm audio, exhaustive shoreline or GPU cost claims.
+
+## Fog brawl search and shared beacon — 2026-10-14
+
+| Original source | Reproducible technique | MessControl implementation and status |
+|---|---|---|
+| [Ashif Ali / CGHOW: light streak material and ribbon](https://cghow.com/ue5-niagara-light-streak-fx-custom-material-ribbon-tutorial/amp/) | Soft edge masks and a bright narrow core keep a beam legible. | Applied to a bounded camera-facing procedural beacon with a soft radial cap. No tutorial assets or Niagara emitters copied. Three new unlit additive materials authored, compiled and saved in the live editor; gameplay inspection recorded separately. |
+| [Epic: Fog Sheet and Light Beams](https://dev.epicgames.com/documentation/unreal-engine/fog-sheet-and-light-beams?application_version=4.27) | Translucent cards, controlled width/brightness and fading distinguish haze from a directed beam. | A broad offset amber card indicates an approximate search area. Marking replaces uncertainty with a tall cyan signal. The existing smoke billows remain; these cues do not add volumetric lighting or change shared artist materials. |
+| [Epic: Exponential Height Fog](https://dev.epicgames.com/documentation/en-us/unreal-engine/exponential-height-fog-in-unreal-engine) | Fog density and material fogging need explicit coordination for readable cues. | The final 1.5 s reduces the event's own density and billow opacity; prior level fog is restored on exit. Cue materials disable Apply Fogging. The shared beacon and final footprint/arrows disable depth testing so the tongue crest cannot hide vital cues; the approximate search glow retains geometry occlusion. |
+
+Gameplay owns the 7 s search, 1.5 s final deadline, validated team marker and
+strike direction. The red perimeter identifies the threatened tooth footprint
+at crown height so its projection stays near the tooth across the tongue crest;
+it does not introduce player area damage. Presentation is bounded to three
+signal quads and one small direction/perimeter mesh. Sources were reviewed
+before authoring. New sounds are original deterministic PCM synthesis, without
+external samples. Runtime and visual acceptance evidence belongs in
+`Artifacts/FogBrawlSearch_20261014`, not in these learning references.
+
+## Tooth crown damage and repair — 2026-10-14
+
+| Original source | Reproducible technique | MessControl implementation and status |
+|---|---|---|
+| [Ashif Ali / CGHOW: depth crack material](https://cghow.com/unreal-engine-parallaxocclusionmapping-depth-crack-tutorial/) | Distinguish thin dark branching cracks from the broad exposed fracture. | Adapted as small projected ribbons on the enamel with a separate opaque dark material; the crown silhouette uses geometry, without parallax or texture samples. The reviewed reference's assets are not copied. |
+| [Epic: fracturing Geometry Collections](https://dev.epicgames.com/documentation/unreal-engine/fracturing-geometry-collections-user-guide?lang=en-US) | Fracture boundaries and internal faces must remain closed and visibly distinct from the original surface. | Two deterministic jagged Boolean crown cuts authored in Blender for each of eight original meshes. Enamel UVs and original pivots retained, fracture caps have a rough blue-grey material. Static variants avoid runtime Chaos fracture cost. Blender stage preview rendered and inspected; actual solo gameplay evidence is recorded in `Artifacts/ToothDamage_20261014`. |
+
+Health selects the intact/chipped/broken meshes in both damage and repair directions.
+Existing spray/watergun fluid effects communicate treatment; no new particle system
+or continuous damage debris emitter is added. The original physical support body
+stays stable while brush-surface geometry follows the current crown. Shader and
+multiplayer performance are not inferred from mesh counts or the rendered preview.
+
+The later irregular-fracture pass replaces the extruded saw profile with multiple
+seeded convex-hull Boolean chips. Unequal hull directions, facet sizes, depths
+and tilts give each source tooth a distinct silhouette. Cutters open and flare
+above the crown, avoiding drilled holes and narrow vertical slots. Severe damage
+reuses the initial chip volumes and adds deeper breaks. The same Epic fracture
+reference above remains applicable to closed interior faces and varied cuts.
+All 16 closed enamel volumes were checked in Blender; eight-tooth render sheets
+and a short solo gameplay-camera check are recorded separately under
+`Artifacts/ToothDamageIrregular_20261014`. No runtime random fracture is implied.
+
+## Fog roulette — 2026-10-14
+
+The roulette reuses the fog/beacon material techniques and reviewed Epic/CGHOW
+sources above. A moving amber copy of each eligible tooth and a soft cap scan
+the complete reserve; selected teeth then use red/amber to separate the current
+and waiting sides. Each side has its own 1.5 s clear-fog cue and crown-height
+chevrons. No new shader asset or emitter is required. Runtime coverage, gameplay
+captures and inspection status are recorded in `Artifacts/FogRoulette_20261014`.
+
+The later timing adjustment reduces post-selection preparation to 0.5 s, followed
+by the retained 1.5 s final fog opening: 2 s total until impact. Audio urgency
+uses that shorter preparation interval. Existing cue assets are reused. Three
+targeted rule tests and one short solo F3 timing check passed; measurements are
+in `Artifacts/FogStrikeDelay_20261014`.
+
+The current post-selection delay is 3.5 s: 2 s preparation plus the retained
+1.5 s final fog opening. Existing effects and audio are reused. Three targeted
+timing checks and a short solo F3 check passed after integration; measurements
+are in `Artifacts/FogStrikeDelay35_20261014`.

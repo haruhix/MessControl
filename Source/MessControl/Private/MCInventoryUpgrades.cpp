@@ -9,6 +9,7 @@
 #include "MCFoodActor.h"
 #include "MCNutEnemy.h"
 #include "MCThroat.h"
+#include "MCArenaTooth.h"
 #include "MCReactionVFX.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -306,7 +307,8 @@ void UMCInventoryComponent::FireWaterShot()
     const FVector Direction=SprayDirection();
     const FVector Origin=SprayOrigin();FVector End;FHitResult Hit;
     if(TraceWaterShot(Origin,End,Hit)) {
-        if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) Food->HitFood(Power,Direction,Hero);
+        if(auto* Tooth=Cast<AMCArenaTooth>(Hit.GetActor())) Tooth->Status->RepairWithTool(5.f,Hero);
+        else if(auto* Food=Cast<AMCFoodActor>(Hit.GetActor())) Food->HitFood(Power,Direction,Hero);
         else if(auto* Nut=Cast<AMCNutEnemy>(Hit.GetActor())) Nut->ReceiveToolDamage(Power,Hero);
         else if(auto* Boss=Cast<AMCBossCharacter>(Hit.GetActor())) Boss->ReceiveBossDamage(Power,Hero);
         else if(auto* Player=Cast<AMCToothCharacter>(Hit.GetActor())) {

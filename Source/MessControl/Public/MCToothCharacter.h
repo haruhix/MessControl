@@ -18,6 +18,7 @@ class UMCExpressionComponent;
 class UMCExperimentalAudioComponent;
 class AMCFoodActor;
 class AMCArenaTooth;
+class AMCFogBrawlEvent;
 class AMCRewardChest;
 class UMaterialInstanceDynamic;
 class UMeshComponent;
@@ -265,6 +266,7 @@ private:
     uint16 RowingRequestId=0;
     FVector2D RowingInput=FVector2D::ZeroVector;
     void ContinueFogGuard();
+    UFUNCTION(Server,Reliable) void ServerMarkFogTarget(AMCFogBrawlEvent* Event,AMCArenaTooth* ExpectedTarget,double ExpectedWarningEndsAt);
     bool bSharedPrimaryInputHeld=false,bSharedHandleInputHeld=false,bSharedJumpInputHeld=false;
     UFUNCTION(Server,Reliable) void ServerToggleFoodCollection();
     void SelectBrush(); void SelectPickaxe(); void SelectKnife(); void SelectSpray();

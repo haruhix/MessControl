@@ -21,7 +21,7 @@ void AMCArenaTooth::BuildGrimeRelief()
     if (bGrimeReliefBuilt || !Visual->GetStaticMesh() || !BrushSurface->IsPhysicsStateCreated()) return;
     GrimeSamples.Reset();
     const FTransform Transform=Visual->GetComponentTransform();
-    const FBoxSphereBounds Bounds=Visual->GetStaticMesh()->GetBounds();
+    const FBoxSphereBounds Bounds=Appearance.Mesh?Appearance.Mesh->GetBounds():Visual->GetStaticMesh()->GetBounds();
     auto HalfSpan=[&](FVector Axis) {
         return FMath::Abs(FVector::DotProduct(Transform.TransformVector(FVector(Bounds.BoxExtent.X,0,0)),Axis))
             +FMath::Abs(FVector::DotProduct(Transform.TransformVector(FVector(0,Bounds.BoxExtent.Y,0)),Axis))
@@ -249,7 +249,7 @@ void AMCArenaTooth::DepositLiquidGrime(TFunctionRef<bool(FVector)> IsWet)
     for (const auto& Sample:GrimeSamples)
         if (Sample.Weight>.1f && IsWet(Transform.TransformPosition(Sample.Point))) { Touched=true; break; }
     if (!Touched) return;
-    const FBoxSphereBounds Bounds=Visual->GetStaticMesh()->GetBounds();
+    const FBoxSphereBounds Bounds=Appearance.Mesh?Appearance.Mesh->GetBounds():Visual->GetStaticMesh()->GetBounds();
     TArray<uint8> Deposited;
     if (Status->NeedsCare(true) && GrimeMask.Num()==FMCSurfaceWipe::Count) Deposited=GrimeMask;
     else Deposited.Init(0,FMCSurfaceWipe::Count);
@@ -363,7 +363,7 @@ bool AMCArenaTooth::BrushGrime(AMCToothCharacter* Worker,float Seconds)
         Hit.ImpactPoint=SelectedPoint; Hit.ImpactNormal=SelectedNormal;
         if(!ValidContact(Hit.ImpactPoint,Hit.ImpactNormal)) return false;
     }
-    const auto Bounds=Visual->GetStaticMesh()->GetBounds();
+    const auto Bounds=Appearance.Mesh?Appearance.Mesh->GetBounds():Visual->GetStaticMesh()->GetBounds();
     const FVector Size=Bounds.BoxExtent*2;
     BrushLocal=Visual->GetComponentTransform().InverseTransformPosition(Hit.ImpactPoint);
     const FVector UV=(BrushLocal-(Bounds.Origin-Bounds.BoxExtent))/Size;
@@ -423,7 +423,7 @@ void AMCArenaTooth::UpdateGrime(float Dt)
     GrimeRelief->SetVisibility(IsAvailable() && GrimeAmount*(1-GrimeFinish)>.001f && ReliefMaterial!=nullptr);
     if (ReliefMaterial)
     {
-        const auto Bounds=Visual->GetStaticMesh()->GetBounds();
+        const auto Bounds=Appearance.Mesh?Appearance.Mesh->GetBounds():Visual->GetStaticMesh()->GetBounds();
         ReliefMaterial->SetTextureParameterValue(TEXT("GrimeWipe"),GrimeTexture);
         ReliefMaterial->SetVectorParameterValue(TEXT("GrimeMin"),FLinearColor(Bounds.Origin-Bounds.BoxExtent));
         ReliefMaterial->SetVectorParameterValue(TEXT("GrimeSize"),FLinearColor(Bounds.BoxExtent*2));

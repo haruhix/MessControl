@@ -223,6 +223,7 @@ private:
     FVector BufferPulseCenter=FVector::ZeroVector;
     float BufferPulseRadius=65;
     AMCMouthSurface* FindSprayTarget() const;
+    class AMCArenaTooth* FindToothRepairTarget() const;
     class AMCFirePatch* FindFireTarget() const;
     FVector SprayOrigin() const;
     FVector SprayDirection() const;

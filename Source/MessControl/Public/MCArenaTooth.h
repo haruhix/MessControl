@@ -15,6 +15,27 @@ class USoundBase;
 class USoundAttenuation;
 class UMCToothCalculusComponent;
 
+UENUM(BlueprintType)
+enum class EMCArenaToothDamageStage : uint8 { Intact, Chipped, Broken, Lost };
+
+USTRUCT(BlueprintType)
+struct FMCToothDamageMeshes
+{
+    GENERATED_BODY()
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMesh> Intact;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMesh> Chipped;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMesh> Broken;
+};
+
+/** Strong mesh references keep every repair stage available when cooked. */
+UCLASS(BlueprintType)
+class MESSCONTROL_API UMCToothDamageProfile : public UPrimaryDataAsset
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FMCToothDamageMeshes> Teeth;
+};
+
 USTRUCT()
 struct FMCArenaToothAppearance
 {
@@ -119,6 +140,8 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category="Arena Tooth") void SetCoffee(float Amount);
     UFUNCTION(BlueprintPure, Category="Arena Tooth") bool IsAvailable() const { return !State.bLost && !State.bConsumed && State.Health>0; }
     UFUNCTION(BlueprintPure, Category="Arena Tooth") bool IsLoose() const;
+    UFUNCTION(BlueprintPure, Category="Arena Tooth") EMCArenaToothDamageStage DamageStage() const;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Arena Tooth") TSoftObjectPtr<UMCToothDamageProfile> DamageProfile;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UMCToothStatusComponent> Status;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena Tooth") FMCArenaToothState State;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Arena Tooth") FMCArenaToothSettings Settings;
@@ -136,6 +159,8 @@ private:
     UPROPERTY(ReplicatedUsing=ApplyAppearance) FMCArenaToothAppearance Appearance;
     UFUNCTION() void OnBodyHit(UPrimitiveComponent* Component,AActor* Other,UPrimitiveComponent* OtherComponent,FVector Impulse,const FHitResult& Hit);
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> Material;
+    UPROPERTY() TObjectPtr<UMCToothDamageProfile> LoadedDamageProfile;
+    void UpdateDamageVisual();
     UFUNCTION() void OnRep_Grime();
     void UpdateGrime(float Dt);
     void BuildGrimeRelief();

@@ -1,0 +1,46 @@
+{
+  "implemented": true,
+  "integrated": "Live Coding; existing class layout retained",
+  "timing": {
+    "preparation_seconds": 0.5,
+    "final_warning_seconds": 1.5,
+    "selection_to_impact_seconds": 2
+  },
+  "tests": {
+    "passed": 3,
+    "failed": 0,
+    "names": [
+      "MessControl.FogBrawl.AllAvailableTeethScanAndAccelerate",
+      "MessControl.FogBrawl.ReplacementKeepsCountSideAndDeadline",
+      "MessControl.FogBrawl.RightThenLeftOnlySelectedTeeth"
+    ]
+  },
+  "solo": {
+    "passed": true,
+    "error": null,
+    "mode": "single local PIE, real F3, one complete round; TotalStrikes=1; no timeline acceleration",
+    "checks": [
+      {
+        "check": "target chosen, exactly two seconds until impact",
+        "remaining": 2.0,
+        "prepare_seconds": 0.5,
+        "final_seconds": 1.5
+      },
+      {
+        "check": "final warning starts half a second after selection",
+        "elapsed": 0.5087637007236481,
+        "remaining": 1.4912363290786743
+      },
+      {
+        "check": "no early hit; actual impact at two seconds",
+        "elapsed": 2.006749998778105,
+        "final_warning_observed": 1.4979862980544567
+      },
+      {
+        "check": "round completes and cleans up normally"
+      }
+    ]
+  },
+  "observed_selection_to_impact": 2.006749998778105,
+  "scope": "One local solo F3 round, no clock acceleration; targeted timing rules for both sides/replacement. No network, cook or package run."
+}

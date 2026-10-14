@@ -1,0 +1,158 @@
+{
+  "implemented": [
+    "8 intact source meshes retained; 16 chipped/broken variants; distinct closed fracture caps and branching crack material",
+    "health controls stages in both damage and repair directions; no resurrecting lost/consumed teeth",
+    "fog miss removes 1/3 maximum health; 1.5 second final warning preserved",
+    "normal held spray and watergun treatment/pressure hits repair through authoritative contact; hands no longer repair arena teeth",
+    "original pivot, support body and wipe coordinates retained; brush surface follows variant"
+  ],
+  "automation": [
+    "[2026.10.14-13.31.36:577][274]LogAutomationController: Display: Test Started. Name={MissesDamageCrownBeforeLossAndConsumedTargetRestartsWarning} Path={MessControl.FogBrawl.MissesDamageCrownBeforeLossAndConsumedTargetRestartsWarning}",
+    "[2026.10.14-13.31.36:996][288]LogAutomationController: Display: Test Completed. Result={Success} Name={MissesDamageCrownBeforeLossAndConsumedTargetRestartsWarning} Path={MessControl.FogBrawl.MissesDamageCrownBeforeLossAndConsumedTargetRestartsWarning}"
+  ],
+  "native_integration": "[2026.10.14-13.39.27:841][985]LogLiveCoding: Display: Live coding succeeded",
+  "solo_runtime": {
+    "passed": true,
+    "error": null,
+    "checks": [
+      {
+        "check": "intact source mesh before actual fog strike",
+        "health": 100.0,
+        "mesh": "SM_Teeth_L_02"
+      },
+      {
+        "check": "actual unguarded fog strike chips reserve without loss",
+        "health": 66.66667175292969,
+        "mesh": "SM_Teeth_L_02_Chipped"
+      },
+      {
+        "check": "second impact changes actual crown and brush surface to broken variant",
+        "health": 33.33333969116211,
+        "mesh": "SM_Teeth_L_02_Broken"
+      },
+      {
+        "check": "held ordinary spray repairs broken crown to chipped",
+        "health": 47.09659194946289,
+        "mesh": "SM_Teeth_L_02_Chipped"
+      },
+      {
+        "check": "release preserves partial repair",
+        "health": 47.09659194946289,
+        "mesh": "SM_Teeth_L_02_Chipped"
+      },
+      {
+        "check": "continued spray fully restores original tooth",
+        "health": 100.0,
+        "mesh": "SM_Teeth_L_02"
+      },
+      {
+        "check": "watergun treatment stream restores crown faster",
+        "health": 74.87228393554688,
+        "mesh": "SM_Teeth_L_02_Chipped"
+      },
+      {
+        "check": "watergun pressure shots consume ammunition and repair actual contact",
+        "health": 79.87228393554688,
+        "mesh": "SM_Teeth_L_02_Chipped"
+      }
+    ],
+    "captures": [
+      "01_ChippedGameplay.png",
+      "02_BrokenGameplay.png",
+      "03_RepairedGameplay.png",
+      "04_WatergunTreatment.png"
+    ],
+    "phase": 13,
+    "mode": "one local solo PIE; F3 event, actual missed strike; normal primary/select input; supported tongue placement and ordinary orbit camera"
+  },
+  "final_mesh_preview": {
+    "passed": true,
+    "error": null,
+    "captures": [
+      {
+        "image": "11_IntactFullCrown.png",
+        "health": 100.0,
+        "mesh": "SM_Teeth_R_04",
+        "hero": [
+          -180.13192914989418,
+          1052.5751171912925,
+          116.39073705673422
+        ],
+        "camera": [
+          151.8813698363374,
+          -127.14822582450029,
+          432.51615566478034
+        ],
+        "rotation": [
+          -0.0,
+          -10.0,
+          105.71833801269531
+        ]
+      },
+      {
+        "image": "12_ChippedFullCrown.png",
+        "health": 75.0,
+        "mesh": "SM_Teeth_R_04_Chipped",
+        "hero": [
+          -180.13192914989418,
+          1052.5751171912925,
+          116.4969992637989
+        ],
+        "camera": [
+          151.88026580101814,
+          -127.14633686639263,
+          432.5144194144501
+        ],
+        "rotation": [
+          -0.0,
+          -10.0,
+          105.71833801269531
+        ]
+      },
+      {
+        "image": "13_BrokenFullCrown.png",
+        "health": 35.0,
+        "mesh": "SM_Teeth_R_04_Broken",
+        "hero": [
+          -180.13192914989418,
+          1052.5751171912925,
+          117.26701879506527
+        ],
+        "camera": [
+          151.88025766272335,
+          -127.14630795756716,
+          433.35706904611317
+        ],
+        "rotation": [
+          -0.0,
+          -10.0,
+          105.71833801269531
+        ]
+      }
+    ],
+    "mask_preserved": true,
+    "mode": "same existing R04 arena tooth; ordinary orbit camera at -10 degrees; supported tongue placement; no render-only mesh substitution"
+  },
+  "visual_review": {
+    "accepted": [
+      "StagesBlender.png",
+      "11_IntactFullCrown.png",
+      "12_ChippedFullCrown.png",
+      "13_BrokenFullCrown.png"
+    ],
+    "findings": "Final cut spans local Y because arena teeth face local +/-X towards the tongue. Jagged chip and deep crown notch are readable in the normal -10 degree orbit camera; branching cracks remain distinct. Fracture caps are closed and visibly rougher than enamel.",
+    "excluded": [
+      "01_ChippedGameplay.png",
+      "02_BrokenGameplay.png",
+      "03_RepairedGameplay.png",
+      "04_WatergunTreatment.png"
+    ],
+    "exclusion_reason": "Early interaction proof frames crop the target or include a mutation before delayed capture; JSON health/input results remain valid. Final visual acceptance uses the 11-13 frames after axis correction."
+  },
+  "deferred": [
+    "network tests",
+    "cold Windows build/cook/package",
+    "GPU profile",
+    "balance over a full run"
+  ]
+}

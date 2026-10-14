@@ -1,0 +1,9 @@
+{
+  "pie_running": false,
+  "defaults": {
+    "SearchSeconds": 7.0,
+    "WarningSeconds": 1.5,
+    "TotalStrikes": 5
+  },
+  "dirty_content": []
+}

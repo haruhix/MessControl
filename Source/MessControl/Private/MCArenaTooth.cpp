@@ -31,6 +31,7 @@ void FMCArenaToothSettings::Sanitize()
 }
 AMCArenaTooth::AMCArenaTooth()
 {
+    DamageProfile=TSoftObjectPtr<UMCToothDamageProfile>(FSoftObjectPath(TEXT("/Game/Gameplay/Arena/Damage/DA_ToothDamage.DA_ToothDamage")));
     PrimaryActorTick.bCanEverTick=true; bReplicates=true; bAlwaysRelevant=true; SetReplicateMovement(true);
     SetNetUpdateFrequency(12); SetMinNetUpdateFrequency(2);
     PrimaryActorTick.TickGroup=TG_PostUpdateWork;
@@ -171,6 +172,37 @@ void AMCArenaTooth::ApplyAppearance()
         Material->SetVectorParameterValue(TEXT("GrimeScale"),FLinearColor(MeshBaseScale));
     }
     if (Calculus) Calculus->RebuildForSurface();
+    LoadedDamageProfile=DamageProfile.LoadSynchronous();
+    UpdateDamageVisual();
+}
+EMCArenaToothDamageStage AMCArenaTooth::DamageStage() const
+{
+    if (State.bLost || State.bConsumed || State.Health<=0) return EMCArenaToothDamageStage::Lost;
+    const float Fraction=State.Health/FMath::Max(1.f,Settings.MaxHealth);
+    if (Fraction>=1.f-KINDA_SMALL_NUMBER) return EMCArenaToothDamageStage::Intact;
+    return Fraction>.4f?EMCArenaToothDamageStage::Chipped:EMCArenaToothDamageStage::Broken;
+}
+void AMCArenaTooth::UpdateDamageVisual()
+{
+    if (!Appearance.Mesh || !LoadedDamageProfile) return;
+    UStaticMesh* Mesh=Appearance.Mesh;
+    const auto Stage=DamageStage();
+    if (Stage!=EMCArenaToothDamageStage::Intact)
+        for (const auto& Row:LoadedDamageProfile->Teeth)
+            if (Row.Intact==Appearance.Mesh) {
+                Mesh=Stage==EMCArenaToothDamageStage::Chipped?Row.Chipped.Get():Row.Broken.Get();
+                break;
+            }
+    if (!Mesh || Visual->GetStaticMesh()==Mesh) return;
+    // All variants share the original pivot. Keep the support body and wipe UV volume stable.
+    Visual->SetStaticMesh(Mesh); Visual->EmptyOverrideMaterials();
+    BrushSurface->SetStaticMesh(Mesh);
+    for (int32 I=0;I<Mesh->GetStaticMaterials().Num();++I)
+        if (Mesh->GetStaticMaterials()[I].MaterialSlotName==TEXT("MC_Damage_Enamel") || Mesh==Appearance.Mesh)
+            Visual->SetMaterial(I,Material);
+    GrimeRelief->ClearAllMeshSections(); GrimeSamples.Reset(); BrushHistory.Reset(); SelectedSample=INDEX_NONE;
+    bGrimeReliefBuilt=false;
+    if (Calculus) Calculus->RebuildForSurface();
 }
 void AMCArenaTooth::SeedInitialCalculus()
 {
@@ -216,6 +248,7 @@ void AMCArenaTooth::Tick(float DeltaSeconds)
     {
         SetActorHiddenInGame(true); Body->SetSimulatePhysics(false); Body->SetCollisionEnabled(ECollisionEnabled::NoCollision); return;
     }
+    UpdateDamageVisual();
     const auto* GS=GetWorld()->GetGameState<AMCGameState>();
     const double Now=GS?GS->GetServerWorldTimeSeconds():GetWorld()->GetTimeSeconds();
     const float Since=FMath::Max(0.,Now-State.HitTime);

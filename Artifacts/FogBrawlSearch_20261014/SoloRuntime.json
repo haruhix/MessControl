@@ -1,0 +1,45 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": [
+    {
+      "check": "search starts; distant mark rejected",
+      "remaining": 8.5
+    },
+    {
+      "check": "ordinary E sets authoritative shared marker",
+      "remaining": 7.2628326416015625
+    },
+    {
+      "check": "final reveal reaches distant player; smoke opens; threat visible",
+      "remaining": 1.2959319353103638,
+      "density": 0.003000000026077032
+    },
+    {
+      "check": "ordinary RMB saves tooth; impact clears marker",
+      "guards": 1
+    },
+    {
+      "check": "next target starts a fresh seven second search",
+      "remaining": 8.5
+    },
+    {
+      "check": "cancel clears smoke, markers, direction mesh and audio"
+    }
+  ],
+  "played_sounds": [
+    "S_FogBeacon",
+    "S_FogFinal",
+    "S_FogImpact",
+    "S_FogKnock",
+    "S_FogWindup"
+  ],
+  "captures": [
+    "01_SearchFog.png",
+    "02_TeamBeacon.png",
+    "03_FinalWarning.png"
+  ],
+  "final_warning_seconds": 1.5,
+  "search_seconds": 7,
+  "mode": "single local PIE; one resolved strike, next search, then cancellation; F3 event; normal E/RMB entry points"
+}

@@ -1,0 +1,41 @@
+{
+  "materials": {
+    "M_FogSearchGlow": {
+      "path": "/Game/Gameplay/FogBrawl/M_FogSearchGlow",
+      "depth_test_disabled": false,
+      "vertex_fog": false
+    },
+    "M_FogBeacon": {
+      "path": "/Game/Gameplay/FogBrawl/M_FogBeacon",
+      "depth_test_disabled": true,
+      "vertex_fog": false
+    },
+    "M_FogStrikeTell": {
+      "path": "/Game/Gameplay/FogBrawl/M_FogStrikeTell",
+      "depth_test_disabled": true,
+      "vertex_fog": false
+    }
+  },
+  "sounds": [
+    {
+      "path": "/Game/Audio/FogBrawl/S_FogBeacon.S_FogBeacon",
+      "duration": 0.41999998688697815
+    },
+    {
+      "path": "/Game/Audio/FogBrawl/S_FogFinal.S_FogFinal",
+      "duration": 0.3199999928474426
+    },
+    {
+      "path": "/Game/Audio/FogBrawl/S_FogImpact.S_FogImpact",
+      "duration": 0.3499999940395355
+    },
+    {
+      "path": "/Game/Audio/FogBrawl/S_FogKnock.S_FogKnock",
+      "duration": 0.17000000178813934
+    },
+    {
+      "path": "/Game/Audio/FogBrawl/S_FogWindup.S_FogWindup",
+      "duration": 0.75
+    }
+  ]
+}

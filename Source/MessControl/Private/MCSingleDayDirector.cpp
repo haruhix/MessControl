@@ -325,7 +325,7 @@ void AMCSingleDayDirector::BeginFogBrawl()
     FogEvent->SetOwner(this);
     Record(FString::Printf(TEXT("Ключевое событие %d: туман скрывает арену; вместе защищайте отмеченные зубы от ударов, обычные события приостановлены"),KeyEventIndex+1));
     FogEvent->Start();
-    Publish(TEXT("ТУМАННАЯ ДРАКА"),TEXT("Найдите мигающий красным зуб и удерживайте ПКМ рядом с ним до удара. Вместе защищать легче."),
+    Publish(TEXT("ТУМАННАЯ ДРАКА"),TEXT("Все зубы мигают с ускорением. Целей столько, сколько игроков. Удары справа, затем слева; у цели держи ПКМ."),
         FMath::Max(0,FogEvent->TotalStrikes-FogEvent->StrikesResolved),FMath::Max(0,FogEvent->TotalStrikes));
     ForceNetUpdate();
 }
@@ -412,7 +412,7 @@ void AMCSingleDayDirector::Tick(float Dt)
             Record(TEXT("Все удары в тумане пережиты: событие завершено, арена снова видна"));
             BeginDirector();
         }
-        else Publish(TEXT("ТУМАННАЯ ДРАКА"),TEXT("Найдите мигающий красным зуб и удерживайте ПКМ рядом с ним до удара. Вместе защищать легче."),
+        else Publish(TEXT("ТУМАННАЯ ДРАКА"),TEXT("Рулетка перебирает все доступные зубы. После выбора целей: справа, затем слева. У своего зуба держи ПКМ."),
             FMath::Max(0,FogEvent->TotalStrikes-FogEvent->StrikesResolved),FMath::Max(0,FogEvent->TotalStrikes));
     }
     else if(Stage==EMCSingleDayStage::Nuts && NutEvent) {
