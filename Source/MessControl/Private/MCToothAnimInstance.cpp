@@ -215,14 +215,14 @@ public:
         // worker evaluation only copies the resulting pose.
         if(!Tooth->ToothPhysics || !Tooth->ToothPhysics->CanAct()) {RowingPoseAlpha=0;return;}
         FVector Left,Right;
-        const auto* Raft=Tooth->GetRowingRaft();
+        auto* Raft=Tooth->GetRowingRaft();
         const bool Row=Tooth->IsRowing() && Raft && Raft->GetRowingHandTargets(Tooth,Left,Right);
         const FTransform World=Tooth->GetMesh()->GetComponentTransform();
         if(Row) {
             const float Sign=Raft->RowingSideFor(Tooth);
             const auto Stroke=MCRowingStroke::Sample(Raft->RowingStrokePhase(Tooth));
             const FVector DeckUp=Raft->GetDeckComponent()->GetUpVector();
-            FVector Drive=Raft->RowingDirectionFor(Tooth).GetSafeNormal();
+            FVector Drive=Raft->RowingVisualDirectionFor(Tooth).GetSafeNormal();
             if(Drive.IsNearlyZero()) Drive=Tooth->GetActorForwardVector();
             Drive=FVector::VectorPlaneProject(Drive,DeckUp).GetSafeNormal();
             if(Drive.IsNearlyZero()) Drive=Raft->GetActorForwardVector();
@@ -231,10 +231,10 @@ public:
             RowingUp=World.InverseTransformVectorNoScale(DeckUp).GetSafeNormal();
             // Distinct reach, loaded pull and raised recovery share the brush's
             // exact cycle. The crown carries the effort, rather than hovering still.
-            RowingLean=FMath::Lerp(-8.f,17.f,(Stroke.Reach+1.f)*.5f);
-            RowingTwist=Sign*(Stroke.Reach*9.f+Stroke.Power*3.f);
-            RowingSideDip=Sign*(2.f+Stroke.Power*3.f);
-            RowingCrouch=1.5f+Stroke.Power*3.f;
+            RowingLean=FMath::Lerp(-5.f,12.f,(Stroke.Reach+1.f)*.5f);
+            RowingTwist=Sign*(Stroke.Reach*6.f+Stroke.Power*2.f);
+            RowingSideDip=Sign*(1.5f+Stroke.Power*2.f);
+            RowingCrouch=1.5f+Stroke.Power*2.f;
             RowingReach=Stroke.Reach*3.f;
             // Use the actual player's brush frame; its side can change while
             // they walk across the deck, independently of their network slot.
@@ -310,6 +310,8 @@ public:
             const int32 Parent=Ref.GetParentIndex(Lower);
             Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];Rebuild();
         }
+        const int32 RightHand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
+        if(Row && RightHand>=0) Raft->AlignRowingBrushToHand(Tooth,CS[RightHand]*World);
     }
     void CollectionAndYawnPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
     {

@@ -1,0 +1,31 @@
+{
+  "reviewed_utc": "2026-10-14T09:31:29.845098+00:00",
+  "status": "accepted_for_focused_preview",
+  "basis": "Root inspected actual final-video contact sheets and extracted close-up frame.",
+  "images": [
+    "qa_animation.png",
+    "front_closeup.png",
+    "qa_torque.png"
+  ],
+  "observations": [
+    "Grip follows the real brush during loaded strokes and crossing; no vertical-axis roll flip observed.",
+    "Camera reversals ease the shared brush/body direction; stroke rhythm remains readable.",
+    "Rowing effort and blinking are visible in frontal frames; two players and release are readable."
+  ],
+  "limitations": [
+    "Temporary FOV60 review cameras and normal mouth lighting; some rear angles obscure hands.",
+    "Genuine source images sampled around12Hz are repeated at30fps without interpolation.",
+    "No network clients, hardware input, speech/pain regression, full balance or GPU profile.",
+    "Optional native reflection read limits are recorded in Report.json; morph curve values do not certify final GPU deformation."
+  ],
+  "videos": [
+    {
+      "path": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/storm_brush_rowing.mp4",
+      "sha256": "b721f009299662035b803f3c84339d0c0a2f1762a8da53f0286ededa263522ba"
+    },
+    {
+      "path": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.mp4",
+      "sha256": "873b55a6755ed184d893ad0743bafccf7bb8dcaa08cf6c97dcb7ff8e801aa117"
+    }
+  ]
+}

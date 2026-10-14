@@ -9,6 +9,8 @@
 #include "MCRewardChest.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCInventoryComponent.h"
+#include "MCCataclysmRaft.h"
+#include "MCRowingStroke.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "Engine/SkeletalMesh.h"
@@ -44,7 +46,7 @@ bool UMCExpressionComponent::CanPlay(const FMCEmoteEntry& Entry) const
     if (!Tooth || !Tooth->ToothPhysics->CanAct() || !Tooth->Status->IsAlive()) return false;
     if (Now()-Tooth->Status->State.DamageAt<.65) return false;
     return !Entry.Animation || Entry.bFaceOnly || (!Tooth->bHandling && !Tooth->bBrushing && !Tooth->HeldFood && !Tooth->ClingTooth
-        && !Tooth->IsPrimaryHeld() && !Tooth->IsYawning() && !Tooth->bInCoffee
+        && !Tooth->IsPrimaryHeld() && !Tooth->IsRowing() && !Tooth->IsYawning() && !Tooth->bInCoffee
         && Tooth->GetVelocity().Size2D()<25 && Tooth->GetCharacterMovement()->IsMovingOnGround());
 }
 void UMCExpressionComponent::ServerPlayEmote_Implementation(FName Id)
@@ -111,7 +113,7 @@ void UMCExpressionComponent::TickComponent(float Dt,ELevelTick Type,FActorCompon
         StinkCheckAt=Now()+.2;
         StinkContact=Social && AMCFoodActor::FindNearbySpoiledFood(GetWorld(),Tooth->GetActorLocation(),310.f)?1.f:0.f;
         if(StinkContact>0 && Now()>=NextStinkGestureAt && !Tooth->HeldFood && !Tooth->bHandling
-            && !Tooth->bBrushing && !Tooth->IsPrimaryHeld() && Tooth->Grip && Tooth->Grip->Blend()<.01f
+            && !Tooth->bBrushing && !Tooth->IsPrimaryHeld() && !Tooth->IsRowing() && Tooth->Grip && Tooth->Grip->Blend()<.01f
             && BodyAlpha()<.01f)
         {
             StinkGestureAt=Now(); NextStinkGestureAt=Now()+5.;
@@ -215,11 +217,12 @@ bool UMCExpressionComponent::ApplyMorphBlink(float Closure)
         const FName Correction(*(TEXT("BlinkCancel_")+Name.ToString()));
         if (Mesh->GetSkeletalMeshAsset()->FindMorphTarget(Correction))
         {
-            // The artist's effort mouth also closes the eyelids. An external
-            // inhale needs an alert grip: remove that lid delta during the
+            // The artist's effort mouth also closes the eyelids. Inhaling and
+            // rowing need an alert grip: remove that lid delta during the
             // brace, while Eyes_Blink above still owns genuine blinks.
-            const float Brace=Name==TEXT("Mouth_Effort")?FMath::Max(FoodSuctionReaction,
-                Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort?Tooth->YawnPoseAlpha():0.f):0.f;
+            const float Brace=Name==TEXT("Mouth_Effort")?FMath::Max3(FoodSuctionReaction,
+                Tooth->IsYawning() && CurrentEmotion==EMCEmotion::Effort?Tooth->YawnPoseAlpha():0.f,
+                Tooth->IsRowing()?1.f:0.f):0.f;
             Mesh->SetMorphTarget(Correction,MouthWeights.FindRef(Name)*FMath::Max(Closure,Brace));
         }
     }
@@ -252,7 +255,7 @@ void UMCExpressionComponent::BuildSocialPose(TArray<FTransform>& Pose,const FRef
         || Tooth->OrderJumpTarget || Tooth->AnimationOrderPress>.01f || Tooth->AnimationOrderFlight>.01f) return;
     const float Reaction=FMath::Max(SprayReaction*(.65f+.35f*SprayFlinch),StinkGestureAlpha*.7f);
     if(Reaction<.001f) return;
-    const bool HandsBusy=Tooth->HeldFood || Tooth->bHandling || Tooth->bBrushing || Tooth->IsPrimaryHeld()
+    const bool HandsBusy=Tooth->HeldFood || Tooth->bHandling || Tooth->bBrushing || Tooth->IsPrimaryHeld() || Tooth->IsRowing()
         || Tooth->FoodCollection->bCollecting || Tooth->Grip->Blend()>.01f || BodyAlpha()>.01f
         || (Tooth->Inventory && Tooth->Inventory->SelectedUpgrade()!=EMCToolUpgrade::None && Tooth->Inventory->ShouldPresentTool());
     // Only free hands and an idle body flinch; ongoing work retains its contacts.
@@ -315,6 +318,13 @@ void UMCExpressionComponent::BuildFacePose(TArray<FTransform>& Pose,const FRefer
     else if (Now()-Tooth->TaskSuccessAt<2.0) { CurrentEmotion=EMCEmotion::Happy; }
     else if (Tooth->HeldFood && !Tooth->Grip->InputDirection().IsNearlyZero()) { CurrentEmotion=EMCEmotion::Effort; Strength=FMath::Clamp(Tooth->HeldFood->Settings.Mass/28.f,.25f,1.f); }
     else if (!Tooth->ToothPhysics->CanAct() || Tooth->GetCharacterMovement()->IsFalling()) { CurrentEmotion=EMCEmotion::Surprise; Strength=.75f; }
+    else if (Tooth->IsRowing()) {
+        // Follow this player's loaded pull with a visible clench. The blink
+        // layer keeps the eyes alert; pain and speech retain their priority.
+        const auto* Raft=Tooth->GetRowingRaft();
+        const float Power=Raft?MCRowingStroke::Sample(Raft->RowingStrokePhase(Tooth)).Power:0.f;
+        CurrentEmotion=EMCEmotion::Effort; Strength=.65f+.15f*Power;
+    }
     else if (Tooth->AnimationSwim>.5f && Tooth->AnimationSwimEffort>.1f) { CurrentEmotion=EMCEmotion::Effort; Strength=.3f+.5f*Tooth->AnimationSwimEffort; }
     else if (S.Health<S.MaxHealth*.35f) { CurrentEmotion=EMCEmotion::Sad; Strength=.6f; }
     if (Pain>.01f && !ToolFace) { CurrentEmotion=EMCEmotion::Pain; Strength=Pain; }

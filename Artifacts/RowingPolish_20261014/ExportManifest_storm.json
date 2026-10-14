@@ -1,0 +1,170 @@
+{
+  "exported_utc": "2026-10-14T09:30:38.677744+00:00",
+  "exclude_nonclient_frames_requested": false,
+  "previews": [
+    {
+      "mode": "storm",
+      "clip": "storm_brush_rowing",
+      "video": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/storm_brush_rowing.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/storm_brush_rowing.png",
+      "video_sha256": "b721f009299662035b803f3c84339d0c0a2f1762a8da53f0286ededa263522ba",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/storm_brush_rowing.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/storm_brush_rowing.ffconcat",
+      "genuine_source_frames": 128,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 14.583334093913436,
+      "source_time_end_seconds": 25.41666799224913,
+      "source_game_span_seconds": 10.833333898335695,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 2.616559335153789,
+        "maximum_rotation_error_degrees": 0.28792023371650544
+      },
+      "visual_quality_review": "Accepted for focused preview after root contact-sheet/close-up inspection; see VisualReview.json",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "326"
+          }
+        ],
+        "format": {
+          "duration": "10.866667"
+        }
+      }
+    },
+    {
+      "mode": "storm",
+      "clip": "rowing_point_torque",
+      "video": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.png",
+      "video_sha256": "873b55a6755ed184d893ad0743bafccf7bb8dcaa08cf6c97dcb7ff8e801aa117",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.ffconcat",
+      "genuine_source_frames": 81,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 26.083334693685174,
+      "source_time_end_seconds": 32.7500017080456,
+      "source_game_span_seconds": 6.666667014360428,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 1.5772826284324903,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Accepted for focused preview after root contact-sheet/close-up inspection; see VisualReview.json",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "201"
+          }
+        ],
+        "format": {
+          "duration": "6.700000"
+        }
+      }
+    }
+  ],
+  "reports": [
+    {
+      "mode": "storm",
+      "report": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Report_storm.json",
+      "report_sha256": "ae03c887026196556b3fd69750bedac3ac4366669e9bd1b1d4273798639205a3",
+      "source_sha256": {
+        "Source/MessControl/Private/MCCataclysmEvent.cpp": "7fa74798df1b89aee913a60a30b1a942dbf58fe518fbb994f514faf2fc9ab647",
+        "Source/MessControl/Private/MCCataclysmRaft.cpp": "605371825e01899902957ca695731a378311582ab9914c0ab2982a930796e2d0",
+        "Source/MessControl/Private/MCCataclysmJelly.cpp": "82475d7e51f5c22def495ac5d6f086a210a9a2d83f3c53d0da0d30fb4e156c28",
+        "Source/MessControl/Private/MCToothMovementComponent.cpp": "90b77a49550bd0ffe8ab9c3199d8a3efb5124a4c6d490256e1bbf6da774efb3a",
+        "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8",
+        "Source/MessControl/Public/MCCataclysmDebris.h": "4bb5328c10dc4ba9f8efa48f6a6ef21b4179752694574ce9c3ad005f380f6d51",
+        "Source/MessControl/Private/MCCataclysmDebris.cpp": "f990ef3b9a4033c6a714857eedc12c4d257aa7739a53be750062090f71738f50",
+        "Source/MessControl/Public/MCCoffeeFlood.h": "4b2e983e61afaa8f2416cd4f2208110763e72a74cb8dacb35f5242656d3313e0",
+        "Source/MessControl/Private/MCCoffeeFlood.cpp": "5cde18ae1a9705b36831f4a9897f83ddf277d8d0b4b35ce9444db3c690316e60",
+        "Source/MessControl/Private/MCCataclysmStormMath.h": "484136b9b5db2b2ac5b5dc7783f108e31953e92866594c2cd05dc7e844b38f1d",
+        "Source/MessControl/Public/MCToothCharacter.h": "5bff04cf94896d412a89ff21de1b7fdbee78fcd94c7cba98551cf64e399d7165",
+        "Source/MessControl/Private/MCToothAnimInstance.cpp": "529e084236d4ec899e084160717317ae5ce7c553c7c8f1b63d9955542ee8fd6e",
+        "Source/MessControl/Private/MCInventoryComponent.cpp": "0dda05b064f1941f7712fab0f4f8ec62f629fe68d64e54c440339dd603b10a11",
+        "Source/MessControl/Private/MCGripComponent.cpp": "ec21d9d444333bf52b60df4414b2e6b170504336f2ba44a814a34811bf92e51d",
+        "Source/MessControl/Private/MCToothCharacter.cpp": "356958a48cd26ca7f03c0134c14c3d6bebfd057e25fdf1dc758a2227d954d084",
+        "Tools/Unreal/probe_cataclysm_storm_solo.py": "3f5b808846acc9cf8fc7e37ca7560328aff5083f7eeff0b1cd23cad4ba09514b",
+        "Tools/Unreal/probe_rowing_animation_solo.py": "6b4d191166685c7c17b90688b7e0344556f7f2c029ec930f05242b2fad96068d",
+        "Source/MessControl/Private/MCRowingStroke.h": "bc9ed21f3d0c7dd73e41f768518e75b81dec185a12f140f3989bbc6d7c7487d3",
+        "Source/MessControl/Public/MCCataclysmRaft.h": "69443675689c24172f7cc62f2af5f244172a564b433da78e37cb5b352026d84f",
+        "Source/MessControl/Private/MCGameplayHUD.cpp": "7037c3580d5b4d1d4c21e9f21771664aeeb05aa655bba470d5de676ac7190af7",
+        "Source/MessControl/Private/MCExpressionComponent.cpp": "9d1fc0ffd831bed060275a0ab3cd839c1dde1279b87f3d497f04a05c6de67705",
+        "Source/MessControl/Public/MCExpressionComponent.h": "0d5639360c8b6a789dde64e38ecaebc69efee25db56f91464e48f6662bb953e0",
+        "Source/MessControl/Private/MCGazeComponent.cpp": "0a160c50c4347d1435613a156a64928cd9a0b8080815e3cebe7e1b1ba54daa6c",
+        "Source/MessControl/Public/MCGazeComponent.h": "49326f1ff79ddaef7b46d5561061d4281154b69ffcd51cf0ab458fa0e855c2e1",
+        "Source/MessControl/Private/MCToothStatusComponent.cpp": "434a22e89dc0a8fceba4f5018fcf8da0e6b06c9502e65a08ec14a87af738ce05"
+      },
+      "checks": {
+        "real_f3_64_starts_storm_rafts": true,
+        "solo_side_native_input_and_visible_brushes": true,
+        "solo_side_own_directions_follow_actual_view": true,
+        "rendered_wrists_hold_same_brush_handle": true,
+        "walk_on_deck_with_lmb_rowing_keeps_rowing": true,
+        "solo_front_native_input_and_visible_brushes": true,
+        "solo_front_own_directions_follow_actual_view": true,
+        "two_rowers_native_input_and_visible_brushes": true,
+        "two_rowers_own_directions_follow_actual_view": true,
+        "two_camera_aligned_native_row_inputs_sum": true,
+        "release_stops_native_rowing_and_hides_raft_brushes": true,
+        "couple_turn_opposing_inputs_cancel_translation_and_turn": true,
+        "couple_reverse_opposing_inputs_cancel_translation_and_turn": true
+      },
+      "fixture_tuning": {
+        "FloodHoldSeconds": 26.0,
+        "FloodFillSeconds": 3.0,
+        "FloodDrainSeconds": 3.0
+      },
+      "limitations": [
+        "The local pawn is placed on an actual walkable drifting raft; the second nonspectator authority AI pawn is a disclosed position fixture, not a network client.",
+        "Native F3 creates the full Cataclysm. Its tick is paused before any log spawns solely for pose review; water, storm, raft, movement, animation and game clocks keep advancing. The unrelated single-day scheduler is paused.",
+        "PIE-only flood timing is 3s fill / 26s hold / 3s drain. The probe stops within 40 game seconds after F3 and 240 wall seconds.",
+        "Both rowers select Brush through Inventory.ServerSelect and use SetPrimaryInputHeld, the ordinary LMB path. The authority AI is locally controlled and its own pawn ticker sends the native aim heartbeat. No scripted direction RPC, dedicated SetRowingInputHeld, raft force, rowing-state, hand, bone or animation assignment is used.",
+        "The local rower uses the actual PlayerCameraManager viewing direction, including the side/front review CameraActor. Its controller rotation is not used as a substitute. The AI controller aim and normal input RPC follow the same actual viewing direction.",
+        "A brief genuine AddMovementInput on the deck checks that walking remains possible while LMB is held; no position or velocity assignment is made during this movement check.",
+        "Side and front three-quarter cameras track the real actors in the mouth lighting; these are temporary review cameras rather than the normal gameplay camera.",
+        "Bone/socket and brush transform samples are read-only rendered-pose evidence when available. They do not automatically establish anatomical quality or artistic acceptance.",
+        "SHOWUI PNGs are genuine requested engine frames at up to 12Hz. Final PNG hashes and camera-target gates are required before video export; motion quality needs visual review.",
+        "This focused capture does not repeat contact/drowning checks, profile the GPU, complete the event or test network clients."
+      ],
+      "manual_checkpoints": [
+        "Review full strokes from side and front three-quarter: brush entry, pull, lift and recovery; hand contact, torso rhythm, foot support and release blending.",
+        "Review two rowers for hand/brush intersections and phase/readability. Telemetry alone is not visual acceptance.",
+        "The normal gameplay camera, network clients and full event balance are separate checks."
+      ],
+      "integrity_verified_source_frames": 209,
+      "accepted_client_frames": 209,
+      "excluded_nonclient_frames": [],
+      "capture_validation": "All source captures have supported client dimensions; visual review remains separate"
+    }
+  ],
+  "limitations": [
+    "Sampled genuine engine screenshots do not record every game frame.",
+    "CFR output repeats source images at their actual game-time intervals; no interpolation or title cards.",
+    "Excluded nonclient captures stay recorded in report metadata. Their genuine time gaps remain as holds of preceding accepted frames; no wrong viewport is resized into output.",
+    "PlayerCamera metadata does not establish the screenshot surface; visual review of accepted client captures remains necessary.",
+    "The terminal 1 ms and 30 fps duration rounding are presentation padding, not additional observed gameplay.",
+    "Telemetry and successful encoding do not establish visual quality; inspect the previews in the gameplay camera."
+  ],
+  "visual_review": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/VisualReview.json"
+}

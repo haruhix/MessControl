@@ -344,6 +344,28 @@ const UStaticMeshComponent* AMCCataclysmRaft::RowingBrushFor(const AMCToothChara
     return Slot==0?LeftOar.Get():Slot==1?RightOar.Get():nullptr;
 }
 
+FVector AMCCataclysmRaft::RowingVisualDirectionFor(const AMCToothCharacter* Hero) const
+{
+    const int32 Slot=RowingPlayers.IndexOfByPredicate([Hero](const TObjectPtr<AMCToothCharacter>& Player){return Player.Get()==Hero;});
+    return Slot>=0 && Slot<Capacity && VisualRowers[Slot].Get()==Hero
+        ? VisualRowingDirection[Slot] : RowingDirectionFor(Hero);
+}
+
+void AMCCataclysmRaft::AlignRowingBrushToHand(const AMCToothCharacter* Hero,const FTransform& HandWorld)
+{
+    if(!Hero || !Hero->Brush || !Hero->BrushPivot || HandWorld.ContainsNaN()) return;
+    const int32 Slot=RowingPlayers.IndexOfByPredicate([Hero](const TObjectPtr<AMCToothCharacter>& Player){return Player.Get()==Hero;});
+    if(Slot<0 || Slot>=Capacity) return;
+    auto* Oar=Slot==0?LeftOar.Get():RightOar.Get();
+    if(!Oar || !Oar->IsVisible()) return;
+    // Follow the actual blended wrist during entry. On release the inventory's
+    // original brush uses this same mount and wrist, so presentation can switch
+    // back without a floating shaft or a discontinuity at the grip.
+    const FTransform Mount=Hero->Brush->GetRelativeTransform()*Hero->BrushPivot->GetRelativeTransform();
+    const FTransform ToolWorld=Mount*HandWorld;
+    Oar->SetWorldLocationAndRotation(ToolWorld.GetLocation(),ToolWorld.GetRotation());
+}
+
 float AMCCataclysmRaft::RowingSideFor(const AMCToothCharacter* Hero) const
 {
     if(!Hero) return 0.f;
@@ -728,7 +750,8 @@ void AMCCataclysmRaft::UpdateOars(double Now)
         const bool Show = bConfigured && Brush && Brush->GetStaticMesh() && RowingCount>0 && !IsSubmerging();
         Oar->SetVisibility(Show);
         if (!Show) {VisualRowers[Side].Reset();continue;}
-        const FVector LocalRow = DeckPose.InverseTransformVectorNoScale(RowingDirectionFor(Hero)).GetSafeNormal2D();
+        FVector DesiredRow=RowingDirectionFor(Hero).GetSafeNormal2D();
+        if(DesiredRow.IsNearlyZero()) DesiredRow=Hero->GetActorForwardVector().GetSafeNormal2D();
         if (Oar->GetStaticMesh() != Brush->GetStaticMesh())
         {
             Oar->EmptyOverrideMaterials();
@@ -740,11 +763,21 @@ void AMCCataclysmRaft::UpdateOars(double Now)
         Oar->SetWorldScale3D(BrushScale);
         const FVector Rider = DeckPose.InverseTransformPosition(Hero->GetActorLocation());
         const float DesiredSide=Rider.Y>12.f?1.f:Rider.Y<-12.f?-1.f:(VisualPaddleSide[Side]<0?-1.f:1.f);
-        if(VisualRowers[Side].Get()!=Hero) {VisualRowers[Side]=Hero;VisualPaddleSide[Side]=DesiredSide;}
-        else VisualPaddleSide[Side]=FMath::FInterpConstantTo(VisualPaddleSide[Side],DesiredSide,Dt,6.f);
+        if(VisualRowers[Side].Get()!=Hero) {
+            VisualRowers[Side]=Hero;VisualPaddleSide[Side]=DesiredSide;VisualRowingDirection[Side]=DesiredRow;
+        }
+        else {
+            VisualPaddleSide[Side]=FMath::FInterpConstantTo(VisualPaddleSide[Side],DesiredSide,Dt,6.f);
+            const float VisualYaw=FMath::FixedTurn(VisualRowingDirection[Side].Rotation().Yaw,DesiredRow.Rotation().Yaw,220.f*Dt);
+            VisualRowingDirection[Side]=FRotator(0,VisualYaw,0).Vector();
+        }
+        // One bounded cosmetic direction drives both the shaft and the torso.
+        // Authority applies the requested force immediately; only pose motion eases.
+        const FVector LocalRow=DeckPose.InverseTransformVectorNoScale(VisualRowingDirection[Side]).GetSafeNormal2D();
         const float Sign=VisualPaddleSide[Side];
+        const float Crossing=FMath::Sin((Sign+1.f)*UE_HALF_PI);
         const MCRowingStroke::FSample Stroke = MCRowingStroke::Sample(RowingStrokePhase(Hero));
-        const float Lift=FMath::Max(Stroke.Lift,1.f-FMath::Abs(Sign));
+        const float Lift=FMath::Max(Stroke.Lift,Crossing);
         // Reach upstream, catch, sweep the water opposite the chosen travel,
         // then lift the brush for its return. The character uses these exact
         // stages rather than a second, unsynchronised sine animation.
@@ -756,9 +789,14 @@ void AMCCataclysmRaft::UpdateOars(double Now)
         // move the player into a seat; a small downward stroke uses nearby hands.
         const float GripHeight = FMath::Clamp(Length*.85f,DeckTop+24.f,DeckTop+48.f);
         const FVector Grip = FVector(Rider.X,Rider.Y,GripHeight+15.f*Lift-3.f*Stroke.Power)
-            + LocalRow*(15.f*Stroke.Reach) + FVector(0,Sign*28.f,0);
+            + LocalRow*(15.f*Stroke.Reach) + FVector(0,Sign*28.f,0)
+            + DeckPose.InverseTransformVectorNoScale(Hero->GetActorForwardVector()).GetSafeNormal2D()*(48.f*Crossing);
+        // A horizontal side hint cannot become parallel to the downward shaft,
+        // including its vertical midpoint when switching sides. Up was singular
+        // there and could abruptly flip the brush and both wrists.
+        const FVector Across=FVector::CrossProduct(FVector::UpVector,LocalRow).GetSafeNormal();
         Oar->SetRelativeLocationAndRotation(Grip,
-            FRotationMatrix::MakeFromXZ(Direction,FVector::UpVector).Rotator());
+            FRotationMatrix::MakeFromXY(Direction,Across).Rotator());
     }
 }
 

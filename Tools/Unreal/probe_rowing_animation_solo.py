@@ -30,6 +30,33 @@ Parent, prop, vec, valid, path, enum_name, length = (
     support[name] for name in ('CataclysmStormSolo', 'prop', 'vec', 'valid', 'path', 'enum_name', 'length'))
 LifecycleParent = support['Parent']
 
+MOUTH_SHAPES = ('Mouth_A', 'Mouth_E', 'Mouth_O', 'Mouth_MBP', 'Mouth_FV', 'Mouth_I',
+                'Mouth_U', 'Mouth_L', 'Mouth_TH', 'Mouth_CH', 'Mouth_S', 'Mouth_D',
+                'Mouth_Smile', 'Mouth_Frown', 'Mouth_Angry', 'Mouth_Pain',
+                'Mouth_Surprise', 'Mouth_Effort')
+READ_MORPHS = MOUTH_SHAPES + ('Eyes_Blink', 'BlinkCancel_Mouth_Effort')
+
+
+def quat_values(rotation):
+    return [float(getattr(rotation, axis)) for axis in ('x', 'y', 'z', 'w')]
+
+
+def quat_angle(a, b):
+    denominator = math.sqrt(sum(v*v for v in a) * sum(v*v for v in b))
+    if denominator < 1.e-10: return None
+    return math.degrees(2. * math.acos(min(1., abs(sum(x*y for x, y in zip(a, b))) / denominator)))
+
+
+def vector_angle(a, b):
+    denominator = math.sqrt(sum(v*v for v in a) * sum(v*v for v in b))
+    if denominator < 1.e-10: return None
+    return math.degrees(math.acos(max(-1., min(1., sum(x*y for x, y in zip(a, b)) / denominator))))
+
+
+def smooth_step(low, high, value):
+    t = max(0., min(1., (value-low)/(high-low)))
+    return t*t*(3.-2.*t)
+
 
 class RowingAnimationSolo(Parent):
     def __init__(self):
@@ -44,6 +71,14 @@ class RowingAnimationSolo(Parent):
         self.torque_aim = None
         self.torque_yaw = None
         self.torque_sign = None
+        self.presentation_previous = {}
+        self.presentation_slots = {}
+        self.presentation_read_limits = {
+            'voice': 'Voice, VoiceViseme and SpeechAmount() are native non-reflected members; their actual values cannot be read through the Python wrapper. Speech morph weights are recorded separately, never substituted for the voice envelope.',
+            'derived_alpha': 'EmoteAlpha(), BodyAlpha() and PainAlpha() are native non-reflected getters. The labelled derived values use only reflected state, library entries, animation length and the checked current source formula in this standalone world.',
+            'grip_targets': 'GetRowingHandTargets() is native non-reflected. Expected right wrist is reconstructed from the actual brush world transform and the character Brush/BrushPivot relative attachment transforms. The labelled left target is 20 cm along the actual brush X axis, matching the checked source; it is not a native getter result.',
+            'morph_weights': 'USkeletalMeshComponent.GetMorphTarget() reads the current MorphTargetCurves map, returning zero when no curve is present. This does not prove that a zero-valued morph asset exists or has zero final GPU deformation.',
+        }
         self.report.update(mode='storm', focus='rowing', purpose='rowing_animation',
             scope='One owned standalone authority PIE, real F3 storm raft, selected Brush and native held LMB rowing',
             clip_labels={'storm_brush_rowing': 'Гребля щёткой: сбоку, спереди, вдвоём и отпускание',
@@ -64,10 +99,14 @@ class RowingAnimationSolo(Parent):
         self.report['source_sha256']['Tools/Unreal/probe_rowing_animation_solo.py'] = hashlib.sha256(
             (ROOT / 'Tools/Unreal/probe_rowing_animation_solo.py').read_bytes()).hexdigest()
         for source in ('Source/MessControl/Private/MCRowingStroke.h', 'Source/MessControl/Public/MCCataclysmRaft.h',
-                       'Source/MessControl/Public/MCToothCharacter.h', 'Source/MessControl/Private/MCGameplayHUD.cpp'):
+                       'Source/MessControl/Public/MCToothCharacter.h', 'Source/MessControl/Private/MCGameplayHUD.cpp',
+                       'Source/MessControl/Private/MCExpressionComponent.cpp', 'Source/MessControl/Public/MCExpressionComponent.h',
+                       'Source/MessControl/Private/MCGazeComponent.cpp', 'Source/MessControl/Public/MCGazeComponent.h',
+                       'Source/MessControl/Private/MCToothStatusComponent.cpp'):
             self.report['source_sha256'][source] = hashlib.sha256((ROOT/source).read_bytes()).hexdigest()
 
     def write(self):
+        self.summarize_presentation()
         self.output.mkdir(parents=True, exist_ok=True)
         data = json.dumps(self.report, ensure_ascii=False, indent=2, allow_nan=False)
         (self.output / 'Report.json').write_text(data, encoding='utf-8')
@@ -151,6 +190,7 @@ class RowingAnimationSolo(Parent):
                 rotation_degrees=[float(component.get_world_rotation().pitch), float(component.get_world_rotation().yaw), float(component.get_world_rotation().roll)],
                 mesh=path(prop(component, 'static_mesh'))))
         entry['rendered_brushes'] = brushes
+        self.record_presentation(now, entry)
         if self.pose_read_error is not None:
             return
         try:
@@ -170,6 +210,212 @@ class RowingAnimationSolo(Parent):
             # animation. Visual evidence still remains mandatory for acceptance.
             self.pose_read_error = str(error)
             self.report['pose_read_limit'] = self.pose_read_error
+
+    def optional_presentation_read(self, key, reader):
+        if key in self.presentation_read_limits: return None
+        try:
+            return reader()
+        except Exception as error:
+            # Diagnostic wrappers are optional. A failed cosmetic read must
+            # never change gameplay or manufacture a failed native check.
+            self.presentation_read_limits[key] = str(error)
+            return None
+
+    def read_expression(self, pawn, now):
+        expression, status = prop(pawn, 'expression'), prop(pawn, 'status')
+        entry = dict(current_emotion=enum_name(prop(expression, 'current_emotion')),
+            suction=float(prop(expression, 'food_suction_reaction')),
+            social_disgust=float(prop(expression, 'social_disgust')),
+            stink_reaction=float(prop(expression, 'stink_reaction')),
+            stink_gesture_alpha=float(prop(expression, 'stink_gesture_alpha')),
+            spray_reaction=float(prop(expression, 'spray_reaction')),
+            voice=None, voice_viseme=None,
+            emote=None, emote_alpha_derived=None, body_alpha_derived=None)
+        status_state = prop(status, 'state')
+        damage_at = float(prop(status_state, 'damage_at'))
+        age = now-damage_at
+        entry['pain'] = dict(damage_at=damage_at, age_seconds=age,
+            alpha_derived=(1.-smooth_step(.35, 1.1, age)) if 0. <= age < 1.1 else 0.)
+        emote = self.optional_presentation_read('expression.emote_state',
+            lambda: self.read_emote(expression, now))
+        if emote is not None:
+            entry['emote'] = emote
+            entry['emote_alpha_derived'] = emote['alpha_derived']
+            entry['body_alpha_derived'] = emote['body_alpha_derived']
+        return entry
+
+    def read_emote(self, expression, now):
+        # Native State is not exported to the current Python wrapper. Keep this
+        # optional read isolated so its absence cannot discard the visible face.
+        state = prop(expression, 'state')
+        result = dict(id=str(prop(state, 'id')), started_at=float(prop(state, 'started_at')),
+                      stopped_at=float(prop(state, 'stopped_at')), serial=int(prop(state, 'serial')))
+        library = prop(expression, 'library')
+        emote = next((e for e in prop(library, 'entries')
+                      if str(prop(e, 'id')) == result['id']), None) if valid(library) else None
+        emote_alpha = body_alpha = 0.
+        if emote is not None:
+            animation = prop(emote, 'animation')
+            hold, loop = bool(prop(emote, 'hold_final_pose')), bool(prop(emote, 'looping'))
+            duration = (float(animation.get_play_length()) if valid(animation) and not hold and not loop
+                        else max(.5, min(10., float(prop(emote, 'duration')))))
+            started, stopped = result['started_at'], result['stopped_at']
+            end = min(stopped, started+duration) if stopped >= 0. else started+duration
+            emote_alpha = smooth_step(0., 1., min(max(0., min(1., (now-started)/.18)),
+                                               max(0., min(1., (end+.22-now)/.22))))
+            body_alpha = emote_alpha if valid(animation) and not bool(prop(emote, 'face_only')) else 0.
+            result.update(animation=path(animation), face_only=bool(prop(emote, 'face_only')),
+                          hold_final_pose=hold, looping=loop, duration_seconds=duration)
+        result['alpha_derived'] = emote_alpha
+        result['body_alpha_derived'] = body_alpha
+        return result
+
+    def read_gaze(self, pawn):
+        gaze = prop(pawn, 'gaze')
+        target = prop(gaze, 'target')
+        actor = prop(target, 'actor')
+        point = prop(target, 'point')
+        offset = self.optional_presentation_read('gaze.offset', lambda: prop(target, 'offset'))
+        derived_point = (vec(actor.get_actor_transform().transform_location(offset))
+                         if valid(actor) and offset is not None else vec(point) if not valid(actor) else None)
+        return dict(interest=enum_name(prop(target, 'interest')), actor=path(actor),
+            saved_point_cm=vec(point), offset_cm=vec(offset) if offset is not None else None,
+            target_world_cm_derived=derived_point,
+            changed_at=self.optional_presentation_read('gaze.changed_at', lambda: float(prop(target, 'changed_at'))),
+            serial=self.optional_presentation_read('gaze.serial', lambda: int(prop(target, 'serial'))),
+            blink=float(prop(gaze, 'blink')),
+            blink_started_at=self.optional_presentation_read('gaze.blink_started_at', lambda: float(prop(gaze, 'blink_started_at'))),
+            pupil_scale=float(prop(gaze, 'pupil_scale')),
+            left_angles_degrees=[float(prop(gaze, 'left_angles').x), float(prop(gaze, 'left_angles').y)],
+            right_angles_degrees=[float(prop(gaze, 'right_angles').x), float(prop(gaze, 'right_angles').y)])
+
+    def read_rendered_pose(self, pawn):
+        mesh, appearance = prop(pawn, 'mesh'), prop(pawn, 'appearance')
+        mapping = {str(k): str(v) for k, v in prop(appearance, 'bone_map').items()} if valid(appearance) else {}
+        rendered = {}
+        for role in ('body', 'gaze_head', 'hand_l', 'hand_r', 'forearm_l', 'forearm_r', 'eye_l', 'eye_r'):
+            bone = mapping.get(role, role)
+            if mesh.get_bone_index(bone) < 0: continue
+            world = mesh.get_socket_transform(bone, u.RelativeTransformSpace.RTS_WORLD)
+            rendered[role] = dict(bone=bone, parent_bone=str(mesh.get_parent_bone(bone)),
+                world_cm=vec(world.translation), world_quaternion_xyzw=quat_values(world.rotation))
+        return rendered
+
+    def read_grip(self, pawn, slot, bones, row_active):
+        if slot is None: return None
+        name = 'RaftLeftRowingBrush' if slot == 0 else 'RaftRightRowingBrush'
+        brush = next((c for c in self.raft.get_components_by_class(u.StaticMeshComponent)
+                      if c.get_name() == name), None)
+        if not valid(brush): return None
+        own_brush, pivot = prop(pawn, 'brush'), prop(pawn, 'brush_pivot')
+        # FTransform A*B applies A and then B, exactly as the native grip getter.
+        mount = u.MathLibrary.compose_transforms(own_brush.get_relative_transform(), pivot.get_relative_transform())
+        world = brush.get_world_transform()
+        right = u.MathLibrary.compose_transforms(u.MathLibrary.invert_transform(mount), world)
+        shaft = brush.get_forward_vector()
+        left = right.translation + shaft*20.
+        result = dict(slot=slot, slot_is_active=bool(row_active), brush=path(brush),
+            visible=bool(brush.is_visible()), brush_world_cm=vec(world.translation),
+            brush_world_quaternion_xyzw=quat_values(world.rotation), shaft_axis_world=vec(shaft),
+            right_target_world_cm_reconstructed=vec(right.translation),
+            right_target_world_quaternion_xyzw_reconstructed=quat_values(right.rotation),
+            left_target_world_cm_reconstructed=vec(left))
+        for role, target in (('hand_r', right.translation), ('hand_l', left)):
+            if role not in bones: continue
+            hand = bones[role]
+            point = hand['world_cm']
+            delta = [a-b for a, b in zip(point, vec(right.translation))]
+            along = sum(a*b for a, b in zip(delta, vec(shaft)))
+            perpendicular = math.sqrt(max(0., sum(a*a for a in delta)-along*along))
+            result[role] = dict(target_error_cm=math.dist(point, vec(target)),
+                shaft_along_cm=along, shaft_perpendicular_cm=perpendicular)
+        if 'hand_r' in bones:
+            result['hand_r']['target_rotation_error_degrees'] = quat_angle(
+                bones['hand_r']['world_quaternion_xyzw'], quat_values(right.rotation))
+        return result
+
+    def record_presentation(self, now, entry):
+        # Observation only: no getter below changes expression, gaze, poses,
+        # attachment transforms, tools, forces or physics blend state.
+        rowers = list(prop(self.raft, 'rowing_players'))
+        data = []
+        for pawn in (self.hero, self.bot):
+            if not valid(pawn): continue
+            pawn_path = path(pawn)
+            slot = next((i for i, candidate in enumerate(rowers) if candidate == pawn), None)
+            if slot is not None: self.presentation_slots[pawn_path] = slot
+            remembered_slot = slot if slot is not None else self.presentation_slots.get(pawn_path)
+            result = dict(pawn=pawn_path, rowing=bool(pawn.is_rowing()), active_slot=slot,
+                native_direction_xy=(entry['rowing_directions'][slot] if slot is not None else None))
+            result['expression'] = self.optional_presentation_read('expression', lambda: self.read_expression(pawn, now))
+            result['gaze'] = self.optional_presentation_read('gaze', lambda: self.read_gaze(pawn))
+            mesh = prop(pawn, 'mesh')
+            result['morph_weights'] = self.optional_presentation_read('morph_getter',
+                lambda: {name: float(mesh.get_morph_target(name)) for name in READ_MORPHS})
+            result['rendered_bones'] = self.optional_presentation_read('diagnostic_bones', lambda: self.read_rendered_pose(pawn)) or {}
+            result['grip'] = self.optional_presentation_read('diagnostic_grip',
+                lambda: self.read_grip(pawn, remembered_slot, result['rendered_bones'], slot is not None))
+            own = prop(pawn, 'brush')
+            result['ordinary_wrist_brush'] = dict(visible=bool(own.is_visible()),
+                world_cm=vec(own.get_world_location()), world_quaternion_xyzw=quat_values(own.get_world_transform().rotation))
+            previous = self.presentation_previous.get(pawn_path)
+            if previous is not None:
+                dt = now-previous['game_seconds']
+                motion = dict(dt_seconds=dt, previous_phase=previous['phase'], current_phase=self.phase)
+                if result['native_direction_xy'] is not None and previous.get('native_direction_xy') is not None:
+                    motion['native_direction_delta_degrees'] = vector_angle(result['native_direction_xy'], previous['native_direction_xy'])
+                if result['grip'] and previous.get('grip'):
+                    motion['brush_rotation_delta_degrees'] = quat_angle(result['grip']['brush_world_quaternion_xyzw'],
+                        previous['grip']['brush_world_quaternion_xyzw'])
+                    motion['brush_translation_delta_cm'] = math.dist(result['grip']['brush_world_cm'], previous['grip']['brush_world_cm'])
+                for role in ('hand_l', 'hand_r'):
+                    bone, old_bone = result['rendered_bones'].get(role), previous.get('rendered_bones', {}).get(role)
+                    if bone and old_bone:
+                        angle = quat_angle(bone['world_quaternion_xyzw'], old_bone['world_quaternion_xyzw'])
+                        motion[role] = dict(rotation_delta_degrees=angle,
+                            angular_speed_degrees_per_second=angle/dt if angle is not None and dt > 0. else None,
+                            translation_delta_cm=math.dist(bone['world_cm'], old_bone['world_cm']))
+                result['temporal_change'] = motion
+            self.presentation_previous[pawn_path] = dict(result, game_seconds=now, phase=self.phase)
+            data.append(result)
+        entry['presentation_diagnostics'] = data
+
+    def summarize_presentation(self):
+        if not hasattr(self, 'presentation_read_limits'): return
+        self.report['presentation_read_limits'] = dict(self.presentation_read_limits)
+        summaries = {}
+        for sample in self.report.get('samples', []):
+            for actor in sample.get('presentation_diagnostics', []):
+                key = sample['phase'] + ' | ' + actor['pawn']
+                summary = summaries.setdefault(key, dict(phase=sample['phase'], pawn=actor['pawn'], samples=0,
+                    emotion_counts={}, measurements={}, morph_weight_ranges={}))
+                summary['samples'] += 1
+                def record(name, value, ranges):
+                    if value is None: return
+                    bounds = ranges.setdefault(name, dict(min=float(value), max=float(value), samples=0))
+                    bounds['min'] = min(bounds['min'], float(value))
+                    bounds['max'] = max(bounds['max'], float(value))
+                    bounds['samples'] += 1
+                expression = actor.get('expression')
+                if expression:
+                    emotion = expression['current_emotion']
+                    summary['emotion_counts'][emotion] = summary['emotion_counts'].get(emotion, 0)+1
+                    for field in ('suction', 'social_disgust', 'stink_reaction', 'stink_gesture_alpha',
+                                  'spray_reaction', 'emote_alpha_derived', 'body_alpha_derived'):
+                        record(field, expression[field], summary['measurements'])
+                    record('pain_alpha_derived', expression['pain']['alpha_derived'], summary['measurements'])
+                for name, value in (actor.get('morph_weights') or {}).items():
+                    record(name, value, summary['morph_weight_ranges'])
+                for side in ('hand_l', 'hand_r'):
+                    for field, value in (actor.get('grip') or {}).get(side, {}).items():
+                        record('grip_'+side+'_'+field, value, summary['measurements'])
+                    for field, value in actor.get('temporal_change', {}).get(side, {}).items():
+                        record('temporal_'+side+'_'+field, value, summary['measurements'])
+                for field in ('native_direction_delta_degrees', 'brush_rotation_delta_degrees', 'brush_translation_delta_cm'):
+                    record('temporal_'+field, actor.get('temporal_change', {}).get(field), summary['measurements'])
+        self.report['presentation_measurements'] = dict(
+            basis='Read-only live reflected state, morph curves and rendered world bone/component transforms; ranges include entry/exit/camera changes and are measurements, not new pass/fail checks.',
+            summaries=list(summaries.values()))
 
     def require_active(self, stage, count):
         entries = self.stage_samples(stage)

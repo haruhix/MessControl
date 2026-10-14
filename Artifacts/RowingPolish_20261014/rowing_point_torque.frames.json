@@ -1,0 +1,2638 @@
+{
+  "metadata": {
+    "mode": "storm",
+    "clip": "rowing_point_torque",
+    "video": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.png",
+    "video_sha256": "873b55a6755ed184d893ad0743bafccf7bb8dcaa08cf6c97dcb7ff8e801aa117",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingPolish_20261014/rowing_point_torque.ffconcat",
+    "genuine_source_frames": 81,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 26.083334693685174,
+    "source_time_end_seconds": 32.7500017080456,
+    "source_game_span_seconds": 6.666667014360428,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 1.5772826284324903,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "201"
+        }
+      ],
+      "format": {
+        "duration": "6.700000"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00128.png",
+      "time": 26.083334693685174,
+      "sha256": "f462bba2fb83ea1ce49a6514705908a3708f6661cca9cb08bb3665188bb8daf2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1241695,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1648.9114342657763,
+          -1050.0508419114853,
+          456.22804260253906
+        ],
+        "expected_cm": [
+          1650.445485283074,
+          -1050.0862915538532,
+          456.59307861328125
+        ],
+        "location_error_cm": 1.5772826284324903,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00129.png",
+      "time": 26.16666803136468,
+      "sha256": "9119244c4a46378039d8bf2d1a4d829a53e2dc0078bed1b4c2f5991c64bfdaa2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1235748,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1656.5702205362406,
+          -1050.2080637667225,
+          458.08949279785156
+        ],
+        "expected_cm": [
+          1658.0985296925498,
+          -1050.2337218930927,
+          458.4720153808594
+        ],
+        "location_error_cm": 1.5756620015784968,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00130.png",
+      "time": 26.250001369044185,
+      "sha256": "a4e44f56c11bee8da3e3d5eda0dd11f9409ed553904fc39b2df91071aca3d5d0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1243000,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1664.1998284181836,
+          -1050.318650038885,
+          460.031982421875
+        ],
+        "expected_cm": [
+          1665.722133122503,
+          -1050.3356597086724,
+          460.42877197265625
+        ],
+        "location_error_cm": 1.5732586847903758,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00131.png",
+      "time": 26.33333470672369,
+      "sha256": "203805d64ee5aac30efae47dfa77601db880f8b1b78203b158a343589c85e161",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1230310,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1671.7989296409835,
+          -1050.3880098853533,
+          462.03965759277344
+        ],
+        "expected_cm": [
+          1673.3149659481485,
+          -1050.3973615959599,
+          462.44764709472656
+        ],
+        "location_error_cm": 1.570002857589025,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00132.png",
+      "time": 26.416668044403195,
+      "sha256": "d325e830302c273ece220e0d5dbda0109f41893908bd3421fb2be616901c2b6f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1220120,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1679.3661549975238,
+          -1050.4208446764553,
+          464.0970916748047
+        ],
+        "expected_cm": [
+          1680.8756195022308,
+          -1050.4234144248485,
+          464.51324462890625
+        ],
+        "location_error_cm": 1.5657819055617692,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00133.png",
+      "time": 26.5000013820827,
+      "sha256": "4f3b9f61b48c1828b67de95611d07e23443edffd8bf3aae854a16715f3d15460",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1213526,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1686.899803034289,
+          -1050.4213866774267,
+          466.1891632080078
+        ],
+        "expected_cm": [
+          1688.402317699086,
+          -1050.417970490657,
+          466.6104278564453
+        ],
+        "location_error_cm": 1.5604569498339993,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00134.png",
+      "time": 26.583334719762206,
+      "sha256": "b26e7ec231ba5fba293e663e9ccf4932375907b84b66c1d0635b408402e34e9e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1236991,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1694.3978119423755,
+          -1050.39349104627,
+          468.3011779785156
+        ],
+        "expected_cm": [
+          1695.892942114567,
+          -1050.3848100881694,
+          468.72474670410156
+        ],
+        "location_error_cm": 1.5539948700447246,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00135.png",
+      "time": 26.66666805744171,
+      "sha256": "e28b930ce08d2ae8277dc212a9f24055a84fab4c0eb2c4395d261c8e32a2029b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1236415,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1701.8578766452827,
+          -1050.3406441602472,
+          470.4194030761719
+        ],
+        "expected_cm": [
+          1703.3451608214984,
+          -1050.3273422075388,
+          470.8426513671875
+        ],
+        "location_error_cm": 1.5463926663740215,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00136.png",
+      "time": 26.750001395121217,
+      "sha256": "10d46b1f76bec77c4706a94c05fb2c0a018d005fe0deddcc75c64598044ae187",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1238473,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1709.2777371115521,
+          -1050.2658763750117,
+          472.5306091308594
+        ],
+        "expected_cm": [
+          1710.7566979785818,
+          -1050.2485255610677,
+          472.95091247558594
+        ],
+        "location_error_cm": 1.5376219296491191,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00137.png",
+      "time": 26.833334732800722,
+      "sha256": "db16cf3f6688e43112fcdecf176c167cccddf31a44d5a2b6f0ce572c72fe3b7e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1247764,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1716.6555532277512,
+          -1050.1716233578938,
+          474.6221466064453
+        ],
+        "expected_cm": [
+          1718.126116380286,
+          -1050.1505179412056,
+          475.03688049316406
+        ],
+        "location_error_cm": 1.52807251823978,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00138.png",
+      "time": 26.916668070480227,
+      "sha256": "5f18ef0123591a1b8c12b4ac84caeace31430403d744453c94c7d11eff6c6551",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1261142,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1723.9929639333345,
+          -1050.0581917136967,
+          476.6807861328125
+        ],
+        "expected_cm": [
+          1725.4559651929617,
+          -1050.033095023197,
+          477.08741760253906
+        ],
+        "location_error_cm": 1.5186677324934157,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00139.png",
+      "time": 27.000001408159733,
+      "sha256": "5833e00a2b513c8edf9cd0d849d5c6c774d0c115c5bf1031e06adfab5ec3231f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1260649,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1731.2930650120384,
+          -1049.9248540754488,
+          478.69390869140625
+        ],
+        "expected_cm": [
+          1732.7485332584197,
+          -1049.8958963217885,
+          479.0903015136719
+        ],
+        "location_error_cm": 1.5087589725549462,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00140.png",
+      "time": 27.083334745839238,
+      "sha256": "8e164b3fcd81bd3ef45c97b1b6357503a53119f22b2709205c2e9aeb0311f952",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1258084,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1738.5547011714173,
+          -1049.7728440596363,
+          480.6519775390625
+        ],
+        "expected_cm": [
+          1740.002238005435,
+          -1049.7403328254975,
+          481.03619384765625
+        ],
+        "location_error_cm": 1.4980126961987255,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00141.png",
+      "time": 27.166668083518744,
+      "sha256": "d1eb5e597bddb6ec12089d65226ee46e1cc825789d749999d0fb9897658fb888",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1251713,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1745.775897425299,
+          -1049.603613739276,
+          482.54669189453125
+        ],
+        "expected_cm": [
+          1747.2151134964968,
+          -1049.5678146660885,
+          482.9174041748047
+        ],
+        "location_error_cm": 1.4866243869856486,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00142.png",
+      "time": 27.25000142119825,
+      "sha256": "3bdf8b00d8d612b4fe98fb986da4ff5e5b83bb008f6da95996f47392b8c49b9b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1272548,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1752.954729361494,
+          -1049.4184149443338,
+          484.3711395263672
+        ],
+        "expected_cm": [
+          1754.3852470150198,
+          -1049.379556361736,
+          484.7272186279297
+        ],
+        "location_error_cm": 1.4746806681651952,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00143.png",
+      "time": 27.333334758877754,
+      "sha256": "d9e261a03bd7861f986315197aa4919a2b7d286590f530239b599bf508d8cb54",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1271041,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1760.0892673803676,
+          -1049.2183570643508,
+          486.12001037597656
+        ],
+        "expected_cm": [
+          1761.5106279560632,
+          -1049.1766835355756,
+          486.46026611328125
+        ],
+        "location_error_cm": 1.462113721948872,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00144.png",
+      "time": 27.41666809655726,
+      "sha256": "9deba32d4e6434d60b409180c1d744d176a5c5a4b1984f8862325c3cf1938c6b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1275167,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1767.1765014669522,
+          -1049.0049913518078,
+          487.7891387939453
+        ],
+        "expected_cm": [
+          1768.5879213572844,
+          -1048.9608952240908,
+          488.1131286621094
+        ],
+        "location_error_cm": 1.4487995064803667,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00145.png",
+      "time": 27.500001434236765,
+      "sha256": "dccb852dfbd7cd56e44ff942875bc0d1ebd05685ca868753052ef22344049d0c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1279017,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1774.2127258070136,
+          -1048.7801344207994,
+          489.3760070800781
+        ],
+        "expected_cm": [
+          1775.6136194708251,
+          -1048.733888438645,
+          489.6834411621094
+        ],
+        "location_error_cm": 1.4349764677398444,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00146.png",
+      "time": 27.58333477191627,
+      "sha256": "e65ecb99d18bb6b8f793d3536e61d88a8bf621e7a3bd37b78e3a59cdb744a4f2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1288588,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1781.195590654548,
+          -1048.5448223467108,
+          490.8789825439453
+        ],
+        "expected_cm": [
+          1782.5856001381937,
+          -1048.496568161722,
+          491.1694030761719
+        ],
+        "location_error_cm": 1.4208444378372413,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00147.png",
+      "time": 27.666668109595776,
+      "sha256": "55ed4845244362712b344dd1dd455d83c5f287b8771db6180fea83610d8ad08f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1287540,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1788.1231968058282,
+          -1048.2998000014113,
+          492.2971496582031
+        ],
+        "expected_cm": [
+          1789.5019266507595,
+          -1048.249689398944,
+          492.5705871582031
+        ],
+        "location_error_cm": 1.4064761370852124,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00148.png",
+      "time": 27.75000144727528,
+      "sha256": "2562014d634f1276501d5ea4f7ace22749f5aa95fb6ae9ce81f816dd6b545e0b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1281558,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1794.9934991112646,
+          -1048.0458476913066,
+          493.6307067871094
+        ],
+        "expected_cm": [
+          1796.3604995760866,
+          -1047.9940542066229,
+          493.8874206542969
+        ],
+        "location_error_cm": 1.39186021046858,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00149.png",
+      "time": 27.833334784954786,
+      "sha256": "c5b7d01e9ce2fa1c0c2e5b140d828709a948c5894e4baa05ff7b729b440b7428",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1275635,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1801.8044016920483,
+          -1047.7837464119484,
+          494.8810119628906
+        ],
+        "expected_cm": [
+          1803.1592706089693,
+          -1047.7304155515612,
+          495.1212158203125
+        ],
+        "location_error_cm": 1.3770300853027426,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00150.png",
+      "time": 27.91666812263429,
+      "sha256": "027ddf6c256054850165bcce67bfb04b41aa8e52752a35c4e42d140a2c39274e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1299985,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1808.5539915799382,
+          -1047.5141703058762,
+          496.0500183105469
+        ],
+        "expected_cm": [
+          1809.8964034962162,
+          -1047.4594070011817,
+          496.2742614746094
+        ],
+        "location_error_cm": 1.3621137137313672,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00151.png",
+      "time": 28.000001460313797,
+      "sha256": "4aad91f8e56757a5ce66d79b6c74274369e4289fea1423338ef14df57a8ef0fe",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1305169,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1815.2408512673262,
+          -1047.2375372514862,
+          497.1402893066406
+        ],
+        "expected_cm": [
+          1816.5706829630294,
+          -1047.1813432512288,
+          497.3491516113281
+        ],
+        "location_error_cm": 1.3473060405420756,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00152.png",
+      "time": 28.083334797993302,
+      "sha256": "d53fe7cb33c58b9266addbee1d2425c6317ef518fc90bb83ed003807bcf74c86",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1309127,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1821.8663230864304,
+          -1046.9528496364196,
+          498.1545715332031
+        ],
+        "expected_cm": [
+          1823.1846340734874,
+          -1046.894618958216,
+          498.3485412597656
+        ],
+        "location_error_cm": 1.3337761901090939,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00153.png",
+      "time": 28.166668135672808,
+      "sha256": "9a39544fd398730967e3934d72d392efff32307d728983dd28213893b5155e7c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1310899,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1828.4366778450003,
+          -1046.6565857108549,
+          499.095458984375
+        ],
+        "expected_cm": [
+          1829.7443940775438,
+          -1046.595787094647,
+          499.275146484375
+        ],
+        "location_error_cm": 1.321402971938085,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00154.png",
+      "time": 28.250001473352313,
+      "sha256": "401d8dc714bad0d7917e0b751b6dc1d17899affed1eec983172214245d6031c2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1321716,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1834.9538493977388,
+          -1046.3474955016059,
+          499.966796875
+        ],
+        "expected_cm": [
+          1836.2508249931911,
+          -1046.284158413249,
+          500.1331481933594
+        ],
+        "location_error_cm": 1.3091333175350217,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00155.png",
+      "time": 28.33333481103182,
+      "sha256": "777915e445577e981a05a8d7fbd4854d61b56c5b4946310d659cc6bce3a3869a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1313389,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1841.416984947424,
+          -1046.0258057339995,
+          500.7730407714844
+        ],
+        "expected_cm": [
+          1842.7030619743782,
+          -1045.9599739443852,
+          500.9267883300781
+        ],
+        "location_error_cm": 1.296906417424465,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00156.png",
+      "time": 28.416668148711324,
+      "sha256": "77552cbcac2533fecf57295f2a64b1e48a210daa52ffaeb7d15100ca42a46a35",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1304137,
+      "trailing_bytes": 0,
+      "phase": "couple_turn",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1847.8253791317866,
+          -1045.6917099262848,
+          501.5182189941406
+        ],
+        "expected_cm": [
+          1849.100441613066,
+          -1045.6234148470403,
+          501.6602478027344
+        ],
+        "location_error_cm": 1.2847648545497585,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 117.57722666631835
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00157.png",
+      "time": 28.50000148639083,
+      "sha256": "dfa0b8da34590dca197d7a9916a9cc861f741b298233a47e8a6013c0060345d0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1261903,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1428.2702712650532,
+          -229.86870222082848,
+          502.20574951171875
+        ],
+        "expected_cm": [
+          1429.5342230284446,
+          -229.79797541207216,
+          502.33660888671875
+        ],
+        "location_error_cm": 1.2726745529326433,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00158.png",
+      "time": 28.583334824070334,
+      "sha256": "4bfb9822e9d438fe1ce91049c07bc68512ee9d0726ccab716361a985581dac50",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1257429,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1434.5672039601263,
+          -229.51050477153188,
+          502.8384704589844
+        ],
+        "expected_cm": [
+          1435.8198862843235,
+          -229.43742152843942,
+          502.9585876464844
+        ],
+        "location_error_cm": 1.2605484141871899,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00159.png",
+      "time": 28.66666816174984,
+      "sha256": "9bb505af2971fe0dc0d47ca6c6ad620963886592268d09d58068f25512d4d868",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1248531,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1440.8100668788977,
+          -229.1393488115403,
+          503.41802978515625
+        ],
+        "expected_cm": [
+          1442.0525146161178,
+          -229.06337733086065,
+          503.52752685546875
+        ],
+        "location_error_cm": 1.2495749893492065,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00160.png",
+      "time": 28.750001499429345,
+      "sha256": "947d86f557c24a35fc28536e67e06e48c174378c28e09eec55010f8ca4044729",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1244425,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1447.001394257393,
+          -228.75396905129827,
+          503.9448547363281
+        ],
+        "expected_cm": [
+          1448.2333919326063,
+          -228.6752383764735,
+          504.0439147949219
+        ],
+        "location_error_cm": 1.2384787790260625,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00161.png",
+      "time": 28.83333483710885,
+      "sha256": "82f764bdf01037d7b8a0f16bc7edaac5c3d8d76dc0ed7738aab3072d00a18124",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1240440,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1453.140241880432,
+          -228.35496903368727,
+          504.41851806640625
+        ],
+        "expected_cm": [
+          1454.3616349040892,
+          -228.27359036810986,
+          504.5066833496094
+        ],
+        "location_error_cm": 1.2272719839594437,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00162.png",
+      "time": 28.916668174788356,
+      "sha256": "f9bd6133f8b55ce72447a8f2cad9720ca4f56156aedceaa31793e39e6e674f01",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1257767,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1459.2259067247599,
+          -227.94289598533618,
+          504.83673095703125
+        ],
+        "expected_cm": [
+          1460.4365887087054,
+          -227.85896950995146,
+          504.91339111328125
+        ],
+        "location_error_cm": 1.2160062907226266,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00163.png",
+      "time": 29.00000151246786,
+      "sha256": "bc0c0705e18f9b6da99c9bf808a0827e7fdbe3ef9a2255b84166647843ce9223",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1248494,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1465.2578525679567,
+          -227.518281531813,
+          505.1957092285156
+        ],
+        "expected_cm": [
+          1466.4577365104187,
+          -227.43191173621614,
+          505.2598876953125
+        ],
+        "location_error_cm": 1.204699170984254,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00164.png",
+      "time": 29.083334850147367,
+      "sha256": "5c9050389d385297d42dceea51fad6a8750af1288c7dfdd49e07a23c70d4895c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1232977,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1471.235593343159,
+          -227.08170405988886,
+          505.4897766113281
+        ],
+        "expected_cm": [
+          1472.4246089341618,
+          -226.9930013868182,
+          505.5401916503906
+        ],
+        "location_error_cm": 1.1933850661128718,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00165.png",
+      "time": 29.166668187826872,
+      "sha256": "7ebf8bb436bea7ee9fadbe096e0e6f6f5f4dbaecee7d362a244283af978ab735",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1215623,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1477.1587471118853,
+          -226.6337618180906,
+          505.7117919921875
+        ],
+        "expected_cm": [
+          1478.3368609372797,
+          -226.54283229091521,
+          505.7468566894531
+        ],
+        "location_error_cm": 1.182137850460754,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00166.png",
+      "time": 29.250001525506377,
+      "sha256": "d9a5b815286b97764aa5ada02bf69117803298aefff098f599fb956f8fa11510",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1248616,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1483.0275490284723,
+          -226.17480451979492,
+          505.85308837890625
+        ],
+        "expected_cm": [
+          1484.1949492754222,
+          -226.08165316542357,
+          505.87078857421875
+        ],
+        "location_error_cm": 1.1712445552974953,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00167.png",
+      "time": 29.333334863185883,
+      "sha256": "e6daf3eb14b9e4d362de71932bc315ff6d263876e34d61f791aeceff13f4904a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1241629,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1488.8444834267507,
+          -225.70407686854293,
+          505.9036560058594
+        ],
+        "expected_cm": [
+          1490.0019844448036,
+          -225.608394757324,
+          505.90203857421875
+        ],
+        "location_error_cm": 1.1614500804106842,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00168.png",
+      "time": 29.416668200865388,
+      "sha256": "a85d7b9cdc87193c49c151f79cf89d6286fcd723e920a0e407c7952cfffae218",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1234392,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1494.6129320938069,
+          -225.22042463367444,
+          505.85284423828125
+        ],
+        "expected_cm": [
+          1495.760971809079,
+          -225.1221145117135,
+          505.8294677734375
+        ],
+        "location_error_cm": 1.1524784280108928,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00169.png",
+      "time": 29.500001538544893,
+      "sha256": "5a9479a87efe3028d9101279e885178630b3fc00aa4a3fe7bd86e4ba956ee954",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1230770,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1500.3347606782681,
+          -224.72356010982156,
+          505.6888122558594
+        ],
+        "expected_cm": [
+          1501.47368803001,
+          -224.62258569782313,
+          505.6413879394531
+        ],
+        "location_error_cm": 1.1443777393023031,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00170.png",
+      "time": 29.5833348762244,
+      "sha256": "4905303cbc19745dcc455158affab63f5e03207db30cdb14a85418c0728fee35",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1241767,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1506.011770322316,
+          -224.21330052191462,
+          505.39947509765625
+        ],
+        "expected_cm": [
+          1507.1419622177511,
+          -224.10962493449807,
+          505.325439453125
+        ],
+        "location_error_cm": 1.1373493854549872,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00171.png",
+      "time": 29.666668213903904,
+      "sha256": "bb63ec3a78f15970708500c4a7ddb5c04f295d937073a60b5d73e081686ea55e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1226028,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1511.6458994581355,
+          -223.6894608858226,
+          504.9724426269531
+        ],
+        "expected_cm": [
+          1512.7677594789186,
+          -223.5830470346662,
+          504.8694763183594
+        ],
+        "location_error_cm": 1.1315899763848771,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00172.png",
+      "time": 29.75000155158341,
+      "sha256": "3b95af5adb3109f4295fe2c6db8fb07a10191b7f01755a70689c41bffd852de2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1213302,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1517.2391189045186,
+          -223.15190744974626,
+          504.39599609375
+        ],
+        "expected_cm": [
+          1518.3529776381401,
+          -223.04276993182253,
+          504.26171875
+        ],
+        "location_error_cm": 1.1272190032678306,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00173.png",
+      "time": 29.833334889262915,
+      "sha256": "d10c2b06a6728bfa0b17aa3af159414c6575872e4dc306149a811c9ba645a5d7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1194286,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1522.7926540353496,
+          -222.6009635037131,
+          503.6588134765625
+        ],
+        "expected_cm": [
+          1523.898674586329,
+          -222.4892177328681,
+          503.4912109375
+        ],
+        "location_error_cm": 1.1242149205514838,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00174.png",
+      "time": 29.91666822694242,
+      "sha256": "b4dbde2f7e6870d876a3ae56d9894727006e066e7a74699e8b220a396fda257a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1221970,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1528.3075720255933,
+          -222.03709978113596,
+          502.7510681152344
+        ],
+        "expected_cm": [
+          1529.4060668182358,
+          -221.92279566787596,
+          502.54827880859375
+        ],
+        "location_error_cm": 1.122889016180362,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00175.png",
+      "time": 30.000001564621925,
+      "sha256": "b7daf0dcbde9e600454f1d3820820313d8901a19a28275be8cfa02d8b5064ee5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1220656,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1533.785698129176,
+          -221.46045260611828,
+          501.664794921875
+        ],
+        "expected_cm": [
+          1534.877074231186,
+          -221.3436026762957,
+          501.4255065917969
+        ],
+        "location_error_cm": 1.123394234919327,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00176.png",
+      "time": 30.08333490230143,
+      "sha256": "a98f9ee684f10a122240a49273455a199304d9432e2a21a57aab712b522aa94f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1212113,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1539.228967957281,
+          -220.87116059313934,
+          500.394287109375
+        ],
+        "expected_cm": [
+          1540.313602656311,
+          -220.75180467374167,
+          500.1177673339844
+        ],
+        "location_error_cm": 1.1256737769076892,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00177.png",
+      "time": 30.166668239980936,
+      "sha256": "d31acbc9e16e1b352d6431b176479b1a679cc9017f1d090e2066db4487deb6c3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1211540,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1544.6391765946294,
+          -220.26949367084256,
+          498.9366760253906
+        ],
+        "expected_cm": [
+          1545.7174334155911,
+          -220.14768996588276,
+          498.6227111816406
+        ],
+        "location_error_cm": 1.1296228740617276,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00178.png",
+      "time": 30.25000157766044,
+      "sha256": "213eff8edf8cfcbcacc1c98a5db2c68eed9469752f68f32ce15c31c5ddba8815",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1226109,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1550.0181402647927,
+          -219.65576521739143,
+          497.2923583984375
+        ],
+        "expected_cm": [
+          1551.0903506905931,
+          -219.53159955610334,
+          496.9412841796875
+        ],
+        "location_error_cm": 1.1350354248697314,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00179.png",
+      "time": 30.333334915339947,
+      "sha256": "2886887bd5073a031749f4e5df114d7a05531d8727df36ae78ca52ee4bd67344",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1210428,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1555.367803105561,
+          -219.03027285707543,
+          495.4649353027344
+        ],
+        "expected_cm": [
+          1556.4344078143995,
+          -218.90378333304562,
+          495.0780944824219
+        ],
+        "location_error_cm": 1.1416177227363233,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00180.png",
+      "time": 30.416668253019452,
+      "sha256": "78b7951f22a6a39b8024beffe69c6bac368b57545430c9f38868bbbb34093690",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1193935,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1560.690609519976,
+          -218.39309869416985,
+          493.4620666503906
+        ],
+        "expected_cm": [
+          1561.7523250926115,
+          -218.26418712291655,
+          493.04156494140625
+        ],
+        "location_error_cm": 1.1492083525794332,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00181.png",
+      "time": 30.500001590698957,
+      "sha256": "d483a63dff7b6990be1de6b256bd71a95114aceeabeb8adcf469bad041ca8dfe",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1171327,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1565.992264442131,
+          -217.74265034278807,
+          491.2965087890625
+        ],
+        "expected_cm": [
+          1567.05092117523,
+          -217.61063954170066,
+          490.8452911376953
+        ],
+        "location_error_cm": 1.15835154380913,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00182.png",
+      "time": 30.583334928378463,
+      "sha256": "3dedbfe456412d45f14d58c1cfb667a9fe431023317f507186b9cbcd13786e14",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1197104,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1571.281732710766,
+          -217.0756546291612,
+          488.98585510253906
+        ],
+        "expected_cm": [
+          1572.3385925806867,
+          -216.94017423815131,
+          488.5079650878906
+        ],
+        "location_error_cm": 1.1677699204457541,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00183.png",
+      "time": 30.666668266057968,
+      "sha256": "0d78c7094fefe0ba59c5285869f63074a8b41e28230349252f251605f27c21fc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1194550,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1576.5632816546972,
+          -216.39135047272333,
+          486.5498352050781
+        ],
+        "expected_cm": [
+          1577.6188715177873,
+          -216.25242452251172,
+          486.0495147705078
+        ],
+        "location_error_cm": 1.1763889305622202,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00184.png",
+      "time": 30.750001603737473,
+      "sha256": "744c9a23f34286d0bfaff69dbc9ba5c722b01dd84286bdd070c80fdd0845fd0e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1184381,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1581.839541067913,
+          -215.68987298379813,
+          484.0113983154297
+        ],
+        "expected_cm": [
+          1582.8943939044832,
+          -215.54752841495718,
+          483.4934844970703
+        ],
+        "location_error_cm": 1.1837276740646177,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00185.png",
+      "time": 30.83333494141698,
+      "sha256": "e40129bdb30932db05a2a3e2fd68fb8927a28622dd8ea958c76805d2962db33e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1178556,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1587.113201445848,
+          -214.97135438584115,
+          481.3959045410156
+        ],
+        "expected_cm": [
+          1588.167862463343,
+          -214.8256170440472,
+          480.86607360839844
+        ],
+        "location_error_cm": 1.1892308656331718,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00186.png",
+      "time": 30.916668279096484,
+      "sha256": "6854940e2f8b276a221703f2d29d1e949145f3515076d5fec324c4d84ee9f2f8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1201294,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1592.3869862008798,
+          -214.23593464074094,
+          478.7317810058594
+        ],
+        "expected_cm": [
+          1593.4419607590812,
+          -214.08685582489176,
+          478.1957550048828
+        ],
+        "location_error_cm": 1.1926942967542378,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00187.png",
+      "time": 31.00000161677599,
+      "sha256": "99a4635186f401636abf76b68aea68433eb04445f3ab8fbb6b7c1a689e523db0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1184286,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1597.6627679715518,
+          -213.48422175369757,
+          476.0489959716797
+        ],
+        "expected_cm": [
+          1598.7182150076483,
+          -213.3320384839979,
+          475.5128936767578
+        ],
+        "location_error_cm": 1.193538379861217,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00188.png",
+      "time": 31.083334954455495,
+      "sha256": "9e96e94547ee450b8c580cd74feda678e175b80d66529424c1ccf8682ee2edaa",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1161291,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1602.9412763202477,
+          -212.71744095193748,
+          473.3785095214844
+        ],
+        "expected_cm": [
+          1603.9974490877066,
+          -212.56234359440595,
+          472.84864807128906
+        ],
+        "location_error_cm": 1.1917672849337209,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00189.png",
+      "time": 31.166668292135,
+      "sha256": "be7a9955b2341331694f1b9bc806122c64ab1f13ea272f4bcf095cd47948989c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1128963,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1608.2244222037557,
+          -211.93621051472172,
+          470.75244140625
+        ],
+        "expected_cm": [
+          1609.2818554646667,
+          -211.7782438294409,
+          470.2354736328125
+        ],
+        "location_error_cm": 1.1875917874894695,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00190.png",
+      "time": 31.250001629814506,
+      "sha256": "cc183cc995a30074eec24e57b08f9e2eaee7796bcccac73f05b310009e617cd1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1152935,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1613.5148228963922,
+          -211.1407871399669,
+          468.2035369873047
+        ],
+        "expected_cm": [
+          1614.573983442972,
+          -210.9800330733845,
+          467.7056579589844
+        ],
+        "location_error_cm": 1.1813324934983527,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00191.png",
+      "time": 31.33333496749401,
+      "sha256": "e6a6df5d0f8e2f7a80f1f705e0b139b0b2e1dbf62b77a3564d697413113fef95",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1137965,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1618.8147826020852,
+          -210.33159736019098,
+          465.7632598876953
+        ],
+        "expected_cm": [
+          1619.8761007711323,
+          -210.16815755713793,
+          465.29090881347656
+        ],
+        "location_error_cm": 1.1731258937075648,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00192.png",
+      "time": 31.416668305173516,
+      "sha256": "61e1ff33ec48dc95176b6a4c369e4421b11b2f7e3b69f490a9a1161fbdcd6521",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1126026,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1624.1263700602065,
+          -209.50919294325018,
+          463.4619598388672
+        ],
+        "expected_cm": [
+          1625.1902371576332,
+          -209.34318943938155,
+          463.0209197998047
+        ],
+        "location_error_cm": 1.1635663626712947,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00193.png",
+      "time": 31.50000164285302,
+      "sha256": "023ee62e9549bcda5033eaac8f71a693ed2ff3654f566dd9c5aabdc0edd381ff",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1118033,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1629.451503994689,
+          -208.6742023706699,
+          461.3280944824219
+        ],
+        "expected_cm": [
+          1630.5183306780739,
+          -208.50574593509322,
+          460.92364501953125
+        ],
+        "location_error_cm": 1.1532892573426352,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00194.png",
+      "time": 31.583334980532527,
+      "sha256": "a7556065df7236b285d36d795ea19a22ce59c22361480a99f02b047dadad3a9d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1139674,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1634.7923245502195,
+          -207.8271304221999,
+          459.38719177246094
+        ],
+        "expected_cm": [
+          1635.8626156194905,
+          -207.65628025393386,
+          459.0243835449219
+        ],
+        "location_error_cm": 1.1429534386525932,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00195.png",
+      "time": 31.666668318212032,
+      "sha256": "c9e77077aca7d1adc0389c99c236555268f1e37ecbbc55740e9f60fdd2dc2163",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1130068,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1640.1526670132862,
+          -206.96757618283692,
+          457.662353515625
+        ],
+        "expected_cm": [
+          1641.2278489882985,
+          -206.793902365223,
+          457.3451385498047
+        ],
+        "location_error_cm": 1.134373928145585,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00196.png",
+      "time": 31.750001655891538,
+      "sha256": "b93bba4b8421773f788f6ba8f51d9c9580b6202aae427af2d5e6d30e5a342ac6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1119568,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1645.5415577225235,
+          -206.0923823150187,
+          456.1727600097656
+        ],
+        "expected_cm": [
+          1646.6234273596342,
+          -205.91525530768473,
+          455.9044494628906
+        ],
+        "location_error_cm": 1.1286303371757553,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00197.png",
+      "time": 31.833334993571043,
+      "sha256": "b8278b75d334db0c7427e1bed6ed09bf49fa372a6b9d76bae2b4ea24a68cc3c2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1114159,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1650.9652141291099,
+          -205.1998521397415,
+          454.9329071044922
+        ],
+        "expected_cm": [
+          1652.0543167609464,
+          -205.01929826923237,
+          454.71575927734375
+        ],
+        "location_error_cm": 1.125121069780694,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00198.png",
+      "time": 31.91666833125055,
+      "sha256": "8a1f88aab1803ab308b25e5d8f7fc289260adf7521d6c49c4f3ef67991455efb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1147709,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1656.4258208384422,
+          -204.29039338399235,
+          453.95216369628906
+        ],
+        "expected_cm": [
+          1657.5225478254533,
+          -204.10651511577572,
+          453.7876739501953
+        ],
+        "location_error_cm": 1.1241344128398942,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00199.png",
+      "time": 32.000001668930054,
+      "sha256": "cd783afbb1846ea4573138414b6a326291be40661fae76c39c03d4dd1ee531c9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1145289,
+      "trailing_bytes": 0,
+      "phase": "couple_reverse",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1661.9253197389169,
+          -203.36451485172557,
+          453.23583984375
+        ],
+        "expected_cm": [
+          1663.0300543916287,
+          -203.17741304668317,
+          453.12445068359375
+        ],
+        "location_error_cm": 1.125989912633675,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00200.png",
+      "time": 32.08333500660956,
+      "sha256": "85e5d2f5c6ff49cafdc70972275bb2b3c8a8e75ec20d44dbc9a46b1af58d23dd",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1140741,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1667.4656068791344,
+          -202.4227188202746,
+          452.784912109375
+        ],
+        "expected_cm": [
+          1668.5787217377938,
+          -202.23249346444283,
+          452.7263641357422
+        ],
+        "location_error_cm": 1.130768871072323,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00201.png",
+      "time": 32.166668344289064,
+      "sha256": "949d52c77c10a65bcc31cf401f5171bbc1923a8543e0ec32502b7f8f14b8dd4e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1160530,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1673.0485193092252,
+          -201.4655045179357,
+          452.59620666503906
+        ],
+        "expected_cm": [
+          1674.170373604286,
+          -201.272255365087,
+          452.5894012451172
+        ],
+        "location_error_cm": 1.1383973858733685,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00202.png",
+      "time": 32.25000168196857,
+      "sha256": "11031c952f11731b64d2cbd0830f69baba0705cbbc54da5072add65760c8b815",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1175050,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1678.6758227640375,
+          -200.49337116902342,
+          452.6628112792969
+        ],
+        "expected_cm": [
+          1679.8067600732406,
+          -200.29719830401626,
+          452.7059020996094
+        ],
+        "location_error_cm": 1.148633888194079,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00203.png",
+      "time": 32.333335019648075,
+      "sha256": "ba5115fb732eb11463674304759fa07d529724135d8762cd27caf310b20de935",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1154485,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1684.3492004658474,
+          -199.50682063897756,
+          452.9741668701172
+        ],
+        "expected_cm": [
+          1685.48954660275,
+          -199.30782496247951,
+          453.06468200683594
+        ],
+        "location_error_cm": 1.1611122173108859,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00204.png",
+      "time": 32.41666835732758,
+      "sha256": "f4461d9140a031ae2022016a71ce83a5b787e37df2df0691f100acad99300169",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1134326,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1690.0702427089077,
+          -198.5063597612795,
+          453.51670837402344
+        ],
+        "expected_cm": [
+          1691.2203037599306,
+          -198.3046434123899,
+          453.6515808105469
+        ],
+        "location_error_cm": 1.175380993815658,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00205.png",
+      "time": 32.500001695007086,
+      "sha256": "6a0a38ae1cbbedc85f0d1a190a15232d1d8825192ab9c0b1b848936f05dac2c2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1111868,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1695.8404375753405,
+          -197.49250229672845,
+          454.27406311035156
+        ],
+        "expected_cm": [
+          1697.000498095743,
+          -197.28816901532042,
+          454.44969177246094
+        ],
+        "location_error_cm": 1.1909399346071048,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00206.png",
+      "time": 32.58333503268659,
+      "sha256": "c71704099efa33bec40fdffa9bd48cb1269a5d7112ac5e677e18d4b45832a2bf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1140564,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1701.6611621684854,
+          -196.46577064461138,
+          455.22752380371094
+        ],
+        "expected_cm": [
+          1702.8314835531903,
+          -196.25892607799852,
+          455.44004821777344
+        ],
+        "location_error_cm": 1.2073124884666677,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00207.png",
+      "time": 32.6666683703661,
+      "sha256": "dc839ded3974a35a02d168221f55caeb66e80dea4248d297334a2d711e6cc3bc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1134398,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1707.5336748402715,
+          -195.42669726590617,
+          456.3570098876953
+        ],
+        "expected_cm": [
+          1708.7144939148623,
+          -195.21744921823637,
+          456.6021270751953
+        ],
+        "location_error_cm": 1.2240101584459755,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/RowingPolishSolo/Runs/20261014T092804Z_rafts_f7328da9/frames/00208.png",
+      "time": 32.7500017080456,
+      "sha256": "ce30df57401d5f235b4aeb6ca7eec64b10efa45b9547078561b2a105d3a5e90e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1133609,
+      "trailing_bytes": 0,
+      "phase": "torque_release",
+      "clip_window": "rowing_point_torque",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1713.4591083395126,
+          -194.37582585426895,
+          457.6408386230469
+        ],
+        "expected_cm": [
+          1714.650635988807,
+          -194.16428450406073,
+          457.91419982910156
+        ],
+        "location_error_cm": 1.2406507287937765,
+        "rotation_error_degrees": 0.0,
+        "review_view": "torque",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -62.42277333368162
+      },
+      "client_dimensions": true
+    }
+  ]
+}

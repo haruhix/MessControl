@@ -23,3 +23,5 @@ Artifacts/RowingAnimation_20261014/*.json -text whitespace=blank-at-eol,blank-at
 Artifacts/CataclysmGameplay_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
 Artifacts/CataclysmStorm_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
 Artifacts/RowingAnimation_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+Artifacts/RowingPolish_20261014/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/RowingPolish_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol

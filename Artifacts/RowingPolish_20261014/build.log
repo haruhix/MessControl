@@ -1,0 +1,50 @@
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" MessControlEditor Win64 Development -Project=E:\DEVGAME\MessControl\MessControl.uproject -WaitMutex -NoHotReloadFromIDE
+Log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (16 physical cores, 32 logical cores)
+  Executing up to 16 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (E:\DEVGAME\MessControl).
+Invalidating makefile for MessControlEditor (working set of source files changed)
+UbaServer - Listening on 0.0.0.0:1345
+UHT compiled-in object format Default
+UHT processed MessControlEditor in 12.127748 seconds (0 generated files written)
+Building MessControlEditor...
+===== Toolchain Information =====
+Using ISPC compiler (E:\UE\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35222 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from MessControl unity file: MCAnimationComparisonSubsystem.cpp, MCBossAnimInstance.cpp, MCBossCharacter.cpp, MCCataclysmRaft.cpp, MCDevCommands.cpp, MCDevPanelWidget.cpp, MCExpressionComponent.cpp, MCGazeComponent.cpp, MCNutBoss.cpp, MCNutBossAnimInstance.cpp, MCNutCombatEffect.cpp, MCSecondaryAnimationSolver.cpp, MCToothAnimInstance.cpp, MCVFXLab.cpp, MCVFXLabBossStation.cpp
+[Adaptive Build] Excluded from KawaiiPhysicsSequencer unity file: KawaiiPhysicsSequencerModule.cpp, KawaiiPhysicsSequencerMultiplierRegistry.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierSection.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTemplate.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTrack.cpp
+[Adaptive Build] Excluded from KawaiiPhysicsEd unity file: AnimGraphNode_KawaiiPhysics.cpp, AnimGraphNode_KawaiiPhysicsSharedPublisher.cpp, KawaiiPhysicsAuditCommandlet.cpp, KawaiiPhysicsEd.cpp, KawaiiPhysicsEditMode.cpp, KawaiiPhysicsEditorLibrary.cpp, KawaiiPhysicsEditorTabFactories.cpp, KawaiiPhysicsEdStyle.cpp, KawaiiPhysicsEdWindowUtils.cpp, KawaiiPhysicsMcpCommentNode.cpp, KawaiiPhysicsPresetDataAssetDetails.cpp, KawaiiPhysicsPresetDiffSnapshot.cpp, SKawaiiPhysicsNodeAuditWindow.cpp, SKawaiiPhysicsPresetDiffWindow.cpp, SKawaiiPhysicsWindScopeEditPanel.cpp, SKawaiiPhysicsWindScopeWindow.cpp, KawaiiPhysicsSettingsMultiplierSectionSummary.cpp, KawaiiPhysicsSettingsMultiplierTrackEditor.cpp
+[Adaptive Build] Excluded from KawaiiPhysics unity file: AnimNode_KawaiiPhysics.cpp, AnimNode_KawaiiPhysicsCollision.cpp, AnimNode_KawaiiPhysicsDebug.cpp, AnimNode_KawaiiPhysicsModifyBones.cpp, AnimNode_KawaiiPhysicsSharedPublisher.cpp, AnimNode_KawaiiPhysicsSimulation.cpp, AnimNode_KawaiiPhysicsSyncBone.cpp, KawaiiPhysics.cpp, KawaiiPhysicsBoneConstraintsDataAsset.cpp, KawaiiPhysicsCustomExternalForce.cpp, KawaiiPhysicsDeveloperSettings.cpp, KawaiiPhysicsGroundProvider.cpp, KawaiiPhysicsLibrary.cpp, KawaiiPhysicsLimitsDataAsset.cpp, KawaiiPhysicsMirrorTableCache.cpp, KawaiiPhysicsMirrorUtils.cpp, KawaiiPhysicsPresetDataAsset.cpp, KawaiiPhysicsSharedCollisionSubsystem.cpp, KawaiiPhysicsSharedPublisherTypes.cpp, KawaiiPhysicsSharedTags.cpp, KawaiiPhysicsSimpleWorldCollision.cpp, KawaiiPhysicsSyncBone.cpp, KawaiiPhysicsWindPresetDataAsset.cpp, KawaiiPhysicsWindPresetTags.cpp, AnimNotifyState_KawaiiPhysicsAddExternalForce.cpp, AnimNotifyState_KawaiiPhysicsSetAlpha.cpp, AnimNotifyState_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsAddExternalForce.cpp, AnimNotify_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsTriggerGust.cpp, KawaiiPhysicsExternalForce.cpp, KawaiiPhysicsExternalForce_Basic.cpp, KawaiiPhysicsExternalForce_Curve.cpp, KawaiiPhysicsExternalForce_Gravity.cpp, KawaiiPhysicsExternalForce_ProceduralWind.cpp, KawaiiPhysicsExternalForce_Wind.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 19 action(s)
+  CPU 16 physical cores, 32 logical cores
+  Memory 31.91 GB physical, 58.12 GB/69.54 GB committed
+  UBA Storage capacity 40 GB
+[1/19] Compile [x64] MCCataclysmRaft.cpp
+[2/19] Compile [x64] MCExpressionComponent.cpp
+[3/19] Compile [x64] MCGazeComponent.cpp
+[4/19] Compile [x64] MCToothAnimInstance.cpp
+[5/19] Compile [x64] Module.MessControl.1.cpp
+[6/19] Compile [x64] Module.MessControl.10.cpp
+[7/19] Compile [x64] Module.MessControl.11.cpp
+[8/19] Compile [x64] Module.MessControl.12.cpp
+[9/19] Compile [x64] Module.MessControl.13.cpp
+[10/19] Compile [x64] Module.MessControl.2.cpp
+[11/19] Compile [x64] Module.MessControl.3.cpp
+[12/19] Compile [x64] Module.MessControl.4.cpp
+[13/19] Compile [x64] Module.MessControl.5.cpp
+[14/19] Compile [x64] Module.MessControl.7.cpp
+[15/19] Compile [x64] Module.MessControl.8.cpp
+[16/19] Compile [x64] Module.MessControl.9.cpp
+[17/19] Link [x64] UnrealEditor-MessControl.lib
+[18/19] Link [x64] UnrealEditor-MessControl.dll
+[19/19] WriteMetadata MessControlEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 488.38 seconds
+Output binary: E:\UE\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+
+Result: Succeeded
+Total execution time: 512.66 seconds
+Trace written to file C:\Users\user\AppData\Local\UnrealBuildTool\Trace.uba with size 63.5kb

@@ -6,6 +6,7 @@
 #include "MCToothPhysicsComponent.h"
 #include "MCFoodActor.h"
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmRaft.h"
 #include "MCGameState.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -211,7 +212,25 @@ void UMCGazeComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
     const FVector Right=HeadDelta.RotateVector(Facing.RotateVector(FVector::RightVector));
     const FVector Up=HeadDelta.RotateVector(FVector::UpVector);
     const auto S=VisualSettings();
-    const FVector Aim=Tooth->GetMesh()->GetComponentTransform().InverseTransformPosition(TargetPoint());
+    const FTransform MeshWorld=Tooth->GetMesh()->GetComponentTransform();
+    FVector Aim=MeshWorld.InverseTransformPosition(TargetPoint());
+    // The river inlet is a low, near gaze attractor. During rowing use the
+    // shared visual stroke heading at eye height, retaining explicit danger
+    // notices and dangerous moving food instead of replacing them.
+    const auto* Raft=Tooth->IsRowing()?Tooth->GetRowingRaft():nullptr;
+    const FVector RowingHeading=Raft?Raft->RowingVisualDirectionFor(Tooth):FVector::ZeroVector;
+    const bool RowingFocus=Raft && !RowingHeading.IsNearlyZero()
+        && (Target.Interest!=EMCGazeInterest::Danger || Cast<AMCCoffeeFlood>(Target.Actor));
+    if(RowingFocus) {
+        FVector Centre=CS[Head].GetLocation();int32 Eyes=0;
+        for(const FName Role:{FName(TEXT("eye_l")),FName(TEXT("eye_r"))}) {
+            const int32 Eye=Ref.FindBoneIndex(Tooth->RigBone(Role));
+            if(Eye<0) continue;
+            Centre=Eyes==0?CS[Eye].GetLocation():Centre+CS[Eye].GetLocation();++Eyes;
+        }
+        if(Eyes>0) Centre/=Eyes;
+        Aim=Centre+MeshWorld.InverseTransformVectorNoScale(RowingHeading)*600.f;
+    }
     const float Closure=FMath::Max(Blink,Tooth->Expression?Tooth->Expression->Squint():0.f);
     // Authored facial morphs already supply the emotional squint.
     const bool MorphBlink=Tooth->Expression && Tooth->Expression->ApplyMorphBlink(
@@ -221,12 +240,19 @@ void UMCGazeComponent::BuildPose(TArray<FTransform>& Pose,const FReferenceSkelet
         const int32 Eye=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("eye_l"):TEXT("eye_r"))); if (Eye==INDEX_NONE) continue;
         FVector2D& Angles=Side==0?LeftAngles:RightAngles;
         FVector2D Goal=FVector2D::ZeroVector;
-        if (Target.Interest!=EMCGazeInterest::None && Tooth->Status->IsAlive())
+        if ((RowingFocus || Target.Interest!=EMCGazeInterest::None) && Tooth->Status->IsAlive())
         {
             const FVector EyePoint=Physical?Tooth->GetMesh()->GetSocketTransform(Ref.GetBoneName(Eye),RTS_Component).GetLocation():CS[Eye].GetLocation();
             const FVector D=(Aim-EyePoint).GetSafeNormal();
             Goal.X=FMath::Clamp(FMath::RadiansToDegrees(FMath::Atan2(FVector::DotProduct(D,AimRight),FVector::DotProduct(D,Forward))),-S.YawLimit,S.YawLimit);
             Goal.Y=FMath::Clamp(FMath::RadiansToDegrees(FMath::Atan2(FVector::DotProduct(D,AimUp),FMath::Sqrt(FMath::Square(FVector::DotProduct(D,Forward))+FMath::Square(FVector::DotProduct(D,AimRight))))),-S.PitchLimit,S.PitchLimit);
+            if(RowingFocus) {
+                // Eyes follow a forward stroke without trying to turn through
+                // the face when the camera points behind the character.
+                const float Front=FMath::SmoothStep(0.f,.35f,float(FVector::DotProduct(D,Forward)));
+                Goal.X=FMath::Clamp(float(Goal.X),-18.f,18.f)*Front;
+                Goal.Y=FMath::Clamp(float(Goal.Y),-10.f,10.f)*Front;
+            }
         }
         const float Delay=Target.Interest==EMCGazeInterest::Danger?S.ReactionDelay*.25f:S.ReactionDelay;
         if (ServerTime()>=Target.ChangedAt+Delay) Angles=FMath::Lerp(Angles,Goal,1-FMath::Exp(-S.TurnSpeed*FMath::Min(Dt,.1f)));

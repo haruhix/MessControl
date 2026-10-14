@@ -1,0 +1,179 @@
+{
+  "saved_utc": "2026-10-14T09:31:29.845098+00:00",
+  "status": "passed",
+  "checks_passed": 13,
+  "checks": {
+    "real_f3_64_starts_storm_rafts": true,
+    "solo_side_native_input_and_visible_brushes": true,
+    "solo_side_own_directions_follow_actual_view": true,
+    "rendered_wrists_hold_same_brush_handle": true,
+    "walk_on_deck_with_lmb_rowing_keeps_rowing": true,
+    "solo_front_native_input_and_visible_brushes": true,
+    "solo_front_own_directions_follow_actual_view": true,
+    "two_rowers_native_input_and_visible_brushes": true,
+    "two_rowers_own_directions_follow_actual_view": true,
+    "two_camera_aligned_native_row_inputs_sum": true,
+    "release_stops_native_rowing_and_hides_raft_brushes": true,
+    "couple_turn_opposing_inputs_cancel_translation_and_turn": true,
+    "couple_reverse_opposing_inputs_cancel_translation_and_turn": true
+  },
+  "builds": [
+    {
+      "log": "build.log",
+      "status": "passed",
+      "seconds": 512.66
+    },
+    {
+      "log": "build_face.log",
+      "status": "passed",
+      "seconds": 107.95
+    }
+  ],
+  "source_hash_mismatches": [],
+  "restored_settings": true,
+  "genuine_source_frames": 209,
+  "hand_separation": {
+    "min": 20.000000816527425,
+    "max": 20.000000816527756,
+    "samples": 58
+  },
+  "walking_cm": 67.09909463259521,
+  "torque_results": {
+    "couple_turn": {
+      "yaw_delta_degrees": -47.00662612915042,
+      "expected_sign": -1.0,
+      "stable_samples": 48,
+      "cancelled_translation_samples": 48
+    },
+    "couple_reverse": {
+      "yaw_delta_degrees": 52.87783050537112,
+      "expected_sign": 1.0,
+      "stable_samples": 72,
+      "cancelled_translation_samples": 72
+    }
+  },
+  "focused_measurements": [
+    {
+      "phase": "solo_front",
+      "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "emotion_counts": {
+        "EFFORT": 70
+      },
+      "grip_left": {
+        "min": 3.171593447266732e-07,
+        "max": 3.171594438911842e-07,
+        "samples": 70
+      },
+      "grip_right": {
+        "min": 5.448820848899526e-07,
+        "max": 5.448821934398469e-07,
+        "samples": 70
+      },
+      "brush_turn": {
+        "min": 0.2747020095430493,
+        "max": 21.132938085458218,
+        "samples": 70
+      },
+      "effort": {
+        "min": 0.6501530408859253,
+        "max": 0.7965522408485413,
+        "samples": 70
+      },
+      "blink": {
+        "min": 0.0,
+        "max": 0.9909650087356567,
+        "samples": 70
+      }
+    },
+    {
+      "phase": "two_rowers",
+      "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+      "emotion_counts": {
+        "EFFORT": 50
+      },
+      "grip_left": {
+        "min": 3.171593389908023e-07,
+        "max": 3.17159450435276e-07,
+        "samples": 50
+      },
+      "grip_right": {
+        "min": 5.448820766596012e-07,
+        "max": 5.4488220920556e-07,
+        "samples": 50
+      },
+      "brush_turn": {
+        "min": 0.44626473646883186,
+        "max": 9.788914207011594,
+        "samples": 50
+      },
+      "effort": {
+        "min": 0.6501530408859253,
+        "max": 0.7965521812438965,
+        "samples": 50
+      },
+      "blink": {
+        "min": 0.0,
+        "max": 0.0,
+        "samples": 50
+      }
+    },
+    {
+      "phase": "two_rowers",
+      "pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_2",
+      "emotion_counts": {
+        "EFFORT": 50
+      },
+      "grip_left": {
+        "min": 3.171592943813889e-07,
+        "max": 115.54931174739698,
+        "samples": 50
+      },
+      "grip_right": {
+        "min": 5.448820805023878e-07,
+        "max": 8.116695679243877,
+        "samples": 50
+      },
+      "brush_turn": {
+        "min": 0.44090828600411774,
+        "max": 68.69835658100581,
+        "samples": 49
+      },
+      "effort": {
+        "min": 0.16900634765625,
+        "max": 0.7965522408485413,
+        "samples": 50
+      },
+      "blink": {
+        "min": 0.0,
+        "max": 0.0,
+        "samples": 50
+      }
+    }
+  ],
+  "read_limits": {
+    "voice": "Voice, VoiceViseme and SpeechAmount() are native non-reflected members; their actual values cannot be read through the Python wrapper. Speech morph weights are recorded separately, never substituted for the voice envelope.",
+    "derived_alpha": "EmoteAlpha(), BodyAlpha() and PainAlpha() are native non-reflected getters. The labelled derived values use only reflected state, library entries, animation length and the checked current source formula in this standalone world.",
+    "grip_targets": "GetRowingHandTargets() is native non-reflected. Expected right wrist is reconstructed from the actual brush world transform and the character Brush/BrushPivot relative attachment transforms. The labelled left target is 20 cm along the actual brush X axis, matching the checked source; it is not a native getter result.",
+    "morph_weights": "USkeletalMeshComponent.GetMorphTarget() reads the current MorphTargetCurves map, returning zero when no curve is present. This does not prove that a zero-valued morph asset exists or has zero final GPU deformation.",
+    "expression.emote_state": "MCExpressionComponent: Failed to find property 'bState' for attribute 'bState' on 'MCExpressionComponent'",
+    "gaze.offset": "MCGazeTarget: Failed to find property 'bOffset' for attribute 'bOffset' on 'MCGazeTarget'",
+    "gaze.changed_at": "MCGazeTarget: Failed to find property 'bChangedAt' for attribute 'bChangedAt' on 'MCGazeTarget'",
+    "gaze.serial": "MCGazeTarget: Failed to find property 'bSerial' for attribute 'bSerial' on 'MCGazeTarget'",
+    "gaze.blink_started_at": "MCGazeComponent: Failed to find property 'bBlinkStartedAt' for attribute 'bBlinkStartedAt' on 'MCGazeComponent'"
+  },
+  "editor": {
+    "map": "/Game/Maps/L_Mouth",
+    "pie": false,
+    "dirty_maps": [],
+    "dirty_content": [],
+    "secondary_mode": 0,
+    "left_open": true
+  },
+  "scope": "Existing solo13checks plus read-only pose/face measurements and final-video visual review; Native secondary mode.",
+  "deferred": [
+    "Temporary FOV60 review cameras and normal mouth lighting; some rear angles obscure hands.",
+    "Genuine source images sampled around12Hz are repeated at30fps without interpolation.",
+    "No network clients, hardware input, speech/pain regression, full balance or GPU profile.",
+    "Optional native reflection read limits are recorded in Report.json; morph curve values do not certify final GPU deformation."
+  ]
+}

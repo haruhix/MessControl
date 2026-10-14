@@ -44,6 +44,8 @@ public:
     float RowingStrokePhase(const AMCToothCharacter* Hero = nullptr) const;
     /** Each passenger retains their own world-space aim, even when forces cancel. */
     FVector RowingDirectionFor(const AMCToothCharacter* Hero) const;
+    FVector RowingVisualDirectionFor(const AMCToothCharacter* Hero) const;
+    void AlignRowingBrushToHand(const AMCToothCharacter* Hero, const FTransform& HandWorld);
     const UStaticMeshComponent* RowingBrushFor(const AMCToothCharacter* Hero) const;
     float RowingSideFor(const AMCToothCharacter* Hero) const;
     /** A real hull contact supplies a bounded velocity change (cm/s), never health damage. */
@@ -117,6 +119,7 @@ private:
     bool bPoseInitialized = false;
     TWeakObjectPtr<AMCCoffeeFlood> TickFlood;
     float VisualPaddleSide[2]={-1.f,1.f};
+    FVector VisualRowingDirection[2]={FVector::ForwardVector,FVector::ForwardVector};
     TWeakObjectPtr<AMCToothCharacter> VisualRowers[2];
     double LastBrushVisualAt=-1.;
 };
