@@ -1,0 +1,49 @@
+{
+  "asset": "SM_CataclysmRaft",
+  "blender": "5.1.0",
+  "units": "meters",
+  "origin": [
+    0,
+    0,
+    0
+  ],
+  "origin_semantics": "intended waterline",
+  "deck_top_m": 0.375,
+  "intended_walkable_rectangle_cm": [
+    240,
+    170
+  ],
+  "visual_deck_cm": [
+    250,
+    176
+  ],
+  "capacity": "Two-player limit is future gameplay logic; no runtime validation",
+  "collision_hulls": [
+    "UCX_SM_CataclysmRaft_00",
+    "UCX_SM_CataclysmRaft_01",
+    "UCX_SM_CataclysmRaft_02"
+  ],
+  "texture_atlas": {
+    "resolution": [
+      1024,
+      1024
+    ],
+    "maps": [
+      "BaseColor",
+      "Roughness",
+      "Normal"
+    ],
+    "normal_convention": "OpenGL +Y; Unreal FlipGreenChannel required unless explicitly converted"
+  },
+  "triangles": 22000,
+  "exports": {
+    "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\CataclysmRaft\\SM_CataclysmRaft.blend",
+    "glb": "E:\\DEVGAME\\MessControl\\ArtSource\\CataclysmRaft\\SM_CataclysmRaft.glb",
+    "fbx": "E:\\DEVGAME\\MessControl\\ArtSource\\CataclysmRaft\\SM_CataclysmRaft.fbx"
+  },
+  "preview": "E:\\DEVGAME\\MessControl\\Artifacts\\CataclysmRaft_20261014\\hero.png",
+  "engine_import_validation": "Deferred; Unreal/editor untouched",
+  "provenance": "Original deterministic geometry and texture pixels; museum images viewed as construction analogues only",
+  "source_sha256": "6c813859f8a34dba77690d3f4890be31f39873871d113084aedd4b5c41290343",
+  "elapsed_seconds": 2.7939761000452563
+}

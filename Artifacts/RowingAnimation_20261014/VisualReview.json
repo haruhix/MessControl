@@ -1,0 +1,34 @@
+{
+  "reviewed_utc": "2026-10-14T07:54:41.762843+00:00",
+  "reviewer": "root",
+  "status": "accepted_for_focused_preview",
+  "basis": "Root visually inspected contact sheets extracted from both final encoded videos, and genuine source frames during pose refinement.",
+  "review_images": [
+    "qa_animation.png",
+    "qa_torque.png"
+  ],
+  "observations": [
+    "Reach, brush immersion, power pull and lifted recovery are readable in front and side views.",
+    "Both rendered hands remain on the same brush handle; the brush is visible beyond the rail.",
+    "Torso rhythm and supported feet are visible; walking across the deck continues while rowing.",
+    "Two rowers and release are visible; opposing strokes reverse the raft turning direction."
+  ],
+  "limits": [
+    "Temporary FOV 60 review cameras in normal mouth lighting, not acceptance of every normal gameplay camera angle.",
+    "Rear and overlapping views partially obscure hands.",
+    "Source screenshots are sampled around 12 Hz; H264 output repeats them at 30 fps without interpolation.",
+    "No network client, hardware input, GPU profile or full event balance validation."
+  ],
+  "videos": [
+    {
+      "path": "E:/DEVGAME/MessControl/Artifacts/RowingAnimation_20261014/storm_brush_rowing.mp4",
+      "sha256": "8761846e4b4fb899cd989099a3d76ad8bd1686a91209ae379036db53b20f0627",
+      "genuine_source_frames": 128
+    },
+    {
+      "path": "E:/DEVGAME/MessControl/Artifacts/RowingAnimation_20261014/rowing_point_torque.mp4",
+      "sha256": "2cdc7b31a10b44a66a5c5f77914258434588724653820727ef0a867350c06619",
+      "genuine_source_frames": 81
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "exported_utc": "2026-10-14T03:53:15.147774+00:00",
+  "previews": [
+    {
+      "mode": "rafts",
+      "clip": "raft_sink_return",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_sink_return.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_sink_return.png",
+      "video_sha256": "3c1d2b1f33809e5d4e7ef5e996f4235d6b3062eb05f0ed465443753c67b9d545",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_sink_return.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_sink_return.ffconcat",
+      "genuine_source_frames": 22,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 15.916667496785522,
+      "source_time_end_seconds": 18.7166676428169,
+      "source_game_span_seconds": 2.8000001460313797,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Reviewed by root through decoded video contact sheets and source screenshots: readable motion, gameplay lighting and HUD; no performance profile.",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "85"
+          }
+        ],
+        "format": {
+          "duration": "2.833333"
+        }
+      }
+    },
+    {
+      "mode": "rafts",
+      "clip": "raft_boarding",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_boarding.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_boarding.png",
+      "video_sha256": "6fe42d3a691ffd35cf86ccf3cbc1ce7098d5c0b03fb2c816c4c4e681051d12ff",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_boarding.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/raft_boarding.ffconcat",
+      "genuine_source_frames": 60,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 18.85000098310411,
+      "source_time_end_seconds": 26.716668060049415,
+      "source_game_span_seconds": 7.866667076945305,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Reviewed by root through decoded video contact sheets and source screenshots: readable motion, gameplay lighting and HUD; no performance profile.",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "237"
+          }
+        ],
+        "format": {
+          "duration": "7.900000"
+        }
+      }
+    }
+  ],
+  "reports": [
+    {
+      "mode": "rafts",
+      "report": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmSolo/Report_rafts.json",
+      "report_sha256": "5f87888a86003731b2a1f1901edbe5a76eab75ce71fa80e91dbd6bbec7a950e5",
+      "source_sha256": {
+        "Source/MessControl/Private/MCCataclysmEvent.cpp": "8a089274db73e8316f530d43d65eda278da7295f1aaa47be152b87b8166d76d0",
+        "Source/MessControl/Private/MCCataclysmRaft.cpp": "613378894ff7e7ddadd26fe121cb2cd7b075c3ae911687327a8d773b9b648bbd",
+        "Source/MessControl/Private/MCCataclysmJelly.cpp": "82475d7e51f5c22def495ac5d6f086a210a9a2d83f3c53d0da0d30fb4e156c28",
+        "Source/MessControl/Private/MCToothMovementComponent.cpp": "64a8dc75f52c3e0df93968113f0c6f4166a6a3ef587d4d08850706368534998b",
+        "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8"
+      },
+      "checks": {
+        "real_f3_deterministic_start": true,
+        "raft_variant_exclusive_two_refuges": true,
+        "two_deck_riders_nearby_water_excluded": true,
+        "overload_warning_cancels_before_sink": true,
+        "perceptible_two_second_dip_returns_alive": true,
+        "deep_swimming_spends_reserve": true,
+        "real_rmb_contact_boards_walkable_deck": true,
+        "dry_deck_recovers_reserve": true,
+        "native_flood_timer_enters_cleanup_only": true,
+        "dirty_cleanup_persists_without_timer_completion": true,
+        "ordinary_brush_reduces_event_grime": true
+      },
+      "fixture_tuning": {
+        "FloodHoldSeconds": 26.0,
+        "FloodFillSeconds": 3.0,
+        "FloodDrainSeconds": 3.0
+      },
+      "limitations": [
+        "Position-only placement of the observer and stationary allied NPC weight fixtures is not a skill/balance playthrough.",
+        "Raft mode uses a 26-second deep-water hold; jelly mode uses the unmodified default 360 HP.",
+        "Normal Pickaxe and brush inputs drive damage and cleaning; no damage/care helper or health/dirt zeroing is used.",
+        "Cleanup persistence and one real brush improvement are checked; complete mouth cleanup remains a manual checkpoint.",
+        "No network clients, editor map changes, package saves, build/cook/package or broad test suite."
+      ],
+      "manual_checkpoints": [
+        "Finish every actual patch/player/tooth care task and verify Complete only at zero consequences.",
+        "Assess default 35-second flood hold and natural jelly difficulty without the position-only observer fixture.",
+        "Inspect rendered warning/foam/rupture clips; telemetry does not establish visual quality."
+      ],
+      "total_verified_frames": 178
+    }
+  ],
+  "limitations": [
+    "Sampled genuine engine screenshots do not record every game frame.",
+    "CFR output repeats source images at their actual game-time intervals; no interpolation or title cards.",
+    "The terminal 1 ms and 30 fps duration rounding are presentation padding, not additional observed gameplay.",
+    "Telemetry and successful encoding do not establish visual quality; inspect the previews in the gameplay camera."
+  ]
+}

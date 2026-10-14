@@ -23,6 +23,8 @@
 #include "MCArenaTooth.h"
 #include "MCThroat.h"
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmEvent.h"
+#include "MCCataclysmRaft.h"
 #include "MCFogBrawlEvent.h"
 #include "MCRewardChest.h"
 #include "GameFramework/PlayerState.h"
@@ -32,6 +34,7 @@
 #include "Blueprint/WidgetLayoutLibrary.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
+#include "Components/PrimitiveComponent.h"
 #include "Components/Image.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
@@ -71,7 +74,7 @@ FString CandidateName(EMCGameDirectorEvent Kind)
     switch(Kind) {
     case EMCGameDirectorEvent::Food:return TEXT("Еда");
     case EMCGameDirectorEvent::Coffee:return TEXT("Пятна кофе");
-    case EMCGameDirectorEvent::CoffeeFlood:return TEXT("Река кофе");
+    case EMCGameDirectorEvent::CoffeeFlood:return TEXT("Катаклизм");
     case EMCGameDirectorEvent::ColdCola:return TEXT("Кола");
     case EMCGameDirectorEvent::Yawn:return TEXT("Зевание");
     case EMCGameDirectorEvent::Pepper:return TEXT("Перец");
@@ -178,8 +181,21 @@ void UMCGameplayHUD::NativeOnInitialized()
         auto* StaminaSlot=Root->AddChildToCanvas(StaminaWidget);StaminaSlot->SetAnchors(FAnchors(.5f,1));StaminaSlot->SetAlignment(FVector2D(.5f,1));
         StaminaSlot->SetPosition(FVector2D(0,-138));StaminaSlot->SetSize(FVector2D(250,58));
     }
+    if(GetOwningPlayer() && !SwimEnergyWidget)
+        if(auto* Root=Cast<UCanvasPanel>(WidgetTree->RootWidget))
+        {
+            SwimEnergyWidget=CreateWidget<UMCStaminaWidget>(GetOwningPlayer(),UMCStaminaWidget::StaticClass());
+            if(SwimEnergyWidget) {
+                SwimEnergyWidget->bShowSwimEnergy=true;
+                auto* SwimSlot=Root->AddChildToCanvas(SwimEnergyWidget);
+                SwimSlot->SetAnchors(FAnchors(.5f,1)); SwimSlot->SetAlignment(FVector2D(.5f,1));
+                SwimSlot->SetPosition(FVector2D(0,-204)); SwimSlot->SetSize(FVector2D(320,58));
+                SwimEnergyWidget->Refresh();
+            }
+        }
     EnsureDirectorMonitor();
     EnsureProgressionPanel();
+    EnsureCataclysmPanel();
     EnsureAlertWidget();
     if(auto* PC=Cast<AMCPlayerController>(GetOwningPlayer())) PC->RegisterGameplayHUD(this);
 }
@@ -202,14 +218,14 @@ void UMCGameplayHUD::ResetGameplayAlerts()
 {
     if(AlertWidget) AlertWidget->ClearAlerts();
     ObservedAlertStates.Reset(); LastAlertDayEvent.Reset(); LastAlertStepStartedAt=-1;
+    LastDrowningHero.Reset(); bObservedDrowning=false; DrowningAlertSerial=0;
 }
 void UMCGameplayHUD::RefreshGameplayAlerts()
 {
     const auto* GS=GetWorld()?GetWorld()->GetGameState<AMCGameState>():nullptr;
     if(!GS || GS->bLobbyWaiting || GS->bTutorialActive) return;
     if(GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost) {
-        if(AlertWidget && AlertWidget->IsPresentingAlert()) AlertWidget->ClearAlerts();
-        ObservedAlertStates.Reset(); LastAlertDayEvent.Reset(); LastAlertStepStartedAt=-1;
+        ResetGameplayAlerts();
         return;
     }
     // Observe the saved gameplay classes' replicated timelines. Presentation never starts events.
@@ -226,7 +242,26 @@ void UMCGameplayHUD::RefreshGameplayAlerts()
     for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It)
         Observe(*It,TEXT("Cola"),It->bActive,It->StartedAt,TEXT("ХОЛОДНАЯ КОЛА · БЕРЕГИСЬ ЛЬДА!"));
     for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It)
-        Observe(*It,TEXT("CoffeeWave"),It->bActive && It->bRiverFlood,It->StartedAt,TEXT("КОФЕЙНАЯ ВОЛНА · ДЕРЖИСЬ!"));
+        Observe(*It,TEXT("CoffeeWave"),It->bActive && It->bRiverFlood && !Cast<AMCCataclysmEvent>(It->GetOwner()),It->StartedAt,TEXT("КОФЕЙНАЯ ВОЛНА · ДЕРЖИСЬ!"));
+    for(TActorIterator<AMCCataclysmEvent> It(GetWorld());It;++It) {
+        Observe(*It,TEXT("CataclysmWarning"),It->Phase==EMCCataclysmPhase::Warning,It->StartedAt,
+            It->Title()+TEXT(" · ВОЛНА! ДЕРЖИСЬ ЗА ОПОРУ!"),3.f);
+        Observe(*It,TEXT("CataclysmBranch"),It->Phase==EMCCataclysmPhase::BranchWarning,It->PhaseStartedAt,
+            TEXT("РОТ ЗАТОПИТ · НА ПЛОТЫ! ПО ДВОЕ НА КАЖДЫЙ!"),3.5f);
+        Observe(*It,TEXT("CataclysmJellies"),It->Phase==EMCCataclysmPhase::JellyFight,It->PhaseStartedAt,
+            TEXT("ЖИВОЕ ЖЕЛЕ · ПОБЕДИ ЕГО И СМОЙ СЛЕДЫ!"),3.5f);
+        Observe(*It,TEXT("CataclysmCleanup"),It->Phase==EMCCataclysmPhase::Cleanup,It->PhaseStartedAt,
+            TEXT("ОПАСНОСТЬ ПРОШЛА · ОЧИСТИ ПОСЛЕДСТВИЯ!"));
+        Observe(*It,TEXT("CataclysmComplete"),It->Phase==EMCCataclysmPhase::Complete,It->PhaseStartedAt,
+            TEXT("КАТАКЛИЗМ ПРЕОДОЛЁН · ВСЁ ЧИСТО!"));
+    }
+    auto* Hero=GetOwningPlayerPawn<AMCToothCharacter>();
+    const auto* Move=Hero?Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement()):nullptr;
+    const bool Drowning=Hero && Hero->Status && Hero->Status->IsAlive() && Move && Move->IsDrowning();
+    if(LastDrowningHero.Get()!=Hero) Observe(LastDrowningHero.Get(),TEXT("Drowning"),false,0,FString());
+    if(Drowning && (!bObservedDrowning || LastDrowningHero.Get()!=Hero)) DrowningAlertSerial=GS->GetServerWorldTimeSeconds();
+    Observe(Hero,TEXT("Drowning"),Drowning,DrowningAlertSerial,TEXT("ТОНЕШЬ · СРОЧНО НА ПЛОТ ИЛИ СУШУ!"),2.5f);
+    LastDrowningHero=Hero; bObservedDrowning=Drowning;
     for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) {
         const bool Active=It->IsActive();
         Observe(*It,TEXT("Ice"),Active,It->StartedAt,It->UsesColdThroneContract()
@@ -254,9 +289,27 @@ void UMCGameplayHUD::RefreshGameplayAlerts()
     if(GS->CurrentEvent && (LastAlertDayEvent.Get()!=GS->CurrentEvent || LastAlertStepStartedAt!=GS->StepStartedAt)) {
         LastAlertDayEvent=GS->CurrentEvent; LastAlertStepStartedAt=GS->StepStartedAt;
         const FName EventId(*FString::Printf(TEXT("DayEvent.%d.%.3f"),GS->Day,GS->StepStartedAt));
-        QueueGameplayAlert(FText::Format(NSLOCTEXT("MCAlerts","DayEvent","СОБЫТИЕ · {0}"),GS->CurrentEvent->Title),3.f,EventId);
+        if(!AMCCataclysmEvent::FindActive(GetWorld()))
+            QueueGameplayAlert(FText::Format(NSLOCTEXT("MCAlerts","DayEvent","СОБЫТИЕ · {0}"),GS->CurrentEvent->Title),3.f,EventId);
     }
     for(auto It=ObservedAlertStates.CreateIterator();It;++It) if(!It.Key().IsValid()) It.RemoveCurrent();
+}
+void UMCGameplayHUD::EnsureCataclysmPanel()
+{
+    if(CataclysmPanel || !WidgetTree) return;
+    auto* Root=Cast<UCanvasPanel>(WidgetTree->FindWidget(TEXT("HUDRoot")));
+    if(!Root) Root=Cast<UCanvasPanel>(WidgetTree->RootWidget);
+    if(!Root) return;
+    CataclysmPanel=WidgetTree->ConstructWidget<UBorder>();
+    CataclysmPanel->SetPadding(FMargin(12,10)); CataclysmPanel->SetBrushColor(MCGameplayHUDPrivate::Ink);
+    CataclysmPanel->SetVisibility(ESlateVisibility::Collapsed);
+    CataclysmInstruction=WidgetTree->ConstructWidget<UTextBlock>();
+    CataclysmInstruction->SetFont(FCoreStyle::GetDefaultFontStyle(TEXT("Regular"),13));
+    CataclysmInstruction->SetColorAndOpacity(FSlateColor(MCGameplayHUDPrivate::White));
+    CataclysmInstruction->SetWrapTextAt(280); CataclysmInstruction->SetAutoWrapText(true);
+    CataclysmPanel->SetContent(CataclysmInstruction);
+    auto* CataclysmSlot=Root->AddChildToCanvas(CataclysmPanel);
+    CataclysmSlot->SetPosition(FVector2D(22,338)); CataclysmSlot->SetSize(FVector2D(304,128));
 }
 void UMCGameplayHUD::EnsureProgressionPanel()
 {
@@ -496,6 +549,8 @@ void UMCGameplayHUD::RefreshState()
     RefreshGameplayAlerts();
     const auto* Hero=Cast<AMCToothCharacter>(GetOwningPlayerPawn());
     if(StaminaWidget) StaminaWidget->Refresh();
+    // HUD refresh wakes the collapsed gauge when water or recovery begins.
+    if(SwimEnergyWidget) SwimEnergyWidget->Refresh();
     auto Text=[&](FName Name,const FString& Value) { if(auto* T=Cast<UTextBlock>(Find(Name));T && !T->GetText().ToString().Equals(Value)) T->SetText(FText::FromString(Value)); };
     auto Bar=[&](FName Name,float Value) { if(auto* B=Cast<UProgressBar>(Find(Name))) B->SetPercent(FMath::Clamp(Value,0.f,1.f)); };
     auto Show=[&](FName Name,bool Visible) { if(auto* W=Find(Name)) W->SetVisibility(Visible?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed); };
@@ -516,11 +571,23 @@ void UMCGameplayHUD::RefreshState()
     RefreshDirectorMonitor(Director);
     const bool HasStep=!Directed && GS->DayPlan && GS->DayPlan->Steps.IsValidIndex(GS->StepIndex);
     const bool Finished=(!Directed && GS->bDayOneComplete) || GS->Phase==EMCShiftPhase::Won || GS->Phase==EMCShiftPhase::Lost;
+    const auto* Cataclysm=AMCCataclysmEvent::FindActive(GetWorld());
+    if(!Cataclysm && GS->bDevManualEvents)
+        for(TActorIterator<AMCCataclysmEvent> It(GetWorld());It;++It)
+            if(!It->IsActorBeingDestroyed() && It->IsComplete() && Now-It->PhaseStartedAt<8.
+                && (!Cataclysm || It->PhaseStartedAt>Cataclysm->PhaseStartedAt)) Cataclysm=*It;
+    EnsureCataclysmPanel();
+    if(CataclysmPanel) {
+        CataclysmPanel->SetVisibility(Cataclysm && !Finished?ESlateVisibility::HitTestInvisible:ESlateVisibility::Collapsed);
+        if(Cataclysm && CataclysmInstruction && CataclysmInstruction->GetText().ToString()!=Cataclysm->Instruction())
+            CataclysmInstruction->SetText(FText::FromString(Cataclysm->Instruction()));
+    }
     FString Title=Directed?(Director.CurrentTitle.IsEmpty()?TEXT("СКОРО НАЧНЁМ"):Director.CurrentTitle):HasStep?HUD::StepName(GS->DayPlan->Steps[GS->StepIndex].Step):GS->CurrentEvent?GS->CurrentEvent->Title.ToString():TEXT("СКОРО НАЧНЁМ");
     const AMCCoffeeFlood* ActiveFlood=nullptr;
     for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) if(It->IsActive()) { ActiveFlood=*It; break; }
     if(!Directed && ActiveFlood) Title=ActiveFlood->bRiverFlood?TEXT("ЦУНАМИ"):ActiveFlood->GetPhase()==EMCCoffeePhase::Holding?TEXT("КОФЕ · ПЛАВАНИЕ"):TEXT("old_flood");
     if(Directed && GS->Phase==EMCShiftPhase::Intermission) Title=TEXT("ПЕРЕДЫШКА");
+    if(Cataclysm) Title=Cataclysm->Title();
     if(Finished) Title=GS->Phase==EMCShiftPhase::Lost?TEXT("РОТ НЕ СПАСЁН"):TEXT("ДЕНЬ ЗАВЕРШЁН");
     Text(TEXT("DayTitle"),FString::Printf(TEXT("ДЕНЬ %d"),FMath::Max(1,GS->Day))); Text(TEXT("EventTitle"),Title);
     const float Done=Directed?FMath::Clamp(Director.CompletionProgress,0.f,1.f):GS->TasksTotal>0?1-float(GS->TasksLeft)/GS->TasksTotal:0;
@@ -535,6 +602,13 @@ void UMCGameplayHUD::RefreshState()
     Text(TEXT("TaskLabel"),Directed && !GS->bSingleDayLoop?TEXT("ЕДА ЗАВЕРШЕНА"):TEXT("ТЕКУЩАЯ ЗАДАЧА"));
     Text(TEXT("TaskValue"),Directed?FString::Printf(TEXT("%d/%d"),Director.FinishedFood,Director.SpawnedFood)
         :FString::Printf(TEXT("%d/%d"),FMath::Max(0,GS->TasksTotal-GS->TasksLeft),GS->TasksTotal)); Bar(TEXT("TaskProgress"),Done);
+    if(Cataclysm) {
+        Text(TEXT("TaskLabel"),Cataclysm->Variant==EMCCataclysmVariant::Rafts
+            ?Cataclysm->Phase==EMCCataclysmPhase::Flooding?FString::Printf(TEXT("ВЫЖИТЬ · %.0f С"),Cataclysm->HazardSecondsRemaining()):TEXT("ПОСЛЕДСТВИЯ · ГРЯЗЬ")
+            :FString::Printf(TEXT("ЖЕЛЕ %d · ГРЯЗЬ"),Cataclysm->JelliesLeft));
+        Text(TEXT("TaskValue"),FString::Printf(TEXT("%d/%d"),Cataclysm->DirtLeft,Cataclysm->DirtTotal));
+        Bar(TEXT("TaskProgress"),Cataclysm->DirtTotal>0?1-float(Cataclysm->DirtLeft)/Cataclysm->DirtTotal:0.f);
+    }
     Text(TEXT("CleanValue"),FString::Printf(TEXT("%d%%"),FMath::RoundToInt(Clean*100))); Bar(TEXT("CleanProgress"),Clean);
     Text(TEXT("HealthValue"),FString::Printf(TEXT("%d%%"),FMath::RoundToInt(Health*100))); Bar(TEXT("HealthProgress"),Health);
     const double EndAt=Directed && GS->Phase==EMCShiftPhase::Working?Director.DayEndAt:GS->PhaseEndsAt;
@@ -736,6 +810,33 @@ void UMCGameplayHUD::RefreshState()
                         PrisonImpactAt=FMath::Min(PrisonImpactAt,Strike.ImpactAt);
             if(PrisonImpactAt<MAX_dbl)
                 Hint+=FString::Printf(TEXT(" · СОСУЛЬКИ ЧЕРЕЗ %.1f С"),FMath::Max(0.,PrisonImpactAt-Now));
+        }
+        if(Cataclysm && Hero->CanWork()) {
+            Hint=Cataclysm->Phase==EMCCataclysmPhase::Cleanup?TEXT("ЩЁТКА · УБОРКА · C + ЛКМ — САМООЧИСТКА")
+                :Cataclysm->Phase==EMCCataclysmPhase::JellyFight?TEXT("КИРКА / НОЖ · ПОБЕДИ ЖЕЛЕ · ЩЁТКА — УБОРКА")
+                :Cataclysm->Phase==EMCCataclysmPhase::Complete?TEXT("КАТАКЛИЗМ ПРЕОДОЛЁН · ВСЁ ЧИСТО")
+                :Cataclysm->Phase==EMCCataclysmPhase::Flooding || Cataclysm->Phase==EMCCataclysmPhase::BranchWarning
+                    ?TEXT("ПКМ У ПЛОТА · ЗАЛЕЗТЬ · ПО ДВОЕ")
+                    :TEXT("ВОЛНА · ДЕРЖИ ПКМ У ОПОРЫ");
+            const auto* Move=Cast<UMCToothMovementComponent>(Hero->GetCharacterMovement());
+            const AMCCataclysmRaft* Nearby=nullptr;
+            double Best=FMath::Square(280.);
+            for(const auto& Raft:Cataclysm->Rafts) if(IsValid(Raft)) {
+                const bool OnDeck=Move && Move->GetMovementBaseObject()==Raft->GetDeckComponent();
+                const double Distance=OnDeck?-1.:FVector::DistSquared2D(Hero->GetActorLocation(),Raft->GetActorLocation());
+                if(Distance<Best) {Best=Distance;Nearby=Raft;}
+            }
+            if(Nearby) {
+                Hint=FString::Printf(TEXT("ПЛОТ %d/2 · %s"),Nearby->OccupantCount,
+                    Nearby->IsSubmerging()?TEXT("ПОД ВОДОЙ · СКОРО ВСПЛЫВЁТ"):Nearby->IsOverloaded()?TEXT("БОЛЬШОЙ ВЕС · СОЙДИ!")
+                    :Move && Move->GetMovementBaseObject()==Nearby->GetDeckComponent()
+                        ?Nearby->IsHoldingRail(Hero)?TEXT("ДЕРЖИШЬ ПОРУЧЕНЬ · ЗАЩИТА ОТ УДАРА")
+                        :Hero->IsRowing()?TEXT("ГРЕБЁШЬ ПО КАМЕРЕ · WASD — ХОДИТЬ · ПКМ — ДЕРЖАТЬСЯ")
+                        :Inv->Selected==EMCToolSlot::Brush?TEXT("ЛКМ — ГРЕСТИ ПО КАМЕРЕ · WASD — ХОДИТЬ · ПКМ — ПОРУЧЕНЬ")
+                        :TEXT("1 — ЩЁТКА · ЛКМ — ГРЕСТИ · ПКМ — ПОРУЧЕНЬ")
+                    :Nearby->IsBoardable()?TEXT("ДЕРЖИ ПКМ У КРАЯ · ЗАЛЕЗТЬ"):TEXT("ЗАНЯТ · ИЩИ ВТОРОЙ ПЛОТ"));
+            }
+            if(Move && Move->IsDrowning()) Hint=FString::Printf(TEXT("ТОНЕШЬ · %.1f С · НА ПЛОТ ИЛИ СУШУ!"),Move->GetDrowningSecondsRemaining());
         }
         Text(TEXT("ActionHint"),Hint); Show(TEXT("ContactProgress"),Contact>0); Bar(TEXT("ContactProgress"),Contact);
     }

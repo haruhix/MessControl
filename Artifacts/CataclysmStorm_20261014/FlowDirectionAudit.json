@@ -1,0 +1,76 @@
+{
+  "actors": [
+    {
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCFoodDisposal_1",
+      "label": "GAMEPLAY | Brush exit",
+      "cls": "MCFoodDisposal",
+      "location_cm": [
+        -1260.0,
+        -100.0,
+        0.0
+      ],
+      "brush_bin": true
+    },
+    {
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCTongue_0",
+      "label": "GAMEPLAY | Moving tongue",
+      "cls": "MCTongue",
+      "location_cm": [
+        114.96663737015587,
+        -16.758705068314868,
+        -156.615234375
+      ],
+      "surface_center_cm": [
+        120.7946815540335,
+        -16.691591099897725,
+        -158.65009307861328
+      ],
+      "surface_extent_cm": [
+        2454.6326405071372,
+        1542.952617746369,
+        246.90914154052786
+      ]
+    },
+    {
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCThroat_0",
+      "label": "GAMEPLAY | Living throat",
+      "cls": "MCThroat",
+      "location_cm": [
+        1970.0,
+        -25.0,
+        -40.0
+      ],
+      "brush_bin": false
+    }
+  ],
+  "profiles": [
+    {
+      "path": "/Game/Data/DA_CoffeeWater",
+      "use_throat_actor": true,
+      "authored_inlet_cm": [
+        420.0,
+        -100.0,
+        1100.0
+      ],
+      "authored_drain_cm": [
+        1300.0,
+        -100.0,
+        -40.0
+      ]
+    },
+    {
+      "path": "/Game/Data/DA_ColdColaLiquid",
+      "use_throat_actor": true,
+      "authored_inlet_cm": [
+        420.0,
+        -100.0,
+        1100.0
+      ],
+      "authored_drain_cm": [
+        1300.0,
+        -100.0,
+        -40.0
+      ]
+    }
+  ]
+}

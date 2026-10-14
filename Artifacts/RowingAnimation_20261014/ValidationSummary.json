@@ -1,0 +1,67 @@
+{
+  "saved_utc": "2026-10-14T07:54:41.762843+00:00",
+  "status": "passed",
+  "checks_passed": 13,
+  "checks_total": 13,
+  "checks": {
+    "real_f3_64_starts_storm_rafts": true,
+    "solo_side_native_input_and_visible_brushes": true,
+    "solo_side_own_directions_follow_actual_view": true,
+    "rendered_wrists_hold_same_brush_handle": true,
+    "walk_on_deck_with_lmb_rowing_keeps_rowing": true,
+    "solo_front_native_input_and_visible_brushes": true,
+    "solo_front_own_directions_follow_actual_view": true,
+    "two_rowers_native_input_and_visible_brushes": true,
+    "two_rowers_own_directions_follow_actual_view": true,
+    "two_camera_aligned_native_row_inputs_sum": true,
+    "release_stops_native_rowing_and_hides_raft_brushes": true,
+    "couple_turn_opposing_inputs_cancel_translation_and_turn": true,
+    "couple_reverse_opposing_inputs_cancel_translation_and_turn": true
+  },
+  "build": {
+    "log": "E:/DEVGAME/MessControl/Artifacts/RowingAnimation_20261014/build_hands_fix.log",
+    "status": "passed",
+    "elapsed_seconds": 49.89
+  },
+  "report": "E:/DEVGAME/MessControl/Artifacts/RowingAnimation_20261014/Report.json",
+  "source_hash_mismatches": [],
+  "restored_settings": true,
+  "rendered_hand_separation_cm": {
+    "min": 20.000000816527482,
+    "max": 20.000000816527674,
+    "samples": 58
+  },
+  "walking_displacement_cm": 67.08648086317793,
+  "torque_results": {
+    "couple_turn": {
+      "yaw_delta_degrees": -44.43596839904788,
+      "expected_sign": -1.0,
+      "stable_samples": 48,
+      "cancelled_translation_samples": 48
+    },
+    "couple_reverse": {
+      "yaw_delta_degrees": 54.90210342407232,
+      "expected_sign": 1.0,
+      "stable_samples": 72,
+      "cancelled_translation_samples": 72
+    }
+  },
+  "visual_review": "E:/DEVGAME/MessControl/Artifacts/RowingAnimation_20261014/VisualReview.json",
+  "editor": {
+    "project": "MessControl",
+    "map": "/Game/Maps/L_Mouth",
+    "pie_active": false,
+    "dirty_content": [],
+    "dirty_maps": [],
+    "left_open": true
+  },
+  "limitations": [
+    "Temporary FOV 60 review cameras in normal mouth lighting, not acceptance of every normal gameplay camera angle.",
+    "Rear and overlapping views partially obscure hands.",
+    "Source screenshots are sampled around 12 Hz; H264 output repeats them at 30 fps without interpolation.",
+    "No network client, hardware input, GPU profile or full event balance validation.",
+    "Focused authority solo with a second AI pawn; no multiplayer/network tests.",
+    "C + LMB self-care priority reviewed in source only; no dedicated runtime check.",
+    "No repeat drowning/contact scenarios, cook or packaging."
+  ]
+}

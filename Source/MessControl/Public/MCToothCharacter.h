@@ -136,6 +136,11 @@ public:
     UFUNCTION(BlueprintPure,Category="Locomotion|Dash") float GetDashDuration() const;
     UFUNCTION(BlueprintCallable,Category="Locomotion|Dash") void SetSprintInputHeld(bool Held);
     UFUNCTION(BlueprintCallable,Category="Grip") void SetBraceInputHeld(bool Held);
+    UFUNCTION(BlueprintCallable,Category="Cataclysm|Rowing") void SetRowingInputHeld(bool Held);
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Rowing") bool IsRowing() const;
+    class AMCCataclysmRaft* GetRowingRaft() const;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Rowing") bool bRowing=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Rowing") TObjectPtr<class AMCCataclysmRaft> RowingRaft;
     // Controller-facing input shares the same contact and timing rules as player input.
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetPrimaryInputHeld(bool Held);
     UFUNCTION(BlueprintCallable,Category="Action|Input") void SetHandleInputHeld(bool Held);
@@ -248,6 +253,17 @@ private:
     void StartBrush(); void StopBrush(); void StartHandle(); void StopHandle();
     void StartPrimary(); void StopPrimary();
     void StartBrace(); void StopBrace();
+    void StartRowing(); void StopRowing();
+    void UpdateRowing(float Dt);
+    FVector2D WorldRowingInput() const;
+    UFUNCTION(Server,Reliable) void ServerSetRowingHeld(bool Held,FVector2D Direction,uint16 RequestId);
+    UFUNCTION(Server,Unreliable) void ServerRowingDirection(FVector2D Direction,uint16 RequestId);
+    UFUNCTION(Client,Reliable) void ClientStopRowing(uint16 RequestId);
+    bool bRowingInputHeld=false;
+    float RowingSendElapsed=0;
+    double LastRowingInputAt=-100;
+    uint16 RowingRequestId=0;
+    FVector2D RowingInput=FVector2D::ZeroVector;
     void ContinueFogGuard();
     bool bSharedPrimaryInputHeld=false,bSharedHandleInputHeld=false,bSharedJumpInputHeld=false;
     UFUNCTION(Server,Reliable) void ServerToggleFoodCollection();
@@ -302,6 +318,7 @@ private:
     UPROPERTY() TObjectPtr<UInputAction> RestartAction;
     UPROPERTY() TObjectPtr<UInputAction> SwingAction;
     UPROPERTY() TObjectPtr<UInputAction> BraceAction;
+    UPROPERTY() TObjectPtr<UInputAction> RowingAction;
     UPROPERTY() TObjectPtr<UInputAction> OrbitXAction;
     UPROPERTY() TObjectPtr<UInputAction> OrbitYAction;
     UPROPERTY() TObjectPtr<UInputAction> ZoomAction;

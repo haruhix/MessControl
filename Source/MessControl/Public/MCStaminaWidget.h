@@ -12,6 +12,7 @@ class MESSCONTROL_API UMCStaminaWidget : public UUserWidget
 {
     GENERATED_BODY()
 public:
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Stamina") bool bShowSwimEnergy=false;
     UPROPERTY(BlueprintReadOnly,Category="Stamina") float Current=0;
     UPROPERTY(BlueprintReadOnly,Category="Stamina") float Maximum=100;
     UPROPERTY(BlueprintReadOnly,Category="Stamina") float Normalized=1;
@@ -27,5 +28,7 @@ protected:
 private:
     float RefreshElapsed=.1f;
     bool bHasSample=false;
+    int32 LastLabelMode=INDEX_NONE,LastDrowningTenths=INDEX_NONE;
+    bool bLastDeepWater=false;
     FLinearColor LastColor=FLinearColor::Transparent;
 };

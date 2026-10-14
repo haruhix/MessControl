@@ -11,6 +11,7 @@
 #include "MCFoodActor.h"
 #include "MCMouthSurface.h"
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmEvent.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/CanvasPanel.h"
 #include "Components/CanvasPanelSlot.h"
@@ -161,6 +162,10 @@ void UMCDevPanelWidget::RefreshActions()
     AddAction(Steps,TEXT("Зима близко — остановить тест"),TEXT("Убирает кристаллы, зоны, сосульки и бурю; сбрасывает общий холод и освобождает ноги."),EMCDevAction::StopIceEvent);
     AddAction(Steps,TEXT("Потасовка в тумане — начать"),TEXT("Найди пульсирующий красным зуб за 5 секунд. Рядом удерживай ПКМ: урон и отбрасывание делятся между защитниками."),EMCDevAction::FogEvent);
     AddAction(Steps,TEXT("Потасовка в тумане — остановить тест"),TEXT("Убирает туман и предупреждения теста F3."),EMCDevAction::FogEventStop);
+    AddAction(Steps,TEXT("Катаклизм — случайный вариант"),TEXT("Первая волна; затем один вариант: затопление с двумя плотами или живое желе. После опасности нужно убрать последствия."),EMCDevAction::CataclysmRandom);
+    AddAction(Steps,TEXT("Катаклизм — плоты"),TEXT("Две волны: вторая затопит язык. ПКМ у края — залезть; два места на плот. Перегруз предупредит и погрузит плот на 2 секунды."),EMCDevAction::CataclysmRafts);
+    AddAction(Steps,TEXT("Катаклизм — живое желе"),TEXT("После первой волны появляются живучие желе. Они пачкают язык и раздуваются перед грязевым взрывом. Победи желе и закончи уборку."),EMCDevAction::CataclysmJellies);
+    AddAction(Steps,TEXT("Катаклизм — остановить тест"),TEXT("Убирает только тестовый катаклизм, его воду, плоты, желе и собственные пятна. Обычный день возобновляется через полный перезапуск."),EMCDevAction::CataclysmStop);
     AddAction(Steps,TEXT("Обычный день — полный перезапуск"),TEXT("Удаляет тестовые объекты, восстанавливает игроков и зубы. Возвращает обычную последовательность и поддержку."),EMCDevAction::RestartDay);
     AddText(Steps,TEXT("СОБЫТИЯ ПОДДЕРЖКИ"),18)->SetColorAndOpacity(FSlateColor(DevMint));
     AddAction(Steps,TEXT("Эксперимент — огромное пятно на языке"),TEXT("Создаёт одно большое пятно возле игрока. Несколько игроков могут одновременно очищать его щётками."),EMCDevAction::HugeTongueStain);
@@ -302,6 +307,8 @@ void UMCDevPanelWidget::NativeTick(const FGeometry& Geometry,float Dt)
     FString Summary=FString::Printf(TEXT("%s  |  %s\nРот %.0f HP  /  зубы %d/%d  /  еда %d  /  язвы %d  /  кофе %s"),
         PC && PC->CanUseDevPanel()?TEXT("ХОСТ"):TEXT("КЛИЕНТ: только просмотр"),GS->bDevManualEvents?TEXT("РУЧНОЙ ТЕСТ — без дедлайна"):TEXT("ОБЫЧНЫЙ ДЕНЬ"),
         GS->MouthHealth,GS->AvailableArenaTeeth(),GS->ArenaTeeth.Num(),Food,Ulcers,Water?TEXT("активен"):TEXT("нет"));
+    if(const auto* Cat=AMCCataclysmEvent::FindActive(GetWorld()))
+        Summary+=FString::Printf(TEXT("\n%s · желе %d · грязь %d/%d\n%s"),*Cat->Title(),Cat->JelliesLeft,Cat->DirtLeft,Cat->DirtTotal,*Cat->Instruction());
     if (GS->ArenaTeeth.Num()<GS->RunSettings.InitialArenaTeeth)
         Summary+=FString::Printf(TEXT("\nРазметка карты: %d игровых мест для зубов, по правилам нужно %d."),GS->ArenaTeeth.Num(),GS->RunSettings.InitialArenaTeeth);
     for (TActorIterator<AMCTongue> It(GetWorld());It;++It)

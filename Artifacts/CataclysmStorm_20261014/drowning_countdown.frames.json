@@ -1,0 +1,1090 @@
+{
+  "metadata": {
+    "mode": "drowning",
+    "clip": "drowning_countdown",
+    "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.png",
+    "video_sha256": "70552759b7cc6b9aa5790f4c7b795a4ac596e2b44f1d7446a1b8e93dd5309a72",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.ffconcat",
+    "genuine_source_frames": 36,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 35.63333519175649,
+    "source_time_end_seconds": 41.46666882932186,
+    "source_game_span_seconds": 5.833333637565374,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 1.435191641883103,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "176"
+        }
+      ],
+      "format": {
+        "duration": "5.866667"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00024.png",
+      "time": 35.63333519175649,
+      "sha256": "26a59506d04bb076863be8cdc8daeb55059fa42e840efae156bcc0e6f08388dd",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1353835,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          578.2727254393285,
+          -1210.068956578073,
+          513.2907450629992
+        ],
+        "expected_cm": [
+          578.9283303118232,
+          -1209.90395660286,
+          513.7705567274645
+        ],
+        "location_error_cm": 0.8290126500940779,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00025.png",
+      "time": 35.8000018671155,
+      "sha256": "09dfcd84e74714351e35453602b5b7b786b8360a4f0bbe4f52ad6ca3228069b5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1322020,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          585.7871546402347,
+          -1208.2753488157523,
+          516.7484046244497
+        ],
+        "expected_cm": [
+          586.6438211235976,
+          -1208.0771402747623,
+          516.9299789642296
+        ],
+        "location_error_cm": 0.8978492803946921,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00026.png",
+      "time": 35.96666854247451,
+      "sha256": "051fc34975105ee18e43d933b0efcd1515f9de0582194a06c64cbea8e745fd25",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1292720,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          595.0430507601064,
+          -1206.1261898490934,
+          517.28344783468
+        ],
+        "expected_cm": [
+          596.0438089372974,
+          -1205.8909311877883,
+          517.1880226405764
+        ],
+        "location_error_cm": 1.0324580062178665,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00027.png",
+      "time": 36.13333521783352,
+      "sha256": "fbacf5eeab68af58365875c929c0f8152f73ce6efe22bc3cc9b3ca9fbd144352",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1312438,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          605.5350471466797,
+          -1203.6247378749886,
+          515.2697511420631
+        ],
+        "expected_cm": [
+          606.6365415989642,
+          -1203.3585888636671,
+          514.9500366144093
+        ],
+        "location_error_cm": 1.1774305515968495,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00028.png",
+      "time": 36.30000189319253,
+      "sha256": "4e157ee331890d4f6de2ff58c23dd2f7cc6452063b156941faba2769d746a66b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1322836,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          616.8779417692218,
+          -1200.8825403646347,
+          511.29005095077525
+        ],
+        "expected_cm": [
+          618.0469954512597,
+          -1200.60230778919,
+          510.8073905867591
+        ],
+        "location_error_cm": 1.2954450334996432,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00029.png",
+      "time": 36.46666856855154,
+      "sha256": "b71f2deb250f96335e0a12e98b1f96b9f062bdbd5c7c35e932cf2b61806aad61",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1321630,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          628.7755522313957,
+          -1198.1003454451854,
+          505.93432855511173
+        ],
+        "expected_cm": [
+          629.9864692876871,
+          -1197.8289936070216,
+          505.34280470170773
+        ],
+        "location_error_cm": 1.3747190281792505,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00030.png",
+      "time": 36.63333524391055,
+      "sha256": "0fe5caca73983bd2908ee9de6cd1848682e5af93aca97df976aea1e010a763a7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1306878,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          640.9967710138767,
+          -1195.512411041917,
+          499.6828996996097
+        ],
+        "expected_cm": [
+          642.2292579551755,
+          -1195.2728279970252,
+          499.02271929680353
+        ],
+        "location_error_cm": 1.4185423011391223,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00031.png",
+      "time": 36.80000191926956,
+      "sha256": "7cb5a2cb7d8bcfb264975118c1869d75e1ea3fe994af5c03c69ab27142a4993a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1340804,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          653.3565668711548,
+          -1193.328151396052,
+          492.87611535037826
+        ],
+        "expected_cm": [
+          654.594026155122,
+          -1193.1382306137457,
+          492.1744033967231
+        ],
+        "location_error_cm": 1.435191641883103,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00032.png",
+      "time": 36.96666859462857,
+      "sha256": "e7a908e0c57f81f4afa09f1b899e8ccf1ac316ff7b9f969f12cc4c42cdfd86db",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1336868,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          665.7005025549055,
+          -1191.6946866650808,
+          485.7434450855709
+        ],
+        "expected_cm": [
+          666.9286969895804,
+          -1191.5650892462659,
+          485.01912088618695
+        ],
+        "location_error_cm": 1.431748094513553,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00033.png",
+      "time": 37.13333526998758,
+      "sha256": "c225e7a76b1ae199d6aaced984125de97bd6095c8db2cf867544542e007ca7cc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1341114,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          677.8934591156203,
+          -1190.685875247048,
+          478.4589608138158
+        ],
+        "expected_cm": [
+          679.099650875218,
+          -1190.6201701344849,
+          477.7286070082225
+        ],
+        "location_error_cm": 1.411606320502592,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00034.png",
+      "time": 37.300001945346594,
+      "sha256": "10fbae8ff11ebb485dbf504d6fc971796ed75663b70a6812687de7de2e072b78",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1328771,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          689.8131791128128,
+          -1190.310671005847,
+          471.1963769180019
+        ],
+        "expected_cm": [
+          690.985730512369,
+          -1190.306820523934,
+          470.4790425839325
+        ],
+        "location_error_cm": 1.374576355699023,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00035.png",
+      "time": 37.466668620705605,
+      "sha256": "c803a45c33216d997f4f15cb75d02e2036ec8543b7beb88481b08a92ce0612c1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1337232,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          701.3478671940677,
+          -1190.5303970384696,
+          464.1685943993764
+        ],
+        "expected_cm": [
+          702.4761642996077,
+          -1190.5826384860027,
+          463.48863226793804
+        ],
+        "location_error_cm": 1.3183823525064737,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00036.png",
+      "time": 37.633335296064615,
+      "sha256": "49496ed06c1e83cf0e7ce57c478c840ad71e640655ee4fa009ac378b9ddd6929",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1335767,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          712.3962663236064,
+          -1191.2770947283166,
+          457.64647109057427
+        ],
+        "expected_cm": [
+          713.4708020355321,
+          -1191.3776492150491,
+          457.03425570046875
+        ],
+        "location_error_cm": 1.2407843829158163,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00037.png",
+      "time": 37.800001971423626,
+      "sha256": "920a1dab734ae8463c1daf1b871046bed17ab994c912033581d759ffda386888",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1338862,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          722.8687398620053,
+          -1192.4688844020793,
+          451.95719464113165
+        ],
+        "expected_cm": [
+          723.8812362435772,
+          -1192.60926276892,
+          451.4479323702701
+        ],
+        "location_error_cm": 1.1420171054305586,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00038.png",
+      "time": 37.96666864678264,
+      "sha256": "512001e1d8ee33ae877f8467ee1a5284872e711d8d78fd5cd574710127a62ee7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1329516,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          732.6884196369506,
+          -1194.0210630429417,
+          447.4647583415454
+        ],
+        "expected_cm": [
+          733.63192655786,
+          -1194.1929424302405,
+          447.0956444895571
+        ],
+        "location_error_cm": 1.0276151367665514,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00039.png",
+      "time": 38.13333532214165,
+      "sha256": "018c2f22dfb9d896e64a062151cbcc039812f4cda9be5421bcce21438d3c3e43",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1336908,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          741.7919969889939,
+          -1195.8531613321225,
+          444.5349146999471
+        ],
+        "expected_cm": [
+          742.660946039687,
+          -1196.0488980477185,
+          444.34088308259464
+        ],
+        "location_error_cm": 0.9116104338286105,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00040.png",
+      "time": 38.30000199750066,
+      "sha256": "02f0fea57ec22a5d4bbba5d8c16dba09ee7dd74fb637221e0381cb61565f982c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1337567,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          750.1300577669799,
+          -1197.8927740721776,
+          443.4878386169239
+        ],
+        "expected_cm": [
+          750.9202722473373,
+          -1198.1056450772016,
+          443.49631678046626
+        ],
+        "location_error_cm": 0.8184282919128673,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00041.png",
+      "time": 38.46666867285967,
+      "sha256": "2f7a4ac94b0ab1700b7798a30307dcf6475de46978c9fc4e94fc1124acedda37",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1334240,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          757.6670216876832,
+          -1200.077080549157,
+          444.54324945402016
+        ],
+        "expected_cm": [
+          758.3756929883048,
+          -1200.3013407455974,
+          444.7685249831572
+        ],
+        "location_error_cm": 0.7766960229459346,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00042.png",
+      "time": 38.63333534821868,
+      "sha256": "4138fea888bb831f7ef390e058d4878c157b400f0da5c753876775c650712bba",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1319979,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          764.3807968739986,
+          -1202.3528556512724,
+          447.76589573732906
+        ],
+        "expected_cm": [
+          765.0064385012757,
+          -1202.5836816774063,
+          448.20410467353315
+        ],
+        "location_error_cm": 0.7979568734535797,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00043.png",
+      "time": 38.80000202357769,
+      "sha256": "244edf8639590215db394ef4267a18f8df91dc7cf3737bc3f49b74bccef395dd",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1312099,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          770.2622530020396,
+          -1204.6755980064522,
+          453.0229135329945
+        ],
+        "expected_cm": [
+          770.8046410668907,
+          -1204.9089712053542,
+          453.64894084947383
+        ],
+        "location_error_cm": 0.8605568335891011,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00044.png",
+      "time": 38.9666686989367,
+      "sha256": "7d25a1bd9f6f8dce42c44af7cbc37b8074f9606aee1baa65c92b6067fff90aab",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1302728,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          775.3145896143567,
+          -1207.0082247426635,
+          459.96638775740325
+        ],
+        "expected_cm": [
+          775.7746960836787,
+          -1207.240789499892,
+          460.7339997760603
+        ],
+        "location_error_cm": 0.9246688816021399,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00045.png",
+      "time": 39.13333537429571,
+      "sha256": "735906cd428956a243325954e12e61cdc7b8410d27a21c5aae6243b93a7c8019",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1289683,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          779.5526492603046,
+          -1209.3196362804993,
+          468.0527569670244
+        ],
+        "expected_cm": [
+          779.9325713851449,
+          -1209.5485576855826,
+          468.89883539055614
+        ],
+        "location_error_cm": 0.9552981364027138,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00046.png",
+      "time": 39.30000204965472,
+      "sha256": "3cc8ce1fb5b372fac69ee60ef1fc6cc649cf65dedaf301719eae1b5860df077d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1283367,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          783.0022013562486,
+          -1211.5833460955141,
+          476.60376138015977
+        ],
+        "expected_cm": [
+          783.3050888308042,
+          -1211.806181371645,
+          477.4565511443829
+        ],
+        "location_error_cm": 0.932012212631712,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00047.png",
+      "time": 39.46666872501373,
+      "sha256": "d9749585707692205215e54479eb31a381bc22e3127a5e55c30a003212352b82",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1295462,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          785.6992045540314,
+          -1213.7762877771722,
+          484.902456429232
+        ],
+        "expected_cm": [
+          785.9291846709568,
+          -1213.99087931357,
+          485.6924241207249
+        ],
+        "location_error_cm": 0.850287795559382,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00048.png",
+      "time": 39.633335400372744,
+      "sha256": "7bad32d53194fd037a5ed3466aed8aff2f296d1c41e725b6c05cfcb5bc05afc0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1309044,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          787.6890484884725,
+          -1215.8778580586056,
+          492.3038796745623
+        ],
+        "expected_cm": [
+          787.8511489018679,
+          -1216.082251937608,
+          492.97445646500415
+        ],
+        "location_error_cm": 0.7195322325482097,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00049.png",
+      "time": 39.800002075731754,
+      "sha256": "3f8ca07ecdf7d024a48e97929c7293246735c452a59c3cd976a24e04190e47f8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1318158,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          789.0257683635375,
+          -1217.869220316078,
+          498.3299349931629
+        ],
+        "expected_cm": [
+          789.125836952622,
+          -1218.061610929055,
+          498.84487195445274
+        ],
+        "location_error_cm": 0.5587378138137516,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00050.png",
+      "time": 39.966668751090765,
+      "sha256": "82805171c8d23933122e8faeb6d036178d970b52f88818304e6435ec76f82081",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1322425,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          789.7712258277988,
+          -1219.732864940881,
+          502.7171288936047
+        ],
+        "expected_cm": [
+          789.815846433813,
+          -1219.911564790421,
+          503.061771053498
+        ],
+        "location_error_cm": 0.3907721242394108,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00051.png",
+      "time": 40.133335426449776,
+      "sha256": "4003525fade784e91f676f8da7eea8e1c8ee8b3a7579d200fc827e772b023c6b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1341022,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          789.9942479497613,
+          -1221.4524141516179,
+          505.39848305073116
+        ],
+        "expected_cm": [
+          789.9906518743771,
+          -1221.6158469396478,
+          505.57431799416133
+        ],
+        "location_error_cm": 0.24008568323099772,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00052.png",
+      "time": 40.300002101808786,
+      "sha256": "05f1f6c0660af55a8c180c467969581f968b645752d10cee7704ecd038940412",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1333422,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          789.7697203726814,
+          -1223.0126470760301,
+          506.42553005234464
+        ],
+        "expected_cm": [
+          789.7256930778603,
+          -1223.1593611154913,
+          506.44017852600905
+        ],
+        "location_error_cm": 0.15387654091822242,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00053.png",
+      "time": 40.4666687771678,
+      "sha256": "c7d68ec6e6f1b7d6b29113ddafedf98451528803601e8a32c79b21d5332c647a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1338521,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          789.1776332166398,
+          -1224.3997137256206,
+          505.8640191989015
+        ],
+        "expected_cm": [
+          789.1014163049365,
+          -1224.5284124761527,
+          505.72128835341107
+        ],
+        "location_error_cm": 0.20674738274647125,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00054.png",
+      "time": 40.63333545252681,
+      "sha256": "61fcec7df4ea2ba69438698b1f6dc633fadeae9b365299ebd74338645c96502b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1331674,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          788.302079714633,
+          -1225.6015031657057,
+          503.71502713406056
+        ],
+        "expected_cm": [
+          788.2022683423495,
+          -1225.711088924666,
+          503.41043644590457
+        ],
+        "location_error_cm": 0.33874302341947216,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00055.png",
+      "time": 40.80000212788582,
+      "sha256": "8a4e604ede3b313f03000794debc436932380d662d7d717cc4c623fdaa31615c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1343626,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          787.2302132265315,
+          -1226.608122538059,
+          499.9088486041487
+        ],
+        "expected_cm": [
+          787.1156498323282,
+          -1226.6977485639854,
+          499.4340690118921
+        ],
+        "location_error_cm": 0.49656143329711794,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00056.png",
+      "time": 40.96666880324483,
+      "sha256": "81710a8405333759054679e8e770dda10e34dbb5f274a007f485fc37680a3cb9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1352923,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          786.0511713048029,
+          -1227.4124371024682,
+          494.38947922277987
+        ],
+        "expected_cm": [
+          785.9308367205497,
+          -1227.4815628663828,
+          493.7451147191846
+        ],
+        "location_error_cm": 0.6591391331864371,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00057.png",
+      "time": 41.13333547860384,
+      "sha256": "1225e4e6765ea20c533ab74f7e048e1987828629b42fcb42092e1af55403c045",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1358897,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          784.8549817367693,
+          -1228.0106142328723,
+          487.26234267922086
+        ],
+        "expected_cm": [
+          784.737885406972,
+          -1228.059057595629,
+          486.47384700186655
+        ],
+        "location_error_cm": 0.7986136381590359,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00058.png",
+      "time": 41.30000215396285,
+      "sha256": "4f443f301b7fda451a53745310912e37d82a08be07bbd2bf84086f1ca2a7b660",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1353992,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          783.7314653656199,
+          -1228.4026071128487,
+          478.93908208422704
+        ],
+        "expected_cm": [
+          783.6265361640262,
+          -1228.4305867698627,
+          478.0679769668726
+        ],
+        "location_error_cm": 0.8778480073650463,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Runs/20261014T063647Z_rafts_5e414a5e/frames/00059.png",
+      "time": 41.46666882932186,
+      "sha256": "f73a785929757786d30546a303abadd4320abbd5889f8e44bbf9f7166d7c4467",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1366037,
+      "trailing_bytes": 0,
+      "phase": "swimming",
+      "clip_window": "drowning_countdown",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          782.7691575841226,
+          -1228.5925100319614,
+          470.20079520578815
+        ],
+        "expected_cm": [
+          782.6851379650254,
+          -1228.6006713694867,
+          469.3440010234891
+        ],
+        "location_error_cm": 0.860942608217826,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    }
+  ]
+}

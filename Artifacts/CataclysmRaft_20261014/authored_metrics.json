@@ -1,0 +1,341 @@
+{
+  "meshes": [
+    {
+      "name": "Deck_Plank_1",
+      "vertices": 152,
+      "triangles": 300,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Plank_2",
+      "vertices": 152,
+      "triangles": 300,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Plank_3",
+      "vertices": 152,
+      "triangles": 300,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Plank_4",
+      "vertices": 152,
+      "triangles": 300,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Plank_5",
+      "vertices": 152,
+      "triangles": 300,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Plank_6",
+      "vertices": 152,
+      "triangles": 300,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Cross_Batten_Aft",
+      "vertices": 152,
+      "triangles": 300,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Cross_Batten_Fore",
+      "vertices": 152,
+      "triangles": 300,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Float_Log_Port",
+      "vertices": 434,
+      "triangles": 864,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Float_Log_Starboard",
+      "vertices": 434,
+      "triangles": 864,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Lashing_10",
+      "vertices": 768,
+      "triangles": 1536,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Lashing_11",
+      "vertices": 768,
+      "triangles": 1536,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Support_Lashing_12",
+      "vertices": 768,
+      "triangles": 1532,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Lashing_Knot_13",
+      "vertices": 512,
+      "triangles": 1020,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Rope_Tail_14",
+      "vertices": 192,
+      "triangles": 380,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Support_Lashing_15",
+      "vertices": 768,
+      "triangles": 1532,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Lashing_Knot_16",
+      "vertices": 512,
+      "triangles": 1020,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Rope_Tail_17",
+      "vertices": 192,
+      "triangles": 380,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Lashing_18",
+      "vertices": 768,
+      "triangles": 1536,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Deck_Lashing_19",
+      "vertices": 768,
+      "triangles": 1536,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Support_Lashing_20",
+      "vertices": 768,
+      "triangles": 1532,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Lashing_Knot_21",
+      "vertices": 512,
+      "triangles": 1020,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Rope_Tail_22",
+      "vertices": 192,
+      "triangles": 380,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Support_Lashing_23",
+      "vertices": 768,
+      "triangles": 1532,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Lashing_Knot_24",
+      "vertices": 512,
+      "triangles": 1020,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "Rope_Tail_25",
+      "vertices": 192,
+      "triangles": 380,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    }
+  ],
+  "vertices": 11044,
+  "triangles": 22000,
+  "bounds_min": [
+    -1.375,
+    -0.978034257888794,
+    -0.26999998092651367
+  ],
+  "bounds_max": [
+    1.4019999504089355,
+    0.978034257888794,
+    0.3999999761581421
+  ],
+  "missing_materials": 0,
+  "invalid_vertices": 0,
+  "degenerate_faces": 0,
+  "boundary_edges": 0,
+  "nonmanifold_edges": 0,
+  "dimensions_m": [
+    2.7769999504089355,
+    1.956068515777588,
+    0.6699999570846558
+  ],
+  "material_coverage_status": "checked",
+  "role": "render_geometry",
+  "passed": true
+}

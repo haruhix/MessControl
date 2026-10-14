@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "date": "2026-10-14",
+  "editor_build": "build_debris_inertia_fix.log",
+  "binary": {
+    "path": "E:\\DEVGAME\\MessControl\\Binaries\\Win64\\UnrealEditor-MessControl.dll",
+    "sha256": "5bf6c2579b158bfa0ab2e54ea7fe485a60286e2c18c664a38f20d7d6992610ea"
+  },
+  "checks": {
+    "storm": 13,
+    "drowning": 5
+  },
+  "reports": {
+    "storm": {
+      "path": "Report_storm.json",
+      "sha256": "cd3a49f1d734e5348952da73c5d5236e822fab3773237df3fa63637d2ff88fba",
+      "run_directory": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\CataclysmStormSolo\\Runs\\20261014T062214Z_rafts_82c93e2c"
+    },
+    "drowning": {
+      "path": "Report_drowning.json",
+      "sha256": "ba2d13d9c498b76b7cbf2506be370d6c573c5b130688fe5de1c8d1c08b315391",
+      "run_directory": "E:\\DEVGAME\\MessControl\\Saved\\Checks\\CataclysmStormDrowningSolo\\Runs\\20261014T063647Z_rafts_5e414a5e"
+    }
+  },
+  "current_editor_state": {
+    "level": "/Game/Maps/L_Mouth",
+    "pie": false,
+    "dirty_content": [],
+    "dirty_maps": []
+  },
+  "deferred": [
+    "Physical keyboard/gamepad input",
+    "Network/multiplayer",
+    "Complete cleanup and event completion",
+    "Full survival/balance playthrough",
+    "Direct debris capsule-hit protection and moving-raft rescue",
+    "GPU profile and height readback"
+  ],
+  "visual_review": "VisualReview.json",
+  "flow_direction_audit": "FlowDirectionAudit.json"
+}

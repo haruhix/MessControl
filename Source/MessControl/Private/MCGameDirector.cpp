@@ -12,6 +12,7 @@
 #include "MCFirePatch.h"
 #include "MCColdCola.h"
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmEvent.h"
 #include "MCTongue.h"
 #include "MCThroat.h"
 #include "MCRewardChest.h"
@@ -43,7 +44,7 @@ bool ArenaHasWork(const FMCGameDirectorState& S)
 }
 const TCHAR* ShortEventName(EMCGameDirectorEvent K)
 {
-    static const TCHAR* Names[]={TEXT("Еда"),TEXT("Кофе"),TEXT("Река"),TEXT("Кола"),TEXT("Зевание"),TEXT("Перец"),TEXT("Застр.еда"),TEXT("Зуб"),TEXT("Сундук"),TEXT("Босс")};
+    static const TCHAR* Names[]={TEXT("Еда"),TEXT("Кофе"),TEXT("Катаклизм"),TEXT("Кола"),TEXT("Зевание"),TEXT("Перец"),TEXT("Застр.еда"),TEXT("Зуб"),TEXT("Сундук"),TEXT("Босс")};
     return Names[FMath::Clamp(int32(K),0,9)];
 }
 }
@@ -110,7 +111,7 @@ FString AMCGameDirector::EventName(EMCGameDirectorEvent Kind)
     switch(Kind) {
     case EMCGameDirectorEvent::Food:return TEXT("ПОРЦИЯ ЕДЫ");
     case EMCGameDirectorEvent::Coffee:return TEXT("КОФЕЙНЫЕ ПЯТНА");
-    case EMCGameDirectorEvent::CoffeeFlood:return TEXT("КОФЕЙНАЯ РЕКА");
+    case EMCGameDirectorEvent::CoffeeFlood:return TEXT("КАТАКЛИЗМ");
     case EMCGameDirectorEvent::ColdCola:return TEXT("ХОЛОДНАЯ КОЛА");
     case EMCGameDirectorEvent::Yawn:return TEXT("ЗЕВАНИЕ");
     case EMCGameDirectorEvent::Pepper:return TEXT("ПЕРЕЦ · УБЕРИТЕ ЗА 10 С");
@@ -322,6 +323,11 @@ FMCGameDirectorState AMCGameDirector::Observe() const
     S.bUrgent|=S.Fires>0 || S.Ulcers>0;
     for(TActorIterator<AMCTongue> It(GetWorld());It;++It) S.bGlobalMovement|=It->IsYawnActive() || It->IsMotionActive();
     for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) S.bGlobalMovement|=It->IsActive();
+    for(TActorIterator<AMCCataclysmEvent> It(GetWorld());It;++It) if(It->IsRunning()) {
+        S.bGlobalMovement|=It->Phase!=EMCCataclysmPhase::Cleanup;
+        S.bUrgent|=It->JelliesLeft>0;
+        Work+=It->JelliesLeft*12.f;
+    }
     for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It) S.bGlobalMovement|=!It->IsComplete();
     for(TActorIterator<AMCThroat> It(GetWorld());It;++It) S.bGlobalMovement|=It->ThroatPhase!=EMCThroatPhase::Collecting || It->QueuedFoodCount>0;
     for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
@@ -408,6 +414,7 @@ TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGa
         else if(FoodKind(Rule.Kind) && (T.FoodRow.IsNone() || !Mechanics->Menu.LoadSynchronous() ||
             !Mechanics->Menu.LoadSynchronous()->FindRow<FMCFoodRow>(T.FoodRow,TEXT("Director availability")))) C.BlockReason=TEXT("Нет подходящей еды в меню");
         else if(Rule.Kind==EMCGameDirectorEvent::Coffee && Seen.CleaningTasks>FMath::Max(2,Seen.AvailablePlayers*2)) C.BlockReason=TEXT("Сначала текущие пятна");
+        else if(Rule.Kind==EMCGameDirectorEvent::CoffeeFlood && AMCCataclysmEvent::FindActive(GetWorld())) C.BlockReason=TEXT("Завершите текущий катаклизм");
         else if((Rule.Kind==EMCGameDirectorEvent::Pepper || Rule.Kind==EMCGameDirectorEvent::Boss) && Seen.Stress>.25f) C.BlockReason=TEXT("Команде нужна разгрузка");
         if(C.BlockReason.IsEmpty() && Rule.Kind==EMCGameDirectorEvent::Reward) {
             bool Chest=false; for(TActorIterator<AMCRewardChest> It(GetWorld());It;++It) if(!It->IsActorBeingDestroyed()) {Chest=true;break;}
@@ -427,6 +434,9 @@ TArray<FMCGameDirectorCandidate> AMCGameDirector::EvaluateCandidates(const FMCGa
             if(!Tongue) C.BlockReason=TEXT("Нет языка / арены");
         }
         float Duration=FoodKind(Rule.Kind)?25.f:Rule.Kind==EMCGameDirectorEvent::Boss?90.f:15.f;
+        // Admission needs room for the drink, its branch and a first cleaning pass.
+        // This estimate never completes an encounter or discards dirty consequences.
+        if(Rule.Kind==EMCGameDirectorEvent::CoffeeFlood) Duration=70.f;
         if(bSupportMode && DayEndsAt>0 && BreakFoodKind(Rule.Kind))
             Duration=SupportFoodDuration(GetWorld(),Mechanics,T.FoodRow,Rule.Kind==EMCGameDirectorEvent::StuckFood,Settings->CleaningWorkerSeconds);
         if(Rule.Kind==EMCGameDirectorEvent::ColdCola) {const auto* Cola=Mechanics->ColdColaProfile.LoadSynchronous();Duration=Cola?Cola->ColdSeconds+Cola->ThawSeconds+15:55;}
@@ -579,7 +589,14 @@ bool AMCGameDirector::TryStart(FTicket& T,const FMCGameDirectorState& S,double N
     } else if(T.Kind==EMCGameDirectorEvent::Coffee && Services) {
         Services->AddDirt(true,T.Patches,T.Batch,T.ToothCount,.5f); Success=Observe().WorkSeconds>S.WorkSeconds;
     } else if(T.Kind==EMCGameDirectorEvent::CoffeeFlood) {
-        auto* Flood=GetWorld()->SpawnActor<AMCCoffeeFlood>(); if(Flood) {Flood->SetOwner(this);Flood->Start(Mechanics);T.Actor=Flood;Success=Flood->IsActive();}
+        FActorSpawnParameters Spawn;Spawn.Owner=this;
+        auto* Encounter=GetWorld()->SpawnActor<AMCCataclysmEvent>(Spawn);
+        if(Encounter) {
+            const auto Variant=Random.FRand()<.5f?EMCCataclysmVariant::Rafts:EMCCataclysmVariant::Jellies;
+            Success=Encounter->Start(Mechanics,Variant,T.Batch);T.Actor=Encounter;
+            if(Success) Record(Variant==EMCCataclysmVariant::Rafts?TEXT("Катаклизм: выбран вариант с плотами"):TEXT("Катаклизм: выбран вариант с желе"));
+            else {Encounter->Destroy();T.Actor.Reset();}
+        }
     } else if(T.Kind==EMCGameDirectorEvent::ColdCola) {
         auto* Cola=GetWorld()->SpawnActor<AMCColdColaEvent>(); if(Cola) {Cola->SetOwner(this);Cola->Start(Mechanics,T.IceCount);T.Actor=Cola;Success=Cola->bActive;}
     } else if(T.Kind==EMCGameDirectorEvent::Yawn) {
@@ -632,7 +649,10 @@ void AMCGameDirector::ResolveTickets(double Now)
             Done=Food.OutstandingActors==0 && Food.UnresolvedHazards==0
                 && (!RequireFoodStain || MCCountDirectedFoodDirt(GetWorld(),T.Batch)==0);
         } else if(T.Kind==EMCGameDirectorEvent::Coffee) Done=Seen.CleaningTasks==0;
-        else if(T.Kind==EMCGameDirectorEvent::CoffeeFlood) {const auto* A=Cast<AMCCoffeeFlood>(T.Actor.Get());Done=!A || !A->IsActive();}
+        else if(T.Kind==EMCGameDirectorEvent::CoffeeFlood) {
+            if(const auto* Encounter=Cast<AMCCataclysmEvent>(T.Actor.Get())) Done=Encounter->IsComplete() || Encounter->bFailed;
+            else {const auto* A=Cast<AMCCoffeeFlood>(T.Actor.Get());Done=!A || !A->IsActive();}
+        }
         else if(T.Kind==EMCGameDirectorEvent::ColdCola) {const auto* A=Cast<AMCColdColaEvent>(T.Actor.Get());Done=!A || A->IsComplete();}
         else if(T.Kind==EMCGameDirectorEvent::Yawn) {const auto* A=Cast<AMCTongue>(T.Actor.Get());Done=!A || !A->IsYawnActive();}
         else if(T.Kind==EMCGameDirectorEvent::LooseTooth) {const auto* A=T.Actor.Get();const auto* Care=A?A->FindComponentByClass<UMCToothStatusComponent>():nullptr;Done=!Care || !Care->IsLoose();}
@@ -658,6 +678,9 @@ void AMCGameDirector::Publish(const FMCGameDirectorState& Seen,const FString& Re
     else if(Seen.Ice>0) S.Instruction=TEXT("Разбейте лёд киркой, затем возвращайтесь к еде и уборке.");
     else if(Seen.bGlobalMovement) S.Instruction=TEXT("Заканчивается движение или глотание. Новые помехи ждут.");
     else if(Seen.CleaningTasks>0) S.Instruction=TEXT("Очистите зубы и пятна. Еду разбивайте ради опыта; перец выбрасывайте.");
+    if(const auto* Encounter=AMCCataclysmEvent::FindActive(GetWorld())) {
+        S.CurrentTitle=Encounter->Title();S.Instruction=Encounter->Instruction();
+    }
     S.Candidates=EvaluateCandidates(Seen,Now); S.WaitWeight=ComputeWaitWeight(Seen);
     float Sum=S.WaitWeight;for(const auto& C:S.Candidates) Sum+=C.EffectiveWeight;
     S.WaitProbability=Sum>0?S.WaitWeight/Sum:1.f; S.NextTitle=TEXT("ПЕРЕДЫШКА");

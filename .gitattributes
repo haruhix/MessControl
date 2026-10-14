@@ -14,3 +14,12 @@ ArtSource/CarriesStage2/HandSupportWalk/AuthorReport_v4.json -text whitespace=bl
 ArtSource/CarriesStage2/CombatPool_v1/Report_v1.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CarriesStage2/CombatPool_v1/RenderManifest.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CarriesStage2/CombatPool_v1/Video.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Preserve captured report/manifest bytes used by the Cataclysm evidence hashes.
+Artifacts/CataclysmRaft_20261014/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/CataclysmGameplay_20261014/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/CataclysmStorm_20261014/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/RowingAnimation_20261014/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+# Build logs retain compiler output verbatim, including its trailing spaces.
+Artifacts/CataclysmGameplay_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+Artifacts/CataclysmStorm_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol
+Artifacts/RowingAnimation_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol

@@ -1,0 +1,91 @@
+{
+  "exported_utc": "2026-10-14T06:39:44.974304+00:00",
+  "exclude_nonclient_frames_requested": false,
+  "previews": [
+    {
+      "mode": "drowning",
+      "clip": "drowning_countdown",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.png",
+      "video_sha256": "70552759b7cc6b9aa5790f4c7b795a4ac596e2b44f1d7446a1b8e93dd5309a72",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/drowning_countdown.ffconcat",
+      "genuine_source_frames": 36,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 35.63333519175649,
+      "source_time_end_seconds": 41.46666882932186,
+      "source_game_span_seconds": 5.833333637565374,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 1.435191641883103,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Root inspected genuine countdown frames and timestamped video contact sheet; central banner and red ETA are readable.",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "176"
+          }
+        ],
+        "format": {
+          "duration": "5.866667"
+        }
+      }
+    }
+  ],
+  "reports": [
+    {
+      "mode": "drowning",
+      "report": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormDrowningSolo/Report_drowning.json",
+      "report_sha256": "ba2d13d9c498b76b7cbf2506be370d6c573c5b130688fe5de1c8d1c08b315391",
+      "source_sha256": {
+        "Source/MessControl/Private/MCCataclysmEvent.cpp": "b10406fcf79a25ac92e09729b0d662152d41e831e80f0648138fb8902b5fb2fd",
+        "Source/MessControl/Private/MCCataclysmRaft.cpp": "541ea5ed4aca168426bc3c4aa1a5077a344a01ec7e130545b2fe462ded5bca9f",
+        "Source/MessControl/Private/MCCataclysmJelly.cpp": "82475d7e51f5c22def495ac5d6f086a210a9a2d83f3c53d0da0d30fb4e156c28",
+        "Source/MessControl/Private/MCToothMovementComponent.cpp": "90b77a49550bd0ffe8ab9c3199d8a3efb5124a4c6d490256e1bbf6da774efb3a",
+        "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8",
+        "Tools/Unreal/probe_cataclysm_drowning_solo.py": "f0e87aeb55296eb67aafe54db04425c47d94f58edac2bb9e06c7656f73f6151a"
+      },
+      "checks": {
+        "real_f3_deep_flood_no_peers": true,
+        "native_low_reserve_warning": true,
+        "energy_depleted_without_assignment": true,
+        "actual_red_eta_widget": true,
+        "natural_countdown_then_authoritative_water_death": true
+      },
+      "fixture_tuning": {},
+      "limitations": [
+        "One initial position fixture places the local pawn in supported deep water; no repeated repositioning or peers.",
+        "Circular AddMovementInput exercises normal CMC acceleration; this is not a hardware-input or balance playthrough.",
+        "Default drain is preferred. Any accelerated SwimEnergyPerSecond is recorded and confined to this PIE pawn.",
+        "Drowning grace, health, energy, flood clock, collision and damage are never assigned or advanced by the probe.",
+        "Native wave crests may briefly lift the swimmer into air. Such breaches are recorded, bounded to 2.5 s, cannot recover reserve, and never receive a new position fixture.",
+        "Water death attribution uses the native countdown, deep water at the terminal transition and health/damage timestamp; Status exposes no reflected last-source actor.",
+        "No network clients, packages saved, build, editor map switch or broad test suite."
+      ],
+      "manual_checkpoints": [],
+      "integrity_verified_source_frames": 66,
+      "accepted_client_frames": 66,
+      "excluded_nonclient_frames": [],
+      "capture_validation": "All source captures have supported client dimensions; visual review remains separate"
+    }
+  ],
+  "limitations": [
+    "Sampled genuine engine screenshots do not record every game frame.",
+    "CFR output repeats source images at their actual game-time intervals; no interpolation or title cards.",
+    "Excluded nonclient captures stay recorded in report metadata. Their genuine time gaps remain as holds of preceding accepted frames; no wrong viewport is resized into output.",
+    "PlayerCamera metadata does not establish the screenshot surface; visual review of accepted client captures remains necessary.",
+    "The terminal 1 ms and 30 fps duration rounding are presentation padding, not additional observed gameplay.",
+    "Telemetry and successful encoding do not establish visual quality; inspect the previews in the gameplay camera."
+  ]
+}

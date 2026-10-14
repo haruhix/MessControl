@@ -1,0 +1,41 @@
+{
+  "meshes": [
+    {
+      "name": "SM_CataclysmRaft",
+      "vertices": 15768,
+      "triangles": 22000,
+      "uv_maps": 1,
+      "materials": [
+        "M_CataclysmRaft_Atlas"
+      ],
+      "degenerate_faces": 0,
+      "boundary_edges": 8704,
+      "nonmanifold_edges": 8704
+    }
+  ],
+  "vertices": 15768,
+  "triangles": 22000,
+  "bounds_min": [
+    -1.375,
+    -0.978034257888794,
+    -0.27000001072883606
+  ],
+  "bounds_max": [
+    1.4019999504089355,
+    0.978034257888794,
+    0.3999999761581421
+  ],
+  "missing_materials": 0,
+  "invalid_vertices": 0,
+  "degenerate_faces": 0,
+  "boundary_edges": 8704,
+  "nonmanifold_edges": 8704,
+  "dimensions_m": [
+    2.7769999504089355,
+    1.956068515777588,
+    0.6699999868869781
+  ],
+  "material_coverage_status": "checked",
+  "role": "render_geometry",
+  "passed": true
+}

@@ -38,6 +38,19 @@ protected:
     virtual bool UsePSOPrecacheRenderProxyDelay() const override { return false; }
 };
 
+/** Vertex waves need vertical render bounds even though the authored grid is flat. */
+UCLASS()
+class UMCCataclysmStormSurfaceComponent : public UMCRiverSurfaceComponent
+{
+    GENERATED_BODY()
+public:
+    virtual FBoxSphereBounds CalcBounds(const FTransform& LocalToWorld) const override
+    {
+        FBoxSphereBounds RenderBounds=Super::CalcBounds(LocalToWorld);
+        RenderBounds.BoxExtent.Z+=120.f;RenderBounds.SphereRadius+=120.f;return RenderBounds;
+    }
+};
+
 UCLASS()
 class MESSCONTROL_API AMCCoffeeFlood : public AActor
 {
@@ -48,6 +61,17 @@ public:
     virtual void Tick(float Dt) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     void Start(const UMCDayPlan* Plan,float SwimTestSeconds=0,bool bUseLegacyFlood=false);
+    /** Timed hazard only; the Cataclysm owner independently waits for cleanup. */
+    void SetCataclysmDuration(float FillSeconds,float HoldSeconds,float DrainSeconds);
+    /** Opt-in only for the deep raft branch; ordinary coffee/river behavior is preserved. */
+    void EnableCataclysmStorm(int32 Seed);
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") bool IsCataclysmStorm() const;
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") FVector StormStreamDirection() const;
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") float StormStrength() const;
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") FVector StormCurrentAt(FVector Position) const;
+    UFUNCTION(BlueprintPure,Category="Cataclysm|Storm") float StormWaveHeightAt(FVector Position) const;
+    /** Confirmed authority contact only; a bounded cosmetic burst reuses the spray pool. */
+    void NotifyStormImpact(FVector Position,FVector Direction,float Strength=1.f);
     void Stop();
     int32 ResidueBatch=0;
     bool Contains(FVector Position) const;
@@ -91,6 +115,10 @@ public:
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> Crown;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UStaticMeshComponent> DrainRibbon;
     UPROPERTY(VisibleAnywhere) TObjectPtr<UMCCoffeeDropComponent> Drops;
+    UPROPERTY(ReplicatedUsing=OnRep_Profile,BlueprintReadOnly,Category="Cataclysm|Storm") bool bCataclysmStorm=false;
+    UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Storm") int32 StormSeed=0;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UMCRiverSurfaceComponent> StormSurface;
+    UPROPERTY(VisibleAnywhere) TObjectPtr<UMCCoffeeDropComponent> StormSpray;
 private:
     UFUNCTION() void OnRep_Profile();
     float WaterTime() const;
@@ -98,6 +126,11 @@ private:
     void UpdateSurface();
     void UpdatePour(float Time);
     void UpdateRiverSurface(float Time);
+    void UpdateStormSurface(float Time);
+    void UpdateStormSpray(float Time);
+    UFUNCTION(NetMulticast,Unreliable) void MulticastStormImpact(FVector Position,FVector Direction,float Strength,int32 ImpactSeed);
+    float StormStrengthAt(float Time) const;
+    float StormWaveAt(FVector Position,float Time) const;
     AMCTongue* FindRiverTongue() const;
     float RiverFloorAt(FVector Position) const;
     float RiverHeightAt(FVector Position,float Time,float FloorZ) const;
@@ -115,6 +148,7 @@ private:
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> JetMaterial;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> CrownMaterial;
     UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> DrainMaterial;
+    UPROPERTY() TObjectPtr<UMaterialInstanceDynamic> StormSprayMaterial;
     TSet<TWeakObjectPtr<AMCToothCharacter>> HitThisWave;
     TSet<TWeakObjectPtr<AActor>> FoodHitThisWave;
     mutable TWeakObjectPtr<AMCTongue> RiverTongue;
@@ -123,4 +157,10 @@ private:
     TArray<FColor> RiverColors;
     TArray<FProcMeshTangent> RiverTangents;
     int32 RiverMeshVertexCount=0;
+    FVector2D StormMeshHalfSize=FVector2D::ZeroVector;
+    struct FStormDrop { FVector Origin=FVector::ZeroVector,Velocity=FVector::ZeroVector; float Born=-10.f,Size=0.f,LifeSeconds=.85f; };
+    TArray<FStormDrop> StormDrops;
+    int32 StormSprayBucket=INDEX_NONE;
+    float LastStormImpactAt=-10.f;
+    int32 StormImpactSerial=0,StormImpactVisualCursor=0;
 };

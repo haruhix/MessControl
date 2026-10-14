@@ -8,6 +8,16 @@
 #include "MCToothMovementComponent.generated.h"
 class AMCCoffeeFlood;
 
+/** Separate from sprint stamina; replayed at the same movement timestamp. */
+USTRUCT()
+struct FMCSwimPredictionState
+{
+    GENERATED_BODY()
+    UPROPERTY() float Value=100.f;
+    UPROPERTY() float DrowningElapsed=0.f;
+    UPROPERTY() bool bInDeepWater=false;
+};
+
 struct FMCStaminaPredictionState
 {
     float Value=100.f;
@@ -15,10 +25,12 @@ struct FMCStaminaPredictionState
     bool Exhausted=false;
 };
 
-/** The stamina snapshot belongs to the acknowledged movement timestamp. */
+/** Resource snapshots belong to the acknowledged movement timestamp. */
 struct FMCStaminaMoveResponse final : public FCharacterMoveResponseDataContainer
 {
     FMCStaminaPredictionState Stamina;
+    FMCSwimPredictionState Swim;
+    bool bSwimUsesMoveLedger=true;
     virtual void ServerFillResponseData(const UCharacterMovementComponent& Movement,const FClientAdjustment& Adjustment) override;
     virtual bool Serialize(UCharacterMovementComponent& Movement,FArchive& Ar,UPackageMap* Map) override;
 };
@@ -47,6 +59,7 @@ class MESSCONTROL_API UMCToothMovementComponent : public UCharacterMovementCompo
 public:
     UMCToothMovementComponent();
     virtual void BeginPlay() override;
+    virtual void TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* TickFunction) override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out) const override;
     virtual float GetMaxSpeed() const override;
     virtual float GetMaxAcceleration() const override;
@@ -88,6 +101,33 @@ public:
     bool LastMoveRequestedSprint() const { return bStaminaSprintRequested; }
     bool LastMoveChargedDash() const { return bStaminaDashCharged; }
     void RestoreReplayDashCharge(bool Charge) { bReplayDashCharge=Charge; }
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Swimming",meta=(ClampMin="1")) float MaxSwimEnergy=100.f;
+    // Idle floating must not outlast the default 35-second flood hold.
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Swimming",meta=(ClampMin="0")) float SwimEnergyPerSecond=3.5f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Swimming",meta=(ClampMin="0")) float SwimStrokeEnergyPerSecond=1.3f;
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Swimming",meta=(ClampMin="0")) float SwimEnergyRecoveryPerSecond=22.f;
+    // Even an exhausted passenger can survive a two-second raft dip.
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Swimming",meta=(ClampMin="3")) float DrowningGraceSeconds=6.f;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Swimming") float GetMaxSwimEnergy() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Swimming") float GetSwimEnergy() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Swimming") float GetSwimEnergyNormalized() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Swimming") bool IsInDeepWater() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Swimming") bool IsSwimFatigued() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Swimming") bool IsDrowning() const;
+    UFUNCTION(BlueprintPure,Category="Locomotion|Swimming") float GetDrowningSecondsRemaining() const;
+    UFUNCTION(BlueprintCallable,BlueprintAuthorityOnly,Category="Locomotion|Swimming") void ResetSwimEnergy();
+    const FMCSwimPredictionState& GetSwimPrediction() const { return SwimState; }
+    const FMCSwimPredictionState& GetSwimResponseSnapshot() const { return ServerSwimSnapshot; }
+    bool UsesSwimMoveLedger() const;
+    bool SwimResponseUsesMoveLedger() const { return bServerSwimUsesMoveLedger; }
+    bool IsReplayingAuthoritativeSwim() const { return bReplayingAuthoritativeSwim; }
+    void RestoreSwimPrediction(const FMCSwimPredictionState& State);
+    void AdvanceSwimPrediction(float Dt,bool DeepWater,bool Recover,float Effort);
+    bool LastMoveWasDeepWater() const { return bSwimDeepSample; }
+    bool LastMoveCouldRecoverSwim() const { return bSwimRecoverySample; }
+    float LastMoveSwimEffort() const { return SwimEffortSample; }
+    float GetRaftBoardingCooldown() const { return RaftBoardingCooldown; }
+    void RestoreRaftBoardingCooldown(float Value) { RaftBoardingCooldown=FMath::IsFinite(Value)?FMath::Max(0.f,Value):0.f; }
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="500",ClampMax="1600")) float DashSpeed=1000;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.2",ClampMax="0.65")) float DashDuration=.42f;
     UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Locomotion|Dash",meta=(ClampMin="0.5",ClampMax="3")) float DashCooldown=1.1f;
@@ -133,6 +173,19 @@ private:
     bool bIceMovementLocked=false;
     EMovementMode IcePreviousMovementMode=MOVE_Walking;
     FMCStaminaPredictionState StaminaState,ServerStaminaSnapshot,PendingStaminaCorrection;
+    FMCSwimPredictionState SwimState,ServerSwimSnapshot,PendingSwimCorrection;
+    bool bServerSwimUsesMoveLedger=true,bPendingSwimCorrection=false,bReplayingAuthoritativeSwim=false;
+    UPROPERTY(ReplicatedUsing=OnRep_SwimState) FMCSwimPredictionState ReplicatedSwimState;
+    UFUNCTION() void OnRep_SwimState();
+    const FMCSwimPredictionState& SwimViewState() const;
+    float EffectiveDrowningGrace() const;
+    float SwimStrokeStrength() const;
+    void SampleSwimMove(float Dt);
+    void ResolveDrowning();
+    bool TryBoardRaft();
+    bool bSwimDeepSample=false,bSwimRecoverySample=false;
+    float SwimEffortSample=0.f;
+    float RaftBoardingCooldown=0.f;
     FMCStaminaMoveResponse StaminaMoveResponse;
     bool bPendingStaminaCorrection=false,bReplayingAuthoritativeStamina=false;
     bool bStaminaSprintRequested=false,bStaminaDashCharged=false,bReplayDashCharge=false;

@@ -1,0 +1,258 @@
+Using bundled DotNet SDK version: 10.0 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" MessControlEditor Win64 Development -Project=E:\DEVGAME\MessControl\MessControl.uproject -WaitMutex -NoHotReloadFromIDE
+Log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log.txt
+Determining max actions to execute in parallel (16 physical cores, 32 logical cores)
+  Executing up to 16 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (E:\DEVGAME\MessControl).
+UbaServer - Listening on 0.0.0.0:1345
+Invalidating makefile for MessControlEditor (source file added)
+UHT compiled-in object format Default
+UHT processed MessControlEditor in 11.054848 seconds (12 generated files written)
+Building MessControlEditor...
+===== Toolchain Information =====
+Using ISPC compiler (E:\UE\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35222 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from KawaiiPhysicsSequencer unity file: KawaiiPhysicsSequencerModule.cpp, KawaiiPhysicsSequencerMultiplierRegistry.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierSection.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTemplate.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTrack.cpp
+[Adaptive Build] Excluded from KawaiiPhysics unity file: AnimNode_KawaiiPhysics.cpp, AnimNode_KawaiiPhysicsCollision.cpp, AnimNode_KawaiiPhysicsDebug.cpp, AnimNode_KawaiiPhysicsModifyBones.cpp, AnimNode_KawaiiPhysicsSharedPublisher.cpp, AnimNode_KawaiiPhysicsSimulation.cpp, AnimNode_KawaiiPhysicsSyncBone.cpp, KawaiiPhysics.cpp, KawaiiPhysicsBoneConstraintsDataAsset.cpp, KawaiiPhysicsCustomExternalForce.cpp, KawaiiPhysicsDeveloperSettings.cpp, KawaiiPhysicsGroundProvider.cpp, KawaiiPhysicsLibrary.cpp, KawaiiPhysicsLimitsDataAsset.cpp, KawaiiPhysicsMirrorTableCache.cpp, KawaiiPhysicsMirrorUtils.cpp, KawaiiPhysicsPresetDataAsset.cpp, KawaiiPhysicsSharedCollisionSubsystem.cpp, KawaiiPhysicsSharedPublisherTypes.cpp, KawaiiPhysicsSharedTags.cpp, KawaiiPhysicsSimpleWorldCollision.cpp, KawaiiPhysicsSyncBone.cpp, KawaiiPhysicsWindPresetDataAsset.cpp, KawaiiPhysicsWindPresetTags.cpp, AnimNotifyState_KawaiiPhysicsAddExternalForce.cpp, AnimNotifyState_KawaiiPhysicsSetAlpha.cpp, AnimNotifyState_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsAddExternalForce.cpp, AnimNotify_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsTriggerGust.cpp, KawaiiPhysicsExternalForce.cpp, KawaiiPhysicsExternalForce_Basic.cpp, KawaiiPhysicsExternalForce_Curve.cpp, KawaiiPhysicsExternalForce_Gravity.cpp, KawaiiPhysicsExternalForce_ProceduralWind.cpp, KawaiiPhysicsExternalForce_Wind.cpp
+[Adaptive Build] Excluded from KawaiiPhysicsEd unity file: AnimGraphNode_KawaiiPhysics.cpp, AnimGraphNode_KawaiiPhysicsSharedPublisher.cpp, KawaiiPhysicsAuditCommandlet.cpp, KawaiiPhysicsEd.cpp, KawaiiPhysicsEditMode.cpp, KawaiiPhysicsEditorLibrary.cpp, KawaiiPhysicsEditorTabFactories.cpp, KawaiiPhysicsEdStyle.cpp, KawaiiPhysicsEdWindowUtils.cpp, KawaiiPhysicsMcpCommentNode.cpp, KawaiiPhysicsPresetDataAssetDetails.cpp, KawaiiPhysicsPresetDiffSnapshot.cpp, SKawaiiPhysicsNodeAuditWindow.cpp, SKawaiiPhysicsPresetDiffWindow.cpp, SKawaiiPhysicsWindScopeEditPanel.cpp, SKawaiiPhysicsWindScopeWindow.cpp, KawaiiPhysicsSettingsMultiplierSectionSummary.cpp, KawaiiPhysicsSettingsMultiplierTrackEditor.cpp
+[Adaptive Build] Excluded from MessControl unity file: MCAnimationComparisonSubsystem.cpp, MCBossAnimInstance.cpp, MCBossCharacter.cpp, MCCameraWallReveal.cpp, MCCataclysmDebris.cpp, MCCataclysmEvent.cpp, MCCataclysmJelly.cpp, MCCataclysmRaft.cpp, MCClimbing.cpp, MCCoffeeFlood.cpp, MCCoffeeVisuals.cpp, MCDevCommands.cpp, MCDevPanelWidget.cpp, MCGameDirector.cpp, MCGameplayHUD.cpp, MCGripComponent.cpp, MCInventoryComponent.cpp, MCMouthCamera.cpp, MCNutBoss.cpp, MCNutBossAnimInstance.cpp, MCNutCombatEffect.cpp, MCSecondaryAnimationSolver.cpp, MCStaminaWidget.cpp, MCToothAnimInstance.cpp, MCToothCharacter.cpp, MCToothLocomotion.cpp, MCToothMovementComponent.cpp, MCVFXLab.cpp, MCVFXLabBossStation.cpp, MCActiveRagdollSmoke.cpp, MCApprovalVideo.cpp, MCCameraRevealSmoke.cpp, MCCameraSteadySmoke.cpp, MCClimbNetworkSmoke.cpp, MCDashSuctionNetworkSmoke.cpp, MCGameplayV3Smoke.cpp, MCOrbitCameraSmoke.cpp, MCSprayNetworkSmoke.cpp, MCWeaponPlayerNetworkSmoke.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 53 action(s)
+  CPU 16 physical cores, 32 logical cores
+  Memory 31.91 GB physical, 63.96 GB/77.5 GB committed
+  UBA Storage capacity 40 GB
+[1/53] Compile [x64] MCActiveRagdollSmoke.cpp
+[2/53] Compile [x64] MCApprovalVideo.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[3/53] Compile [x64] MCBossCharacter.cpp
+[4/53] Compile [x64] MCCameraRevealSmoke.cpp
+[5/53] Compile [x64] MCCameraSteadySmoke.cpp
+[6/53] Compile [x64] MCCameraWallReveal.cpp
+[7/53] Compile [x64] MCCataclysmDebris.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(222,53): warning C4996: 'ACharacter::GetMovementBase': GetMovementBase is deprecated. Use GetMovementBaseObject or GetMovementBaseInterfaceData instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+            const UPrimitiveComponent* Base = Hero->GetMovementBase();
+                                                    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(369,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, Flood);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(370,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, Tongue);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(371,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, Seed);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(372,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, SpawnedAt);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(373,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, DriftVelocity);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(374,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, ImpactCount);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(375,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, PlayerImpactCount);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(376,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, BracedContactCount);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(377,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, RaftImpactCount);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(378,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, LastImpactAt);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmDebris.cpp(379,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmDebris, RetireAt);
+    ^
+[8/53] Compile [x64] MCCataclysmEvent.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[9/53] Compile [x64] MCCataclysmJelly.cpp
+[10/53] Compile [x64] MCCataclysmRaft.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[11/53] Compile [x64] MCClimbNetworkSmoke.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[12/53] Compile [x64] MCClimbing.cpp
+[13/53] Compile [x64] MCCoffeeFlood.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[14/53] Compile [x64] MCCoffeeVisuals.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[15/53] Compile [x64] MCDashSuctionNetworkSmoke.cpp
+[16/53] Compile [x64] MCDevCommands.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[17/53] Compile [x64] MCDevPanelWidget.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[18/53] Compile [x64] MCGameDirector.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[19/53] Compile [x64] MCGameplayHUD.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[20/53] Compile [x64] MCGameplayV3Smoke.cpp
+[21/53] Compile [x64] MCGripComponent.cpp
+[22/53] Compile [x64] MCInventoryComponent.cpp
+[23/53] Compile [x64] MCMouthCamera.cpp
+[24/53] Compile [x64] MCNutBoss.cpp
+[25/53] Compile [x64] MCOrbitCameraSmoke.cpp
+[26/53] Compile [x64] MCSprayNetworkSmoke.cpp
+[27/53] Compile [x64] MCStaminaWidget.cpp
+[28/53] Compile [x64] MCToothAnimInstance.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[29/53] Compile [x64] MCToothCharacter.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[30/53] Compile [x64] MCToothLocomotion.cpp
+[31/53] Compile [x64] MCToothMovementComponent.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[32/53] Compile [x64] MCVFXLab.cpp
+[33/53] Compile [x64] MCVFXLabBossStation.cpp
+[34/53] Compile [x64] MCWeaponPlayerNetworkSmoke.cpp
+[35/53] Compile [x64] Module.MessControl.1.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[36/53] Compile [x64] Module.MessControl.10.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[37/53] Compile [x64] Module.MessControl.11.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[38/53] Compile [x64] Module.MessControl.12.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[39/53] Compile [x64] Module.MessControl.13.cpp
+[40/53] Compile [x64] Module.MessControl.2.cpp
+[41/53] Compile [x64] Module.MessControl.3.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[42/53] Compile [x64] Module.MessControl.4.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[43/53] Compile [x64] Module.MessControl.5.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[44/53] Compile [x64] Module.MessControl.6.cpp
+[45/53] Compile [x64] Module.MessControl.7.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[46/53] Compile [x64] Module.MessControl.8.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[47/53] Compile [x64] Module.MessControl.9.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Public\MCCoffeeFlood.h(49,26): error C4458: declaration of 'Bounds' hides class member
+        FBoxSphereBounds Bounds=Super::CalcBounds(LocalToWorld);
+                         ^
+E:\UE\UE_5.8\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(129,19): note: see declaration of 'USceneComponent::Bounds'
+	FBoxSphereBounds Bounds;
+	                 ^
+[48/53] Compile [x64] MCRogueGameplayReview.cpp
+[49/53] Link [x64] UnrealEditor-MessControlEditor.lib
+Total time in Unreal Build Accelerator local executor: 550.51 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 567.01 seconds
+Trace written to file C:\Users\user\AppData\Local\UnrealBuildTool\Trace.uba with size 87.0kb

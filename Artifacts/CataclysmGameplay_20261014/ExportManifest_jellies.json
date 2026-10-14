@@ -1,0 +1,117 @@
+{
+  "exported_utc": "2026-10-14T03:58:07.728006+00:00",
+  "exclude_nonclient_frames_requested": true,
+  "previews": [
+    {
+      "mode": "jellies",
+      "clip": "jelly_rupture",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/jelly_rupture.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/jelly_rupture.png",
+      "video_sha256": "2079634096771f196048e29ff60cac63941345b17f8d0c446bd2f88937981c9e",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/jelly_rupture.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmGameplay_20261014/jelly_rupture.ffconcat",
+      "genuine_source_frames": 117,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 9.016667136922479,
+      "source_time_end_seconds": 24.61666795052588,
+      "source_game_span_seconds": 15.600000813603401,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Reviewed by root through decoded video contact sheets and source screenshots: readable motion, gameplay lighting and HUD; no performance profile.",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "469"
+          }
+        ],
+        "format": {
+          "duration": "15.633333"
+        }
+      }
+    }
+  ],
+  "reports": [
+    {
+      "mode": "jellies",
+      "report": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmSolo/Report_jellies.json",
+      "report_sha256": "7e9f34fb0bd9d922cfeb8cac6afceed588790582054f219aba0faba8aca53311",
+      "source_sha256": {
+        "Source/MessControl/Private/MCCataclysmEvent.cpp": "8a089274db73e8316f530d43d65eda278da7295f1aaa47be152b87b8166d76d0",
+        "Source/MessControl/Private/MCCataclysmRaft.cpp": "613378894ff7e7ddadd26fe121cb2cd7b075c3ae911687327a8d773b9b648bbd",
+        "Source/MessControl/Private/MCCataclysmJelly.cpp": "82475d7e51f5c22def495ac5d6f086a210a9a2d83f3c53d0da0d30fb4e156c28",
+        "Source/MessControl/Private/MCToothMovementComponent.cpp": "64a8dc75f52c3e0df93968113f0c6f4166a6a3ef587d4d08850706368534998b",
+        "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8"
+      },
+      "checks": {
+        "real_f3_deterministic_start": true,
+        "jelly_variant_exclusive": true,
+        "normal_pickaxe_kill_waits_for_rupture": true,
+        "rupture_has_persistent_brushable_grime": true,
+        "all_native_ruptures_enter_cleanup": true,
+        "dirty_cleanup_persists_without_timer_completion": true,
+        "ordinary_brush_reduces_event_grime": true
+      },
+      "fixture_tuning": {},
+      "limitations": [
+        "Position-only placement of the observer and stationary allied NPC weight fixtures is not a skill/balance playthrough.",
+        "Raft mode uses a 26-second deep-water hold; jelly mode uses the unmodified default 360 HP.",
+        "Normal Pickaxe and brush inputs drive damage and cleaning; no damage/care helper or health/dirt zeroing is used.",
+        "Cleanup persistence and one real brush improvement are checked; complete mouth cleanup remains a manual checkpoint.",
+        "No network clients, editor map changes, package saves, build/cook/package or broad test suite."
+      ],
+      "manual_checkpoints": [
+        "Finish every actual patch/player/tooth care task and verify Complete only at zero consequences.",
+        "Assess default 35-second flood hold and natural jelly difficulty without the position-only observer fixture.",
+        "Inspect rendered warning/foam/rupture clips; telemetry does not establish visual quality."
+      ],
+      "integrity_verified_source_frames": 202,
+      "accepted_client_frames": 200,
+      "excluded_nonclient_frames": [
+        {
+          "source_frame_index": 53,
+          "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmSolo/Runs/20261014T035315Z_jellies_d4ed119c/frames/00053.png",
+          "sha256": "da4f8858bfc2d9b3903fbcddfda7a7e7d05a4976d09de0b5fa5936a8de702cbc",
+          "time": 8.88333379663527,
+          "width": 2311,
+          "height": 1122,
+          "clip_window": "jelly_rupture",
+          "reason": "PNG dimensions are neither 1280x720 game client nor 1286x760 floating client window; excluded with explicit --exclude-nonclient-frames",
+          "integrity_validation": "Source SHA256, PNG chunks/CRC, metadata dimensions and game timestamp verified; source file left unchanged"
+        },
+        {
+          "source_frame_index": 55,
+          "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmSolo/Runs/20261014T035315Z_jellies_d4ed119c/frames/00055.png",
+          "sha256": "6df933db935e1dd8c9b318b66916476ad6c1902d49ca3fb069f834c0fd9ec4bf",
+          "time": 9.150000477209687,
+          "width": 2311,
+          "height": 1122,
+          "clip_window": "jelly_rupture",
+          "reason": "PNG dimensions are neither 1280x720 game client nor 1286x760 floating client window; excluded with explicit --exclude-nonclient-frames",
+          "integrity_validation": "Source SHA256, PNG chunks/CRC, metadata dimensions and game timestamp verified; source file left unchanged"
+        }
+      ],
+      "capture_validation": "Export uses a client-sized subset; excluded captures are not gameplay preview evidence"
+    }
+  ],
+  "limitations": [
+    "Sampled genuine engine screenshots do not record every game frame.",
+    "CFR output repeats source images at their actual game-time intervals; no interpolation or title cards.",
+    "Excluded nonclient captures stay recorded in report metadata. Their genuine time gaps remain as holds of preceding accepted frames; no wrong viewport is resized into output.",
+    "PlayerCamera metadata does not establish the screenshot surface; visual review of accepted client captures remains necessary.",
+    "The terminal 1 ms and 30 fps duration rounding are presentation padding, not additional observed gameplay.",
+    "Telemetry and successful encoding do not establish visual quality; inspect the previews in the gameplay camera."
+  ]
+}

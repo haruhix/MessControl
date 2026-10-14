@@ -2,6 +2,8 @@
 #include "MCPerkComponent.h"
 #include "MCFoodCollectionComponent.h"
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmRaft.h"
+#include "MCGameState.h"
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCInventoryComponent.h"
@@ -18,6 +20,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "EngineUtils.h"
+#include "Engine/ScopedMovementUpdate.h"
 #include "GameFramework/GameStateBase.h"
 
 FRootMotionSource* FMCLocomotionRootMotionSource::Clone() const { return new FMCLocomotionRootMotionSource(*this); }
@@ -49,6 +52,32 @@ void UMCToothMovementComponent::BeginPlay()
 {
     Super::BeginPlay();
     StaminaState.Value=GetMaxStamina(); ServerStaminaSnapshot=StaminaState;
+    SwimState.Value=GetMaxSwimEnergy(); ServerSwimSnapshot=ReplicatedSwimState=SwimState;
+}
+void UMCToothMovementComponent::TickComponent(float Dt,ELevelTick TickType,FActorComponentTickFunction* TickFunction)
+{
+    Super::TickComponent(Dt,TickType,TickFunction);
+    auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(!Hero || !Hero->Status || !Hero->ToothPhysics || Hero->GetLocalRole()==ROLE_SimulatedProxy) return;
+    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+    if(!Hero->Status->IsAlive() || Hero->SwallowedBy || Hero->IsMimicCaptured()
+        || (Game && (Game->bTutorialActive || Game->bLobbyWaiting)))
+    {
+        SwimState={}; SwimState.Value=GetMaxSwimEnergy();
+    }
+    else if(!Hero->ToothPhysics->CanAct())
+    {
+        // The mesh simulates while the capsule may still send MOVE_None moves.
+        // Survival uses ticks here; their ACKs must not replay this swim ledger.
+        const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
+        const bool Wet=DeepWaterAt(P,true)!=nullptr;
+        AdvanceSwimPrediction(Dt,Wet,false,0.f);
+    }
+    if(Hero->HasAuthority())
+    {
+        ResolveDrowning();
+        ReplicatedSwimState=SwimState;
+    }
 }
 void UMCToothMovementComponent::SetFrozenLegs(bool Frozen)
 {
@@ -98,12 +127,17 @@ void FMCStaminaMoveResponse::ServerFillResponseData(const UCharacterMovementComp
 {
     FCharacterMoveResponseDataContainer::ServerFillResponseData(Movement,Adjustment);
     Stamina=CastChecked<UMCToothMovementComponent>(&Movement)->GetStaminaResponseSnapshot();
+    Swim=CastChecked<UMCToothMovementComponent>(&Movement)->GetSwimResponseSnapshot();
+    bSwimUsesMoveLedger=CastChecked<UMCToothMovementComponent>(&Movement)->SwimResponseUsesMoveLedger();
 }
 bool FMCStaminaMoveResponse::Serialize(UCharacterMovementComponent& Movement,FArchive& Ar,UPackageMap* Map)
 {
     if (!FCharacterMoveResponseDataContainer::Serialize(Movement,Ar,Map)) return false;
     Ar<<Stamina.Value<<Stamina.RecoveryDelay<<Stamina.Exhausted;
-    return !Ar.IsError() && FMath::IsFinite(Stamina.Value) && FMath::IsFinite(Stamina.RecoveryDelay);
+    Ar<<Swim.Value<<Swim.DrowningElapsed<<Swim.bInDeepWater;
+    Ar<<bSwimUsesMoveLedger;
+    return !Ar.IsError() && FMath::IsFinite(Stamina.Value) && FMath::IsFinite(Stamina.RecoveryDelay)
+        && FMath::IsFinite(Swim.Value) && FMath::IsFinite(Swim.DrowningElapsed);
 }
 void UMCToothMovementComponent::RestoreStaminaPrediction(const FMCStaminaPredictionState& State)
 {
@@ -136,6 +170,101 @@ void UMCToothMovementComponent::AdvanceStaminaPrediction(float Dt,bool SprintReq
         if (StaminaState.Value>=GetMaxStamina()*.15f) StaminaState.Exhausted=false;
     }
 }
+float UMCToothMovementComponent::GetMaxSwimEnergy() const
+{
+    return FMath::IsFinite(MaxSwimEnergy)?FMath::Max(1.f,MaxSwimEnergy):100.f;
+}
+bool UMCToothMovementComponent::UsesSwimMoveLedger() const
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    return Hero && Hero->ToothPhysics && Hero->ToothPhysics->CanAct();
+}
+float UMCToothMovementComponent::EffectiveDrowningGrace() const
+{
+    return FMath::IsFinite(DrowningGraceSeconds)?FMath::Max(3.f,DrowningGraceSeconds):6.f;
+}
+const FMCSwimPredictionState& UMCToothMovementComponent::SwimViewState() const
+{
+    return CharacterOwner && CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy?ReplicatedSwimState:SwimState;
+}
+float UMCToothMovementComponent::GetSwimEnergy() const { return FMath::Clamp(SwimViewState().Value,0.f,GetMaxSwimEnergy()); }
+float UMCToothMovementComponent::GetSwimEnergyNormalized() const { return GetSwimEnergy()/GetMaxSwimEnergy(); }
+bool UMCToothMovementComponent::IsInDeepWater() const { return SwimViewState().bInDeepWater; }
+bool UMCToothMovementComponent::IsSwimFatigued() const { return IsInDeepWater() && GetSwimEnergyNormalized()<=.25f; }
+bool UMCToothMovementComponent::IsDrowning() const { return IsInDeepWater() && GetSwimEnergy()<=UE_SMALL_NUMBER; }
+float UMCToothMovementComponent::GetDrowningSecondsRemaining() const
+{
+    return IsDrowning()?FMath::Max(0.f,EffectiveDrowningGrace()-SwimViewState().DrowningElapsed):0.f;
+}
+void UMCToothMovementComponent::ResetSwimEnergy()
+{
+    if(!CharacterOwner || !CharacterOwner->HasAuthority()) return;
+    SwimState={}; SwimState.Value=GetMaxSwimEnergy();
+    ServerSwimSnapshot=ReplicatedSwimState=SwimState;
+    CharacterOwner->ForceNetUpdate();
+}
+void UMCToothMovementComponent::OnRep_SwimState()
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    // Standing owners use timestamped move responses, never a stale property
+    // update. Ragdolls have no movement packets and use this server snapshot.
+    if(CharacterOwner && (CharacterOwner->GetLocalRole()==ROLE_SimulatedProxy
+        || (Hero && Hero->ToothPhysics && !Hero->ToothPhysics->CanAct()))) RestoreSwimPrediction(ReplicatedSwimState);
+}
+void UMCToothMovementComponent::RestoreSwimPrediction(const FMCSwimPredictionState& State)
+{
+    SwimState=State;
+    SwimState.Value=FMath::IsFinite(State.Value)?FMath::Clamp(State.Value,0.f,GetMaxSwimEnergy()):0.f;
+    SwimState.DrowningElapsed=FMath::IsFinite(State.DrowningElapsed)?FMath::Clamp(State.DrowningElapsed,0.f,EffectiveDrowningGrace()):0.f;
+}
+void UMCToothMovementComponent::AdvanceSwimPrediction(float Dt,bool DeepWater,bool Recover,float Effort)
+{
+    if(!FMath::IsFinite(Dt) || Dt<=0) return;
+    SwimState.bInDeepWater=DeepWater;
+    if(DeepWater)
+    {
+        const float Idle=FMath::IsFinite(SwimEnergyPerSecond)?FMath::Max(0.f,SwimEnergyPerSecond):3.5f;
+        const float Stroke=FMath::IsFinite(SwimStrokeEnergyPerSecond)?FMath::Max(0.f,SwimStrokeEnergyPerSecond):1.3f;
+        const float Drain=Idle+Stroke*(FMath::IsFinite(Effort)?FMath::Clamp(Effort,0.f,1.f):0.f);
+        // Start drowning only for the fraction of this move after exhaustion.
+        const float GraceTime=SwimState.Value<=0?Dt:Drain>0?FMath::Max(0.f,Dt-SwimState.Value/Drain):0.f;
+        SwimState.Value=FMath::Max(0.f,SwimState.Value-Drain*Dt);
+        SwimState.DrowningElapsed=FMath::Min(EffectiveDrowningGrace(),SwimState.DrowningElapsed+GraceTime);
+    }
+    else if(Recover)
+    {
+        const float Rate=FMath::IsFinite(SwimEnergyRecoveryPerSecond)?FMath::Max(0.f,SwimEnergyRecoveryPerSecond):22.f;
+        SwimState.Value=FMath::Min(GetMaxSwimEnergy(),SwimState.Value+Rate*Dt);
+        SwimState.DrowningElapsed=0.f;
+    }
+    // Airborne exits pause the clock; only confirmed ground/deck resets it.
+}
+float UMCToothMovementComponent::SwimStrokeStrength() const
+{
+    return FMath::Lerp(.35f,1.f,FMath::Clamp(GetSwimEnergyNormalized()/.25f,0.f,1.f));
+}
+void UMCToothMovementComponent::SampleSwimMove(float Dt)
+{
+    const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(!Hero || Hero->GetLocalRole()==ROLE_SimulatedProxy || !Hero->Status || !Hero->Status->IsAlive() || !Hero->ToothPhysics || !Hero->ToothPhysics->CanAct()
+        || Hero->SwallowedBy || Hero->IsMimicCaptured() || !UpdatedComponent) return;
+    const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+    if(Game && (Game->bTutorialActive || Game->bLobbyWaiting)) return;
+    bSwimDeepSample=DeepWaterAt(UpdatedComponent->GetComponentLocation(),IsSwimming())!=nullptr;
+    bSwimRecoverySample=!bSwimDeepSample && IsMovingOnGround() && CurrentFloor.IsWalkableFloor();
+    SwimEffortSample=bSwimDeepSample?FMath::Clamp(float(Acceleration.Size2D())/FMath::Max(1.f,GetMaxAcceleration()),0.f,1.f):0.f;
+    AdvanceSwimPrediction(Dt,bSwimDeepSample,bSwimRecoverySample,SwimEffortSample);
+}
+void UMCToothMovementComponent::ResolveDrowning()
+{
+    auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(!Hero || !Hero->HasAuthority() || !Hero->Status || !Hero->Status->IsAlive()
+        || !IsDrowning() || SwimState.DrowningElapsed<EffectiveDrowningGrace()
+        || Hero->SwallowedBy || Hero->IsMimicCaptured()) return;
+    const FVector P=Hero->ToothPhysics->GetBodyState()==EMCBodyState::Ragdoll?Hero->ToothPhysics->PhysicalLocation():Hero->GetActorLocation();
+    // Recheck after movement: a successful last-second boarding saves them.
+    if(auto* Water=DeepWaterAt(P,true)) Hero->Status->Damage(Hero->Status->State.MaxHealth*2.f,-FVector::UpVector,Water);
+}
 namespace
 {
     const FName DashSourceName(TEXT("MCTapDash"));
@@ -158,12 +287,17 @@ namespace
         using Super=FSavedMove_Character;
         bool Sprint=false,Climb=false,Dash=false;
         float DashCooldown=0;
+        float RaftCooldown=0;
         FMCStaminaPredictionState StaminaBefore,StaminaAfter;
+        FMCSwimPredictionState SwimBefore,SwimAfter;
         bool SprintRequested=false,DashCharged=false;
+        bool SwimDeep=false,SwimRecover=false;
+        bool bSwimUsesMoveLedger=false;
+        float SwimEffort=0.f;
         FVector Suction=FVector::ZeroVector;
         FVector River=FVector::ZeroVector;
         FMCBraceMovementState BraceState;
-        virtual void Clear() override { Super::Clear(); Sprint=Climb=Dash=false;DashCooldown=0;Suction=River=FVector::ZeroVector;BraceState={};StaminaBefore=StaminaAfter={};SprintRequested=DashCharged=false; }
+        virtual void Clear() override { Super::Clear(); Sprint=Climb=Dash=false;DashCooldown=RaftCooldown=0;Suction=River=FVector::ZeroVector;BraceState={};StaminaBefore=StaminaAfter={};SwimBefore=SwimAfter={};SprintRequested=DashCharged=SwimDeep=SwimRecover=bSwimUsesMoveLedger=false;SwimEffort=0; }
         virtual uint8 GetCompressedFlags() const override { return Super::GetCompressedFlags() | (Sprint?FLAG_Custom_0:0) | (Climb?FLAG_Custom_1:0) | (Dash?FLAG_Custom_2:0); }
         virtual bool CanCombineWith(const FSavedMovePtr& Move,ACharacter* Hero,float MaxDelta) const override
         {
@@ -171,6 +305,10 @@ namespace
             return !Dash && !Other->Dash && Sprint==Other->Sprint && Climb==Other->Climb && Suction.Equals(Other->Suction,.1) && River.Equals(Other->River,.1)
                 && BraceState.Equals(Other->BraceState)
                 && StaminaBefore.Exhausted==Other->StaminaBefore.Exhausted
+                && !SwimDeep && !Other->SwimDeep && SwimRecover==Other->SwimRecover
+                && SwimBefore.bInDeepWater==Other->SwimBefore.bInDeepWater
+                && bSwimUsesMoveLedger==Other->bSwimUsesMoveLedger
+                && RaftCooldown<=0 && Other->RaftCooldown<=0
                 && Super::CanCombineWith(Move,Hero,MaxDelta);
         }
         virtual bool IsImportantMove(const FSavedMovePtr& LastAcked) const override { return Dash || Super::IsImportantMove(LastAcked); }
@@ -180,10 +318,14 @@ namespace
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             Sprint=M->WantsToSprint();Climb=M->WantsClimb();Dash=M->WantsDash();DashCooldown=M->GetDashCooldownRemaining();
             StaminaBefore=M->GetStaminaPrediction();
+            SwimBefore=M->GetSwimPrediction(); RaftCooldown=M->GetRaftBoardingCooldown();
+            bSwimUsesMoveLedger=M->UsesSwimMoveLedger();
+            SwimDeep=M->LastMoveWasDeepWater(); SwimRecover=M->LastMoveCouldRecoverSwim(); SwimEffort=M->LastMoveSwimEffort();
             BraceState=M->CaptureBraceForMove();
             Suction=M->CaptureSuctionForMove();
             River=M->CaptureRiverForMove();
-            if(Dash) bForceNoCombine=true;
+            const auto* Tooth=Cast<AMCToothCharacter>(Hero);
+            if(Dash || !M->IsMovingOnGround() || SwimDeep || (Tooth && Tooth->Grip && Cast<AMCCataclysmRaft>(Tooth->Grip->BraceTarget()))) bForceNoCombine=true;
         }
         virtual void PrepMoveFor(ACharacter* Hero) override
         {
@@ -192,8 +334,11 @@ namespace
             M->SetSprinting(Sprint);M->SetWantsClimb(Climb);M->SetWantsDash(Dash);M->RestoreDashPrediction(DashCooldown);M->RestoreSuctionForMove(Suction);
             M->RestoreRiverForMove(River);
             M->RestoreBraceForMove(BraceState);
+            M->RestoreRaftBoardingCooldown(RaftCooldown);
             if (!M->IsReplayingAuthoritativeStamina()) M->RestoreStaminaPrediction(StaminaBefore);
             else StaminaBefore=M->GetStaminaPrediction();
+            if(bSwimUsesMoveLedger && M->UsesSwimMoveLedger() && !M->IsReplayingAuthoritativeSwim()) M->RestoreSwimPrediction(SwimBefore);
+            else SwimBefore=M->GetSwimPrediction();
             M->RestoreReplayDashCharge(DashCharged);
         }
         virtual void PostUpdate(ACharacter* Hero,EPostUpdateMode Mode) override
@@ -201,6 +346,8 @@ namespace
             Super::PostUpdate(Hero,Mode);
             const auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             StaminaAfter=M->GetStaminaPrediction(); SprintRequested=M->LastMoveRequestedSprint(); DashCharged=M->LastMoveChargedDash();
+            SwimAfter=M->GetSwimPrediction(); SwimDeep=M->LastMoveWasDeepWater(); SwimRecover=M->LastMoveCouldRecoverSwim(); SwimEffort=M->LastMoveSwimEffort();
+            bSwimUsesMoveLedger=M->UsesSwimMoveLedger();
         }
         virtual void CombineWith(const FSavedMove_Character* OldMove,ACharacter* Hero,APlayerController* PC,const FVector& OldStart) override
         {
@@ -208,7 +355,10 @@ namespace
             const auto* Previous=static_cast<const FMCStrideMove*>(OldMove);
             auto* M=CastChecked<UMCToothMovementComponent>(Hero->GetCharacterMovement());
             StaminaBefore=Previous->StaminaBefore; DashCooldown=Previous->DashCooldown;
+            SwimBefore=Previous->SwimBefore; RaftCooldown=Previous->RaftCooldown;
             M->RestoreStaminaPrediction(StaminaBefore); M->RestoreDashPrediction(DashCooldown);
+            if(bSwimUsesMoveLedger && M->UsesSwimMoveLedger()) M->RestoreSwimPrediction(SwimBefore);
+            M->RestoreRaftBoardingCooldown(RaftCooldown);
         }
     };
     class FMCStridePrediction final : public FNetworkPredictionData_Client_Character
@@ -228,10 +378,16 @@ bool UMCToothMovementComponent::ClientUpdatePositionAfterServerUpdate()
     // PrepMoveFor restores old input while replaying corrections. Preserve the
     // live intents, including a fresh Shift press not yet captured in a move.
     const bool Sprint=bWantsToSprint,Climb=bWantsToClimb,Dash=bWantsDash;
+    bReplayingAuthoritativeSwim=bPendingSwimCorrection && UsesSwimMoveLedger();
     if (bPendingStaminaCorrection)
-    { RestoreStaminaPrediction(PendingStaminaCorrection); bReplayingAuthoritativeStamina=true; }
+    {
+        RestoreStaminaPrediction(PendingStaminaCorrection);
+        if(bReplayingAuthoritativeSwim) RestoreSwimPrediction(PendingSwimCorrection);
+        bReplayingAuthoritativeStamina=true;
+    }
     const bool Replayed=Super::ClientUpdatePositionAfterServerUpdate();
     bPendingStaminaCorrection=false; bReplayingAuthoritativeStamina=false;
+    bPendingSwimCorrection=false; bReplayingAuthoritativeSwim=false;
     bWantsToSprint=Sprint;bWantsToClimb=Climb;bWantsDash=Dash;
     return Replayed;
 }
@@ -241,7 +397,10 @@ void UMCToothMovementComponent::ServerMoveHandleClientError(float TimeStamp,floa
     Super::ServerMoveHandleClientError(TimeStamp,Dt,Accel,Location,Base,Bone,Mode);
     // A throttled correction may still describe an older move. Capture only
     // when the engine updates that adjustment, rather than at response send.
-    if (GetPredictionData_Server_Character()->PendingAdjustment.TimeStamp==TimeStamp) ServerStaminaSnapshot=StaminaState;
+    if (GetPredictionData_Server_Character()->PendingAdjustment.TimeStamp==TimeStamp) {
+        ServerStaminaSnapshot=StaminaState; ServerSwimSnapshot=SwimState;
+        bServerSwimUsesMoveLedger=UsesSwimMoveLedger();
+    }
 }
 void UMCToothMovementComponent::ClientHandleMoveResponse(const FCharacterMoveResponseDataContainer& Response)
 {
@@ -250,18 +409,32 @@ void UMCToothMovementComponent::ClientHandleMoveResponse(const FCharacterMoveRes
     Super::ClientHandleMoveResponse(Response);
     if (!Recognized || !Data->LastAckedMove.IsValid() || Data->LastAckedMove->TimeStamp!=Response.ClientAdjustment.TimeStamp) return;
     const auto& State=static_cast<const FMCStaminaMoveResponse&>(Response).Stamina;
+    const auto& Swim=static_cast<const FMCStaminaMoveResponse&>(Response).Swim;
+    const bool ReconcileSwim=UsesSwimMoveLedger() && static_cast<const FMCStaminaMoveResponse&>(Response).bSwimUsesMoveLedger;
     static_cast<FMCStrideMove*>(Data->LastAckedMove.Get())->StaminaAfter=State;
+    if(ReconcileSwim) static_cast<FMCStrideMove*>(Data->LastAckedMove.Get())->SwimAfter=Swim;
     if (Data->bUpdatePosition)
-    { PendingStaminaCorrection=State; bPendingStaminaCorrection=true; return; }
+    {
+        PendingStaminaCorrection=State; bPendingStaminaCorrection=true;
+        bPendingSwimCorrection=ReconcileSwim;
+        if(ReconcileSwim) PendingSwimCorrection=Swim;
+        return;
+    }
     // Good acknowledgements also reconcile stamina. Replay only the resource
     // ledger of newer moves; position/root motion remain on the normal CMC path.
     RestoreStaminaPrediction(State);
+    if(ReconcileSwim) RestoreSwimPrediction(Swim);
     for (const auto& Saved:Data->SavedMoves)
     {
         auto* Move=static_cast<FMCStrideMove*>(Saved.Get());
         Move->StaminaBefore=StaminaState;
         AdvanceStaminaPrediction(Move->DeltaTime,Move->SprintRequested,Move->DashCharged);
         Move->StaminaAfter=StaminaState;
+        if(ReconcileSwim && Move->bSwimUsesMoveLedger) {
+            Move->SwimBefore=SwimState;
+            AdvanceSwimPrediction(Move->DeltaTime,Move->SwimDeep,Move->SwimRecover,Move->SwimEffort);
+            Move->SwimAfter=SwimState;
+        }
     }
 }
 void UMCToothMovementComponent::UpdateFromCompressedFlags(uint8 Flags)
@@ -272,6 +445,7 @@ void UMCToothMovementComponent::GetLifetimeReplicatedProps(TArray<FLifetimePrope
     DOREPLIFETIME_CONDITION(UMCToothMovementComponent,GroundSurface,COND_SimulatedOnly);
     DOREPLIFETIME_CONDITION(UMCToothMovementComponent,MovementIntent,COND_SimulatedOnly);
     DOREPLIFETIME_CONDITION(UMCToothMovementComponent,bSprintActive,COND_SimulatedOnly);
+    DOREPLIFETIME(UMCToothMovementComponent,ReplicatedSwimState);
     DOREPLIFETIME(UMCToothMovementComponent,ClimbNormal);
     DOREPLIFETIME_CONDITION(UMCToothMovementComponent,DashStartedAt,COND_SimulatedOnly);
     DOREPLIFETIME_CONDITION(UMCToothMovementComponent,DashDirection,COND_SimulatedOnly);
@@ -601,6 +775,47 @@ AMCCoffeeFlood* UMCToothMovementComponent::DeepWaterAt(FVector P,bool Continuing
     }
     return nullptr;
 }
+bool UMCToothMovementComponent::TryBoardRaft()
+{
+    auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);
+    if(!HasValidData() || !IsSwimming() || RaftBoardingCooldown>0 || !Hero || !Hero->CanWork()
+        || Hero->HasFrozenLegs() || !Hero->Grip || !Hero->Grip->IsBraceInputHeld()) return false;
+    auto* Raft=Cast<AMCCataclysmRaft>(Hero->Grip->BraceTarget());
+    if(!IsValid(Raft) || Raft->GetWorld()!=GetWorld() || !Raft->IsBoardable()) return false;
+    RaftBoardingCooldown=.35f;
+    FVector Foot;
+    auto* Deck=Raft->GetDeckComponent();
+    if(!Deck || !Raft->FindBoardingPoint(Hero,Foot) || Foot.ContainsNaN()) return false;
+    const auto* Capsule=Hero->GetCapsuleComponent();
+    const float Radius=Capsule->GetScaledCapsuleRadius(),Half=Capsule->GetScaledCapsuleHalfHeight();
+    const FVector Start=UpdatedComponent->GetComponentLocation(),Goal=Foot+FVector(0,0,Half+4.f);
+    // An actual hand contact is required above; this bounds the added mantle.
+    if(FVector::Dist2D(Start,Goal)>250.f || Goal.Z-Start.Z>155.f || Goal.Z<Start.Z-20.f) return false;
+    FCollisionQueryParams Q(SCENE_QUERY_STAT(MCRaftBoarding),false,Hero);
+    const FCollisionResponseParams Response(Capsule->GetCollisionResponseToChannels());
+    if(GetWorld()->OverlapBlockingTestByChannel(Goal,UpdatedComponent->GetComponentQuat(),Capsule->GetCollisionObjectType(),
+        FCollisionShape::MakeCapsule(Radius,Half),Q,Response)) return false;
+    FScopedMovementUpdate Boarding(UpdatedComponent,EScopedUpdate::DeferredUpdates);
+    const bool WasTeleported=bJustTeleported;
+    const auto Undo=[&]() { Boarding.RevertMove(); bJustTeleported=WasTeleported; return false; };
+    FHitResult Sweep;
+    // Follow the lip with the full capsule, never through the deck, another
+    // passenger or a ceiling. A failed stage reverts the entire attempt.
+    const FVector Above(Start.X,Start.Y,FMath::Max(Start.Z,Goal.Z+12.f));
+    SafeMoveUpdatedComponent(Above-Start,UpdatedComponent->GetComponentQuat(),true,Sweep);
+    if(Sweep.bBlockingHit || Sweep.bStartPenetrating) return Undo();
+    SafeMoveUpdatedComponent(FVector(Goal.X,Goal.Y,Above.Z)-UpdatedComponent->GetComponentLocation(),UpdatedComponent->GetComponentQuat(),true,Sweep);
+    if(Sweep.bBlockingHit || Sweep.bStartPenetrating) return Undo();
+    SafeMoveUpdatedComponent(Goal-UpdatedComponent->GetComponentLocation(),UpdatedComponent->GetComponentQuat(),true,Sweep);
+    if(Sweep.bBlockingHit || Sweep.bStartPenetrating) return Undo();
+    FFindFloorResult Floor;
+    FindFloor(UpdatedComponent->GetComponentLocation(),Floor,false);
+    if(!Floor.IsWalkableFloor() || Floor.FloorDist>6.f || Floor.HitResult.GetComponent()!=Deck || !Raft->IsBoardable()) return Undo();
+    SetMovementMode(MOVE_Walking);
+    CurrentFloor=Floor; AdjustFloorHeight(); SetBaseFromFloor(CurrentFloor);
+    Velocity=FVector::ZeroVector; BraceMovement={};
+    return true;
+}
 void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
 {
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs()) {SetFrozenLegs(true);return;}
@@ -633,18 +848,21 @@ void UMCToothMovementComponent::UpdateCharacterStateBeforeMovement(float Dt)
         if (!IsSwimming()) SetMovementMode(MOVE_Swimming);
     }
     else if (IsSwimming()) SetMovementMode(MOVE_Falling);
+    RaftBoardingCooldown=FMath::Max(0.f,RaftBoardingCooldown-Dt);
+    if(IsSwimming()) TryBoardRaft();
     if(IsDashing() && !CanDashAction()) CancelDash();
 }
 void UMCToothMovementComponent::PerformMovement(float Dt)
 {
     bStaminaSprintRequested=false; bStaminaDashCharged=false;
+    bSwimDeepSample=bSwimRecoverySample=false; SwimEffortSample=0.f;
     if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);Hero && Hero->HasFrozenLegs())
     {
         // Applied on the server for every received move as well as owner replay.
         // MOVE_None consumes root motion without moving the capsule; hands still tick.
         SetFrozenLegs(true); bReplayDashCharge=false;
         AdvanceStaminaPrediction(Dt,false,false);
-        Super::PerformMovement(Dt); bHasBraceSample=false; return;
+        Super::PerformMovement(Dt); SampleSwimMove(Dt); bHasBraceSample=false; return;
     }
     if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy) {
         if(!bHasBraceSample) CaptureBraceForMove();
@@ -668,6 +886,7 @@ void UMCToothMovementComponent::PerformMovement(float Dt)
         UpdateRiverCurrent();
     }
     Super::PerformMovement(Dt);
+    if(CharacterOwner && CharacterOwner->GetLocalRole()!=ROLE_SimulatedProxy) SampleSwimMove(Dt);
     bHasBraceSample=false;
 }
 void UMCToothMovementComponent::TickCharacterPose(float Dt)
@@ -720,12 +939,15 @@ void UMCToothMovementComponent::PhysSwimming(float Dt,int32 Iterations)
         const FVector Input=FVector(Acceleration.X,Acceleration.Y,0).GetClampedToMaxSize(GetMaxAcceleration())/FMath::Max(1.f,GetMaxAcceleration());
         // The old ragdoll paddle could not overcome the drain. A deliberate stroke
         // is stronger, while an idle swimmer still drifts towards the throat.
-        const FVector Drive=Input*Water->Paddle*Water->WaterSettings.SwimStrokeMultiplier+Water->FlowAtPosition(Before,Hero);
+        const FVector Drive=Input*Water->Paddle*Water->WaterSettings.SwimStrokeMultiplier*SwimStrokeStrength()+Water->FlowAtPosition(Before,Hero);
         // Track a rising drink with its vertical speed. Damping against zero
         // velocity previously left the face submerged during fast filling.
         const FVector RelativeVelocity=Velocity-FVector(0,0,Water->SurfaceVerticalSpeedAt(Before));
         const FVector A=Water->WaterSettings.FloatAcceleration(Water->SurfaceHeightAt(Before),Before,RelativeVelocity,Drive,0,Water->WaterSettings.SwimFloatDepth);
         Velocity+=A*Step;
+        // Custom swimming bypasses CalcVelocity. Keep the same predicted RMB
+        // pull here so a deck rider can help an exhausted swimmer reach the lip.
+        Velocity+=BraceMovement.Acceleration*Step;
         const FVector Horizontal=FVector(Velocity.X,Velocity.Y,0).GetClampedToMaxSize(MaxSwimSpeed);
         Velocity=FVector(Horizontal.X,Horizontal.Y,FMath::Clamp(Velocity.Z,-220.,260.));
         ApplyRootMotionToVelocity(Step);

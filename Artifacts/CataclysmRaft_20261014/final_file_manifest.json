@@ -1,0 +1,146 @@
+{
+  "asset": "SM_CataclysmRaft",
+  "status": "final_visual_review_accepted",
+  "source_sha256": "6c813859f8a34dba77690d3f4890be31f39873871d113084aedd4b5c41290343",
+  "unreal_integration": "deferred",
+  "files": [
+    {
+      "path": "Tools/Blender/author_cataclysm_raft.py",
+      "bytes": 24576,
+      "sha256": "6c813859f8a34dba77690d3f4890be31f39873871d113084aedd4b5c41290343",
+      "modified_utc": "2026-10-14T02:15:58.128097+00:00"
+    },
+    {
+      "path": "ArtSource/CataclysmRaft/SM_CataclysmRaft.blend",
+      "bytes": 1749611,
+      "sha256": "330380a563592eaa5e419223e3e6c18266a1cff224df224de1ad220e0e9dcacb",
+      "modified_utc": "2026-10-14T02:16:00.625051+00:00"
+    },
+    {
+      "path": "ArtSource/CataclysmRaft/SM_CataclysmRaft.glb",
+      "bytes": 2011712,
+      "sha256": "f55c962d1972a781e53f25e7b749313c47ad1813ab9e5112012a0e93bd0ee4ad",
+      "modified_utc": "2026-10-14T02:16:00.526349+00:00"
+    },
+    {
+      "path": "ArtSource/CataclysmRaft/SM_CataclysmRaft.fbx",
+      "bytes": 2711596,
+      "sha256": "7f7359cd9901f903f9fbcef03e0b26eee9ea85108752c6c7a0b959637292eb2c",
+      "modified_utc": "2026-10-14T02:16:00.606209+00:00"
+    },
+    {
+      "path": "ArtSource/CataclysmRaft/Textures/T_CataclysmRaft_BaseColor.png",
+      "bytes": 533253,
+      "sha256": "be52651efa12be3344c1ef65307db220c8aa87af950ac0d09e9e255aa7c943f0",
+      "modified_utc": "2026-10-14T02:15:59.134582+00:00"
+    },
+    {
+      "path": "ArtSource/CataclysmRaft/Textures/T_CataclysmRaft_Normal.png",
+      "bytes": 460508,
+      "sha256": "00060ba76f37fe2b9784afb6e50ae68fd0c8ed22b2425f25940fe3eafbbe6266",
+      "modified_utc": "2026-10-14T02:15:59.236906+00:00"
+    },
+    {
+      "path": "ArtSource/CataclysmRaft/Textures/T_CataclysmRaft_Roughness.png",
+      "bytes": 126612,
+      "sha256": "da364ce467f7769115461c96d837d0be81809b91c170d88de2d35d63f3367b11",
+      "modified_utc": "2026-10-14T02:15:59.181350+00:00"
+    },
+    {
+      "path": "ArtSource/CataclysmRaft/manifest.json",
+      "bytes": 1497,
+      "sha256": "ad3bd11220389a683ac9d104d740160c5cf33b658492b1e2a189143080e45998",
+      "modified_utc": "2026-10-14T02:16:01.677044+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/hero.png",
+      "bytes": 1005190,
+      "sha256": "438ba64a00ab4aff3c4c283cf594c70c3a27d858c598506360436e251bb2527f",
+      "modified_utc": "2026-10-14T02:16:01.672134+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/fresh_glb_hero.png",
+      "bytes": 1005177,
+      "sha256": "e596994840d24c7a751ab162b7c2816ae11cc5fed894bb56a74f9c9eb47fb052",
+      "modified_utc": "2026-10-14T02:16:04.039448+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/fresh_fbx_hero.png",
+      "bytes": 1005424,
+      "sha256": "deb3137b855272e52c669975adf7db159d9d2d9f71c264b6f265496a93920aa1",
+      "modified_utc": "2026-10-14T02:17:16.898602+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/front.png",
+      "bytes": 234209,
+      "sha256": "c1b5c09dbe57c429504d6f15c655a62e0f7f5b2651b2093d9f31adb17f08f08e",
+      "modified_utc": "2026-10-14T02:16:04.274424+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/back.png",
+      "bytes": 234825,
+      "sha256": "da21ba4aa8e9abf427da58ae04c0fd8d1698f9df1ddd72461c00fe1116ed71c4",
+      "modified_utc": "2026-10-14T02:16:04.482966+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/left.png",
+      "bytes": 239721,
+      "sha256": "f90616d076dfeced6edb0adcc763d71ca927ae8eb636033fc979593e6594111f",
+      "modified_utc": "2026-10-14T02:16:04.676757+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/right.png",
+      "bytes": 240566,
+      "sha256": "8437c3c80647cde101d096823dba1a487c510b98da9c3b575a8ad28620f9e9c5",
+      "modified_utc": "2026-10-14T02:16:04.870514+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/top.png",
+      "bytes": 265364,
+      "sha256": "27198cc9103745c77270bef14be091e6c66dd7b39d0df588572e841ad76c0ded",
+      "modified_utc": "2026-10-14T02:16:05.064173+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/bottom.png",
+      "bytes": 289061,
+      "sha256": "33aca4484035981d2e94f98d8451ce9e34036cea64d07d2619c7af7a33cdbb82",
+      "modified_utc": "2026-10-14T02:16:05.277592+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/contact_sheet.png",
+      "bytes": 974764,
+      "sha256": "af3506881e9cc760d4220ab074149eca4e44e5194d8ea918df272cd6004eb48d",
+      "modified_utc": "2026-10-14T02:17:17.949639+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/authored_metrics.json",
+      "bytes": 7650,
+      "sha256": "f495ecd20e0ea3f6d8813113c68b722688566fec55f7456f1f053944c66874c9",
+      "modified_utc": "2026-10-14T02:16:00.288538+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/fresh_glb_metrics.json",
+      "bytes": 867,
+      "sha256": "113e4181847b62c72aa546c62c2e5f3d54f0573933b54e4b7e5ee00878e164c6",
+      "modified_utc": "2026-10-14T02:16:02.937265+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/fresh_fbx_metrics.json",
+      "bytes": 855,
+      "sha256": "fc7de464246be630851ed12f7dafafcc9c6492399e2673bb70dbce3a7d588050",
+      "modified_utc": "2026-10-14T02:17:15.790852+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/collision_metrics.json",
+      "bytes": 1834,
+      "sha256": "40bdf48e553e6e45c3b86f2daf9a8be3b7ad7ceb44b834a3dd2bf1d5c72b3e4a",
+      "modified_utc": "2026-10-14T02:16:00.608211+00:00"
+    },
+    {
+      "path": "Artifacts/CataclysmRaft_20261014/final_report.md",
+      "bytes": 2637,
+      "sha256": "2153397002ce6d119ebacdd865d03a88e2d8393a48358be55b8b1653d5502d27",
+      "modified_utc": "2026-10-14T02:20:32.370131+00:00"
+    }
+  ]
+}

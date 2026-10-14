@@ -1,0 +1,201 @@
+{
+  "exported_utc": "2026-10-14T06:24:22.936774+00:00",
+  "exclude_nonclient_frames_requested": false,
+  "previews": [
+    {
+      "mode": "storm",
+      "clip": "storm_brush_rowing",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/storm_brush_rowing.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/storm_brush_rowing.png",
+      "video_sha256": "2f35e3c9ea527b74ba156a7fbe5091af2b2cbf2208506a7444f3d583354e6d82",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/storm_brush_rowing.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/storm_brush_rowing.ffconcat",
+      "genuine_source_frames": 44,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 14.050000732764602,
+      "source_time_end_seconds": 21.21666777320206,
+      "source_game_span_seconds": 7.16666704043746,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 1.8198793758022491,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Root reviewed genuine engine frames and timestamped video contact sheets; see VisualReview.json for observed limits",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "216"
+          }
+        ],
+        "format": {
+          "duration": "7.200000"
+        }
+      }
+    },
+    {
+      "mode": "storm",
+      "clip": "debris_rail",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_rail.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_rail.png",
+      "video_sha256": "c25328adabb777430f226d86d346e6cbf8f88ddf5aabb1bddabd0415726c78f3",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_rail.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_rail.ffconcat",
+      "genuine_source_frames": 36,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 21.383334448561072,
+      "source_time_end_seconds": 27.216668086126447,
+      "source_game_span_seconds": 5.833333637565374,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 2.0413485554734616,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Root reviewed genuine engine frames and timestamped video contact sheets; see VisualReview.json for observed limits",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "176"
+          }
+        ],
+        "format": {
+          "duration": "5.866667"
+        }
+      }
+    },
+    {
+      "mode": "storm",
+      "clip": "debris_unbraced",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.png",
+      "video_sha256": "cb82fd6aadf11a6176ecb8d002485e7979924b687ed9dbe2140529bfc59ed5f6",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.ffconcat",
+      "genuine_source_frames": 36,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 27.966668125241995,
+      "source_time_end_seconds": 33.80000176280737,
+      "source_game_span_seconds": 5.833333637565374,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 1.9707594717117405,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Root reviewed genuine engine frames and timestamped video contact sheets; see VisualReview.json for observed limits",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "176"
+          }
+        ],
+        "format": {
+          "duration": "5.866667"
+        }
+      }
+    }
+  ],
+  "reports": [
+    {
+      "mode": "storm",
+      "report": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Report_storm.json",
+      "report_sha256": "cd3a49f1d734e5348952da73c5d5236e822fab3773237df3fa63637d2ff88fba",
+      "source_sha256": {
+        "Source/MessControl/Private/MCCataclysmEvent.cpp": "b10406fcf79a25ac92e09729b0d662152d41e831e80f0648138fb8902b5fb2fd",
+        "Source/MessControl/Private/MCCataclysmRaft.cpp": "541ea5ed4aca168426bc3c4aa1a5077a344a01ec7e130545b2fe462ded5bca9f",
+        "Source/MessControl/Private/MCCataclysmJelly.cpp": "82475d7e51f5c22def495ac5d6f086a210a9a2d83f3c53d0da0d30fb4e156c28",
+        "Source/MessControl/Private/MCToothMovementComponent.cpp": "90b77a49550bd0ffe8ab9c3199d8a3efb5124a4c6d490256e1bbf6da774efb3a",
+        "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8",
+        "Source/MessControl/Public/MCCataclysmDebris.h": "4bb5328c10dc4ba9f8efa48f6a6ef21b4179752694574ce9c3ad005f380f6d51",
+        "Source/MessControl/Private/MCCataclysmDebris.cpp": "f990ef3b9a4033c6a714857eedc12c4d257aa7739a53be750062090f71738f50",
+        "Source/MessControl/Public/MCCoffeeFlood.h": "4b2e983e61afaa8f2416cd4f2208110763e72a74cb8dacb35f5242656d3313e0",
+        "Source/MessControl/Private/MCCoffeeFlood.cpp": "5cde18ae1a9705b36831f4a9897f83ddf277d8d0b4b35ce9444db3c690316e60",
+        "Source/MessControl/Private/MCCataclysmStormMath.h": "484136b9b5db2b2ac5b5dc7783f108e31953e92866594c2cd05dc7e844b38f1d",
+        "Source/MessControl/Public/MCToothCharacter.h": "5a104febb60ff93e08559a457c6196352e20c32a019e9d9239a7a2e14ba1f17f",
+        "Source/MessControl/Private/MCToothAnimInstance.cpp": "16f4c4bd45f43b9a3db3e04a794a6793170568bb52b0953a260cfa0702f6fc16",
+        "Source/MessControl/Private/MCInventoryComponent.cpp": "0dda05b064f1941f7712fab0f4f8ec62f629fe68d64e54c440339dd603b10a11",
+        "Source/MessControl/Private/MCGripComponent.cpp": "6784ad9f08da5bd1633287be866670ac19a68e09c45e292ab40b9bf28902997c",
+        "Source/MessControl/Private/MCToothCharacter.cpp": "57728e92675f840d8897812bb49ec723678d65e398a495f5b453d3a3ff4e462a",
+        "Tools/Unreal/probe_cataclysm_storm_solo.py": "3f5b808846acc9cf8fc7e37ca7560328aff5083f7eeff0b1cd23cad4ba09514b"
+      },
+      "checks": {
+        "real_f3_64_starts_storm_rafts": true,
+        "hold_current_continuous_and_raft_drifts": true,
+        "one_brush_native_rowing_vector": true,
+        "two_brushes_sum_native_rowing_vectors": true,
+        "rmb_stops_rowing": true,
+        "native_menu_stops_rowing": true,
+        "offdeck_stops_rowing": true,
+        "native_log_approach_rail": true,
+        "native_log_contact_zero_hp_rail": true,
+        "actual_rail_guards_confirmed_native_contact": true,
+        "native_log_approach_unbraced": true,
+        "native_log_contact_zero_hp_unbraced": true,
+        "native_unbraced_contact_dislodges_player": true
+      },
+      "fixture_tuning": {
+        "FloodHoldSeconds": 26.0,
+        "FloodFillSeconds": 3.0,
+        "FloodDrainSeconds": 3.0
+      },
+      "limitations": [
+        "The local pawn and one nonspectator allied AI pawn are position fixtures; neither is a network client.",
+        "The actual F3 event runs its own water, drifting boats and bounded incoming-debris scheduler. The unrelated single-day scheduler is paused.",
+        "During the short rowing measurement only, the Cataclysm event actor tick is paused before its first debris spawn, avoiding an unrelated knockoff during vector measurement. Water, raft, CMC and game clocks continue normally. Native event tick is restored before both contact trials.",
+        "Flood timing is a PIE-only 3s fill / 26s hold / 3s drain. The episode stops within 40 game seconds after F3 and 240 wall seconds.",
+        "Two rowing forces are inferred from the actual summed native RowingDirection and its source formula. Recorded velocities also include gusts, drag, banks and real debris.",
+        "The allied authority AI pawn uses SetRowingInputHeld and the same ServerRowingDirection input RPC at 10Hz; no raft force or rowing-state assignment is used.",
+        "Debris contact uses an already spawned native event log, with one disclosed upstream position fixture. Its normal warning, floating, contact and retirement paths remain active.",
+        "Both contact preparations hold the real rail against unrelated incoming logs; the unbraced trial releases native RMB immediately before its selected log approach.",
+        "No direct SetRowingInput, ApplyDebrisImpulse, ApplyHit, ConfigureDebris, damage helper, brace assignment or physics state assignment is used.",
+        "Default swimming reserve and drowning grace are untouched; natural depletion/death remains the separate focused drowning probe.",
+        "Rendered brush poses, storm readability and splashes need visual review; telemetry does not establish visual quality."
+      ],
+      "manual_checkpoints": [
+        "Inspect actual storm, brush handles/arms and confirmed-contact splashes in the clips.",
+        "Assess default 35-second hold, unmodified 100-unit swimming reserve, 3.5 units/s idle drain plus 1.3 units/s while stroking, and six-second drowning grace with the existing separate focused drowning probe.",
+        "Full cleaning and multiplayer remain outside this episode."
+      ],
+      "integrity_verified_source_frames": 116,
+      "accepted_client_frames": 116,
+      "excluded_nonclient_frames": [],
+      "capture_validation": "All source captures have supported client dimensions; visual review remains separate"
+    }
+  ],
+  "limitations": [
+    "Sampled genuine engine screenshots do not record every game frame.",
+    "CFR output repeats source images at their actual game-time intervals; no interpolation or title cards.",
+    "Excluded nonclient captures stay recorded in report metadata. Their genuine time gaps remain as holds of preceding accepted frames; no wrong viewport is resized into output.",
+    "PlayerCamera metadata does not establish the screenshot surface; visual review of accepted client captures remains necessary.",
+    "The terminal 1 ms and 30 fps duration rounding are presentation padding, not additional observed gameplay.",
+    "Telemetry and successful encoding do not establish visual quality; inspect the previews in the gameplay camera."
+  ]
+}

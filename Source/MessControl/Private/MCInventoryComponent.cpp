@@ -156,7 +156,7 @@ FVector UMCInventoryComponent::SwingOffset(EMCToolSlot Slot,float T)
 }
 bool UMCInventoryComponent::ShouldPresentTool() const
 {
-    if(!Hero || !Hero->Status->IsAlive() || Hero->HeldFood || Hero->FoodCollection->bCollecting || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor) return false;
+    if(!Hero || !Hero->Status->IsAlive() || Hero->IsRowing() || Hero->HeldFood || Hero->FoodCollection->bCollecting || Hero->OrderJumpTarget || Hero->SwallowedBy || Hero->MimicCaptor) return false;
     if(Hero->RewardInteraction && (Hero->RewardInteraction->Stage==EMCRewardChestStage::Lockpicking
         || Hero->RewardInteraction->Stage==EMCRewardChestStage::Opening)) return false;
     if(Hero->Expression && Hero->Expression->BodyAlpha()>.001f) return false;

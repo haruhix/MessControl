@@ -12,6 +12,7 @@
 #include "MCBossProfile.h"
 #include "MCDayDirector.h"
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmEvent.h"
 #include "MCColdCola.h"
 #include "MCIceEvent.h"
 #include "MCFogBrawlEvent.h"
@@ -242,6 +243,55 @@ FText AMCGameMode::ExecuteDevAction(APlayerController* Requester,EMCDevAction Ac
     }
     if (BotSession && BotSession->IsActive())
         return FText::FromString(TEXT("Во время теста ботов ручные события отключены. Сначала нажми «Остановить ботов»."));
+    if(Action==EMCDevAction::CataclysmRandom || Action==EMCDevAction::CataclysmRafts
+        || Action==EMCDevAction::CataclysmJellies || Action==EMCDevAction::CataclysmStop)
+    {
+        if(Action==EMCDevAction::CataclysmStop) {
+            TArray<AMCCataclysmEvent*> Tests;
+            for(TActorIterator<AMCCataclysmEvent> It(GetWorld());It;++It)
+                if(It->ActorHasTag(TEXT("MC_DevCataclysm"))) Tests.Add(*It);
+            if(Tests.IsEmpty()) return FText::FromString(TEXT("Тест катаклизма через F3 сейчас не запущен."));
+            SuspendDevSchedulers(this,GS);
+            for(auto* Event:Tests) if(IsValid(Event) && !Event->IsActorBeingDestroyed()) {Event->Stop(true);Event->Destroy();}
+            GS->DirectorState=FMCGameDirectorState();
+            GS->DirectorState.CurrentTitle=TEXT("РУЧНОЙ ТЕСТ");
+            GS->DirectorState.Instruction=TEXT("Выбери событие в F3 или верни обычный день.");
+            GS->TasksLeft=GS->TasksTotal=0; GS->ForceNetUpdate();
+            return FText::FromString(TEXT("Тест катаклизма остановлен: его вода, плоты, желе и собственные пятна убраны."));
+        }
+        auto* Hero=Cast<AMCToothCharacter>(Requester->GetPawn());
+        if(!Hero || !Hero->Status || !Hero->Status->IsAlive()) return FText::FromString(TEXT("Нужен живой игрок хоста."));
+        auto* Plan=GS->DayPlan?GS->DayPlan.Get():FirstDayPlan.LoadSynchronous();
+        if(!Plan) return FText::FromString(TEXT("Катаклизму нужен профиль текущего или первого дня."));
+        SuspendDevSchedulers(this,GS);
+        if(IsValid(DayDirector)) {
+            if(IsValid(DayDirector->ColdCola)) {DayDirector->ColdCola->Stop();DayDirector->ColdCola->Destroy();}
+            DayDirector->Destroy(); DayDirector=nullptr;
+        }
+        // Retire the previous Cataclysm and drink before a new one owns the
+        // flood. Only each encounter's own dirt batch is cleared.
+        TArray<AMCCataclysmEvent*> Previous;
+        for(TActorIterator<AMCCataclysmEvent> It(GetWorld());It;++It) Previous.Add(*It);
+        for(auto* Event:Previous) if(IsValid(Event) && !Event->IsActorBeingDestroyed()) {Event->Stop(true);Event->Destroy();}
+        for(TActorIterator<AMCCoffeeFlood> It(GetWorld());It;++It) if(!It->IsActorBeingDestroyed()) It->Stop();
+        GS->bDayOneComplete=false; GS->DayPlan=Plan; GS->CurrentEvent=nullptr;
+        GS->StepIndex=INDEX_NONE; GS->StepStartedAt=GS->GetServerWorldTimeSeconds();
+        GS->TasksLeft=GS->TasksTotal=0; GS->DirectorState=FMCGameDirectorState();
+        const auto Variant=Action==EMCDevAction::CataclysmRafts?EMCCataclysmVariant::Rafts
+            :Action==EMCDevAction::CataclysmJellies?EMCCataclysmVariant::Jellies:EMCCataclysmVariant::Random;
+        FActorSpawnParameters Params; Params.Owner=Requester;
+        auto* Event=GetWorld()->SpawnActor<AMCCataclysmEvent>(Params);
+        if(!Event) {GS->ForceNetUpdate();return FText::FromString(TEXT("Не удалось создать катаклизм."));}
+        Event->Tags.AddUnique(TEXT("MC_DevCataclysm")); Event->Tags.AddUnique(TEXT("MC_DevKeyEvent")); Event->Tags.AddUnique(TEXT("DayOne"));
+        if(!Event->Start(Plan,Variant)) {
+            Event->Stop(true);Event->Destroy();GS->ForceNetUpdate();
+            return FText::FromString(TEXT("Для катаклизма нужен доступный язык и профиль напитка."));
+        }
+        GS->DirectorState.CurrentTitle=Event->Title(); GS->DirectorState.Instruction=Event->Instruction();
+        GS->RecordDirectorDecision(TEXT("F3: катаклизм запущен отдельно; автоматическая подача событий остановлена"));
+        GS->ForceNetUpdate();
+        return FText::FromString(Event->Title()+TEXT(". Первая волна, затем один вариант. После опасности закончи уборку. F3 — играть."));
+    }
     if (Action==EMCDevAction::StopNutEncounter || Action==EMCDevAction::StopIceEvent || Action==EMCDevAction::FogEventStop)
     {
         int32 Stopped=0;

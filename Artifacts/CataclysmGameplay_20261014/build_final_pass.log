@@ -1,0 +1,116 @@
+Log started at 10/14/2026 13:05:21 (2026-10-14T04:05:21Z)
+Resolved project argument E:\DEVGAME\MessControl\MessControl.uproject to E:\DEVGAME\MessControl\MessControl.uproject
+No config file at C:\ProgramData\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\user\AppData\Local\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\user\Documents\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Configuration will be read from:
+  C:\Users\user\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (E:\DEVGAME\MessControl\Intermediate\Build\XmlConfigCache.bin): C:\Users\user\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (E:\DEVGAME\MessControl\Intermediate\Build\XmlConfigCache.bin): E:\DEVGAME\MessControl\Saved\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (E:\DEVGAME\MessControl\Intermediate\Build\XmlConfigCache.bin): C:\Users\user\AppData\Local\UnrealEngine\Intermediate\Build\UnrealBuildTool.Env.BuildConfiguration.xml
+Setting temp directory to 'C:\Users\user\AppData\Local\Temp\UnrealBuildTool\efece6b5'
+    Registering build platform: UnrealBuildTool.AndroidPlatformFactory
+    Registering build platform: UnrealBuildTool.IOSPlatformFactory
+    Registering build platform: UnrealBuildTool.LinuxPlatformFactory
+    Registering build platform: UnrealBuildTool.MacPlatformFactory
+    Registering build platform: UnrealBuildTool.TVOSPlatformFactory
+    Registering build platform: UnrealBuildTool.WindowsPlatformFactory
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (1)
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (2)
+Found Windows 10 SDK version 10.0.22621.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.22621.0 at C:\Program Files (x86)\Windows Kits\10
+Found Windows 10 SDK version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Win64 Installed SDK(s): MinVersion_Sdk=10.0.19041.0, MaxVersion_Sdk=10.9.99999.0, CurrentVersion_Sdk=10.0.22621.0, Version_AutoSdk=10.0.22621.0, CurrentVersion_AutoSdk=
+        Registering build platform: Win64 - buildable: True
+    Registering build platform: UnrealBuildTool.VisionOSPlatformFactory
+Command line: E:\UE\UE_5.8\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll MessControlEditor Win64 Development -Project=E:\DEVGAME\MessControl\MessControl.uproject -WaitMutex -NoHotReloadFromIDE
+Log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log.txt
+Deleting old log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log-backup-2025.10.31-17.16.38.txt
+Deleting old log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log-backup-2025.10.31-17.16.38.json
+
+Determining max actions to execute in parallel (16 physical cores, 32 logical cores)
+  Executing up to 16 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (E:\DEVGAME\MessControl).
+UbaStorageServer - Database loaded from C:\ProgramData\Epic\UnrealBuildAccelerator\cas\casdb (v32) in 2ms (contained 0 entries estimated to 0b)
+UbaServer - Listening on 0.0.0.0:1345
+Skipping E:\UE\UE_5.8\Engine\Intermediate\Build\BuildRules\UE5Rules.dll: File is installed
+Skipping E:\UE\UE_5.8\Engine\Intermediate\Build\BuildRules\UE5ProgramRules.dll: File is installed
+Building UnrealEditor - MessControlEditor - Win64 - Development
+Generated code is up to date.
+Deleting outdated item: E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\UnrealEditor-MessControl.lib
+Deleting outdated item: E:\DEVGAME\MessControl\Binaries\Win64\UnrealEditor-MessControl.pdb
+Building MessControlEditor...
+===== Toolchain Information =====
+Using ISPC compiler (E:\UE\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35222 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from KawaiiPhysicsSequencer unity file: KawaiiPhysicsSequencerModule.cpp, KawaiiPhysicsSequencerMultiplierRegistry.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierSection.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTemplate.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTrack.cpp
+[Adaptive Build] Excluded from MessControl unity file: MCAnimationComparisonSubsystem.cpp, MCBossAnimInstance.cpp, MCBossCharacter.cpp, MCCataclysmEvent.cpp, MCCataclysmJelly.cpp, MCCataclysmRaft.cpp, MCClimbing.cpp, MCCoffeeFlood.cpp, MCCoffeeVisuals.cpp, MCDevCommands.cpp, MCDevPanelWidget.cpp, MCGameDirector.cpp, MCGameplayHUD.cpp, MCNutBoss.cpp, MCNutBossAnimInstance.cpp, MCNutCombatEffect.cpp, MCSecondaryAnimationSolver.cpp, MCStaminaWidget.cpp, MCToothAnimInstance.cpp, MCToothMovementComponent.cpp, MCVFXLab.cpp, MCVFXLabBossStation.cpp
+[Adaptive Build] Excluded from KawaiiPhysicsEd unity file: AnimGraphNode_KawaiiPhysics.cpp, AnimGraphNode_KawaiiPhysicsSharedPublisher.cpp, KawaiiPhysicsAuditCommandlet.cpp, KawaiiPhysicsEd.cpp, KawaiiPhysicsEditMode.cpp, KawaiiPhysicsEditorLibrary.cpp, KawaiiPhysicsEditorTabFactories.cpp, KawaiiPhysicsEdStyle.cpp, KawaiiPhysicsEdWindowUtils.cpp, KawaiiPhysicsMcpCommentNode.cpp, KawaiiPhysicsPresetDataAssetDetails.cpp, KawaiiPhysicsPresetDiffSnapshot.cpp, SKawaiiPhysicsNodeAuditWindow.cpp, SKawaiiPhysicsPresetDiffWindow.cpp, SKawaiiPhysicsWindScopeEditPanel.cpp, SKawaiiPhysicsWindScopeWindow.cpp, KawaiiPhysicsSettingsMultiplierSectionSummary.cpp, KawaiiPhysicsSettingsMultiplierTrackEditor.cpp
+[Adaptive Build] Excluded from KawaiiPhysics unity file: AnimNode_KawaiiPhysics.cpp, AnimNode_KawaiiPhysicsCollision.cpp, AnimNode_KawaiiPhysicsDebug.cpp, AnimNode_KawaiiPhysicsModifyBones.cpp, AnimNode_KawaiiPhysicsSharedPublisher.cpp, AnimNode_KawaiiPhysicsSimulation.cpp, AnimNode_KawaiiPhysicsSyncBone.cpp, KawaiiPhysics.cpp, KawaiiPhysicsBoneConstraintsDataAsset.cpp, KawaiiPhysicsCustomExternalForce.cpp, KawaiiPhysicsDeveloperSettings.cpp, KawaiiPhysicsGroundProvider.cpp, KawaiiPhysicsLibrary.cpp, KawaiiPhysicsLimitsDataAsset.cpp, KawaiiPhysicsMirrorTableCache.cpp, KawaiiPhysicsMirrorUtils.cpp, KawaiiPhysicsPresetDataAsset.cpp, KawaiiPhysicsSharedCollisionSubsystem.cpp, KawaiiPhysicsSharedPublisherTypes.cpp, KawaiiPhysicsSharedTags.cpp, KawaiiPhysicsSimpleWorldCollision.cpp, KawaiiPhysicsSyncBone.cpp, KawaiiPhysicsWindPresetDataAsset.cpp, KawaiiPhysicsWindPresetTags.cpp, AnimNotifyState_KawaiiPhysicsAddExternalForce.cpp, AnimNotifyState_KawaiiPhysicsSetAlpha.cpp, AnimNotifyState_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsAddExternalForce.cpp, AnimNotify_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsTriggerGust.cpp, KawaiiPhysicsExternalForce.cpp, KawaiiPhysicsExternalForce_Basic.cpp, KawaiiPhysicsExternalForce_Curve.cpp, KawaiiPhysicsExternalForce_Gravity.cpp, KawaiiPhysicsExternalForce_ProceduralWind.cpp, KawaiiPhysicsExternalForce_Wind.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 4 action(s)
+  CPU 16 physical cores, 32 logical cores
+  Memory 31.91 GB physical, 62.22 GB/76.15 GB committed
+  UBA Storage capacity 40 GB
+  UBA RootDir C:\ProgramData\Epic\UnrealBuildAccelerator
+Cache bucket 3739920170 used. Action: Compile [x64] MCCataclysmEvent.cpp ()
+Cache bucket 416513229 used. Action: Link [x64] UnrealEditor-MessControl.dll ()
+All processes queued
+[1/4] Compile [x64] MCCataclysmEvent.cpp
+[2/4] Link [x64] UnrealEditor-MessControl.lib
+[3/4] Link [x64] UnrealEditor-MessControl.dll
+[4/4] WriteMetadata MessControlEditor.target [NoUba]
+
+Total time in Unreal Build Accelerator local executor: 26.50 seconds
+Output binary: E:\UE\UE_5.8\Engine\Binaries\Win64\UnrealEditor.exe
+UbaStorageServer - Database saved in 1ms (0 file entries, 0 cas entries. deleted 0 dropped cas files)
+WriteFileIfChanged() wrote 0 changed files of 1 requested writes.
+
+Timeline:
+[  0.000]  +0.433 Main
+   0.020          [  0.020]  +0.143 Apply XmlConfig
+   0.167          [  0.167]  +0.045 AddTelemetry
+   0.228          [  0.228]  +0.204 RegisterPlatforms
+[  0.433]  +1.958 <unknown>
+[  2.392]  +0.032 ParseCommandLine
+[  2.571]  +0.266 LoadMakefile
+   2.672          [  0.101]  +0.064 EngineRulesPlugins
+   2.742          [  0.171]  +0.010 EngineRulesFetchDirs
+   2.765          [  0.193]  +0.020 EngineRulesAssembly
+   2.785          [  0.214]  +0.003 ProgramRulesAssembly
+   2.789          [  0.218]  +0.007 ProjectRulesAssembly
+   2.796          [  0.225]  +0.587 CreateTargetRules
+   2.873             0.302          [  0.076]  +0.000 FindPlugins
+   2.949             0.378          [  0.152]  +0.149 MakefileValid
+   3.099             0.528          [  0.302]  +0.285 <unknown>
+[  2.838]  +0.661 <unknown>
+[  3.499]  +0.026 CppDependencyCache
+[  3.525]  +0.167 MessControlEditor Win64 Development
+[  3.694]  +0.037 UHTWait
+   3.698          [  0.004]  +0.030 UHTManifest
+   3.729          [  0.035]  +0.027 UHTTimestamps
+[  3.772]  +0.005 CppDependencyCache
+[  3.778]  +0.138 Preparing ActionGraph
+   3.793          [  0.015]  +0.007 LinkActions
+   3.800             0.022          [  0.006]  +0.000 DetectActionGraphCycles
+   3.801          [  0.023]  +0.000 GatherPrerequisiteActions
+   3.803          [  0.025]  +0.000 CppDependencyCacheWait
+   3.804          [  0.026]  +0.088 GatherOutdatedActions
+   3.897          [  0.119]  +0.013 LinkActions
+   3.897             0.119          [  0.000]  +0.000 DetectActionGraphCycles
+   3.912          [  0.133]  +0.002 DeleteOutdatedProducedItems
+   3.914          [  0.136]  +0.001 SaveActionHistory
+   3.916          [  0.138]  +0.000 CreateDirectoriesForProducedItems
+[  3.937]  +0.150 GarbageCollect
+[  4.088] +26.347 <unknown>
+[ 30.435]  +0.000 Deploying targets
+[ 30.437]  +0.000 DisconnectCache
+[ 30.441]  +0.013 SaveCasTable
+[ 30.457]  +0.007 Saving caches
+[ 30.465]  +0.002 TelemetryService.FlushEvents
+[ 30.469]
+
+Result: Succeeded
+Total execution time: 30.47 seconds

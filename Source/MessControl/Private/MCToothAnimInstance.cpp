@@ -12,6 +12,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "MCFoodActor.h"
 #include "MCFirePatch.h"
@@ -19,6 +20,8 @@
 #include "MCThroat.h"
 #include "MCToothMovementComponent.h"
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmRaft.h"
+#include "MCRowingStroke.h"
 #include "MCArenaTooth.h"
 #include "MCMouthSurface.h"
 #include "Components/BoxComponent.h"
@@ -63,6 +66,10 @@ public:
     FVector LastLockpickBrace=FVector::ZeroVector;
     float LockpickEffort=0;
     float DashPoseProgress=-1;
+    float RowingPoseAlpha=0;
+    FTransform RowingHands[2]={FTransform::Identity,FTransform::Identity};
+    FVector RowingForward=FVector::ForwardVector,RowingRight=FVector::RightVector,RowingUp=FVector::UpVector;
+    float RowingLean=0,RowingTwist=0,RowingSideDip=0,RowingCrouch=0,RowingReach=0;
 private:
     // Не активное, но будет использовано в будущем в других механиках.
     // Reserved full shoulder roll; the normal dash calls DashLungePose only.
@@ -202,6 +209,108 @@ private:
         Pose[Body]=Parent<0?Lunge:Lunge.GetRelativeTransform(CS[Parent]);
     }
 public:
+    void RowingPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref,float Dt)
+    {
+        // This overlay is built on the game thread with the rest of PreUpdate;
+        // worker evaluation only copies the resulting pose.
+        if(!Tooth->ToothPhysics || !Tooth->ToothPhysics->CanAct()) {RowingPoseAlpha=0;return;}
+        FVector Left,Right;
+        const auto* Raft=Tooth->GetRowingRaft();
+        const bool Row=Tooth->IsRowing() && Raft && Raft->GetRowingHandTargets(Tooth,Left,Right);
+        const FTransform World=Tooth->GetMesh()->GetComponentTransform();
+        if(Row) {
+            const float Sign=Raft->RowingSideFor(Tooth);
+            const auto Stroke=MCRowingStroke::Sample(Raft->RowingStrokePhase(Tooth));
+            const FVector DeckUp=Raft->GetDeckComponent()->GetUpVector();
+            FVector Drive=Raft->RowingDirectionFor(Tooth).GetSafeNormal();
+            if(Drive.IsNearlyZero()) Drive=Tooth->GetActorForwardVector();
+            Drive=FVector::VectorPlaneProject(Drive,DeckUp).GetSafeNormal();
+            if(Drive.IsNearlyZero()) Drive=Raft->GetActorForwardVector();
+            RowingForward=World.InverseTransformVectorNoScale(Drive).GetSafeNormal();
+            RowingRight=World.InverseTransformVectorNoScale(FVector::CrossProduct(DeckUp,Drive)).GetSafeNormal();
+            RowingUp=World.InverseTransformVectorNoScale(DeckUp).GetSafeNormal();
+            // Distinct reach, loaded pull and raised recovery share the brush's
+            // exact cycle. The crown carries the effort, rather than hovering still.
+            RowingLean=FMath::Lerp(-8.f,17.f,(Stroke.Reach+1.f)*.5f);
+            RowingTwist=Sign*(Stroke.Reach*9.f+Stroke.Power*3.f);
+            RowingSideDip=Sign*(2.f+Stroke.Power*3.f);
+            RowingCrouch=1.5f+Stroke.Power*3.f;
+            RowingReach=Stroke.Reach*3.f;
+            // Use the actual player's brush frame; its side can change while
+            // they walk across the deck, independently of their network slot.
+            const auto* BrushVisual=Raft->RowingBrushFor(Tooth);
+            const FQuat BrushRotation=BrushVisual?BrushVisual->GetComponentQuat():FQuat::Identity;
+            const FTransform Mount=Tooth->Brush->GetRelativeTransform()*Tooth->BrushPivot->GetRelativeTransform();
+            const FQuat RightGrip=(BrushRotation*Mount.GetRotation().Inverse()).GetNormalized();
+            const int32 LeftHand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_l")));
+            const int32 RightHand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
+            FQuat LeftGrip=RightGrip;
+            if(LeftHand>=0 && RightHand>=0) {
+                auto RestComponent=[&](int32 Bone) {
+                    FTransform Rest=Ref.GetRefBonePose()[Bone];
+                    for(int32 Parent=Ref.GetParentIndex(Bone);Parent>=0;Parent=Ref.GetParentIndex(Parent)) Rest=Rest*Ref.GetRefBonePose()[Parent];
+                    return Rest;
+                };
+                const FQuat Mirror=(RestComponent(RightHand).GetRotation().Inverse()*RestComponent(LeftHand).GetRotation()).GetNormalized();
+                LeftGrip=(RightGrip*Mirror).GetNormalized();
+            }
+            RowingHands[0]=FTransform((World.GetRotation().Inverse()*LeftGrip).GetNormalized(),World.InverseTransformPosition(Left));
+            RowingHands[1]=FTransform((World.GetRotation().Inverse()*RightGrip).GetNormalized(),World.InverseTransformPosition(Right));
+        }
+        // Keep the final stroke targets during release, then blend both palms
+        // and the body back into the ordinary tool/brace pose without a snap.
+        RowingPoseAlpha=FMath::FInterpConstantTo(RowingPoseAlpha,Row?1.f:0.f,Dt,Row?7.f:5.f);
+        if(RowingPoseAlpha<.001f) return;
+        TArray<FTransform> CS;CS.SetNum(Pose.Num());
+        auto Rebuild=[&](){for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];};
+        Rebuild();
+        const TArray<FTransform> StandingCS=CS;
+        const int32 Body=Ref.FindBoneIndex(Tooth->RigBone(TEXT("body")));
+        if(Body>=0) {
+            const int32 Parent=Ref.GetParentIndex(Body);
+            const FQuat Lean(RowingRight,FMath::DegreesToRadians(RowingLean*RowingPoseAlpha));
+            const FQuat Twist(RowingUp,FMath::DegreesToRadians(RowingTwist*RowingPoseAlpha));
+            const FQuat SideDip(RowingForward,FMath::DegreesToRadians(RowingSideDip*RowingPoseAlpha));
+            FTransform Effort=CS[Body];
+            Effort.SetRotation((Twist*SideDip*Lean*Effort.GetRotation()).GetNormalized());
+            Effort.AddToTranslation((RowingForward*RowingReach-RowingUp*RowingCrouch)*RowingPoseAlpha);
+            Pose[Body]=Parent<0?Effort:Effort.GetRelativeTransform(CS[Parent]);Rebuild();
+            // Root_x carries the compact rig's legs too. Keep their preceding
+            // deck-relative foot goals when the crown leans, with no stretched
+            // segments or foot sliding caused by the upper-body overlay.
+            for(int32 Side=0;Side<2;++Side) {
+                const FString S=Side==0?TEXT("_l"):TEXT("_r");
+                const int32 Upper=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("leg")+S))));
+                const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("knee")+S))));
+                const int32 Foot=Ref.FindBoneIndex(Tooth->RigBone(FName(*(TEXT("foot")+S))));
+                if(Upper<0 || Lower<0 || Foot<0 || Ref.GetParentIndex(Lower)!=Upper || Ref.GetParentIndex(Foot)!=Lower) continue;
+                FTransform U=CS[Upper],L=CS[Lower],F=CS[Foot];
+                const FVector Pole=U.GetLocation()+World.InverseTransformVectorNoScale(Tooth->GetActorForwardVector()*45);
+                const double Reach=(FVector::Distance(U.GetLocation(),L.GetLocation())+FVector::Distance(L.GetLocation(),F.GetLocation()))*.97;
+                const FVector Goal=U.GetLocation()+(StandingCS[Foot].GetLocation()-U.GetLocation()).GetClampedToMaxSize(Reach);
+                AnimationCore::SolveTwoBoneIK(U,L,F,Pole,Goal,false,1.,1.);
+                F.SetRotation(StandingCS[Foot].GetRotation());
+                const int32 Bones[]={Upper,Lower,Foot};const FTransform Solved[]={U,L,F};
+                for(int32 J=0;J<3;++J) {
+                    const int32 B=Bones[J],P=Ref.GetParentIndex(B);
+                    Pose[B]=P<0?Solved[J]:Solved[J].GetRelativeTransform(J>0?Solved[J-1]:CS[P]);
+                }
+                Rebuild();
+            }
+        }
+        for(int32 Side=0;Side<2;++Side) {
+            const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+            const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
+            if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
+            FTransform Goal=RowingHands[Side];Goal.SetScale3D(CS[Hand].GetScale3D());
+            FTransform Blended;Blended.Blend(CS[Hand],Goal,RowingPoseAlpha);
+            // Move the entire compact wrist branch rigidly; do not stretch a
+            // human arm chain or rescale its mitten/fingers to reach the handle.
+            const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;
+            const int32 Parent=Ref.GetParentIndex(Lower);
+            Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];Rebuild();
+        }
+    }
     void CollectionAndYawnPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
     {
         const bool Yawn=Tooth->IsYawning() && Tooth->ToothPhysics->CanAct();
@@ -852,6 +961,7 @@ public:
         ChainsawPose(Tooth,Ref,Dt);
         UpgradeIdlePose(Tooth,Ref,Dt);
         CollectionAndYawnPose(Tooth,Ref);
+        RowingPose(Tooth,Ref,Dt);
         if((WideSwing || BufferTool) && Tooth->Inventory->Selected==EMCToolSlot::Pickaxe && Tooth->ToothPhysics->CanAct()) {
             TArray<FTransform> CS; CS.SetNum(Pose.Num());
             for(int32 I=0;I<Pose.Num();++I) { const int32 Parent=Ref.GetParentIndex(I); CS[I]=Parent<0?Pose[I]:Pose[I]*CS[Parent]; }

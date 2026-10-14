@@ -16,7 +16,8 @@ enum class EMCDevAction : uint8
     GrantToolBooster, GrantAllToolBoosters,
     NutEncounter, StopNutEncounter, IceEvent, StopIceEvent, CoffeeFlood, StuckFood,
     FogEvent, FogEventStop,
-    HugeTongueStain=62
+    HugeTongueStain=62,
+    CataclysmRandom=63, CataclysmRafts=64, CataclysmJellies=65, CataclysmStop=66
 };
 
 // Reuse the existing typed dev-command argument for the 4 counts x 3 skills x 2 modes.

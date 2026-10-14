@@ -1,0 +1,30 @@
+{
+  "kind": "offline_formula_review_not_compiled_runtime",
+  "samples": 960,
+  "constants": {
+    "PrimaryLength": 640.0,
+    "SecondaryLength": 370.0,
+    "PrimaryAmplitude": 24.0,
+    "SecondaryAmplitude": 10.0,
+    "HarmonicAmplitude": 4.0,
+    "PrimarySpeed": 1.65,
+    "SecondarySpeed": 2.2,
+    "SecondaryCos": 0.838670568,
+    "SecondarySin": 0.544639035
+  },
+  "max_float_lane_height_difference_cm": 0.00014448165893554688,
+  "largest_sampled_macro_offset_cm": 35.82475662231445,
+  "analytic_macro_bound_cm": 38,
+  "hold_current_range_default_cm_per_second_squared": [
+    400,
+    576
+  ],
+  "spray_instances_max": 48,
+  "grid_vertices_max": 9409,
+  "grid_triangles_max": 18432,
+  "header_sha256": "484136b9b5db2b2ac5b5dc7783f108e31953e92866594c2cd05dc7e844b38f1d",
+  "limitations": [
+    "No native build, shader compilation, actual GPU height readback, live Editor or gameplay calls by this agent.",
+    "Mesh interpolation between vertices and original micro-height contribution require gameplay-camera validation."
+  ]
+}

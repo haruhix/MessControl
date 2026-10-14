@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "asset_id": "cataclysm_raft",
+  "recorded_date": "2026-10-14",
+  "status": "authoring_contract_not_validation_evidence",
+  "target_project": "MessControl",
+  "target_engine": "Unreal Engine 5.8",
+  "scope": {
+    "deliverable": "Polished static raft asset and export evidence",
+    "authoring_owner": "Parent asset-authoring task",
+    "document_task_writes": [
+      "ArtSource/CataclysmRaft/reference_notes.md",
+      "ArtSource/CataclysmRaft/modeling_contract.json"
+    ],
+    "approval_gates": [],
+    "no_unreal_import_or_behavior_validation": true
+  },
+  "references": {
+    "construction_page": {
+      "title": "They shrunk the Kon-Tiki raft",
+      "url": "https://www.kon-tiki.no/en/news/skalamodelleravkontiki",
+      "publisher": "Kon-Tiki Museum",
+      "photograph_credit": "A. Polinski",
+      "use": "Visually inspected construction analogues only",
+      "dimension_source": false,
+      "source_media_copied": false,
+      "source_texture_reuse": false
+    },
+    "construction_images": [
+      {
+        "id": "AP_2",
+        "url": "https://images.squarespace-cdn.com/content/v1/65c3c78a263c667fb481bfb3/1714033295201-THKMLR25X23Z4SYOGZ6V/AP_2.jpg",
+        "features": ["round log floats", "transverse battens", "separate deck", "pale end grain"]
+      },
+      {
+        "id": "AP_3",
+        "url": "https://images.squarespace-cdn.com/content/v1/65c3c78a263c667fb481bfb3/1714033296500-NA0LQ8B6DG1M0AJVEIOV/AP_3.jpg",
+        "features": ["real rope crossing", "working turns", "knot", "free tails"]
+      },
+      {
+        "id": "AP_14",
+        "url": "https://images.squarespace-cdn.com/content/v1/65c3c78a263c667fb481bfb3/1714033312356-MQCTXMLHXLRUF9OL67N8/AP_14.jpg",
+        "features": ["slightly unequal timber lengths"]
+      }
+    ],
+    "palette_screenshot": {
+      "path": "Artifacts/NutVFXPolish_20261013/NutFireNutStart.png",
+      "inspection": "Visually inspected by parent authoring and coordinating agents",
+      "features": ["pink tongue", "cream teeth", "warm ochre walnut"],
+      "use": "Existing game palette context"
+    }
+  },
+  "art_direction": {
+    "style": "Polished stylized wood-and-rope raft",
+    "low_poly_requested": false,
+    "edge_treatment": "Rounded plank edges, smooth rounded floats and bindings",
+    "silhouette_priority": "Broad readable walking deck over two distinct longitudinal floats",
+    "variation": "Restrained differences in plank ends and float tips",
+    "material_roles": {
+      "deck": "Warm light brown wood",
+      "log_sides": "Darker brown wood",
+      "end_grain": "Paler wood with readable end grain",
+      "rope": "Pale natural fiber"
+    },
+    "surface_detail": "Restrained grain and rope fiber detail; material separation must survive preview scale",
+    "new_geometry_and_textures": true
+  },
+  "coordinates": {
+    "authoring_unit": "meter",
+    "length_axis": "X",
+    "width_axis": "Y",
+    "up_axis": "Z",
+    "origin": "Raft center at intended waterline",
+    "waterline_z_m": 0.0,
+    "deck_top_z_m": 0.375,
+    "export_axis_and_scale": "Author records FBX and GLB conversion and verifies fresh-import bounds"
+  },
+  "dimensions": {
+    "outer_deck_approx_m": {"length": 2.5, "width": 1.76},
+    "inner_walkable_design_rectangle_m": {"length": 2.4, "width": 1.7},
+    "walkable_rectangle_centered": true,
+    "float_length_approx_m": 2.7,
+    "float_diameter": "Author choice; assembly must support locked deck height",
+    "deck_and_batten_thickness": "Author choice; assembly contacts must be credible"
+  },
+  "construction": {
+    "deck_plank_count": 6,
+    "deck_planks": "Broad, approximately longitudinal, with a broadly level top",
+    "longitudinal_round_float_count": 2,
+    "transverse_batten_count": 2,
+    "load_path": "Deck rests on transverse battens, which contact the log floats",
+    "bindings": {
+      "visible": true,
+      "required_features": ["crossing wraps", "working turns", "knots", "short tails"],
+      "contact": "Rope follows and seats against the timber it binds",
+      "walking_envelope": "Keep raised bindings and knots outside the intended inner walking area"
+    }
+  },
+  "geometry_budget": {
+    "metric": "Evaluated render triangles",
+    "target_min": 12000,
+    "target_max": 30000,
+    "hard_max": 45000,
+    "collision_excluded_from_render_budget": true,
+    "geometry_checks": [
+      "Degenerate and zero-area faces",
+      "Unexpected loose vertices or edges",
+      "Unexpected non-manifold boundaries and internal faces",
+      "Normal orientation and smoothing",
+      "Applied transforms and finite vertex coordinates"
+    ]
+  },
+  "materials_and_uvs": {
+    "delivery": "Newly authored PBR atlas set",
+    "texture_resolution": "Author choice, recorded in artifact manifest",
+    "base_color_color_space": "sRGB",
+    "roughness_color_space": "linear",
+    "metallic": "Nonmetallic wood and rope; use zero metallic",
+    "normal_map_if_produced": "Tangent-space convention recorded per exported format",
+    "baked_scene_lighting_in_base_color": false,
+    "uv_requirements": [
+      "UV map present for render geometry",
+      "Deck faces, edges, float sides, end caps and visible rope receive suitable coverage",
+      "No unintended collapsed UV faces or stretching",
+      "Atlas references resolve after fresh GLB and FBX import",
+      "Report intentional shared UVs separately from accidental overlap"
+    ]
+  },
+  "collision": {
+    "format": "UCX convex hulls",
+    "deck_hull_count": 1,
+    "float_hull_count": 2,
+    "total_hull_count": 3,
+    "naming": "UCX_<render_mesh_name>_<index>, tied to the final FBX render mesh name",
+    "role": "Simple deck and float collision proxies",
+    "beauty_preview_visibility": false,
+    "behavior_verified": false
+  },
+  "gameplay_context": {
+    "intended_player_capacity": 2,
+    "capacity_status": "Future gameplay logic; not enforced or proven by this asset",
+    "native_capsule_context_cm": {"diameter": 68, "height": 116},
+    "native_capsule_context_status": "Context only; active Blueprint and runtime dimensions not measured",
+    "walkability_status": "Design envelope only; Unreal validation deferred"
+  },
+  "authoring_environment": {
+    "blender_version": "5.1.0",
+    "blender_executable": "D:/BLENDER_TEST/blender.exe",
+    "mode": "headless",
+    "threads": 2,
+    "preserve_live_unrelated_project": "Legogo",
+    "preserve_unsaved_application_edits": true
+  },
+  "deliverables": {
+    "editable_source": ".blend",
+    "exports": [".fbx", ".glb"],
+    "pbr_atlas": true,
+    "reproducible_authoring_script": true,
+    "artifact_manifests": true,
+    "hero_render": {"width_px": 1024, "height_px": 1024},
+    "fixed_views": {
+      "views": ["front", "back", "left", "right", "top", "bottom", "perspective"],
+      "width_px_per_view": 512,
+      "height_px_per_view": 512,
+      "labeled_contact_sheet": true,
+      "consistent_opposing_view_scale": true
+    },
+    "exact_filenames": "Parent authoring task records final names in artifact manifest"
+  },
+  "validation": {
+    "required_asset_reports": ["authored_model", "fresh_glb_import", "fresh_fbx_import"],
+    "required_metrics": [
+      "Object and render mesh counts",
+      "Evaluated vertex, face and triangle counts",
+      "Topology defects and normal orientation",
+      "Axis-aligned bounds and scale",
+      "Pivot and deck-top height",
+      "Material slots and missing texture references",
+      "UV maps, coverage and collapsed UV faces",
+      "Collision proxy count and bounds, separately"
+    ],
+    "current_status": "Required evidence not generated by document task",
+    "deferred": [
+      "Unreal import and material translation",
+      "Gameplay camera and game lighting review",
+      "Walkability and physical collision behavior",
+      "Buoyancy and raft movement",
+      "Two-player capacity enforcement",
+      "Multiplayer testing",
+      "Windows build, cook and package",
+      "Runtime rendering and collision cost"
+    ]
+  },
+  "approval_gates": [],
+  "review_questions": [
+    "Are deck, batten, float and rope contacts credible?",
+    "Are wood deck, log sides, pale end grain and rope visually distinct?",
+    "Is the silhouette broad, rounded and readable with controlled timber variation?"
+  ]
+}

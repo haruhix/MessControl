@@ -2,6 +2,7 @@
 #include "MCToothCharacter.h"
 #include "MCBrushContactComponent.h"
 #include "MCToothMovementComponent.h"
+#include "MCCataclysmRaft.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCExpressionComponent.h"
 #include "MCRewardChest.h"
@@ -207,6 +208,9 @@ bool UMCGripComponent::FindBraceContact(FMCBraceAnchor& Out) const
     if (!CanBrace()) return false;
     constexpr float Reach=165.f;
     const FVector Start=Tooth->GetActorLocation()+FVector(0,0,20);
+    const auto* RiderBase=Cast<UPrimitiveComponent>(Tooth->GetMovementBaseObject());
+    const auto* RiderRaft=RiderBase?Cast<AMCCataclysmRaft>(RiderBase->GetOwner()):nullptr;
+    const bool OnRaft=RiderRaft && RiderBase==RiderRaft->GetDeckComponent() && RiderRaft->IsRider(Tooth);
     FVector Facing=Tooth->GetBaseAimRotation().Vector().GetSafeNormal2D();
     if (Facing.IsNearlyZero()) Facing=Tooth->GetActorForwardVector();
     FCollisionObjectQueryParams Objects; Objects.AddObjectTypesToQuery(ECC_WorldStatic); Objects.AddObjectTypesToQuery(ECC_WorldDynamic);
@@ -219,6 +223,10 @@ bool UMCGripComponent::FindBraceContact(FMCBraceAnchor& Out) const
         auto* Target=Item.GetActor(); auto* Component=Item.GetComponent();
         if (!IsValid(Target) || !IsValid(Component) || Target==Tooth) continue;
         auto* Player=Cast<AMCToothCharacter>(Target); auto* Food=Cast<AMCFoodActor>(Target);
+        const auto* Raft=Cast<AMCCataclysmRaft>(Target);
+        // The refuge has real wooden deck/rope contacts below the tooth's
+        // center. A passenger can deliberately hold those while the hull rolls.
+        const bool RaftHold=Raft && Component==Raft->GetDeckComponent() && Raft->IsRider(Tooth) && !Raft->IsSubmerging();
         if (Player) Component=Player->ToothPhysics->CanAct()?static_cast<UPrimitiveComponent*>(Player->GetCapsuleComponent()):Player->GetMesh();
         else if (Food) Component=Food->Body;
         if (Component->GetCollisionEnabled()==ECollisionEnabled::NoCollision) continue;
@@ -227,7 +235,7 @@ bool UMCGripComponent::FindBraceContact(FMCBraceAnchor& Out) const
             const float Distance=FVector::Dist(Start,Point);
             // Ordinary floor support is not a handhold. Nearby walls and ledges are.
             if (Point.ContainsNaN() || Normal.IsNearlyZero() || Distance>Reach || Distance<3
-                || (!Food && !Player && Normal.Z>.65f && Point.Z<Tooth->GetActorLocation().Z-20)) return;
+                || (!RaftHold && !Food && !Player && Normal.Z>.65f && Point.Z<Tooth->GetActorLocation().Z-20)) return;
             FMCBraceAnchor Candidate;
             Candidate.Target=Target; Candidate.Component=Component; Candidate.BoneName=Bone;
             const FTransform T=Bone.IsNone()?Component->GetComponentTransform():Component->GetSocketTransform(Bone);
@@ -236,7 +244,11 @@ bool UMCGripComponent::FindBraceContact(FMCBraceAnchor& Out) const
             Candidate.bFixed=Food?Food->Phase==EMCFoodPhase::Stuck:!Player && !Component->IsSimulatingPhysics(Bone); Candidate.bHeld=true;
             if (!ValidateBraceContact(Candidate)) return;
             const float Bias=FVector::DotProduct((Point-Start).GetSafeNormal2D(),Facing);
-            const float Score=Distance*(1+.55f*(1-Bias));
+            // An endangered teammate outside this refuge remains reachable
+            // from its deck. Healthy passengers do not steal the rail input.
+            const bool Rescue=OnRaft && Player && !RiderRaft->IsRider(Player)
+                && (Player->GetCharacterMovement()->IsSwimming() || !Player->ToothPhysics->CanAct() || Player->HasFrozenLegs());
+            const float Score=Distance*(1+.55f*(1-Bias))*(Rescue?.03f:RaftHold?.15f:1.f);
             if (Score<Best) { Out=Candidate; Best=Score; }
         };
         if (Player)
@@ -918,7 +930,8 @@ void UMCGripComponent::TickComponent(float Dt,ELevelTick Type,FActorComponentTic
         && Tooth->AnimationClimb<=.01f && Tooth->AnimationSwim<=.01f;
     // Animated lock contact owns both visible wrists. SetGripArms already
     // settles the hidden limbs for .18s before easing physics back on release.
-    const bool PreciseBoth=Lockpicking || Emote || Swimming || ToolSwing || UpgradeHeld || TaskCheer
+    const bool Rowing=Tooth->IsRowing() && Tooth->ToothPhysics->CanAct();
+    const bool PreciseBoth=Rowing || Lockpicking || Emote || Swimming || ToolSwing || UpgradeHeld || TaskCheer
         || (Tooth->FoodCollection && Tooth->FoodCollection->bCollecting);
     const bool PreciseLeft=PreciseBoth || SprayDefence;
     const bool PreciseRight=PreciseBoth || Pickaxe || Spraying || (Tooth->BrushContact && Tooth->BrushContact->IsPresenting());

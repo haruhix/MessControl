@@ -1,0 +1,82 @@
+{
+  "meshes": [
+    {
+      "name": "UCX_SM_CataclysmRaft_00",
+      "vertices": 8,
+      "triangles": 12,
+      "uv_maps": 1,
+      "materials": [],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "UCX_SM_CataclysmRaft_01",
+      "vertices": 8,
+      "triangles": 12,
+      "uv_maps": 1,
+      "materials": [],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "UCX_SM_CataclysmRaft_02",
+      "vertices": 8,
+      "triangles": 12,
+      "uv_maps": 1,
+      "materials": [],
+      "degenerate_faces": 0,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    }
+  ],
+  "vertices": 24,
+  "triangles": 36,
+  "bounds_min": [
+    -1.375,
+    -0.8500000238418579,
+    -0.20999999344348907
+  ],
+  "bounds_max": [
+    1.4019999504089355,
+    0.8500000238418579,
+    0.375
+  ],
+  "missing_materials": 18,
+  "invalid_vertices": 0,
+  "degenerate_faces": 0,
+  "boundary_edges": 0,
+  "nonmanifold_edges": 0,
+  "dimensions_m": [
+    2.7769999504089355,
+    1.7000000476837158,
+    0.5849999934434891
+  ],
+  "material_coverage_status": "not_applicable_nonvisual_collision",
+  "role": "collision_proxy",
+  "passed": true,
+  "hulls": [
+    {
+      "name": "UCX_SM_CataclysmRaft_00",
+      "closed": true,
+      "convex": true,
+      "signed_volume_m3": 0.3671999178886345,
+      "passed": true
+    },
+    {
+      "name": "UCX_SM_CataclysmRaft_01",
+      "closed": true,
+      "convex": true,
+      "signed_volume_m3": 0.47627994487524067,
+      "passed": true
+    },
+    {
+      "name": "UCX_SM_CataclysmRaft_02",
+      "closed": true,
+      "convex": true,
+      "signed_volume_m3": 0.4868639333696384,
+      "passed": true
+    }
+  ]
+}

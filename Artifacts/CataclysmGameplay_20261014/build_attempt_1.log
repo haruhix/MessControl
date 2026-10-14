@@ -1,0 +1,312 @@
+Log started at 10/14/2026 12:11:43 (2026-10-14T03:11:43Z)
+Resolved project argument E:\DEVGAME\MessControl\MessControl.uproject to E:\DEVGAME\MessControl\MessControl.uproject
+No config file at C:\ProgramData\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\user\AppData\Local\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\user\Documents\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Configuration will be read from:
+  C:\Users\user\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (E:\DEVGAME\MessControl\Intermediate\Build\XmlConfigCache.bin): C:\Users\user\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (E:\DEVGAME\MessControl\Intermediate\Build\XmlConfigCache.bin): E:\DEVGAME\MessControl\Saved\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (E:\DEVGAME\MessControl\Intermediate\Build\XmlConfigCache.bin): C:\Users\user\AppData\Local\UnrealEngine\Intermediate\Build\UnrealBuildTool.Env.BuildConfiguration.xml
+Setting temp directory to 'C:\Users\user\AppData\Local\Temp\UnrealBuildTool\efece6b5'
+    Registering build platform: UnrealBuildTool.AndroidPlatformFactory
+    Registering build platform: UnrealBuildTool.IOSPlatformFactory
+    Registering build platform: UnrealBuildTool.LinuxPlatformFactory
+    Registering build platform: UnrealBuildTool.MacPlatformFactory
+    Registering build platform: UnrealBuildTool.TVOSPlatformFactory
+    Registering build platform: UnrealBuildTool.WindowsPlatformFactory
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (1)
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (2)
+Found Windows 10 SDK version 10.0.22621.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.22621.0 at C:\Program Files (x86)\Windows Kits\10
+Found Windows 10 SDK version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Win64 Installed SDK(s): MinVersion_Sdk=10.0.19041.0, MaxVersion_Sdk=10.9.99999.0, CurrentVersion_Sdk=10.0.22621.0, Version_AutoSdk=10.0.22621.0, CurrentVersion_AutoSdk=
+        Registering build platform: Win64 - buildable: True
+    Registering build platform: UnrealBuildTool.VisionOSPlatformFactory
+Command line: E:\UE\UE_5.8\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll MessControlEditor Win64 Development -Project=E:\DEVGAME\MessControl\MessControl.uproject -WaitMutex -NoHotReloadFromIDE
+Log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log.txt
+Deleting old log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log-backup-2025.10.31-17.16.38.txt
+Deleting old log file: C:\Users\user\AppData\Local\UnrealBuildTool\Log-backup-2025.10.31-17.16.38.json
+
+Determining max actions to execute in parallel (16 physical cores, 32 logical cores)
+  Executing up to 16 processes, one per physical core
+Using 'git status' to determine working set for adaptive non-unity build (E:\DEVGAME\MessControl).
+UbaStorageServer - Database loaded from C:\ProgramData\Epic\UnrealBuildAccelerator\cas\casdb (v32) in 1ms (contained 0 entries estimated to 0b)
+UbaServer - Listening on 0.0.0.0:1345
+Skipping E:\UE\UE_5.8\Engine\Intermediate\Build\BuildRules\UE5Rules.dll: File is installed
+Invalidating makefile for MessControlEditor (source file added)
+Skipping E:\UE\UE_5.8\Engine\Intermediate\Build\BuildRules\UE5ProgramRules.dll: File is installed
+Compiler: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\cl.exe
+Linker: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\link.exe
+Library Manager: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\link.exe
+Resource Compiler: C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\rc.exe
+Resource Converter: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\cvtres.exe
+Using EngineIncludeOrderVersion.Unreal5_8 for target MessControlEditor.Target.cs
+Building UnrealEditor - MessControlEditor - Win64 - Development
+VerseVMBytecodeGenerator.Generate, generating CPP headers in: 'E:\UE\UE_5.8\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode'
+	Writing out generated header file. Changed:False Path:'E:\UE\UE_5.8\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMBytecodeOps.gen.h'
+	Writing out generated header file. Changed:False Path:'E:\UE\UE_5.8\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMBytecodesAndCaptures.gen.h'
+	Writing out generated header file. Changed:False Path:'E:\UE\UE_5.8\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMMakeCapturesFuncs.gen.h'
+	Writing out generated header file. Changed:False Path:'E:\UE\UE_5.8\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMCaptureSwitch.gen.h'
+UnrealHeaderTool needs to run because module MessControl had different hash than what was found in timestamps file
+Found 5 shared PCH headers (listed in order of preference):
+	UnrealEd
+	Engine
+	Slate
+	CoreUObject
+	Core
+Parsing headers for MessControlEditor
+  Running Internal UnrealHeaderTool E:\DEVGAME\MessControl\MessControl.uproject E:\DEVGAME\MessControl\Intermediate\Build\Win64\MessControlEditor\MessControlEditor.uhtmanifest -WarningsAsErrors -installed
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.10.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.10.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.4.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.4.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.1.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.1.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.3.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.3.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.5.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.5.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.2.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.2.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.8.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.8.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.11.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.11.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.7.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.7.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.12.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.12.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.9.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.9.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.6.cpp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\Module.MessControl.6.cpp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\LiveCodingInfo.json: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\LiveCodingInfo.json.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\MCCoffeeFlood.cpp.obj.rsp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\MCCoffeeFlood.cpp.obj.rsp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\MCClimbing.cpp.obj.rsp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\MCClimbing.cpp.obj.rsp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\MCCoffeeVisuals.cpp.obj.rsp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\MCCoffeeVisuals.cpp.obj.rsp.old.
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\MCStaminaWidget.cpp.obj.rsp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\MCStaminaWidget.cpp.obj.rsp.old.
+UHT compiled-in object format Default
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\UnrealEditor-MessControl.lib.rsp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\UnrealEditor-MessControl.lib.rsp.old.
+Step - Parse Headers
+Updating E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\UnrealEditor-MessControl.dll.rsp: contents have changed. Saving previous version to E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\UnrealEditor-MessControl.dll.rsp.old.
+Reading engine version from file: E:\UE\UE_5.8\Engine\Source\Runtime\Launch\Resources\Version.h
+Got engine version 5.8.1
+Step - Populate symbol table
+Step - Exports
+       Exporter Stats skipped
+       Exporter Json skipped
+       Running exporter CodeGen
+UHT processed MessControlEditor in 8.9399327 seconds (16 generated files written)
+Deleting outdated item: E:\DEVGAME\MessControl\Binaries\Win64\UnrealEditor-MessControl.pdb
+Deleting outdated item: E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControl\UnrealEditor-MessControl.lib
+Deleting outdated item: E:\DEVGAME\MessControl\Binaries\Win64\UnrealEditor-MessControlEditor.pdb
+Deleting outdated item: E:\DEVGAME\MessControl\Intermediate\Build\Win64\x64\UnrealEditor\Development\MessControlEditor\UnrealEditor-MessControlEditor.lib
+Building MessControlEditor...
+===== Toolchain Information =====
+Using ISPC compiler (E:\UE\UE_5.8\Engine\Source\ThirdParty\Intel\ISPC\bin\Windows\ispc.exe)
+  Intel(r) Implicit SPMD Program Compiler (Intel(r) ISPC), 1.24.0 (build commit  @ 20250404, LLVM 18.1.2) 
+Using Visual Studio 14.44.35222 toolchain (C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207) and Windows 10.0.22621.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from KawaiiPhysicsSequencer unity file: KawaiiPhysicsSequencerModule.cpp, KawaiiPhysicsSequencerMultiplierRegistry.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierSection.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTemplate.cpp, MovieSceneKawaiiPhysicsSettingsMultiplierTrack.cpp
+[Adaptive Build] Excluded from MessControl unity file: MCAnimationComparisonSubsystem.cpp, MCBossAnimInstance.cpp, MCBossCharacter.cpp, MCCataclysmEvent.cpp, MCCataclysmJelly.cpp, MCCataclysmRaft.cpp, MCClimbing.cpp, MCCoffeeFlood.cpp, MCCoffeeVisuals.cpp, MCDevCommands.cpp, MCDevPanelWidget.cpp, MCGameDirector.cpp, MCGameplayHUD.cpp, MCNutBoss.cpp, MCNutBossAnimInstance.cpp, MCNutCombatEffect.cpp, MCSecondaryAnimationSolver.cpp, MCStaminaWidget.cpp, MCToothAnimInstance.cpp, MCToothMovementComponent.cpp, MCVFXLab.cpp, MCVFXLabBossStation.cpp
+[Adaptive Build] Excluded from KawaiiPhysicsEd unity file: AnimGraphNode_KawaiiPhysics.cpp, AnimGraphNode_KawaiiPhysicsSharedPublisher.cpp, KawaiiPhysicsAuditCommandlet.cpp, KawaiiPhysicsEd.cpp, KawaiiPhysicsEditMode.cpp, KawaiiPhysicsEditorLibrary.cpp, KawaiiPhysicsEditorTabFactories.cpp, KawaiiPhysicsEdStyle.cpp, KawaiiPhysicsEdWindowUtils.cpp, KawaiiPhysicsMcpCommentNode.cpp, KawaiiPhysicsPresetDataAssetDetails.cpp, KawaiiPhysicsPresetDiffSnapshot.cpp, SKawaiiPhysicsNodeAuditWindow.cpp, SKawaiiPhysicsPresetDiffWindow.cpp, SKawaiiPhysicsWindScopeEditPanel.cpp, SKawaiiPhysicsWindScopeWindow.cpp, KawaiiPhysicsSettingsMultiplierSectionSummary.cpp, KawaiiPhysicsSettingsMultiplierTrackEditor.cpp
+[Adaptive Build] Excluded from KawaiiPhysics unity file: AnimNode_KawaiiPhysics.cpp, AnimNode_KawaiiPhysicsCollision.cpp, AnimNode_KawaiiPhysicsDebug.cpp, AnimNode_KawaiiPhysicsModifyBones.cpp, AnimNode_KawaiiPhysicsSharedPublisher.cpp, AnimNode_KawaiiPhysicsSimulation.cpp, AnimNode_KawaiiPhysicsSyncBone.cpp, KawaiiPhysics.cpp, KawaiiPhysicsBoneConstraintsDataAsset.cpp, KawaiiPhysicsCustomExternalForce.cpp, KawaiiPhysicsDeveloperSettings.cpp, KawaiiPhysicsGroundProvider.cpp, KawaiiPhysicsLibrary.cpp, KawaiiPhysicsLimitsDataAsset.cpp, KawaiiPhysicsMirrorTableCache.cpp, KawaiiPhysicsMirrorUtils.cpp, KawaiiPhysicsPresetDataAsset.cpp, KawaiiPhysicsSharedCollisionSubsystem.cpp, KawaiiPhysicsSharedPublisherTypes.cpp, KawaiiPhysicsSharedTags.cpp, KawaiiPhysicsSimpleWorldCollision.cpp, KawaiiPhysicsSyncBone.cpp, KawaiiPhysicsWindPresetDataAsset.cpp, KawaiiPhysicsWindPresetTags.cpp, AnimNotifyState_KawaiiPhysicsAddExternalForce.cpp, AnimNotifyState_KawaiiPhysicsSetAlpha.cpp, AnimNotifyState_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsAddExternalForce.cpp, AnimNotify_KawaiiPhysicsSettingsMultiplier.cpp, AnimNotify_KawaiiPhysicsTriggerGust.cpp, KawaiiPhysicsExternalForce.cpp, KawaiiPhysicsExternalForce_Basic.cpp, KawaiiPhysicsExternalForce_Curve.cpp, KawaiiPhysicsExternalForce_Gravity.cpp, KawaiiPhysicsExternalForce_ProceduralWind.cpp, KawaiiPhysicsExternalForce_Wind.cpp
+=================================
+Using Unreal Build Accelerator local executor to run 34 action(s)
+  CPU 16 physical cores, 32 logical cores
+  Memory 31.91 GB physical, 50.92 GB/63.1 GB committed
+  UBA Storage capacity 40 GB
+  UBA RootDir C:\ProgramData\Epic\UnrealBuildAccelerator
+Cache bucket 3739920170 used. Action: Compile [x64] MCBossCharacter.cpp ()
+Cache bucket 416513229 used. Action: Link [x64] UnrealEditor-MessControl.lib ()
+Cache bucket 1471812813 used. Action: Compile [x64] MCRogueGameplayReview.cpp ()
+All processes queued
+[1/34] Compile [x64] MCBossCharacter.cpp
+[2/34] Compile [x64] MCCataclysmEvent.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(283,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,Variant);DOREPLIFETIME(AMCCataclysmEvent,Phase);DOREPLIFETIME(AMCCataclysmEvent,bCola);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(283,46): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,Variant);DOREPLIFETIME(AMCCataclysmEvent,Phase);DOREPLIFETIME(AMCCataclysmEvent,bCola);
+                                             ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(283,85): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,Variant);DOREPLIFETIME(AMCCataclysmEvent,Phase);DOREPLIFETIME(AMCCataclysmEvent,bCola);
+                                                                                    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(284,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,bFailed);DOREPLIFETIME(AMCCataclysmEvent,StartedAt);DOREPLIFETIME(AMCCataclysmEvent,PhaseStartedAt);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(284,46): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,bFailed);DOREPLIFETIME(AMCCataclysmEvent,StartedAt);DOREPLIFETIME(AMCCataclysmEvent,PhaseStartedAt);
+                                             ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(284,89): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,bFailed);DOREPLIFETIME(AMCCataclysmEvent,StartedAt);DOREPLIFETIME(AMCCataclysmEvent,PhaseStartedAt);
+                                                                                        ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(285,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,DirtBatch);DOREPLIFETIME(AMCCataclysmEvent,JelliesLeft);DOREPLIFETIME(AMCCataclysmEvent,DirtLeft);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(285,48): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,DirtBatch);DOREPLIFETIME(AMCCataclysmEvent,JelliesLeft);DOREPLIFETIME(AMCCataclysmEvent,DirtLeft);
+                                               ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(285,93): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,DirtBatch);DOREPLIFETIME(AMCCataclysmEvent,JelliesLeft);DOREPLIFETIME(AMCCataclysmEvent,DirtLeft);
+                                                                                            ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(286,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,DirtTotal);DOREPLIFETIME(AMCCataclysmEvent,Liquid);DOREPLIFETIME(AMCCataclysmEvent,Rafts);DOREPLIFETIME(AMCCataclysmEvent,Jellies);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(286,48): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,DirtTotal);DOREPLIFETIME(AMCCataclysmEvent,Liquid);DOREPLIFETIME(AMCCataclysmEvent,Rafts);DOREPLIFETIME(AMCCataclysmEvent,Jellies);
+                                               ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(286,88): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,DirtTotal);DOREPLIFETIME(AMCCataclysmEvent,Liquid);DOREPLIFETIME(AMCCataclysmEvent,Rafts);DOREPLIFETIME(AMCCataclysmEvent,Jellies);
+                                                                                       ^
+ Compile [x64] MCCataclysmEvent.cpp: Exited with error code 2 . The build will fail.
+ Compile [x64] MCCataclysmEvent.cpp: WorkingDirectory E:\UE\UE_5.8\Engine\Source
+ Compile [x64] MCCataclysmEvent.cpp: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\cl.exe @"E:/DEVGAME/MessControl/Intermediate/Build/Win64/x64/UnrealEditor/Development/MessControl/MCCataclysmEvent.cpp.obj.rsp" 
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmEvent.cpp(286,127): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmEvent,DirtTotal);DOREPLIFETIME(AMCCataclysmEvent,Liquid);DOREPLIFETIME(AMCCataclysmEvent,Rafts);DOREPLIFETIME(AMCCataclysmEvent,Jellies);
+                                                                                                                              ^
+[3/34] Compile [x64] MCCataclysmJelly.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmJelly.cpp(176,22): error C3535: cannot deduce type for 'auto *' from 'TObjectPtr<UStaticMeshComponent>'
+        auto* Droplet=Droplets[Index];
+                     ^
+ Compile [x64] MCCataclysmJelly.cpp: Exited with error code 2 . The build will fail.
+ Compile [x64] MCCataclysmJelly.cpp: WorkingDirectory E:\UE\UE_5.8\Engine\Source
+ Compile [x64] MCCataclysmJelly.cpp: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\cl.exe @"E:/DEVGAME/MessControl/Intermediate/Build/Win64/x64/UnrealEditor/Development/MessControl/MCCataclysmJelly.cpp.obj.rsp" 
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmJelly.cpp(176,22): error C2440: 'initializing': cannot convert from 'TObjectPtr<UStaticMeshComponent>' to '<error type> *'
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmJelly.cpp(176,22): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+[4/34] Compile [x64] MCCataclysmRaft.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(366,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, Flood);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(367,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, bConfigured);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(368,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, Anchor);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(369,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, AnchorYaw);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(370,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, SurfaceWorldZ);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(371,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, WaterlineOffset);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(372,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, FloatStartedAt);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(373,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, OccupantCount);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(374,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, WarningStartedAt);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(375,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, SinkStartedAt);
+    ^
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(376,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, LoadPitch);
+    ^
+ Compile [x64] MCCataclysmRaft.cpp: Exited with error code 2 . The build will fail.
+ Compile [x64] MCCataclysmRaft.cpp: WorkingDirectory E:\UE\UE_5.8\Engine\Source
+ Compile [x64] MCCataclysmRaft.cpp: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\cl.exe @"E:/DEVGAME/MessControl/Intermediate/Build/Win64/x64/UnrealEditor/Development/MessControl/MCCataclysmRaft.cpp.obj.rsp" 
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCCataclysmRaft.cpp(377,5): error C2065: 'OutLifetimeProps': undeclared identifier
+    DOREPLIFETIME(AMCCataclysmRaft, LoadRoll);
+    ^
+[5/34] Compile [x64] MCClimbing.cpp
+[6/34] Compile [x64] MCCoffeeFlood.cpp
+[7/34] Compile [x64] MCCoffeeVisuals.cpp
+[8/34] Compile [x64] MCDevCommands.cpp
+[9/34] Compile [x64] MCDevPanelWidget.cpp
+[10/34] Compile [x64] MCGameDirector.cpp
+[11/34] Compile [x64] MCGameplayHUD.cpp
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCGameplayHUD.cpp(190,23): error C4458: declaration of 'Slot' hides class member
+                auto* Slot=Root->AddChildToCanvas(SwimEnergyWidget);
+                      ^
+E:\UE\UE_5.8\Engine\Source\Runtime\UMG\Public\Components\Widget.h(264,25): note: see declaration of 'UWidget::Slot'
+	TObjectPtr<UPanelSlot> Slot;
+	                       ^
+ Compile [x64] MCGameplayHUD.cpp: Exited with error code 2 . The build will fail.
+ Compile [x64] MCGameplayHUD.cpp: WorkingDirectory E:\UE\UE_5.8\Engine\Source
+ Compile [x64] MCGameplayHUD.cpp: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64\cl.exe @"E:/DEVGAME/MessControl/Intermediate/Build/Win64/x64/UnrealEditor/Development/MessControl/MCGameplayHUD.cpp.obj.rsp" 
+E:\DEVGAME\MessControl\Source\MessControl\Private\MCGameplayHUD.cpp(311,11): error C4458: declaration of 'Slot' hides class member
+    auto* Slot=Root->AddChildToCanvas(CataclysmPanel);
+          ^
+E:\UE\UE_5.8\Engine\Source\Runtime\UMG\Public\Components\Widget.h(264,25): note: see declaration of 'UWidget::Slot'
+	TObjectPtr<UPanelSlot> Slot;
+	                       ^
+[12/34] Compile [x64] MCNutCombatEffect.cpp
+[13/34] Compile [x64] MCStaminaWidget.cpp
+[14/34] Compile [x64] MCToothAnimInstance.cpp
+[15/34] Compile [x64] MCToothMovementComponent.cpp
+[16/34] Compile [x64] MCVFXLabBossStation.cpp
+[17/34] Compile [x64] Module.MessControl.1.cpp
+[18/34] Compile [x64] Module.MessControl.10.cpp
+[19/34] Compile [x64] Module.MessControl.11.cpp
+[20/34] Compile [x64] Module.MessControl.12.cpp
+[21/34] Compile [x64] Module.MessControl.2.cpp
+[22/34] Compile [x64] Module.MessControl.3.cpp
+[23/34] Compile [x64] Module.MessControl.4.cpp
+[24/34] Compile [x64] Module.MessControl.5.cpp
+[25/34] Compile [x64] Module.MessControl.6.cpp
+[26/34] Compile [x64] Module.MessControl.7.cpp
+[27/34] Compile [x64] Module.MessControl.8.cpp
+[28/34] Compile [x64] Module.MessControl.9.cpp
+[29/34] Compile [x64] MCRogueGameplayReview.cpp
+[30/34] Link [x64] UnrealEditor-MessControlEditor.lib
+
+Total time in Unreal Build Accelerator local executor: 323.65 seconds
+UbaStorageServer - Database saved in 1ms (0 file entries, 0 cas entries. deleted 0 dropped cas files)
+CompilationResultException: OtherCompilationError
+   at UnrealBuildTool.ActionGraph.InternalExecuteActions(ActionExecutor Executor, List`1 ActionsToExecute, ILogger Logger)
+   at UnrealBuildTool.ActionGraph.ExecuteActionsAsync(BuildConfiguration BuildConfiguration, List`1 ActionsToExecute, List`1 TargetDescriptors, ILogger Logger, ActionExecutor executor)
+   at UnrealBuildTool.BuildMode.BuildAsync(List`1 Targets, BuildConfiguration BuildConfiguration, BuildOptions Options, FileReference WriteOutdatedActionsFile, CppDependencyCache cppDependencyCache, ILogger Logger, String ActionTypeFilter, ActionExecutor executor)
+   at UnrealBuildTool.BuildMode.ExecuteAsync(CommandLineArguments Arguments, ILogger Logger)
+   at UnrealBuildTool.BuildMode.ExecuteAsync(CommandLineArguments Arguments, ILogger Logger)
+   at UnrealBuildTool.UnrealBuildTool.Main(String[] ArgumentsArray)
+WriteFileIfChanged() wrote 0 changed files of 1 requested writes.
+
+Timeline:
+[  0.000]  +0.420 Main
+   0.018          [  0.018]  +0.137 Apply XmlConfig
+   0.158          [  0.158]  +0.040 AddTelemetry
+   0.220          [  0.220]  +0.199 RegisterPlatforms
+[  0.528]  +0.033 ParseCommandLine
+[  0.561]  +0.461 <unknown>
+[  1.023]  +0.174 LoadMakefile
+   1.112          [  0.088]  +0.054 EngineRulesPlugins
+   1.169          [  0.146]  +0.006 EngineRulesFetchDirs
+   1.185          [  0.161]  +0.325 EngineRulesAssembly
+   1.204             0.181          [  0.019]  +0.000 FindPlugins
+   1.211             0.187          [  0.026]  +0.013 MakefileValid
+   1.225             0.201          [  0.039]  +0.285 <unknown>
+[  1.198]  +0.312 <unknown>
+[  1.510]  +0.372 ProgramRulesAssembly
+[  1.883]  +0.052 ProjectRulesAssembly
+[  1.936]  +0.170 CreateTargetRules
+[  2.169]  +0.028 CppDependencyCache
+[  2.198]  +3.679 MessControlEditor Win64 Development
+   2.198          [  0.000]  +1.171 <unknown>
+   3.369          [  1.171]  +0.105 UHTModules
+   3.475          [  1.276]  +0.251 <unknown>
+   3.726          [  1.528]  +0.336 UHTManifest
+   4.063          [  1.864]  +8.948 UHT
+   4.206             2.008          [  0.143]  +0.000 GitWait
+   4.206             2.008          [  0.143]  +1.616 <unknown>
+   5.823             3.624          [  1.760]  +0.000 WaitOnWrites
+   5.879             3.681          [  1.816]  +0.353 SavingMakefile
+   6.233             4.034          [  2.170]  +6.778 <unknown>
+[  5.877]  +7.134 <unknown>
+[ 13.012]  +0.024 UHTTimestamps
+[ 13.050]  +0.011 CppDependencyCache
+[ 13.061]  +0.142 Preparing ActionGraph
+  13.077          [  0.015]  +0.009 LinkActions
+  13.086             0.024          [  0.008]  +0.000 DetectActionGraphCycles
+  13.088          [  0.026]  +0.000 GatherPrerequisiteActions
+  13.090          [  0.028]  +0.000 CppDependencyCacheWait
+  13.091          [  0.029]  +0.088 GatherOutdatedActions
+  13.185          [  0.123]  +0.005 LinkActions
+  13.185             0.123          [  0.000]  +0.000 DetectActionGraphCycles
+  13.191          [  0.129]  +0.002 DeleteOutdatedProducedItems
+  13.194          [  0.132]  +0.008 SaveActionHistory
+  13.204          [  0.142]  +0.000 CreateDirectoriesForProducedItems
+[ 13.223]  +0.438 GarbageCollect
+[ 13.661]+323.221 <unknown>
+[336.882]  +0.000 DisconnectCache
+[336.889]  +0.011 SaveCasTable
+[336.904]  +0.087 Saving caches
+[337.048]  +0.003 TelemetryService.FlushEvents
+[337.053]
+
+Result: Failed (OtherCompilationError)
+Total execution time: 337.05 seconds

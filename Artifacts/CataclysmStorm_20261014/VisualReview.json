@@ -1,0 +1,19 @@
+{
+  "review_date": "2026-10-14",
+  "review_method": "Root inspected genuine engine captures and timestamped contact sheets extracted from the three encoded videos.",
+  "accepted_as_gameplay_preview": true,
+  "observations": [
+    "Coffee remains brown and reflective; large travelling crests, directional foam and raft motion are visible in the saved arena lighting.",
+    "The existing blue brush head visibly dips during rowing. The rear camera and second passenger partly occlude hands, so the clip cannot certify every hand contact pose.",
+    "The incoming plank, its warning markings, and the raft response are readable. The held player remains aboard; the unbraced player visibly separates from the deck and enters swimming.",
+    "Sparse impact spray is subtle at this camera distance. No claim of a dramatic Niagara splash or added storm audio is made.",
+    "The default-drain drowning clip shows a readable central danger banner and red ETA countdown against moving storm water; the genuine-frame contact sheet was inspected."
+  ],
+  "limitations": [
+    "Storm clips use a temporary FOV 85 camera with normal arena lighting; they do not certify the default FOV 55 player view.",
+    "Positioned crew and a disclosed upstream log fixture demonstrate native mechanics; this is not a hardware-input or balance playthrough.",
+    "The short rowing vector measurement pauses only Cataclysm event scheduling before its first log; water, rafts and CMC continue ticking. Scheduling is restored before contact trials.",
+    "Source capture is approximately 6 Hz. H.264 output repeats actual frames at 30 fps without interpolated or generated motion.",
+    "No GPU timing, GPU wave readback, multiplayer or full cleanup validation."
+  ]
+}

@@ -30,10 +30,14 @@ protected:
         FSlateWindowElementList& Elements,int32 Layer,const FWidgetStyle& Style,bool ParentEnabled) const override;
 private:
     UPROPERTY(Transient) TObjectPtr<UMCStaminaWidget> StaminaWidget;
+    UPROPERTY(Transient) TObjectPtr<UMCStaminaWidget> SwimEnergyWidget;
     UPROPERTY(Transient) TObjectPtr<UMCGameplayAlertWidget> AlertWidget;
     TMap<TWeakObjectPtr<AActor>,TMap<FName,double>> ObservedAlertStates;
     TWeakObjectPtr<UMCDayEvent> LastAlertDayEvent;
     double LastAlertStepStartedAt=-1;
+    TWeakObjectPtr<AActor> LastDrowningHero;
+    bool bObservedDrowning=false;
+    double DrowningAlertSerial=0;
     UPROPERTY(Transient) TObjectPtr<UBorder> DirectorPanel;
     UPROPERTY(Transient) TObjectPtr<USizeBox> DirectorPanelSize;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> DirectorText;
@@ -44,6 +48,8 @@ private:
     UPROPERTY(Transient) TObjectPtr<UBorder> ProgressionPanel;
     UPROPERTY(Transient) TObjectPtr<UTextBlock> ProgressionText;
     UPROPERTY(Transient) TObjectPtr<UProgressBar> ProgressionBar;
+    UPROPERTY(Transient) TObjectPtr<UBorder> CataclysmPanel;
+    UPROPERTY(Transient) TObjectPtr<UTextBlock> CataclysmInstruction;
     UPROPERTY(Transient) TMap<FName,TObjectPtr<UWidget>> Widgets;
     float RefreshElapsed=1;
     bool bHadSprayReticle=false;
@@ -53,6 +59,7 @@ private:
     void RefreshGameplayAlerts();
     void EnsureDirectorMonitor();
     void EnsureProgressionPanel();
+    void EnsureCataclysmPanel();
     void RefreshDirectorMonitor(const FMCGameDirectorState& State);
     UFUNCTION() void OpenDirectorLog();
 };

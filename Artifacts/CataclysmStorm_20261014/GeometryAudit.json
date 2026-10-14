@@ -1,0 +1,489 @@
+{
+  "actors": [
+    {
+      "label": "SM_Gum",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_134",
+      "center": [
+        970.0,
+        -120.0,
+        -330.0
+      ],
+      "extent": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "profile": "BlockAll",
+          "mesh": null,
+          "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+          "dynamic_response": "<CollisionResponseType.ECR_BLOCK: 2>"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum2",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_149",
+      "center": [
+        850.0,
+        -180.0,
+        -150.0
+      ],
+      "extent": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "profile": "BlockAll",
+          "mesh": null,
+          "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+          "dynamic_response": "<CollisionResponseType.ECR_BLOCK: 2>"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum3",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_164",
+      "center": [
+        -3060.0,
+        -150.0,
+        -100.0
+      ],
+      "extent": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "profile": "BlockAll",
+          "mesh": null,
+          "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+          "dynamic_response": "<CollisionResponseType.ECR_BLOCK: 2>"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum4",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_205",
+      "center": [
+        870.0,
+        -200.0,
+        -100.0
+      ],
+      "extent": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "profile": "BlockAll",
+          "mesh": null,
+          "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+          "dynamic_response": "<CollisionResponseType.ECR_BLOCK: 2>"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_218",
+      "center": [
+        -717.6115823507703,
+        -25.267650813608725,
+        -519.30937799514
+      ],
+      "extent": [
+        1898.399655255398,
+        1874.1551705706095,
+        851.4925954888395
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "profile": "Custom",
+          "mesh": "/Game/FromBlender2/SM_Gum.SM_Gum",
+          "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+          "dynamic_response": "<CollisionResponseType.ECR_BLOCK: 2>"
+        }
+      ]
+    },
+    {
+      "label": "SM_Gum5",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.StaticMeshActor_32",
+      "center": [
+        -1688.7307527253415,
+        40.78586108882746,
+        1623.6907114327023
+      ],
+      "extent": [
+        2140.013807271469,
+        2395.0675708071444,
+        1098.816697045831
+      ],
+      "components": [
+        {
+          "name": "StaticMeshComponent0",
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "profile": "BlockAll",
+          "mesh": "/Game/FromBlender2/SM_Gum.SM_Gum",
+          "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+          "dynamic_response": "<CollisionResponseType.ECR_BLOCK: 2>"
+        }
+      ]
+    },
+    {
+      "label": "GAMEPLAY | Moving tongue",
+      "path": "/Game/Maps/L_Mouth.L_Mouth:PersistentLevel.MCTongue_0",
+      "center": [
+        120.79468155403356,
+        -16.691591099897778,
+        -158.65009307861328
+      ],
+      "extent": [
+        2454.6326405071372,
+        1542.952617746369,
+        246.90914154052786
+      ],
+      "components": [
+        {
+          "name": "TongueSurface",
+          "collision": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+          "profile": "Custom",
+          "mesh": null,
+          "pawn_response": "<CollisionResponseType.ECR_BLOCK: 2>",
+          "dynamic_response": "<CollisionResponseType.ECR_BLOCK: 2>"
+        }
+      ]
+    }
+  ],
+  "dirty": [],
+  "dirty_maps": [],
+  "lower_gum_walkable_samples": [
+    {
+      "point": [
+        -1400.00014836924,
+        1250.0001254242338,
+        -97.57678005341586
+      ],
+      "normal": [
+        -0.04629714555702746,
+        -0.3719274198588643,
+        0.9271065573440841
+      ]
+    },
+    {
+      "point": [
+        -1100.00007526743,
+        -1450.000238851353,
+        -37.60575844381913
+      ],
+      "normal": [
+        -0.009780726449061012,
+        0.26789663529150803,
+        0.9633980123446474
+      ]
+    },
+    {
+      "point": [
+        -1100.0000924250921,
+        1400.0002600162506,
+        -34.53920980126259
+      ],
+      "normal": [
+        -0.007305512232779715,
+        -0.2690978983034205,
+        0.9630851211703454
+      ]
+    },
+    {
+      "point": [
+        -950.0000303833732,
+        -1450.0002072108282,
+        -58.747006541109386
+      ],
+      "normal": [
+        0.1335613199933074,
+        0.3389535445359886,
+        0.9312743250235856
+      ]
+    },
+    {
+      "point": [
+        -950.0000245234809,
+        1400.000197551105,
+        -57.82306873273785
+      ],
+      "normal": [
+        0.13668756646833102,
+        -0.33879275419324784,
+        0.9308791430036011
+      ]
+    },
+    {
+      "point": [
+        -800.000019571257,
+        -1750.000250633434,
+        -87.44931628304323
+      ],
+      "normal": [
+        -0.4438065234466759,
+        0.3546764831332145,
+        0.82294614772683
+      ]
+    },
+    {
+      "point": [
+        -800.00001962419,
+        1700.0002234781227,
+        -76.08326998609056
+      ],
+      "normal": [
+        -0.4450747726394003,
+        -0.36402840314749163,
+        0.8181636562826984
+      ]
+    },
+    {
+      "point": [
+        -649.9999871490294,
+        -1750.0001963580662,
+        -33.21662742081372
+      ],
+      "normal": [
+        -0.021789825285797676,
+        -0.7006626993774931,
+        0.713159859509114
+      ]
+    },
+    {
+      "point": [
+        -649.999987614112,
+        -1600.0002546252601,
+        10.110440432330279
+      ],
+      "normal": [
+        -0.25826864414894657,
+        0.08536324126579478,
+        0.962294354389582
+      ]
+    },
+    {
+      "point": [
+        -649.999987864422,
+        1550.0002165308265,
+        15.886755440565025
+      ],
+      "normal": [
+        -0.2574652324469343,
+        -0.0888628740993158,
+        0.9621928308233517
+      ]
+    },
+    {
+      "point": [
+        -649.9999895662589,
+        1700.0002456960735,
+        -31.012717444708812
+      ],
+      "normal": [
+        0.03774200608504352,
+        0.5792747251764733,
+        0.8142581493288218
+      ]
+    },
+    {
+      "point": [
+        -499.99996741475945,
+        -1750.000291065886,
+        -61.68254310028283
+      ],
+      "normal": [
+        0.3765445817855691,
+        0.04833560636460851,
+        0.9251366640044573
+      ]
+    },
+    {
+      "point": [
+        -499.99995476506876,
+        1700.0003026000797,
+        -69.1652960946584
+      ],
+      "normal": [
+        0.4547184129168431,
+        -0.532451373977739,
+        0.7139514684511863
+      ]
+    },
+    {
+      "point": [
+        -199.99993421571742,
+        -1750.0002188442577,
+        -80.72852532650472
+      ],
+      "normal": [
+        -0.2804029696798794,
+        0.18483219639815873,
+        0.9419189104001137
+      ]
+    },
+    {
+      "point": [
+        -199.99994323392218,
+        -1450.0001366558529,
+        -46.99500487960137
+      ],
+      "normal": [
+        -0.05398385622487714,
+        0.6390882030956112,
+        0.7672366075280264
+      ]
+    },
+    {
+      "point": [
+        -199.99988479250226,
+        1400.0003900189042,
+        -47.5367399629431
+      ],
+      "normal": [
+        -0.04808144551806185,
+        -0.6404585705385877,
+        0.7664861342650385
+      ]
+    },
+    {
+      "point": [
+        -199.9999089828044,
+        1700.000287882816,
+        -74.44577377211874
+      ],
+      "normal": [
+        -0.3137440962884298,
+        -0.23586616128604576,
+        0.9197455061071738
+      ]
+    },
+    {
+      "point": [
+        -49.99979874698363,
+        1400.000228601216,
+        -31.89680841746781
+      ],
+      "normal": [
+        0.07396821964185948,
+        -0.4110389932240221,
+        0.9086119350594049
+      ]
+    },
+    {
+      "point": [
+        -49.99994135562804,
+        1700.0003654910297,
+        -55.23683397860839
+      ],
+      "normal": [
+        0.12546107126989373,
+        0.4999551332003144,
+        0.8569156226738235
+      ]
+    },
+    {
+      "point": [
+        100.00011957948402,
+        1400.0002389738415,
+        -27.23649472858318
+      ],
+      "normal": [
+        0.28290695328439963,
+        0.23105061998108947,
+        0.9309023938038254
+      ]
+    },
+    {
+      "point": [
+        100.00020117291103,
+        1700.0002492583626,
+        -83.45536017180552
+      ],
+      "normal": [
+        0.07985787955368598,
+        0.61891412234939,
+        0.7813885257857791
+      ]
+    },
+    {
+      "point": [
+        400.0002014408875,
+        -1600.0003457440812,
+        -85.39175335141874
+      ],
+      "normal": [
+        -0.5991218999689346,
+        0.031835345924242295,
+        0.8000246619495537
+      ]
+    },
+    {
+      "point": [
+        400.0002083265632,
+        -1450.0002046704685,
+        -42.82566521504026
+      ],
+      "normal": [
+        -0.25342088954795783,
+        -0.3765148488715588,
+        0.8910748685267412
+      ]
+    },
+    {
+      "point": [
+        400.0002296536726,
+        1400.0001538545146,
+        -60.0470392395257
+      ],
+      "normal": [
+        -0.2725336511997236,
+        0.1262843933672588,
+        0.9538226569733027
+      ]
+    },
+    {
+      "point": [
+        400.0001768300548,
+        1550.000309923221,
+        -75.53317580020814
+      ],
+      "normal": [
+        -0.40393259036363366,
+        -0.011142718426056335,
+        0.9147208876308677
+      ]
+    },
+    {
+      "point": [
+        550.000273999293,
+        -1600.000218053573,
+        -94.12879539363257
+      ],
+      "normal": [
+        0.5879504048445284,
+        0.2823558169061584,
+        0.758016829696024
+      ]
+    }
+  ],
+  "lower_gum_walkable_max_z": 15.886755440565025
+}

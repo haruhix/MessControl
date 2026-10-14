@@ -1,0 +1,1090 @@
+{
+  "metadata": {
+    "mode": "storm",
+    "clip": "debris_unbraced",
+    "video": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.png",
+    "video_sha256": "cb82fd6aadf11a6176ecb8d002485e7979924b687ed9dbe2140529bfc59ed5f6",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CataclysmStorm_20261014/debris_unbraced.ffconcat",
+    "genuine_source_frames": 36,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 27.966668125241995,
+    "source_time_end_seconds": 33.80000176280737,
+    "source_game_span_seconds": 5.833333637565374,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 1.9707594717117405,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "176"
+        }
+      ],
+      "format": {
+        "duration": "5.866667"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.1666666753590107,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00080.png",
+      "time": 27.966668125241995,
+      "sha256": "15fd390fbffca2ad01f03e6c062afac7893ee8b2e9acd47b7797b65d48c1738f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1348782,
+      "trailing_bytes": 0,
+      "phase": "contact_unbraced",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          837.2518205970596,
+          -102.29887902653508,
+          606.1469421386719
+        ],
+        "expected_cm": [
+          838.3070946770504,
+          -102.10328321973202,
+          606.0509948730469
+        ],
+        "location_error_cm": 1.0775281812186035,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00081.png",
+      "time": 28.133334800601006,
+      "sha256": "a21a45340b9980dcf148e8465ce24eb8db763c48ecadd636549caee490cdae25",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1296036,
+      "trailing_bytes": 0,
+      "phase": "contact_unbraced",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          847.8157686556603,
+          -100.33034736420956,
+          605.0340881347656
+        ],
+        "expected_cm": [
+          848.8739866798376,
+          -100.13199697737087,
+          604.9040832519531
+        ],
+        "location_error_cm": 1.0844673956406854,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00082.png",
+      "time": 28.300001475960016,
+      "sha256": "cf88e39136d19b798b1efd482c17ab08c5e0c009ee638372d2d8321194e54b64",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1292230,
+      "trailing_bytes": 0,
+      "phase": "contact_unbraced",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          858.4202202366469,
+          -98.33526412315194,
+          603.58056640625
+        ],
+        "expected_cm": [
+          859.4838313407495,
+          -98.13438312161526,
+          603.4161987304688
+        ],
+        "location_error_cm": 1.0948234973686424,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00083.png",
+      "time": 28.466668151319027,
+      "sha256": "599927cd544607854a626de4ddb5bc6c7001f4707b5c6f5af3ae36fedc17ebbb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1289419,
+      "trailing_bytes": 0,
+      "phase": "contact_unbraced",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          869.0893924470809,
+          -96.31594386353129,
+          601.7774658203125
+        ],
+        "expected_cm": [
+          870.160779725459,
+          -96.11277293110709,
+          601.577392578125
+        ],
+        "location_error_cm": 1.1086831965408166,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00084.png",
+      "time": 28.633334826678038,
+      "sha256": "ea8377dd94c7493d72022262a086fd24d849df3ce0d691a683a3ed63680c812f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1310223,
+      "trailing_bytes": 0,
+      "phase": "after_contact_unbraced",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1533.3727993524662,
+          -17.584906202979596,
+          560.9808044433594
+        ],
+        "expected_cm": [
+          1535.2240905865583,
+          -17.231041396652472,
+          560.9001159667969
+        ],
+        "location_error_cm": 1.8865339023810332,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00085.png",
+      "time": 28.80000150203705,
+      "sha256": "0810cab03c257caa8ea1df09ca3f4a4cdde559a13c8ff1c140e00c3e1aad1e45",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1308194,
+      "trailing_bytes": 0,
+      "phase": "after_contact_unbraced",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1551.1790084379109,
+          -14.184884264935874,
+          560.0387878417969
+        ],
+        "expected_cm": [
+          1552.880640936467,
+          -13.86052529529502,
+          559.9274291992188
+        ],
+        "location_error_cm": 1.7358463781699465,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00086.png",
+      "time": 28.96666817739606,
+      "sha256": "f02a0560fb4429a3c6a282ac1bdefde2cf2eb78549f0e945184a3377d110dca0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1296200,
+      "trailing_bytes": 0,
+      "phase": "after_contact_unbraced",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1567.6577069392938,
+          -11.050356166570111,
+          558.7743225097656
+        ],
+        "expected_cm": [
+          1569.2457523279868,
+          -10.749220592384575,
+          558.6288146972656
+        ],
+        "location_error_cm": 1.6228811768233857,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00087.png",
+      "time": 29.13333485275507,
+      "sha256": "29cf73277f0e00c19c6c699cbb57319304e942f6d9ccbd2e7c0ee32e63305a59",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1287604,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1583.1352620860353,
+          -8.125065065546721,
+          557.1533813476562
+        ],
+        "expected_cm": [
+          1584.6384644012392,
+          -7.842270062480509,
+          556.9704284667969
+        ],
+        "location_error_cm": 1.540474592717566,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00088.png",
+      "time": 29.30000152811408,
+      "sha256": "6a5a2d8bda49013e009204b71be38bed3d646a701c71804f217a4f9fdd5011a4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1278787,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1597.8717360787327,
+          -5.3653837244063425,
+          555.1487579345703
+        ],
+        "expected_cm": [
+          1599.3129961139311,
+          -5.097154941708027,
+          554.9265594482422
+        ],
+        "location_error_cm": 1.4827505981298592,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00089.png",
+      "time": 29.46666820347309,
+      "sha256": "4d6a0e7fdda5a2a9817a3f04665cdd45d7f1b903a3a3745455ee50586faf29e4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1283305,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1612.0742527643588,
+          -2.737689196757003,
+          552.7503662109375
+        ],
+        "expected_cm": [
+          1613.4717979624738,
+          -2.481130547749956,
+          552.4891815185547
+        ],
+        "location_error_cm": 1.4447049403562764,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00090.png",
+      "time": 29.633334878832102,
+      "sha256": "bb39a46b4f3987f9e99f98221eb4542e6ba71d0b4159cc381bad3e08f9638420",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1283760,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1625.9075332533525,
+          -0.21628641855801334,
+          549.9719390869141
+        ],
+        "expected_cm": [
+          1627.2758399747531,
+          0.030802063826570247,
+          549.6745300292969
+        ],
+        "location_error_cm": 1.4218889371219825,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00091.png",
+      "time": 29.800001554191113,
+      "sha256": "b40e3fde3c2ce067af42dcdb176c0294145cce291920dd37ab5994a6ef403c0b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1284903,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1639.5022032631618,
+          2.2182351915608933,
+          546.8548889160156
+        ],
+        "expected_cm": [
+          1640.8527241970714,
+          2.4575015882435878,
+          546.5269775390625
+        ],
+        "location_error_cm": 1.4102060390754443,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00092.png",
+      "time": 29.966668229550123,
+      "sha256": "61ecf0a347394cef48ca9aa1490409a90fd543b875bf1b03135b0581de59c2cc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1273713,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1652.961347555694,
+          4.580303773214382,
+          543.4679412841797
+        ],
+        "expected_cm": [
+          1654.3030859770415,
+          4.8129586356425875,
+          543.1178741455078
+        ],
+        "location_error_cm": 1.406036015865081,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00093.png",
+      "time": 30.133334904909134,
+      "sha256": "e7de372748d4fbe470ceafa960672652b2d9df2983bed6aacae0515da203d410",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1282436,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1666.3656875631818,
+          6.880398010235865,
+          539.9033966064453
+        ],
+        "expected_cm": [
+          1667.7056513933362,
+          7.107305168137657,
+          539.5412139892578
+        ],
+        "location_error_cm": 1.406472954813507,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00094.png",
+      "time": 30.300001580268145,
+      "sha256": "1ec5cc4753f3644164e4049d8a91c3c785eb9dd4bf6a618cd53340776967d272",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1283882,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1679.7776787236858,
+          9.12586805485455,
+          536.2705230712891
+        ],
+        "expected_cm": [
+          1681.1212403050904,
+          9.347616875603364,
+          535.9080657958984
+        ],
+        "location_error_cm": 1.4091506445421624,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00095.png",
+      "time": 30.466668255627155,
+      "sha256": "66e4fe07ff952a6187d1d409e8992a393d025d959140b2f88655ac7c987e05b1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1289332,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1693.2447615795172,
+          11.321589505661905,
+          532.6879272460938
+        ],
+        "expected_cm": [
+          1694.5959437453403,
+          11.538552541951162,
+          532.3369750976562
+        ],
+        "location_error_cm": 1.412775146598712,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00096.png",
+      "time": 30.633334930986166,
+      "sha256": "43515a200fb49e6fdfab6ca7b67fe85aea226e25f0ac7795ca221421412bd010",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1277897,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1706.8019518963888,
+          13.470485895633828,
+          529.2742614746094
+        ],
+        "expected_cm": [
+          1708.163656557333,
+          13.682865037496185,
+          528.9466705322266
+        ],
+        "location_error_cm": 1.4165663800425303,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00097.png",
+      "time": 30.800001606345177,
+      "sha256": "219fc63e26e6365aaa28b7faaeea7da4ee5b5fc6150d1da7be479226b8cc1fc7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1285040,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1720.4739154322851,
+          15.573947730813131,
+          526.1421661376953
+        ],
+        "expected_cm": [
+          1721.8481072878408,
+          15.781811317916606,
+          525.8484649658203
+        ],
+        "location_error_cm": 1.4205178299056005,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00098.png",
+      "time": 30.966668281704187,
+      "sha256": "2e906d7fde4ab327dbd36437f821aaf42abe421649448ab2019d0bb069816dd0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1282766,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1734.2766413884997,
+          17.632170145116504,
+          523.3909759521484
+        ],
+        "expected_cm": [
+          1735.6644969047134,
+          17.835482955906798,
+          523.1400909423828
+        ],
+        "location_error_cm": 1.4249288828012707,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00099.png",
+      "time": 31.133334957063198,
+      "sha256": "b90c1c54a0c9448591a5e01256095b68dcdeb2bc2bbcfdb2c6e07dc732a0a040",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1279324,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1748.2188055432507,
+          19.64442656519259,
+          521.1026611328125
+        ],
+        "expected_cm": [
+          1749.6208350631423,
+          19.843074219731022,
+          520.9018096923828
+        ],
+        "location_error_cm": 1.4302059174901103,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00100.png",
+      "time": 31.30000163242221,
+      "sha256": "ee55c49f4e2281963448f7d9d415d4bfb7c7def45e2543da5934f150403029fa",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1261021,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1762.3028932478005,
+          21.60929198114752,
+          519.3396759033203
+        ],
+        "expected_cm": [
+          1763.7190423028305,
+          21.803100930172718,
+          519.1939849853516
+        ],
+        "location_error_cm": 1.43675533698791,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00101.png",
+      "time": 31.46666830778122,
+      "sha256": "ac4f4dcd00e0e99f11c0345d1f8bb62699dabbf700a8bdd009bca8651221c4a9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1271613,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1776.5261376586218,
+          23.524826606018166,
+          518.1436462402344
+        ],
+        "expected_cm": [
+          1777.9558724007793,
+          23.713580656803856,
+          518.0561981201172
+        ],
+        "location_error_cm": 1.4447894996615354,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00102.png",
+      "time": 31.63333498314023,
+      "sha256": "07597c3beb130b50731edd798f3f102d296ab97a236d0a1426dd19f72ab243ba",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1278734,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1790.8813163727987,
+          25.38872820326884,
+          517.5360412597656
+        ],
+        "expected_cm": [
+          1792.32369679679,
+          25.572182294319646,
+          517.5079193115234
+        ],
+        "location_error_cm": 1.4542721667589489,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00103.png",
+      "time": 31.80000165849924,
+      "sha256": "ec13628cb187988480787ba788880ee9543cc26babc8ee770613d5091c17968c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1279913,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1805.3574399407912,
+          27.198459702618322,
+          517.5191955566406
+        ],
+        "expected_cm": [
+          1806.8111838378154,
+          27.37635151621822,
+          517.5495147705078
+        ],
+        "location_error_cm": 1.4649013858313067,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00104.png",
+      "time": 31.96666833385825,
+      "sha256": "85e90572fd30e66e188cfd3de1b0d176673a4e7eb698ef99066fdbd7c3c8730a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1262713,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1819.9403574066055,
+          28.951357229503913,
+          518.0776672363281
+        ],
+        "expected_cm": [
+          1821.403897137559,
+          29.123417080626268,
+          518.1640930175781
+        ],
+        "location_error_cm": 1.4761512632898697,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00105.png",
+      "time": 32.13333500921726,
+      "sha256": "de6aa78f94651685227329d0b1dc6382fe4b7821198a650f049bb8544f5e9e11",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1270959,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1834.613298896466,
+          30.644722445247453,
+          519.1804962158203
+        ],
+        "expected_cm": [
+          1836.084832814483,
+          30.810681764420337,
+          519.3191070556641
+        ],
+        "location_error_cm": 1.4873357161102094,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00106.png",
+      "time": 32.30000168457627,
+      "sha256": "4b11e1eabddc97d585c61447277ac2dc5c4fda4fca93578abffa1606ba7e8199",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1276308,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1849.3573696482185,
+          32.27590223165072,
+          520.7825012207031
+        ],
+        "expected_cm": [
+          1850.8349092727335,
+          32.43550094568411,
+          520.9680786132812
+        ],
+        "location_error_cm": 1.497676220071969,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00107.png",
+      "time": 32.466668359935284,
+      "sha256": "2678013693cd1a929fb63a44f96bb4f17fffbc5662265ccb006395279817c0fb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1284017,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1864.152006571247,
+          33.84235808032753,
+          522.8263397216797
+        ],
+        "expected_cm": [
+          1865.633420463419,
+          33.995351051087084,
+          523.052490234375
+        ],
+        "location_error_cm": 1.5063658331940284,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00108.png",
+      "time": 32.633335035294294,
+      "sha256": "1ae154cef7f21491db738dcf469e3b34c3c2eb1643b9ba62c74668b916b80fdc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1266409,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1878.9754045384348,
+          35.341726888046594,
+          525.2438812255859
+        ],
+        "expected_cm": [
+          1880.458459558372,
+          35.48788956844089,
+          525.5032501220703
+        ],
+        "location_error_cm": 1.512642702611706,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00109.png",
+      "time": 32.800001710653305,
+      "sha256": "6e5d0f7b679e564e78eb103537780e092dd6c5438477567ac283218bb45450cb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1276554,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1893.8049184403462,
+          36.77187447433619,
+          527.9580535888672
+        ],
+        "expected_cm": [
+          1895.28731869372,
+          36.91100790703723,
+          528.2425842285156
+        ],
+        "location_error_cm": 1.5158582744427036,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00110.png",
+      "time": 32.966668386012316,
+      "sha256": "50ece2fd53f52569d3c9d9ef63ef5813ec621a7ecd2133675b254c10b00a593f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1276506,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1908.6174440014856,
+          38.130942830194044,
+          530.884765625
+        ],
+        "expected_cm": [
+          1910.0968679006223,
+          38.26287805350711,
+          531.1857452392578
+        ],
+        "location_error_cm": 1.5154836537179344,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00111.png",
+      "time": 33.133335061371326,
+      "sha256": "651994f33a8092c1bd9d0aa4172c6a42c08d4bc2842a92031f9f0a7419520555",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1275058,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1923.3897794523473,
+          39.41739173663848,
+          533.9354858398438
+        ],
+        "expected_cm": [
+          1924.8639148362972,
+          39.54199365307852,
+          534.2438812255859
+        ],
+        "location_error_cm": 1.5111943891309445,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00112.png",
+      "time": 33.30000173673034,
+      "sha256": "9ff85c21ce0c73c2a57a377bd92dc69436e13b7b801db87575b380167841f3b8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1251814,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1942.4600402657024,
+          40.72352987538426,
+          536.0383911132812
+        ],
+        "expected_cm": [
+          1944.4160883058626,
+          40.851194134776506,
+          536.2420349121094
+        ],
+        "location_error_cm": 1.9707594717117405,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00113.png",
+      "time": 33.46666841208935,
+      "sha256": "50af27ae6440c895cbaafa2db31f6692bce184adf8edde4a517aad83f4e4e76a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1258401,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1961.4951696077533,
+          41.956143381926665,
+          538.2183532714844
+        ],
+        "expected_cm": [
+          1963.3385304114154,
+          42.07411209186307,
+          538.4513092041016
+        ],
+        "location_error_cm": 1.861763716356997,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00114.png",
+      "time": 33.63333508744836,
+      "sha256": "4daa6a0212d6963699e46d1e148081df25400a4e2e6bbaa9cf4b9d8695d97b23",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1258484,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1979.495541812013,
+          43.093876375205525,
+          540.6279907226562
+        ],
+        "expected_cm": [
+          1981.2457709679575,
+          43.20259859279497,
+          540.8762817382812
+        ],
+        "location_error_cm": 1.7710931786203945,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/Checks/CataclysmStormSolo/Runs/20261014T062214Z_rafts_82c93e2c/frames/00115.png",
+      "time": 33.80000176280737,
+      "sha256": "8810d9ff1b793c45bb9f85829d40a2f589081b4ee69830021e1cec8856228893",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1262582,
+      "trailing_bytes": 0,
+      "phase": "unbraced_preview_hold",
+      "clip_window": "debris_unbraced",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1996.635911149156,
+          44.1409608002885,
+          543.130615234375
+        ],
+        "expected_cm": [
+          1998.3081433604852,
+          44.2408326606253,
+          543.3809661865234
+        ],
+        "location_error_cm": 1.693815384372105,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    }
+  ]
+}

@@ -1,4 +1,7 @@
 #include "MCCoffeeFlood.h"
+#include "MCCataclysmEvent.h"
+#include "MCCataclysmRaft.h"
+#include "MCCataclysmStormMath.h"
 #include "MCPerkComponent.h"
 #include "MCGameDirector.h"
 #include "MCDayPlan.h"
@@ -34,6 +37,14 @@ AMCCoffeeFlood::AMCCoffeeFlood()
     RiverSurface=CreateDefaultSubobject<UMCRiverSurfaceComponent>(TEXT("RiverSurface"));
     RiverSurface->SetupAttachment(Surface); RiverSurface->SetAbsolute(true,true,true);
     RiverSurface->SetCollisionEnabled(ECollisionEnabled::NoCollision); RiverSurface->SetCastShadow(false);
+    StormSurface=CreateDefaultSubobject<UMCCataclysmStormSurfaceComponent>(TEXT("CataclysmStormSurface"));
+    StormSurface->SetupAttachment(Surface); StormSurface->SetAbsolute(true,true,true);
+    StormSurface->SetCollisionEnabled(ECollisionEnabled::NoCollision); StormSurface->SetCastShadow(false);
+    StormSurface->SetBoundsScale(1.25f);
+    StormSpray=CreateDefaultSubobject<UMCCoffeeDropComponent>(TEXT("CataclysmStormSpray"));
+    StormSpray->SetupAttachment(Surface); StormSpray->SetAbsolute(true,true,true);
+    StormSpray->SetCollisionEnabled(ECollisionEnabled::NoCollision); StormSpray->SetCastShadow(false);
+    StormSpray->SetTranslucentSortPriority(3);
     Jet=CreateDefaultSubobject<UMCCoffeeSurfaceComponent>(TEXT("PourJet"));
     Crown=CreateDefaultSubobject<UMCCoffeeSurfaceComponent>(TEXT("ImpactCrown"));
     DrainRibbon=CreateDefaultSubobject<UMCCoffeeSurfaceComponent>(TEXT("ThroatOutflow"));
@@ -65,7 +76,14 @@ void AMCCoffeeFlood::OnRep_Profile()
         if (auto* RiverBase=LoadObject<UMaterialInterface>(nullptr,RiverPath)) Base=RiverBase;
     }
     if (!Base) Base=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Art/Materials/M_CoffeeLiquid.M_CoffeeLiquid"));
-    if (Base) { Material=UMaterialInstanceDynamic::Create(Base,this); Surface->SetMaterial(0,Material); RiverSurface->SetMaterial(0,Material); }
+    if(bCataclysmStorm && !bRiverFlood)
+    {
+        const FString Path=Base?Base->GetPathName():FString();
+        const TCHAR* StormPath=Path.Contains(TEXT("Cola"))?TEXT("/Game/Cataclysm/Storm/MI_StormCola.MI_StormCola"):
+            TEXT("/Game/Cataclysm/Storm/MI_StormCoffee.MI_StormCoffee");
+        if(auto* StormBase=LoadObject<UMaterialInterface>(nullptr,StormPath)) Base=StormBase;
+    }
+    if (Base) { Material=UMaterialInstanceDynamic::Create(Base,this); Surface->SetMaterial(0,Material); RiverSurface->SetMaterial(0,Material); StormSurface->SetMaterial(0,Material); }
     Surface->SetBoundsScale(1.1f);
     if (!Profile) return;
     Jet->SetStaticMesh(Profile->JetMesh.LoadSynchronous()); Crown->SetStaticMesh(Profile->CrownMesh.LoadSynchronous());
@@ -80,12 +98,29 @@ void AMCCoffeeFlood::OnRep_Profile()
     }
     if (auto* DropMat=Profile->DropMaterial.LoadSynchronous()) Drops->SetMaterial(0,DropMat);
     if (!Drops->GetInstanceCount()) for (int32 I=0;I<72;++I) Drops->AddInstance(FTransform(FQuat::Identity,FVector::ZeroVector,FVector::ZeroVector));
+    if(bCataclysmStorm && !bRiverFlood)
+    {
+        static const TCHAR* SpherePath=TEXT("/Engine/BasicShapes/Sphere.Sphere");
+        StormSpray->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,SpherePath));
+        if(auto* SprayBase=LoadObject<UMaterialInterface>(nullptr,TEXT("/Game/Cataclysm/Storm/M_StormSpray.M_StormSpray")))
+        {
+            StormSprayMaterial=UMaterialInstanceDynamic::Create(SprayBase,this);
+            StormSpray->SetMaterial(0,StormSprayMaterial);
+            const FLinearColor Foam=Material?Material->K2_GetVectorParameterValue(TEXT("FoamColor")):FLinearColor(.72f,.49f,.24f);
+            StormSprayMaterial->SetVectorParameterValue(TEXT("FoamColor"),Foam);
+        }
+        if(!StormSpray->GetInstanceCount()) for(int32 I=0;I<48;++I)
+            StormSpray->AddInstance(FTransform(FQuat::Identity,FVector::ZeroVector,FVector::ZeroVector));
+        StormDrops.SetNum(48);StormSprayBucket=INDEX_NONE;StormImpactVisualCursor=0;
+    }
 }
 void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds,bool bUseLegacyFlood)
 {
     if (!HasAuthority() || !Plan) return;
     if(const auto* Director=AMCGameDirector::Find(GetWorld()); Director && Director->IsManagingEvents()
-        && !Director->IsLaunchingEvent(EMCGameDirectorEvent::CoffeeFlood)) return;
+        && !Director->IsLaunchingEvent(EMCGameDirectorEvent::CoffeeFlood)
+        && !Cast<AMCCataclysmEvent>(GetOwner())) return;
+    bCataclysmStorm=false;StormSeed=0;LastStormImpactAt=-10.f;StormImpactSerial=0;
     bRiverFlood=!bUseLegacyFlood && SwimTestSeconds<=0;
     Height=Plan->FloodHeight; Flow=Plan->FlowAcceleration; Paddle=Plan->PaddleAcceleration; Reach=Plan->AnchorReach; HalfSize=Plan->ArenaHalfSize;
     ArenaCenter=Plan->ArenaCenter.ContainsNaN()?FVector::ZeroVector:Plan->ArenaCenter;
@@ -162,6 +197,78 @@ void AMCCoffeeFlood::Start(const UMCDayPlan* Plan,float SwimTestSeconds,bool bUs
     UE_LOG(LogTemp,Display,TEXT("MC_LIQUID_ARENA center=%s half_size=%s floor=%.1f dry=%.1f water=%.1f inlet=%s"),
         *ArenaCenter.ToString(),*HalfSize.ToString(),InletFloorZ,WaterSettings.DryHeight,Height,*WaterSettings.Inlet.ToString());
 }
+void AMCCoffeeFlood::SetCataclysmDuration(float FillSeconds,float HoldSeconds,float DrainSeconds)
+{
+    if(!HasAuthority() || bRiverFlood || !Cast<AMCCataclysmEvent>(GetOwner())) return;
+    WaterSettings.FillSeconds=FMath::Clamp(FMath::IsFinite(FillSeconds)?FillSeconds:4.f,1.f,12.f);
+    WaterSettings.HoldSeconds=FMath::Clamp(FMath::IsFinite(HoldSeconds)?HoldSeconds:35.f,5.f,120.f);
+    WaterSettings.DrainSeconds=FMath::Clamp(FMath::IsFinite(DrainSeconds)?DrainSeconds:4.f,1.f,12.f);
+    WaterSettings.Cycles=1;Waves=1;Seconds=WaterSettings.CycleSeconds();ForceNetUpdate();
+}
+void AMCCoffeeFlood::EnableCataclysmStorm(int32 Seed)
+{
+    if(!HasAuthority() || !bActive || bRiverFlood) return;
+    // Live walkable gum samples extend ~200 cm beyond the tongue Y bounds.
+    // The same expanded extent drives containment, current, grid and shader mask.
+    if(!bCataclysmStorm) {HalfSize.X+=350.f;HalfSize.Y+=350.f;}
+    bCataclysmStorm=true;StormSeed=Seed;
+    OnRep_Profile();UpdateSurface();ForceNetUpdate();
+}
+bool AMCCoffeeFlood::IsCataclysmStorm() const { return bCataclysmStorm && bActive && !bRiverFlood; }
+FVector AMCCoffeeFlood::StormStreamDirection() const
+{
+    return (WaterSettings.DrainPoint-WaterSettings.Inlet).GetSafeNormal2D(UE_SMALL_NUMBER,FVector::ForwardVector);
+}
+float AMCCoffeeFlood::StormStrengthAt(float Time) const
+{
+    return bCataclysmStorm && !bRiverFlood?FMath::SmoothStep(.05f,.8f,WaterSettings.FillAmount(Time)):0.f;
+}
+float AMCCoffeeFlood::StormStrength() const { return IsCataclysmStorm()?StormStrengthAt(WaterTime()):0.f; }
+float AMCCoffeeFlood::StormWaveAt(FVector Position,float Time) const
+{
+    if(!bCataclysmStorm || bRiverFlood) return 0.f;
+    return MCCataclysmStormMath::Height(Position,ArenaCenter,StormStreamDirection(),Time,StormSeed,StormStrengthAt(Time));
+}
+float AMCCoffeeFlood::StormWaveHeightAt(FVector Position) const { return IsCataclysmStorm()?StormWaveAt(Position,WaterTime()):0.f; }
+void AMCCoffeeFlood::NotifyStormImpact(FVector Position,FVector Direction,float Strength)
+{
+    if(!HasAuthority() || !IsCataclysmStorm() || Position.ContainsNaN() || Direction.ContainsNaN()
+        || !FMath::IsFinite(Strength) || FMath::Abs(Position.X-ArenaCenter.X)>HalfSize.X
+        || FMath::Abs(Position.Y-ArenaCenter.Y)>HalfSize.Y) return;
+    const float Time=WaterTime();
+    // An authority contact callback may repeat while actors remain pressed together.
+    // One short burst per flood is sufficient; never stream an RPC on each tick.
+    if(Time-LastStormImpactAt<.12f) return;
+    LastStormImpactAt=Time;
+    Position.Z=SurfaceHeightAt(Position)+4.f;
+    MulticastStormImpact(Position,Direction.GetSafeNormal2D(UE_SMALL_NUMBER,StormStreamDirection()),
+        FMath::Clamp(Strength,.3f,1.25f),int32(HashCombine(GetTypeHash(StormSeed),GetTypeHash(++StormImpactSerial))));
+}
+void AMCCoffeeFlood::MulticastStormImpact_Implementation(FVector Position,FVector Direction,float Strength,int32 ImpactSeed)
+{
+    if(GetNetMode()==NM_DedicatedServer || !IsCataclysmStorm() || StormDrops.Num()!=48) return;
+    const FVector Side(-Direction.Y,Direction.X,0);const float Time=WaterTime();
+    FRandomStream R(ImpactSeed);
+    // Slots 36..47 are reserved for real impacts so routine crest spray cannot
+    // overwrite a contact's short silhouette before it has been seen.
+    for(int32 Drop=0;Drop<6;++Drop)
+    {
+        auto& Particle=StormDrops[36+(StormImpactVisualCursor++%12)];
+        Particle.Origin=Position+Side*R.FRandRange(-14.f,14.f);
+        Particle.Velocity=Direction*R.FRandRange(65.f,150.f)*Strength+Side*R.FRandRange(-105.f,105.f)
+            +FVector(0,0,R.FRandRange(160.f,235.f)*Strength);
+        Particle.Born=Time;Particle.Size=R.FRandRange(6.f,11.f)*Strength;Particle.LifeSeconds=.6f;
+    }
+}
+FVector AMCCoffeeFlood::StormCurrentAt(FVector Position) const
+{
+    if(!IsCataclysmStorm() || Position.ContainsNaN() || FMath::Abs(Position.X-ArenaCenter.X)>HalfSize.X
+        || FMath::Abs(Position.Y-ArenaCenter.Y)>HalfSize.Y) return FVector::ZeroVector;
+    const float Time=WaterTime(),Phase=MCCataclysmStormMath::SeedPhase(StormSeed),Strength=StormStrengthAt(Time);
+    const FVector Direction=StormStreamDirection(),Side(-Direction.Y,Direction.X,0);
+    const float Gust=.5f+.5f*FMath::Sin(Time*.65f+Phase);
+    return (Direction*(Flow*(1.25f+.55f*Gust))+Side*(Flow*.12f*FMath::Sin(Time*.43f+Phase)))*Strength;
+}
 EMCCoffeePhase AMCCoffeeFlood::GetPhase() const
 {
     return bActive?WaterSettings.Phase(WaterTime()):EMCCoffeePhase::Inactive;
@@ -228,13 +335,14 @@ float AMCCoffeeFlood::BaseHeight(float T) const
 }
 float AMCCoffeeFlood::SurfaceHeightAt(FVector P) const
 {
-    const float T=WaterTime(); return bRiverFlood?RiverHeightAt(P,T,RiverFloorAt(P)):BaseHeight(T)+WaterSettings.SurfaceOffset(P,T);
+    const float T=WaterTime(); return bRiverFlood?RiverHeightAt(P,T,RiverFloorAt(P)):BaseHeight(T)+WaterSettings.SurfaceOffset(P,T)+StormWaveAt(P,T);
 }
 float AMCCoffeeFlood::SurfaceVerticalSpeedAt(FVector P) const
 {
     const float T=WaterTime(),Before=FMath::Max(0.f,T-.04f),After=FMath::Min(Seconds,T+.04f);
     if (bRiverFlood) return FMath::Clamp((RiverHeightAt(P,After,RiverFloorAt(P))-RiverHeightAt(P,Before,RiverFloorAt(P)))/FMath::Max(.001f,After-Before),-220.f,220.f);
-    return FMath::Clamp((BaseHeight(After)+WaterSettings.SurfaceOffset(P,After)-BaseHeight(Before)-WaterSettings.SurfaceOffset(P,Before))/FMath::Max(.001f,After-Before),-220.f,220.f);
+    return FMath::Clamp((BaseHeight(After)+WaterSettings.SurfaceOffset(P,After)+StormWaveAt(P,After)
+        -BaseHeight(Before)-WaterSettings.SurfaceOffset(P,Before)-StormWaveAt(P,Before))/FMath::Max(.001f,After-Before),-220.f,220.f);
 }
 bool AMCCoffeeFlood::Contains(FVector P) const
 {
@@ -245,6 +353,13 @@ bool AMCCoffeeFlood::Contains(FVector P) const
 bool AMCCoffeeFlood::IsFlowBlocked(FVector P,const AActor* Ignore) const
 {
     FVector Source=GetPhase()==EMCCoffeePhase::Draining?WaterSettings.DrainPoint:WaterSettings.Inlet;
+    if(IsCataclysmStorm())
+    {
+        Source=P-StormStreamDirection()*280.f;Source.Z=P.Z=SurfaceHeightAt(P)+5.f;
+        FCollisionQueryParams Params(SCENE_QUERY_STAT(MCCataclysmShelter),false,Ignore);
+        if(auto* Tongue=FindRiverTongue()) Params.AddIgnoredActor(Tongue);
+        FHitResult Hit;return GetWorld()->LineTraceSingleByChannel(Hit,Source,P,ECC_Visibility,Params);
+    }
     if (bRiverFlood)
     {
         // A nearby upstream obstruction shelters a runner. Do not treat the
@@ -264,6 +379,11 @@ FVector AMCCoffeeFlood::FlowAtPosition(FVector P,const AActor* Ignore) const
 {
     const auto* Perks=Cast<AMCToothCharacter>(Ignore)?UMCPerkComponent::ForActor(Ignore):nullptr;
     const float WaveScale=Perks?Perks->RogueValue(EMCRogueStat::WaveResistance):1.f;
+    if(IsCataclysmStorm())
+    {
+        const FVector Current=StormCurrentAt(P);
+        return Current.IsNearlyZero() || IsFlowBlocked(P,Ignore)?FVector::ZeroVector:Current*WaveScale;
+    }
     if (bRiverFlood)
     {
         if (!Contains(P) || IsFlowBlocked(P,Ignore)) return FVector::ZeroVector;
@@ -368,7 +488,7 @@ void AMCCoffeeFlood::AccumulateResidue(float Time)
                 Top=RiverHeightAt(Cell.Point,T,Cell.Point.Z);
             } else {
                 if (WaterSettings.Phase(T)==EMCCoffeePhase::Filling && FVector::Dist2D(Cell.Point,WaterSettings.Inlet)>=WaterSettings.FrontRadius(T)+WaterSettings.FrontWidth) continue;
-                Top=BaseHeight(T)+WaterSettings.SurfaceOffset(Cell.Point,T);
+                Top=BaseHeight(T)+WaterSettings.SurfaceOffset(Cell.Point,T)+StormWaveAt(Cell.Point,T);
             }
             if (Top>=Cell.Point.Z) Cell.WetTop=FMath::Max(Cell.WetTop,Top);
         }
@@ -428,7 +548,7 @@ void AMCCoffeeFlood::Stop()
 {
     if (!HasAuthority()) return;
     bActive=false; Level=-40; ForceNetUpdate();
-    Surface->SetVisibility(false); RiverSurface->SetVisibility(false); Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false);
+    Surface->SetVisibility(false); RiverSurface->SetVisibility(false); StormSurface->SetVisibility(false);StormSpray->SetVisibility(false); Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false);
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
         if (Cast<AMCTongue>(GetOwner()) && (FMath::Abs(It->GetActorLocation().X-ArenaCenter.X)>HalfSize.X
@@ -536,7 +656,8 @@ void AMCCoffeeFlood::Tick(float Dt)
 void AMCCoffeeFlood::UpdateSurface()
 {
     if (GetNetMode()==NM_DedicatedServer) return;
-    Surface->SetVisibility(bActive && !bRiverFlood); RiverSurface->SetVisibility(bActive && bRiverFlood);
+    Surface->SetVisibility(bActive && !bRiverFlood && !bCataclysmStorm); RiverSurface->SetVisibility(bActive && bRiverFlood);
+    StormSurface->SetVisibility(IsCataclysmStorm());StormSpray->SetVisibility(IsCataclysmStorm());
     if (!bActive) { Jet->SetVisibility(false); Crown->SetVisibility(false); DrainRibbon->SetVisibility(false); Drops->SetVisibility(false); return; }
     const float T=WaterTime();
     UpdatePour(T);
@@ -545,6 +666,7 @@ void AMCCoffeeFlood::UpdateSurface()
     const FVector PlaneScale(HalfSize.X/FMath::Max(1.,MeshBounds.BoxExtent.X),HalfSize.Y/FMath::Max(1.,MeshBounds.BoxExtent.Y),1);
     Surface->SetWorldScale3D(PlaneScale);
     Surface->SetWorldLocation(FVector(ArenaCenter.X,ArenaCenter.Y,BaseHeight(T))-MeshBounds.Origin*PlaneScale);
+    if(IsCataclysmStorm()) {UpdateStormSurface(T);UpdateStormSpray(T);}
     if (!Material) return;
     Material->SetScalarParameterValue(TEXT("WaterTime"),T);
     Material->SetScalarParameterValue(TEXT("RippleHeight"),WaterSettings.RippleHeight);
@@ -563,6 +685,15 @@ void AMCCoffeeFlood::UpdateSurface()
     Material->SetVectorParameterValue(TEXT("Outlet"),FLinearColor(WaterSettings.DrainPoint.X,WaterSettings.DrainPoint.Y,0,0));
     Material->SetVectorParameterValue(TEXT("ArenaSize"),FLinearColor(HalfSize.X,HalfSize.Y,0,0));
     Material->SetVectorParameterValue(TEXT("ArenaCenter"),FLinearColor(ArenaCenter.X,ArenaCenter.Y,0,0));
+    if(IsCataclysmStorm())
+    {
+        Material->SetScalarParameterValue(TEXT("StormTime"),T);
+        Material->SetScalarParameterValue(TEXT("StormStrength"),StormStrength());
+        Material->SetScalarParameterValue(TEXT("StormPhase"),MCCataclysmStormMath::SeedPhase(StormSeed));
+        const FVector StormDirection=StormStreamDirection();
+        Material->SetVectorParameterValue(TEXT("StormDirection"),FLinearColor(StormDirection.X,StormDirection.Y,0,0));
+        Material->SetScalarParameterValue(TEXT("OpticalFlowSpeed"),FMath::Clamp(float(StormCurrentAt(ArenaCenter).Size())*.28f,70.f,170.f));
+    }
     // Four local visual wakes, derived from the already replicated ragdoll poses (no extra RPCs).
     TArray<AMCToothCharacter*> Heroes;
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It) if (It->GetPlayerState() && It->bInCoffee) Heroes.Add(*It);
@@ -637,6 +768,76 @@ void AMCCoffeeFlood::UpdateRiverSurface(float Time)
     Material->SetVectorParameterValue(TEXT("ArenaSize"),FLinearColor(HalfSize.X,HalfSize.Y,0,0));
     Material->SetVectorParameterValue(TEXT("ArenaCenter"),FLinearColor(ArenaCenter.X,ArenaCenter.Y,0,0));
 }
+void AMCCoffeeFlood::UpdateStormSurface(float Time)
+{
+    const FVector2D Size(HalfSize.X,HalfSize.Y);
+    if(StormSurface->GetNumSections()==0 || !StormMeshHalfSize.Equals(Size,.1))
+    {
+        const int32 XSteps=FMath::Clamp(FMath::CeilToInt(HalfSize.X*2./40.),32,96);
+        const int32 YSteps=FMath::Clamp(FMath::CeilToInt(HalfSize.Y*2./40.),32,96);
+        TArray<FVector> Vertices,Normals;TArray<FVector2D> UVs;TArray<FColor> Colors;
+        TArray<FProcMeshTangent> Tangents;TArray<int32> Indices;
+        const int32 Count=(XSteps+1)*(YSteps+1);
+        Vertices.Reserve(Count);Normals.Init(FVector::UpVector,Count);Colors.Init(FColor::White,Count);
+        Tangents.Init(FProcMeshTangent(FVector::ForwardVector,false),Count);UVs.Reserve(Count);
+        for(int32 Y=0;Y<=YSteps;++Y) for(int32 X=0;X<=XSteps;++X)
+        {
+            const float U=float(X)/XSteps,V=float(Y)/YSteps;
+            Vertices.Add(FVector((U*2.f-1.f)*HalfSize.X,(V*2.f-1.f)*HalfSize.Y,0));UVs.Add(FVector2D(U,V));
+            if(X<XSteps && Y<YSteps)
+            {
+                const int32 A=Y*(XSteps+1)+X,B=A+XSteps+1;
+                Indices.Append({A,A+1,B+1,A,B+1,B});
+            }
+        }
+        StormSurface->CreateMeshSection(0,Vertices,Indices,Normals,UVs,Colors,Tangents,false);
+        StormMeshHalfSize=Size;
+    }
+    StormSurface->SetWorldLocationAndRotation(FVector(ArenaCenter.X,ArenaCenter.Y,BaseHeight(Time)),FRotator::ZeroRotator);
+    StormSurface->SetWorldScale3D(FVector::OneVector);
+}
+
+void AMCCoffeeFlood::UpdateStormSpray(float Time)
+{
+    if(!StormSpray->GetStaticMesh() || StormDrops.Num()!=48) return;
+    const int32 Bucket=FMath::FloorToInt(Time*8.f);
+    const float Strength=StormStrengthAt(Time);
+    if(Bucket!=StormSprayBucket)
+    {
+        StormSprayBucket=Bucket;
+        TArray<AMCCataclysmRaft*> Rafts;
+        for(TActorIterator<AMCCataclysmRaft> It(GetWorld());It;++It) if(It->Flood==this) Rafts.Add(*It);
+        Rafts.Sort([](const AMCCataclysmRaft& A,const AMCCataclysmRaft& B){return A.GetFName().LexicalLess(B.GetFName());});
+        const FVector Direction=StormStreamDirection(),Side(-Direction.Y,Direction.X,0);
+        for(int32 Source=0;Source<FMath::Min(2,Rafts.Num());++Source)
+        {
+            FVector Center=Rafts[Source]->GetActorLocation();
+            const float Crest=StormWaveAt(Center,Time);
+            if(Strength<.15f || Crest<4.f) continue;
+            for(int32 Drop=0;Drop<3;++Drop)
+            {
+                const int32 Index=(Bucket*6+Source*3+Drop)%36;
+                FRandomStream R(HashCombine(GetTypeHash(StormSeed),GetTypeHash(Bucket*17+Source*5+Drop)));
+                auto& Particle=StormDrops[Index];
+                Particle.Origin=Center-Direction*115.f+Side*R.FRandRange(-72.f,72.f);
+                Particle.Origin.Z=SurfaceHeightAt(Particle.Origin)+3.f;
+                Particle.Velocity=Direction*R.FRandRange(55.f,120.f)+Side*R.FRandRange(-50.f,50.f)+FVector(0,0,R.FRandRange(100.f,180.f));
+                Particle.Born=Time;Particle.Size=R.FRandRange(4.f,8.f)*Strength;Particle.LifeSeconds=.85f;
+            }
+        }
+    }
+    for(int32 Index=0;Index<48;++Index)
+    {
+        const auto& Drop=StormDrops[Index];const float Age=Time-Drop.Born;
+        const bool Alive=Age>=0.f && Age<Drop.LifeSeconds && Drop.Size>0.f && Strength>.03f;
+        FVector Point=Drop.Origin+Drop.Velocity*Age+FVector(0,0,-240.f*Age*Age);
+        if(!Alive) Point=FVector(ArenaCenter.X,ArenaCenter.Y,BaseHeight(Time));
+        const float Size=Alive && Point.Z>SurfaceHeightAt(Point)-2.f?Drop.Size*(1.f-FMath::SmoothStep(Drop.LifeSeconds*.65f,Drop.LifeSeconds,Age)):0.f;
+        const FVector Velocity=Drop.Velocity-FVector(0,0,480.f*Age);
+        const FQuat Rotation=FRotationMatrix::MakeFromZ(Velocity.GetSafeNormal(UE_SMALL_NUMBER,FVector::UpVector)).ToQuat();
+        StormSpray->UpdateInstanceTransform(Index,FTransform(Rotation,Point,FVector(Size*.01f,Size*.01f,Size*.023f)),true,Index==47,true);
+    }
+}
 void AMCCoffeeFlood::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -647,4 +848,5 @@ void AMCCoffeeFlood::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
     DOREPLIFETIME(AMCCoffeeFlood,ArenaCenter); DOREPLIFETIME(AMCCoffeeFlood,InletFloorZ);
     DOREPLIFETIME(AMCCoffeeFlood,bRiverFlood); DOREPLIFETIME(AMCCoffeeFlood,RiverOrigin); DOREPLIFETIME(AMCCoffeeFlood,RiverDirection);
     DOREPLIFETIME(AMCCoffeeFlood,RiverLength); DOREPLIFETIME(AMCCoffeeFlood,RiverWidth); DOREPLIFETIME(AMCCoffeeFlood,RiverSpeed); DOREPLIFETIME(AMCCoffeeFlood,RiverDepth);
+    DOREPLIFETIME(AMCCoffeeFlood,bCataclysmStorm);DOREPLIFETIME(AMCCoffeeFlood,StormSeed);
 }
