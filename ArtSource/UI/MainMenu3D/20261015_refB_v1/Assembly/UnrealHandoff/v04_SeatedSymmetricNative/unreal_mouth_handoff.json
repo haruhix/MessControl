@@ -1,0 +1,221 @@
+{
+  "status": "Unreal skeletal import handoff; actual native validation required",
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Gums\\SymmetricLower_DAY03_v01\\DCC_v02\\MC_DAY03_SymmetricLowerCompound.blend",
+  "source_sha256": "88cf1c4354dbc8d94437b83b76f2aa99c860e1e3bd4f5d77c2daaf1fac9a0c2f",
+  "source_unit_to_cm": 100.0,
+  "fbx_geometry_scale": 1.0,
+  "native_y_flip": true,
+  "vertices": 274798,
+  "polygons": 351676,
+  "triangles": 549460,
+  "materials": [
+    "MC_Enamel",
+    "MC_Gum"
+  ],
+  "primary_uv": "UV0",
+  "parts": [
+    {
+      "mesh": "MC_DAY03_Lower_Canine_L",
+      "vertex_start": 0,
+      "vertex_count": 12203
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Canine_R",
+      "vertex_start": 12203,
+      "vertex_count": 12203
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Central_L",
+      "vertex_start": 24406,
+      "vertex_count": 12286
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Central_R",
+      "vertex_start": 36692,
+      "vertex_count": 12286
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Gum",
+      "vertex_start": 48978,
+      "vertex_count": 23618
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Lateral_L",
+      "vertex_start": 72596,
+      "vertex_count": 11871
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Lateral_R",
+      "vertex_start": 84467,
+      "vertex_count": 11871
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Molar_L",
+      "vertex_start": 96338,
+      "vertex_count": 4556
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Molar_R",
+      "vertex_start": 100894,
+      "vertex_count": 4556
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_L01",
+      "vertex_start": 105450,
+      "vertex_count": 3998
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_L02",
+      "vertex_start": 109448,
+      "vertex_count": 3472
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_L03",
+      "vertex_start": 112920,
+      "vertex_count": 2994
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_R01",
+      "vertex_start": 115914,
+      "vertex_count": 3998
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_R02",
+      "vertex_start": 119912,
+      "vertex_count": 3472
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Posterior_R03",
+      "vertex_start": 123384,
+      "vertex_count": 2994
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Premolar_L",
+      "vertex_start": 126378,
+      "vertex_count": 4508
+    },
+    {
+      "mesh": "MC_DAY03_Lower_Premolar_R",
+      "vertex_start": 130886,
+      "vertex_count": 4508
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Central_L",
+      "vertex_start": 135394,
+      "vertex_count": 13282
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Central_R",
+      "vertex_start": 148676,
+      "vertex_count": 13282
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Fang_L",
+      "vertex_start": 161958,
+      "vertex_count": 13282
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Fang_R",
+      "vertex_start": 175240,
+      "vertex_count": 13282
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Gum",
+      "vertex_start": 188522,
+      "vertex_count": 23618
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Lateral_L",
+      "vertex_start": 212140,
+      "vertex_count": 13282
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Lateral_R",
+      "vertex_start": 225422,
+      "vertex_count": 13282
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_L01",
+      "vertex_start": 238704,
+      "vertex_count": 3982
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_L02",
+      "vertex_start": 242686,
+      "vertex_count": 3628
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_L03",
+      "vertex_start": 246314,
+      "vertex_count": 3990
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_L04",
+      "vertex_start": 250304,
+      "vertex_count": 5024
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_R01",
+      "vertex_start": 255328,
+      "vertex_count": 3982
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_R02",
+      "vertex_start": 259310,
+      "vertex_count": 3288
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_R03",
+      "vertex_start": 262598,
+      "vertex_count": 2914
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_R04",
+      "vertex_start": 265512,
+      "vertex_count": 2918
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_R05",
+      "vertex_start": 268430,
+      "vertex_count": 3012
+    },
+    {
+      "mesh": "MC_DAY03_Upper_Posterior_R06",
+      "vertex_start": 271442,
+      "vertex_count": 3356
+    }
+  ],
+  "interior": [
+    {
+      "asset": "SM_DAY03_Tongue",
+      "source": "Interior_BroadDorsalTongue",
+      "uv0_source": "UV0"
+    },
+    {
+      "asset": "SM_DAY03_Interior",
+      "source": "Interior_OrganicBuccalPalate_Closed",
+      "uv0_source": "UV0"
+    }
+  ],
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "control": "w_i = max(0, 1-abs(OpenAmount-sample_i)/.25); Open is Basis",
+  "bounds_open_cm": [
+    [
+      -960.0000610351562,
+      -411.75518798828125,
+      -593.0
+    ],
+    [
+      960.0000610351562,
+      67.2183609008789,
+      603.0
+    ]
+  ],
+  "fbx_length_policy": "Blender unit is meter; FBX metadata converts to native centimeters. Do not pre-multiply vertices by 100 a second time.",
+  "source_unchanged": true
+}

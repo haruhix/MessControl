@@ -1,0 +1,27 @@
+{
+  "world": "/Game/UI/MainMenu3D/UEDPIE_0_L_MainMenu3D.L_MainMenu3D",
+  "widgets": [
+    {
+      "path": "/Engine/Transient.UnrealEdEngine_0:GameInstance_1.WBP_MainMenu3D_C_0",
+      "methods": [
+        "set_playback_speed"
+      ],
+      "page": 0,
+      "active": 0,
+      "open3": 1.0
+    }
+  ],
+  "actors": [
+    {
+      "name": "SkeletalMeshActor_0",
+      "loc": "<Struct 'Vector' (0x00000229957ACAB0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "scale": "<Struct 'Vector' (0x00000229957ACAB0) {x: 1.000000, y: 1.000000, z: 1.000000}>",
+      "morphs": {
+        "Pose_000": 0.0,
+        "Pose_025": 0.0,
+        "Pose_050": 0.0,
+        "Pose_075": 0.0
+      }
+    }
+  ]
+}

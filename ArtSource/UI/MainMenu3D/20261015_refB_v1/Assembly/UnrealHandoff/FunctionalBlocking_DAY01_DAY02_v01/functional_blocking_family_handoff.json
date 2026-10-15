@@ -1,0 +1,2211 @@
+{
+  "status": "FUNCTIONAL_BLOCKING_ONLY_NOT_FINAL_ART_NOT_SOURCE_1TO1",
+  "source": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Jaws\\MC_Jaws_Family.blend",
+  "source_sha256": "17ed2fd4e9f0ed2360c5184eac0ed49ca6061bfe8394f71fb0515c67722ac00d",
+  "source_unchanged": true,
+  "source_equivalence": "Exact archived rejected_v03 family, explicitly reused solely for functional opening/transitions.",
+  "variants": [
+    {
+      "day": "DAY01",
+      "kind": "Human",
+      "functional_blocking_only": true,
+      "source_collection": "MC_Jaws_DAY01_Human",
+      "source_root": "MC_JawsRoot[OpenAmount]",
+      "source_variant_root": "MC_Jaws_DAY01_Human_Root",
+      "source_parents": [
+        "MC_Jaw_DAY01_Upper",
+        "MC_Jaw_DAY01_Lower"
+      ],
+      "source_mesh_count": 22,
+      "vertices": 42764,
+      "triangles": 85440,
+      "parts": [
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_01_Crown",
+          "vertex_start": 0,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_02_Crown",
+          "vertex_start": 1202,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_03_Crown",
+          "vertex_start": 2404,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_04_Crown",
+          "vertex_start": 3606,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_05_Crown",
+          "vertex_start": 4808,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_06_Crown",
+          "vertex_start": 6010,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_07_Crown",
+          "vertex_start": 7212,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_08_Crown",
+          "vertex_start": 8414,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_09_Crown",
+          "vertex_start": 9616,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Enamel_10_Crown",
+          "vertex_start": 10818,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Lower_Gum",
+          "vertex_start": 12020,
+          "vertex_count": 9362,
+          "source_parent": "MC_Jaw_DAY01_Lower"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_01_Crown",
+          "vertex_start": 21382,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_02_Crown",
+          "vertex_start": 22584,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_03_Crown",
+          "vertex_start": 23786,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_04_Crown",
+          "vertex_start": 24988,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_05_Crown",
+          "vertex_start": 26190,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_06_Crown",
+          "vertex_start": 27392,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_07_Crown",
+          "vertex_start": 28594,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_08_Crown",
+          "vertex_start": 29796,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_09_Crown",
+          "vertex_start": 30998,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Enamel_10_Crown",
+          "vertex_start": 32200,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        },
+        {
+          "mesh": "MC_DAY01_Upper_Gum",
+          "vertex_start": 33402,
+          "vertex_count": 9362,
+          "source_parent": "MC_Jaw_DAY01_Upper"
+        }
+      ],
+      "actual_pose_solid_gates": [
+        {
+          "object": "MC_DAY01_Lower_Enamel_01_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8543882369995117,
+          "minimum_area": 9.971948020393029e-05
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_02_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9869095683097839,
+          "minimum_area": 0.00011165111936861649
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_03_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.1145316362380981,
+          "minimum_area": 0.00012696458725258708
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_04_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2586716413497925,
+          "minimum_area": 0.00013759353896602988
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_05_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3862723112106323,
+          "minimum_area": 0.00014400620420929044
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_06_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3607600927352905,
+          "minimum_area": 0.00014653339167125523
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_07_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2953802347183228,
+          "minimum_area": 0.00013838818995282054
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_08_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.103047490119934,
+          "minimum_area": 0.00012529391096904874
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_09_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9760867953300476,
+          "minimum_area": 0.00011422209354350343
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_10_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8500979542732239,
+          "minimum_area": 0.00010109855065820739
+        },
+        {
+          "object": "MC_DAY01_Lower_Gum",
+          "OpenAmount": 1.0,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.34498977661133,
+          "minimum_area": 0.0016957791522145271
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_01_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9493488073349,
+          "minimum_area": 0.000156466499902308
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_02_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.2950832843780518,
+          "minimum_area": 0.0001778647565515712
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_03_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.634049892425537,
+          "minimum_area": 0.00019045565568376333
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_04_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.04817271232605,
+          "minimum_area": 0.00020734412828460336
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_05_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.317784070968628,
+          "minimum_area": 0.0002226305950898677
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_06_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.183124303817749,
+          "minimum_area": 0.00021226827811915427
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_07_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.9749622344970703,
+          "minimum_area": 0.00020482769468799233
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_08_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.658435583114624,
+          "minimum_area": 0.00018994277343153954
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_09_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.3344972133636475,
+          "minimum_area": 0.00017413613386452198
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_10_Crown",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9772802591323853,
+          "minimum_area": 0.00015977515431586653
+        },
+        {
+          "object": "MC_DAY01_Upper_Gum",
+          "OpenAmount": 1.0,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.34395980834961,
+          "minimum_area": 0.0014121660497039557
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_01_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8543909192085266,
+          "minimum_area": 9.971952385967597e-05
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_02_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9869148135185242,
+          "minimum_area": 0.00011165122123202309
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_03_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.114528775215149,
+          "minimum_area": 0.00012696458725258708
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_04_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2586727142333984,
+          "minimum_area": 0.00013759350986219943
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_05_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3862724304199219,
+          "minimum_area": 0.00014400614600162953
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_06_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3607592582702637,
+          "minimum_area": 0.00014653337711934
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_07_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2953824996948242,
+          "minimum_area": 0.00013838826271239668
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_08_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.10303795337677,
+          "minimum_area": 0.00012529385276138783
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_09_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9760769009590149,
+          "minimum_area": 0.00011422202078392729
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_10_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8500938415527344,
+          "minimum_area": 0.0001010984051390551
+        },
+        {
+          "object": "MC_DAY01_Lower_Gum",
+          "OpenAmount": 0.0,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.3449821472168,
+          "minimum_area": 0.0016957791522145271
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_01_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9493499994277954,
+          "minimum_area": 0.000156466499902308
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_02_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.295081615447998,
+          "minimum_area": 0.0001778647565515712
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_03_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.6340487003326416,
+          "minimum_area": 0.00019045565568376333
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_04_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.048173666000366,
+          "minimum_area": 0.00020734412828460336
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_05_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.317784070968628,
+          "minimum_area": 0.0002226305950898677
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_06_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.183123826980591,
+          "minimum_area": 0.00021226827811915427
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_07_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.974963426589966,
+          "minimum_area": 0.00020482769468799233
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_08_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.658437967300415,
+          "minimum_area": 0.00018994277343153954
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_09_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.3344993591308594,
+          "minimum_area": 0.00017413613386452198
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_10_Crown",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9772733449935913,
+          "minimum_area": 0.00015977515431586653
+        },
+        {
+          "object": "MC_DAY01_Upper_Gum",
+          "OpenAmount": 0.0,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.343963623046875,
+          "minimum_area": 0.0014121630229055882
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_01_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8543939590454102,
+          "minimum_area": 9.971956023946404e-05
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_02_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9869222640991211,
+          "minimum_area": 0.00011165120668010786
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_03_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.114527940750122,
+          "minimum_area": 0.0001269644999410957
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_04_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2586735486984253,
+          "minimum_area": 0.00013759353896602988
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_05_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3862719535827637,
+          "minimum_area": 0.00014400614600162953
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_06_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3607593774795532,
+          "minimum_area": 0.00014653339167125523
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_07_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2953816652297974,
+          "minimum_area": 0.00013838824816048145
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_08_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.1030385494232178,
+          "minimum_area": 0.0001252937945537269
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_09_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9760794043540955,
+          "minimum_area": 0.00011422201350796968
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_10_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8500869274139404,
+          "minimum_area": 0.00010109836875926703
+        },
+        {
+          "object": "MC_DAY01_Lower_Gum",
+          "OpenAmount": 0.25,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.344974517822266,
+          "minimum_area": 0.0016957791522145271
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_01_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9493532180786133,
+          "minimum_area": 0.000156466499902308
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_02_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.2950809001922607,
+          "minimum_area": 0.0001778647565515712
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_03_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.634049654006958,
+          "minimum_area": 0.00019045565568376333
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_04_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.0481739044189453,
+          "minimum_area": 0.00020734412828460336
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_05_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.317784309387207,
+          "minimum_area": 0.0002226305950898677
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_06_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.183124303817749,
+          "minimum_area": 0.00021226827811915427
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_07_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.974963426589966,
+          "minimum_area": 0.00020482769468799233
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_08_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.658435821533203,
+          "minimum_area": 0.00018994277343153954
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_09_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.334498882293701,
+          "minimum_area": 0.00017413613386452198
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_10_Crown",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9772700071334839,
+          "minimum_area": 0.00015977515431586653
+        },
+        {
+          "object": "MC_DAY01_Upper_Gum",
+          "OpenAmount": 0.25,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.3439826965332,
+          "minimum_area": 0.001412165118381381
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_01_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8543941974639893,
+          "minimum_area": 9.971948020393029e-05
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_02_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9869137406349182,
+          "minimum_area": 0.00011165125761181116
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_03_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.1145323514938354,
+          "minimum_area": 0.00012696466001216322
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_04_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2586731910705566,
+          "minimum_area": 0.00013759353896602988
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_05_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3862720727920532,
+          "minimum_area": 0.0001440061314497143
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_06_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3607597351074219,
+          "minimum_area": 0.00014653339167125523
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_07_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2953826189041138,
+          "minimum_area": 0.00013838830636814237
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_08_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.1030373573303223,
+          "minimum_area": 0.00012529391096904874
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_09_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9760778546333313,
+          "minimum_area": 0.00011422207171563059
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_10_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8500890135765076,
+          "minimum_area": 0.00010109836875926703
+        },
+        {
+          "object": "MC_DAY01_Lower_Gum",
+          "OpenAmount": 0.5,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.34495544433594,
+          "minimum_area": 0.0016957791522145271
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_01_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9493517875671387,
+          "minimum_area": 0.000156466499902308
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_02_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.2950804233551025,
+          "minimum_area": 0.0001778647565515712
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_03_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.6340484619140625,
+          "minimum_area": 0.00019045565568376333
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_04_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.0481739044189453,
+          "minimum_area": 0.00020734412828460336
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_05_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.317784070968628,
+          "minimum_area": 0.0002226305950898677
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_06_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.183124542236328,
+          "minimum_area": 0.00021226827811915427
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_07_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.9749631881713867,
+          "minimum_area": 0.00020482769468799233
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_08_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.658437490463257,
+          "minimum_area": 0.00018994277343153954
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_09_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.3345017433166504,
+          "minimum_area": 0.00017413613386452198
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_10_Crown",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9772716760635376,
+          "minimum_area": 0.00015977515431586653
+        },
+        {
+          "object": "MC_DAY01_Upper_Gum",
+          "OpenAmount": 0.5,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.343963623046875,
+          "minimum_area": 0.001412165118381381
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_01_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.854422390460968,
+          "minimum_area": 9.971948020393029e-05
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_02_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9869070649147034,
+          "minimum_area": 0.00011165125761181116
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_03_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.1145331859588623,
+          "minimum_area": 0.00012696458725258708
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_04_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2586749792099,
+          "minimum_area": 0.00013759353896602988
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_05_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3862724304199219,
+          "minimum_area": 0.00014400605869013816
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_06_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.3607600927352905,
+          "minimum_area": 0.00014653339167125523
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_07_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.2953838109970093,
+          "minimum_area": 0.00013838826271239668
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_08_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.103035569190979,
+          "minimum_area": 0.00012529391096904874
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_09_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.9760777354240417,
+          "minimum_area": 0.00011422204988775775
+        },
+        {
+          "object": "MC_DAY01_Lower_Enamel_10_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.8500707745552063,
+          "minimum_area": 0.00010109855065820739
+        },
+        {
+          "object": "MC_DAY01_Lower_Gum",
+          "OpenAmount": 0.75,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.3449821472168,
+          "minimum_area": 0.0016957728657871485
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_01_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.9493522644042969,
+          "minimum_area": 0.000156466499902308
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_02_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.295078754425049,
+          "minimum_area": 0.0001778647565515712
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_03_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.6340513229370117,
+          "minimum_area": 0.00019045565568376333
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_04_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.0481746196746826,
+          "minimum_area": 0.00020734412828460336
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_05_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.3177835941314697,
+          "minimum_area": 0.0002226305950898677
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_06_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 3.183123826980591,
+          "minimum_area": 0.00021226827811915427
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_07_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.9749629497528076,
+          "minimum_area": 0.00020482769468799233
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_08_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.658437490463257,
+          "minimum_area": 0.00018994277343153954
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_09_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 2.3344991207122803,
+          "minimum_area": 0.00017413613386452198
+        },
+        {
+          "object": "MC_DAY01_Upper_Enamel_10_Crown",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 1.97726571559906,
+          "minimum_area": 0.00015977515431586653
+        },
+        {
+          "object": "MC_DAY01_Upper_Gum",
+          "OpenAmount": 0.75,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 35.34397506713867,
+          "minimum_area": 0.0014121609274297953
+        }
+      ],
+      "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\FunctionalBlocking_DAY01_DAY02_v01\\MC_DAY01_BlockingMorphSource.blend",
+      "blend_sha256": "74f24dc6343fba36112380bfc464ec703abb9ccfed97ef5deab7b1780b32f151",
+      "fbx": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\FunctionalBlocking_DAY01_DAY02_v01\\SK_DAY01_Blocking.fbx",
+      "fbx_sha256": "d20ccd04244863824a0aa57dbcd00c5089a3772a79d3d7147b70e2fd50da20af",
+      "materials": [
+        "MC_Enamel",
+        "MC_Gum"
+      ],
+      "UV0_first_only": true,
+      "root_bone": "root",
+      "morphs": [
+        "Pose_000",
+        "Pose_025",
+        "Pose_050",
+        "Pose_075"
+      ],
+      "Open_basis_bounds": [
+        [
+          -8.099421501159668,
+          -3.4508228302001953,
+          -3.8990750312805176
+        ],
+        [
+          8.099421501159668,
+          0.5643526911735535,
+          3.8990750312805176
+        ]
+      ],
+      "Closed_bounds": [
+        [
+          -8.099421501159668,
+          -3.4508228302001953,
+          -2.1990749835968018
+        ],
+        [
+          8.099421501159668,
+          0.5643526911735535,
+          2.1990749835968018
+        ]
+      ]
+    },
+    {
+      "day": "DAY02",
+      "kind": "Predator",
+      "functional_blocking_only": true,
+      "source_collection": "MC_Jaws_DAY02_Predator",
+      "source_root": "MC_JawsRoot[OpenAmount]",
+      "source_variant_root": "MC_Jaws_DAY02_Predator_Root",
+      "source_parents": [
+        "MC_Jaw_DAY02_Upper",
+        "MC_Jaw_DAY02_Lower"
+      ],
+      "source_mesh_count": 23,
+      "vertices": 43966,
+      "triangles": 87840,
+      "parts": [
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_01_Blade",
+          "vertex_start": 0,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_02_Blade",
+          "vertex_start": 1202,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_03_Blade",
+          "vertex_start": 2404,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_04_Blade",
+          "vertex_start": 3606,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_05_Blade",
+          "vertex_start": 4808,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_06_Blade",
+          "vertex_start": 6010,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_07_Blade",
+          "vertex_start": 7212,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_08_Blade",
+          "vertex_start": 8414,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_09_Blade",
+          "vertex_start": 9616,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Enamel_10_Blade",
+          "vertex_start": 10818,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Lower_Gum",
+          "vertex_start": 12020,
+          "vertex_count": 9362,
+          "source_parent": "MC_Jaw_DAY02_Lower"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_01_Blade",
+          "vertex_start": 21382,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_02_Blade",
+          "vertex_start": 22584,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_03_Blade",
+          "vertex_start": 23786,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_04_Blade",
+          "vertex_start": 24988,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_05_Blade",
+          "vertex_start": 26190,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_06_Blade",
+          "vertex_start": 27392,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_07_Blade",
+          "vertex_start": 28594,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_08_Blade",
+          "vertex_start": 29796,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_09_Blade",
+          "vertex_start": 30998,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_10_Blade",
+          "vertex_start": 32200,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Enamel_11_Blade",
+          "vertex_start": 33402,
+          "vertex_count": 1202,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        },
+        {
+          "mesh": "MC_DAY02_Upper_Gum",
+          "vertex_start": 34604,
+          "vertex_count": 9362,
+          "source_parent": "MC_Jaw_DAY02_Upper"
+        }
+      ],
+      "actual_pose_solid_gates": [
+        {
+          "object": "MC_DAY02_Lower_Enamel_01_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6730431914329529,
+          "minimum_area": 1.778012233444315e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_02_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6487316489219666,
+          "minimum_area": 1.8704372450883966e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_03_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6613331437110901,
+          "minimum_area": 1.8217291426481097e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_04_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.669914722442627,
+          "minimum_area": 1.831419467634987e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_05_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6716788411140442,
+          "minimum_area": 1.8254235101267113e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_06_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6615786552429199,
+          "minimum_area": 1.852445393524249e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_07_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6707648634910583,
+          "minimum_area": 1.8185057797381887e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_08_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6513291001319885,
+          "minimum_area": 1.7924601252161665e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_09_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6655240058898926,
+          "minimum_area": 1.8138748600904364e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_10_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6553481221199036,
+          "minimum_area": 1.8223425968244555e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Gum",
+          "OpenAmount": 1.0,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.61714553833008,
+          "minimum_area": 0.0014570209896191955
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_01_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7258517146110535,
+          "minimum_area": 2.0082218270545127e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_02_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7141406536102295,
+          "minimum_area": 1.9409267224546056e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_03_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7167532444000244,
+          "minimum_area": 1.9379108380235266e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_04_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7156903743743896,
+          "minimum_area": 1.8860538375520264e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_05_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7536224722862244,
+          "minimum_area": 2.0848951862717513e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_06_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7489302754402161,
+          "minimum_area": 2.0913605567329796e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_07_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7244603633880615,
+          "minimum_area": 2.0087311440875055e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_08_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.734105110168457,
+          "minimum_area": 2.011046490224544e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_09_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7190249562263489,
+          "minimum_area": 1.993430487345904e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_10_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7113696932792664,
+          "minimum_area": 2.008820047194604e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_11_Blade",
+          "OpenAmount": 1.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7146204113960266,
+          "minimum_area": 1.8889948023570469e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Gum",
+          "OpenAmount": 1.0,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.61558532714844,
+          "minimum_area": 0.001387468772009015
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_01_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6730377078056335,
+          "minimum_area": 1.778105342964409e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_02_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6487348675727844,
+          "minimum_area": 1.8704522517509758e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_03_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6613335013389587,
+          "minimum_area": 1.821692308112688e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_04_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6699153780937195,
+          "minimum_area": 1.831461190704431e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_05_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6716787219047546,
+          "minimum_area": 1.8255107079312438e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_06_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6615785956382751,
+          "minimum_area": 1.852492800935579e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_07_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6707668900489807,
+          "minimum_area": 1.8184845202995348e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_08_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6513290405273438,
+          "minimum_area": 1.7924703570315614e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_09_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6655271053314209,
+          "minimum_area": 1.8139226085622795e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_10_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6553366780281067,
+          "minimum_area": 1.8223249753646087e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Gum",
+          "OpenAmount": 0.0,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.617156982421875,
+          "minimum_area": 0.0014570235507562757
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_01_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7258403301239014,
+          "minimum_area": 2.0081474758626428e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_02_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7141425013542175,
+          "minimum_area": 1.9409267224546056e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_03_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7167531847953796,
+          "minimum_area": 1.9379108380235266e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_04_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.715691864490509,
+          "minimum_area": 1.8860538375520264e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_05_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7536227703094482,
+          "minimum_area": 2.0847403447987745e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_06_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7489302754402161,
+          "minimum_area": 2.0913969365210505e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_07_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7244603633880615,
+          "minimum_area": 2.0086583845113637e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_08_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7341057658195496,
+          "minimum_area": 2.0109769138798583e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_09_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7190238833427429,
+          "minimum_area": 1.99346163753944e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_10_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7113728523254395,
+          "minimum_area": 2.0087218217668124e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_11_Blade",
+          "OpenAmount": 0.0,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.714613139629364,
+          "minimum_area": 1.8889417106038309e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Gum",
+          "OpenAmount": 0.0,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.6155891418457,
+          "minimum_area": 0.0013874684227630496
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_01_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6730351448059082,
+          "minimum_area": 1.778105342964409e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_02_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6487346291542053,
+          "minimum_area": 1.8704522517509758e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_03_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.661333441734314,
+          "minimum_area": 1.821692308112688e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_04_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6699152588844299,
+          "minimum_area": 1.831461190704431e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_05_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.671678364276886,
+          "minimum_area": 1.8255107079312438e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_06_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6615788340568542,
+          "minimum_area": 1.852492800935579e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_07_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6707668304443359,
+          "minimum_area": 1.8184845202995348e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_08_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.651328444480896,
+          "minimum_area": 1.7924703570315614e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_09_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6655271053314209,
+          "minimum_area": 1.8139226085622795e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_10_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6553438305854797,
+          "minimum_area": 1.8223249753646087e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Gum",
+          "OpenAmount": 0.25,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.6171875,
+          "minimum_area": 0.0014570256462320685
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_01_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7258448600769043,
+          "minimum_area": 2.0081474758626428e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_02_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7141401171684265,
+          "minimum_area": 1.9409267224546056e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_03_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7167540192604065,
+          "minimum_area": 1.9379108380235266e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_04_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7156912684440613,
+          "minimum_area": 1.8860538375520264e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_05_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7536227107048035,
+          "minimum_area": 2.0847403447987745e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_06_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7489302158355713,
+          "minimum_area": 2.0913969365210505e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_07_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7244604229927063,
+          "minimum_area": 2.0086583845113637e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_08_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7341053485870361,
+          "minimum_area": 2.0109769138798583e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_09_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7190239429473877,
+          "minimum_area": 1.99346163753944e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_10_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7113729119300842,
+          "minimum_area": 2.0087218217668124e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_11_Blade",
+          "OpenAmount": 0.25,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.714617908000946,
+          "minimum_area": 1.8889417106038309e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Gum",
+          "OpenAmount": 0.25,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.615596771240234,
+          "minimum_area": 0.0013874680735170841
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_01_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6730366349220276,
+          "minimum_area": 1.7781127326088608e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_02_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6487343311309814,
+          "minimum_area": 1.8704674857872305e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_03_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6613345742225647,
+          "minimum_area": 1.8216599073639372e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_04_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6699151992797852,
+          "minimum_area": 1.831419467634987e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_05_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6716787815093994,
+          "minimum_area": 1.8254613678436726e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_06_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6615785956382751,
+          "minimum_area": 1.852445393524249e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_07_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6707660555839539,
+          "minimum_area": 1.8185057797381887e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_08_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6513291001319885,
+          "minimum_area": 1.7925318616107688e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_09_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6655232906341553,
+          "minimum_area": 1.8139475059797405e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_10_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6553426384925842,
+          "minimum_area": 1.8223425968244555e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Gum",
+          "OpenAmount": 0.5,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.617183685302734,
+          "minimum_area": 0.0014570209896191955
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_01_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7258397936820984,
+          "minimum_area": 2.0081474758626428e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_02_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7141430974006653,
+          "minimum_area": 1.9409267224546056e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_03_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7167539596557617,
+          "minimum_area": 1.9378949218662456e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_04_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7156907916069031,
+          "minimum_area": 1.8860538375520264e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_05_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7536225318908691,
+          "minimum_area": 2.0847403447987745e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_06_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7489302754402161,
+          "minimum_area": 2.0913969365210505e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_07_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7244603633880615,
+          "minimum_area": 2.0086583845113637e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_08_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7341046929359436,
+          "minimum_area": 2.0109769138798583e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_09_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7190235257148743,
+          "minimum_area": 1.99346163753944e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_10_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7113744616508484,
+          "minimum_area": 2.0087218217668124e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_11_Blade",
+          "OpenAmount": 0.5,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7146152853965759,
+          "minimum_area": 1.8889417106038309e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Gum",
+          "OpenAmount": 0.5,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.615604400634766,
+          "minimum_area": 0.0013874709839001298
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_01_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6730348467826843,
+          "minimum_area": 1.778012233444315e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_02_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6487336158752441,
+          "minimum_area": 1.870497499112389e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_03_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6613354086875916,
+          "minimum_area": 1.8215907857666025e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_04_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6699149012565613,
+          "minimum_area": 1.831419467634987e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_05_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6716787219047546,
+          "minimum_area": 1.8254312408316764e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_06_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6615787148475647,
+          "minimum_area": 1.852445393524249e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_07_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6707653999328613,
+          "minimum_area": 1.8185057797381887e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_08_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6513286232948303,
+          "minimum_area": 1.7923974837685819e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_09_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6655263900756836,
+          "minimum_area": 1.8138122186428518e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Enamel_10_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.6553426384925842,
+          "minimum_area": 1.8223425968244555e-06
+        },
+        {
+          "object": "MC_DAY02_Lower_Gum",
+          "OpenAmount": 0.75,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.617164611816406,
+          "minimum_area": 0.0014570256462320685
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_01_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.72584468126297,
+          "minimum_area": 2.0081474758626428e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_02_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7141398787498474,
+          "minimum_area": 1.9409267224546056e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_03_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7167541980743408,
+          "minimum_area": 1.9379108380235266e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_04_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7156911492347717,
+          "minimum_area": 1.8860538375520264e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_05_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7536223530769348,
+          "minimum_area": 2.084790821754723e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_06_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7489302158355713,
+          "minimum_area": 2.0913605567329796e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_07_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7244603633880615,
+          "minimum_area": 2.0086583845113637e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_08_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7341055870056152,
+          "minimum_area": 2.01093939722341e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_09_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.719022810459137,
+          "minimum_area": 1.99346163753944e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_10_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7113757133483887,
+          "minimum_area": 2.0087218217668124e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Enamel_11_Blade",
+          "OpenAmount": 0.75,
+          "vertices": 1202,
+          "triangles": 2400,
+          "positive_volume": 0.7146161198616028,
+          "minimum_area": 1.8889948023570469e-06
+        },
+        {
+          "object": "MC_DAY02_Upper_Gum",
+          "OpenAmount": 0.75,
+          "vertices": 9362,
+          "triangles": 18720,
+          "positive_volume": 34.61555480957031,
+          "minimum_area": 0.0013874658616259694
+        }
+      ],
+      "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\FunctionalBlocking_DAY01_DAY02_v01\\MC_DAY02_BlockingMorphSource.blend",
+      "blend_sha256": "6cac50b82c7b04edded4378beb184912a6e05f303b75360c88c2de168d225a21",
+      "fbx": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Assembly\\UnrealHandoff\\FunctionalBlocking_DAY01_DAY02_v01\\SK_DAY02_Blocking.fbx",
+      "fbx_sha256": "88481141082d35f421b70960085fa4b9db371633aab9f90f05fc071ae35c14ef",
+      "materials": [
+        "MC_Enamel",
+        "MC_Gum"
+      ],
+      "UV0_first_only": true,
+      "root_bone": "root",
+      "morphs": [
+        "Pose_000",
+        "Pose_025",
+        "Pose_050",
+        "Pose_075"
+      ],
+      "Open_basis_bounds": [
+        [
+          -8.099421501159668,
+          -3.4508228302001953,
+          -3.847644090652466
+        ],
+        [
+          8.099421501159668,
+          0.568186342716217,
+          3.847644090652466
+        ]
+      ],
+      "Closed_bounds": [
+        [
+          -8.099421501159668,
+          -3.4508228302001953,
+          -2.14764404296875
+        ],
+        [
+          8.099421501159668,
+          0.568186342716217,
+          2.14764404296875
+        ]
+      ]
+    }
+  ],
+  "native_y_flip": true,
+  "polygon_and_UV_loop_winding_reversed": true,
+  "source_coordinate_to_native_cm": 100.0,
+  "vertices_not_premultiplied_by100": true,
+  "unit_and_FBX_flags": "Same as current successful DAY03 exporter: scene NONE, apply_unit_scale=False, FBX_SCALE_NONE, axes -Y/Z.",
+  "runtime_morph_rule": "w_i=max(0,1-abs(OpenAmount-sample_i)/.25), samples0,.25,.5,.75; Open1 is Basis/allzero.",
+  "rendering_performed": false,
+  "character_assets_touched": false,
+  "native_import_required": "Fresh FBX options convert_scene=False, import_morph_targets=True; root owns UE import and actual gray perspective behavior review.",
+  "shared_interior": "Existing native DAY03 Interior/Tongue may be reused as explicit blocking; no new static meshes exported.",
+  "limits": [
+    "No fidelity, physical-material, final-art or UE/runtime acceptance claim.",
+    "Legacy DAY02 has21 blades, not the later23 source-locked crowns; intentionally functional blocking."
+  ]
+}

@@ -1,0 +1,4231 @@
+{
+  "status": "ACTUAL_SYMMETRIC_LOWER_COMPOUND_GEOMETRY_CANDIDATE_NOT_FINAL_ART",
+  "blend": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Gums\\SymmetricLower_DAY03_v01\\DCC_v02\\MC_DAY03_SymmetricLowerCompound.blend",
+  "blend_sha256": "88cf1c4354dbc8d94437b83b76f2aa99c860e1e3bd4f5d77c2daaf1fac9a0c2f",
+  "blender": "5.1.0",
+  "source_jaw": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Jaws\\Symmetry_DAY03_v01\\DCC_v01\\MC_DAY03_SymmetricLower16_candidate.blend",
+  "source_gum": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Gums\\ClosedPosePrototype\\BlenderCandidate_v07_PadPhysicalY_UpperLowerRelax\\Gums_ClosedCorrective_Candidate.blend",
+  "source_sha256": {
+    "jaw": "4a3f264dbdff2e13b686679d52213336c866e3eae3aa607a22a37ec48be6f63c",
+    "gum": "2e9e89987eaffa67153ccf1f2a0a1b7c6cccce8f6fa499a79a910f0999ded953"
+  },
+  "source_files_unchanged": {
+    "jaw": true,
+    "gum": true
+  },
+  "control": "MC_JawsRoot",
+  "property": "OpenAmount",
+  "actual_mesh_count": 34,
+  "collection_gums": "MenuGingiva_Geometry",
+  "upper_basis_keys_UV_hash_unchanged": "f22a083e4f46400dfe8eaf137c03572fbb694569cd1cffab3295a1111076abe4",
+  "lower_primaryUV0_topology_hash_unchanged": "bee670afe24e3b546a0eb575152ee6e8061b23210362e6d764e5a010ddf5255e",
+  "new_jaw_OpenBasis_UV_topology_hashes_unchanged": {
+    "MC_DAY03_Lower_Canine_L": "a2930db8bca238db4b5df79b99f6989670c93c117189dfddfe30d6ed625b10e6",
+    "MC_DAY03_Lower_Canine_R": "eb5fd48867667aef02b6244d149a3018b03705a57eb7c4d2f0d5e0d0f4f206ff",
+    "MC_DAY03_Lower_Central_L": "1ca88c83eab0477bbc1ed6c944fe2a214e384c0f180d333868fadf8a31f3b3a2",
+    "MC_DAY03_Lower_Central_R": "45b6cdaa305c1286df32b5208a2eb0e53737c0c6d2f9a48ac60ded756cdce6e6",
+    "MC_DAY03_Lower_Lateral_L": "37839cf956648135a32b4d5d946ad975b44810da34587dde4f922da536a4aa50",
+    "MC_DAY03_Lower_Lateral_R": "0f3dcd1c3131febc20486d01e067b168d086c5aa4135157ba1ace40079037e78",
+    "MC_DAY03_Lower_Molar_L": "0447ab00a5229eccb4f79bbac1334c7814f90083952b9bee615b9d3f0c504e48",
+    "MC_DAY03_Lower_Molar_R": "55e03ba811dfaf863d4000113ec533de7c9b52501a76e3f6b6874383abeea9a8",
+    "MC_DAY03_Lower_Posterior_L01": "5d2419e88d257a8504c2b8e9ba2797b53e0c201fe2e0a7cd70dcbac25891b5d3",
+    "MC_DAY03_Lower_Posterior_L02": "b5205a1994b18e64a6a9748c6be49dea78d824c89d4c65cb90d5fadc9a575ec2",
+    "MC_DAY03_Lower_Posterior_L03": "0f202914fc0beb6050b7e92549a8b3d75cb76b419b0e6f1093b783eb44639413",
+    "MC_DAY03_Lower_Posterior_R01": "80ba84c35d5dc13d4ac64b6bcb424b1b8068a233ae58de32d581fa326195c64e",
+    "MC_DAY03_Lower_Posterior_R02": "ebd6f7d9db22b995758245cfa71332fc47f38f895b37dbed8999150a7420e8db",
+    "MC_DAY03_Lower_Posterior_R03": "11544f634f0dd5fec5a1c45d33437d8a1c88e1f436b4a7ba77060faa406b47f5",
+    "MC_DAY03_Lower_Premolar_L": "7080e3ca1bced5768f34f43ff00a7b0c648f41f8c0644f44d01da7433478df07",
+    "MC_DAY03_Lower_Premolar_R": "2d84cd9a3a0f081e619ae54fbea75a308b8a7d4d549b6865aa71e5c16ef430c3",
+    "MC_DAY03_Upper_Central_L": "de437653e4d3213c2b57b5b0e33bbbac9c6f8b14ebbc9c8ba32cf60fb201736b",
+    "MC_DAY03_Upper_Central_R": "43a4b52340108c31e53115017516994023c5f30d68ae055008a0ecb1730b366d",
+    "MC_DAY03_Upper_Fang_L": "e9d84e3bc6fd58434e51bf4c699b04072f1f5ccae7ec60c1f7595b4b2a2df784",
+    "MC_DAY03_Upper_Fang_R": "08b636e426820a6e603eca282904d2ef170bcaadd0ecc401b9e9da0e29646690",
+    "MC_DAY03_Upper_Lateral_L": "2e3a5f6489d6ea2104469cd7044f32de201255de09dc23446ca81500270c9ec1",
+    "MC_DAY03_Upper_Lateral_R": "41b0b6b379d7a286d35e5bb49fbc3df8653d3ebd04b867171e4f2c48b8878f35",
+    "MC_DAY03_Upper_Posterior_L01": "0af770d9ed67c944240d3a826b7dd622e4e84e886a5bb47928b3a1593706f4cc",
+    "MC_DAY03_Upper_Posterior_L02": "a35b4240e7b44d67ce4591ab6abf07fb05d2220148278b6b539d74da53200afc",
+    "MC_DAY03_Upper_Posterior_L03": "20c1c565d1c837fef1d2751e0bee189cc6bcae9fc0e17f9cef53a39a51b1ab20",
+    "MC_DAY03_Upper_Posterior_L04": "47b9e09ed4541fe1df57ff23cdb784e0a1da732cd3fe43e4c68db3a6145fa2f3",
+    "MC_DAY03_Upper_Posterior_R01": "9af5eb15d46cee5ca8f189c861f476564b9b307f2c46f22d2353c7d4be58368a",
+    "MC_DAY03_Upper_Posterior_R02": "0fadb387d9933d9cd3a826845941f462817d9fb01fec28e32af1fd39a4c3e197",
+    "MC_DAY03_Upper_Posterior_R03": "5bdeee3d93a8b48982d983f57969a778cfdd4a9b4590aa8d22731b20b6c6a34c",
+    "MC_DAY03_Upper_Posterior_R04": "82594b57f21ba71d43a1783258750c487de73452e33fdce27d06c80a5e6f3e88",
+    "MC_DAY03_Upper_Posterior_R05": "869eecbe1cf217495b55fed62f296e3be1df92bf4da87a79f73865c22db1a6e3",
+    "MC_DAY03_Upper_Posterior_R06": "d0dbcb03858fc53ae29d77eca29ec0b1d56d780238d5d1531216abfee1319969"
+  },
+  "source_crown_full_hashes_before": {
+    "MC_DAY03_Lower_Canine_L": "8b521f49a4be492303a5308c246ee5083c5fde2ee0706d5605f3ec5e22c82a3a",
+    "MC_DAY03_Lower_Canine_R": "0ed00ac30375a71ad14fc50b381233fa35ddabd8af3c338f459944ca60d662dd",
+    "MC_DAY03_Lower_Central_L": "663552a8643077aa5f9265fdd380efbdfc22a0d52e3b28aabcb2d8d072681d53",
+    "MC_DAY03_Lower_Central_R": "14fff860671fb7879cadb69364b9c74de70d0a46026a58fa7a798a67f55d1b38",
+    "MC_DAY03_Lower_Lateral_L": "7973231f82ce26dc9e6dd7283a4a1e6ed000be2719e29a2b425503a67533de4a",
+    "MC_DAY03_Lower_Lateral_R": "8387649884f7396cc2c1ae22a5a545807c3568ae3544fb5f47c928f761c5f741",
+    "MC_DAY03_Lower_Molar_L": "f0aadae398521baa42674471a72c7b3c47a87faf6fd17f228123ca57b198164f",
+    "MC_DAY03_Lower_Molar_R": "77ba98bcd30a0d2f823dd5884b1706ee86e9a2b13eb5d56a8f7044ba4d93f385",
+    "MC_DAY03_Lower_Posterior_L01": "f86f1d74fd4bb9e0d65948b4008e2e8c42007d68b36809fd86cdb282b6e92f31",
+    "MC_DAY03_Lower_Posterior_L02": "dfb0420491c9a58a5be0878fb886b4bff357b3a7fb98b92434fea9ca8a7af418",
+    "MC_DAY03_Lower_Posterior_L03": "5649b5168459a8663f363607419a725a419b178d42a934deb91098d209d83581",
+    "MC_DAY03_Lower_Posterior_R01": "049543320189f93c661bc1b1d8ecba4cf048620654ee8870d643c665ef1f11a2",
+    "MC_DAY03_Lower_Posterior_R02": "9e947eb1da03cf29a91b5b0a60301ae2c1c0323d5441d5199a9d4c725bc4ecbd",
+    "MC_DAY03_Lower_Posterior_R03": "303a7a5a3f84648161df9d1bcd89a778499f992cfa86671e2f86f001ea2d8b82",
+    "MC_DAY03_Lower_Premolar_L": "0d8a77d0474d06a31b078f8580f68f9b9f1f0cc0de844e9f255e5ef37f1347b8",
+    "MC_DAY03_Lower_Premolar_R": "b4d0878d12cb7bbbf95a3ffb3c5e02546a75659998e54c28baab8c6d9e0ad32f",
+    "MC_DAY03_Upper_Central_L": "ab442f3ce9b63b3d2ccabd04265f832beed7a297e1cb2927254dad39694a68bc",
+    "MC_DAY03_Upper_Central_R": "af4d6dddf00ca4537175338cd4adaa236cd2693d1a69fd5fe4cc32b3044848d6",
+    "MC_DAY03_Upper_Fang_L": "f8df9084c2a568e4abb35da6f84025b2e7ecf1580cd52678e44cea7df96f67f5",
+    "MC_DAY03_Upper_Fang_R": "dfd89be9fdc5e398952be167c24351b6cce004a117c1160e0ce075afa4fbed4d",
+    "MC_DAY03_Upper_Lateral_L": "2e3142a96805c9a5c019cb8042343188b51f52ab7d914b377c957f2c7191aee9",
+    "MC_DAY03_Upper_Lateral_R": "318449e6f945f8849e7f0363dbf87ebe3ed777fc8606f72b55f5b5ebc0c5f565",
+    "MC_DAY03_Upper_Posterior_L01": "59ebc023bc4b21fd5429f275b5e53cb293f2ed6b8b77d16587a3b29529f49b9f",
+    "MC_DAY03_Upper_Posterior_L02": "93f1eca52bbed6b1a75efee1ad709f32840cdee1958dca1b7867348acd6dfb28",
+    "MC_DAY03_Upper_Posterior_L03": "57d364768db6a2e3a4078e9745f5f50ec188d1495fa7f8462ba0e547cf5c0504",
+    "MC_DAY03_Upper_Posterior_L04": "9abb93dadda1ca5868b26e573e271a8612e268671433909b09cfe8f2a94b2ea9",
+    "MC_DAY03_Upper_Posterior_R01": "886faec0d8905ef98309fcf15ff1dfa01679e69cf74d0d0899b3cd080b6d68c5",
+    "MC_DAY03_Upper_Posterior_R02": "0d5f2c8d2b5b0e2cfc35f0880c53c469b49372376b236021e1db8e357d7fa03e",
+    "MC_DAY03_Upper_Posterior_R03": "8f6f01455f37473516fe67ce931cf4dffb71be4fd46c0d4ae914359009bad1a5",
+    "MC_DAY03_Upper_Posterior_R04": "c3f4ed6aa103a62ac97d099c92d3ba39bfaab39d3254a603c7ec9e59de304012",
+    "MC_DAY03_Upper_Posterior_R05": "a5046882c5fb55fde344d71647348a14e4c3a55779663034baa8b5d7917b9307",
+    "MC_DAY03_Upper_Posterior_R06": "03157433a1c78f793d0ef2b4efb4e18d7b117a8e5bc503243082cd2045e24ca0"
+  },
+  "closed_lower_tuck_replacements": [
+    {
+      "object": "MC_DAY03_Lower_Canine_L",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_R",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_L",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_R",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_L",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_R",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_L",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_R",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L01",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L02",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L03",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R01",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R02",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R03",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_L",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_R",
+      "key": "ClosedTuck",
+      "mode": "REPLACE_EXISTING_ABSOLUTE_TOTAL_NO_STACK",
+      "old_total_worldZ": -0.809999942779541,
+      "new_total_worldZ": -0.9279646936656283,
+      "OpenBasis_UV_untouched": true
+    }
+  ],
+  "driver_root_remaps": [
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "old_id": "MC_JawsRoot.001",
+      "new_id": "MC_JawsRoot"
+    },
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "old_id": "MC_JawsRoot.001",
+      "new_id": "MC_JawsRoot"
+    },
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "old_id": "MC_JawsRoot.001",
+      "new_id": "MC_JawsRoot"
+    },
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "old_id": "MC_JawsRoot.001",
+      "new_id": "MC_JawsRoot"
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "old_id": "MC_JawsRoot.001",
+      "new_id": "MC_JawsRoot"
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "old_id": "MC_JawsRoot.001",
+      "new_id": "MC_JawsRoot"
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "old_id": "MC_JawsRoot.001",
+      "new_id": "MC_JawsRoot"
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "old_id": "MC_JawsRoot.001",
+      "new_id": "MC_JawsRoot"
+    }
+  ],
+  "unused_private_controllers_removed": [
+    "MC_JawsRoot.001",
+    "MC_Jaw_DAY03_Lower.001",
+    "MC_Jaw_DAY03_Upper.001"
+  ],
+  "actual_pose_solid_UV_gates": [
+    {
+      "object": "MC_DAY03_Lower_Canine_L",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307818887319923,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_R",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.430781884774813,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_L",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058831002151771,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.9227122003940685e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_R",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058831002151762,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.9227122003940685e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_L",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.2747821445387848,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.097557708617846e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_R",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.2747821445387888,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.097557708617846e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_L",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.8031501840401709,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299969648644373e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_R",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.8031501840401709,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299969648644373e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.47055637863914673,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750749201469145e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.2927379197966705,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2032819039732443e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.18576991364984907,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275124902034586e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.47055637863914673,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750749201469145e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.2927379197966705,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2032819039732443e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.18576991364984907,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275124902034586e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_L",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777697697346762,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148113879289425e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_R",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777697697346762,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148113879289425e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.6014819968467313,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0740970436772875e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.5451681665283419,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.1623666481108226e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.757957382045758,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 9.412865289726842e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.996636680552087,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.1226680667868661e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.8435282240127322,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.028007107713505e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.9102524934502998,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.975394314958746e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 0.5960210433573515,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.5129734439100424e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L02",
+      "vertices": 3628,
+      "triangles": 7252,
+      "positive_volume": 0.4889825485208605,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.5730495436183788e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L03",
+      "vertices": 3990,
+      "triangles": 7976,
+      "positive_volume": 1.0051938412578316,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 9.89032880777505e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L04",
+      "vertices": 5024,
+      "triangles": 10044,
+      "positive_volume": 1.9687589435667059,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.097281410287377e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 1.675386472560005,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.734329748525534e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R02",
+      "vertices": 3288,
+      "triangles": 6572,
+      "positive_volume": 0.8958559360261892,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.5150884739116277e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R03",
+      "vertices": 2914,
+      "triangles": 5824,
+      "positive_volume": 0.4139704278111839,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.945736591035371e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R04",
+      "vertices": 2918,
+      "triangles": 5832,
+      "positive_volume": 0.20249670898125766,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.3498896923269804e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R05",
+      "vertices": 3012,
+      "triangles": 6020,
+      "positive_volume": 0.22332951784946278,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.1130563158808444e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R06",
+      "vertices": 3356,
+      "triangles": 6708,
+      "positive_volume": 0.34427705581389856,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.437396270729424e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 86.35937282088875,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.972866968922538e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 91.67824266939489,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.980700952021709e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_L",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307817390308994,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_R",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307817350758365,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_L",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.505882930823418,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.9227122003940685e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_R",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058829308234178,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.9227122003940685e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_L",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.2747819955380644,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.097557708617846e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_R",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.274781995538063,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.097557708617846e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_L",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.8031501758021347,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299808234838177e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_R",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.8031501758021347,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299808234838177e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.47055637985548976,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750075025772087e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.29273792343481175,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2033230287686432e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.1857699166978467,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275124902034586e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.47055637985548976,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750075025772087e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.29273792343481175,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2033230287686432e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.1857699166978467,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275124902034586e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_L",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777696731183827,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148113879289425e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_R",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777696731183827,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148113879289425e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.517480646844581,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0621271943329618e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.4480880522280744,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0699318417576908e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.6864142020854929,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0655925354805465e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.9101313813982315,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0066326788144411e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.7922851576444986,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.756524366492166e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.8725840508304756,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.780432713723358e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 0.5960208181975829,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.512849348787346e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L02",
+      "vertices": 3628,
+      "triangles": 7252,
+      "positive_volume": 0.4637251739868949,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.5729070023576318e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L03",
+      "vertices": 3990,
+      "triangles": 7976,
+      "positive_volume": 0.8833895588895396,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 9.452452480341791e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L04",
+      "vertices": 5024,
+      "triangles": 10044,
+      "positive_volume": 1.7353759253542687,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 4.6093427992529266e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 1.3319079551545774,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.966597428946057e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R02",
+      "vertices": 3288,
+      "triangles": 6572,
+      "positive_volume": 0.7335026423888592,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.375601166432664e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R03",
+      "vertices": 2914,
+      "triangles": 5824,
+      "positive_volume": 0.34927693721699166,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.432821647153186e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R04",
+      "vertices": 2918,
+      "triangles": 5832,
+      "positive_volume": 0.20249665956949633,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.3500197283287345e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R05",
+      "vertices": 3012,
+      "triangles": 6020,
+      "positive_volume": 0.22332946929027508,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.1130562394077252e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R06",
+      "vertices": 3356,
+      "triangles": 6708,
+      "positive_volume": 0.3442768786578975,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.4376928862694877e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 90.52850406535292,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.241746513557584e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 91.07840143667786,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.900903128255726e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.25
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_L",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307816216282072,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_R",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307816176710273,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_L",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058827965499955,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.919944321016061e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_R",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058827965499937,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.919944321016061e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_L",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.2747818903900359,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.099583133786472e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_R",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.2747818903900363,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.099583133786472e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_L",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.803150190983712,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299969648644373e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_R",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.803150190983712,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299969648644373e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.47055641053303415,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750749201469145e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.29273793993290986,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2032819039732443e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.18576992136932283,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275188157716778e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.47055641053303415,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750749201469145e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.29273793993290986,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2032819039732443e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.18576992136932283,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275188157716778e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_L",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777696584632888,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148249317818662e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_R",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777696584632888,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148249317818662e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.4367171376481918,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.049374348767327e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.363205204640072,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 9.657958274510806e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.6232160957555561,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.015054338856823e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.8266503011944295,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.957633141357584e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.7476755549552335,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.183794680722747e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.8374806687120954,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.5375363052189615e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 0.5960208809382288,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.5118271812673797e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L02",
+      "vertices": 3628,
+      "triangles": 7252,
+      "positive_volume": 0.44183639406497166,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.5729995168990716e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L03",
+      "vertices": 3990,
+      "triangles": 7976,
+      "positive_volume": 0.7759383551072782,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 9.004409719668638e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L04",
+      "vertices": 5024,
+      "triangles": 10044,
+      "positive_volume": 1.5261798194195866,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 4.160157130195884e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 1.035452350805121,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.218497917653019e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R02",
+      "vertices": 3288,
+      "triangles": 6572,
+      "positive_volume": 0.5886104914230342,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.2066622803326583e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R03",
+      "vertices": 2914,
+      "triangles": 5824,
+      "positive_volume": 0.29236626380155684,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 4.952726218822755e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R04",
+      "vertices": 2918,
+      "triangles": 5832,
+      "positive_volume": 0.20249672664814958,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.3502888833219638e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R05",
+      "vertices": 3012,
+      "triangles": 6020,
+      "positive_volume": 0.2233295222857021,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.1127846785867252e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R06",
+      "vertices": 3356,
+      "triangles": 6708,
+      "positive_volume": 0.3442770902533565,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.4375792600365445e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 95.24767975502505,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.509234212441358e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 90.44592073905883,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.833547436738063e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.5
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_L",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307818931702276,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_R",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307818892130495,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_L",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058831099296655,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.9227122003940685e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_R",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058831099296643,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.9227122003940685e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_L",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.27478214731065,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.097557708617846e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_R",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.274782147310646,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.097557708617846e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_L",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.8031501840401712,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299969648644373e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_R",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.8031501840401712,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299969648644373e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.47055636371354304,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750749201469145e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.2927378996469233,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2032819039732443e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.18576989736235083,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275188157716778e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.47055636371354304,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750749201469145e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.2927378996469233,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2032819039732443e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.18576989736235083,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275188157716778e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_L",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777697697346766,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148113879289425e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_R",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777697697346766,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148113879289425e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.3591912334082705,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 9.471937960692066e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.2905058300759897,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.472596359877856e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.5683720885532177,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.9886905587731e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.746171124403684,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.906194921215958e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.709931690907854,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.605252976280432e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.8048977839282366,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.574983853932507e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 0.5960210593251013,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.5111980538215296e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L02",
+      "vertices": 3628,
+      "triangles": 7252,
+      "positive_volume": 0.42313208437615113,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.5733288100482557e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L03",
+      "vertices": 3990,
+      "triangles": 7976,
+      "positive_volume": 0.6814061288100635,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.560110707467136e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L04",
+      "vertices": 5024,
+      "triangles": 10044,
+      "positive_volume": 1.3390384147783683,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.7508578518855688e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 0.782738856999783,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.490929429478293e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R02",
+      "vertices": 3288,
+      "triangles": 6572,
+      "positive_volume": 0.46074848006057934,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 2.9285303725368288e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R03",
+      "vertices": 2914,
+      "triangles": 5824,
+      "positive_volume": 0.24352726054840187,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 4.287438835297415e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R04",
+      "vertices": 2918,
+      "triangles": 5832,
+      "positive_volume": 0.20249669989805116,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.3503280761941791e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R05",
+      "vertices": 3012,
+      "triangles": 6020,
+      "positive_volume": 0.22332944011985315,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.1125265248888372e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R06",
+      "vertices": 3356,
+      "triangles": 6708,
+      "positive_volume": 0.3442768936332415,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.437094851446491e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 100.06219014985973,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.77329461000135e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 89.19444910354667,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.825970470037976e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 0.75
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_L",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307817374970233,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Canine_R",
+      "vertices": 12203,
+      "triangles": 24402,
+      "positive_volume": 1.4307817335398447,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.10477324079526e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_L",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058829327869416,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.919944321016061e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Central_R",
+      "vertices": 12286,
+      "triangles": 24568,
+      "positive_volume": 1.5058829327869407,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.919944321016061e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_L",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.274781998714605,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.099583133786472e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Lateral_R",
+      "vertices": 11871,
+      "triangles": 23738,
+      "positive_volume": 1.2747819987146076,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.099583133786472e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_L",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.803150193140728,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299969648644373e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Molar_R",
+      "vertices": 4556,
+      "triangles": 9108,
+      "positive_volume": 0.803150193140728,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.299969648644373e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.4705564093134662,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750749201469145e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.29273794047888835,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2032819039732443e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_L03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.18576992131858897,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275188157716778e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R01",
+      "vertices": 3998,
+      "triangles": 7992,
+      "positive_volume": 0.4705564093134662,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2750749201469145e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R02",
+      "vertices": 3472,
+      "triangles": 6940,
+      "positive_volume": 0.29273794047888835,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.2032819039732443e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Posterior_R03",
+      "vertices": 2994,
+      "triangles": 5984,
+      "positive_volume": 0.18576992131858897,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.0275188157716778e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_L",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777696584632915,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148249317818662e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Premolar_R",
+      "vertices": 4508,
+      "triangles": 9012,
+      "positive_volume": 0.8777696584632915,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148249317818662e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.2849031488221188,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.328708607248617e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Central_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.2299766874754021,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 7.418758286743194e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.5218916165138094,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.76164854860622e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Fang_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 1.668671742857626,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.148101841733e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_L",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.67928605282186,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 6.04645977093963e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Lateral_R",
+      "vertices": 13282,
+      "triangles": 26560,
+      "positive_volume": 0.7747912200806103,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 5.474067496939853e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 0.5960209572248742,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.511198139828894e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L02",
+      "vertices": 3628,
+      "triangles": 7252,
+      "positive_volume": 0.40742835186064685,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.5742918295858394e-05,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L03",
+      "vertices": 3990,
+      "triangles": 7976,
+      "positive_volume": 0.5983590520676938,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.099159409649177e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_L04",
+      "vertices": 5024,
+      "triangles": 10044,
+      "positive_volume": 1.171819974370452,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.3809691802915482e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R01",
+      "vertices": 3982,
+      "triangles": 7960,
+      "positive_volume": 0.5704870176633305,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 4.7940321440077596e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R02",
+      "vertices": 3288,
+      "triangles": 6572,
+      "positive_volume": 0.34948592302382275,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 2.5157263667197074e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R03",
+      "vertices": 2914,
+      "triangles": 5824,
+      "positive_volume": 0.2030489644182796,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.4201023209089116e-07,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R04",
+      "vertices": 2918,
+      "triangles": 5832,
+      "positive_volume": 0.2024967122971861,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.350418988862184e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R05",
+      "vertices": 3012,
+      "triangles": 6020,
+      "positive_volume": 0.2233294694631477,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 1.1125265591866876e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Posterior_R06",
+      "vertices": 3356,
+      "triangles": 6708,
+      "positive_volume": 0.34427708659721457,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 3.43711540305969e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        },
+        {
+          "name": "UV0",
+          "active_render": true
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Upper_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 105.54874291532732,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 9.033296536441652e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    },
+    {
+      "object": "MC_DAY03_Lower_Gum",
+      "vertices": 23618,
+      "triangles": 47232,
+      "positive_volume": 76.53201734719755,
+      "nonmanifold_edges": 0,
+      "zero_area_triangles": 0,
+      "minimum_triangle_area": 8.738601660353202e-06,
+      "finite": true,
+      "uv_layer": "UV0",
+      "uv_layers": [
+        {
+          "name": "UV0",
+          "active_render": true
+        },
+        {
+          "name": "UV_SourceProjection",
+          "active_render": false
+        }
+      ],
+      "UV0_out_of_bounds_corners": 0,
+      "OpenAmount": 1.0
+    }
+  ],
+  "actual_absolute_target_errors": [
+    {
+      "OpenAmount": 0.0,
+      "lower_world_target_max_error": 2.384185791015625e-07,
+      "upper_actual_V07_max_error": 0.0
+    },
+    {
+      "OpenAmount": 0.25,
+      "lower_world_target_max_error": 4.035098108423618e-07,
+      "upper_actual_V07_max_error": 0.0
+    },
+    {
+      "OpenAmount": 0.5,
+      "lower_world_target_max_error": 5.114676016049202e-07,
+      "upper_actual_V07_max_error": 0.0
+    },
+    {
+      "OpenAmount": 0.75,
+      "lower_world_target_max_error": 4.7668206892836906e-07,
+      "upper_actual_V07_max_error": 0.0
+    },
+    {
+      "OpenAmount": 1.0,
+      "lower_world_target_max_error": 2.384185791015625e-07,
+      "upper_actual_V07_max_error": 0.0
+    }
+  ],
+  "targets": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Gums\\SymmetricLower_DAY03_v01\\PosteriorSeating_v02\\lower_symmetric_absolute_targets.npz",
+  "targets_sha256": "7715e93300f12549338700407e6a96fff044bd1ed0e517bde3ab114dc3ed1d03",
+  "texture_correspondence": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Gums\\SymmetricLower_DAY03_v01\\right_source_parameter_correspondence.npz",
+  "texture_correspondence_sha256": "db3c5cfd3808d4daba37b260ae52f278b8d4f5f6abdf652e66f1e769daff7b0a",
+  "actual_UV0_packet": "E:\\DEVGAME\\MessControl\\ArtSource\\UI\\MainMenu3D\\20261015_refB_v1\\Gums\\SymmetricLower_DAY03_v01\\DCC_v02\\evaluated_pose_triangle_uv_packet.npz",
+  "actual_UV0_packet_sha256": "567bbedd0dedfd41998a88483a36072a82c64976253accb8d3e5853c9a53d845",
+  "rendered": [
+    "Open000_ClayFront.png",
+    "Open025_ClayFront.png",
+    "Open050_ClayFront.png",
+    "Open075_ClayFront.png",
+    "Open100_ClayFront.png",
+    "Open100_ClayFullFrame.png",
+    "Open100_ClayThreeQuarter.png",
+    "Open100_CompoundSemantic.png",
+    "Closed_LowerEnamelMask.png"
+  ],
+  "cpu_threads": 2,
+  "samples": 24,
+  "device": "GPU",
+  "limits": [
+    "User symmetric lower override replaces asymmetric AI lower source.",
+    "Gray/semantic geometry proof; no old radiance/PBR map promoted to new geometry.",
+    "Actual cap/island/contact/symmetry and UV packet review still required; not final UE/art acceptance."
+  ]
+}

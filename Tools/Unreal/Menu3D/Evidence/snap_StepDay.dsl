@@ -1,0 +1,5 @@
+(fn StepDay (Step)
+  (bind previous (Math|Integer|Clamp(Integer) :Value (Variables|Default|GetSelectedDay) :Min 1 :Max 7))
+  (bind next (Math|Integer|Clamp(Integer) :Value (+ previous Step) :Min 1 :Max 7))
+  (if (!= next previous) (CallFunction|SelectDay :Day next))
+)

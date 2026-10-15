@@ -1,0 +1,157 @@
+{
+  "project": "E:\\DEVGAME\\MessControl",
+  "source": "Live asset registry saved-package dependencies; no package edits or refresh/build",
+  "task_assets": [
+    "/Game/UI/MainMenu3D/BP_Menu3DGameMode",
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior",
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue",
+    "/Game/UI/MainMenu3D/L_MainMenu3D",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Enamel_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Gum_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Interior_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Tongue_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04",
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton",
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Seated_v04",
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Seated_v04",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_ClosedRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_OpenRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Gum_ClosedRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Gum_OpenRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Interior_ClosedRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Interior_OpenRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_ClosedRadiance",
+    "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_OpenRadiance",
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D"
+  ],
+  "external_game_dependencies": [
+    "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1",
+    "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay"
+  ],
+  "edges": {
+    "/Game/UI/MainMenu3D/L_MainMenu3D": [
+      "/Engine/BasicShapes/Cube",
+      "/Engine/EditorResources/LightIcons/S_LightError",
+      "/Engine/EngineMaterials/WorldGridMaterial",
+      "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1",
+      "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay",
+      "/Game/UI/MainMenu3D/BP_Menu3DGameMode",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior",
+      "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue",
+      "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04",
+      "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Seated_v04",
+      "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Seated_v04",
+      "/Script/NavigationSystem"
+    ],
+    "/Game/UI/MainMenu3D/WBP_MainMenu3D": [
+      "/Engine/EditorBlueprintResources/StandardMacros",
+      "/Script/InputCore",
+      "/Script/MessControl",
+      "/Script/Slate",
+      "/Script/SlateCore",
+      "/Script/UMG",
+      "/Script/UMGEditor"
+    ],
+    "/Game/UI/MainMenu3D/BP_Menu3DPlayerController": [
+      "/Engine/EditorBlueprintResources/StandardMacros",
+      "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+      "/Script/UMG",
+      "/Script/UMGEditor"
+    ],
+    "/Game/UI/MainMenu3D/BP_Menu3DGameMode": [
+      "/Game/UI/MainMenu3D/BP_Menu3DPlayerController"
+    ],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior": [],
+    "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue": [],
+    "/Game/UI/MainMenu3D/Materials/M_Menu3D_Background": [],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04": [
+      "/Game/UI/MainMenu3D/Materials/M_MC_Enamel_Radiance",
+      "/Game/UI/MainMenu3D/Materials/M_MC_Gum_Radiance",
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Interior_Seated_v04": [
+      "/Game/UI/MainMenu3D/Materials/M_MC_Interior_Radiance",
+      "/Script/NavigationSystem"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SM_DAY03_Tongue_Seated_v04": [
+      "/Game/UI/MainMenu3D/Materials/M_MC_Tongue_Radiance",
+      "/Script/NavigationSystem"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_MC_Enamel_Radiance": [
+      "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_ClosedRadiance",
+      "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_OpenRadiance"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_MC_Gum_Radiance": [
+      "/Game/UI/MainMenu3D/Textures/T_MC_Gum_ClosedRadiance",
+      "/Game/UI/MainMenu3D/Textures/T_MC_Gum_OpenRadiance"
+    ],
+    "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton": [
+      "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_MC_Interior_Radiance": [
+      "/Game/UI/MainMenu3D/Textures/T_MC_Interior_ClosedRadiance",
+      "/Game/UI/MainMenu3D/Textures/T_MC_Interior_OpenRadiance"
+    ],
+    "/Game/UI/MainMenu3D/Materials/M_MC_Tongue_Radiance": [
+      "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_ClosedRadiance",
+      "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_OpenRadiance"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_ClosedRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Enamel_OpenRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Gum_ClosedRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Gum_OpenRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Interior_ClosedRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Interior_OpenRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_ClosedRadiance": [
+      "/Script/InterchangeEngine"
+    ],
+    "/Game/UI/MainMenu3D/Textures/T_MC_Tongue_OpenRadiance": [
+      "/Script/InterchangeEngine"
+    ]
+  }
+}

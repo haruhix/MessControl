@@ -1,0 +1,38 @@
+[
+  {
+    "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+    "saved_skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking_Skeleton.SK_DAY01_Blocking_Skeleton",
+    "disk_bytes": 8795,
+    "restored_from_identical_export_rig_template": false,
+    "morph_names_preserved": [
+      "Pose_000",
+      "Pose_025",
+      "Pose_050",
+      "Pose_075"
+    ]
+  },
+  {
+    "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking.SK_DAY02_Blocking",
+    "saved_skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY02_Blocking_Skeleton.SK_DAY02_Blocking_Skeleton",
+    "disk_bytes": 8506,
+    "restored_from_identical_export_rig_template": false,
+    "morph_names_preserved": [
+      "Pose_000",
+      "Pose_025",
+      "Pose_050",
+      "Pose_075"
+    ]
+  },
+  {
+    "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04.SK_DAY03_Seated_v04",
+    "saved_skeleton": "/Game/UI/MainMenu3D/Meshes/SK_DAY03_Seated_v04_Skeleton.SK_DAY03_Seated_v04_Skeleton",
+    "disk_bytes": 8929,
+    "restored_from_identical_export_rig_template": true,
+    "morph_names_preserved": [
+      "Pose_000",
+      "Pose_025",
+      "Pose_050",
+      "Pose_075"
+    ]
+  }
+]

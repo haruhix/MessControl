@@ -1,0 +1,62 @@
+{
+  "purpose": "FUNCTIONAL_NATIVE_3D_BLOCKING_THREE_VISIBLE_ROWS",
+  "textures_used": false,
+  "materials": [
+    {
+      "asset": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel.M_Blocking_Enamel",
+      "clip_parameter": "CardHalfHeight",
+      "texture_nodes": 0
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum.M_Blocking_Gum",
+      "clip_parameter": "CardHalfHeight",
+      "texture_nodes": 0
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Enamel_DAY03.M_Blocking_Enamel_DAY03",
+      "clip_parameter": "CardHalfHeight",
+      "texture_nodes": 0
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Gum_DAY03.M_Blocking_Gum_DAY03",
+      "clip_parameter": "CardHalfHeight",
+      "texture_nodes": 0
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Interior.M_Blocking_Interior",
+      "clip_parameter": "CardHalfHeight",
+      "texture_nodes": 0
+    },
+    {
+      "asset": "/Game/UI/MainMenu3D/Blocking/Materials/M_Blocking_Tongue.M_Blocking_Tongue",
+      "clip_parameter": "CardHalfHeight",
+      "texture_nodes": 0
+    }
+  ],
+  "characters": [
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_4",
+      "parent": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_2",
+      "mesh": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+      "existing_animation": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1.A_Teeth_Hello1",
+      "relative_location": "<Struct 'Vector' (0x000001DA4A4B5180) {x: -575.700000, y: -288.900000, z: -217.780000}>",
+      "relative_scale": "<Struct 'Vector' (0x000001DA4A4B51B0) {x: 2.000000, y: 2.000000, z: 2.000000}>"
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_5",
+      "parent": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_3",
+      "mesh": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+      "existing_animation": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1.A_Teeth_Hello1",
+      "relative_location": "<Struct 'Vector' (0x000001D9F24C8D80) {x: -575.700000, y: -288.900000, z: -217.780000}>",
+      "relative_scale": "<Struct 'Vector' (0x000001D9F24C8DB0) {x: 2.000000, y: 2.000000, z: 2.000000}>"
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_1",
+      "parent": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_0",
+      "mesh": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+      "existing_animation": "/Game/Gameplay/Character/Animations/Teeth3/A_Teeth_Hello1.A_Teeth_Hello1",
+      "relative_location": "<Struct 'Vector' (0x000001D9381FC980) {x: -575.700000, y: -288.900000, z: -217.780000}>",
+      "relative_scale": "<Struct 'Vector' (0x000001D9381FC9B0) {x: 2.000000, y: 2.000000, z: 2.000000}>"
+    }
+  ]
+}
