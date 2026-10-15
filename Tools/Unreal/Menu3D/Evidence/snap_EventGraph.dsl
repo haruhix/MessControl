@@ -1,0 +1,150 @@
+(event UserInterface|EventConstruct
+  (Variables|Default|SetPageIndex 0)
+  (Variables|Default|SetActiveDay 0)
+  (Variables|Default|SetOpen3 1.0)
+  (Variables|Default|SetSelectedDay 3)
+  (Variables|Default|SetSnapRemaining 0.0)
+  (Variables|Default|SetWheelAccumulator 0.0)
+  (CallFunction|FindStageActors)
+  (CallFunction|ShowPage :Index 0))
+
+(event UserInterface|EventTick (MyGeometry InDeltaTime) (CallFunction|UpdateStage))
+
+(event OnClicked(PlayButton)
+  (Variables|Default|SetActiveDay 0)
+  (Variables|Default|SetSelectedDay 1)
+  (Variables|Default|SetWindowFirstDay 1)
+  (Variables|Default|SetOpen1 0.0)
+  (Variables|Default|SetOpen2 0.0)
+  (Variables|Default|SetOpen3 0.0)
+  (Variables|Default|SetOpen4 0.0)
+  (Variables|Default|SetOpen5 0.0)
+  (Variables|Default|SetOpen6 0.0)
+  (Variables|Default|SetOpen7 0.0)
+  (Variables|Default|SetHoverQuiet 0.25)
+  (Variables|Default|SetSnapRemaining 0.6)
+  (CallFunction|ShowPage :Index 1)
+  (CallFunction|CenterSelectedDay)
+)
+
+(event OnClicked(SettingsButton)
+  (CallFunction|ShowPage :Index 2)
+)
+
+(event OnClicked(CreditsButton)
+  (CallFunction|ShowPage :Index 3)
+)
+
+(event OnClicked(ExitButton)
+  (CallFunction|ShowPage :Index 4)
+)
+
+(event OnClicked(ExitCancelButton)
+  (CallFunction|ShowPage :Index 0)
+)
+
+(event OnClicked(SettingsBackButton)
+  (CallFunction|ShowPage :Index 0)
+)
+
+(event OnClicked(CreditsBackButton)
+  (CallFunction|ShowPage :Index 0)
+)
+
+(event OnClicked(DaysBackButton)
+  (CallFunction|ShowPage :Index 0)
+)
+
+(event OnClicked(LaunchBackButton)
+  (CallFunction|Back)
+)
+
+(event OnClicked(ExitConfirmButton)
+  (Game|QuitGame :SpecificPlayer (Widget|GetOwningPlayer) :QuitPreference "Quit" :bIgnorePlatformRestrictions false)
+)
+
+(event OnClicked(Day1Button)
+  (CallFunction|SelectDay :Day 1)
+)
+
+(event OnClicked(Day2Button)
+  (CallFunction|SelectDay :Day 2)
+)
+
+(event OnClicked(Day3Button)
+  (CallFunction|SelectDay :Day 3)
+)
+
+(event OnClicked(Day4Button)
+  (CallFunction|SelectDay :Day 4)
+)
+
+(event OnClicked(Day5Button)
+  (CallFunction|SelectDay :Day 5)
+)
+
+(event OnClicked(Day6Button)
+  (CallFunction|SelectDay :Day 6)
+)
+
+(event OnClicked(Day7Button)
+  (CallFunction|SelectDay :Day 7)
+)
+
+(event OnClicked(Day1PlayButton)
+  (CallFunction|OpenConnection)
+)
+
+(event OnClicked(Day1CollapseButton)
+  (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
+)
+
+(event OnClicked(Day2PlayButton)
+  (CallFunction|OpenConnection)
+)
+
+(event OnClicked(Day2CollapseButton)
+  (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
+)
+
+(event OnClicked(Day3PlayButton)
+  (CallFunction|OpenConnection)
+)
+
+(event OnClicked(Day3CollapseButton)
+  (Variables|Default|SetActiveDay 0) (Variables|Default|SetHoverQuiet 1.2) (Variables|Default|SetSnapRemaining 1.0) (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetDaysBackButton))
+)
+
+(event OnClicked(QualityLowButton)
+  (bind settings (Settings|GetGameUserSettings))
+  (Settings|SetOverallScalabilityLevel :self settings :Value 0)
+  (Settings|ApplySettings :self settings :bCheckForCommandLineOverrides false)
+  (Settings|SaveSettings :self settings)
+  (Widget|SetText(Text) :self (Variables|WBP_MainMenu3D|GetSettingsStatus) :InText "Качество Low применено и сохранено.")
+)
+
+(event OnClicked(QualityHighButton)
+  (bind settings (Settings|GetGameUserSettings))
+  (Settings|SetOverallScalabilityLevel :self settings :Value 2)
+  (Settings|ApplySettings :self settings :bCheckForCommandLineOverrides false)
+  (Settings|SaveSettings :self settings)
+  (Widget|SetText(Text) :self (Variables|WBP_MainMenu3D|GetSettingsStatus) :InText "Качество High применено и сохранено.")
+)
+
+(event OnClicked(QualityEpicButton)
+  (bind settings (Settings|GetGameUserSettings))
+  (Settings|SetOverallScalabilityLevel :self settings :Value 3)
+  (Settings|ApplySettings :self settings :bCheckForCommandLineOverrides false)
+  (Settings|SaveSettings :self settings)
+  (Widget|SetText(Text) :self (Variables|WBP_MainMenu3D|GetSettingsStatus) :InText "Качество Epic применено и сохранено.")
+)
+
+(event OnClicked(FullscreenButton)
+  (bind settings (Settings|GetGameUserSettings))
+  (if (Variables|Default|GetBorderless)
+    (Settings|SetFullscreenMode :self settings :InFullscreenMode "Windowed")
+    (Variables|Default|SetBorderless false)
+    (else (Settings|SetFullscreenMode :self settings :InFullscreenMode "WindowedFullscreen") (Variables|Default|SetBorderless true)))
+  (Settings|ApplySettings :self settings :bCheckForCommandLineOverrides false)
+  (Settings|SaveSettings :self settings)
+)

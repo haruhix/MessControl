@@ -1,0 +1,23 @@
+{
+  "ShowPage": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:ShowPage"
+  },
+  "SelectDay": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:SelectDay"
+  },
+  "OpenConnection": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:OpenConnection"
+  },
+  "Back": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:Back"
+  },
+  "UpdateStage": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:UpdateStage"
+  },
+  "FindStageActors": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:FindStageActors"
+  },
+  "OnPreviewKeyDown": {
+    "refPath": "/Game/UI/MainMenu3D/WBP_MainMenu3D.WBP_MainMenu3D:OnPreviewKeyDown"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "future_rows": "Neutral repeated blocking geometry only; identity unassigned, Coming Soon, no Play",
+  "mouths": [
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_6",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "unassigned": true
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_7",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "unassigned": true
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_8",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "unassigned": true
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_9",
+      "mesh": "/Game/UI/MainMenu3D/Meshes/SK_DAY01_Blocking.SK_DAY01_Blocking",
+      "unassigned": true
+    }
+  ],
+  "interiors": [
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_4",
+      "parent": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_2",
+      "width_ratio": 0.8436897009630299
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_5",
+      "parent": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_2",
+      "width_ratio": 0.8436897009630299
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_6",
+      "parent": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_3",
+      "width_ratio": 0.8436897009630299
+    },
+    {
+      "actor": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.StaticMeshActor_7",
+      "parent": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_3",
+      "width_ratio": 0.8436897009630299
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+(fn OpenConnection ()
+  (Widget|Panel|ClearChildren :self (Variables|WBP_MainMenu3D|GetLegacyMenuHost))
+  (CallFunction|ShowPage :Index 5)
+  (bind owner (Widget|GetOwningPlayer))
+  (bind menu (UserInterface|CreateWidget :Class "/Script/MessControl.MCMainMenuWidget" :OwningPlayer owner))
+  (Variables|Default|SetLegacyMenu menu)
+  (Widget|AddChildtoOverlay :self (Variables|WBP_MainMenu3D|GetLegacyMenuHost) :Content menu)
+)

@@ -1,0 +1,11 @@
+(fn ShowPage (Index)
+  (Variables|Default|SetPageIndex Index)
+  (Switcher|SetActiveWidgetIndex :self (Variables|WBP_MainMenu3D|GetPages) :Index Index)
+  (switch int Index
+    (:0 (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetPlayButton)))
+    (:1 (Widget|SetKeyboardFocus) (CallFunction|CenterSelectedDay))
+    (:2 (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetQualityHighButton)))
+    (:3 (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetCreditsBackButton)))
+    (:4 (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetExitCancelButton)))
+    (:5 (Widget|SetKeyboardFocus :self (Variables|WBP_MainMenu3D|GetLaunchBackButton))))
+)

@@ -1,0 +1,17 @@
+{
+  "imported": [],
+  "materials": [
+    "/Game/UI/MainMenu3D/Materials/M_MC_Enamel_Radiance.M_MC_Enamel_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Gum_Radiance.M_MC_Gum_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Interior_Radiance.M_MC_Interior_Radiance",
+    "/Game/UI/MainMenu3D/Materials/M_MC_Tongue_Radiance.M_MC_Tongue_Radiance"
+  ],
+  "policy": "Real geometry; baked radiance is explicitly not albedo. Native character unchanged.",
+  "morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "bounds": "<Struct 'BoxSphereBounds' (0x00000229BBC42800) {origin: {x: -0.000031, y: -172.268444, z: 5.000000}, box_extent: {x: 960.000031, y: 239.486805, z: 598.000000}, sphere_radius: 1156.096012}>"
+}

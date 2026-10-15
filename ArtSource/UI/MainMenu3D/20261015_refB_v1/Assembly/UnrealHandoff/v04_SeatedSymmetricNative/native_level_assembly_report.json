@@ -1,0 +1,16 @@
+{
+  "level": "/Game/UI/MainMenu3D/L_MainMenu3D",
+  "game_mode": "/Game/UI/MainMenu3D/BP_Menu3DGameMode.BP_Menu3DGameMode_C",
+  "camera": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.CameraActor_0",
+  "mouth": "/Game/UI/MainMenu3D/L_MainMenu3D.L_MainMenu3D:PersistentLevel.SkeletalMeshActor_0",
+  "actual_morphs": [
+    "Pose_000",
+    "Pose_025",
+    "Pose_050",
+    "Pose_075"
+  ],
+  "character": "/Game/Gameplay/CharacterCurrent/SK_CharacterGameplay.SK_CharacterGameplay",
+  "existing_animation": "A_Teeth_Hello1",
+  "coordinate_policy": "FBX source XYZ cm, convertScene false. Native camera +Y looking -Y; actual render must verify handedness.",
+  "not_final_art_approval": true
+}

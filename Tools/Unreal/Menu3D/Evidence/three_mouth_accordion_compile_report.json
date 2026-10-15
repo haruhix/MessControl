@@ -1,0 +1,26 @@
+{
+  "status": "THREE_MOUTH_ACCORDION_COMPILED_SAVED_PENDING_ROOT_PIE",
+  "asset": "/Game/UI/MainMenu3D/WBP_MainMenu3D",
+  "body_height": 740,
+  "visible_rows": 3,
+  "window_first": "clamp(SelectedDay-2,1,5)",
+  "row_heights": {
+    "all_closed": 246.666667,
+    "selected_open": 370,
+    "other_two": 185
+  },
+  "row_formula": "246.666667 +185*ownOpen -61.666667*sumVisibleOpen; constant740 total",
+  "base_actor_scale": 0.54,
+  "DAY03_scale": ".54*lerp(1.12676056338,1,Open3)",
+  "material_card_half_height": "RowHeight/(2*ActorScale)",
+  "wheel": "Existing one-detent adjacent SelectedDay retained; TopOrLeft snap first visible row",
+  "characters": "Own-day tag cached; visible own Open>.72 and mouth visible",
+  "world_actor_days": 7,
+  "shared_actor_driver": "DriveMouthDay primitive-input function; one native pose implementation reused for all7",
+  "outgoing_visibility": "Actual row viewport intersection, not immediate logical-window hiding",
+  "future_content": "Generic unassigned3D blocking under ComingSoon labels; no inner Play",
+  "enter": "Known selected1..3 opens, then activates Play when open; future never launches",
+  "level_PIE_material_geometry_mutations": false,
+  "focused_back_enter": "Native Back button keeps its Enter action; selected-day Enter never steals it.",
+  "compact_back_font": 16
+}
