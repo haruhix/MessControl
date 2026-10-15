@@ -1,0 +1,42 @@
+[
+  {
+    "File": "SK_CoffeeSlime.fbx",
+    "SHA256": "7BD1DDB129C165D0858B48EAB41F11E252107E7D1B6A4FA46482F793F4209947",
+    "EqualToTestedCandidate": true
+  },
+  {
+    "File": "SM_CoffeeSlime.fbx",
+    "SHA256": "C330FD1784973BABC567DE6551A04F10839DA25E57E3F2BCCC7B4012C818E824",
+    "EqualToTestedCandidate": true
+  },
+  {
+    "File": "A_CoffeeSlime_Idle.fbx",
+    "SHA256": "802ED3737D302027ED5BAFF2DC02287B5B3340D17A707E7EE9FB132AF788FD2B",
+    "EqualToTestedCandidate": true
+  },
+  {
+    "File": "A_CoffeeSlime_Hop.fbx",
+    "SHA256": "56A9E92872D66E01D7CCF6DC0CBE31B9F60E2395E83B313915095181E7C31EB9",
+    "EqualToTestedCandidate": true
+  },
+  {
+    "File": "A_CoffeeSlime_Hurt.fbx",
+    "SHA256": "946591FBAB2893C1B592FB46BCD37CC60C8892A34650A91067EC7EDC71A5B0DB",
+    "EqualToTestedCandidate": true
+  },
+  {
+    "File": "A_CoffeeSlime_PreBurst.fbx",
+    "SHA256": "9EFF859836076A5BB6417EEF87490E91EE91A1EEBF6E469F8A93D66FED707972",
+    "EqualToTestedCandidate": true
+  },
+  {
+    "File": "A_CoffeeSlime_Burst.fbx",
+    "SHA256": "E9E95FD8DC00A352CD6EB970E0D186FCF2E63A7D21FED1796C474F042CF443D7",
+    "EqualToTestedCandidate": true
+  },
+  {
+    "File": "CentimeterExportAudit.json",
+    "SHA256": "8C650F122E4A02991A75EEEA9A05BF9D8666032F8275FBA3C48AD039C3EB44E6",
+    "EqualToTestedCandidate": true
+  }
+]

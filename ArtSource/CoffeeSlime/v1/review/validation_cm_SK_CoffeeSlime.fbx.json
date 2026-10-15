@@ -1,0 +1,62 @@
+{
+  "asset": "E:\\DEVGAME\\MessControl\\ArtSource\\CoffeeSlime\\v1\\exports_ue_cm_candidate\\SK_CoffeeSlime.fbx",
+  "blender_version": "5.1.0",
+  "meshes": [
+    {
+      "name": "SK_CoffeeSlime",
+      "vertices": 9148,
+      "triangles": 18236,
+      "materials": [
+        "M_CoffeeGel",
+        "M_MilkFoam",
+        "M_Ivory",
+        "M_MauveLid",
+        "M_EspressoDark",
+        "M_CaramelLip"
+      ],
+      "bounds_min_m": [
+        -0.8251659870147705,
+        -0.819839358329773,
+        0.0
+      ],
+      "bounds_max_m": [
+        0.8548339009284973,
+        0.7601605653762817,
+        1.2999999523162842
+      ],
+      "dimensions_m": [
+        1.679999828338623,
+        1.5799999237060547,
+        1.2999999523162842
+      ],
+      "raw_seam_edges": 0,
+      "nonmanifold_edges": 0,
+      "degenerate_triangles": 0,
+      "uv_finite": true,
+      "max_skin_influences": 2,
+      "unnormalized_vertices": 0,
+      "missing_textures": []
+    }
+  ],
+  "rigs": [
+    {
+      "name": "Armature",
+      "bones": {
+        "root": null,
+        "gel_body": "root",
+        "gel_top": "gel_body",
+        "foam_tip": "gel_top",
+        "face": "gel_body"
+      },
+      "scale": [
+        0.009999999776482582,
+        0.009999999776482582,
+        0.009999999776482582
+      ]
+    }
+  ],
+  "actions": [],
+  "errors": [],
+  "warnings": [],
+  "technical_pass": true
+}

@@ -67,6 +67,19 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Cataclysm|Raft") TArray<FVector2D> RowingDirections;
     UPROPERTY(Replicated, BlueprintReadOnly, Category="Cataclysm|Raft") TArray<double> RowingStartedAt;
 
+    /** Mean acceleration per rower (cm/s²); the shared loaded stroke supplies its pulse. */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="0",ClampMax="1000")) float RowAcceleration = 360.f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="60",ClampMax="800")) float MaxTravelSpeed = 480.f;
+    /** Linear coast damping per second, applied equally to current and all rowers. */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="0.1",ClampMax="5")) float TravelDrag = 1.1f;
+    /** Effective planar rotational inertia per unit mass (cm²). */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="1000",ClampMax="100000")) float YawInertiaRadiusSquared = 18000.f;
+    /** Blade contact lies beside the rower, across their chosen stroke direction. */
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="0",ClampMax="100")) float PaddleLeverOffset = 35.f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="0.1",ClampMax="5")) float AngularDrag = 1.6f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="1",ClampMax="180")) float MaxYawSpeed = 65.f;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Cataclysm|Raft|Rowing", meta=(ClampMin="10",ClampMax="720")) float MaxYawAcceleration = 150.f;
+
 private:
     double Clock() const;
     void CollectRiders(TArray<AMCToothCharacter*>& Riders) const;

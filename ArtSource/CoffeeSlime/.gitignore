@@ -1,0 +1,9 @@
+# Reproducible render intermediates and Blender backup files.
+__pycache__/
+*.blend1
+*.blend2
+v1/review/motion_frames/
+# Candidate byte proof/audit remains; duplicate FBX and extracted embedded textures do not.
+v1/exports_ue_cm_candidate/*.fbx
+v1/exports_ue_cm_candidate/*.fbm/
+v1/exports/*.fbm/

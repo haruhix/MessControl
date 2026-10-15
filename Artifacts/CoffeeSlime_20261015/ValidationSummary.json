@@ -1,0 +1,60 @@
+{
+  "status": "passed",
+  "passed": true,
+  "scope": "One owned standalone authority PIE; real F3 CataclysmJellies, native wandering/paint and normal Pickaxe/brush LMB",
+  "purpose": "Coffee skeletal presentation plus retained native paint/tool gameplay",
+  "checks": {
+    "real_f3_deterministic_start": true,
+    "natural_real_f3_jelly_branch_with_default_health": true,
+    "source_and_runtime_show_independent_wandering": true,
+    "real_travel_adds_bounded_paint_tiles": true,
+    "observed_path_has_connected_wet_coverage": true,
+    "ordinary_pickaxe_input_starts_native_balloon_warning": true,
+    "balloon_rupture_commits_once_with_persistent_deposit": true,
+    "paint_survives_cosmetic_retirement": true,
+    "ordinary_brush_erases_persistent_paint_cells": true,
+    "native_coffee_skin_and_four_gameplay_clips": true,
+    "coffee_replaces_primitives_without_double_scale": true
+  },
+  "observed_coffee_clips": [
+    "A_CoffeeSlime_Burst",
+    "A_CoffeeSlime_Hop",
+    "A_CoffeeSlime_Hurt",
+    "A_CoffeeSlime_PreBurst"
+  ],
+  "limitations": [
+    "The initial F3 wave and 12-second wandering observation advance naturally; no jelly tick, steering, health, attack damage or game clock is assigned.",
+    "The unrelated single-day scheduler is paused in this owned PIE and restored; the Cataclysm event/liquid/jellies and hero continue ticking.",
+    "After the wandering observation, the hero is a disclosed position-only fixture following one moving jelly at approximately 88 cm on verified supported floor. Normal held Pickaxe LMB deals all damage.",
+    "A temporary review camera follows the action. The hero is positioned beside an actually wet paint cell for normal held brush LMB; the surviving jelly keeps painting.",
+    "Source policy plus actual empty Target, goal changes and travel corroborate independent wandering. Player proximity is not treated as a reliable pursuit test.",
+    "The native exact-commit death counters identify burst-added wet cells; ordinary global coverage changes alone are not attributed to the rupture.",
+    "Only one jelly is killed. Full encounter cleanup, balance, network behavior, GPU cost and final visual quality remain separate checks.",
+    "No editor map changes, package saves, build/cook/package, native damage/care helpers or broad test suite.",
+    "Idle is delivered as an authored asset; the existing alive jelly always hops. Solo does not validate network peers."
+  ],
+  "source_sha256": {
+    "Source/MessControl/Private/MCCataclysmEvent.cpp": "ce93dde59627cb83292389081533400966579b892ae64296f4ed72cae0167916",
+    "Source/MessControl/Private/MCCataclysmRaft.cpp": "692957ab9484c00decad3a769af9291ebfc01e830a2febb2a243fdfb06b6cf20",
+    "Source/MessControl/Private/MCCataclysmJelly.cpp": "d8f2540a333d8c6104f6bb707f41bde6ceb4206918272c8f34276a2ef4af2dab",
+    "Source/MessControl/Private/MCToothMovementComponent.cpp": "960ff7b196dd4499f01f06923b1746bfc7d408be5d3d13b6450efae095932789",
+    "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8",
+    "Tools/Unreal/probe_jelly_paint_solo.py": "d90436d239b172015cd84b15d87a70f2e6d3ed6f405b91adbe50861af91a6f61",
+    "Source/MessControl/Public/MCCataclysmJelly.h": "e0959a2d4225895222e618050c496044202f5988c35a31facc2e82ff40de3416",
+    "Source/MessControl/Public/MCCataclysmEvent.h": "39b6baa04a892f1c71b0eacc6a5fd721d70d648c8785af89086f84a8c1b3be12",
+    "Source/MessControl/Public/MCMouthSurface.h": "050efca140cb997b6f9ec102f236364fa199d31aa068c0af9631e173181dd873",
+    "Source/MessControl/Private/MCMouthLiquid.cpp": "92215eb0a4a0a0d3df3453c1fcb6373067c9834e3a0e06aa9ad95ae4c2a2b153",
+    "Source/MessControl/Private/MCCoffeeWipe.cpp": "64e097f5204f2b23009816166fd530d0d9a9f438a692c46a98395ef4208b7b2c",
+    "Tools/Unreal/probe_coffee_slime_solo.py": "db5c118c543b12fce4676de86251e276c5c45c3b212fd17dad6ad87e3cf70f19"
+  },
+  "run_directory": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSlime_20261015\\Capture\\Runs\\20261014T202817Z_paint_eb65bb9d",
+  "restored_settings": true,
+  "wall_seconds": 101.76499999995576,
+  "visual_review": {
+    "reviewed": [
+      "TrailReview.png",
+      "RuptureReview.png"
+    ],
+    "outcome": "Coffee form/face and hop, hit, balloon/pop are readable; body remains dark in mouth lighting. Existing green trail and rupture droplets retained. White hit flashes sometimes mask the silhouette."
+  }
+}

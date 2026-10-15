@@ -1,0 +1,55 @@
+{
+  "asset": "E:\\DEVGAME\\MessControl\\ArtSource\\CoffeeSlime\\v1\\exports_ue_cm_candidate\\A_CoffeeSlime_Burst.fbx",
+  "blender_version": "5.1.0",
+  "meshes": [],
+  "rigs": [
+    {
+      "name": "Armature",
+      "bones": {
+        "root": null,
+        "gel_body": "root",
+        "gel_top": "gel_body",
+        "foam_tip": "gel_top",
+        "face": "gel_body"
+      },
+      "scale": [
+        0.009999999776482582,
+        0.009999999776482582,
+        0.009999999776482582
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Armature|A_CoffeeSlime_Burst",
+      "clip": "A_CoffeeSlime_Burst",
+      "frame_range": [
+        2.0,
+        20.0
+      ],
+      "duration_seconds": 0.18,
+      "critical_bounds": [
+        {
+          "source_frame": 1,
+          "bounds": []
+        },
+        {
+          "source_frame": 5,
+          "bounds": []
+        },
+        {
+          "source_frame": 10,
+          "bounds": []
+        },
+        {
+          "source_frame": 19,
+          "bounds": []
+        }
+      ],
+      "max_root_delta": 0
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "technical_pass": true
+}

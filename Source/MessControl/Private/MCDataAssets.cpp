@@ -12,6 +12,22 @@ namespace
         TEXT("Log gameplay palette events, chosen assets and normalized Intensity/Speed inputs."));
 }
 
+UMCSoundPalette::UMCSoundPalette()
+{
+    // Authoring places only: never assign a source or modify the existing SFX bank.
+    for (const TCHAR* Scene : {TEXT("MainMenu"),TEXT("Hub"),TEXT("Relax"),TEXT("Gameplay"),
+        TEXT("NutEncounter"),TEXT("IceEvent"),TEXT("FogBrawl"),TEXT("CataclysmRafts"),
+        TEXT("CataclysmJellies"),TEXT("ColdCola"),TEXT("FinalBoss")})
+        Scenes.FindOrAdd(FName(Scene));
+}
+
+bool UMCSoundPalette::GetScene(FName Scene, FMCSoundScene& Settings) const
+{
+    const FMCSoundScene* Found = Scenes.Find(Scene);
+    Settings = Found ? *Found : FMCSoundScene();
+    return Found != nullptr;
+}
+
 const FMCSoundVariation* UMCSoundPalette::ResolveEvent(FName Event, FName* ResolvedEvent) const
 {
     FName Key = Event;

@@ -1,0 +1,13 @@
+# Coffee slime references and decisions
+
+- [Ryan King's original Cute Blob Character animation process](https://ryanking.artstation.com/projects/ELzlg8), with [the creator's Blender Artists post/image](https://blenderartists.org/t/cute-blob-character-animation-process/1247461): broad grounded gel silhouette, simple readable eyes and strong glossy material identity. Use the motion/readability principles; no green character geometry, arms or copied face.
+- [Blender Studio: Simple Bouncing Ball, Animation Fundamentals](https://studio.blender.org/training/animation-fundamentals/5d70d714521d407842bf90fd/): anticipation, spacing, squash/stretch and settling. Adapt to a viscous creature with a delayed foam crest; maintain a fixed gameplay root.
+- [Into Animation's squash/stretch rig tutorial](https://www.intoanimation.com/articles/squash-and-stretch---blender-rigging-tutorial): compact skeletal deformation controls. Bake bone transforms for exported clips rather than relying on Blender-only drivers or simulation caches.
+- [Official Blender skinning introduction](https://docs.blender.org/manual/en/latest/animation/armatures/skinning/introduction.html) and [Armature Modifier](https://docs.blender.org/manual/en/latest/modeling/modifiers/deform/armature.html): weighted vertex deformation, normalized small influence counts and rest/pose separation.
+- [Official Blender export API](https://docs.blender.org/api/5.1/bpy.ops.export_scene.html): FBX and GLB skeletal exports. Confirm against this installed runtime's operator properties and fresh-import the actual outputs.
+
+Project style evidence inspected: `Artifacts/RowingPolish_20261014/front_closeup.png`. The Tooth characters use smooth tactile masses, bulging ivory eyes, heavy mauve lids/brows, little black pupils and expressive mouths. Adapt this facial language to an original espresso-brown gel creature with a milk foam cap; retain enemy readability from an elevated gameplay camera.
+
+Generated concept inspected: `v1/concept_v1.png`. Binding features: scalloped broad foot, drooping coffee body, creamy asymmetrical cap/curl, large off-white eyes, heavy lids, soft caramel mouth rim and tiny uneven teeth. Front/side/back infer a fully closed 3D body. Bubble detail and exact curl shape may be refined for skinning and a bounded triangle count.
+
+Materials: opaque wet coffee gel with controlled clearcoat and baked color/roughness maps, matte creamy foam and readable face materials. No expensive full-body transparency, volumes or Blender-only material behavior is promised in Unreal. No third-party meshes or textures copied/downloaded.

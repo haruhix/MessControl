@@ -661,6 +661,14 @@ FVector UMCToothMovementComponent::Intent() const
 }
 void UMCToothMovementComponent::PhysicsRotation(float DeltaTime)
 {
+    FVector RowingFacing;
+    if(const auto* Hero=Cast<AMCToothCharacter>(CharacterOwner);UpdatedComponent && Hero && Hero->WantsRowingFacing(RowingFacing)) {
+        // The raft already eases camera aim for the shaft. A second yaw lag,
+        // or orient-to-movement while strafing on deck, separates that shaft
+        // from the two-hand pose and can make forward rowing face backwards.
+        MoveUpdatedComponent(FVector::ZeroVector,FRotator(0,RowingFacing.Rotation().Yaw,0),false);
+        return;
+    }
     if(const auto* Perks=UMCPerkComponent::ForActor(CharacterOwner);Perks && Perks->IsFuryActive()) {
         if(UpdatedComponent) {FRotator Rotation=UpdatedComponent->GetComponentRotation();Rotation.Yaw+=DeltaTime*720;MoveUpdatedComponent(FVector::ZeroVector,Rotation,false);}
         return;

@@ -1,0 +1,4142 @@
+{
+  "metadata": {
+    "mode": "storm",
+    "clip": "storm_brush_rowing",
+    "video": "E:/DEVGAME/MessControl/Artifacts/RowingFeel_20261015/storm_brush_rowing.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/RowingFeel_20261015/storm_brush_rowing.png",
+    "video_sha256": "41c5c3a6b15ab34f5156f33780decf65156db9157ff9ab93f4254216cbdb591c",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingFeel_20261015/storm_brush_rowing.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingFeel_20261015/storm_brush_rowing.ffconcat",
+    "genuine_source_frames": 128,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 14.666667431592941,
+    "source_time_end_seconds": 25.41666799224913,
+    "source_game_span_seconds": 10.75000056065619,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 9.486076408089858,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "323"
+        }
+      ],
+      "format": {
+        "duration": "10.766667"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.1666666753590107,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.1666666753590107,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00000.png",
+      "time": 14.666667431592941,
+      "sha256": "64c353456acdd46dd6f1272cdab430f42e668f47768deabafbc500557be0a6af",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1286957,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          238.21341064432139,
+          -377.1666986555467,
+          456.3338240320186
+        ],
+        "expected_cm": [
+          239.9105593157529,
+          -377.3064700314667,
+          453.0444923852383
+        ],
+        "location_error_cm": 3.703991405629686,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00001.png",
+      "time": 14.750000769272447,
+      "sha256": "2309514d68898c9135df6197f68a15cb557745fae0ab3919137743ac46632b59",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1289583,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          245.46229838471197,
+          -378.01381139756893,
+          441.30768117488645
+        ],
+        "expected_cm": [
+          246.47319011130267,
+          -378.22028719786715,
+          438.89946552216986
+        ],
+        "location_error_cm": 2.619930718356407,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00002.png",
+      "time": 14.833334106951952,
+      "sha256": "936cfbbe8d964c7180ae664f4e078e748a046ca0f3249251a328796ff414179b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1287696,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          248.72791047533207,
+          -378.95187495054574,
+          432.7366385067265
+        ],
+        "expected_cm": [
+          248.70468604489628,
+          -379.02750039774344,
+          432.3634567531405
+        ],
+        "location_error_cm": 0.3814750367224919,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00003.png",
+      "time": 14.916667444631457,
+      "sha256": "4231bfddd5146288b56cc39b7ffc0e17d0a4028d503e3a5ed46b8bfeea12ced7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1283086,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          246.71225214586406,
+          -378.5334439671002,
+          435.96724929678055
+        ],
+        "expected_cm": [
+          245.9289147833329,
+          -378.2447531640023,
+          437.9375621445241
+        ],
+        "location_error_cm": 2.139881426928589,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00004.png",
+      "time": 15.000000782310963,
+      "sha256": "3e55ebaf417ff10557267e366dd96f3b964014eae90c8dfd33597819c9febd75",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1243211,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          241.71387793091253,
+          -376.47958140812466,
+          448.86721845544855
+        ],
+        "expected_cm": [
+          240.377169314121,
+          -375.8834905913274,
+          452.0750649160741
+        ],
+        "location_error_cm": 3.525959883921337,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00005.png",
+      "time": 15.083334119990468,
+      "sha256": "535f06ff4bac9581c58c8b3381ebb135dde52cc2090590b91b3a7b47c4f6da6d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1210296,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          233.82930888547648,
+          -372.8638663614281,
+          464.7664778436812
+        ],
+        "expected_cm": [
+          231.88234956568454,
+          -371.9472032306637,
+          467.5714953694042
+        ],
+        "location_error_cm": 3.535398875352092,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00006.png",
+      "time": 15.166667457669973,
+      "sha256": "ab2a17659fc757350f466dbb61702a48614e84b91193cd766b3d4db17b830a6a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1190735,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          222.97329042580097,
+          -367.37605319583486,
+          476.2576343104211
+        ],
+        "expected_cm": [
+          220.49134959674265,
+          -365.9746354545049,
+          477.7659421191601
+        ],
+        "location_error_cm": 3.224747185526972,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00007.png",
+      "time": 15.250000795349479,
+      "sha256": "9ac63152be53f2eba5f44c66f6b8b3e83b665f9b44075903a5afd474e94ba823",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1215587,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          209.4413585950806,
+          -359.57160590459046,
+          481.48115899977745
+        ],
+        "expected_cm": [
+          206.3705916859389,
+          -357.82026249127165,
+          482.03570800154534
+        ],
+        "location_error_cm": 3.5783149326207417,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00008.png",
+      "time": 15.333334133028984,
+      "sha256": "ad37b2132e4fb531adaa31eeb8e984afad434a492a2c266068caded35599d259",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1230032,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          192.77755745907956,
+          -350.4681903238843,
+          484.38952654331894
+        ],
+        "expected_cm": [
+          189.11673497879198,
+          -348.5844340679705,
+          485.23276570265733
+        ],
+        "location_error_cm": 4.202524377527747,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00009.png",
+      "time": 15.41666747070849,
+      "sha256": "73142420b3deff414e58eb43c265a8712620dc6d4739abb7a518a5c141f369c4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1242481,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          174.42549010159385,
+          -341.07499637510824,
+          489.82215487918006
+        ],
+        "expected_cm": [
+          170.92795515400246,
+          -339.22049918150515,
+          491.09514848659154
+        ],
+        "location_error_cm": 4.158415957454876,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00010.png",
+      "time": 15.500000808387995,
+      "sha256": "fbab1de23938efb622b71a81d778a2fc68588d7d79fd407cca242caaeafe7068",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1245576,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          158.54332115300963,
+          -332.2273513240949,
+          494.6101449078485
+        ],
+        "expected_cm": [
+          155.9160719591152,
+          -330.63838914214637,
+          494.7424490363924
+        ],
+        "location_error_cm": 3.073230145126042,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00011.png",
+      "time": 15.5833341460675,
+      "sha256": "1d845d56ad2ca78a12b598668b94608eaf62510122583f0746d448387f14e736",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1271479,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          146.9850778199409,
+          -324.63021316623866,
+          491.39069772658354
+        ],
+        "expected_cm": [
+          144.99204942188456,
+          -323.12379334329944,
+          489.6112251896758
+        ],
+        "location_error_cm": 3.0672439400889107,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00012.png",
+      "time": 15.666667483747005,
+      "sha256": "42b3a0dcd533fac93539875c3cc59ec5c33e0aa0b77d34e323bdce0bff2b3c8f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1270949,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          137.46771687590075,
+          -317.272969091334,
+          479.28463823477017
+        ],
+        "expected_cm": [
+          135.70783972305628,
+          -315.8516263096795,
+          476.226430450739
+        ],
+        "location_error_cm": 3.803947652948756,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00013.png",
+      "time": 15.75000082142651,
+      "sha256": "fae2a25aaf6a4caea6e8e54d1eeadda8b1529772ed8aed1949e9ea9094108382",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1254343,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          129.1911826572466,
+          -310.32472765234667,
+          464.2723240078821
+        ],
+        "expected_cm": [
+          127.69673100671014,
+          -308.9823167064558,
+          461.6782586259874
+        ],
+        "location_error_cm": 3.2809492664446127,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00014.png",
+      "time": 15.833334159106016,
+      "sha256": "98533c2df500265d5412f529095a9310a1963ee0e28066a548217b5ff10d8a5d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1236368,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          122.0613587966202,
+          -303.2327618261901,
+          454.6507365368417
+        ],
+        "expected_cm": [
+          120.6820885566558,
+          -301.66145376062696,
+          453.8123146462343
+        ],
+        "location_error_cm": 2.252631061315822,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00015.png",
+      "time": 15.916667496785522,
+      "sha256": "9c61ce1f44042cb672bed7e78df657d1f0bddef4f494f60b08395344e6752b24",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1251786,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          114.46911836426796,
+          -295.0454148973692,
+          453.149601856189
+        ],
+        "expected_cm": [
+          112.70741141049297,
+          -293.3607711376029,
+          453.4738569875395
+        ],
+        "location_error_cm": 2.459019597015396,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00016.png",
+      "time": 16.000000834465027,
+      "sha256": "c0efd24b6b4ff6085a9f1ddbbff788726fdac75d55c0f0b5f97490a1b7c3b3d2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1256951,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          104.70268730878956,
+          -286.43820398065304,
+          455.8748274244421
+        ],
+        "expected_cm": [
+          102.47711469591667,
+          -284.63732085200706,
+          456.6399920241938
+        ],
+        "location_error_cm": 2.9634153206941463,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00017.png",
+      "time": 16.083334172144532,
+      "sha256": "568fea49a598d81793f57ea78563ae198546de1702a80a07639135d8a77e4582",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1268499,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          92.8892529790258,
+          -277.038991498527,
+          460.1609530199762
+        ],
+        "expected_cm": [
+          90.37457399844573,
+          -275.0407718438572,
+          461.23382750229894
+        ],
+        "location_error_cm": 3.3863773886705593,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00018.png",
+      "time": 16.166667509824038,
+      "sha256": "096e14629d39a5acac70e04855a0cce45a82e2c0ca7a56078842fb90e92c76cd",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1272277,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          79.84380071648229,
+          -267.0168911309813,
+          466.77374252450454
+        ],
+        "expected_cm": [
+          77.06880552608698,
+          -264.9919219417043,
+          468.64649407363
+        ],
+        "location_error_cm": 3.912581869940896,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00019.png",
+      "time": 16.250000847503543,
+      "sha256": "c6d877611bbf0246e6322d0545e2833fe4fdf7fdb6079e24376dbe215f586c8f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1297606,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          65.26055750328612,
+          -256.6956640628388,
+          478.82564662477034
+        ],
+        "expected_cm": [
+          62.110514962709146,
+          -254.54252120104783,
+          482.0152548464358
+        ],
+        "location_error_cm": 4.973167280359867,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00020.png",
+      "time": 16.33333418518305,
+      "sha256": "0952564e0bcc62cb4947fc6d0b69263d260705c477b9287396fcf71d17c3919f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1299166,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          48.62213634517656,
+          -245.17149548825407,
+          495.9099849077895
+        ],
+        "expected_cm": [
+          45.025509289764386,
+          -242.61851196590513,
+          499.12596081859476
+        ],
+        "location_error_cm": 5.458566854036654,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00021.png",
+      "time": 16.416667522862554,
+      "sha256": "446610811ac74fb36ba3dc4df453aff055dc0efde8dbe743c305490c3b9d3636",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1258958,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          30.313961025822437,
+          -231.5922488798096,
+          507.41976119701417
+        ],
+        "expected_cm": [
+          26.768329046104384,
+          -228.58590151187198,
+          507.9752423789871
+        ],
+        "location_error_cm": 4.681686659296078,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00022.png",
+      "time": 16.50000086054206,
+      "sha256": "755b9fc465cfc21fe49e7b0945ebf0784eab432ecdbe3f1de2e9aef9cf2600f5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1222008,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          11.799331169710399,
+          -215.2850358516787,
+          499.65884374124226
+        ],
+        "expected_cm": [
+          7.863363709246471,
+          -211.84493486903324,
+          494.8480320442113
+        ],
+        "location_error_cm": 7.104227178583112,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00023.png",
+      "time": 16.583334198221564,
+      "sha256": "dbf1811f522de8197765c84cd535e1f0982cde05f9a2139adc5b300a771e22d0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1249395,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -8.131897537565465,
+          -198.2438242955921,
+          468.6863091811574
+        ],
+        "expected_cm": [
+          -12.047705967180946,
+          -194.94913688077835,
+          461.61465632346176
+        ],
+        "location_error_cm": 8.729077554847068,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00024.png",
+      "time": 16.66666753590107,
+      "sha256": "b866668ba541cf5b1069ec6f03d0b70d90c4720353f2afdfad723117d4221f35",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1245698,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -26.74831547598643,
+          -182.49385407194285,
+          438.2519566085056
+        ],
+        "expected_cm": [
+          -30.16326022904576,
+          -179.5650549502351,
+          434.44375843007566
+        ],
+        "location_error_cm": 5.894241709326217,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00025.png",
+      "time": 16.750000873580575,
+      "sha256": "561cba116246b544178cf3e2d1cbbfa445354e45f82517610c1b366d81e3a0bf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1245012,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -43.21853357165611,
+          -168.36120351226376,
+          428.729170435996
+        ],
+        "expected_cm": [
+          -46.636560010197854,
+          -165.70706499952928,
+          429.1765255557666
+        ],
+        "location_error_cm": 4.35057267294039,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00026.png",
+      "time": 16.83333421126008,
+      "sha256": "fd9efb88b774f3ef54540b8a42ceb289f11914d35b2d41aefb7ffe989cf546dd",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1247848,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -60.10731293066277,
+          -156.27614367906506,
+          436.75250042340565
+        ],
+        "expected_cm": [
+          -63.16625262730457,
+          -154.05749071980532,
+          439.9121190746795
+        ],
+        "location_error_cm": 4.925720560770831,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00027.png",
+      "time": 16.916667548939586,
+      "sha256": "a8cf89b5055b444eee77acca6b7f28a31aa0a120ba6d6ad6f76e3314bf8b3d02",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1269961,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -74.16224314561896,
+          -145.4575681329463,
+          454.9990369572113
+        ],
+        "expected_cm": [
+          -76.62864233432106,
+          -143.38175928749476,
+          459.03461631079256
+        ],
+        "location_error_cm": 5.1650758019545835,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00028.png",
+      "time": 17.00000088661909,
+      "sha256": "d137e52a546fd7767368b450dcc8537b17164274741bc173c4cb75253045c28c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1290225,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -85.49910483641156,
+          -135.39506577559388,
+          474.9759264708056
+        ],
+        "expected_cm": [
+          -87.49270420288059,
+          -133.47599165509362,
+          478.79543737254437
+        ],
+        "location_error_cm": 4.716560976226327,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00029.png",
+      "time": 17.083334224298596,
+      "sha256": "a79722abf1d40c18c5bc96e55a53b918f874e68d04e32fc6141af3babdce54a3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1294348,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -94.9216773785455,
+          -125.97368995334486,
+          492.8390488785277
+        ],
+        "expected_cm": [
+          -96.72710453869189,
+          -124.10263292123969,
+          495.9061687638944
+        ],
+        "location_error_cm": 4.0209011476528955,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00030.png",
+      "time": 17.1666675619781,
+      "sha256": "e11964e0cba59196d53c07c6fcd6fe95a673dd4009a8ec3981d665039c3506b1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1268886,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -104.15907678189683,
+          -116.46341952697685,
+          505.1168803141166
+        ],
+        "expected_cm": [
+          -106.0084142814959,
+          -114.52095478230764,
+          506.51688252674086
+        ],
+        "location_error_cm": 3.0254296665199454,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00031.png",
+      "time": 17.250000899657607,
+      "sha256": "d537d9623a767ef5572b904a329a4413ccbfbf61094d6060d52a248f71512dd1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1259601,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -112.59687542550898,
+          -106.16169264384874,
+          507.5641533992529
+        ],
+        "expected_cm": [
+          -114.22958816905896,
+          -104.1167958052853,
+          506.1124855825144
+        ],
+        "location_error_cm": 2.9924393784121244,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00032.png",
+      "time": 17.333334237337112,
+      "sha256": "b57d6cf9bdd8a2f1cc3ef91243b524884a78e5c1e94699bd7da592f9582764f1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1244469,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -121.74144886698343,
+          -96.13914275538886,
+          491.654221636151
+        ],
+        "expected_cm": [
+          -123.86812901097039,
+          -94.18037121016845,
+          486.1588083284565
+        ],
+        "location_error_cm": 6.209599167706391,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00033.png",
+      "time": 17.416667575016618,
+      "sha256": "a88cf6c47cb8e7605fbae6b55a6587bb2eeee3047e30cb68ae93db301b4ffe63",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1274550,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -133.3894777081939,
+          -86.41313972603089,
+          460.3280922231971
+        ],
+        "expected_cm": [
+          -136.0267797816242,
+          -84.47733677964442,
+          453.7968772649132
+        ],
+        "location_error_cm": 7.304756265959163,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00034.png",
+      "time": 17.500000912696123,
+      "sha256": "6b2980f81b86dc514f152676b7fc656535a17f3895b840143a9018cb4706afeb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1284296,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -147.62161268425723,
+          -76.6978481818266,
+          433.286808489266
+        ],
+        "expected_cm": [
+          -150.78385155196747,
+          -74.73471015014833,
+          430.4384517032516
+        ],
+        "location_error_cm": 4.686875501686942,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00035.png",
+      "time": 17.58333425037563,
+      "sha256": "9a1952bd21fb8ec49b3ac05043909c81a3769bbb7d11f06b798536ff60be2ef6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1307649,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -166.51765786264127,
+          -66.92524046481762,
+          428.8416430223554
+        ],
+        "expected_cm": [
+          -170.90222410318006,
+          -64.78089894896833,
+          431.1443588078844
+        ],
+        "location_error_cm": 5.396769556243025,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00036.png",
+      "time": 17.666667588055134,
+      "sha256": "3e6171364eefb4acd75e8e3e9297e1716d5bd7b242d5402cb5afa9bc16c51b5a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1301962,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -188.87151852223133,
+          -56.180198121729944,
+          449.6475017906963
+        ],
+        "expected_cm": [
+          -193.4921234646796,
+          -54.01507674917147,
+          455.62688458827256
+        ],
+        "location_error_cm": 7.860709842758326,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00037.png",
+      "time": 17.75000092573464,
+      "sha256": "67525e9d51a587d69a9ae6972c82245627024c6fbfc25305b51a9fa3a0064238",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1299047,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -212.36092193034563,
+          -45.318294528678436,
+          478.73952094291576
+        ],
+        "expected_cm": [
+          -217.0723744154859,
+          -43.16263927005052,
+          483.4948618490076
+        ],
+        "location_error_cm": 7.032631175238389,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00038.png",
+      "time": 17.833334263414145,
+      "sha256": "ce36b1a4857a4d4ef641a5053b0de47ca22a7183eaf325405816506e52af9262",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1274610,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -235.1415505708011,
+          -34.82463232540282,
+          496.3947904708991
+        ],
+        "expected_cm": [
+          -239.3481073510842,
+          -32.802570100817064,
+          498.2481590471629
+        ],
+        "location_error_cm": 5.021835388115041,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00039.png",
+      "time": 17.91666760109365,
+      "sha256": "fe86b7586020fb02b90fc1463644994cde8d4398dbcb2b4dc785d1148fb86371",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1283236,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -254.45438537379528,
+          -24.54329498338589,
+          502.47968536113956
+        ],
+        "expected_cm": [
+          -257.8341670303506,
+          -22.51714386415928,
+          502.9656206957114
+        ],
+        "location_error_cm": 3.9704339250662035,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00040.png",
+      "time": 18.000000938773155,
+      "sha256": "c1bb415f99c7d111396ee5ccb37d4e8f46775edefa9006d5d251e0c88c0fdac2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1285329,
+      "trailing_bytes": 0,
+      "phase": "solo_side",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -270.0036902889284,
+          -15.062142740244894,
+          502.795996026264
+        ],
+        "expected_cm": [
+          -272.75525120883117,
+          -13.428112184873072,
+          502.09100289463527
+        ],
+        "location_error_cm": 3.2769129783179496,
+        "rotation_error_degrees": 0.0,
+        "review_view": "side",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 159.68284726272466
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00041.png",
+      "time": 18.166667614132166,
+      "sha256": "296c07d4f702f702f698758be1333c8b77d1cc7fb50d90a289fc6c6618acca0e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1442860,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1323.5787851311366,
+          -5.987078056719071,
+          536.694942680231
+        ],
+        "expected_cm": [
+          -1325.650218726214,
+          -4.748612717994945,
+          532.8516528364198
+        ],
+        "location_error_cm": 4.538227667005962,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00042.png",
+      "time": 18.25000095181167,
+      "sha256": "84f028ac0f1331163ce3ff769c7d8fef4944d8d22758e674b6deefbfe2a34156",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1457796,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1333.3066683174536,
+          0.011890432655576433,
+          518.6029736131549
+        ],
+        "expected_cm": [
+          -1335.0082234154734,
+          1.1767489675358718,
+          515.7869914461107
+        ],
+        "location_error_cm": 3.4902637039328437,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00043.png",
+      "time": 18.333334289491177,
+      "sha256": "08e0f71c2e200d1634ae3cc5b0a70135ebb938c82d5233720a534ba458bceb9d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1446118,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1340.9864966237783,
+          5.460097437374259,
+          508.8911277086826
+        ],
+        "expected_cm": [
+          -1342.218515601095,
+          6.454493867040327,
+          508.3225428584157
+        ],
+        "location_error_cm": 1.6822555548293796,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00044.png",
+      "time": 18.416667627170682,
+      "sha256": "4e4194e160daa81bee1e1e6e2b7fa4663c2616e3c1aa24fa514f1d80e37720f2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1420853,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1346.2720884014498,
+          11.131399197324896,
+          509.2734225669507
+        ],
+        "expected_cm": [
+          -1346.9363376842584,
+          12.507436390186797,
+          510.1990465584693
+        ],
+        "location_error_cm": 1.7864728488073645,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00045.png",
+      "time": 18.500000964850187,
+      "sha256": "b7dc4d4fefdfdb04beae2d8d7809e6ab2008dc449d0c84ece8b99b4406941285",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1390045,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1347.7910021348455,
+          18.575177426665107,
+          515.4240660455328
+        ],
+        "expected_cm": [
+          -1347.4961346802997,
+          20.16159515854787,
+          516.9368301881533
+        ],
+        "location_error_cm": 2.2118145010332095,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00046.png",
+      "time": 18.583334302529693,
+      "sha256": "55a03b437cf917a8b17775d6b217198ee2d25f9dfc8d0a21a947782f2a8e6383",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1386835,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1344.216747367685,
+          26.834104436554952,
+          522.7619269364511
+        ],
+        "expected_cm": [
+          -1342.8456497222342,
+          28.631931578608516,
+          524.0817986552962
+        ],
+        "location_error_cm": 2.6180436475109494,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00047.png",
+      "time": 18.666667640209198,
+      "sha256": "f509a6b255e13d29f2808b3bf9f2a05aa5edc46149de8c05dd1058f1985e2abc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1377136,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1335.2140495396268,
+          36.35639747728757,
+          528.4919280054298
+        ],
+        "expected_cm": [
+          -1332.7850755135632,
+          38.41040428583469,
+          529.3708503694766
+        ],
+        "location_error_cm": 3.3002065557887024,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00048.png",
+      "time": 18.750000977888703,
+      "sha256": "b41f9cc94467345ba0cc50421aec076c68adb8415fd64d63451746963cc07818",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1376720,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1321.088007226832,
+          47.03006990931161,
+          532.1444572288019
+        ],
+        "expected_cm": [
+          -1317.6861454955783,
+          49.27056778421499,
+          532.6937958153478
+        ],
+        "location_error_cm": 4.110263598442611,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00049.png",
+      "time": 18.83333431556821,
+      "sha256": "5fac01acc357e2ba61d7139c0d43e8800b54b299a694bb3349630b6158b3e280",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1366959,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1302.2662110827603,
+          58.489801299187604,
+          534.5790349347224
+        ],
+        "expected_cm": [
+          -1297.9747562942803,
+          60.8468832974788,
+          535.008542257234
+        ],
+        "location_error_cm": 4.9149665602450865,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00050.png",
+      "time": 18.916667653247714,
+      "sha256": "617646798786ea64f3a98b6f686368a9757aab689ae49377b2bfe3beb587bfdb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1374444,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1279.2095442157351,
+          70.45359082914885,
+          536.6516379300492
+        ],
+        "expected_cm": [
+          -1274.1845315084847,
+          72.87945978000047,
+          537.046120904163
+        ],
+        "location_error_cm": 5.593854636259317,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00051.png",
+      "time": 19.00000099092722,
+      "sha256": "72a2e96f97c74105a2036fd2256d8a478ac49a3c1d4760cb68f59e6d0fafa0b0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1361813,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1253.5397277275952,
+          82.41412084101418,
+          538.5313562706626
+        ],
+        "expected_cm": [
+          -1248.30582768873,
+          84.75503477726323,
+          538.8766778059852
+        ],
+        "location_error_cm": 5.7439389478401734,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00052.png",
+      "time": 19.083334328606725,
+      "sha256": "07aae7190e78878b5b055ec3932a2ced7c58282ed915e36813d29319abb4900c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1354266,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1227.3950090818475,
+          93.85060181265328,
+          540.2277410330234
+        ],
+        "expected_cm": [
+          -1222.1717947814836,
+          96.05398122806434,
+          540.5792630709936
+        ],
+        "location_error_cm": 5.67982536870298,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00053.png",
+      "time": 19.16666766628623,
+      "sha256": "ae670e69d86e94b6885e75db3e30c9dd09087cff376e74a0f8d4dfaa46a08b5c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1348875,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1201.2094359532332,
+          104.59005365867807,
+          542.1519489987331
+        ],
+        "expected_cm": [
+          -1195.9364112817107,
+          106.65472639143229,
+          542.5986011172081
+        ],
+        "location_error_cm": 5.680419068590123,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00054.png",
+      "time": 19.250001003965735,
+      "sha256": "38e1a5462a9ac6f8d95cdea841cce0d4d6901930b018f72670be8c97db6541dd",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1369140,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1174.6071826146804,
+          114.64229220488048,
+          544.6217424801063
+        ],
+        "expected_cm": [
+          -1169.1984046920227,
+          116.57161939316566,
+          545.1773799426894
+        ],
+        "location_error_cm": 5.769394682799185,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00055.png",
+      "time": 19.33333434164524,
+      "sha256": "f1dbcfd1467df68d7199f5afefd2c6f234e4d8fb39aa63798856cfd7c2d904fb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1364703,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1147.3064235832796,
+          123.95062752462539,
+          547.4510278967377
+        ],
+        "expected_cm": [
+          -1141.852813461728,
+          125.6685629919804,
+          547.9917407602659
+        ],
+        "location_error_cm": 5.743303581447913,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00056.png",
+      "time": 19.416667679324746,
+      "sha256": "177c608f6e5a48a1581c97a583f15bfceeabd2fb0cba5edd0636e8c6326ab1b2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1370626,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1120.1691756994621,
+          132.01025727607745,
+          549.7299745420639
+        ],
+        "expected_cm": [
+          -1114.7526975210005,
+          133.47565280158474,
+          549.9984886125362
+        ],
+        "location_error_cm": 5.617625807222221,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00057.png",
+      "time": 19.50000101700425,
+      "sha256": "66a3ab235b45fbfae62722bc7a9adaff5304d20dcea899a7f8083f1f33876188",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1371172,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1092.7011001989285,
+          139.17790595674055,
+          549.8841021050473
+        ],
+        "expected_cm": [
+          -1087.0108238125088,
+          140.62578134095205,
+          549.4844317295431
+        ],
+        "location_error_cm": 5.885178407755186,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00058.png",
+      "time": 19.583334354683757,
+      "sha256": "6c2923e4ec24d3baa89a9e93183282af870ab8b988b2df610fc1bdbd65fefba3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1385973,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1063.1408128949324,
+          146.54960729096595,
+          546.4446960341317
+        ],
+        "expected_cm": [
+          -1056.8953990801335,
+          148.04936202675842,
+          545.3589654913205
+        ],
+        "location_error_cm": 6.514082344981965,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00059.png",
+      "time": 19.666667692363262,
+      "sha256": "2e69db2704cdf6fbe78c1a5b8c4e8bc137a78d3b59638bc39b341a1eedbef127",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1385620,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1031.0706843176704,
+          153.98361168478388,
+          540.0587463548171
+        ],
+        "expected_cm": [
+          -1024.629403823052,
+          155.38275856807522,
+          538.5629398657674
+        ],
+        "location_error_cm": 6.759078595789484,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00060.png",
+      "time": 19.750001030042768,
+      "sha256": "b19870f98674fbb85ad699ba5ce13ade06ce77f9e45ebe2fe60e617e4901c2b0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1375884,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -1000.0788288585516,
+          160.3453067073156,
+          532.3188412308839
+        ],
+        "expected_cm": [
+          -994.29812256034,
+          161.41529336544497,
+          530.7530393259228
+        ],
+        "location_error_cm": 6.083845195296965,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00061.png",
+      "time": 19.833334367722273,
+      "sha256": "c57c024a9a32a0da965ce54d6f23a71b92ebb21120a5ee050c97f5196da56c1b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1369009,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -970.1677083028349,
+          165.77345721890393,
+          524.6213716206994
+        ],
+        "expected_cm": [
+          -963.8710138836623,
+          166.8817271133207,
+          523.1528739301845
+        ],
+        "location_error_cm": 6.559962517755523,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00062.png",
+      "time": 19.916667705401778,
+      "sha256": "8f0b09d5e7ce87203f3cf33c614304ec2bb57d194d086b2468f0f08690944c3b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1390100,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -937.5646343419496,
+          171.38321342149075,
+          517.6779121113143
+        ],
+        "expected_cm": [
+          -930.7001498957625,
+          172.52424170490227,
+          516.425041346015
+        ],
+        "location_error_cm": 7.070557079186328,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00063.png",
+      "time": 20.000001043081284,
+      "sha256": "7ed068dd270ad0a87b10dbae60cd43d76e1d62276e1bf49a112bc587452f6784",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1385844,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -902.0710523768129,
+          177.14292289394135,
+          511.9358121849375
+        ],
+        "expected_cm": [
+          -894.622055532581,
+          178.30965928603095,
+          510.94883124070657
+        ],
+        "location_error_cm": 7.604140923094271,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00064.png",
+      "time": 20.08333438076079,
+      "sha256": "ed03839c86fafdc66af08085650d43eda3fa99a4b817b73d41a476f9565258c8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1395390,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -863.7044284315886,
+          183.13161876734299,
+          507.43772578744114
+        ],
+        "expected_cm": [
+          -855.7273974758433,
+          184.36656453164707,
+          506.6872955780878
+        ],
+        "location_error_cm": 8.106864955628696,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00065.png",
+      "time": 20.166667718440294,
+      "sha256": "64295aa088da45bb18764b5742599ebfb1e430f3fd9f40bf352bfd4338f96c18",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1400336,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -823.3230887497447,
+          189.3328437783379,
+          504.2090404230053
+        ],
+        "expected_cm": [
+          -815.2538604353199,
+          190.56146424138242,
+          503.71828366727294
+        ],
+        "location_error_cm": 8.17696741009913,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00066.png",
+      "time": 20.2500010561198,
+      "sha256": "a5af356531308b3a407a42db0b084c8b2a3c6ca98d2b58426bfb48f9738377ce",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1419085,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -783.9756189157785,
+          195.33123558844292,
+          502.29589427358155
+        ],
+        "expected_cm": [
+          -776.4695540377695,
+          196.48222359983217,
+          502.0860827489767
+        ],
+        "location_error_cm": 7.596696929001326,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00067.png",
+      "time": 20.333334393799305,
+      "sha256": "860287171cd6442cd74483d24c2fcc997981dcd49dacbbc09d2f76ba947dc28c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1417104,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -747.6796477833179,
+          200.93034569024283,
+          501.89818340335205
+        ],
+        "expected_cm": [
+          -740.7778834787898,
+          202.00537449451136,
+          502.0225103759637
+        ],
+        "location_error_cm": 6.98609294537256,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00068.png",
+      "time": 20.41666773147881,
+      "sha256": "9cc57cd6e891501e6c9354d770cce4fb38d3f128a22e46df6daee9618be9d8ff",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1407052,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -714.2766561479513,
+          206.16860767014586,
+          503.2320785861818
+        ],
+        "expected_cm": [
+          -707.9147457349208,
+          207.17706085466946,
+          503.7121483347782
+        ],
+        "location_error_cm": 6.459206521881703,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00069.png",
+      "time": 20.500001069158316,
+      "sha256": "404f95a1522c41209457b3d7a149f57e2de8a6aff7b8ec393ab50d58fecac87b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1388775,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -683.4339763640161,
+          211.08967785526468,
+          506.30419322101375
+        ],
+        "expected_cm": [
+          -677.5404763676945,
+          212.0389212794528,
+          507.10741876853666
+        ],
+        "location_error_cm": 6.023252988643278,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00070.png",
+      "time": 20.58333440683782,
+      "sha256": "ff986399e072d563b0355c9386bc0694cc833e19e06ea77a1e504bab3b232852",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1406493,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -654.7644531576182,
+          215.7195189662012,
+          510.81838752104807
+        ],
+        "expected_cm": [
+          -649.2348919124073,
+          216.60121795730188,
+          511.8376298241795
+        ],
+        "location_error_cm": 5.691422980937055,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00071.png",
+      "time": 20.666667744517326,
+      "sha256": "53801245b9ba8799a1f6a55c470217e7235937e9d0110eedef5a533d32c0aaef",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1395528,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -627.5163997208131,
+          220.00196803073712,
+          516.0930171220089
+        ],
+        "expected_cm": [
+          -622.1082682306103,
+          220.8329248193002,
+          517.1661792907063
+        ],
+        "location_error_cm": 5.5758454462175795,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00072.png",
+      "time": 20.75000108219683,
+      "sha256": "814105a29e4969b68f61d317ba6732b8b3c3a5698322e4250fe813b54ee4eed1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1395270,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -600.0461385018046,
+          224.14727097322256,
+          521.3025309060348
+        ],
+        "expected_cm": [
+          -594.3614910964377,
+          224.98028089959283,
+          522.2755819101287
+        ],
+        "location_error_cm": 5.82717340717991,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00073.png",
+      "time": 20.833334419876337,
+      "sha256": "7c61c30ac93d54ea68b33a0c32d5397fff4cbaa4f40c1986115f1827972f7641",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1390969,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -570.8687717264575,
+          228.33341027393695,
+          525.8628622446535
+        ],
+        "expected_cm": [
+          -564.8139452249707,
+          229.17480339423494,
+          526.6805131277065
+        ],
+        "location_error_cm": 6.167448363184642,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00074.png",
+      "time": 20.916667757555842,
+      "sha256": "1b336c50719a191fc3c0252d8e479901f595214dfb6a05f98153dfa820bcd6b4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1397905,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -539.8803333680355,
+          232.54182590720345,
+          529.637273079376
+        ],
+        "expected_cm": [
+          -533.4666719457266,
+          233.38260624956573,
+          530.3013750761961
+        ],
+        "location_error_cm": 6.502537649740816,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00075.png",
+      "time": 21.000001095235348,
+      "sha256": "12855b70eddffe28f0fc4bb06ea14eb97fad231e3266aa8e5b7c1e74e605c5e2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1386924,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -507.06690171030834,
+          236.73696507718594,
+          532.6870705463491
+        ],
+        "expected_cm": [
+          -500.27512319638856,
+          237.57337718511948,
+          533.2218385480054
+        ],
+        "location_error_cm": 6.863950568880552,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00076.png",
+      "time": 21.083334432914853,
+      "sha256": "0942470bedd3df152af2c28719563398a64e0a7616179ee0dafeb907bf4d3692",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1382199,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -472.30451132347423,
+          240.91568122723956,
+          535.1479327034598
+        ],
+        "expected_cm": [
+          -465.10527425531325,
+          241.7522043462172,
+          535.581021792104
+        ],
+        "location_error_cm": 7.260602691985696,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00077.png",
+      "time": 21.16666777059436,
+      "sha256": "e80a4d9c7b1e0d692418179d08a473b3035914b67214c758ef86ddebb635849d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1371299,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -435.4997557458562,
+          245.21787583808523,
+          537.138535790582
+        ],
+        "expected_cm": [
+          -427.9128045379849,
+          246.1678277070417,
+          537.4846651431995
+        ],
+        "location_error_cm": 7.65402134258173,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00078.png",
+      "time": 21.250001108273864,
+      "sha256": "79c7d767be3692f80356b78ec107e656764ed559d1a2edc90f4f685b18360aec",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1392513,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -396.78953747383247,
+          250.35646870046386,
+          538.6966148855747
+        ],
+        "expected_cm": [
+          -388.8599217325359,
+          251.49325211715873,
+          538.9571273890886
+        ],
+        "location_error_cm": 8.014920405442458,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00079.png",
+      "time": 21.33333444595337,
+      "sha256": "030e2193e14bbaad9ae9b9f0e6daf41a0bc16b3c83a358b3ea13263d85e72d43",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1392021,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -357.2576272755274,
+          256.25572304634306,
+          539.8408155259881
+        ],
+        "expected_cm": [
+          -349.376210012108,
+          257.49257166701716,
+          540.0253647978634
+        ],
+        "location_error_cm": 7.98001196893453,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00080.png",
+      "time": 21.416667783632874,
+      "sha256": "3ed24b8063155ac275238f085f1bd70375f07bd1d0f65df827fe4d05a0607371",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1398218,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -318.1433194497766,
+          262.4851252933279,
+          540.645619886383
+        ],
+        "expected_cm": [
+          -310.52178385695083,
+          263.7077128305431,
+          540.7762970118679
+        ],
+        "location_error_cm": 7.720077822793542,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00081.png",
+      "time": 21.50000112131238,
+      "sha256": "6d539ad820034ce3271a90162b28076e66642a8b6ce6378ea649e3810903d263",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1394395,
+      "trailing_bytes": 0,
+      "phase": "solo_front",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -281.0109154874378,
+          268.4170723045643,
+          541.2279798151958
+        ],
+        "expected_cm": [
+          -273.86686686890596,
+          269.5508721092284,
+          541.3277451963495
+        ],
+        "location_error_cm": 7.234147205599267,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 13.073362413043377
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00082.png",
+      "time": 21.66666779667139,
+      "sha256": "d60f47b8f1bfbf33ae188f68c38f21a0f2e9996b191649f8fc65940642f5e370",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1306381,
+      "trailing_bytes": 0,
+      "phase": "settle_second",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1013.6567195735884,
+          178.9374838817931,
+          562.0631654240075
+        ],
+        "expected_cm": [
+          1019.9902041628727,
+          179.9178382096973,
+          562.1591179312591
+        ],
+        "location_error_cm": 6.409627800004516,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 156.98821853182733
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00083.png",
+      "time": 21.750001134350896,
+      "sha256": "b5146a4c57e6cfe515869e2bfac1862b5cf5483626bab99f658e7968bafb02d4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1294095,
+      "trailing_bytes": 0,
+      "phase": "settle_second",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1044.5577960892178,
+          183.66395876722228,
+          562.6671461991243
+        ],
+        "expected_cm": [
+          1050.5140121487775,
+          184.5572727710214,
+          562.8305001874751
+        ],
+        "location_error_cm": 6.0250480647916955,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 156.98821853182733
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00084.png",
+      "time": 21.8333344720304,
+      "sha256": "fdd7cdbf5f79c260d1d4b49fed8beeea8297226807c2e36237c869c3fdebd637",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1290648,
+      "trailing_bytes": 0,
+      "phase": "settle_second",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1073.6275057868752,
+          187.9406152128349,
+          563.6369788302741
+        ],
+        "expected_cm": [
+          1079.2013305883845,
+          188.75557026458839,
+          563.8774713838858
+        ],
+        "location_error_cm": 5.638218807623698,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 156.98821853182733
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00085.png",
+      "time": 21.916667809709907,
+      "sha256": "7145f7da46563eadc41c962c540a27c69417d53dabb3681422a2a4bee2f0fc33",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1299861,
+      "trailing_bytes": 0,
+      "phase": "settle_second",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          1100.3059938077458,
+          192.13247696137458,
+          564.9863788535843
+        ],
+        "expected_cm": [
+          1105.2190422636752,
+          193.04827174096098,
+          565.2918225334606
+        ],
+        "location_error_cm": 5.006997208927119,
+        "rotation_error_degrees": 0.0,
+        "review_view": "front_three_quarter",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 156.98821853182733
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00086.png",
+      "time": 22.000001147389412,
+      "sha256": "178f84c3a34d9acda2d4369c60046d2b38fa283e7c58459d27bc4e58d95d59ad",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1300173,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          482.5986477725651,
+          1152.953974318883,
+          533.9342853483248
+        ],
+        "expected_cm": [
+          486.8896575851722,
+          1153.6288122641604,
+          534.2583172506684
+        ],
+        "location_error_cm": 4.35582003048946,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00087.png",
+      "time": 22.083334485068917,
+      "sha256": "114fafcb012efacbc66434e6a7b1a84db1f534611340f1a5abc7093678ee5428",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1285651,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          503.5490113886727,
+          1154.1738100154475,
+          535.246885551881
+        ],
+        "expected_cm": [
+          507.66588145243514,
+          1153.62176644401,
+          535.4086778353166
+        ],
+        "location_error_cm": 4.156867567008636,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00088.png",
+      "time": 22.166667822748423,
+      "sha256": "02a0f41f39cd86155e74cc2f86d7db3ff008f2f065f7cb42f3cee9d15666ca73",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1282792,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          523.9773392557245,
+          1148.499082849344,
+          535.7050195700016
+        ],
+        "expected_cm": [
+          528.0170131589139,
+          1146.4966623837486,
+          535.689196200983
+        ],
+        "location_error_cm": 4.5087585147301645,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00089.png",
+      "time": 22.250001160427928,
+      "sha256": "3bc210720524cae66c4ef8adb73c155c99d56e889ca893aedf60e211efcf68be",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1291618,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          543.8315996844074,
+          1135.983620097386,
+          535.4724080884416
+        ],
+        "expected_cm": [
+          547.7117811213277,
+          1132.7167255656946,
+          535.3525450816594
+        ],
+        "location_error_cm": 5.073733832692752,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00090.png",
+      "time": 22.333334498107433,
+      "sha256": "d912a2eda3d01f3236dd9457f9fe7b09b1a08ee45d60a3763192f8573a83bebf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1282115,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          562.731469111377,
+          1116.8661195306818,
+          534.3585099350917
+        ],
+        "expected_cm": [
+          566.373564343985,
+          1112.1990525362248,
+          533.913406652098
+        ],
+        "location_error_cm": 5.936706910962237,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00091.png",
+      "time": 22.41666783578694,
+      "sha256": "e5c0f8665ab407b88b661de3c52335aec90229e19b798bdbb3f2405dd3986d08",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1270836,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          580.5530597932107,
+          1090.6756833841218,
+          530.8136937694476
+        ],
+        "expected_cm": [
+          584.0097888712612,
+          1084.578820763583,
+          529.6081585053023
+        ],
+        "location_error_cm": 7.111541675745223,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00092.png",
+      "time": 22.500001173466444,
+      "sha256": "0632292f0ea9be87d1ba6d329e9c6c10b3d6ddc2e2ac2bd0f1061181c93840c9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1246023,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          597.5294432371459,
+          1057.3522224073386,
+          522.4938710220524
+        ],
+        "expected_cm": [
+          600.7987057387363,
+          1049.957063316988,
+          520.0535826637324
+        ],
+        "location_error_cm": 8.445795554454953,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00093.png",
+      "time": 22.58333451114595,
+      "sha256": "5866f4b269fc5e1bf1aadc6424b2b408e894803e45ea44f4930bddd685499a7e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1262285,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          612.9602433199766,
+          1020.0352582249166,
+          507.42454646313536
+        ],
+        "expected_cm": [
+          615.8509932939892,
+          1012.5098895584395,
+          503.69005218994573
+        ],
+        "location_error_cm": 8.884484028638651,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00094.png",
+      "time": 22.666667848825455,
+      "sha256": "92ada385226503d7b5036f157f4279f7b5c1c2cc89c06a2c623b6809947ee70b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1248228,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          627.0006311341376,
+          982.8752688192708,
+          488.1930476543082
+        ],
+        "expected_cm": [
+          629.7234039238983,
+          975.5709172890109,
+          484.46515327635404
+        ],
+        "location_error_cm": 8.64084714802044,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00095.png",
+      "time": 22.75000118650496,
+      "sha256": "9c176a0f230a0766fe5d7719d3eb297a1af10e0edcfdd6bff90f2c9fcc15e17a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1236075,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          640.5121109585734,
+          946.857837590578,
+          472.10753398488794
+        ],
+        "expected_cm": [
+          643.1816660260636,
+          939.9020321982828,
+          469.98807947325474
+        ],
+        "location_error_cm": 7.746085484987123,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00096.png",
+      "time": 22.833334524184465,
+      "sha256": "c3bce772888e32333dc73059c89103c211806f5d1cdb2e78efa40f2c214e509b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1228985,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          653.2552357579007,
+          913.031203064679,
+          466.880585113655
+        ],
+        "expected_cm": [
+          655.4876187279322,
+          906.4721498117233,
+          467.5523687397021
+        ],
+        "location_error_cm": 6.961034875664674,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00097.png",
+      "time": 22.91666786186397,
+      "sha256": "2d6ec279a996e67d8cf52b85a1a7e145d9641c448dc840a3cecd0955e35d83da",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1262158,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          664.3013111757798,
+          881.1566459762589,
+          475.53920793927955
+        ],
+        "expected_cm": [
+          666.5750505282988,
+          875.088931314225,
+          478.664742318834
+        ],
+        "location_error_cm": 7.194165484671031,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00098.png",
+      "time": 23.000001199543476,
+      "sha256": "94be6c6111fbc3d771b9916ee3c070e2933f116508bfa2b74d5e5f018b67ad5b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1242410,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          675.8802374418894,
+          851.8271373791201,
+          494.0204095358918
+        ],
+        "expected_cm": [
+          678.2457034200388,
+          846.257072241586,
+          498.2461813050131
+        ],
+        "location_error_cm": 7.380935033913917,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00099.png",
+      "time": 23.08333453722298,
+      "sha256": "dd11d056d3440ab08eeeed51cd1b0ec1c2747f929da4d5690f51be7948668929",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1223533,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          687.770474688403,
+          824.6804888434698,
+          514.8021899382443
+        ],
+        "expected_cm": [
+          690.1510777780531,
+          819.3833122205759,
+          518.5788462036692
+        ],
+        "location_error_cm": 6.9275164230594095,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00100.png",
+      "time": 23.166667874902487,
+      "sha256": "a4c6a797b164f796536748d13f89fd503d0e8ea51c6614adcd65546fdbdae4bf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1204687,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          699.5879486618569,
+          798.1329057266852,
+          530.918766178679
+        ],
+        "expected_cm": [
+          701.91834377228,
+          792.7473690989444,
+          533.1588423896007
+        ],
+        "location_error_cm": 6.281137442387208,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00101.png",
+      "time": 23.250001212581992,
+      "sha256": "7ed39eb51230e1dd10e3e819e07113dd52be33e8428bc74d083ef216e4784240",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1229265,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          711.1539818396659,
+          770.5118543318529,
+          538.2871968819587
+        ],
+        "expected_cm": [
+          713.4644532906191,
+          764.6626429692126,
+          538.6028342867639
+        ],
+        "location_error_cm": 6.296918203520044,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00102.png",
+      "time": 23.333334550261497,
+      "sha256": "4404181c3d925e010c00d078b4728366484e5a6a44f0292fa25132316c739256",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1233936,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          723.2199554472202,
+          739.812525756498,
+          536.6442022795296
+        ],
+        "expected_cm": [
+          725.746675143798,
+          733.1936930425143,
+          535.5628002676785
+        ],
+        "location_error_cm": 7.166776767279053,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00103.png",
+      "time": 23.416667887941003,
+      "sha256": "ad31e56869df6cc77e49377d3692a55e780cf64fbdfb706d8f79c9f6f51c42d3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1239246,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          735.8200721476403,
+          704.9244752155938,
+          530.661830184495
+        ],
+        "expected_cm": [
+          738.2788155047701,
+          697.384633690818,
+          529.6302534933216
+        ],
+        "location_error_cm": 7.997423309087536,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00104.png",
+      "time": 23.500001225620508,
+      "sha256": "cff505d2b2681444f61509b9071df7a59a8907cd740a78959275343bbc4e5275",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1238190,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          747.22552490767,
+          666.8181599694237,
+          528.1789839160525
+        ],
+        "expected_cm": [
+          749.247181406211,
+          659.0854760614855,
+          528.6228736452001
+        ],
+        "location_error_cm": 8.00490683954682,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00105.png",
+      "time": 23.583334563300014,
+      "sha256": "d69e4c61339b3328ef564a27373f006d6dfc52b60f753ef9ef969f3e8139e192",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1255024,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          756.9630120287891,
+          627.5028250964183,
+          533.2652486137702
+        ],
+        "expected_cm": [
+          758.8217785550885,
+          619.4674209269853,
+          534.9623638665289
+        ],
+        "location_error_cm": 8.420387957011208,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00106.png",
+      "time": 23.66666790097952,
+      "sha256": "3de9bae23ba533184882a9e7a58132d0b7b8d6a2ee106a4863693a5953437016",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1235499,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          766.0675018792335,
+          586.9679374929509,
+          542.104457008272
+        ],
+        "expected_cm": [
+          767.9215968784561,
+          578.81267682783,
+          543.6115523286044
+        ],
+        "location_error_cm": 8.49807514009951,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00107.png",
+      "time": 23.750001238659024,
+      "sha256": "a097525860e3dfc972e10473fb42d7eedbfcd573e2a917d909d10639931c8f01",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1214431,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          775.7264888386499,
+          546.4874808005119,
+          546.38551382839
+        ],
+        "expected_cm": [
+          777.6788075144914,
+          538.4652346005164,
+          545.9329400191716
+        ],
+        "location_error_cm": 8.268784998908375,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00108.png",
+      "time": 23.83333457633853,
+      "sha256": "acbf81fea7729ecf8670a773ed3a8bfb7beb1ad444c6c556a11929d9bf6fc317",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1195146,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          785.1917326193702,
+          506.5676553274561,
+          538.3527342976793
+        ],
+        "expected_cm": [
+          787.0301350015372,
+          498.69218932910263,
+          535.0152226400487
+        ],
+        "location_error_cm": 8.748809751891924,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00109.png",
+      "time": 23.916667914018035,
+      "sha256": "9c69f4bcbcad1614d75ce1367aecbde6bf9306f6846c1a70729438f69e741207",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1219606,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          794.3693285662246,
+          467.6511109463363,
+          516.8934095354927
+        ],
+        "expected_cm": [
+          796.2069274609839,
+          460.05816414686836,
+          511.5123283409233
+        ],
+        "location_error_cm": 9.486076408089858,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00110.png",
+      "time": 24.00000125169754,
+      "sha256": "b870908a2fa06a9069c23a70ea2b0bd38b65f0fe0da20f87d2c7315cd32a0984",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1218569,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          803.5273549643364,
+          430.9082282681037,
+          489.5391001014722
+        ],
+        "expected_cm": [
+          805.3499519218076,
+          423.9518216636061,
+          484.493159708117
+        ],
+        "location_error_cm": 8.784928398670907,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00111.png",
+      "time": 24.083334589377046,
+      "sha256": "ee2988f6c3e40d307eec5c6eb2e97e1200f11b9eb86e3da13f42ed6fc874fb0f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1221911,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          812.6460277604185,
+          397.29457577961875,
+          469.0658180583993
+        ],
+        "expected_cm": [
+          814.4763861801237,
+          390.89835322649526,
+          466.7485448511521
+        ],
+        "location_error_cm": 7.044971966636703,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00112.png",
+      "time": 24.16666792705655,
+      "sha256": "957dffedad81377b7a17ec092f599724466391ae5083eae6b00706d91ade3b10",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1231542,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          820.8628349174189,
+          366.10622971907515,
+          464.6439919150291
+        ],
+        "expected_cm": [
+          822.2313649528046,
+          360.1052618200547,
+          465.8452431586037
+        ],
+        "location_error_cm": 6.271163746308664,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00113.png",
+      "time": 24.250001264736056,
+      "sha256": "7c8e41f1589f6f4781f34c075d1b392ad881ce35dec99a9d6f56262fc151e469",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1247466,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          828.101669443447,
+          337.12917367199555,
+          476.0562491546037
+        ],
+        "expected_cm": [
+          829.645951626628,
+          331.5906116507285,
+          479.620663283506
+        ],
+        "location_error_cm": 6.765022158650383,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00114.png",
+      "time": 24.33333460241556,
+      "sha256": "b952366366c38bced3a377930f3a1a9ae7203cb42a885034f8573050daf1e7b5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1226996,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          835.9998710964646,
+          309.80079526121,
+          495.56815857554454
+        ],
+        "expected_cm": [
+          837.6149791778764,
+          304.37217903487465,
+          499.57534409987227
+        ],
+        "location_error_cm": 6.938010094678069,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00115.png",
+      "time": 24.416667940095067,
+      "sha256": "8fdae34cae6f60a6b3a315e6e9cddade1a6c5599e74871c9d62df36d63a738c6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1189107,
+      "trailing_bytes": 0,
+      "phase": "two_rowers",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          844.1393209348041,
+          282.3641840047097,
+          513.5303462858917
+        ],
+        "expected_cm": [
+          845.7902054955939,
+          276.7197992986378,
+          516.2248925183104
+        ],
+        "location_error_cm": 6.468777159698332,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": -88.53556135589268
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00116.png",
+      "time": 24.500001277774572,
+      "sha256": "2a55cde1053cff3af9be3a3ba65a06c3873f86b47f3d81f217964bf854e6eee1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1218188,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          814.9622607707362,
+          -639.443335842578,
+          541.5676260207705
+        ],
+        "expected_cm": [
+          816.683198704627,
+          -644.5330970010052,
+          542.300599379806
+        ],
+        "location_error_cm": 5.4225958698020875,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00117.png",
+      "time": 24.583334615454078,
+      "sha256": "60af61809013cbcdb03ebb2503503684398da13a8f1b147e3a122f39c240d1b6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1261620,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          823.7141742452314,
+          -664.0313542418094,
+          542.3908539385516
+        ],
+        "expected_cm": [
+          825.5254582059607,
+          -668.6915713611879,
+          541.9606297501529
+        ],
+        "location_error_cm": 5.018313067000446,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00118.png",
+      "time": 24.666667953133583,
+      "sha256": "e199d3a31ce40d1396ee54e1be90c8a718e80d8fc87d0371677166ff5f265df8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1266685,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          832.9650557022804,
+          -686.506568404222,
+          540.0955193032156
+        ],
+        "expected_cm": [
+          834.8210668761192,
+          -690.7676937128078,
+          539.8486742918503
+        ],
+        "location_error_cm": 4.654341933347949,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00119.png",
+      "time": 24.75000129081309,
+      "sha256": "3104b44fb1542e59e209c6de93f6db68a635548b6af7d78929e766d0a901ca57",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1285801,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          842.2535288431667,
+          -707.3052279944068,
+          540.7750677022618
+        ],
+        "expected_cm": [
+          844.148560432917,
+          -711.3478365556505,
+          541.5743320196462
+        ],
+        "location_error_cm": 4.535708561474847,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00120.png",
+      "time": 24.833334628492594,
+      "sha256": "a633cfa60df868ae58f2fa1afdc2294def49453524e590be14520b3669f0e532",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1278280,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          851.8614236147192,
+          -727.148459481419,
+          547.088813318498
+        ],
+        "expected_cm": [
+          853.8179261403112,
+          -730.9971533918294,
+          548.9604178741669
+        ],
+        "location_error_cm": 4.70566154344733,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00121.png",
+      "time": 24.9166679661721,
+      "sha256": "7cbbc08779552d2a2f1c77a45dbd95b00718e527e6ba41a87cbdc5ffca1ade7b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1274023,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          861.7247563306224,
+          -745.8961072255727,
+          557.4375540624012
+        ],
+        "expected_cm": [
+          863.7102554984008,
+          -749.4473372376026,
+          559.6061004596595
+        ],
+        "location_error_cm": 4.610426772073547,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00122.png",
+      "time": 25.000001303851604,
+      "sha256": "10459228ef52b485e43fe407a0e3e0744fff5f5a328075054893d4e23392bdaf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1271902,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          871.6465875554521,
+          -762.7935032472515,
+          567.0985095534967
+        ],
+        "expected_cm": [
+          873.7083254761031,
+          -765.9214276721116,
+          568.4308693789476
+        ],
+        "location_error_cm": 3.9761611091054134,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00123.png",
+      "time": 25.08333464153111,
+      "sha256": "3650863cb3ff2f786d4bec0edc86f12109cdd98bc248648db77cc3143a323aad",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1256931,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          882.7600011343926,
+          -777.6226624952285,
+          570.3710724971253
+        ],
+        "expected_cm": [
+          885.2040647877961,
+          -780.360741918005,
+          569.861205234679
+        ],
+        "location_error_cm": 3.705467675292145,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00124.png",
+      "time": 25.166667979210615,
+      "sha256": "ed9230f71316727d703aefd1a0774f661019a843ec5ea0fcdde34cc05c2f569b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1240923,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          894.625254322649,
+          -790.7223540563346,
+          563.5282793918561
+        ],
+        "expected_cm": [
+          896.9019788618825,
+          -793.1231094840252,
+          560.9476769644616
+        ],
+        "location_error_cm": 4.19602313380289,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00125.png",
+      "time": 25.25000131689012,
+      "sha256": "720fe33c61ed752b77d375ad652eb1d1a8db33f09ff794a154aaade735ce15c2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1242968,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          905.770586827199,
+          -801.9288056406485,
+          547.4409513741234
+        ],
+        "expected_cm": [
+          907.9398730522252,
+          -803.9449137923073,
+          543.4590989906018
+        ],
+        "location_error_cm": 4.9624231187424686,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00126.png",
+      "time": 25.333334654569626,
+      "sha256": "bf9d5a23fef6369131941d0cb142383fab8042c2254707340942e7554d3b130c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1227862,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          916.4800011680885,
+          -811.3753428706491,
+          526.5260049097574
+        ],
+        "expected_cm": [
+          918.5878700316829,
+          -813.0962587544375,
+          522.3000288555199
+        ],
+        "location_error_cm": 5.026284535934474,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Runs/20261014T202357Z_rafts_d07eabfb/frames/00127.png",
+      "time": 25.41666799224913,
+      "sha256": "642feb6d834ae7fd2bd9b371418c2574487feacf0314e8b786ac41f2f6508670",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1273360,
+      "trailing_bytes": 0,
+      "phase": "released",
+      "clip_window": "storm_brush_rowing",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          926.9444765531533,
+          -819.5736641107087,
+          506.94295305217645
+        ],
+        "expected_cm": [
+          929.0194220268232,
+          -821.1147681179016,
+          503.7156267527829
+        ],
+        "location_error_cm": 4.134735217936751,
+        "rotation_error_degrees": 0.0,
+        "review_view": "two_front",
+        "field_of_view": 60.0,
+        "actual_rowing_view_yaw_degrees": 70.21184903148152
+      },
+      "client_dimensions": true
+    }
+  ]
+}

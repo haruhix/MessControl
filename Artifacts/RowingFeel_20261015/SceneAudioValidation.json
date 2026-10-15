@@ -1,0 +1,367 @@
+{
+  "status": "passed",
+  "checks": {
+    "two_finite_sources_repeat_on_real_completion": true,
+    "unchanged_scene_continues_without_restart": true,
+    "crossfade_two_layers_bounded_four_voices": true,
+    "rapid_selection_keeps_latest_sources": true,
+    "empty_scene_releases_both_layers": true,
+    "stop_releases_all_voices": true,
+    "component_endplay_stops_owned_voices": true,
+    "completed_mixer_output_has_nonzero_pcm": true
+  },
+  "scope": "One owned standalone PIE; isolated transient palette/component; technical finite WAV fixtures",
+  "technical_sources": [
+    "/Game/Audio/S_Complete.S_Complete",
+    "/Game/Audio/S_DayStart.S_DayStart",
+    "/Game/Audio/S_Lose.S_Lose",
+    "/Game/Audio/S_Win.S_Win"
+  ],
+  "mixer_capture": {
+    "path": "E:\\DEVGAME\\MessControl\\Saved\\SceneAudio_20261015\\20261015T010210Z_d135a03e\\SceneAudio.wav",
+    "seconds": 7.04,
+    "channels": 2,
+    "sample_rate": 48000,
+    "peak": 0.02197265625,
+    "rms": 0.003464730522035855,
+    "bytes": 1351724
+  },
+  "audibility_basis": "Master mixer capture is global output, not isolated per-layer audibility or artistic approval",
+  "coverage_gaps": [
+    "Cold async-load supersession is deferred: unloaded soft-reference assignment has not been verified"
+  ],
+  "restored": true,
+  "saved_DA_places": {
+    "saved": true,
+    "sfx_unchanged": true,
+    "scene_keys": [
+      "CataclysmJellies",
+      "CataclysmRafts",
+      "ColdCola",
+      "FinalBoss",
+      "FogBrawl",
+      "Gameplay",
+      "Hub",
+      "IceEvent",
+      "MainMenu",
+      "NutEncounter",
+      "Relax"
+    ],
+    "state": {
+      "events": {
+        "brush": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Brush.S_Brush"
+            }
+          ],
+          "volume": 0.2199999988079071,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "complete": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Complete.S_Complete"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "dayStart": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_DayStart.S_DayStart"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "fall": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Fall.S_Fall"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "hit": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Hit.S_Hit"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "jump": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Jump.S_Jump"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "lose": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Lose.S_Lose"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "pull": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Pull.S_Pull"
+            }
+          ],
+          "volume": 0.2199999988079071,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "repair": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Repair.S_Repair"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "standUp": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_StandUp.S_StandUp"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "step": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Step.S_Step"
+            }
+          ],
+          "volume": 0.2199999988079071,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "whoosh": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Whoosh.S_Whoosh"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        },
+        "win": {
+          "sounds": [
+            {
+              "refPath": "/Game/Audio/S_Win.S_Win"
+            }
+          ],
+          "volume": 0.6000000238418579,
+          "pitchMin": 0.9200000166893005,
+          "pitchMax": 1.0800000429153442
+        }
+      },
+      "scenes": {
+        "mainMenu": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "hub": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "relax": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "gameplay": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "nutEncounter": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "iceEvent": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "fogBrawl": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "cataclysmRafts": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "cataclysmJellies": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "coldCola": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        },
+        "finalBoss": {
+          "music": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          },
+          "ambience": {
+            "sound": "None",
+            "volume": 0.3499999940395355,
+            "bRepeatOnFinish": true,
+            "fadeInSeconds": 1,
+            "fadeOutSeconds": 1
+          }
+        }
+      }
+    },
+    "dirty_content": [],
+    "dirty_maps": []
+  },
+  "build": "Editor_AudioRepeat approved cold build passed in41.08seconds; local workspace includes unrelated pending changes",
+  "repeat_volume": "Native repeat uses FadeIn(0, Active.Volume); plain Play would reset the new active sound fader to1. Completed mixer recording is global output, not isolated per-layer gain proof."
+}

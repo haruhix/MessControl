@@ -28,12 +28,22 @@
 #include "MCTutorialWidget.h"
 #include "MCTutorialDirector.h"
 #include "MCGameplayHUD.h"
+#include "MCSceneAudioComponent.h"
+#include "MCCataclysmEvent.h"
+#include "MCIceEvent.h"
+#include "MCFogBrawlEvent.h"
+#include "MCNutRainEvent.h"
+#include "MCColdCola.h"
 
 void AMCPlayerController::BeginPlay()
 {
     Super::BeginPlay();
     if (IsLocalController())
     {
+        if(!BackgroundSoundPalette) BackgroundSoundPalette=LoadObject<UMCSoundPalette>(nullptr,TEXT("/Game/Data/DA_MouthSounds.DA_MouthSounds"));
+        SceneAudio=NewObject<UMCSceneAudioComponent>(this,TEXT("BackgroundSceneAudio"));
+        AddInstanceComponent(SceneAudio); SceneAudio->RegisterComponent();
+        RefreshBackgroundAudio();
         if (auto* Steam=GetGameInstance()->GetSubsystem<UMCSteamSessionSubsystem>()) Steam->RefreshAvailability();
         PrototypeWidget = CreateWidget<UMCPrototypeWidget>(this,UMCPrototypeWidget::StaticClass());
         PrototypeWidget->AddToViewport(); UpdateInputMode();
@@ -75,6 +85,10 @@ void AMCPlayerController::Tick(float DeltaSeconds)
     if (HasAuthority() && bPerkChoicePauseRequested && !HasAuthoritativePerkChoice())
         ServerSetPerkChoicePause_Implementation(false);
     if (!IsLocalController()) return;
+    if(GetWorld()->GetRealTimeSeconds()>=NextBackgroundAudioAt) {
+        NextBackgroundAudioAt=GetWorld()->GetRealTimeSeconds()+.5;
+        RefreshBackgroundAudio();
+    }
     if (GetWorld()->GetTimeSeconds()>=NextFrontEndCheck) { NextFrontEndCheck=GetWorld()->GetTimeSeconds()+.1; RefreshFrontEnd(); }
     // Choice maintenance must keep running while gameplay time and timers are paused.
     if (GetWorld()->GetRealTimeSeconds()>=NextLevelChoiceCheck) {
@@ -93,6 +107,38 @@ void AMCPlayerController::Tick(float DeltaSeconds)
         ApplySpectatorOrbitInput(FVector2D(X,Y));
         ZoomSpectatorCamera(GetInputAnalogKeyState(EKeys::MouseWheelAxis));
     }
+}
+void AMCPlayerController::SetBackgroundAudioContext(FName Context)
+{
+    BackgroundAudioContextOverride=Context;
+    RefreshBackgroundAudio();
+}
+void AMCPlayerController::RefreshBackgroundAudio()
+{
+    if(!IsLocalController() || !SceneAudio || !GetWorld()) return;
+    FName Context=BackgroundAudioContextOverride;
+    if(Context.IsNone()) {
+        auto ChooseContext=[&]() -> FName {
+            for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
+                if(It->IsBossAlive() && It->Runtime.State!=EMCBossState::Dormant
+                    && It->Runtime.AnimationPreview==EMCBossAnimationPreview::None) return TEXT("FinalBoss");
+            if(const auto* Event=AMCCataclysmEvent::FindActive(GetWorld())) {
+                if(Event->Phase==EMCCataclysmPhase::Cleanup) return TEXT("Relax");
+                return Event->Variant==EMCCataclysmVariant::Jellies?FName(TEXT("CataclysmJellies")):FName(TEXT("CataclysmRafts"));
+            }
+            for(TActorIterator<AMCIceEvent> It(GetWorld());It;++It) if(It->IsActive()) return TEXT("IceEvent");
+            for(TActorIterator<AMCFogBrawlEvent> It(GetWorld());It;++It) if(It->IsActive()) return TEXT("FogBrawl");
+            for(TActorIterator<AMCNutRainEvent> It(GetWorld());It;++It)
+                if(It->Stage!=EMCNutRainStage::Idle && It->Stage!=EMCNutRainStage::Complete) return TEXT("NutEncounter");
+            for(TActorIterator<AMCColdColaEvent> It(GetWorld());It;++It) if(It->bActive) return TEXT("ColdCola");
+            const auto* Game=GetWorld()->GetGameState<AMCGameState>();
+            if(!Game || Game->bLobbyWaiting || Game->Phase!=EMCShiftPhase::Working
+                || (Game->DirectorState.bEnabled && Game->DirectorState.Pacing==EMCGameDirectorPacing::Rest)) return TEXT("Relax");
+            return TEXT("Gameplay");
+        };
+        Context=ChooseContext();
+    }
+    SceneAudio->SetScene(BackgroundSoundPalette,Context);
 }
 void AMCPlayerController::CalcCamera(float DeltaTime,FMinimalViewInfo& OutResult)
 {

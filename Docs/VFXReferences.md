@@ -220,3 +220,22 @@ The mask edges remain angular and the coating fairly flat; existing white hit
 flashes partly hide the gel silhouette. This center-arena run coated no teeth,
 so nearby tooth presentation and full encounter cleanup remain separate checks.
 Evidence and genuine clips are in `Artifacts/JellyPaint_20261015`.
+
+## Original coffee slime form and motion — 2026-10-15
+
+| Original source | Applicable technique | MessControl authoring status |
+|---|---|---|
+| [Ryan King: Cute Blob Character](https://ryanking.artstation.com/projects/ELzlg8), [creator's animation-process post](https://blenderartists.org/t/cute-blob-character-animation-process/1247461) | Large readable facial forms, a simple gel silhouette and controlled wet highlights. | Researched before generation. The original coffee slime uses espresso gel, ivory eyes/mauve lids matching the project's Tooth style, a scalloped foot and milky crema curl. No creator mesh, green palette, arms or reference textures copied. Generated concept and authored Blender source are in `ArtSource/CoffeeSlime`. |
+| [Blender Studio: Simple Bouncing Ball, Part 1](https://studio.blender.org/training/animation-fundamentals/5d70d714521d407842bf90fd/), [Into Animation: squash and stretch rigging](https://www.intoanimation.com/articles/squash-and-stretch---blender-rigging-tutorial) | Anticipation, spacing, aerial stretch, impact squash and delayed settling communicate elastic motion. | Applied in five bone-keyed actions: Idle, Hop, Hurt, PreBurst and Burst. The hop has separate compression, flight and landing poses; foam settles with delay. PreBurst grows in all three axes and Burst begins from the matching swollen pose. No soft-body/fluid cache or Python-only animation handler is required. |
+| [Blender: armature skinning](https://docs.blender.org/manual/en/latest/animation/armatures/skinning/introduction.html), [armature modifier](https://docs.blender.org/manual/en/latest/modeling/modifiers/deform/armature.html) | Bound local deformations with stable hierarchy and normalized vertex weights. | A single 18,236-triangle mesh uses five bones and at most two normalized influences. UV-mapped original 512² color/roughness images preserve opaque coffee and matte crema materials. Fresh Blender FBX/GLB imports pass technical checks; static/motion renders were inspected. Engine import, gameplay-camera acceptance and performance evidence are recorded separately by the integration workflow. |
+
+The research informs reusable form/material/motion techniques rather than a copied
+character. The asset's source, contract, fixed views and pose sheets live in
+`ArtSource/CoffeeSlime/v1`; its existing native paint and rupture effects remain
+separate gameplay presentation. Source `.blend`/GLB use meters; canonical UE FBX
+bakes geometry, rest bones and translation keys into centimeters with unit root
+scale. The first meter-space FBX contract failed the real engine hop gate; the
+corrected centimeter set passed with five bones, root scale1 and 33.998cm hop.
+Exact tested bytes are promoted under `v1/exports`. Blender appearance evidence
+does not establish Unreal material parity, network behavior or runtime frame cost;
+gameplay-camera and runtime acceptance remain separate integration checks.

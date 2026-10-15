@@ -28,6 +28,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "MCLocomotionCycle.h"
 #include "TwoBoneIK.h"
+#include "FABRIK.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/Skeleton.h"
 #include "Misc/CommandLine.h"
@@ -231,11 +232,11 @@ public:
             RowingUp=World.InverseTransformVectorNoScale(DeckUp).GetSafeNormal();
             // Distinct reach, loaded pull and raised recovery share the brush's
             // exact cycle. The crown carries the effort, rather than hovering still.
-            RowingLean=FMath::Lerp(-5.f,12.f,(Stroke.Reach+1.f)*.5f);
-            RowingTwist=Sign*(Stroke.Reach*6.f+Stroke.Power*2.f);
-            RowingSideDip=Sign*(1.5f+Stroke.Power*2.f);
-            RowingCrouch=1.5f+Stroke.Power*2.f;
-            RowingReach=Stroke.Reach*3.f;
+            RowingLean=FMath::Lerp(-8.f,16.f,(Stroke.Reach+1.f)*.5f);
+            RowingTwist=Sign*(Stroke.Reach*7.f+Stroke.Power*3.f);
+            RowingSideDip=Sign*(.75f+Stroke.Power*3.f);
+            RowingCrouch=1.f+Stroke.Power*3.5f;
+            RowingReach=Stroke.Reach*5.5f;
             // Use the actual player's brush frame; its side can change while
             // they walk across the deck, independently of their network slot.
             const auto* BrushVisual=Raft->RowingBrushFor(Tooth);
@@ -298,20 +299,103 @@ public:
                 Rebuild();
             }
         }
-        for(int32 Side=0;Side<2;++Side) {
+        if(Row) {
+            // Keep one rigid shaft inside both arms' reachable space. Clamping
+            // each palm independently can leave the support hand beside it.
+            FVector Origins[2];double Reaches[2]={0.,0.};
+            for(int32 Side=0;Side<2;++Side) {
+                const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
+                const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
+                const int32 Upper=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("arm_l"):TEXT("arm_r")));
+                const int32 Shoulder=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("shoulder_l"):TEXT("shoulder_r")));
+                if(Hand<0 || Lower<0 || Upper<0 || Ref.GetParentIndex(Hand)!=Lower || Ref.GetParentIndex(Lower)!=Upper) continue;
+                const bool Full=Shoulder>=0 && Ref.GetParentIndex(Upper)==Shoulder;
+                Origins[Side]=CS[Full?Shoulder:Upper].GetLocation();
+                Reaches[Side]=(FVector::Distance(CS[Upper].GetLocation(),CS[Lower].GetLocation())
+                    +FVector::Distance(CS[Lower].GetLocation(),CS[Hand].GetLocation())
+                    +(Full?FVector::Distance(CS[Shoulder].GetLocation(),CS[Upper].GetLocation()):0.))*.98;
+            }
+            if(Reaches[0]>1. && Reaches[1]>1.) {
+                const FVector Separation=RowingHands[0].GetLocation()-RowingHands[1].GetLocation();
+                FVector Grip=RowingHands[1].GetLocation();
+                for(int32 Pass=0;Pass<8;++Pass) for(int32 Side=1;Side>=0;--Side) {
+                    const FVector Offset=Side==0?Separation:FVector::ZeroVector;
+                    Grip=Origins[Side]+(Grip+Offset-Origins[Side]).GetClampedToMaxSize(Reaches[Side])-Offset;
+                }
+                RowingHands[1].SetLocation(Grip);
+                RowingHands[0].SetLocation(Grip+Separation);
+            }
+        }
+        // The right palm owns the brush mount. Solve it first so the support
+        // palm follows the reachable shaft, including a clamped right arm.
+        for(int32 Side=1;Side>=0;--Side) {
             const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("hand_l"):TEXT("hand_r")));
             const int32 Lower=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("forearm_l"):TEXT("forearm_r")));
             if(Hand<0 || Lower<0 || Ref.GetParentIndex(Hand)!=Lower) continue;
+            if(Row && Side==0 && Raft->GetRowingHandTargets(Tooth,Left,Right))
+                RowingHands[0].SetLocation(World.InverseTransformPosition(Left));
             FTransform Goal=RowingHands[Side];Goal.SetScale3D(CS[Hand].GetScale3D());
             FTransform Blended;Blended.Blend(CS[Hand],Goal,RowingPoseAlpha);
-            // Move the entire compact wrist branch rigidly; do not stretch a
-            // human arm chain or rescale its mitten/fingers to reach the handle.
             const FTransform Branch=Ref.GetRefBonePose()[Hand].Inverse()*Blended;
-            const int32 Parent=Ref.GetParentIndex(Lower);
-            Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);Pose[Hand]=Ref.GetRefBonePose()[Hand];Rebuild();
+            const int32 Upper=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("arm_l"):TEXT("arm_r")));
+            const int32 Shoulder=Ref.FindBoneIndex(Tooth->RigBone(Side==0?TEXT("shoulder_l"):TEXT("shoulder_r")));
+            const bool HasArm=Upper>=0 && Ref.GetParentIndex(Lower)==Upper;
+            // Root_x has three moving segments. Solving all three reaches the
+            // shaft without fixing the forearm rotation to the palm rotation.
+            const bool UseShoulder=HasArm && Shoulder>=0 && Ref.GetParentIndex(Upper)==Shoulder;
+            const int32 Root=UseShoulder?Shoulder:Upper;
+            const int32 Joint=UseShoulder?Upper:Lower;
+            const int32 End=UseShoulder?Lower:Hand;
+            const FTransform EndGoal=UseShoulder?Branch:Blended;
+            if(UseShoulder) {
+                const int32 Bones[]={Shoulder,Upper,Lower,Hand};
+                TArray<FFABRIKChainLink> Chain;Chain.Reserve(4);
+                double Reach=0.;
+                for(int32 J=0;J<4;++J) {
+                    const double Segment=J>0?FVector::Distance(CS[Bones[J-1]].GetLocation(),CS[Bones[J]].GetLocation()):0.;
+                    Reach+=Segment;
+                    Chain.Emplace(CS[Bones[J]].GetLocation(),Segment,Bones[J],J);
+                    if(J>0) Chain.Last().DefaultDirToParent=(Chain[J-1].Position-Chain[J].Position).GetSafeNormal();
+                }
+                const FVector Target=Chain[0].Position+(Blended.GetLocation()-Chain[0].Position).GetClampedToMaxSize(Reach*.995);
+                AnimationCore::SolveFabrik(Chain,Target,Reach,.05,12);
+                FTransform Solved[4];
+                for(int32 J=0;J<4;++J) {
+                    Solved[J]=CS[Bones[J]];Solved[J].SetLocation(Chain[J].Position);
+                    if(J<3) {
+                        const FVector Before=(CS[Bones[J+1]].GetLocation()-CS[Bones[J]].GetLocation()).GetSafeNormal();
+                        const FVector After=(Chain[J+1].Position-Chain[J].Position).GetSafeNormal();
+                        Solved[J].SetRotation((FQuat::FindBetweenNormals(Before,After)*Solved[J].GetRotation()).GetNormalized());
+                    } else Solved[J].SetRotation(Blended.GetRotation());
+                    const int32 Parent=Ref.GetParentIndex(Bones[J]);
+                    Pose[Bones[J]]=Parent<0?Solved[J]:Solved[J].GetRelativeTransform(J>0?Solved[J-1]:CS[Parent]);
+                }
+            } else if(HasArm && FVector::DistSquared(CS[Root].GetLocation(),CS[Joint].GetLocation())>4.
+                && FVector::DistSquared(CS[Joint].GetLocation(),CS[End].GetLocation())>4.) {
+                FTransform U=CS[Root],L=CS[Joint],H=CS[End];
+                const float ElbowSide=Side==0?-1.f:1.f;
+                const FVector RowingPole=U.GetLocation()+RowingRight*(ElbowSide*45.f)-RowingForward*18.f-RowingUp*12.f;
+                const FVector Pole=FMath::Lerp(L.GetLocation(),RowingPole,RowingPoseAlpha);
+                const double Reach=(FVector::Distance(U.GetLocation(),L.GetLocation())+FVector::Distance(L.GetLocation(),H.GetLocation()))*.995;
+                const FVector Target=U.GetLocation()+(EndGoal.GetLocation()-U.GetLocation()).GetClampedToMaxSize(Reach);
+                AnimationCore::SolveTwoBoneIK(U,L,H,Pole,Target,false,1.,1.);
+                H.SetRotation(EndGoal.GetRotation());
+                const int32 Bones[]={Root,Joint,End};const FTransform Solved[]={U,L,H};
+                for(int32 J=0;J<3;++J) {
+                    const int32 B=Bones[J],P=Ref.GetParentIndex(B);
+                    Pose[B]=P<0?Solved[J]:Solved[J].GetRelativeTransform(J>0?Solved[J-1]:CS[P]);
+                }
+                if(UseShoulder) Pose[Hand]=Ref.GetRefBonePose()[Hand];
+            } else {
+                // Compact rigs without a usable arm chain keep their rigid,
+                // floating wrist branch; never scale the mitten or fingers.
+                const int32 Parent=Ref.GetParentIndex(Lower);
+                Pose[Lower]=Parent<0?Branch:Branch.GetRelativeTransform(CS[Parent]);
+                Pose[Hand]=Ref.GetRefBonePose()[Hand];
+            }
+            Rebuild();
+            if(Row && Side==1) Raft->AlignRowingBrushToHand(Tooth,CS[Hand]*World);
         }
-        const int32 RightHand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
-        if(Row && RightHand>=0) Raft->AlignRowingBrushToHand(Tooth,CS[RightHand]*World);
     }
     void CollectionAndYawnPose(const AMCToothCharacter* Tooth,const FReferenceSkeleton& Ref)
     {

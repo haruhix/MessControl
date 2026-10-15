@@ -796,6 +796,20 @@ bool AMCToothCharacter::IsRowing() const
             && !HasFrozenLegs() && GetRowingRaft() && (!Grip || !Grip->IsBraceInputHeld());
     return bRowing;
 }
+bool AMCToothCharacter::WantsRowingFacing(FVector& Direction) const
+{
+    const auto* Raft=GetRowingRaft();
+    if(!IsRowing() || !Raft) return false;
+    // The brush and torso already share this bounded visual heading. Following
+    // it exactly keeps movement input and rotating deck bases from facing the
+    // passenger away from their own camera-selected stroke.
+    Direction=Raft->RowingVisualDirectionFor(this).GetSafeNormal2D();
+    if(Direction.IsNearlyZero()) {
+        const FVector2D Aim=IsLocallyControlled()?WorldRowingInput():RowingInput;
+        Direction=FVector(Aim.X,Aim.Y,0).GetSafeNormal2D();
+    }
+    return !Direction.IsNearlyZero() && !Direction.ContainsNaN();
+}
 FVector2D AMCToothCharacter::WorldRowingInput() const
 {
     // Stroke aim follows the view actually shown to this player, including view

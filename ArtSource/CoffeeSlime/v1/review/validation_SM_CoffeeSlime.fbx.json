@@ -1,0 +1,74 @@
+{
+  "asset": "E:\\DEVGAME\\MessControl\\ArtSource\\CoffeeSlime\\v1\\exports\\SM_CoffeeSlime.fbx",
+  "blender_version": "5.1.0",
+  "meshes": [
+    {
+      "name": "SM_CoffeeSlime",
+      "vertices": 9148,
+      "triangles": 18236,
+      "materials": [
+        "M_CoffeeGel",
+        "M_MilkFoam",
+        "M_Ivory",
+        "M_MauveLid",
+        "M_EspressoDark",
+        "M_CaramelLip"
+      ],
+      "bounds_min_m": [
+        -0.8251660466194153,
+        -0.8198394179344177,
+        0.0
+      ],
+      "bounds_max_m": [
+        0.8548339009284973,
+        0.7601606249809265,
+        1.2999999523162842
+      ],
+      "dimensions_m": [
+        1.6799999475479126,
+        1.5800000429153442,
+        1.2999999523162842
+      ],
+      "raw_seam_edges": 0,
+      "nonmanifold_edges": 0,
+      "degenerate_triangles": 0,
+      "uv_finite": true,
+      "max_skin_influences": 0,
+      "unnormalized_vertices": 0,
+      "missing_textures": []
+    },
+    {
+      "name": "UCX_SM_CoffeeSlime_00",
+      "vertices": 114,
+      "triangles": 224,
+      "materials": [],
+      "bounds_min_m": [
+        -0.7199999690055847,
+        -0.7200000286102295,
+        0.0
+      ],
+      "bounds_max_m": [
+        0.7200000286102295,
+        0.7200000286102295,
+        1.2999999523162842
+      ],
+      "dimensions_m": [
+        1.440000057220459,
+        1.440000057220459,
+        1.2999999523162842
+      ],
+      "raw_seam_edges": 0,
+      "nonmanifold_edges": 0,
+      "degenerate_triangles": 0,
+      "uv_finite": true,
+      "max_skin_influences": 0,
+      "unnormalized_vertices": 0,
+      "missing_textures": []
+    }
+  ],
+  "rigs": [],
+  "actions": [],
+  "errors": [],
+  "warnings": [],
+  "technical_pass": true
+}

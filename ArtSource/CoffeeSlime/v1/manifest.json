@@ -1,0 +1,145 @@
+{
+  "asset": "CoffeeSlime",
+  "blender_version": "5.1.0",
+  "units": "meters",
+  "forward": "+X",
+  "up": "+Z",
+  "pivot": "floor",
+  "expected_dimensions_m": [
+    1.68,
+    1.58,
+    1.3
+  ],
+  "required_skinned_meshes": [
+    "SK_CoffeeSlime"
+  ],
+  "triangle_budget": 25000,
+  "max_skin_influences": 4,
+  "material_slots": [
+    "M_CoffeeGel",
+    "M_MilkFoam",
+    "M_Ivory",
+    "M_MauveLid",
+    "M_EspressoDark",
+    "M_CaramelLip"
+  ],
+  "skeleton": {
+    "name": "SK_CoffeeSlime_Rig",
+    "required_bones": [
+      "root",
+      "gel_body",
+      "gel_top",
+      "face",
+      "foam_tip"
+    ],
+    "bone_parents": {
+      "root": null,
+      "gel_body": "root",
+      "gel_top": "gel_body",
+      "face": "gel_body",
+      "foam_tip": "gel_top"
+    }
+  },
+  "clips": {
+    "A_CoffeeSlime_Idle": {
+      "frame_start": 1,
+      "frame_end": 121,
+      "fps": 100,
+      "critical_frames": [
+        1,
+        31,
+        61,
+        91,
+        121
+      ],
+      "loop": true,
+      "duration_seconds": 1.2
+    },
+    "A_CoffeeSlime_Hop": {
+      "frame_start": 1,
+      "frame_end": 91,
+      "fps": 100,
+      "critical_frames": [
+        1,
+        17,
+        27,
+        44,
+        61,
+        71,
+        77,
+        85,
+        91
+      ],
+      "loop": true,
+      "duration_seconds": 0.9
+    },
+    "A_CoffeeSlime_Hurt": {
+      "frame_start": 1,
+      "frame_end": 29,
+      "fps": 100,
+      "critical_frames": [
+        1,
+        5,
+        12,
+        20,
+        29
+      ],
+      "loop": false,
+      "duration_seconds": 0.28
+    },
+    "A_CoffeeSlime_PreBurst": {
+      "frame_start": 1,
+      "frame_end": 61,
+      "fps": 100,
+      "critical_frames": [
+        1,
+        16,
+        31,
+        46,
+        61
+      ],
+      "loop": false,
+      "duration_seconds": 0.6
+    },
+    "A_CoffeeSlime_Burst": {
+      "frame_start": 1,
+      "frame_end": 19,
+      "fps": 100,
+      "critical_frames": [
+        1,
+        5,
+        10,
+        19
+      ],
+      "loop": false,
+      "duration_seconds": 0.18
+    }
+  },
+  "integration": {
+    "ue_scale": 1,
+    "component_floor_offset_cm": "-BodyRadius-4",
+    "collision": "Keep native sphere radius72cm; optional static UCX is authoring reference only",
+    "remove_old_presentation": [
+      "green MID",
+      "separate sphere eyes",
+      "native procedural body squash/lift"
+    ],
+    "gameplay_untouched": [
+      "wandering",
+      "paint trails",
+      "health",
+      "rupture",
+      "groundburst",
+      "droplets"
+    ]
+  },
+  "fbx_export": {
+    "coordinate_units": "centimeters",
+    "coordinate_scale_from_source": 100,
+    "scene_unit_scale_length": 0.01,
+    "fbx_unit_scale_factor": 1,
+    "object_and_reference_root_scale": 1,
+    "wrapper_object_name": "Armature",
+    "canonical_directory": "exports"
+  }
+}

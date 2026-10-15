@@ -1,0 +1,75 @@
+{
+  "asset": "E:\\DEVGAME\\MessControl\\ArtSource\\CoffeeSlime\\v1\\exports\\A_CoffeeSlime_Hop.fbx",
+  "blender_version": "5.1.0",
+  "meshes": [],
+  "rigs": [
+    {
+      "name": "Armature",
+      "bones": {
+        "root": null,
+        "gel_body": "root",
+        "gel_top": "gel_body",
+        "foam_tip": "gel_top",
+        "face": "gel_body"
+      },
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "Armature|A_CoffeeSlime_Hop",
+      "clip": "A_CoffeeSlime_Hop",
+      "frame_range": [
+        2.0,
+        92.0
+      ],
+      "duration_seconds": 0.9,
+      "critical_bounds": [
+        {
+          "source_frame": 1,
+          "bounds": []
+        },
+        {
+          "source_frame": 17,
+          "bounds": []
+        },
+        {
+          "source_frame": 27,
+          "bounds": []
+        },
+        {
+          "source_frame": 44,
+          "bounds": []
+        },
+        {
+          "source_frame": 61,
+          "bounds": []
+        },
+        {
+          "source_frame": 71,
+          "bounds": []
+        },
+        {
+          "source_frame": 77,
+          "bounds": []
+        },
+        {
+          "source_frame": 85,
+          "bounds": []
+        },
+        {
+          "source_frame": 91,
+          "bounds": []
+        }
+      ],
+      "max_root_delta": 0
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "technical_pass": true
+}

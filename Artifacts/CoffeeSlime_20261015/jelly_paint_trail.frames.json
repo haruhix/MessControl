@@ -1,0 +1,4193 @@
+{
+  "metadata": {
+    "mode": "paint",
+    "clip": "jelly_paint_trail",
+    "video": "E:/DEVGAME/MessControl/Artifacts/CoffeeSlime_20261015/jelly_paint_trail.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/CoffeeSlime_20261015/jelly_paint_trail.png",
+    "video_sha256": "79c548a714d4e8865d31a1584c540031641338f0931832f19e598fad073c6738",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSlime_20261015/jelly_paint_trail.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSlime_20261015/jelly_paint_trail.ffconcat",
+    "genuine_source_frames": 143,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 8.966667134314775,
+    "source_time_end_seconds": 20.800001084804535,
+    "source_game_span_seconds": 11.83333395048976,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 0.0,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "356"
+        }
+      ],
+      "format": {
+        "duration": "11.866667"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00085.png",
+      "time": 8.966667134314775,
+      "sha256": "02886942f0cc3ce3decfda2d04a391a13dfa1831cb32f5cc129c3add19a12463",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1074626,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -488.22971432361896,
+          -1336.5976288740358,
+          556.2543640136716
+        ],
+        "expected_cm": [
+          -488.22971432361896,
+          -1336.5976288740358,
+          556.2543640136716
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00086.png",
+      "time": 9.05000047199428,
+      "sha256": "d4c817292c68b02385f5698b0a90c53a6dfa0a2c136ddaf7ff4f5542e9606bfc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1112963,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -477.14119585061053,
+          -1352.026416269226,
+          556.3036193847654
+        ],
+        "expected_cm": [
+          -477.14119585061053,
+          -1352.026416269226,
+          556.3036193847654
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00087.png",
+      "time": 9.133333809673786,
+      "sha256": "5e8b33ec8ebecd94b86fc31a3211ddd58b3d46971cc57a084e90182267afdb88",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1088249,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -466.0527384089771,
+          -1367.4552043438648,
+          556.3377532958982
+        ],
+        "expected_cm": [
+          -466.0527384089771,
+          -1367.4552043438648,
+          556.3377532958982
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00088.png",
+      "time": 9.216667147353292,
+      "sha256": "940cb1df2bf0c8fa85f81520ebeed10fc4ceb44a495a57b6761e2e449fce5ae7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1056767,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -460.5085096881603,
+          -1375.1695983811842,
+          556.3273010253904
+        ],
+        "expected_cm": [
+          -460.5085096881603,
+          -1375.1695983811842,
+          556.3273010253904
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00089.png",
+      "time": 9.300000485032797,
+      "sha256": "c87b1d6cd4e9ccb18ae65f52ecd4b8b8685ace142dd6053afc769dc3c1406496",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1029290,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -449.41986983185006,
+          -1390.598323386102,
+          556.3170318603513
+        ],
+        "expected_cm": [
+          -449.41986983185006,
+          -1390.598323386102,
+          556.3170318603513
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00090.png",
+      "time": 9.383333822712302,
+      "sha256": "fec8920a0abb6102287d0a510a52d312e8f90d569c56dd9e5fa03bc6a5e483ef",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094631,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -438.3312299755403,
+          -1406.0270483910201,
+          556.2845153808591
+        ],
+        "expected_cm": [
+          -438.3312299755403,
+          -1406.0270483910201,
+          556.2845153808591
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00091.png",
+      "time": 9.466667160391808,
+      "sha256": "2ddf9ca09e30b33de9434de506d16910039a35f6049e2e66763c0f6c484aba52",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1092133,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -432.7869409027969,
+          -1413.7413807175158,
+          556.2757568359373
+        ],
+        "expected_cm": [
+          -432.7869409027969,
+          -1413.7413807175158,
+          556.2757568359373
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00092.png",
+      "time": 9.550000498071313,
+      "sha256": "ec9bd177fffe372d4320411b8e576ab6fd9abc3811c5c933046742501e1a4faa",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1093388,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -421.6982413740093,
+          -1429.169982980235,
+          556.2093505859373
+        ],
+        "expected_cm": [
+          -421.6982413740093,
+          -1429.169982980235,
+          556.2093505859373
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00093.png",
+      "time": 9.633333835750818,
+      "sha256": "5e1c2bfed9443193095a2d4a488f7b5640fb1671add9d8bbe21c9e079ee1bd4c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1087389,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -410.609663228523,
+          -1444.5986476332268,
+          556.1630859374998
+        ],
+        "expected_cm": [
+          -410.609663228523,
+          -1444.5986476332268,
+          556.1630859374998
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00094.png",
+      "time": 9.716667173430324,
+      "sha256": "be34e57c363587672aa4669e60a1bc0cbb89da19b488e987584f09ab32bfbc28",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1123327,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -405.06531312440484,
+          -1452.3129792802738,
+          556.1201019287107
+        ],
+        "expected_cm": [
+          -405.06531312440484,
+          -1452.3129792802738,
+          556.1201019287107
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00095.png",
+      "time": 9.800000511109829,
+      "sha256": "669dd56e7816a2bceb8d20b3b05d67c4d55f0e9797c016024d6b4c9ff406068e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1108699,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -393.97667394754353,
+          -1467.7416432538168,
+          556.0106353759762
+        ],
+        "expected_cm": [
+          -393.97667394754353,
+          -1467.7416432538168,
+          556.0106353759762
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00096.png",
+      "time": 9.883333848789334,
+      "sha256": "7898969efdfc28eb46da553b59ce8368b87ace5c656ef2080f2bc84a49d0b6fa",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1083722,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -382.8880347706822,
+          -1483.1703072273597,
+          555.9975891113278
+        ],
+        "expected_cm": [
+          -382.8880347706822,
+          -1483.1703072273597,
+          555.9975891113278
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00097.png",
+      "time": 9.96666718646884,
+      "sha256": "83219795ffa39bf578f6fd976b7a53ed69c790a49faafc02572eeb1e2ca4cef8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1050534,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -377.34368466656383,
+          -1490.8846388744068,
+          556.0138092041012
+        ],
+        "expected_cm": [
+          -377.34368466656383,
+          -1490.8846388744068,
+          556.0138092041012
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00098.png",
+      "time": 10.050000524148345,
+      "sha256": "3bfa1cf2c7edd39cae34c3f277472d5acbfb00b1e0c62978084ebc663b9554fb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1119771,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -366.25510652107755,
+          -1506.3133035273984,
+          555.9818267822262
+        ],
+        "expected_cm": [
+          -366.25510652107755,
+          -1506.3133035273984,
+          555.9818267822262
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00099.png",
+      "time": 10.13333386182785,
+      "sha256": "e288d53b8f21f220fd07357d080b65e468f1b07ff945465567544ee9930a8ae2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1129322,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -355.16634528146596,
+          -1521.741966142044,
+          555.928298950195
+        ],
+        "expected_cm": [
+          -355.16634528146596,
+          -1521.741966142044,
+          555.928298950195
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00100.png",
+      "time": 10.216667199507356,
+      "sha256": "086693db7b0a28cdee89caa51101d07f510e3455bbe088042b48e52b404d2aed",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1129808,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -349.6219341459728,
+          -1529.4562971096425,
+          555.9022827148434
+        ],
+        "expected_cm": [
+          -349.6219341459728,
+          -1529.4562971096425,
+          555.9022827148434
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00101.png",
+      "time": 10.300000537186861,
+      "sha256": "9631c577f837e6cb21f7b99f0eed8667048d2156532bc9f449dc4fc802d0e486",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1135873,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -335.2040584580154,
+          -1540.5635742966087,
+          556.2557525634762
+        ],
+        "expected_cm": [
+          -335.2040584580154,
+          -1540.5635742966087,
+          556.2557525634762
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00102.png",
+      "time": 10.383333874866366,
+      "sha256": "41cabcb6ea58fc03d5314426e0a5945bb4e7eecbf6fcea993ec94bc79a079b9e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1169142,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -317.4572520952854,
+          -1547.3494070628672,
+          556.9371490478512
+        ],
+        "expected_cm": [
+          -317.4572520952854,
+          -1547.3494070628672,
+          556.9371490478512
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00103.png",
+      "time": 10.466667212545872,
+      "sha256": "ea7b7a38a57ecf6517a6eed3497a78fc0e0df55b6c6acc58a994a6ab0efab4c6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1146205,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -308.58378822226973,
+          -1550.74229225086,
+          557.2506256103512
+        ],
+        "expected_cm": [
+          -308.58378822226973,
+          -1550.74229225086,
+          557.2506256103512
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00104.png",
+      "time": 10.550000550225377,
+      "sha256": "7f941864303074c75106e4dd00973444df29bf6d7f8407f93ae4ec3cf7b9d851",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1121155,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -290.8369221870621,
+          -1557.5280022749193,
+          557.8603363037106
+        ],
+        "expected_cm": [
+          -290.8369221870621,
+          -1557.5280022749193,
+          557.8603363037106
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00105.png",
+      "time": 10.633333887904882,
+      "sha256": "55035310feebdd71625f1c62cbd3dc981e181b5c9e25cdc9b349d2d5287c2034",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1079668,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -273.09005547240577,
+          -1564.3137733303538,
+          558.4388275146481
+        ],
+        "expected_cm": [
+          -273.09005547240577,
+          -1564.3137733303538,
+          558.4388275146481
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00106.png",
+      "time": 10.716667225584388,
+      "sha256": "3cade11521328b938a8c0ecb570f8ceca49f8fa4a23d4a4f27d0edf731b3118c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1141446,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -264.21659159938986,
+          -1567.7066585183466,
+          558.705642700195
+        ],
+        "expected_cm": [
+          -264.21659159938986,
+          -1567.7066585183466,
+          558.705642700195
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00107.png",
+      "time": 10.800000563263893,
+      "sha256": "8272065c307ca82c45918b079d7b36cda4f2a4af6fd157feb3c154f12182db26",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1155514,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -246.46978591610878,
+          -1574.49243025323,
+          559.2095184326168
+        ],
+        "expected_cm": [
+          -246.46978591610878,
+          -1574.49243025323,
+          559.2095184326168
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00108.png",
+      "time": 10.883333900943398,
+      "sha256": "9a5b0d598a7571ebee3ed343eac704809da5b04b5c490363df66d19b5c75e956",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1143832,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -228.72285749062894,
+          -1581.2782616605905,
+          559.7223510742184
+        ],
+        "expected_cm": [
+          -228.72285749062894,
+          -1581.2782616605905,
+          559.7223510742184
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00109.png",
+      "time": 10.966667238622904,
+      "sha256": "1df745408ebadf9f2878aab1ee50568adc3c9d9e39d494721a0ff0ff0ba9c482",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1130280,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -219.84939361761303,
+          -1584.6711468485837,
+          559.98371887207
+        ],
+        "expected_cm": [
+          -219.84939361761303,
+          -1584.6711468485837,
+          559.98371887207
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00110.png",
+      "time": 11.05000057630241,
+      "sha256": "40d7e63f5ff5a250be2b8707cbb4b38ba5ef5427c3e7d2b8831b7f7fccf78204",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1172600,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -202.10252622350822,
+          -1591.456978935393,
+          560.4470520019528
+        ],
+        "expected_cm": [
+          -202.10252622350822,
+          -1591.456978935393,
+          560.4470520019528
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00111.png",
+      "time": 11.133333913981915,
+      "sha256": "7ab1b4148a2dcd76223a658a25e49ee1b208db6011658695340fe79250f1d9ac",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1148685,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -184.35559847747686,
+          -1598.2427493113787,
+          560.8999633789059
+        ],
+        "expected_cm": [
+          -184.35559847747686,
+          -1598.2427493113787,
+          560.8999633789059
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00112.png",
+      "time": 11.21666725166142,
+      "sha256": "f87b99281ef9c56720a8fce9927a174a706853d075a570cfb7c71a87489956bc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1110472,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -175.48213528390966,
+          -1601.6355734679967,
+          561.131927490234
+        ],
+        "expected_cm": [
+          -175.48213528390966,
+          -1601.6355734679967,
+          561.131927490234
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00113.png",
+      "time": 11.300000589340925,
+      "sha256": "67b0f77072d9127a577ccda8ce8521e16c3311e7bc6628aa340b3ff50feb3dc6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1083807,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -157.73526788980485,
+          -1608.4214055548061,
+          561.5248413085934
+        ],
+        "expected_cm": [
+          -157.73526788980485,
+          -1608.4214055548061,
+          561.5248413085934
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00114.png",
+      "time": 11.38333392702043,
+      "sha256": "01ebc7852e9e188748eb028f46922e4e3818ef007b62310660245f42eace0bc9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1146996,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -139.98834014377348,
+          -1615.2071759307921,
+          561.9039611816403
+        ],
+        "expected_cm": [
+          -139.98834014377348,
+          -1615.2071759307921,
+          561.9039611816403
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00115.png",
+      "time": 11.466667264699936,
+      "sha256": "5a6b75e0ef0affa3b6853e496cde671e3de7c428437112eb892f349b5744426e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1138032,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -131.11487695020628,
+          -1618.6000000874099,
+          562.0796203613278
+        ],
+        "expected_cm": [
+          -131.11487695020628,
+          -1618.6000000874099,
+          562.0796203613278
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00116.png",
+      "time": 11.550000602379441,
+      "sha256": "777d51ddee802654ebe60dc9245f7361cd10d016f0fa6487b209366126fcb505",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1132182,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -113.36801091499865,
+          -1625.3857101114693,
+          562.4167175292965
+        ],
+        "expected_cm": [
+          -113.36801091499865,
+          -1625.3857101114693,
+          562.4167175292965
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00117.png",
+      "time": 11.633333940058947,
+      "sha256": "50934df9a15e7c8b9ce3735a29ce19427282a4445ac6e39036382fac89a39d15",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1123008,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -95.62096314456335,
+          -1632.1712960344325,
+          562.7336425781247
+        ],
+        "expected_cm": [
+          -95.62096314456335,
+          -1632.1712960344325,
+          562.7336425781247
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00118.png",
+      "time": 11.716667277738452,
+      "sha256": "c65bd7532ed5fe0189e4e04b2d0266b943415824a123c7ba516fc3802b93986f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1151757,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -86.74743959906988,
+          -1635.5640584802268,
+          562.9176483154293
+        ],
+        "expected_cm": [
+          -86.74743959906988,
+          -1635.5640584802268,
+          562.9176483154293
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00119.png",
+      "time": 11.800000615417957,
+      "sha256": "7dd37f50cfc93cef7a8c0c6fd44d14bde8f035d8a08b5841e617530cb543a578",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1134021,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -69.00039046973717,
+          -1642.34976646594,
+          563.2298889160153
+        ],
+        "expected_cm": [
+          -69.00039046973717,
+          -1642.34976646594,
+          563.2298889160153
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00120.png",
+      "time": 11.883333953097463,
+      "sha256": "e31ef9e9758232fca67d603ba1c1a549dc614138f69111da0ed73b2d2553347a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1092670,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -82.76863102942463,
+          -1655.4434223930232,
+          562.1027221679684
+        ],
+        "expected_cm": [
+          -82.76863102942463,
+          -1655.4434223930232,
+          562.1027221679684
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00121.png",
+      "time": 11.966667290776968,
+      "sha256": "1af56ce0fa94c9e93b829a7af88ec2b36a377a9fc8d610bf0889a289c93bf9f6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1049978,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -89.65278250440457,
+          -1661.990189664914,
+          561.530364990234
+        ],
+        "expected_cm": [
+          -89.65278250440457,
+          -1661.990189664914,
+          561.530364990234
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00122.png",
+      "time": 12.050000628456473,
+      "sha256": "e4482e69d54b2e3307bc5d09629cf3b36d95a697022b79f3e731f2105c8bc373",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1118745,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -103.42108681326158,
+          -1675.0836021459454,
+          560.4154510498043
+        ],
+        "expected_cm": [
+          -103.42108681326158,
+          -1675.0836021459454,
+          560.4154510498043
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00123.png",
+      "time": 12.133333966135979,
+      "sha256": "25481b5ec68b092aed4216f48da2ae35633bb07b32f2f802288a755dedb8ba07",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1124164,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -117.18944943569909,
+          -1688.1772594319257,
+          559.3365325927731
+        ],
+        "expected_cm": [
+          -117.18944943569909,
+          -1688.1772594319257,
+          559.3365325927731
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00124.png",
+      "time": 12.216667303815484,
+      "sha256": "a47f678c1321413c35ab09cfce9bbc869f7395328954fb8ecbc8e7079bb4bd05",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1096733,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -124.07360226957644,
+          -1694.7239046410664,
+          558.8165893554684
+        ],
+        "expected_cm": [
+          -124.07360226957644,
+          -1694.7239046410664,
+          558.8165893554684
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00125.png",
+      "time": 12.30000064149499,
+      "sha256": "572208eca87f14097ee31df60fcd3155407b82a57eed0813f9241c6caeab1698",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1103940,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -137.8419052195361,
+          -1707.8174391848477,
+          557.7668457031247
+        ],
+        "expected_cm": [
+          -137.8419052195361,
+          -1707.8174391848477,
+          557.7668457031247
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00126.png",
+      "time": 12.383333979174495,
+      "sha256": "71bdfcc6b3bde4e651d52c0de41f9695c8cb7b6053cce42bd845233483c98b01",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1126136,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -151.61027055976842,
+          -1720.9108523453278,
+          556.7466735839839
+        ],
+        "expected_cm": [
+          -151.61027055976842,
+          -1720.9108523453278,
+          556.7466735839839
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00127.png",
+      "time": 12.466667316854,
+      "sha256": "041e9c5c41fa5a83fc7607e771f7005fee271bd0ac2805a04e49d0e081c427db",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1099353,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -158.49442203474814,
+          -1727.4576196172186,
+          556.2417907714839
+        ],
+        "expected_cm": [
+          -158.49442203474814,
+          -1727.4576196172186,
+          556.2417907714839
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00128.png",
+      "time": 12.550000654533505,
+      "sha256": "ddc4ba785586f0f86a9e16ac6b4a0749bab48a5913af2aec500661c441967cbf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1077986,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -172.2627263436052,
+          -1740.55103209825,
+          555.2643585205074
+        ],
+        "expected_cm": [
+          -172.2627263436052,
+          -1740.55103209825,
+          555.2643585205074
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00129.png",
+      "time": 12.63333399221301,
+      "sha256": "f3508cf90544dc766c6a03dcffd5b01e2dadc45bb7518ef17a8f3fe4e18d97e7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1038123,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -186.0310903249399,
+          -1753.6445673214803,
+          554.2871856689449
+        ],
+        "expected_cm": [
+          -186.0310903249399,
+          -1753.6445673214803,
+          554.2871856689449
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00130.png",
+      "time": 12.716667329892516,
+      "sha256": "0bed09be128d64b75c101a856b125fdff514bc09fb081224bbb961a73c8258ac",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1088405,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -192.91524315881725,
+          -1760.1912125306208,
+          553.7909545898433
+        ],
+        "expected_cm": [
+          -192.91524315881725,
+          -1760.1912125306208,
+          553.7909545898433
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00131.png",
+      "time": 12.800000667572021,
+      "sha256": "5c136bf523aee43020b12927b3441c6861df030a3021a72abaf7d4986fb5920c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1108562,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -198.38013276995684,
+          -1757.3445230956083,
+          553.7146301269527
+        ],
+        "expected_cm": [
+          -198.38013276995684,
+          -1757.3445230956083,
+          553.7146301269527
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00132.png",
+      "time": 12.883334005251527,
+      "sha256": "203a835c2867eabc97c5f0e1c51851d347e361dd7e507631e9e0205406030e52",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1099917,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -195.54166735585613,
+          -1738.5578544867506,
+          554.4656982421872
+        ],
+        "expected_cm": [
+          -195.54166735585613,
+          -1738.5578544867506,
+          554.4656982421872
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00133.png",
+      "time": 12.966667342931032,
+      "sha256": "4c0206175eae4c85a815c3794d0ad08c3d873ae390cc52d63fc5a2ce3cfd2931",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094390,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -194.12240413311815,
+          -1729.1645198425974,
+          554.8396606445309
+        ],
+        "expected_cm": [
+          -194.12240413311815,
+          -1729.1645198425974,
+          554.8396606445309
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00134.png",
+      "time": 13.050000680610538,
+      "sha256": "3621b25c87a6a120208a29f16141feffed9106e81e88ba8ca2274d65bf34cadb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1136715,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -191.28387768764242,
+          -1710.377850554291,
+          555.6148681640622
+        ],
+        "expected_cm": [
+          -191.28387768764242,
+          -1710.377850554291,
+          555.6148681640622
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00135.png",
+      "time": 13.133334018290043,
+      "sha256": "7f0844ed79589736f1ac2530473a542acd0c0e362ee874e7518517244b187407",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1128833,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -188.4454109146443,
+          -1691.5913040081832,
+          556.3180084228512
+        ],
+        "expected_cm": [
+          -188.4454109146443,
+          -1691.5913040081832,
+          556.3180084228512
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00136.png",
+      "time": 13.216667355969548,
+      "sha256": "b4398e8c3cf82551e5bfee80ddb8d41a87f2bf40659f51d9fc6306458e9c09b8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1099295,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -187.02614633300914,
+          -1682.1980914267801,
+          556.6718597412106
+        ],
+        "expected_cm": [
+          -187.02614633300914,
+          -1682.1980914267801,
+          556.6718597412106
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00137.png",
+      "time": 13.300000693649054,
+      "sha256": "59f49931a64ae863fb178a3376e644bee75017c36e3a8cc74c38c3a9a12741d8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1068295,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -184.1876171697386,
+          -1663.4116662639738,
+          557.442947387695
+        ],
+        "expected_cm": [
+          -184.1876171697386,
+          -1663.4116662639738,
+          557.442947387695
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00138.png",
+      "time": 13.383334031328559,
+      "sha256": "66d0d41e5e206b9ab0996d686bfc62cc0b032ea0cbf58030ad292c16ebe6e312",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1137219,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -181.3491490378433,
+          -1644.625241780616,
+          558.1938171386715
+        ],
+        "expected_cm": [
+          -181.3491490378433,
+          -1644.625241780616,
+          558.1938171386715
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00139.png",
+      "time": 13.466667369008064,
+      "sha256": "9dda38643d4736de7af226980cc6bbc70bd2397ac4389a49ef714ce67f7237f1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1139729,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -179.92988513565683,
+          -1635.231968167838,
+          558.5692596435543
+        ],
+        "expected_cm": [
+          -179.92988513565683,
+          -1635.231968167838,
+          558.5692596435543
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00140.png",
+      "time": 13.55000070668757,
+      "sha256": "a1599efde1d4bb55a900e5dafd26a0886a124eb651d857c0c71e14b52624cef1",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1139634,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -177.09135869018132,
+          -1616.4452988795315,
+          559.400482177734
+        ],
+        "expected_cm": [
+          -177.09135869018132,
+          -1616.4452988795315,
+          559.400482177734
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00141.png",
+      "time": 13.633334044367075,
+      "sha256": "224b84c51e3cb2840686e37df2823dbaaf9e018785361b2bc523161be1b201ee",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1133596,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -174.2528912377345,
+          -1597.6588133647988,
+          560.2605438232418
+        ],
+        "expected_cm": [
+          -174.2528912377345,
+          -1597.6588133647988,
+          560.2605438232418
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00142.png",
+      "time": 13.71666738204658,
+      "sha256": "1a7a6af244a1988e5eb8f0f5438505f2eb37040d4f3898cf180fa9f3a0bdcbdb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1162721,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -172.83362665609934,
+          -1588.2656007833957,
+          560.6708068847653
+        ],
+        "expected_cm": [
+          -172.83362665609934,
+          -1588.2656007833957,
+          560.6708068847653
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00143.png",
+      "time": 13.800000719726086,
+      "sha256": "77f7d79d94a624e4077a101db9c66241d4a7057f816f8d4bb0a03248ceec56f6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1149060,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -169.99509817227772,
+          -1569.479114589214,
+          561.6017456054684
+        ],
+        "expected_cm": [
+          -169.99509817227772,
+          -1569.479114589214,
+          561.6017456054684
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00144.png",
+      "time": 13.883334057405591,
+      "sha256": "3dbff3e93095a4189be336c19d1ee655bd05a04848c85e67d70a0bde3da5d284",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1111102,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -167.1565703679048,
+          -1550.6925673636579,
+          562.6011962890622
+        ],
+        "expected_cm": [
+          -167.1565703679048,
+          -1550.6925673636579,
+          562.6011962890622
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00145.png",
+      "time": 13.966667395085096,
+      "sha256": "efee84cf69b13fd00eec9838db2369bc8a971fc25756d772ea297628fa974bbf",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1071400,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -175.7924798327083,
+          -1554.6513141226617,
+          562.115570068359
+        ],
+        "expected_cm": [
+          -175.7924798327083,
+          -1554.6513141226617,
+          562.115570068359
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00146.png",
+      "time": 14.050000732764602,
+      "sha256": "2378cf97daa404aadeaa28a0f3dfcad339228c4bd679a6977577fc219e4a8f4a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1148273,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -193.0642987623155,
+          -1562.568807640669,
+          561.1152191162106
+        ],
+        "expected_cm": [
+          -193.0642987623155,
+          -1562.568807640669,
+          561.1152191162106
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00147.png",
+      "time": 14.133334070444107,
+      "sha256": "3e5be327c9ad9c6dd5ecbea883aecb9b34112b095e8dcb30f0b1c09556c9a757",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1152365,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -210.33617872329796,
+          -1570.4863018381254,
+          560.1102600097653
+        ],
+        "expected_cm": [
+          -210.33617872329796,
+          -1570.4863018381254,
+          560.1102600097653
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00148.png",
+      "time": 14.216667408123612,
+      "sha256": "201341ea5198440cc6efa8585aa1fbe1587fcee8a27e45c2bce0359d3c6f330a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1124993,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -218.97214921947648,
+          -1574.4450492765777,
+          559.5878448486325
+        ],
+        "expected_cm": [
+          -218.97214921947648,
+          -1574.4450492765777,
+          559.5878448486325
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00149.png",
+      "time": 14.300000745803118,
+      "sha256": "115fb1dce89a94b44b7ce8c5139acb27e790d1355c785aa95936a7f0e32831ac",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1131995,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -236.24415328155487,
+          -1582.3623617388062,
+          558.587249755859
+        ],
+        "expected_cm": [
+          -236.24415328155487,
+          -1582.3623617388062,
+          558.587249755859
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00150.png",
+      "time": 14.383334083482623,
+      "sha256": "57b91012fafb6cb12ca9088872419de372cb35622cb2cfed18c28d7359e7926a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1165258,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -253.5162170161109,
+          -1590.2797969432331,
+          557.6251831054684
+        ],
+        "expected_cm": [
+          -253.5162170161109,
+          -1590.2797969432331,
+          557.6251831054684
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00151.png",
+      "time": 14.466667421162128,
+      "sha256": "c720b38953ceca66b2f11c7a6311518c0cc183579e23ca477568e048084b14ca",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1141081,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -262.15224990256183,
+          -1594.2384229983843,
+          557.1552886962887
+        ],
+        "expected_cm": [
+          -262.15224990256183,
+          -1594.2384229983843,
+          557.1552886962887
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00152.png",
+      "time": 14.550000758841634,
+      "sha256": "c8c510b289a08f7d09d5604ffe83592802739b1912c8601c4b40800eb98a632f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1113204,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -279.42431363711785,
+          -1602.1558582028113,
+          556.1836242675778
+        ],
+        "expected_cm": [
+          -279.42431363711785,
+          -1602.1558582028113,
+          556.1836242675778
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00153.png",
+      "time": 14.63333409652114,
+      "sha256": "f070684cd2503ad4b1f762da311b7882277b6f4fa81a4a98b8dbb5825b4be6df",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1075228,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -296.69637941001974,
+          -1610.0731103131134,
+          555.1871337890622
+        ],
+        "expected_cm": [
+          -296.69637941001974,
+          -1610.0731103131134,
+          555.1871337890622
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00154.png",
+      "time": 14.716667434200644,
+      "sha256": "9359a4ccb789e3e4ba2049bb79bd1a2d36ec7a104ba1edf0c4b410bd8ba051a6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1145816,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -288.19145776890923,
+          -1614.305843554606,
+          555.458084106445
+        ],
+        "expected_cm": [
+          -288.19145776890923,
+          -1614.305843554606,
+          555.458084106445
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00155.png",
+      "time": 14.80000077188015,
+      "sha256": "0b479803aa245f3064643a07b065a7d5469fe766db0cddd2f44c4028cef202b7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1158432,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -271.1816138072395,
+          -1622.7713710689668,
+          555.9843597412106
+        ],
+        "expected_cm": [
+          -271.1816138072395,
+          -1622.7713710689668,
+          555.9843597412106
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00156.png",
+      "time": 14.883334109559655,
+      "sha256": "c7d9142d244106f0ca3aaa3c6af1b884b9880050118a31933c97549ba6dfdda8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1142985,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -254.1717684866726,
+          -1631.237020646077,
+          556.4831542968747
+        ],
+        "expected_cm": [
+          -254.1717684866726,
+          -1631.237020646077,
+          556.4831542968747
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00157.png",
+      "time": 14.96666744723916,
+      "sha256": "01767b9cbaaf04ea27bc409cb565c289d0b8d1277ff35d1a4926f8624f8081c4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1131170,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -245.66684548666467,
+          -1635.4698759503199,
+          556.7507171630856
+        ],
+        "expected_cm": [
+          -245.66684548666467,
+          -1635.4698759503199,
+          556.7507171630856
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00158.png",
+      "time": 15.050000784918666,
+      "sha256": "7d166715a0d74f3f615857e0386efc21dab3c3f0412c6c88ca7b2e58be365212",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1165660,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -228.657000166098,
+          -1643.9355255274306,
+          557.2414703369137
+        ],
+        "expected_cm": [
+          -228.657000166098,
+          -1643.9355255274306,
+          557.2414703369137
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00159.png",
+      "time": 15.133334122598171,
+      "sha256": "8ab33b656c324d264cc757c6727914373f673084387f728c47b57551735f69b4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1140008,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -211.64715552497978,
+          -1652.4011140731661,
+          557.6652832031247
+        ],
+        "expected_cm": [
+          -211.64715552497978,
+          -1652.4011140731661,
+          557.6652832031247
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00160.png",
+      "time": 15.216667460277677,
+      "sha256": "2a6ef2a34e46973e6154514680658601c4749e6bb1c6975e20b8753552549e22",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1102366,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -203.14223388386904,
+          -1656.6338473146589,
+          557.8687896728512
+        ],
+        "expected_cm": [
+          -203.14223388386904,
+          -1656.6338473146589,
+          557.8687896728512
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00161.png",
+      "time": 15.300000797957182,
+      "sha256": "407c18bec53b115adb17fa5a954186e95dac6aa0d0d8375a0885b54e7afc60aa",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1078016,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -186.13232685247863,
+          -1665.0995572436957,
+          558.2655334472653
+        ],
+        "expected_cm": [
+          -186.13232685247863,
+          -1665.0995572436957,
+          558.2655334472653
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00162.png",
+      "time": 15.383334135636687,
+      "sha256": "970ab4117b39780d456d1f5a66973099e1c7e70b6cad75ebea4236f832608198",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1133247,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -169.12248628805196,
+          -1673.564779601181,
+          558.5911102294918
+        ],
+        "expected_cm": [
+          -169.12248628805196,
+          -1673.564779601181,
+          558.5911102294918
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00163.png",
+      "time": 15.466667473316193,
+      "sha256": "09fd639ed5951453ffcef5e7c50aa5d4233f9052f80714de361caa599127c6ef",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1125231,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -167.97269745892413,
+          -1682.9950693840572,
+          558.2919769287106
+        ],
+        "expected_cm": [
+          -167.97269745892413,
+          -1682.9950693840572,
+          558.2919769287106
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00164.png",
+      "time": 15.550000810995698,
+      "sha256": "aea9db20e81462c176e9da5ee2d4a8f78295cb040ca3c23bc61f4697845bb94d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1115041,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -165.67311980066825,
+          -1701.855648949809,
+          557.6805877685543
+        ],
+        "expected_cm": [
+          -165.67311980066825,
+          -1701.855648949809,
+          557.6805877685543
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00165.png",
+      "time": 15.633334148675203,
+      "sha256": "7cf74ce7fa60412fd95e6e04d166f7ae93730edd362a1bafdf4e6630b57c847e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1101183,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -163.3736045326848,
+          -1720.7161071322594,
+          556.9818267822261
+        ],
+        "expected_cm": [
+          -163.3736045326848,
+          -1720.7161071322594,
+          556.9818267822261
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00166.png",
+      "time": 15.716667486354709,
+      "sha256": "a67a61b76198af4e9f0519857da2544c838828a7f1367c277f56f7d8ce819b9b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1127400,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -162.22381706245415,
+          -1730.1462748523852,
+          556.6460876464839
+        ],
+        "expected_cm": [
+          -162.22381706245415,
+          -1730.1462748523852,
+          556.6460876464839
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00167.png",
+      "time": 15.800000824034214,
+      "sha256": "5af51bfecb1949968e46d3eeaa09207d859922d8d9dcb973e6e1226543625b9f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1107715,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -159.92424076309544,
+          -1749.006732355387,
+          555.9022979736324
+        ],
+        "expected_cm": [
+          -159.92424076309544,
+          -1749.006732355387,
+          555.9022979736324
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00168.png",
+      "time": 15.88333416171372,
+      "sha256": "199e86464a395606619f2a3ee608714247fcc5a52b3b40ac0ab8b0b32c8fa4d3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1073009,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -157.62472413621458,
+          -1767.8673126005876,
+          555.0882720947261
+        ],
+        "expected_cm": [
+          -157.62472413621458,
+          -1767.8673126005876,
+          555.0882720947261
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00169.png",
+      "time": 15.966667499393225,
+      "sha256": "bd6fbb9a203029d024561c25d251adfe1eb5f3f808a218862fe6596be9214356",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1024656,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -156.47487563460913,
+          -1777.2974796412648,
+          554.6700134277339
+        ],
+        "expected_cm": [
+          -156.47487563460913,
+          -1777.2974796412648,
+          554.6700134277339
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00170.png",
+      "time": 16.05000083707273,
+      "sha256": "931e24185490b679cbb15683bf360ff0b573fa1f253eb6c726bf5bb7c7c3086e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1088910,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -154.1752396627728,
+          -1796.1578144020677,
+          553.6721649169917
+        ],
+        "expected_cm": [
+          -154.1752396627728,
+          -1796.1578144020677,
+          553.6721649169917
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00171.png",
+      "time": 16.133334174752235,
+      "sha256": "86948743aec77e466956ff3dfe1bd605384abbf5a70d427035b56abf18f79464",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1083723,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -151.87553994176687,
+          -1815.0183926089223,
+          552.6237182617183
+        ],
+        "expected_cm": [
+          -151.87553994176687,
+          -1815.0183926089223,
+          552.6237182617183
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00172.png",
+      "time": 16.21666751243174,
+      "sha256": "eeefdf844640a7ff93add318f7c40b95537b5fa6f52bad741b0f85b8431b51bb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1054819,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -150.7256900812638,
+          -1824.4486817123495,
+          551.986434936523
+        ],
+        "expected_cm": [
+          -150.7256900812638,
+          -1824.4486817123495,
+          551.986434936523
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00173.png",
+      "time": 16.300000850111246,
+      "sha256": "9ce969824af5a8df533a42e82f2b6523aa55fd1252d8df8e1103cdb5db72d367",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1057729,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -148.42599307805244,
+          -1843.3090157937038,
+          550.6579437255855
+        ],
+        "expected_cm": [
+          -148.42599307805244,
+          -1843.3090157937038,
+          550.6579437255855
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00174.png",
+      "time": 16.38333418779075,
+      "sha256": "037b3d1d0233fe470a898c46740ba5a6e58a10702acb01cc7c08c6f46eba1099",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1077407,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -146.1262947159439,
+          -1862.1694719378086,
+          548.976913452148
+        ],
+        "expected_cm": [
+          -146.1262947159439,
+          -1862.1694719378086,
+          548.976913452148
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00175.png",
+      "time": 16.466667525470257,
+      "sha256": "309150775841cb0b67e227ac715849a29828de17161ae4a47ca22218eaab424e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1059705,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -137.45909567161357,
+          -1858.2799001906392,
+          549.5205688476558
+        ],
+        "expected_cm": [
+          -137.45909567161357,
+          -1858.2799001906392,
+          549.5205688476558
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00176.png",
+      "time": 16.550000863149762,
+      "sha256": "66b50c66864d86b45c6bfc17eda32d8610b909a42fcf919f6b25b762aca84fcc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1041682,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -120.12469894185051,
+          -1850.5006346335508,
+          550.4873199462886
+        ],
+        "expected_cm": [
+          -120.12469894185051,
+          -1850.5006346335508,
+          550.4873199462886
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00177.png",
+      "time": 16.633334200829268,
+      "sha256": "147239d800f7ab7d94c9a4c0b66190bcb1e311a959bbad4c82645227249ac039",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1009063,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -102.79030221208723,
+          -1842.7213690764627,
+          551.4653320312495
+        ],
+        "expected_cm": [
+          -102.79030221208723,
+          -1842.7213690764627,
+          551.4653320312495
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00178.png",
+      "time": 16.716667538508773,
+      "sha256": "847b7ce3800b77c02a8b6b96e0c402d7b2e2498147acd4c3e16bdbe83177dd6b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1074204,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -94.12310452665429,
+          -1838.8316752665435,
+          551.9219512939449
+        ],
+        "expected_cm": [
+          -94.12310452665429,
+          -1838.8316752665435,
+          551.9219512939449
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00179.png",
+      "time": 16.800000876188278,
+      "sha256": "e6bd2b25e29ceefff01c464239deaa7767789addad4457e7001e743f41eaa288",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1084302,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -76.78870779689152,
+          -1831.052409709455,
+          552.8236694335933
+        ],
+        "expected_cm": [
+          -76.78870779689152,
+          -1831.052409709455,
+          552.8236694335933
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00180.png",
+      "time": 16.883334213867784,
+      "sha256": "57142fca57ce72d37d62afb48c264f63eb791877555e3f72f7d7df345de8dfad",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1075954,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -59.45431106712823,
+          -1823.2731441523667,
+          553.7221069335933
+        ],
+        "expected_cm": [
+          -59.45431106712823,
+          -1823.2731441523667,
+          553.7221069335933
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00181.png",
+      "time": 16.96666755154729,
+      "sha256": "f4810792d9a40c7f13321bd58134945816a6d69df8c1ad7292da7e6a8f84d018",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1069487,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -50.78711338169529,
+          -1819.3834503424475,
+          554.1764068603511
+        ],
+        "expected_cm": [
+          -50.78711338169529,
+          -1819.3834503424475,
+          554.1764068603511
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00182.png",
+      "time": 17.050000889226794,
+      "sha256": "c874261e3c8be9195bd829aa3ce81128af6f38af6162922a3cd170796d8eabf6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1107301,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -33.452716651932235,
+          -1811.6041847853594,
+          555.0896606445308
+        ],
+        "expected_cm": [
+          -33.452716651932235,
+          -1811.6041847853594,
+          555.0896606445308
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00183.png",
+      "time": 17.1333342269063,
+      "sha256": "718e9f8a75e05a97708ff0b163d224d88d310588710e691f065d5a3722b7971c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1092774,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -16.118319922169178,
+          -1803.8249192282708,
+          555.9464721679683
+        ],
+        "expected_cm": [
+          -16.118319922169178,
+          -1803.8249192282708,
+          555.9464721679683
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00184.png",
+      "time": 17.216667564585805,
+      "sha256": "edcf2554b7cd878f26f2624e222f4fdf0aaba646a69dc37b9d9207aa1439a8a8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1062438,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -7.451120877838832,
+          -1799.9353474811016,
+          556.3796691894527
+        ],
+        "expected_cm": [
+          -7.451120877838832,
+          -1799.9353474811016,
+          556.3796691894527
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00185.png",
+      "time": 17.30000090226531,
+      "sha256": "48a6b50ac2ea17281890d1950417ad39e1551055ccbadd488a12ae0e2ad97557",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1034571,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -19.130452948888035,
+          -1784.9490775851937,
+          557.2406311035152
+        ],
+        "expected_cm": [
+          -19.130452948888035,
+          -1784.9490775851937,
+          557.2406311035152
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00186.png",
+      "time": 17.383334239944816,
+      "sha256": "850a335cb4735142f8fc61b79347a8088f8db8fa1de9e17d8c318426454f2451",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1098950,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -30.809723988561984,
+          -1769.9628070098368,
+          557.8917541503902
+        ],
+        "expected_cm": [
+          -30.809723988561984,
+          -1769.9628070098368,
+          557.8917541503902
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00187.png",
+      "time": 17.46666757762432,
+      "sha256": "95bca8580f50b0e850fe5c4d7b6cd526a1202a60251450134ed5c04d6de1a97f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1101466,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -36.64936018784766,
+          -1762.4696106907832,
+          558.1877288818356
+        ],
+        "expected_cm": [
+          -36.64936018784766,
+          -1762.4696106907832,
+          558.1877288818356
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00188.png",
+      "time": 17.550000915303826,
+      "sha256": "a8eee83a9cb83da7672786322b3f9d92dd1823ea44b1a96c0f92ed5c5cfedefb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1100871,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -48.32863122752184,
+          -1747.4833401154265,
+          558.6488647460934
+        ],
+        "expected_cm": [
+          -48.32863122752184,
+          -1747.4833401154265,
+          558.6488647460934
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00189.png",
+      "time": 17.63333425298333,
+      "sha256": "e030672eb8415216c1b6f55f2da3c0d5e5213eebda4a69bb38d37a4637b3646a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1100045,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -60.00790226719556,
+          -1732.4970695400696,
+          559.0521697998043
+        ],
+        "expected_cm": [
+          -60.00790226719556,
+          -1732.4970695400696,
+          559.0521697998043
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00190.png",
+      "time": 17.716667590662837,
+      "sha256": "80f9572e4fc485369684ac92355b36be1a20abf51be38387cfe4337b75d24949",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1131415,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -65.84753710758406,
+          -1725.0039952837662,
+          559.2355804443356
+        ],
+        "expected_cm": [
+          -65.84753710758406,
+          -1725.0039952837662,
+          559.2355804443356
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00191.png",
+      "time": 17.800000928342342,
+      "sha256": "93fe18743c2f5c92feb4f162d021f87b58573ff2dae9f05d1470ca01bfe00f04",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1118212,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -77.52680814725824,
+          -1710.0177247084093,
+          559.4913177490231
+        ],
+        "expected_cm": [
+          -77.52680814725824,
+          -1710.0177247084093,
+          559.4913177490231
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00192.png",
+      "time": 17.883334266021848,
+      "sha256": "2946592a166fd1172236cce596c95468fd307671710ace1fa690423b6e7421e4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1091631,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -89.20607918693219,
+          -1695.0314541330524,
+          559.7442016601559
+        ],
+        "expected_cm": [
+          -89.20607918693219,
+          -1695.0314541330524,
+          559.7442016601559
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00193.png",
+      "time": 17.966667603701353,
+      "sha256": "dde776830660f97a70b8f90ce7d8169db1ab0c0c78165d49246fc4642072802c",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1057596,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -95.04571538621781,
+          -1687.538257813999,
+          559.806732177734
+        ],
+        "expected_cm": [
+          -95.04571538621781,
+          -1687.538257813999,
+          559.806732177734
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00194.png",
+      "time": 18.05000094138086,
+      "sha256": "adbaff78af93fb727679afee60ff62aa391d371facd76e07d7bb4e4456f1d0a3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1127962,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -106.72498642589176,
+          -1672.5519872386421,
+          559.9630889892575
+        ],
+        "expected_cm": [
+          -106.72498642589176,
+          -1672.5519872386421,
+          559.9630889892575
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00195.png",
+      "time": 18.133334279060364,
+      "sha256": "319b87a4393afe996940bc38154f3c215cb734f942ca888ebc3ce432cfc90a62",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1134473,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -118.4042574655657,
+          -1657.5657166632852,
+          560.1131896972653
+        ],
+        "expected_cm": [
+          -118.4042574655657,
+          -1657.5657166632852,
+          560.1131896972653
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00196.png",
+      "time": 18.21666761673987,
+      "sha256": "742091185803022cba26ba5fc7a8e05fa78e53008c9ce388f555622715383aef",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1116750,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -124.2438923059542,
+          -1650.072642406982,
+          560.1645202636715
+        ],
+        "expected_cm": [
+          -124.2438923059542,
+          -1650.072642406982,
+          560.1645202636715
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00197.png",
+      "time": 18.300000954419374,
+      "sha256": "a9f4f779388427f1a3e864c2fcfaf6fcb3a0794e395c599165314ef7d317d1b6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1121104,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -135.923043321224,
+          -1635.0861873786025,
+          560.2728729248043
+        ],
+        "expected_cm": [
+          -135.923043321224,
+          -1635.0861873786025,
+          560.2728729248043
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00198.png",
+      "time": 18.38333429209888,
+      "sha256": "99997ecb91255ab1d8dbc134930ea75325e4d2b39b0c434e94a745a69c090119",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1154108,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -147.60219433649377,
+          -1620.0997323502233,
+          560.3935852050778
+        ],
+        "expected_cm": [
+          -147.60219433649377,
+          -1620.0997323502233,
+          560.3935852050778
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00199.png",
+      "time": 18.466667629778385,
+      "sha256": "6f2096d7a2b5526dd3b31465533e84cfb0356859eff75b53fc45905d0250d4f2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1136190,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -153.64547043804282,
+          -1612.7697627912778,
+          560.4479522705075
+        ],
+        "expected_cm": [
+          -153.64547043804282,
+          -1612.7697627912778,
+          560.4479522705075
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00200.png",
+      "time": 18.55000096745789,
+      "sha256": "d11d08ab29eb02b7d2a9d64e4bdd6eb20ef10920010bde43b5a4449d86773844",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1117795,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -165.7319005783902,
+          -1598.109822314489,
+          560.5592651367184
+        ],
+        "expected_cm": [
+          -165.7319005783902,
+          -1598.109822314489,
+          560.5592651367184
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00201.png",
+      "time": 18.633334305137396,
+      "sha256": "7e26ab671295a3044e225b339ba6704f7febec7ed18aca5e30f3137acb45f5ed",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1082455,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -177.8183300392891,
+          -1583.4499428690758,
+          560.6167144775387
+        ],
+        "expected_cm": [
+          -177.8183300392891,
+          -1583.4499428690758,
+          560.6167144775387
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00202.png",
+      "time": 18.7166676428169,
+      "sha256": "1cda509be68e38c4ff9ac3a8a7333ec78ee58140df8b39b7692e5ab3c352494a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1136908,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -183.86160614083792,
+          -1576.1199733101303,
+          560.6737213134762
+        ],
+        "expected_cm": [
+          -183.86160614083792,
+          -1576.1199733101303,
+          560.6737213134762
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00203.png",
+      "time": 18.800000980496407,
+      "sha256": "48ccdd6b05b7ed6023c42e6177fbabf68714eed10a86eebbf7c37d95e84056a3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1146630,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -195.9480362811853,
+          -1561.4600328333418,
+          560.8392944335934
+        ],
+        "expected_cm": [
+          -195.9480362811853,
+          -1561.4600328333418,
+          560.8392944335934
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00204.png",
+      "time": 18.883334318175912,
+      "sha256": "c12b613d08a8101313c78c7a67afbe689f1976f70d8780ed21064ee24c9e8513",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1128478,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -208.0344664215329,
+          -1546.8000923565533,
+          560.9788208007809
+        ],
+        "expected_cm": [
+          -208.0344664215329,
+          -1546.8000923565533,
+          560.9788208007809
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00205.png",
+      "time": 18.966667655855417,
+      "sha256": "9ea96bdafbe2b25c96b0cef00de061d51e0e37b99435e8629773005ace859fcb",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1111929,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -214.0777432025302,
+          -1539.470061766233,
+          561.0668182373043
+        ],
+        "expected_cm": [
+          -214.0777432025302,
+          -1539.470061766233,
+          561.0668182373043
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00206.png",
+      "time": 19.050000993534923,
+      "sha256": "b59a8bf2ff5c85590df8fba84bebe1b89c9e777468679a7f853d68358b6a499d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1153699,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -226.16411367039996,
+          -1524.8099985472456,
+          561.2329711914059
+        ],
+        "expected_cm": [
+          -226.16411367039996,
+          -1524.8099985472456,
+          561.2329711914059
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00207.png",
+      "time": 19.133334331214428,
+      "sha256": "d048213c37b973b49e2c56d452ecb1c41e6754e5224eb76da0901febfbc8cc53",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1130493,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -238.2504237863434,
+          -1510.1498736174349,
+          561.4708099365231
+        ],
+        "expected_cm": [
+          -238.2504237863434,
+          -1510.1498736174349,
+          561.4708099365231
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00208.png",
+      "time": 19.216667668893933,
+      "sha256": "35d7c617c83ab7206aadb7ad6167a3a7c4ffea23c04a499729e40236a89e11a9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1089479,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -244.29357850459064,
+          -1502.819841668217,
+          561.5770416259762
+        ],
+        "expected_cm": [
+          -244.29357850459064,
+          -1502.819841668217,
+          561.5770416259762
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00209.png",
+      "time": 19.30000100657344,
+      "sha256": "d7b3c12e325268ffb7411740ee81a7b28a682ab547d62571a77706348bb4f347",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1062168,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -256.37988794108537,
+          -1488.1597777697812,
+          561.794021606445
+        ],
+        "expected_cm": [
+          -256.37988794108537,
+          -1488.1597777697812,
+          561.794021606445
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00210.png",
+      "time": 19.383334344252944,
+      "sha256": "ab7e22c85536a2dcc5cd4102af0d2764d7c478730d82cdd63eb6848cb9aed446",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1119947,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -268.4661973775801,
+          -1473.4997138713452,
+          562.0418548583982
+        ],
+        "expected_cm": [
+          -268.4661973775801,
+          -1473.4997138713452,
+          562.0418548583982
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00211.png",
+      "time": 19.46666768193245,
+      "sha256": "e2dc0f19b3ab7647bababbdfe6d950e1e6e7562dbc30bf84a9d24b75b2b45816",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1109915,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -274.50935209582735,
+          -1466.1696819221274,
+          562.2390289306638
+        ],
+        "expected_cm": [
+          -274.50935209582735,
+          -1466.1696819221274,
+          562.2390289306638
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00212.png",
+      "time": 19.550001019611955,
+      "sha256": "04477b795e70006af67d7a6409c257e715d8d50ee7f93df882cbe7ba361eed65",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1105983,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -286.5956615323221,
+          -1451.5096180236915,
+          562.5605468749998
+        ],
+        "expected_cm": [
+          -286.5956615323221,
+          -1451.5096180236915,
+          562.5605468749998
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00213.png",
+      "time": 19.63333435729146,
+      "sha256": "0adc290feec4c8a9f8e37cb7602d490094ac0621e9728510335c3f147d964923",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1095720,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -293.82468809231,
+          -1434.75397072145,
+          563.2463684082029
+        ],
+        "expected_cm": [
+          -293.82468809231,
+          -1434.75397072145,
+          563.2463684082029
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00214.png",
+      "time": 19.716667694970965,
+      "sha256": "72adcd6234a4de5d5b96e11365064c64ca46c8d6c2e9d8ae74296bdffd16dd56",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1124205,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -295.0105599340502,
+          -1425.3283553684269,
+          563.7553405761716
+        ],
+        "expected_cm": [
+          -295.0105599340502,
+          -1425.3283553684269,
+          563.7553405761716
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00215.png",
+      "time": 19.80000103265047,
+      "sha256": "1440b25e8cca87930bf62a6c3ca8ff6fcf71c010c5876c943d0c20244833c327",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1105958,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -297.3823036175306,
+          -1406.47712466238,
+          564.8547668457029
+        ],
+        "expected_cm": [
+          -297.3823036175306,
+          -1406.47712466238,
+          564.8547668457029
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00216.png",
+      "time": 19.883334370329976,
+      "sha256": "a3298475086a3a8e0bf1ffec48b690aee910bf1106356c4a2cf7e22f1980e52b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1072338,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -299.75404798046,
+          -1387.625832924958,
+          565.954895019531
+        ],
+        "expected_cm": [
+          -299.75404798046,
+          -1387.625832924958,
+          565.954895019531
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00217.png",
+      "time": 19.96666770800948,
+      "sha256": "3a4cb7de620d5e21d5b9fd8df4d1508a2a2670431fdcb3154f701653301af576",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1032183,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -300.9399205016489,
+          -1378.2001565405594,
+          566.5219268798826
+        ],
+        "expected_cm": [
+          -300.9399205016489,
+          -1378.2001565405594,
+          566.5219268798826
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00218.png",
+      "time": 20.050001045688987,
+      "sha256": "58e14145e18ac15d408133b5aab2d7c43acc49d24fe85857dd9b00d88dc1e761",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1104113,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -303.31166418512953,
+          -1359.3489258345128,
+          567.5453643798826
+        ],
+        "expected_cm": [
+          -303.31166418512953,
+          -1359.3489258345128,
+          567.5453643798826
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00219.png",
+      "time": 20.133334383368492,
+      "sha256": "ac28be102dc0dfefbfb78f0f6138a03929a815fe655a7de3da6dad73383e7af2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1106138,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -305.6834078686102,
+          -1340.497695128466,
+          568.5416259765623
+        ],
+        "expected_cm": [
+          -305.6834078686102,
+          -1340.497695128466,
+          568.5416259765623
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00220.png",
+      "time": 20.216667721047997,
+      "sha256": "c2768fe9c3efd99ff8d5a0bf7390b3400c0dddf0bff5792f39a412a01b2484f2",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1082986,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -306.8692797103504,
+          -1331.0720797754425,
+          569.0229644775388
+        ],
+        "expected_cm": [
+          -306.8692797103504,
+          -1331.0720797754425,
+          569.0229644775388
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00221.png",
+      "time": 20.300001058727503,
+      "sha256": "8b819461c9429bf9c99c5c9b9c7324214a056f2783f3b57400d6476d27ca08d4",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1088141,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -309.24102339383103,
+          -1312.2208490693956,
+          569.898239135742
+        ],
+        "expected_cm": [
+          -309.24102339383103,
+          -1312.2208490693956,
+          569.898239135742
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00222.png",
+      "time": 20.383334396407008,
+      "sha256": "dc262b6709f371c85c3096b03562dc5de9cef139f7c774d22d16ae6cf173166a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1123634,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -311.6127670773117,
+          -1293.3696183633488,
+          570.6480560302732
+        ],
+        "expected_cm": [
+          -311.6127670773117,
+          -1293.3696183633488,
+          570.6480560302732
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00223.png",
+      "time": 20.466667734086514,
+      "sha256": "1cc8e1a0ab48def8a976bf4773895b857639d1c3c8ee22f32c3916257b810c1a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1092881,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -312.7986395985006,
+          -1283.9439419789503,
+          571.0243530273435
+        ],
+        "expected_cm": [
+          -312.7986395985006,
+          -1283.9439419789503,
+          571.0243530273435
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00224.png",
+      "time": 20.55000107176602,
+      "sha256": "bfe0c2c8a7f32cbe5f82424740c9608bcd6b1b369801b796806e76e7a7f0f730",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1068603,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -315.1703846408784,
+          -1265.0925892101534,
+          571.6891937255857
+        ],
+        "expected_cm": [
+          -315.1703846408784,
+          -1265.0925892101534,
+          571.6891937255857
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00225.png",
+      "time": 20.633334409445524,
+      "sha256": "436845cadd2dabea0edd97c1df8bc82e5178b8d1cf09660ae7b41f351643ff54",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1034393,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -317.54212900380776,
+          -1246.2412974727315,
+          572.0684967041013
+        ],
+        "expected_cm": [
+          -317.54212900380776,
+          -1246.2412974727315,
+          572.0684967041013
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00226.png",
+      "time": 20.71666774712503,
+      "sha256": "2ab303d2af0f3245d341f1971cef872dae760159c9968c821bad66a850bacb14",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1094693,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -318.7280008455482,
+          -1236.815682119708,
+          572.2515411376951
+        ],
+        "expected_cm": [
+          -318.7280008455482,
+          -1236.815682119708,
+          572.2515411376951
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSlime_20261015/Capture/Runs/20261014T202817Z_paint_eb65bb9d/frames/00227.png",
+      "time": 20.800001084804535,
+      "sha256": "5ea9cb33c2b555d7ef3f38741337717158b76eea6835e19a580b5707172149d9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1107034,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_trail",
+      "camera_evidence": {
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.CameraActor_2",
+        "actual_cm": [
+          -321.0997445290286,
+          -1217.9644514136612,
+          572.6015167236326
+        ],
+        "expected_cm": [
+          -321.0997445290286,
+          -1217.9644514136612,
+          572.6015167236326
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0
+      },
+      "client_dimensions": true
+    }
+  ]
+}

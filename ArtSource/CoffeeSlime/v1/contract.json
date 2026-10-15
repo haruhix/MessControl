@@ -1,0 +1,16 @@
+{
+  "asset": "CoffeeSlime",
+  "finish_profile": "polished_smooth",
+  "low_poly_requested": false,
+  "platform": "MessControl Unreal 5.8.1",
+  "required_parts": ["closed scalloped coffee body", "cream foam cap and curl", "bulging ivory eyes", "mauve lids", "caramel eyebrows and mouth rim", "dark mouth", "tiny ivory teeth"],
+  "expected_dimensions_m": [1.68, 1.58, 1.30],
+  "axes": {"forward": "+X", "up": "+Z", "pivot": "floor"},
+  "triangle_budget": 25000,
+  "material_budget": 6,
+  "max_skin_influences": 4,
+  "animation": {"fps": 100, "root_motion": false, "hop_seconds": 0.90, "hurt_seconds": 0.28, "preburst_seconds": 0.60, "burst_seconds": 0.18},
+  "evidence": ["graybox front/profile/perspective", "hero", "front/back/left/right/top", "gameplay angle", "critical animation frames", "motion contact sheet", "short MP4", "fresh FBX/GLB import"],
+  "unreal_import_authorized_to_this_agent": false,
+  "native_integration": "Replace old static sphere/green material/separate eyes; new skeletal presentation at floor offset and scale1; avoid duplicated native squash/lift. Root integrates separately."
+}

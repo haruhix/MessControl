@@ -73,11 +73,38 @@ struct FMCSoundVariation
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio", meta=(ClampMin="0.5", ClampMax="2")) float PitchMax = 1.08f;
 };
 
+/** One non-spatial scene layer. An empty reference is intentional silence. */
+USTRUCT(BlueprintType)
+struct FMCSoundSceneLayer
+{
+    GENERATED_BODY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") TSoftObjectPtr<USoundBase> Sound;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio", meta=(ClampMin="0",ClampMax="2")) float Volume = .35f;
+    /** Replays finite sources on completion. Seamless looping is authored in the source; false does not override it. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") bool bRepeatOnFinish = true;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio", meta=(ClampMin="0",ClampMax="10",Units="s")) float FadeInSeconds = 1.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio", meta=(ClampMin="0",ClampMax="10",Units="s")) float FadeOutSeconds = 1.f;
+    bool operator==(const FMCSoundSceneLayer& Other) const
+    {
+        return Sound==Other.Sound && Volume==Other.Volume && bRepeatOnFinish==Other.bRepeatOnFinish
+            && FadeInSeconds==Other.FadeInSeconds && FadeOutSeconds==Other.FadeOutSeconds;
+    }
+};
+
+USTRUCT(BlueprintType)
+struct FMCSoundScene
+{
+    GENERATED_BODY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") FMCSoundSceneLayer Music;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") FMCSoundSceneLayer Ambience;
+};
+
 UCLASS(BlueprintType)
 class MESSCONTROL_API UMCSoundPalette : public UPrimaryDataAsset
 {
     GENERATED_BODY()
 public:
+    UMCSoundPalette();
     // Step, Brush, KnifeSwing/KnifeHit, PickaxeSwing/PickaxeHit, Jump, Pull, Repair, Complete, DayStart, Win, Lose.
     // Missing tool events use Whoosh/Hit; an explicitly empty event stays silent.
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio") TMap<FName, FMCSoundVariation> Events;
@@ -85,6 +112,9 @@ public:
     const FMCSoundVariation* ResolveEvent(FName Event, FName* ResolvedEvent = nullptr) const;
     // True means the palette owns the event, including intentional silence; it does not guarantee audibility.
     bool PlayWithParameters(UObject* WorldContext, FName Event, FVector Location, float Intensity = .65f, float Speed = .5f) const;
+    /** Scene music/ambience are independent of one-shot Events. No missing-key fallback. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Audio|Scenes") TMap<FName,FMCSoundScene> Scenes;
+    UFUNCTION(BlueprintPure, Category="Audio|Scenes") bool GetScene(FName Scene, FMCSoundScene& Settings) const;
 private:
     UPROPERTY(Transient) mutable TObjectPtr<UInitialActiveSoundParams> InitialParameters;
 };

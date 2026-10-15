@@ -21,12 +21,19 @@ class UMCMainMenuWidget;
 class UMCTutorialWidget;
 class AMCTutorialDirector;
 class UMCGameplayHUD;
+class UMCSoundPalette;
+class UMCSceneAudioComponent;
 
 UCLASS()
 class MESSCONTROL_API AMCPlayerController : public APlayerController
 {
     GENERATED_BODY()
 public:
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Audio") TObjectPtr<UMCSoundPalette> BackgroundSoundPalette;
+    UPROPERTY(VisibleInstanceOnly,BlueprintReadOnly,Category="Audio") TObjectPtr<UMCSceneAudioComponent> SceneAudio;
+    /** A custom context such as Hub; None restores automatic gameplay selection. */
+    UFUNCTION(BlueprintCallable,Category="Audio") void SetBackgroundAudioContext(FName Context);
+    UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Audio") FName BackgroundAudioContextOverride=NAME_None;
     virtual void BeginPlay() override;
     virtual void SetupInputComponent() override;
     virtual void Tick(float DeltaSeconds) override;
@@ -151,5 +158,7 @@ private:
     double NextSpectatorCheck=0;
     double NextAlarmAt=0;
     double NextColorAt=0;
+    double NextBackgroundAudioAt=0;
+    void RefreshBackgroundAudio();
     UFUNCTION(Server, Reliable) void ServerRestartShift();
 };

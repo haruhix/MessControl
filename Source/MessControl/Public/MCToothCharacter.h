@@ -140,6 +140,8 @@ public:
     UFUNCTION(BlueprintCallable,Category="Cataclysm|Rowing") void SetRowingInputHeld(bool Held);
     UFUNCTION(BlueprintPure,Category="Cataclysm|Rowing") bool IsRowing() const;
     class AMCCataclysmRaft* GetRowingRaft() const;
+    /** Rowing owns yaw while deck walking remains free to move in another direction. */
+    bool WantsRowingFacing(FVector& Direction) const;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Rowing") bool bRowing=false;
     UPROPERTY(Replicated,BlueprintReadOnly,Category="Cataclysm|Rowing") TObjectPtr<class AMCCataclysmRaft> RowingRaft;
     // Controller-facing input shares the same contact and timing rules as player input.

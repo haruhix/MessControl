@@ -1,0 +1,122 @@
+{
+  "status": "passed",
+  "passed": true,
+  "scope": "One owned standalone authority PIE, real F3 storm raft, selected Brush and native held LMB rowing",
+  "checks": {
+    "real_f3_64_starts_storm_rafts": true,
+    "solo_side_native_input_and_visible_brushes": true,
+    "solo_side_automatic_scene_audio_context": true,
+    "solo_side_own_directions_follow_actual_view": true,
+    "solo_side_characters_face_own_stroke": true,
+    "solo_side_support_palm_holds_actual_shaft": true,
+    "rendered_wrists_hold_same_brush_handle": true,
+    "walk_on_deck_with_lmb_rowing_keeps_rowing": true,
+    "solo_front_native_input_and_visible_brushes": true,
+    "solo_front_automatic_scene_audio_context": true,
+    "solo_front_own_directions_follow_actual_view": true,
+    "solo_front_characters_face_own_stroke": true,
+    "solo_front_support_palm_holds_actual_shaft": true,
+    "two_rowers_native_input_and_visible_brushes": true,
+    "two_rowers_automatic_scene_audio_context": true,
+    "two_rowers_own_directions_follow_actual_view": true,
+    "two_rowers_characters_face_own_stroke": true,
+    "two_rowers_support_palm_holds_actual_shaft": true,
+    "two_camera_aligned_native_row_inputs_sum": true,
+    "release_stops_native_rowing_and_hides_raft_brushes": true,
+    "couple_turn_opposing_inputs_cancel_translation_and_turn": true,
+    "couple_reverse_opposing_inputs_cancel_translation_and_turn": true
+  },
+  "limitations": [
+    "The local pawn is placed on an actual walkable drifting raft; the second nonspectator authority AI pawn is a disclosed position fixture, not a network client.",
+    "Native F3 creates the full Cataclysm. Its tick is paused before any log spawns solely for pose review; water, storm, raft, movement, animation and game clocks keep advancing. The unrelated single-day scheduler is paused.",
+    "PIE-only flood timing is 3s fill / 26s hold / 3s drain. The probe stops within 40 game seconds after F3 and 240 wall seconds.",
+    "Both rowers select Brush through Inventory.ServerSelect and use SetPrimaryInputHeld, the ordinary LMB path. The authority AI is locally controlled and its own pawn ticker sends the native aim heartbeat. No scripted direction RPC, dedicated SetRowingInputHeld, raft force, rowing-state, hand, bone or animation assignment is used.",
+    "The local rower uses the actual PlayerCameraManager viewing direction, including the side/front review CameraActor. Its controller rotation is not used as a substitute. The AI controller aim and normal input RPC follow the same actual viewing direction.",
+    "A brief genuine AddMovementInput on the deck checks that walking remains possible while LMB is held; no position or velocity assignment is made during this movement check.",
+    "Side and front three-quarter cameras track the real actors in the mouth lighting; these are temporary review cameras rather than the normal gameplay camera.",
+    "Bone/socket and brush transform samples are read-only rendered-pose evidence when available. They do not automatically establish anatomical quality or artistic acceptance.",
+    "SHOWUI PNGs are genuine requested engine frames at up to 12Hz. Final PNG hashes and camera-target gates are required before video export; motion quality needs visual review.",
+    "This focused capture does not repeat contact/drowning checks, profile the GPU, complete the event or test network clients."
+  ],
+  "source_sha256": {
+    "Source/MessControl/Private/MCCataclysmEvent.cpp": "ce93dde59627cb83292389081533400966579b892ae64296f4ed72cae0167916",
+    "Source/MessControl/Private/MCCataclysmRaft.cpp": "692957ab9484c00decad3a769af9291ebfc01e830a2febb2a243fdfb06b6cf20",
+    "Source/MessControl/Private/MCCataclysmJelly.cpp": "d8f2540a333d8c6104f6bb707f41bde6ceb4206918272c8f34276a2ef4af2dab",
+    "Source/MessControl/Private/MCToothMovementComponent.cpp": "960ff7b196dd4499f01f06923b1746bfc7d408be5d3d13b6450efae095932789",
+    "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8",
+    "Source/MessControl/Public/MCCataclysmDebris.h": "4bb5328c10dc4ba9f8efa48f6a6ef21b4179752694574ce9c3ad005f380f6d51",
+    "Source/MessControl/Private/MCCataclysmDebris.cpp": "2a5f97fcd4fc7d377b3993636a4bf9140a69626367a3986b8a5c9da62ce889f9",
+    "Source/MessControl/Public/MCCoffeeFlood.h": "aac1c8b4b261486205cacd69182178e74d636a12b1610c06ac18236f81269082",
+    "Source/MessControl/Private/MCCoffeeFlood.cpp": "f8353a1de3cd3ea500ea233e4888da9666a75bed3599e4d20b431a0e8376df77",
+    "Source/MessControl/Private/MCCataclysmStormMath.h": "0d27a207bdd65cefc5c8282419a1c6f15d45357380c9a0894fdc78bb79ca16dc",
+    "Source/MessControl/Public/MCToothCharacter.h": "1fbcf6becedcbd95efb6f9bf044d44ee09ae5cfb70dcb7c24a1b466feb78e725",
+    "Source/MessControl/Private/MCToothAnimInstance.cpp": "a7f63418ac3b97a7023de54da9fb3458883ba1339999bfd17d28c6a7f6707b43",
+    "Source/MessControl/Private/MCInventoryComponent.cpp": "f5ef68542e09f927c9d08e362e353541c8cf1b39869a3f2443162f87260326be",
+    "Source/MessControl/Private/MCGripComponent.cpp": "ec21d9d444333bf52b60df4414b2e6b170504336f2ba44a814a34811bf92e51d",
+    "Source/MessControl/Private/MCToothCharacter.cpp": "b2364651941469c98c17eae8a56a984a5b6ca3b321f7b58135aad19d40a03000",
+    "Tools/Unreal/probe_cataclysm_storm_solo.py": "3f5b808846acc9cf8fc7e37ca7560328aff5083f7eeff0b1cd23cad4ba09514b",
+    "Tools/Unreal/probe_rowing_animation_solo.py": "53e671545e32f461d6f57b23b3a573f66cc7ea9b39e9efa9695abe767580a037",
+    "Source/MessControl/Private/MCRowingStroke.h": "bc9ed21f3d0c7dd73e41f768518e75b81dec185a12f140f3989bbc6d7c7487d3",
+    "Source/MessControl/Public/MCCataclysmRaft.h": "0b0f422b29504ea755caa4b648ffe15893e69dc6e8a077a9ddb8800ccb00aa73",
+    "Source/MessControl/Private/MCGameplayHUD.cpp": "c213711646e401f93a346247223548b2890ee39cf953489f28562cdfa8a21774",
+    "Source/MessControl/Private/MCExpressionComponent.cpp": "9d1fc0ffd831bed060275a0ab3cd839c1dde1279b87f3d497f04a05c6de67705",
+    "Source/MessControl/Public/MCExpressionComponent.h": "0d5639360c8b6a789dde64e38ecaebc69efee25db56f91464e48f6662bb953e0",
+    "Source/MessControl/Private/MCGazeComponent.cpp": "0a160c50c4347d1435613a156a64928cd9a0b8080815e3cebe7e1b1ba54daa6c",
+    "Source/MessControl/Public/MCGazeComponent.h": "49326f1ff79ddaef7b46d5561061d4281154b69ffcd51cf0ab458fa0e855c2e1",
+    "Source/MessControl/Private/MCToothStatusComponent.cpp": "a65da162f5c75125d000fe54ff0838f9bc84fc4853d9e4af212e30044e64a67b"
+  },
+  "walking_fixture": {
+    "start_game_seconds": 18.966667655855417,
+    "start_deck_local_cm": [
+      -44.90188747776037,
+      -32.102918953293496,
+      39.750220884109055
+    ],
+    "input_scale": 0.25,
+    "maximum_requested_input_seconds": 1.75,
+    "inward_sign": 1.0,
+    "native_input": "AddMovementInput inward from observed deck side; stop after crossing centre",
+    "end_game_seconds": 19.900001037865877,
+    "end_deck_local_cm": [
+      -48.25294817514448,
+      16.43757841391332,
+      39.79256801484423
+    ],
+    "actual_displacement_cm": 48.65603243641393
+  },
+  "torque_results": {
+    "couple_turn": {
+      "yaw_delta_degrees": 96.37076568603516,
+      "expected_sign": 1.0,
+      "stable_samples": 48,
+      "cancelled_translation_samples": 48
+    },
+    "couple_reverse": {
+      "yaw_delta_degrees": -33.82205200195315,
+      "expected_sign": -1.0,
+      "stable_samples": 72,
+      "cancelled_translation_samples": 72
+    }
+  },
+  "settled_support_grip_cm": {
+    "solo_side": {
+      "maximum": 0.3467318344034808,
+      "samples": 50,
+      "fraction_within_3cm": 1.0
+    },
+    "solo_front": {
+      "maximum": 0.2764794868993086,
+      "samples": 50,
+      "fraction_within_3cm": 1.0
+    },
+    "two_rowers": {
+      "maximum": 0.34789896911868257,
+      "samples": 60,
+      "fraction_within_3cm": 1.0
+    }
+  },
+  "run_directory": "E:\\DEVGAME\\MessControl\\Saved\\RowingFeel_20261015\\Capture\\Runs\\20261014T202357Z_rafts_d07eabfb",
+  "restored_settings": true,
+  "wall_seconds": 89.65600000001723,
+  "build": "BuildEditor_ReachableGrip: succeeded, 29.10 seconds; local workspace includes preexisting unrelated changes"
+}

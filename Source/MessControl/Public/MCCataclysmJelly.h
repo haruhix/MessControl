@@ -2,10 +2,14 @@
 
 #include "CoreMinimal.h"
 #include "MCNutEnemy.h"
+#include "UObject/SoftObjectPtr.h"
 #include "MCCataclysmJelly.generated.h"
 
+class UAnimSequence;
 class UMaterialInstanceDynamic;
 class UMaterialInterface;
+class USkeletalMesh;
+class USkeletalMeshComponent;
 
 /** The encounter owns persistent, brush-cleanable patches and their finite budget. */
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FMCCataclysmJellyDirtyPatch, FVector, float, bool);
@@ -30,6 +34,16 @@ public:
     bool IsAlive() const { return IsEncounterAlive(); }
     float GetHealth() const { return Health; }
     FMCCataclysmJellyDirtyPatch OnDirtyPatchRequested;
+
+    /** Floor-pivot coffee rig; collision and movement remain on the inherited Body. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Jelly|Presentation") TObjectPtr<USkeletalMeshComponent> JellyMesh;
+    UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<USkeletalMesh> CoffeeMesh;
+    UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<UAnimSequence> CoffeeIdle;
+    UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<UAnimSequence> CoffeeHop;
+    UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<UAnimSequence> CoffeeHurt;
+    UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<UAnimSequence> CoffeePreBurst;
+    UPROPERTY(EditDefaultsOnly, Category="Jelly|Presentation") TSoftObjectPtr<UAnimSequence> CoffeeBurst;
+    UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category="Jelly|Presentation") bool bCoffeePresentationReady=false;
 
     UPROPERTY(EditDefaultsOnly, Category="Jelly|Grime", meta=(ClampMin="20", ClampMax="100")) float TrailRadius=38.f;
     UPROPERTY(EditDefaultsOnly, Category="Jelly|Grime", meta=(ClampMin="100", ClampMax="500")) float RuptureRadius=280.f;
@@ -60,6 +74,11 @@ private:
     UPROPERTY(Transient) TObjectPtr<UMaterialInterface> GelMaterial;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> GelMID;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> SplatterMID;
+    UPROPERTY(Transient) TObjectPtr<UAnimSequence> LoadedCoffeeIdle;
+    UPROPERTY(Transient) TObjectPtr<UAnimSequence> LoadedCoffeeHop;
+    UPROPERTY(Transient) TObjectPtr<UAnimSequence> LoadedCoffeeHurt;
+    UPROPERTY(Transient) TObjectPtr<UAnimSequence> LoadedCoffeePreBurst;
+    UPROPERTY(Transient) TObjectPtr<UAnimSequence> LoadedCoffeeBurst;
     double NextContactAt=0., NextWanderAt=0., NextTrailAt=0., NextMoveAt=0., LastMoveAt=0., LastTrailSampleAt=-100.;
     FVector LastTrailLocation=FVector::ZeroVector;
     FVector LastObservedLocation=FVector::ZeroVector;
@@ -73,6 +92,8 @@ private:
     void WanderOnTongue(double Now);
     void PaintTrail(double Now, float DeltaSeconds, bool bFlush=false);
     void BreakTrail();
+    void LoadCoffeePresentation();
+    void TickCoffeePresentation(double Now);
     void TickGelPresentation(double Now);
     void ContaminateNearby(float Radius, float Amount);
     void RequestDirtyPatch(float Radius, bool bDeathBurst);

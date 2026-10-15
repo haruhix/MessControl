@@ -1,0 +1,138 @@
+{
+  "exported_utc": "2026-10-14T20:28:19.052801+00:00",
+  "exclude_nonclient_frames_requested": false,
+  "previews": [
+    {
+      "mode": "storm",
+      "clip": "storm_brush_rowing",
+      "video": "E:/DEVGAME/MessControl/Artifacts/RowingFeel_20261015/storm_brush_rowing.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/RowingFeel_20261015/storm_brush_rowing.png",
+      "video_sha256": "41c5c3a6b15ab34f5156f33780decf65156db9157ff9ab93f4254216cbdb591c",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingFeel_20261015/storm_brush_rowing.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/RowingFeel_20261015/storm_brush_rowing.ffconcat",
+      "genuine_source_frames": 128,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 14.666667431592941,
+      "source_time_end_seconds": 25.41666799224913,
+      "source_game_span_seconds": 10.75000056065619,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 9.486076408089858,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Root inspected extracted genuine video frames/contact sheets; see ValidationSummary.json and review images for accepted scope and limits",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "323"
+          }
+        ],
+        "format": {
+          "duration": "10.766667"
+        }
+      }
+    }
+  ],
+  "reports": [
+    {
+      "mode": "storm",
+      "report": "E:/DEVGAME/MessControl/Saved/RowingFeel_20261015/Capture/Report_storm.json",
+      "report_sha256": "3235cc7775f72f5744a91cbd41c88c9959d1a665d3352a1761221716b7494a82",
+      "source_sha256": {
+        "Source/MessControl/Private/MCCataclysmEvent.cpp": "ce93dde59627cb83292389081533400966579b892ae64296f4ed72cae0167916",
+        "Source/MessControl/Private/MCCataclysmRaft.cpp": "692957ab9484c00decad3a769af9291ebfc01e830a2febb2a243fdfb06b6cf20",
+        "Source/MessControl/Private/MCCataclysmJelly.cpp": "d8f2540a333d8c6104f6bb707f41bde6ceb4206918272c8f34276a2ef4af2dab",
+        "Source/MessControl/Private/MCToothMovementComponent.cpp": "960ff7b196dd4499f01f06923b1746bfc7d408be5d3d13b6450efae095932789",
+        "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8",
+        "Source/MessControl/Public/MCCataclysmDebris.h": "4bb5328c10dc4ba9f8efa48f6a6ef21b4179752694574ce9c3ad005f380f6d51",
+        "Source/MessControl/Private/MCCataclysmDebris.cpp": "2a5f97fcd4fc7d377b3993636a4bf9140a69626367a3986b8a5c9da62ce889f9",
+        "Source/MessControl/Public/MCCoffeeFlood.h": "aac1c8b4b261486205cacd69182178e74d636a12b1610c06ac18236f81269082",
+        "Source/MessControl/Private/MCCoffeeFlood.cpp": "f8353a1de3cd3ea500ea233e4888da9666a75bed3599e4d20b431a0e8376df77",
+        "Source/MessControl/Private/MCCataclysmStormMath.h": "0d27a207bdd65cefc5c8282419a1c6f15d45357380c9a0894fdc78bb79ca16dc",
+        "Source/MessControl/Public/MCToothCharacter.h": "1fbcf6becedcbd95efb6f9bf044d44ee09ae5cfb70dcb7c24a1b466feb78e725",
+        "Source/MessControl/Private/MCToothAnimInstance.cpp": "a7f63418ac3b97a7023de54da9fb3458883ba1339999bfd17d28c6a7f6707b43",
+        "Source/MessControl/Private/MCInventoryComponent.cpp": "f5ef68542e09f927c9d08e362e353541c8cf1b39869a3f2443162f87260326be",
+        "Source/MessControl/Private/MCGripComponent.cpp": "ec21d9d444333bf52b60df4414b2e6b170504336f2ba44a814a34811bf92e51d",
+        "Source/MessControl/Private/MCToothCharacter.cpp": "b2364651941469c98c17eae8a56a984a5b6ca3b321f7b58135aad19d40a03000",
+        "Tools/Unreal/probe_cataclysm_storm_solo.py": "3f5b808846acc9cf8fc7e37ca7560328aff5083f7eeff0b1cd23cad4ba09514b",
+        "Tools/Unreal/probe_rowing_animation_solo.py": "53e671545e32f461d6f57b23b3a573f66cc7ea9b39e9efa9695abe767580a037",
+        "Source/MessControl/Private/MCRowingStroke.h": "bc9ed21f3d0c7dd73e41f768518e75b81dec185a12f140f3989bbc6d7c7487d3",
+        "Source/MessControl/Public/MCCataclysmRaft.h": "0b0f422b29504ea755caa4b648ffe15893e69dc6e8a077a9ddb8800ccb00aa73",
+        "Source/MessControl/Private/MCGameplayHUD.cpp": "c213711646e401f93a346247223548b2890ee39cf953489f28562cdfa8a21774",
+        "Source/MessControl/Private/MCExpressionComponent.cpp": "9d1fc0ffd831bed060275a0ab3cd839c1dde1279b87f3d497f04a05c6de67705",
+        "Source/MessControl/Public/MCExpressionComponent.h": "0d5639360c8b6a789dde64e38ecaebc69efee25db56f91464e48f6662bb953e0",
+        "Source/MessControl/Private/MCGazeComponent.cpp": "0a160c50c4347d1435613a156a64928cd9a0b8080815e3cebe7e1b1ba54daa6c",
+        "Source/MessControl/Public/MCGazeComponent.h": "49326f1ff79ddaef7b46d5561061d4281154b69ffcd51cf0ab458fa0e855c2e1",
+        "Source/MessControl/Private/MCToothStatusComponent.cpp": "a65da162f5c75125d000fe54ff0838f9bc84fc4853d9e4af212e30044e64a67b"
+      },
+      "checks": {
+        "real_f3_64_starts_storm_rafts": true,
+        "solo_side_native_input_and_visible_brushes": true,
+        "solo_side_automatic_scene_audio_context": true,
+        "solo_side_own_directions_follow_actual_view": true,
+        "solo_side_characters_face_own_stroke": true,
+        "solo_side_support_palm_holds_actual_shaft": true,
+        "rendered_wrists_hold_same_brush_handle": true,
+        "walk_on_deck_with_lmb_rowing_keeps_rowing": true,
+        "solo_front_native_input_and_visible_brushes": true,
+        "solo_front_automatic_scene_audio_context": true,
+        "solo_front_own_directions_follow_actual_view": true,
+        "solo_front_characters_face_own_stroke": true,
+        "solo_front_support_palm_holds_actual_shaft": true,
+        "two_rowers_native_input_and_visible_brushes": true,
+        "two_rowers_automatic_scene_audio_context": true,
+        "two_rowers_own_directions_follow_actual_view": true,
+        "two_rowers_characters_face_own_stroke": true,
+        "two_rowers_support_palm_holds_actual_shaft": true,
+        "two_camera_aligned_native_row_inputs_sum": true,
+        "release_stops_native_rowing_and_hides_raft_brushes": true,
+        "couple_turn_opposing_inputs_cancel_translation_and_turn": true,
+        "couple_reverse_opposing_inputs_cancel_translation_and_turn": true
+      },
+      "fixture_tuning": {
+        "FloodHoldSeconds": 26.0,
+        "FloodFillSeconds": 3.0,
+        "FloodDrainSeconds": 3.0
+      },
+      "limitations": [
+        "The local pawn is placed on an actual walkable drifting raft; the second nonspectator authority AI pawn is a disclosed position fixture, not a network client.",
+        "Native F3 creates the full Cataclysm. Its tick is paused before any log spawns solely for pose review; water, storm, raft, movement, animation and game clocks keep advancing. The unrelated single-day scheduler is paused.",
+        "PIE-only flood timing is 3s fill / 26s hold / 3s drain. The probe stops within 40 game seconds after F3 and 240 wall seconds.",
+        "Both rowers select Brush through Inventory.ServerSelect and use SetPrimaryInputHeld, the ordinary LMB path. The authority AI is locally controlled and its own pawn ticker sends the native aim heartbeat. No scripted direction RPC, dedicated SetRowingInputHeld, raft force, rowing-state, hand, bone or animation assignment is used.",
+        "The local rower uses the actual PlayerCameraManager viewing direction, including the side/front review CameraActor. Its controller rotation is not used as a substitute. The AI controller aim and normal input RPC follow the same actual viewing direction.",
+        "A brief genuine AddMovementInput on the deck checks that walking remains possible while LMB is held; no position or velocity assignment is made during this movement check.",
+        "Side and front three-quarter cameras track the real actors in the mouth lighting; these are temporary review cameras rather than the normal gameplay camera.",
+        "Bone/socket and brush transform samples are read-only rendered-pose evidence when available. They do not automatically establish anatomical quality or artistic acceptance.",
+        "SHOWUI PNGs are genuine requested engine frames at up to 12Hz. Final PNG hashes and camera-target gates are required before video export; motion quality needs visual review.",
+        "This focused capture does not repeat contact/drowning checks, profile the GPU, complete the event or test network clients."
+      ],
+      "manual_checkpoints": [
+        "Review full strokes from side and front three-quarter: brush entry, pull, lift and recovery; hand contact, torso rhythm, foot support and release blending.",
+        "Review two rowers for hand/brush intersections and phase/readability. Telemetry alone is not visual acceptance.",
+        "The normal gameplay camera, network clients and full event balance are separate checks."
+      ],
+      "integrity_verified_source_frames": 207,
+      "accepted_client_frames": 207,
+      "excluded_nonclient_frames": [],
+      "capture_validation": "All source captures have supported client dimensions; visual review remains separate"
+    }
+  ],
+  "limitations": [
+    "Sampled genuine engine screenshots do not record every game frame.",
+    "CFR output repeats source images at their actual game-time intervals; no interpolation or title cards.",
+    "Excluded nonclient captures stay recorded in report metadata. Their genuine time gaps remain as holds of preceding accepted frames; no wrong viewport is resized into output.",
+    "PlayerCamera metadata does not establish the screenshot surface; visual review of accepted client captures remains necessary.",
+    "The terminal 1 ms and 30 fps duration rounding are presentation padding, not additional observed gameplay.",
+    "Telemetry and successful encoding do not establish visual quality; inspect the previews in the gameplay camera."
+  ]
+}

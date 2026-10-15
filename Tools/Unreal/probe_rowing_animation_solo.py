@@ -67,6 +67,8 @@ class RowingAnimationSolo(Parent):
         self.bot_input_at = 0.
         self.walk_before = None
         self.walk_finished = False
+        self.walk_stopped_at = None
+        self.walk_sign = None
         self.opposed = False
         self.torque_aim = None
         self.torque_yaw = None
@@ -138,20 +140,33 @@ class RowingAnimationSolo(Parent):
     def camera_for_stage(self):
         foot = self.hero.get_actor_location() - u.Vector(0, 0, self.hero.capsule_component.get_scaled_capsule_half_height())
         target = foot + u.Vector(0, 0, 50.)
-        right = self.raft.get_actor_right_vector()
-        front = self.hero.get_actor_forward_vector()
         if self.review_view == 'torque':
             target=self.raft.get_actor_location()+u.Vector(0,0,65.)
-            location=target-self.torque_aim*460.+u.Vector(0,0,170.)
-        elif self.review_view == 'side':
-            location = target - right * 520. + front * 110. + u.Vector(0, 0, 165.)
         elif self.review_view == 'two_front':
             target = (self.hero.get_actor_location() + self.bot.get_actor_location()) * .5 + u.Vector(0, 0, 5.)
-            location = target + front * 480. - right * 330. + u.Vector(0, 0, 195.)
-        else:
-            local=prop(self.raft,'deck').get_world_transform().inverse_transform_location(foot)
-            side=1. if local.y>0 else -1.
-            location = target + front * 380. + right * (side*400.) + u.Vector(0, 0, 180.)
+        key = (self.phase, self.review_view)
+        if getattr(self, 'review_camera_basis_key', None) != key:
+            # The actual viewing camera also selects native rowing aim. Keep
+            # its world bearing fixed during each stage: following hero facing
+            # would feed the resulting stroke turn back into the next aim.
+            right = self.raft.get_actor_right_vector()
+            front = self.hero.get_actor_forward_vector()
+            if self.review_view == 'torque':
+                offset = -self.torque_aim * 460. + u.Vector(0, 0, 170.)
+            elif self.review_view == 'side':
+                offset = -right * 520. + front * 110. + u.Vector(0, 0, 165.)
+            elif self.review_view == 'two_front':
+                offset = front * 480. - right * 330. + u.Vector(0, 0, 195.)
+            else:
+                local = prop(self.raft, 'deck').get_world_transform().inverse_transform_location(foot)
+                side = 1. if local.y > 0 else -1.
+                offset = front * 380. + right * (side * 400.) + u.Vector(0, 0, 180.)
+            self.review_camera_basis_key = key
+            self.review_camera_offset = offset
+            self.report.setdefault('review_camera_stage_offsets', []).append(dict(
+                phase=self.phase, review_view=self.review_view, world_offset_cm=vec(offset),
+                basis='Latched once per stage; translation follows the target; no hero-facing or deck-side feedback'))
+        location = target + self.review_camera_offset
         self.frame_camera(location, target)
         prop(self.camera, 'camera_component').set_editor_property('FieldOfView', 60.)
 
@@ -166,6 +181,8 @@ class RowingAnimationSolo(Parent):
         super().sample(now)
         entry = self.report['samples'][-1]
         entry['review_view'] = self.review_view
+        scene_audio = prop(self.pc, 'scene_audio')
+        entry['scene_audio_context'] = str(prop(scene_audio, 'scene_context')) if valid(scene_audio) else None
         yaw = float(prop(self.pc, 'player_camera_manager').get_camera_rotation().yaw)
         expected = [math.cos(math.radians(yaw)), math.sin(math.radians(yaw))]
         entry['actual_rowing_view_yaw_degrees'] = yaw
@@ -179,6 +196,18 @@ class RowingAnimationSolo(Parent):
             direction_xy=entry['rowing_directions'][index],
             view_dot=float(directions[index].x * expected[0] + directions[index].y * expected[1]))
             for index, player in enumerate(entry['rowing_players']) if player and index < len(directions)]
+        entry['rower_facing'] = []
+        for pawn in (self.hero, self.bot):
+            if not valid(pawn) or not pawn.is_rowing(): continue
+            players = list(prop(self.raft, 'rowing_players'))
+            slot = next((i for i, player in enumerate(players) if player == pawn), None)
+            if slot is None: continue
+            forward = pawn.get_actor_forward_vector()
+            direction = directions[slot]
+            entry['rower_facing'].append(dict(pawn=path(pawn), slot=slot,
+                actor_forward_xy=[float(forward.x), float(forward.y)],
+                stroke_direction_xy=[float(direction.x), float(direction.y)],
+                facing_dot=float(forward.x*direction.x+forward.y*direction.y)))
         entry['selected_tool'] = enum_name(prop(prop(self.hero, 'inventory'), 'selected'))
         brushes = []
         for component in self.raft.get_components_by_class(u.StaticMeshComponent):
@@ -426,11 +455,29 @@ class RowingAnimationSolo(Parent):
         self.require(any(sum(1 for b in e['rendered_brushes'] if b['visible']) == count for e in stable),
                      'Actual rowing brush presentation count does not match ' + stage)
         self.report['checks'][stage + '_native_input_and_visible_brushes'] = True
-        aligned = [e for e in stable if len(e['rower_direction_alignment']) == count
+        aim_samples = [e for e in stable if e['game_seconds'] >= stable[0]['game_seconds'] + .6]
+        self.require(aim_samples and all(e['scene_audio_context'] == 'CataclysmRafts' for e in aim_samples),
+                     'Local controller did not select CataclysmRafts audio context after settling in ' + stage)
+        self.report['checks'][stage + '_automatic_scene_audio_context'] = True
+        aligned = [e for e in aim_samples if len(e['rower_direction_alignment']) == count
                    and all(row['view_dot'] >= .95 for row in e['rower_direction_alignment'])]
-        self.require(len(aligned) >= len(stable) * .75,
+        self.require(aim_samples and len(aligned) >= len(aim_samples) * .75,
                      'Own native rowing directions did not follow the actual viewing camera in ' + stage)
         self.report['checks'][stage + '_own_directions_follow_actual_view'] = True
+        facing_samples = [e for e in stable if e['game_seconds'] >= stable[0]['game_seconds'] + 1.0
+                          and len(e.get('rower_facing', [])) == count]
+        self.require(facing_samples and sum(all(row['facing_dot'] >= .85 for row in e['rower_facing'])
+                     for e in facing_samples) >= len(facing_samples)*.75,
+                     'Rowers faced away from their own stroke after turning in ' + stage)
+        self.report['checks'][stage + '_characters_face_own_stroke'] = True
+        grips = [actor['grip']['hand_l']['target_error_cm']
+                 for entry in facing_samples for actor in entry.get('presentation_diagnostics', [])
+                 if actor.get('rowing') and actor.get('grip') and actor['grip'].get('hand_l')]
+        self.require(grips and sum(error<3. for error in grips)>=len(grips)*.8,
+                     'Support palm did not stay on the actual reachable brush shaft in '+stage)
+        self.report.setdefault('settled_support_grip_cm', {})[stage] = dict(
+            maximum=max(grips), samples=len(grips), fraction_within_3cm=sum(error<3. for error in grips)/len(grips))
+        self.report['checks'][stage + '_support_palm_holds_actual_shaft'] = True
         if stage=='solo_side':
             settled=[e for e in stable if e['game_seconds']>=stable[0]['game_seconds']+.6
                      and all(h in e.get('rendered_bones',{}) for h in ('hand_l','hand_r'))]
@@ -576,20 +623,28 @@ class RowingAnimationSolo(Parent):
                     self.require(self.bot.is_locally_controlled(), 'AI fixture needs its native local input ticker')
                 if self.phase == 'solo_front':
                     elapsed = now - self.phase_at
-                    if .9 <= elapsed < 1.75:
+                    if .9 <= elapsed < 2.65 and self.walk_stopped_at is None:
                         foot = self.hero.get_actor_location() - u.Vector(0, 0, self.hero.capsule_component.get_scaled_capsule_half_height())
                         if self.walk_before is None:
                             self.walk_before = prop(self.raft, 'deck').get_world_transform().inverse_transform_location(foot)
+                            self.walk_sign = -1. if self.walk_before.y > 0. else 1.
                             self.report['walking_fixture'] = dict(start_game_seconds=now,
                                 start_deck_local_cm=vec(self.walk_before), input_scale=.25,
-                                requested_input_seconds=.85, native_input='AddMovementInput across the deck centre')
-                        self.hero.add_movement_input(self.raft.get_actor_right_vector(), .25, False)
-                    elif elapsed >= 2.05 and self.walk_before is not None and not self.walk_finished:
+                                maximum_requested_input_seconds=1.75, inward_sign=self.walk_sign,
+                                native_input='AddMovementInput inward from observed deck side; stop after crossing centre')
+                        local = prop(self.raft, 'deck').get_world_transform().inverse_transform_location(foot)
+                        if local.y*self.walk_sign >= 12.:
+                            self.walk_stopped_at = now
+                        else:
+                            self.hero.add_movement_input(self.raft.get_actor_right_vector(), .25*self.walk_sign, False)
+                    if self.walk_before is not None and not self.walk_finished and (
+                            (self.walk_stopped_at is not None and now-self.walk_stopped_at >= .25) or elapsed >= 2.95):
                         foot = self.hero.get_actor_location() - u.Vector(0, 0, self.hero.capsule_component.get_scaled_capsule_half_height())
                         local = prop(self.raft, 'deck').get_world_transform().inverse_transform_location(foot)
                         offset = local - self.walk_before
                         displacement = (offset.x * offset.x + offset.y * offset.y) ** .5
-                        self.require(30. <= displacement < 100. and self.walk_before.y<0<local.y, 'Genuine movement did not safely cross the deck centre')
+                        self.require(30. <= displacement < 100. and self.walk_before.y*local.y<0,
+                                     'Genuine inward movement did not safely cross the deck centre')
                         self.require(self.hero.is_rowing() and self.base(self.hero) == prop(self.raft, 'deck'),
                                      'Walking on deck cancelled native held-LMB rowing')
                         self.report['walking_fixture'].update(end_game_seconds=now,

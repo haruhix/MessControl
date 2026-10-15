@@ -27,14 +27,13 @@ namespace
     constexpr float SinkDepth = 112.f;
     constexpr float RepeatGrace = 1.25f;
     constexpr int32 RingSegments = 48;
-    constexpr float MaxTravelSpeed = 125.f;
-    constexpr float RowAcceleration = 110.f;
     constexpr float CurrentScale = .22f;
-    constexpr float TravelDrag = 1.4f;
-    constexpr float YawInertiaRadiusSquared = 36000.f;
-    constexpr float AngularDrag = 1.1f;
-    constexpr float MaxYawSpeed = 35.f;
     constexpr double RowInputLifetime = .3;
+
+    float BoundedRowingSetting(float Value, float Default, float Min, float Max)
+    {
+        return FMath::IsFinite(Value) ? FMath::Clamp(Value,Min,Max) : Default;
+    }
 
     void HullEnvelope(const UStaticMeshComponent* Deck, FVector& Origin, FVector& Extent)
     {
@@ -380,10 +379,13 @@ void AMCCataclysmRaft::ApplyDebrisImpulse(FVector WorldVelocityImpulse, FVector 
     WorldVelocityImpulse.Z = 0;
     const FVector Kick = WorldVelocityImpulse.GetClampedToMaxSize(140.f);
     const FVector Before = HorizontalVelocity;
-    HorizontalVelocity = (HorizontalVelocity + Kick).GetClampedToMaxSize(MaxTravelSpeed);
+    const float SpeedLimit = BoundedRowingSetting(MaxTravelSpeed,480.f,60.f,800.f);
+    HorizontalVelocity = (HorizontalVelocity + Kick).GetClampedToMaxSize(SpeedLimit);
     const FVector Applied = HorizontalVelocity-Before;
     const FVector Arm = (ContactPoint-GetActorLocation()).GetClampedToMaxSize(200.f);
-    YawVelocity = FMath::Clamp(YawVelocity + float(FVector::CrossProduct(Arm, Applied).Z)/550.f, -24.f, 24.f);
+    const float YawKick = FMath::Clamp(float(FVector::CrossProduct(Arm,Applied).Z)/550.f,-24.f,24.f);
+    const float YawLimit = BoundedRowingSetting(MaxYawSpeed,65.f,1.f,180.f);
+    YawVelocity = FMath::Clamp(YawVelocity+YawKick,-YawLimit,YawLimit);
     ImpactPitch = FMath::Clamp(ImpactPitch + float(FVector::DotProduct(Applied, GetActorForwardVector()))*.015f, -3.f, 3.f);
     ImpactRoll = FMath::Clamp(ImpactRoll - float(FVector::DotProduct(Applied, GetActorRightVector()))*.018f, -3.f, 3.f);
     // A based character otherwise follows a sudden hull displacement perfectly.
@@ -463,24 +465,43 @@ void AMCCataclysmRaft::UpdateDrift(float DeltaSeconds, double Now)
     const FVector Max = Flood->ArenaCenter+Flood->HalfSize-FVector(Radius,Radius,0);
     if (Min.X >= Max.X || Min.Y >= Max.Y) { HorizontalVelocity = FVector::ZeroVector; return; }
     FVector Position(Anchor.X,Anchor.Y,GetActorLocation().Z);
-    // Apply each player's stroke at their authoritative deck position. Equal
-    // opposite thrust may cancel translation while still producing a couple.
-    FVector PaddleAcceleration = FVector::ZeroVector;
-    float PaddleYawAcceleration = 0.f;
-    for (const FRowingRequest& Row : RowingRequests)
-        if (const AMCToothCharacter* Hero = Row.Hero.Get())
-        {
-            const auto Stroke = MCRowingStroke::Sample(RowingStrokePhase(Hero));
-            const FVector Force = FVector(Row.Direction.X,Row.Direction.Y,0)*RowAcceleration*(2.1f*Stroke.Power);
-            const FVector Arm = (Hero->GetActorLocation()-GetActorLocation()).GetClampedToMaxSize2D(155.f);
-            PaddleAcceleration += Force;
-            PaddleYawAcceleration += FMath::RadiansToDegrees(float(FVector::CrossProduct(Arm,Force).Z)/YawInertiaRadiusSquared);
-        }
+    const float Thrust = BoundedRowingSetting(RowAcceleration,360.f,0.f,1000.f);
+    const float SpeedLimit = BoundedRowingSetting(MaxTravelSpeed,480.f,60.f,800.f);
+    const float LinearDamping = BoundedRowingSetting(TravelDrag,1.1f,.1f,5.f);
+    const float Inertia = BoundedRowingSetting(YawInertiaRadiusSquared,18000.f,1000.f,100000.f);
+    const float BladeOffset = BoundedRowingSetting(PaddleLeverOffset,35.f,0.f,100.f);
+    const float YawDamping = BoundedRowingSetting(AngularDrag,1.6f,.1f,5.f);
+    const float YawLimit = BoundedRowingSetting(MaxYawSpeed,65.f,1.f,180.f);
+    const float TurnLimit = BoundedRowingSetting(MaxYawAcceleration,150.f,10.f,720.f);
     float Remaining = Dt;
     while (Remaining > UE_SMALL_NUMBER)
     {
         const float Step = FMath::Min(Remaining,.033f);
         Remaining -= Step;
+        // Sample the loaded part of each stroke at this substep, rather than
+        // stretching one render-frame sample over a whole hitch.
+        const double StrokeTime = Now-Remaining-Step*.5f;
+        FVector PaddleAcceleration = FVector::ZeroVector;
+        float PaddleYawAcceleration = 0.f;
+        const FQuat HullTurn = FRotator(0,AnchorYaw-GetActorRotation().Yaw,0).Quaternion();
+        for (const FRowingRequest& Row : RowingRequests)
+            if (const AMCToothCharacter* Hero = Row.Hero.Get())
+            {
+                const double Age = FMath::Max(0.,StrokeTime-Row.StartedAt);
+                const float Phase = float(FMath::Fmod(Age,MCRowingStroke::CycleSeconds)*UE_TWO_PI/MCRowingStroke::CycleSeconds);
+                const auto Stroke = MCRowingStroke::Sample(Phase);
+                const FVector Aim(Row.Direction.X,Row.Direction.Y,0);
+                const FVector Force = Aim*Thrust*(2.1f*Stroke.Power);
+                const FVector Across = FVector::CrossProduct(FVector::UpVector,Aim).GetSafeNormal2D();
+                const FVector RowerArm = HullTurn.RotateVector(Hero->GetActorLocation()-GetActorLocation());
+                const float Side = float(FVector::DotProduct(RowerArm,Across));
+                const float Sign = Side>12.f?1.f:Side<-12.f?-1.f:Row.Oar==0?-1.f:1.f;
+                const FVector Arm = (RowerArm+Across*(Sign*BladeOffset)).GetClampedToMaxSize2D(155.f);
+                // Preserve the sum of all forces and their actual lever arms.
+                // Opposite strokes can cancel translation while adding rotation.
+                PaddleAcceleration += Force;
+                PaddleYawAcceleration += FMath::RadiansToDegrees(float(FVector::CrossProduct(Arm,Force).Z)/Inertia);
+            }
         FVector EdgeForce = FVector::ZeroVector;
         // Turn the approach to a boundary into pressure the crew can row against,
         // rather than teleporting or reflecting a raft across the arena.
@@ -489,9 +510,10 @@ void AMCCataclysmRaft::UpdateDrift(float DeltaSeconds, double Now)
         EdgeForce.Y = 85.f * (FMath::Clamp(float(150.-(Position.Y-Min.Y))/150.f,0.f,1.f)
             - FMath::Clamp(float(150.-(Max.Y-Position.Y))/150.f,0.f,1.f));
         const FVector WaterAcceleration=Flood->FlowAtPosition(Position,this)*CurrentScale;
-        FVector Acceleration = WaterAcceleration + PaddleAcceleration + EdgeForce - HorizontalVelocity*TravelDrag;
+        FVector Acceleration = WaterAcceleration + PaddleAcceleration + EdgeForce;
         Acceleration.Z = 0;
-        HorizontalVelocity = (HorizontalVelocity+Acceleration*Step).GetClampedToMaxSize(MaxTravelSpeed);
+        const float TravelDecay = FMath::Exp(-LinearDamping*Step);
+        HorizontalVelocity = (HorizontalVelocity*TravelDecay+Acceleration*((1.f-TravelDecay)/LinearDamping)).GetClampedToMaxSize(SpeedLimit);
         FVector Candidate = Position+HorizontalVelocity*Step;
         // Clamp only the requested step; an unexpected bad spawn is never snapped inward.
         if (Position.X >= Min.X && Position.X <= Max.X) Candidate.X = FMath::Clamp(Candidate.X,Min.X,Max.X);
@@ -535,10 +557,11 @@ void AMCCataclysmRaft::UpdateDrift(float DeltaSeconds, double Now)
         const FVector Across(-Forward.Y,Forward.X,0);
         const float CrestSlope=(Flood->StormWaveHeightAt(Position+Across*90.f)
             -Flood->StormWaveHeightAt(Position-Across*90.f))/180.f;
-        const float WaterYawAcceleration=FMath::RadiansToDegrees(float(FVector::CrossProduct(Forward*30.f,WaterAcceleration).Z)/YawInertiaRadiusSquared)
+        const float WaterYawAcceleration=FMath::RadiansToDegrees(float(FVector::CrossProduct(Forward*30.f,WaterAcceleration).Z)/Inertia)
             + CrestSlope*40.f;
-        const float TurnAcceleration=FMath::Clamp(PaddleYawAcceleration+WaterYawAcceleration,-50.f,50.f);
-        YawVelocity=FMath::Clamp(YawVelocity+(TurnAcceleration-YawVelocity*AngularDrag)*Step,-MaxYawSpeed,MaxYawSpeed);
+        const float TurnAcceleration=FMath::Clamp(PaddleYawAcceleration+WaterYawAcceleration,-TurnLimit,TurnLimit);
+        const float YawDecay=FMath::Exp(-YawDamping*Step);
+        YawVelocity=FMath::Clamp(YawVelocity*YawDecay+TurnAcceleration*((1.f-YawDecay)/YawDamping),-YawLimit,YawLimit);
         const float NextYaw = FMath::UnwindDegrees(AnchorYaw+YawVelocity*Step);
         FRotator Pose = GetActorRotation(); Pose.Yaw = NextYaw;
         // Engine translation sweeps do not sweep rotation. Verify the proposed hull pose too.
@@ -762,7 +785,12 @@ void AMCCataclysmRaft::UpdateOars(double Now)
         const FVector BrushScale = Brush->GetComponentScale();
         Oar->SetWorldScale3D(BrushScale);
         const FVector Rider = DeckPose.InverseTransformPosition(Hero->GetActorLocation());
-        const float DesiredSide=Rider.Y>12.f?1.f:Rider.Y<-12.f?-1.f:(VisualPaddleSide[Side]<0?-1.f:1.f);
+        // Choose the nearby water side in the requested stroke frame. The
+        // camera can aim across or behind the hull while the rider walks.
+        const FVector DesiredLocalRow=DeckPose.InverseTransformVectorNoScale(DesiredRow).GetSafeNormal2D();
+        const FVector DesiredAcross=FVector::CrossProduct(FVector::UpVector,DesiredLocalRow).GetSafeNormal();
+        const float AcrossPosition=float(FVector::DotProduct(Rider,DesiredAcross));
+        const float DesiredSide=AcrossPosition>12.f?1.f:AcrossPosition<-12.f?-1.f:(Side==0?-1.f:1.f);
         if(VisualRowers[Side].Get()!=Hero) {
             VisualRowers[Side]=Hero;VisualPaddleSide[Side]=DesiredSide;VisualRowingDirection[Side]=DesiredRow;
         }
@@ -774,6 +802,7 @@ void AMCCataclysmRaft::UpdateOars(double Now)
         // One bounded cosmetic direction drives both the shaft and the torso.
         // Authority applies the requested force immediately; only pose motion eases.
         const FVector LocalRow=DeckPose.InverseTransformVectorNoScale(VisualRowingDirection[Side]).GetSafeNormal2D();
+        const FVector Across=FVector::CrossProduct(FVector::UpVector,LocalRow).GetSafeNormal();
         const float Sign=VisualPaddleSide[Side];
         const float Crossing=FMath::Sin((Sign+1.f)*UE_HALF_PI);
         const MCRowingStroke::FSample Stroke = MCRowingStroke::Sample(RowingStrokePhase(Hero));
@@ -781,20 +810,19 @@ void AMCCataclysmRaft::UpdateOars(double Now)
         // Reach upstream, catch, sweep the water opposite the chosen travel,
         // then lift the brush for its return. The character uses these exact
         // stages rather than a second, unsynchronised sine animation.
-        const FVector Direction = (FVector(0,Sign*.62f,-(.91f-.36f*Lift))
-            + LocalRow*(.38f*Stroke.Reach)).GetSafeNormal();
+        const FVector Direction = (Across*(Sign*.62f) + FVector(0,0,-(.91f-.36f*Lift))
+            + LocalRow*(.50f*Stroke.Reach)).GetSafeNormal();
         const FVector Contact = Hero->Inventory ? Hero->Inventory->BrushContactLocal() : FVector(72,0,-20);
         const float Length = float((Contact*BrushScale).Size());
         // Match the actual short brush. Do not enlarge it into a new long oar or
         // move the player into a seat; a small downward stroke uses nearby hands.
         const float GripHeight = FMath::Clamp(Length*.85f,DeckTop+24.f,DeckTop+48.f);
         const FVector Grip = FVector(Rider.X,Rider.Y,GripHeight+15.f*Lift-3.f*Stroke.Power)
-            + LocalRow*(15.f*Stroke.Reach) + FVector(0,Sign*28.f,0)
+            + LocalRow*(23.f*Stroke.Reach) + Across*(Sign*28.f)
             + DeckPose.InverseTransformVectorNoScale(Hero->GetActorForwardVector()).GetSafeNormal2D()*(48.f*Crossing);
         // A horizontal side hint cannot become parallel to the downward shaft,
         // including its vertical midpoint when switching sides. Up was singular
         // there and could abruptly flip the brush and both wrists.
-        const FVector Across=FVector::CrossProduct(FVector::UpVector,LocalRow).GetSafeNormal();
         Oar->SetRelativeLocationAndRotation(Grip,
             FRotationMatrix::MakeFromXY(Direction,Across).Rotator());
     }
