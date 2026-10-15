@@ -96,6 +96,12 @@ protected:
         Hit=Smooth(Hit,Input.Hit,35);
         ShieldHit=Smooth(ShieldHit,Input.ShieldHit,35);
         HitDirection=FMath::Lerp(HitDirection,Input.HitDirection,1-FMath::Exp(-25.f*Step));
+        if(Input.bMoving!=bWasMoving) {
+            bWasMoving=Input.bMoving;MovementFrom=MovementAlpha;MovementAge=0;
+        }
+        MovementAge+=Step;
+        MovementAlpha=FMath::Lerp(MovementFrom,bWasMoving?1.f:0.f,
+            FMath::SmoothStep(0.f,Input.BlendSeconds,MovementAge));
         if(Input.VisualKey!=LastKey) {LastKey=Input.VisualKey;bNewTransition=true;TransitionAge=Step;}
         // Pose samples use server time. The blend must also consume the full
         // elapsed frame, including skipped or slow animation updates.
@@ -106,15 +112,20 @@ protected:
     {
         Output.ResetToRefPose();
         FAnimationPoseData Result(Output);
-        float Sum=0;
+        float Sum=0,Authored=0;
         for(const FMCNutBossClipSample& Sample:Input.Samples) {
-            if(!Sample.Clip || Sample.Weight<=.001f) continue;
+            const float Weight=Sample.Weight*(Sample.LocomotionMode==1?1-MovementAlpha:Sample.LocomotionMode==2?MovementAlpha:1.f);
+            if(!Sample.Clip || Weight<=.001f) continue;
             FPoseContext SamplePose(Output); SamplePose.ResetToRefPose();
             FAnimationPoseData SampleData(SamplePose);
             Sample.Clip->GetAnimationPose(SampleData,FAnimExtractContext(Sample.Seconds,false,{},Sample.bLoop));
-            const float Weight=Sample.Weight;
+            if(!Input.bMage && !Sample.bAllowTankScale)
+                for(auto Bone:SamplePose.Pose.ForEachBoneIndex())
+                    SamplePose.Pose[Bone].SetScale3D(SamplePose.Pose.GetBoneContainer().GetRefPoseTransform(Bone).GetScale3D());
             FAnimationRuntime::BlendTwoPosesTogetherInPlace(Result,SampleData,Sum/(Sum+Weight)); Sum+=Weight;
+            if(!Input.bMage && Sample.Clip->EvaluateCurveData(TEXT("MCAuthoredCartoon"),FAnimExtractContext(0.,false))>.5f) Authored+=Weight;
         }
+        if(!Input.bMage && Sum>KINDA_SMALL_NUMBER) Input.AuthoredTankMotionWeight=FMath::Clamp(Authored/Sum,0.f,1.f);
         ApplyOverlays(Output.Pose);
         const int32 Count=Output.Pose.GetNumBones();
         if(bNewTransition) {
@@ -125,6 +136,11 @@ protected:
             for(auto Bone:Output.Pose.ForEachBoneIndex()) {
                 FTransform Blended; Blended.Blend(PreviousPose[Bone.GetInt()],Output.Pose[Bone],Alpha); Output.Pose[Bone]=Blended;
             }
+        // Also constrain the final crossfade: cached poses from a transform
+        // animation or a scaled reaction must never leak squash into combat.
+        if(!Input.bMage && !Input.bAllowTankScale)
+            for(auto Bone:Output.Pose.ForEachBoneIndex())
+                Output.Pose[Bone].SetScale3D(Output.Pose.GetBoneContainer().GetRefPoseTransform(Bone).GetScale3D());
         Output.Pose.NormalizeRotations();
         LastPose.SetNumUninitialized(Count);
         for(auto Bone:Output.Pose.ForEachBoneIndex()) LastPose[Bone.GetInt()]=Output.Pose[Bone];
@@ -187,6 +203,8 @@ private:
     TArray<FTransform> LastPose,PreviousPose;
     int32 LastKey=INDEX_NONE;
     float TransitionAge=1,AimYaw=0,AimPitch=0,ForwardSpeed=0,SideSpeed=0,Guard=0,Airborne=0,Hit=0,ShieldHit=0;
+    float MovementAlpha=0,MovementFrom=0,MovementAge=1;
+    bool bWasMoving=false;
     FVector HitDirection=FVector::ZeroVector;
     bool bNewTransition=false;
 };

@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "protected_assets_unchanged": true,
+  "dirty": [],
+  "pie": false,
+  "engine_settings_restored": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "map": "/Game/Maps/L_Mouth.L_Mouth"
+}

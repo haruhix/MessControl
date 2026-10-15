@@ -1,0 +1,772 @@
+{
+  "source": "C:\\Users\\vasil\\Downloads\\Telegram Desktop\\Nut_Tank2.blend1",
+  "sha256": "8e8c35c3d7045c6129330df20aae8a4fd72f5cf5c97065833d94323b192b6dd8",
+  "blender": "5.2.2 LTS",
+  "fps": 30.0,
+  "texts": [
+    "Logger"
+  ],
+  "objects": [
+    {
+      "name": "cs_arrow_cross.006",
+      "type": "MESH",
+      "dimensions": [
+        1.7627170085906982,
+        1.7627166509628296,
+        7.885245878469505e-08
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_arrow_twist.006",
+      "type": "MESH",
+      "dimensions": [
+        1.2364561557769775,
+        1.1031146129880653e-07,
+        0.6618829965591431
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_base_finger.006",
+      "type": "MESH",
+      "dimensions": [
+        0.03399281948804855,
+        0.03399281203746796,
+        0.0
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_base_finger_end.001",
+      "type": "MESH",
+      "dimensions": [
+        0.04624825716018677,
+        0.20190070569515228,
+        0.0
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_box.006",
+      "type": "MESH",
+      "dimensions": [
+        0.36184248328208923,
+        0.4319153130054474,
+        0.3339543044567108
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_circle_head.006",
+      "type": "MESH",
+      "dimensions": [
+        0.4339155852794647,
+        7.028997117686231e-08,
+        0.4339155852794647
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_circle_squashed.006",
+      "type": "MESH",
+      "dimensions": [
+        0.12537284195423126,
+        0.0,
+        0.03524114564061165
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_curve.006",
+      "type": "MESH",
+      "dimensions": [
+        0.23948456346988678,
+        0.09430056065320969,
+        0.000183041556738317
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_foot.l.006",
+      "type": "MESH",
+      "dimensions": [
+        0.1884661465883255,
+        0.34265607595443726,
+        0.20478330552577972
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_foot.r.006",
+      "type": "MESH",
+      "dimensions": [
+        0.1884661465883255,
+        0.34265607595443726,
+        0.20478330552577972
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_foot_roll.006",
+      "type": "MESH",
+      "dimensions": [
+        0.19159437716007233,
+        3.2263805849197524e-08,
+        0.19159437716007233
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_half_circle.006",
+      "type": "MESH",
+      "dimensions": [
+        9.802183065232839e-09,
+        0.1857730746269226,
+        0.0928865298628807
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_hand.006",
+      "type": "MESH",
+      "dimensions": [
+        0.1084357500076294,
+        0.1483214646577835,
+        0.06647951900959015
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_line.006",
+      "type": "MESH",
+      "dimensions": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_pos.006",
+      "type": "MESH",
+      "dimensions": [
+        0.4092244505882263,
+        0.4092244505882263,
+        1.1359810424412756e-14
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_sphere.011",
+      "type": "MESH",
+      "dimensions": [
+        0.07558874785900116,
+        0.07558874785900116,
+        0.07558874785900116
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_spine.006",
+      "type": "MESH",
+      "dimensions": [
+        0.34241995215415955,
+        1.1923448006712078e-08,
+        0.31707432866096497
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_torus_02.006",
+      "type": "MESH",
+      "dimensions": [
+        0.2856560945510864,
+        2.4734061909725824e-08,
+        0.28565603494644165
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_torus_03.006",
+      "type": "MESH",
+      "dimensions": [
+        0.12691083550453186,
+        9.902751507695484e-09,
+        0.12691083550453186
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_torus_04.006",
+      "type": "MESH",
+      "dimensions": [
+        0.05568705126643181,
+        4.2440366776475e-09,
+        0.05568704009056091
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_arm_fk.l.006",
+      "type": "MESH",
+      "dimensions": [
+        0.1179162859916687,
+        0.1407514363527298,
+        0.10882815718650818
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_arm_fk.r.006",
+      "type": "MESH",
+      "dimensions": [
+        0.5156468152999878,
+        0.6155047416687012,
+        0.47590452432632446
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_arm_ik.r.006",
+      "type": "MESH",
+      "dimensions": [
+        0.5156468152999878,
+        0.6155047416687012,
+        0.47590452432632446
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_leg_fk.l.006",
+      "type": "MESH",
+      "dimensions": [
+        0.12464220076799393,
+        0.14877989888191223,
+        0.11503569036722183
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_leg_fk.r.006",
+      "type": "MESH",
+      "dimensions": [
+        0.26256299018859863,
+        0.31340983510017395,
+        0.2423265427350998
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_shoulder.l.006",
+      "type": "MESH",
+      "dimensions": [
+        0.0,
+        0.07092191278934479,
+        0.02738776057958603
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_shoulder.r.006",
+      "type": "MESH",
+      "dimensions": [
+        0.0,
+        0.873432993888855,
+        0.33729153871536255
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_thigh_fk.l.006",
+      "type": "MESH",
+      "dimensions": [
+        0.1460094451904297,
+        0.23334887623786926,
+        0.13184243440628052
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "cs_user_c_thigh_fk.r.006",
+      "type": "MESH",
+      "dimensions": [
+        0.3519734740257263,
+        0.5625158548355103,
+        0.3178221583366394
+      ],
+      "parent": "cs_grp.001"
+    },
+    {
+      "name": "Plane",
+      "type": "MESH",
+      "dimensions": [
+        10.210878372192383,
+        10.210878372192383,
+        0.0
+      ],
+      "parent": null
+    },
+    {
+      "name": "rig",
+      "type": "ARMATURE",
+      "dimensions": [
+        1.7476229667663574,
+        1.4891712665557861,
+        1.8182787895202637
+      ],
+      "parent": "char_grp.001",
+      "bones": 286,
+      "deform_bones": [
+        "root.x",
+        "foot.l",
+        "toes_01.l",
+        "thigh_twist.l",
+        "foot.r",
+        "toes_01.r",
+        "thigh_twist.r",
+        "shoulder.r",
+        "hand.r",
+        "c_pinky1_base.r",
+        "pinky1.r",
+        "c_pinky2.r",
+        "c_pinky3.r",
+        "c_ring1_base.r",
+        "ring1.r",
+        "c_ring2.r",
+        "c_ring3.r",
+        "thumb1.r",
+        "c_thumb2.r",
+        "c_thumb3.r",
+        "c_arm_twist_offset.r",
+        "hand.l",
+        "c_pinky1_base.l",
+        "pinky1.l",
+        "c_pinky2.l",
+        "c_pinky3.l",
+        "c_ring1_base.l",
+        "ring1.l",
+        "c_ring2.l",
+        "c_ring3.l",
+        "thumb1.l",
+        "c_thumb2.l",
+        "c_thumb3.l",
+        "shoulder.l",
+        "c_arm_twist_offset.l",
+        "neck.x",
+        "head.x",
+        "leg_stretch.l",
+        "leg_twist.l",
+        "leg_stretch.r",
+        "leg_twist.r",
+        "thigh_stretch.l",
+        "thigh_stretch.r",
+        "arm_stretch.l",
+        "arm_stretch.r",
+        "forearm_stretch.l",
+        "forearm_twist.l",
+        "forearm_stretch.r",
+        "forearm_twist.r"
+      ],
+      "action": null
+    },
+    {
+      "name": "SM_Character.002",
+      "type": "MESH",
+      "dimensions": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "parent": null
+    },
+    {
+      "name": "SM_Club",
+      "type": "MESH",
+      "dimensions": [
+        0.4799818992614746,
+        1.553263783454895,
+        1.372611403465271
+      ],
+      "parent": "rig"
+    },
+    {
+      "name": "SM_NutTank",
+      "type": "MESH",
+      "dimensions": [
+        1.254499912261963,
+        1.1685447692871094,
+        1.4208836555480957
+      ],
+      "parent": "rig"
+    },
+    {
+      "name": "SM_Sheld",
+      "type": "MESH",
+      "dimensions": [
+        0.7100861668586731,
+        0.6908143162727356,
+        0.8489330410957336
+      ],
+      "parent": "rig"
+    },
+    {
+      "name": "stylized_walnut_game_ready.001",
+      "type": "MESH",
+      "dimensions": [
+        1.345381498336792,
+        1.3717973232269287,
+        1.3263009786605835
+      ],
+      "parent": null
+    }
+  ],
+  "actions": [
+    {
+      "name": "0_pose",
+      "range": [
+        1.0,
+        141.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "0_pose.001",
+      "range": [
+        0.0,
+        0.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature",
+          "type": "OBJECT"
+        },
+        {
+          "name": "OBstylized_walnut_game_ready.001",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "mixamo.com",
+      "range": [
+        1.0,
+        141.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_Atack1",
+      "range": [
+        1.0,
+        39.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_Atack2",
+      "range": [
+        1.0,
+        39.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_Atack3",
+      "range": [
+        1.0,
+        155.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_ball_end",
+      "range": [
+        1.0,
+        75.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_ball_start",
+      "range": [
+        1.0,
+        34.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_block",
+      "range": [
+        1.0,
+        56.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_damage1",
+      "range": [
+        1.0,
+        26.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_damage2",
+      "range": [
+        1.0,
+        17.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_death1",
+      "range": [
+        1.0,
+        164.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_head_turn_left",
+      "range": [
+        1.0,
+        56.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_head_turn_right",
+      "range": [
+        1.0,
+        56.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_Idle1",
+      "range": [
+        1.0,
+        56.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_Jump_atack1",
+      "range": [
+        1.0,
+        155.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "NUT_stun",
+      "range": [
+        1.0,
+        56.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    },
+    {
+      "name": "pose_0",
+      "range": [
+        0.0,
+        0.0
+      ],
+      "manual": false,
+      "manual_range": [
+        0.0,
+        0.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ],
+      "markers": []
+    }
+  ]
+}

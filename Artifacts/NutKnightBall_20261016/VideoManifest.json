@@ -1,0 +1,98 @@
+{
+  "preview": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\preview.mp4",
+  "full_preview": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\full_preview.mp4",
+  "clips": [
+    {
+      "case": "locomotion",
+      "caption": "Idle → ходьба → idle: смешивание 0,25 с",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\locomotion.mp4",
+      "frames": 46,
+      "full_decode": true
+    },
+    {
+      "case": "attack1",
+      "caption": "Обычный удар 1",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\attack1.mp4",
+      "frames": 22,
+      "full_decode": true
+    },
+    {
+      "case": "attack2",
+      "caption": "Обычный удар 2",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\attack2.mp4",
+      "frames": 22,
+      "full_decode": true
+    },
+    {
+      "case": "attack3",
+      "caption": "Комбо: последний удар — АОЕ",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\attack3.mp4",
+      "frames": 81,
+      "full_decode": true
+    },
+    {
+      "case": "jump",
+      "caption": "Новый прыжок",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\jump.mp4",
+      "frames": 46,
+      "full_decode": true
+    },
+    {
+      "case": "walk",
+      "caption": "Ходьба",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\walk.mp4",
+      "frames": 16,
+      "full_decode": true
+    },
+    {
+      "case": "roll",
+      "caption": "Новые вход и выход из шара",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\roll.mp4",
+      "frames": 252,
+      "full_decode": true
+    },
+    {
+      "case": "retarget",
+      "caption": "Каждая шестая смена цели — случайный поворот головы",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\retarget.mp4",
+      "frames": 116,
+      "full_decode": true
+    },
+    {
+      "case": "block",
+      "caption": "Фронтальный блок",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\block.mp4",
+      "frames": 18,
+      "full_decode": true
+    },
+    {
+      "case": "rear_hit",
+      "caption": "Урон со спины",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\rear_hit.mp4",
+      "frames": 17,
+      "full_decode": true
+    },
+    {
+      "case": "break",
+      "caption": "Разрушение щита",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\break.mp4",
+      "frames": 6,
+      "full_decode": true
+    },
+    {
+      "case": "stun",
+      "caption": "Стан и урон в стане",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\stun.mp4",
+      "frames": 48,
+      "full_decode": true
+    },
+    {
+      "case": "death",
+      "caption": "Смерть",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightBall_20261016\\death.mp4",
+      "frames": 87,
+      "full_decode": true
+    }
+  ],
+  "source": "Genuine solo PIE SceneCapture2D under L_Mouth lighting and copied player-camera postprocess. Review camera follows the rolling boss; fixed framing for locomotion and head turns. 15 Hz capture, 30 fps encoding with repeated frames, normal simulation speed. Text captions added; no generated poses or interpolated motion. Silent. Full review retains the combat capture, with some cropping during the jump."
+}

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "source_preserved": true,
+  "all_preexisting_tank_assets_preserved": true,
+  "unrelated_assets_preserved": true,
+  "dirty": [],
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": false,
+  "engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "engine_settings_restored": true
+}

@@ -6,7 +6,7 @@
 
 class UAnimSequence;
 
-enum class EMCNutBossClip : uint8 { Idle, Walk, WalkLeft, WalkRight, Melee, Jump, Transform, Cast, HeavyCast, Summon, Rain, Hit, Death, ChargeTell, ChargeLoop, ChargeRecovery, ShieldBreak, UnshieldedIdle, UnshieldedWalk, Melee2, MeleeCombo, Block, StunHit, Count };
+enum class EMCNutBossClip : uint8 { Idle, Walk, WalkLeft, WalkRight, Melee, Jump, Transform, Cast, HeavyCast, Summon, Rain, Hit, Death, ChargeTell, ChargeLoop, ChargeRecovery, ShieldBreak, UnshieldedIdle, UnshieldedWalk, Melee2, MeleeCombo, Block, StunHit, BallEnd, HeadLeft, HeadRight, Count };
 enum class EMCNutPoseBone : uint8 { Torso, Head, LeftArm, RightArm, LeftForearm, RightForearm, LeftHand, RightHand, Count };
 
 struct FMCNutBossClipSample
@@ -14,6 +14,9 @@ struct FMCNutBossClipSample
     UAnimSequence* Clip=nullptr;
     float Seconds=0,Weight=0;
     bool bLoop=false;
+    /** 0: action, 1: idle, 2: walking; locomotion crossfades on the animation thread. */
+    uint8 LocomotionMode=0;
+    bool bAllowTankScale=false;
 };
 
 /** Written only on the game thread. Evaluation consumes values and pinned clip assets, never gameplay objects. */
@@ -23,7 +26,9 @@ struct FMCNutBossAnimationSnapshot
     int32 Bones[int32(EMCNutPoseBone::Count)]={INDEX_NONE,INDEX_NONE,INDEX_NONE,INDEX_NONE,INDEX_NONE,INDEX_NONE,INDEX_NONE,INDEX_NONE};
     int32 VisualKey=0;
     double ServerTime=0;
-    float BlendSeconds=.18f,ForwardSpeed=0,SideSpeed=0,AimYaw=0,AimPitch=0;
+    float BlendSeconds=.25f,ForwardSpeed=0,SideSpeed=0,AimYaw=0,AimPitch=0;
+    bool bMoving=false;
+    bool bAllowTankScale=false;
     float Cast=0,CastProgress=0,Release=0,Channel=0,Guard=0,Hit=0,ShieldHit=0,Death=0,Airborne=0,Melee=0,MeleePhase=0;
     float CastReleaseFraction=.55f;
     FVector HitDirection=FVector::ZeroVector;

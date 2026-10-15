@@ -1,0 +1,14 @@
+{
+  "passed": false,
+  "error": "Traceback (most recent call last):\n  File \"D:/PROJECT/GAME/WaifuTD/MessControl/Tools/Unreal/check_nut_knight_playback_solo.py\", line 82, in tick\n    self.record(now)\n  File \"D:/PROJECT/GAME/WaifuTD/MessControl/Tools/Unreal/check_nut_knight_playback_solo.py\", line 47, in record\n    scale_error=max((model.get_socket_transform(n,u.RelativeTransformSpace.RTS_COMPONENT).scale3d-self.reference_scales[str(n)]).length() for n in self.bones)\n                                                                                                                                                   ^^^^^^^^^^\nAttributeError: 'PlaybackCheck' object has no attribute 'bones'\n",
+  "checks": [],
+  "samples": [],
+  "captures": [],
+  "inputs": [],
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "scope": "Bounded solo check: full jump/combo tails, scale invariance and floor pivot.\n\nUses the existing native Knight fixture and real tool input. Controls are\nobserver placement/HP, ability readiness, zero chase speed for turn observation,\na one-second roll for entry/exit observation, and temporarily routing BallEnd\n(which contains non-unit scale keys) through the ordinary damage slot. This\nstress clip is PIE-only; no animation, skeleton or original profile is edited.\nNo attack phase, hit result or evaluated pose is fabricated.\n"
+}

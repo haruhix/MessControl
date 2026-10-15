@@ -11,7 +11,7 @@ UENUM(BlueprintType)
 enum class EMCNutBossRole : uint8 { Tank, Mage };
 
 UENUM(BlueprintType)
-enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated, Stunned };
+enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated, Stunned, Retargeting };
 
 UENUM(BlueprintType)
 enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport };
@@ -56,7 +56,16 @@ struct MESSCONTROL_API FMCNutBossSettings
     /** Looped shield-break stun pose; TankStunSeconds controls the authority window. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankShieldBreakAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankJumpAnimation;
+    /** Full authored jump length, including its recovery; server-safe without loaded clips. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation",meta=(ClampMin="1",ClampMax="10",Units="s")) float TankJumpAnimationSeconds=5.1333333f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankTransformAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankBallEndAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankHeadLeftAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankHeadRightAnimation;
+    /** Gameplay durations remain available without cosmetic assets on a dedicated server. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float TankBallEndSeconds=2.4666667f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") float TankHeadTurnSeconds=1.8333333f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation",meta=(ClampMin="0.08",ClampMax="0.5",Units="s")) float TankAnimationBlendSeconds=.25f;
     /** Optional dedicated charge phases. Missing clips retain the legacy accelerated walk. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankChargeTellAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankChargeLoopAnimation;

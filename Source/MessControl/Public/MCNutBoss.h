@@ -9,6 +9,7 @@ class AMCNutRainEvent;
 class AMCNutCombatEffect;
 class AMCNutSpellProjectile;
 class USkeletalMeshComponent;
+class USceneComponent;
 class AMCVFXLabBossStation;
 struct FMCNutBossAnimationSnapshot;
 
@@ -38,6 +39,8 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Kernel;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> OpenShell;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> TankModel;
+    /** Floor-level turning axis underneath the nut, independent of weapon/shield bounds. */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USceneComponent> TankTurnPivot;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USkeletalMeshComponent> MageModel;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> TankBall;
     UPROPERTY(Replicated, BlueprintReadOnly) TObjectPtr<AMCNutRainEvent> EncounterOwner;
@@ -57,6 +60,9 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Animation") bool bLastToolHitBlocked=false;
     /** 0/1: one authored swing, 2: three contacts ending in a ground slam. */
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Animation") uint8 TankMeleeVariant=0;
+    /** Initial acquisition and reselecting the same player are not switches. */
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Animation") int32 TargetSwitchCount=0;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Animation") uint8 HeadTurnVariant=0;
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Shield") double ShieldBrokenAt=-100;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly,Category="Shield") float ShieldHealth=500;
     UPROPERTY(Replicated, BlueprintReadOnly) FVector VisualHitDirection=FVector::ZeroVector;
@@ -84,6 +90,8 @@ private:
     double Now() const;
     void Enter(EMCNutBossState Next,float Seconds);
     void SelectTarget(bool bRandom);
+    void RecordTargetSwitch(const AMCToothCharacter* PreviousTarget);
+    void TurnTowards(FVector Direction,float Dt);
     bool LockSurfacePoint(FVector Candidate,float Margin,FVector& Result) const;
     void BeginAttack(EMCNutBossAttack Next);
     void ExecuteAttack(float Dt);
@@ -122,12 +130,13 @@ private:
     int32 RainDropsResolved=0;
     int32 MeleeHitsResolved=0;
     uint32 TankMeleeSequence=0;
+    TArray<uint8> PendingHeadTurns;
     float PlannedRollSeconds=12;
     TSet<TWeakObjectPtr<AMCToothCharacter>> AttackHits;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RainHitAt;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RollHitAt;
     FVector TankModelScale=FVector::OneVector;
-    FVector TankModelCenter=FVector::ZeroVector;
+    FVector TankModelGroundAnchor=FVector::ZeroVector;
     FVector TankBallScale=FVector::OneVector,TankBallCenter=FVector::ZeroVector;
     FVector MageModelScale=FVector::OneVector,MageModelCenter=FVector::ZeroVector;
     UPROPERTY(Transient) TArray<TObjectPtr<UAnimSequence>> BossAnimations;

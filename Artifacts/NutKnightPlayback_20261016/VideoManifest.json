@@ -1,0 +1,48 @@
+{
+  "preview": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightPlayback_20261016\\preview.mp4",
+  "clips": [
+    {
+      "case": "attack3",
+      "caption": "Полное комбо, включая последний кадр",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightPlayback_20261016\\attack3.mp4",
+      "source_frames": 84,
+      "decode_passed": true
+    },
+    {
+      "case": "jump",
+      "caption": "Полный прыжок и восстановление",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightPlayback_20261016\\jump.mp4",
+      "source_frames": 94,
+      "decode_passed": true
+    },
+    {
+      "case": "rotate",
+      "caption": "Ось поворота под орехом, между ногами",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightPlayback_20261016\\rotate.mp4",
+      "source_frames": 30,
+      "decode_passed": true
+    },
+    {
+      "case": "damage",
+      "caption": "Получение урона: постоянный размер",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightPlayback_20261016\\damage.mp4",
+      "source_frames": 25,
+      "decode_passed": true
+    },
+    {
+      "case": "roll",
+      "caption": "Вход и выход из шара сохраняют свой масштаб",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightPlayback_20261016\\roll.mp4",
+      "source_frames": 87,
+      "decode_passed": true
+    },
+    {
+      "case": "death",
+      "caption": "Смерть: постоянный размер до конца",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightPlayback_20261016\\death.mp4",
+      "source_frames": 87,
+      "decode_passed": true
+    }
+  ],
+  "provenance": "Genuine solo PIE SceneCapture2D, L_Mouth lighting and copied player-camera postprocess. Camera follows jump/roll for complete framing and stays fixed during turning. Normal simulation speed, 15 Hz capture, 30 fps encoding with repeated frames, captions only, silent. Stress scale-key reaction uses a temporary PIE-only binding and is excluded from this ordinary gameplay preview; its metrics and source frames remain in SoloCheck.json."
+}
