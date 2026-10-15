@@ -1,0 +1,11 @@
+{
+  "binary": "E:\\DEVGAME\\MessControl\\Binaries\\Win64\\UnrealEditor-MessControl.dll",
+  "sha256": "d8cf2832256a8fab80f702cdeac8869b9bb4053e8e9184d50af4f3dd40e55b35",
+  "build_command": "Tools/Build.ps1 -EngineRoot E:/UE/UE_5.8",
+  "result": "Succeeded",
+  "native_source_sha256": {
+    "Source\\MessControl\\Private\\MCMouthLiquid.cpp": "1e038a2b972b92833b00a6e282fbdb84b80f2a5e3c57fe302b69f2f04fbd07fb",
+    "Source\\MessControl\\Public\\MCMouthSurface.h": "08b16d6afa4394486826eae980582ba954042aa1f67fe1dab24e942b84163957"
+  },
+  "last_write_unix_seconds": 1792057044.770089
+}

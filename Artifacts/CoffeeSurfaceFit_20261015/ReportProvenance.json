@@ -1,0 +1,16 @@
+{
+  "Baseline": {
+    "source": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSurfaceFit\\Baseline\\Capture\\Report_paint.json",
+    "source_sha256": "e23a1e9cd7179bc98b4fd1e8d79ecc01e6cdcb868fc4aee3a64599681ae8d464",
+    "artifact": "BaselineReport.json",
+    "artifact_sha256": "966a38bbef5eaa5a7ec751ce60e7f4299e9692212c20a912beb22d8372f0174c",
+    "parsed_data_equal": true
+  },
+  "Fixed": {
+    "source": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSurfaceFit\\Fixed\\Capture\\Report_paint.json",
+    "source_sha256": "7e1969323e242a7b7906f1d9f302d29c3acae5ecfae21f358fb663bc1831b7eb",
+    "artifact": "FixedReport.json",
+    "artifact_sha256": "7502d5bc6419dbeb54cf2a19a813a24fd855952f66b714497cd01ac7b239665b",
+    "parsed_data_equal": true
+  }
+}

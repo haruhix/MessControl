@@ -277,3 +277,19 @@ passed. The engine migration also checks updated rest transforms and all five
 clips, including a33.998cmHop. `Artifacts/CoffeeSlimeV2_20261015` contains final
 solo reports, sampled review frames and short genuine gameplay previews;
 `v2/review/CoffeeSlimeV2_Motion.mp4` shows the authored motion in studio lighting.
+
+Follow-up surface-fit correction: user screenshots exposed straight triangle
+cutouts missed in the first gameplay review. The independent coarse paint grid
+intersected the deforming tongue; increasing mask resolution would not address
+that geometric cause. The repair clips native tongue faces to each tile, carries
+barycentric bindings through clipping and follows each tongue revision with a
+uniform 0.6 cm upward offset. It reuses the existing masked material and cleaning
+UVs, with no new texture, transparency layer or collision. The focused probe is
+`Tools/Unreal/probe_coffee_surface_fit_solo.py`; baseline, fixed validation and
+gameplay previews are recorded separately from the original v2 acceptance.
+The authorized Editor build and 18 focused solo checks passed: 4663 wet samples
+showed no intersection, with a consistent 0.6 cm surface offset. The lead opened
+the gameplay, trail, post-rupture and brush stills. The pressure dent under the
+player remains; Walking mode and actual blocking floor hits confirm support in
+both fixed snapshots. Videos repeat genuine 12 Hz captures at 30 fps, without
+generated motion; four startup editor-window frames are explicitly excluded.

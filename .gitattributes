@@ -34,4 +34,5 @@ Artifacts/CoffeeSlime_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof
 Artifacts/RowingFeel_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CoffeeSlimeV2_20261015/**/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CoffeeSlimeV2_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/CoffeeSurfaceFit_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CataclysmInflow_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol

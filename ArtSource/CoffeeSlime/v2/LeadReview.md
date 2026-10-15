@@ -53,3 +53,39 @@ Repair verified: the original PNG contained raw intended linear values in an sRG
 The first import gate correctly rejected the stale v1 skeleton reference pose. UE5.8's reimport path replaces the task's skeletal ImportData with the existing mesh's AssetImportData. The importer now updates the effective existing data before reimport, then checks mesh/skeleton rest parity and all five new clips. A second guarded resume exposed a non-reflected `last_import_content_type` property; that setter was removed. The corrected migration passed without weakening the pose checks, preserving the original disk backup and all unrelated dirty work. No native build was needed.
 
 Final evidence, sampled PNGs and short encoded clips: `Artifacts/CoffeeSlimeV2_20261015`. Capture sampling is12Hz, encoded by repeating frames at30fps with no generated motion. Review is based on opened stills/contact sheets and recorded native telemetry, not a performance or network claim.
+
+## User-reported surface-fit defect after the initial push
+
+The initial gameplay review missed straight polygonal cutouts in the paint. A
+focused follow-up probe reproduced the geometric cause: a 1200 cm paint tile used
+an independent 20x20 grid, whose triangle interiors crossed the finer deforming
+tongue. The baseline observed 9 wet sample points below the rendered tongue out
+of 3469 comparisons. This is surface occlusion, distinct from intentional holes
+in the cleaning mask.
+
+Both baseline player snapshots remained in Walking on TongueSurface with zero
+velocity and capsule clearance about 2.25 cm. The tongue itself was indented
+6.0–6.4 cm by the existing weight-pressure system (actual preset limit 18 cm).
+These observations distinguish a supported player in a pressure dent from a
+fall through collision; they do not establish every possible player position.
+
+The follow-up source clips native tongue triangles to each paint tile, retains
+their barycentric bindings and cleaning UVs, and uses a shared +Z 0.6 cm offset.
+Paint updates after each tongue geometry revision, without rebuilding topology
+for deformation. Ordinary puddles, mask coverage, cleanup and collision are
+unchanged. Engine acceptance of this repair is recorded separately below.
+
+Repair accepted after the authorized Editor build and focused solo run. All 18
+checks passed: 4663 wet comparisons had no intersections, and measured clearance
+was 0.6 cm throughout both snapshots. The player remained Walking on a blocking,
+walkable TongueSurface with zero velocity; the actual floor hit was decoded in
+the fixed run. Native trails, rupture and brush cleaning passed their existing
+tool-input checks. The lead opened actual gameplay, trail, post-rupture and brush
+frames in `Artifacts/CoffeeSurfaceFit_20261015`. The geometric cutouts are gone;
+the weight-pressure dent remains intentional. Maximum observed tile size is 3324
+vertices / 1158 triangles, compared with the old 441 / 800; the revision-bound
+update follows the tongue rather than a separate 60 Hz clock. This is a geometry
+count observation, not a GPU performance claim. Two sampled snapshots and still
+review do not prove every pixel, animation frame or multiplayer peer. Four
+startup captures of the editor window were excluded from video export; source
+frames and their recorded exclusion metadata are retained.

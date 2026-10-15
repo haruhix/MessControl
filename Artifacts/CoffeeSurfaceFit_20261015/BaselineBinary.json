@@ -1,0 +1,7 @@
+{
+  "captured_at": "2026-10-15T18:36:58.9448684+09:00",
+  "binary": "E:\\DEVGAME\\MessControl\\Binaries\\Win64\\UnrealEditor-MessControl.dll",
+  "binary_last_write": "2026-10-15T09:59:57.3098323+09:00",
+  "sha256": "699D06CB21382193C01A921DE2575ED2E07DC6E5D9CC16599EFC3E5D51F53CFA",
+  "note": "Hash captured after baseline and before successful fixed build. First build attempt has compile error and has not linked. Baseline report working-source hashes may include the unbuilt repair; actual baseline mesh had 441 vertices and 800 triangles per tile."
+}

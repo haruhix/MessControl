@@ -1,0 +1,1399 @@
+{
+  "metadata": {
+    "mode": "paint",
+    "clip": "jelly_paint_gameplay",
+    "video": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_gameplay.mp4",
+    "poster": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_gameplay.png",
+    "video_sha256": "9a3a27268b989d448b3acf4e664ebb4724e45bf7db0dd257ea0878032d5cb545",
+    "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_gameplay.frames.json",
+    "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_gameplay.ffconcat",
+    "genuine_source_frames": 41,
+    "timestamp_basis": "recorded game seconds",
+    "source_time_start_seconds": 11.883333953097463,
+    "source_time_end_seconds": 15.300000797957182,
+    "source_game_span_seconds": 3.4166668448597193,
+    "terminal_padding_seconds": 0.001,
+    "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+    "crop": "Floating-window chrome removed at x=3 y=35",
+    "camera_validation": {
+      "view_target_matches": true,
+      "maximum_location_error_cm": 0.0,
+      "maximum_rotation_error_degrees": 0.0
+    },
+    "visual_quality_review": "Pending root inspection of actual video",
+    "encoded": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1",
+          "nb_frames": "103"
+        }
+      ],
+      "format": {
+        "duration": "3.433333"
+      }
+    }
+  },
+  "frame_durations_seconds": [
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.10000000521540642,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.10000000521540642,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.10000000521540642,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.10000000521540642,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.10000000521540642,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.08333333767950535,
+    0.001
+  ],
+  "frames": [
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00120.png",
+      "time": 11.883333953097463,
+      "sha256": "a9d175f6969bade1372d941ea219427b3c538b64e30b698864954d51b4f028c8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 992785,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1620.0000025013835,
+          14.59620347210506,
+          671.5981407562463
+        ],
+        "expected_cm": [
+          -1620.0000025013835,
+          14.59620347210506,
+          671.5981407562463
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00121.png",
+      "time": 11.966667290776968,
+      "sha256": "4ef7a68509aec057295552b01a8d38abc12ef2134c6da622e299e2aeefa4e8ff",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 949592,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1619.7412318238678,
+          22.968141041258917,
+          671.4447114364672
+        ],
+        "expected_cm": [
+          -1619.7412318238678,
+          22.968141041258917,
+          671.4447114364672
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00122.png",
+      "time": 12.050000628456473,
+      "sha256": "2240706f71d6085121c09d97f2267e259285ed9686e7b07e24a492647698b924",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1005984,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1620.0000300746158,
+          27.54680217100824,
+          671.5981571567054
+        ],
+        "expected_cm": [
+          -1620.0000300746158,
+          27.54680217100824,
+          671.5981571567054
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00123.png",
+      "time": 12.133333966135979,
+      "sha256": "aa9b055d8b5642d4b1bd210323e08ad34277efd8b3cb48bfb6f6623a40f4271d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1008472,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1609.007710089592,
+          34.965683968160846,
+          665.3284264616673
+        ],
+        "expected_cm": [
+          -1609.007710089592,
+          34.965683968160846,
+          665.3284264616673
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00124.png",
+      "time": 12.216667303815484,
+      "sha256": "1458a1628bc8d65978e99beb875ea3bff5cacc9660323c2e73777a3d64225ed3",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1003095,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.1217429328408,
+          36.402623781312826,
+          669.3838637044544
+        ],
+        "expected_cm": [
+          -1616.1217429328408,
+          36.402623781312826,
+          669.3838637044544
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00125.png",
+      "time": 12.30000064149499,
+      "sha256": "9ef30a501fa4a17b62f78df6d53d651b5887670777748cb4d91aefe44fd5157f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1001806,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1601.792239448514,
+          42.89573051756065,
+          661.6256581401319
+        ],
+        "expected_cm": [
+          -1601.792239448514,
+          42.89573051756065,
+          661.6256581401319
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00126.png",
+      "time": 12.383333979174495,
+      "sha256": "e8a48f0664253447fb88add388132022cb04fec18b053ab34f00293f0536f99b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1029289,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1613.4472278823123,
+          43.148020864948734,
+          668.0045076762443
+        ],
+        "expected_cm": [
+          -1613.4472278823123,
+          43.148020864948734,
+          668.0045076762443
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00127.png",
+      "time": 12.483333984389901,
+      "sha256": "3445668b8d2cd577082ed71cfac4fd059a18dae034ac29dd6c755ce1c3b07104",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1003706,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1596.7284943669815,
+          49.98383326095524,
+          659.3186905220282
+        ],
+        "expected_cm": [
+          -1596.7284943669815,
+          49.98383326095524,
+          659.3186905220282
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00128.png",
+      "time": 12.566667322069407,
+      "sha256": "e41eb87920369c8344a210243929d747f265763c5031b7f5364e28ebd2a9d3d9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1004054,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1611.5179704607308,
+          49.51996442181945,
+          667.1125279121052
+        ],
+        "expected_cm": [
+          -1611.5179704607308,
+          49.51996442181945,
+          667.1125279121052
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00129.png",
+      "time": 12.650000659748912,
+      "sha256": "6a0382a06862556b0067d1922b95b0af629d3453373333c21eacee29ab947706",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1032928,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.9863257129987,
+          49.979175896084655,
+          670.003387866289
+        ],
+        "expected_cm": [
+          -1616.9863257129987,
+          49.979175896084655,
+          670.003387866289
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00130.png",
+      "time": 12.733333997428417,
+      "sha256": "52a6c6aab023ec8e0482c9ac7289d299d37f69c61780063a5f4e0bda94c32f87",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1013554,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1613.934988943092,
+          51.54251627930756,
+          668.670639471382
+        ],
+        "expected_cm": [
+          -1613.934988943092,
+          51.54251627930756,
+          668.670639471382
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00131.png",
+      "time": 12.816667335107923,
+      "sha256": "e9048dfdd63d3154c1e6972973f1a18573a9f7e205d18d5b140275d0501b9efc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 992998,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1617.292727965189,
+          51.25842075596856,
+          670.5873360948427
+        ],
+        "expected_cm": [
+          -1617.292727965189,
+          51.25842075596856,
+          670.5873360948427
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00132.png",
+      "time": 12.900000672787428,
+      "sha256": "cc8bdd0482ff06f63b08132e2c7a644ebb9e98e852ca5f3f30e760fab84e64fc",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 974001,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1618.8537879820647,
+          51.14321428617063,
+          671.5558868141745
+        ],
+        "expected_cm": [
+          -1618.8537879820647,
+          51.14321428617063,
+          671.5558868141745
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00133.png",
+      "time": 12.983334010466933,
+      "sha256": "823b91e29e7ba7b0119ddcacc0ae7cf40d8de56a269397a1d3fae4322cd8ceb7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1024761,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1618.6368984171286,
+          51.302623008917095,
+          671.5981459964526
+        ],
+        "expected_cm": [
+          -1618.6368984171286,
+          51.302623008917095,
+          671.5981459964526
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00134.png",
+      "time": 13.08333401568234,
+      "sha256": "ae0d4b2cf53751edf52bb9970f7b70e03f4306fd658a518da7469707a616b786",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1003559,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1618.3860725682357,
+          51.41374029629708,
+          671.5981300178177
+        ],
+        "expected_cm": [
+          -1618.3860725682357,
+          51.41374029629708,
+          671.5981300178177
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00135.png",
+      "time": 13.166667353361845,
+      "sha256": "f503567a114e0a84db9164f5a1a45c0b04eeb7c6b660336b5346f217c4bf82f8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 976471,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1617.917376735056,
+          51.4875793025669,
+          671.5105486848665
+        ],
+        "expected_cm": [
+          -1617.917376735056,
+          51.4875793025669,
+          671.5105486848665
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00136.png",
+      "time": 13.25000069104135,
+      "sha256": "74bf527492a6c5010e3b21ae89d6a90d254ab3deb0037ae7e484684af7ccb871",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1028626,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1617.8513722938346,
+          51.49888998810752,
+          671.5647350723634
+        ],
+        "expected_cm": [
+          -1617.8513722938346,
+          51.49888998810752,
+          671.5647350723634
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00137.png",
+      "time": 13.333334028720856,
+      "sha256": "9ee24ebbba0157dad6d2870cf892edeff283e220737f85b41f688e1dfff98d08",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1033724,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1617.4629727688575,
+          51.52144432317442,
+          671.5192368635329
+        ],
+        "expected_cm": [
+          -1617.4629727688575,
+          51.52144432317442,
+          671.5192368635329
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00138.png",
+      "time": 13.416667366400361,
+      "sha256": "03fd68e9ae0c65f018325e8fed8d254220e2a50cb9c33b5fdc0e1643ddde6c1e",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1027723,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1617.4041784910232,
+          51.51271055942564,
+          671.5981542826872
+        ],
+        "expected_cm": [
+          -1617.4041784910232,
+          51.51271055942564,
+          671.5981542826872
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00139.png",
+      "time": 13.500000704079866,
+      "sha256": "4cbe0eeb8f741e16d4f06ee5feba1f74053d5bd7723f530aa8c74e313104b16f",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1024654,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1617.055346036791,
+          51.46935626573048,
+          671.5360331418153
+        ],
+        "expected_cm": [
+          -1617.055346036791,
+          51.46935626573048,
+          671.5360331418153
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00140.png",
+      "time": 13.583334041759372,
+      "sha256": "b07424245bea1826bc0862c228f561029ec153501be9a7c8d196012ca766e1a6",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1048272,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.871325523702,
+          51.37001686343777,
+          671.5768024098395
+        ],
+        "expected_cm": [
+          -1616.871325523702,
+          51.37001686343777,
+          671.5768024098395
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00141.png",
+      "time": 13.683334046974778,
+      "sha256": "0162a1580d744b21c4aa9926cafed4c05f55ddde7857186c1603b53d11e7e926",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1031473,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.7456748386912,
+          51.30754161519717,
+          671.5981250897187
+        ],
+        "expected_cm": [
+          -1616.7456748386912,
+          51.30754161519717,
+          671.5981250897187
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00142.png",
+      "time": 13.766667384654284,
+      "sha256": "7eeaefb9da53b678d1a7ece2c354e252185d963fa494c4ab72a42b5347ab752d",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1026386,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.595446926889,
+          51.28861790846199,
+          671.5547346764856
+        ],
+        "expected_cm": [
+          -1616.595446926889,
+          51.28861790846199,
+          671.5547346764856
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00143.png",
+      "time": 13.850000722333789,
+      "sha256": "c7c8d4050078a622242963df786520c5775a18811c589f04c61a0242d3c00f0b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1049294,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.6088468415383,
+          51.26938653578709,
+          671.5845841954101
+        ],
+        "expected_cm": [
+          -1616.6088468415383,
+          51.26938653578709,
+          671.5845841954101
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00144.png",
+      "time": 13.933334060013294,
+      "sha256": "3fdff42b681365f09cd00db73025d637f7c1f09172eb7bc0ada0ce74d9ace817",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1033636,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.405514629198,
+          51.27996892097866,
+          671.4796522908712
+        ],
+        "expected_cm": [
+          -1616.405514629198,
+          51.27996892097866,
+          671.4796522908712
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00145.png",
+      "time": 14.0166673976928,
+      "sha256": "e3d7edde0301778fa32580c756948189ffdf787914f99f35964a372902f86ca9",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1007876,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.4757921387686,
+          51.26797226183811,
+          671.5263065409379
+        ],
+        "expected_cm": [
+          -1616.4757921387686,
+          51.26797226183811,
+          671.5263065409379
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00146.png",
+      "time": 14.100000735372305,
+      "sha256": "0c4067b99275d30a6a9d11280d8f401c734c8b8988cd945a1cb42a0513ec9467",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 988535,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.4904597221048,
+          51.26369583121294,
+          671.5375536286456
+        ],
+        "expected_cm": [
+          -1616.4904597221048,
+          51.26369583121294,
+          671.5375536286456
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00147.png",
+      "time": 14.18333407305181,
+      "sha256": "f73faa31394f50c357a1226ddd8a58663c0c26e33c0820d5a92270614f26d555",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1034946,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.4996208457346,
+          51.26108565428187,
+          671.5450232076005
+        ],
+        "expected_cm": [
+          -1616.4996208457346,
+          51.26108565428187,
+          671.5450232076005
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00148.png",
+      "time": 14.283334078267217,
+      "sha256": "2763e61ce280225f2302af44086972c88d97b762bbba60d3aa23260f5af17c5b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1015409,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.5847987485497,
+          51.24985408750396,
+          671.5981358397627
+        ],
+        "expected_cm": [
+          -1616.5847987485497,
+          51.24985408750396,
+          671.5981358397627
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00149.png",
+      "time": 14.366667415946722,
+      "sha256": "541991bd0db86f74e275ec3ce5ba1145a25e13632e3d7dbc462bd60b90c92d28",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 987744,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.300984797168,
+          51.28595164376185,
+          671.4206502799168
+        ],
+        "expected_cm": [
+          -1616.300984797168,
+          51.28595164376185,
+          671.4206502799168
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00150.png",
+      "time": 14.450000753626227,
+      "sha256": "dd6ab2b884b5312bd77fdccf0f9e166e25b734242428e3394e4639a5aeea63b8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1037773,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.440012647964,
+          51.267761999752935,
+          671.5082168117235
+        ],
+        "expected_cm": [
+          -1616.440012647964,
+          51.267761999752935,
+          671.5082168117235
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00151.png",
+      "time": 14.533334091305733,
+      "sha256": "b8ab4d02cef50ff7d709241891aa9154ad540670e7071ddcd58deda1d0e772b5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1044938,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.4349726618998,
+          51.270999185482836,
+          671.5029648068385
+        ],
+        "expected_cm": [
+          -1616.4349726618998,
+          51.270999185482836,
+          671.5029648068385
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00152.png",
+      "time": 14.616667428985238,
+      "sha256": "6237c25cfbeb01c3a8f9cbc762d05c0087026a251417715f0dbd70ead5c5e3c5",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1036335,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1616.4983236443313,
+          51.26154462882056,
+          671.543845985407
+        ],
+        "expected_cm": [
+          -1616.4983236443313,
+          51.26154462882056,
+          671.543845985407
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00153.png",
+      "time": 14.700000766664743,
+      "sha256": "008f9643588804675b28f233c567cbf07ea903f907686193be0e21b2ac89f190",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1014588,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1603.8880302078019,
+          53.48479089114585,
+          663.739944336276
+        ],
+        "expected_cm": [
+          -1603.8880302078019,
+          53.48479089114585,
+          663.739944336276
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00154.png",
+      "time": 14.783334104344249,
+      "sha256": "99097dc4db737b88a8cd6cb00763a8f12d173128342d044fa840fbdb06d30f3a",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1041856,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1611.9002271292534,
+          52.0736436060385,
+          668.6994138739879
+        ],
+        "expected_cm": [
+          -1611.9002271292534,
+          52.0736436060385,
+          668.6994138739879
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00155.png",
+      "time": 14.883334109559655,
+      "sha256": "0a0717aed29efaa02b87eb1c9ac518895647379b5544a2deb005d511c67f60b0",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1017825,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1598.7555542054665,
+          54.86174039899373,
+          660.9706446166346
+        ],
+        "expected_cm": [
+          -1598.7555542054665,
+          54.86174039899373,
+          660.9706446166346
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00156.png",
+      "time": 14.96666744723916,
+      "sha256": "97b4d36e0d4d3eae319fad89222d56c81875e12fa7ae13e5236b4f9d87c7341b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1012665,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1609.8413989430796,
+          52.61509569990068,
+          667.5729996851021
+        ],
+        "expected_cm": [
+          -1609.8413989430796,
+          52.61509569990068,
+          667.5729996851021
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00157.png",
+      "time": 15.050000784918666,
+      "sha256": "116d110022ca8c200ad5fc944b59d7ef3ce82f2633fa1fa4d38b84cd74e0ae52",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1042766,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1614.075945524743,
+          51.756926433674124,
+          670.101175743637
+        ],
+        "expected_cm": [
+          -1614.075945524743,
+          51.756926433674124,
+          670.101175743637
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00158.png",
+      "time": 15.133334122598171,
+      "sha256": "920e29d61500803e4894125d5f463a0310accf16f49695ec40895fcbae8a593b",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 1015898,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1606.1183532487125,
+          53.63179892280996,
+          665.5670342997557
+        ],
+        "expected_cm": [
+          -1606.1183532487125,
+          53.63179892280996,
+          665.5670342997557
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00159.png",
+      "time": 15.216667460277677,
+      "sha256": "7daf6bd7bceb11f82bbd61e08e0c2ba1b22e6a6849b581d0225183fbad606ec7",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 992474,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1612.6916357582588,
+          52.13495628951617,
+          669.3548538435858
+        ],
+        "expected_cm": [
+          -1612.6916357582588,
+          52.13495628951617,
+          669.3548538435858
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    },
+    {
+      "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00160.png",
+      "time": 15.300000797957182,
+      "sha256": "9eda0879f7d9f226c27a5e28f145d817ff097376e2c20c0792e7640cf4dbf4d8",
+      "width": 1286,
+      "height": 760,
+      "png_bytes": 960070,
+      "trailing_bytes": 0,
+      "phase": "paint_trail",
+      "clip_window": "jelly_paint_gameplay",
+      "camera_evidence": {
+        "kind": "actual_possessed_hero_camera",
+        "view_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "expected_target": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "possessed_pawn": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1",
+        "camera_component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.BP_PlayerCharacter_C_1.Camera",
+        "actual_cm": [
+          -1600.6505050046962,
+          55.25449493631754,
+          662.7383149096268
+        ],
+        "expected_cm": [
+          -1600.6505050046962,
+          55.25449493631754,
+          662.7383149096268
+        ],
+        "location_error_cm": 0.0,
+        "rotation_error_degrees": 0.0,
+        "fov": 55.0
+      },
+      "client_dimensions": true
+    }
+  ]
+}

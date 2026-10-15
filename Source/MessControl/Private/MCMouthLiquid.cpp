@@ -8,6 +8,7 @@
 #include "MCToothStatusComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/Texture2D.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/GameStateBase.h"
 #include "Misc/App.h"
 #include "Components/BoxComponent.h"
@@ -17,7 +18,47 @@
 static TAutoConsoleVariable<int32> CVarMCLiquidRender(TEXT("mc.LiquidRender"),1,
     TEXT("Render and update liquid stain visuals. 0 disables visuals for A/B profiling; gameplay remains active."));
 static TAutoConsoleVariable<float> CVarMCLiquidMeshHz(TEXT("mc.LiquidMeshHz"),60.f,
-    TEXT("Maximum visual liquid mesh updates per second. 0 updates every frame. Brush masks and gameplay are independent."));
+    TEXT("Maximum ordinary puddle mesh updates per second. 0 updates every frame. Paint follows each tongue geometry change; brush masks and gameplay are independent."));
+
+namespace
+{
+constexpr double PaintSurfaceOffset=.6;
+struct FPaintClipVertex
+{
+    FVector Point;
+    FVector Bary;
+};
+using FPaintClipPolygon=TArray<FPaintClipVertex,TInlineAllocator<8>>;
+
+// Clip the actual tissue triangle, carrying its barycentric coordinates through
+// every intersection. Subdividing a separate grid still cuts across tissue ridges.
+void ClipPaintPolygon(FPaintClipPolygon& Polygon,int32 Axis,double Boundary,bool KeepGreater)
+{
+    if(Polygon.IsEmpty()) return;
+    FPaintClipPolygon Clipped;
+    const auto AddDistinct=[&](const FPaintClipVertex& Vertex)
+    {
+        if(Clipped.IsEmpty() || !Clipped.Last().Point.Equals(Vertex.Point,1.e-8)) Clipped.Add(Vertex);
+    };
+    FPaintClipVertex Previous=Polygon.Last();
+    double PreviousDistance=(Previous.Point[Axis]-Boundary)*(KeepGreater?1.:-1.);
+    for(const FPaintClipVertex& Current:Polygon)
+    {
+        const double Distance=(Current.Point[Axis]-Boundary)*(KeepGreater?1.:-1.);
+        if((Distance>=0)!=(PreviousDistance>=0))
+        {
+            const double Alpha=FMath::Clamp(PreviousDistance/(PreviousDistance-Distance),0.,1.);
+            FPaintClipVertex Intersection{FMath::Lerp(Previous.Point,Current.Point,Alpha),FMath::Lerp(Previous.Bary,Current.Bary,Alpha)};
+            Intersection.Point[Axis]=Boundary;
+            AddDistinct(Intersection);
+        }
+        if(Distance>=0) AddDistinct(Current);
+        Previous=Current; PreviousDistance=Distance;
+    }
+    if(Clipped.Num()>1 && Clipped[0].Point.Equals(Clipped.Last().Point,1.e-8)) Clipped.SetNum(Clipped.Num()-1,EAllowShrinking::No);
+    Polygon=MoveTemp(Clipped);
+}
+}
 
 bool AMCMouthSurface::AffectsFooting(FVector Sole) const
 {
@@ -232,6 +273,75 @@ void AMCMouthSurface::BuildLiquid()
     LiquidVertices.Reset(); LiquidNormals.Reset(); LiquidUV.Reset(); LiquidTangents.Reset(); SurfaceBindings.Reset();
     TArray<int32> Triangles;
     const FTransform Transform=GetActorTransform();
+    if(bPaintTile && Tongue)
+    {
+        const auto& Idx=Tongue->TriangleIndices();
+        const auto& WorldVertices=Tongue->CurrentWorldVertices();
+        const FProcMeshSection* Section=Tongue->Surface->GetProcMeshSection(0);
+        const FTransform TT=Tongue->Surface->GetComponentTransform();
+        BoundTongue=Tongue; BoundTongueSource=Tongue->SourceMesh.Get();
+        BoundTongueVertexCount=WorldVertices.Num(); BoundTongueIndexCount=Idx.Num();
+        PaintSurfaceRevision=MAX_uint64;
+        if(!Section || Section->ProcVertexBuffer.Num()!=WorldVertices.Num()) { Liquid->ClearMeshSection(0); return; }
+        for(int32 Face=0;Face+2<Idx.Num();Face+=3)
+        {
+            const int32 IA=Idx[Face],IB=Idx[Face+1],IC=Idx[Face+2];
+            if(!WorldVertices.IsValidIndex(IA) || !WorldVertices.IsValidIndex(IB) || !WorldVertices.IsValidIndex(IC)) continue;
+            const FVector A=WorldVertices[IA],B=WorldVertices[IB],C=WorldVertices[IC];
+            const FVector NA=TT.TransformVectorNoScale(Section->ProcVertexBuffer[IA].Normal);
+            const FVector NB=TT.TransformVectorNoScale(Section->ProcVertexBuffer[IB].Normal);
+            const FVector NC=TT.TransformVectorNoScale(Section->ProcVertexBuffer[IC].Normal);
+            FVector FaceNormal=FVector::CrossProduct(B-A,C-A);
+            if(FVector::DotProduct(FaceNormal,NA+NB+NC)<0) FaceNormal=-FaceNormal;
+            // Z displacement does not change projected winding. Include every
+            // upward face even during a steep wave; omit underside/vertical faces.
+            if(FaceNormal.Z<=UE_SMALL_NUMBER) continue;
+            FPaintClipPolygon Polygon;
+            Polygon.Add({Transform.InverseTransformPosition(A),FVector(1,0,0)});
+            Polygon.Add({Transform.InverseTransformPosition(B),FVector(0,1,0)});
+            Polygon.Add({Transform.InverseTransformPosition(C),FVector(0,0,1)});
+            if(FMath::Max3(Polygon[0].Point.X,Polygon[1].Point.X,Polygon[2].Point.X)<-LiquidHalfSize
+                || FMath::Min3(Polygon[0].Point.X,Polygon[1].Point.X,Polygon[2].Point.X)>LiquidHalfSize
+                || FMath::Max3(Polygon[0].Point.Y,Polygon[1].Point.Y,Polygon[2].Point.Y)<-LiquidHalfSize
+                || FMath::Min3(Polygon[0].Point.Y,Polygon[1].Point.Y,Polygon[2].Point.Y)>LiquidHalfSize) continue;
+            ClipPaintPolygon(Polygon,0,-LiquidHalfSize,true);
+            ClipPaintPolygon(Polygon,0,LiquidHalfSize,false);
+            ClipPaintPolygon(Polygon,1,-LiquidHalfSize,true);
+            ClipPaintPolygon(Polygon,1,LiquidHalfSize,false);
+            if(Polygon.Num()<3) continue;
+            double PolygonArea=0;
+            for(int32 I=0;I<Polygon.Num();++I)
+            {
+                const FVector& P=Polygon[I].Point;
+                const FVector& Q=Polygon[(I+1)%Polygon.Num()].Point;
+                PolygonArea+=P.X*Q.Y-P.Y*Q.X;
+            }
+            if(FMath::Abs(PolygonArea)<=UE_SMALL_NUMBER) continue;
+            const int32 First=LiquidVertices.Num();
+            for(const FPaintClipVertex& Vertex:Polygon)
+            {
+                const FVector& W=Vertex.Bary;
+                const FVector World=A*W.X+B*W.Y+C*W.Z;
+                const FVector P=Transform.InverseTransformPosition(World+FVector(0,0,PaintSurfaceOffset));
+                const FVector Normal=Transform.InverseTransformVectorNoScale((NA*W.X+NB*W.Y+NC*W.Z).GetSafeNormal());
+                FSurfaceBinding Binding; Binding.Face=Face; Binding.Bary=W; Binding.Fallback=P;
+                SurfaceBindings.Add(Binding); LiquidVertices.Add(P); LiquidNormals.Add(Normal);
+                LiquidUV.Add(FVector2D(Vertex.Point)/(2*LiquidHalfSize)+FVector2D(.5));
+                LiquidTangents.Add(FProcMeshTangent(FVector::VectorPlaneProject(FVector::ForwardVector,Normal).GetSafeNormal(),false));
+            }
+            // Preserve the source tongue's winding rather than the old grid's.
+            for(int32 I=1;I+1<Polygon.Num();++I)
+                if(FVector::CrossProduct(LiquidVertices[First+I]-LiquidVertices[First],LiquidVertices[First+I+1]-LiquidVertices[First]).SizeSquared()>UE_SMALL_NUMBER)
+                    Triangles.Append({First,First+I,First+I+1});
+        }
+        Liquid->CreateMeshSection(0,LiquidVertices,Triangles,LiquidNormals,LiquidUV,TArray<FColor>(),LiquidTangents,false);
+        if(!LiquidVertices.IsEmpty())
+        {
+            PaintSurfaceRevision=Tongue->SurfaceRevision();
+            PaintGeometryTransform=Transform; PaintTongueTransform=TT;
+        }
+        return;
+    }
     for (int32 Y=0;Y<=Steps;++Y) for (int32 X=0;X<=Steps;++X)
     {
         const FVector2D UV(double(X)/Steps,double(Y)/Steps);
@@ -306,25 +416,47 @@ void AMCMouthSurface::UpdateLiquid(float Dt)
     Finish=IsClean()?FMath::Min(1.f,Finish+Dt/0.45f):0;
     Liquid->SetVisibility(Finish<1);
     if (Finish>=1) return;
-    if (LiquidVertices.IsEmpty() || BoundTongue.Get()!=Tongue) BuildLiquid();
+    const bool PaintTopologyChanged=bPaintTile && Tongue && (BoundTongueSource.Get()!=Tongue->SourceMesh.Get()
+        || BoundTongueVertexCount!=Tongue->CurrentVertices().Num() || BoundTongueIndexCount!=Tongue->TriangleIndices().Num());
+    if (LiquidVertices.IsEmpty() || BoundTongue.Get()!=Tongue || PaintTopologyChanged) BuildLiquid();
     GeometryElapsed+=Dt;
     const float MeshHz=FMath::Clamp(CVarMCLiquidMeshHz.GetValueOnGameThread(),0.f,240.f);
     const float MeshInterval=MeshHz>0?1.f/MeshHz:0.f;
-    if (Tongue && GeometryElapsed>=MeshInterval)
+    const bool FollowPaintSurface=bPaintTile && Tongue;
+    const bool PaintSurfaceChanged=FollowPaintSurface && (PaintSurfaceRevision!=Tongue->SurfaceRevision()
+        || !PaintGeometryTransform.Equals(GetActorTransform())
+        || !PaintTongueTransform.Equals(Tongue->Surface->GetComponentTransform()));
+    // Paint is sampled on every tongue write, after its existing tick prerequisite.
+    // A separate Hz clock could skip the very frame in which a ridge moves up.
+    if (Tongue && !LiquidVertices.IsEmpty() && (FollowPaintSurface?PaintSurfaceChanged:GeometryElapsed>=MeshInterval))
     {
-        GeometryElapsed=MeshInterval>0?FMath::Fmod(GeometryElapsed,MeshInterval):0;
+        GeometryElapsed=!FollowPaintSurface && MeshInterval>0?FMath::Fmod(GeometryElapsed,MeshInterval):0;
         const auto& Idx=Tongue->TriangleIndices(); const auto& V=Tongue->CurrentVertices();
-        const FTransform TT=Tongue->GetActorTransform(),LT=GetActorTransform();
+        const FTransform TT=Tongue->Surface->GetComponentTransform(),LT=GetActorTransform();
+        const FProcMeshSection* Section=bPaintTile?Tongue->Surface->GetProcMeshSection(0):nullptr;
         for (int32 I=0;I<SurfaceBindings.Num();++I)
         {
             const auto& B=SurfaceBindings[I]; if (B.Face==INDEX_NONE || !Idx.IsValidIndex(B.Face+2)) continue;
             const FVector A=TT.TransformPosition(V[Idx[B.Face]]),C=TT.TransformPosition(V[Idx[B.Face+1]]),D=TT.TransformPosition(V[Idx[B.Face+2]]);
             FVector N=FVector::CrossProduct(C-A,D-A).GetSafeNormal(); if (N.Z<0) N=-N;
-            LiquidVertices[I]=LT.InverseTransformPosition(A*B.Bary.X+C*B.Bary.Y+D*B.Bary.Z+N*.45);
+            LiquidVertices[I]=LT.InverseTransformPosition(A*B.Bary.X+C*B.Bary.Y+D*B.Bary.Z
+                +(bPaintTile?FVector(0,0,PaintSurfaceOffset):N*.45));
+            if(Section && Section->ProcVertexBuffer.Num()==V.Num())
+            {
+                N=TT.TransformVectorNoScale(Section->ProcVertexBuffer[Idx[B.Face]].Normal*B.Bary.X
+                    +Section->ProcVertexBuffer[Idx[B.Face+1]].Normal*B.Bary.Y
+                    +Section->ProcVertexBuffer[Idx[B.Face+2]].Normal*B.Bary.Z).GetSafeNormal();
+            }
             LiquidNormals[I]=LT.InverseTransformVectorNoScale(N);
+            if(bPaintTile) LiquidTangents[I]=FProcMeshTangent(FVector::VectorPlaneProject(FVector::ForwardVector,LiquidNormals[I]).GetSafeNormal(),false);
         }
         // Barycentric bindings follow the existing tongue triangles, with no per-frame raycasts or collision cooks.
         Liquid->UpdateMeshSection(0,LiquidVertices,LiquidNormals,LiquidUV,TArray<FColor>(),LiquidTangents);
+        if(FollowPaintSurface)
+        {
+            PaintSurfaceRevision=Tongue->SurfaceRevision();
+            PaintGeometryTransform=LT; PaintTongueTransform=TT;
+        }
     }
     TextureElapsed+=Dt;
     if (bWipeDirty && TextureElapsed>=1.f/30) { UploadWipe(); TextureElapsed=0; }

@@ -1,0 +1,199 @@
+{
+  "purpose": "Coffee paint geometric occlusion repair and hero floor support",
+  "validation": "Authorized MessControlEditor Win64 Development build and one baseline plus one fixed solo PIE path; no network/cook/package/GPU profile",
+  "offset_cm": 0.6,
+  "runs": {
+    "Baseline": {
+      "run_directory": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSurfaceFit\\Baseline\\Capture\\Runs\\20261015T092538Z_38ea7c56",
+      "fit_summary": {
+        "snapshots": 2,
+        "wet_comparison_samples": 3469,
+        "below_minus_005cm": 9
+      },
+      "checks": {
+        "real_f3_deterministic_start": true,
+        "natural_real_f3_jelly_branch_with_default_health": true,
+        "source_and_runtime_show_independent_wandering": true,
+        "real_travel_adds_bounded_paint_tiles": true,
+        "observed_path_has_connected_wet_coverage": true,
+        "ordinary_pickaxe_input_starts_native_balloon_warning": true,
+        "balloon_rupture_commits_once_with_persistent_deposit": true,
+        "paint_survives_cosmetic_retirement": true,
+        "ordinary_brush_erases_persistent_paint_cells": true,
+        "real_surface_fit_observed_at_trail_and_brush": true,
+        "wet_paint_does_not_intersect_rendered_tongue": false,
+        "v2_three_body_materials_observed": true,
+        "actual_paint_mid_has_warm_coffee_color": true,
+        "actual_drop_mid_uses_coffee_theme": true,
+        "actual_hero_gameplay_camera_observed": true,
+        "native_coffee_skin_and_four_gameplay_clips": true,
+        "coffee_replaces_primitives_without_double_scale": true
+      },
+      "minimum_clearance_cm": -0.33416288968723507,
+      "maximum_clearance_cm": 2.2164715381782614,
+      "maximum_tile_vertices": 441,
+      "maximum_tile_triangles": 800,
+      "hero_snapshots": [
+        {
+          "phase": "paint_trail",
+          "position_cm": [
+            -531.7513606434655,
+            -144.0592196750059,
+            102.75199270247805
+          ],
+          "capsule_bottom_z_cm": 44.75199270247805,
+          "tongue_render_z_cm": 42.48700777415483,
+          "capsule_clearance_cm": 2.2649849283232157,
+          "velocity_cm_s": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_base": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_0.TongueSurface",
+          "pressure_indentation_cm": 6.006204605102539,
+          "pressure_max_depth_cm": 18.0,
+          "current_floor_unavailable": "HitResult: Failed to find property 'bImpactPoint' for attribute 'bImpactPoint' on 'HitResult'"
+        },
+        {
+          "phase": "paint_brush",
+          "position_cm": [
+            -750.7951732567321,
+            418.4807911537331,
+            119.03059983254346
+          ],
+          "capsule_bottom_z_cm": 61.03059983254346,
+          "tongue_render_z_cm": 58.777123674112914,
+          "capsule_clearance_cm": 2.2534761584305443,
+          "velocity_cm_s": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_base": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_0.TongueSurface",
+          "pressure_indentation_cm": 6.401507377624512,
+          "pressure_max_depth_cm": 18.0,
+          "current_floor_unavailable": "HitResult: Failed to find property 'bImpactPoint' for attribute 'bImpactPoint' on 'HitResult'"
+        }
+      ]
+    },
+    "Fixed": {
+      "run_directory": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSurfaceFit\\Fixed\\Capture\\Runs\\20261015T093933Z_3f169323",
+      "fit_summary": {
+        "snapshots": 2,
+        "wet_comparison_samples": 4663,
+        "below_minus_005cm": 0
+      },
+      "checks": {
+        "real_f3_deterministic_start": true,
+        "natural_real_f3_jelly_branch_with_default_health": true,
+        "source_and_runtime_show_independent_wandering": true,
+        "real_travel_adds_bounded_paint_tiles": true,
+        "observed_path_has_connected_wet_coverage": true,
+        "ordinary_pickaxe_input_starts_native_balloon_warning": true,
+        "balloon_rupture_commits_once_with_persistent_deposit": true,
+        "paint_survives_cosmetic_retirement": true,
+        "ordinary_brush_erases_persistent_paint_cells": true,
+        "real_surface_fit_observed_at_trail_and_brush": true,
+        "wet_paint_does_not_intersect_rendered_tongue": true,
+        "hero_remains_supported_on_tongue": true,
+        "v2_three_body_materials_observed": true,
+        "actual_paint_mid_has_warm_coffee_color": true,
+        "actual_drop_mid_uses_coffee_theme": true,
+        "actual_hero_gameplay_camera_observed": true,
+        "native_coffee_skin_and_four_gameplay_clips": true,
+        "coffee_replaces_primitives_without_double_scale": true
+      },
+      "minimum_clearance_cm": 0.5999999999999659,
+      "maximum_clearance_cm": 0.6000000000000298,
+      "maximum_tile_vertices": 3324,
+      "maximum_tile_triangles": 1158,
+      "hero_snapshots": [
+        {
+          "phase": "paint_trail",
+          "position_cm": [
+            -674.3968918787548,
+            288.129275986419,
+            113.66852712632138
+          ],
+          "capsule_bottom_z_cm": 55.66852712632138,
+          "tongue_render_z_cm": 53.263700673623546,
+          "capsule_clearance_cm": 2.404826452697833,
+          "velocity_cm_s": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_base": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_0.TongueSurface",
+          "pressure_indentation_cm": 5.772951602935791,
+          "pressure_max_depth_cm": 18.0,
+          "current_floor": {
+            "floor_distance_cm": 2.319298267364502,
+            "line_distance_cm": 0.0,
+            "walkable": true,
+            "blocking_hit": true,
+            "impact_point_cm": [
+              -672.4974841834237,
+              289.6075973917393,
+              53.4345245361329
+            ],
+            "impact_normal": [
+              -0.055866166217606414,
+              -0.04347906039457084,
+              0.9974911242214227
+            ],
+            "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_0",
+            "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_0.TongueSurface"
+          }
+        },
+        {
+          "phase": "paint_brush",
+          "position_cm": [
+            -188.2951732567326,
+            1130.9807911537332,
+            110.11601042749797
+          ],
+          "capsule_bottom_z_cm": 52.11601042749797,
+          "tongue_render_z_cm": 49.77643199387113,
+          "capsule_clearance_cm": 2.3395784336268406,
+          "velocity_cm_s": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_base": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_0.TongueSurface",
+          "pressure_indentation_cm": 6.254563331604004,
+          "pressure_max_depth_cm": 18.0,
+          "current_floor": {
+            "floor_distance_cm": 2.0790185928344727,
+            "line_distance_cm": 0.0,
+            "walkable": true,
+            "blocking_hit": true,
+            "impact_point_cm": [
+              -187.8292269699562,
+              1126.7011775404517,
+              50.31060791015662
+            ],
+            "impact_normal": [
+              -0.013705507099061626,
+              0.12587469139195134,
+              0.991951471358233
+            ],
+            "actor": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_0",
+            "component": "/Game/Maps/UEDPIE_0_L_Mouth.L_Mouth:PersistentLevel.MCTongue_0.TongueSurface"
+          }
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Two snapshots per run, three interior samples per wet paint triangle plus wet mask-cell centers; not every pixel or material WPO.",
+    "Native wandering paths differ between runs; this is an observed geometric comparison, not identical-frame or performance benchmarking.",
+    "Baseline reports hash working source files that already contained the unbuilt repair. BaselineBinary.json records the still-old DLL; runtime baseline tiles had 441 vertices/800 triangles.",
+    "The baseline optional FHitResult property decode was unavailable; movement base, mode, velocity, capsule clearance and pressure depth were recorded. Fixed run uses BreakHitResult.",
+    "Existing probe position/tool fixtures are disclosed in the full reports. Capsule support does not prove every animated skin vertex stays above the surface."
+  ]
+}

@@ -1,0 +1,330 @@
+{
+  "exported_utc": "2026-10-15T09:42:34.756205+00:00",
+  "exclude_nonclient_frames_requested": true,
+  "previews": [
+    {
+      "mode": "paint",
+      "clip": "common_wave",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/common_wave_paint.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/common_wave_paint.png",
+      "video_sha256": "ff0ab5507d15131c41ebe5ae8cb03a9b1649935cedaf131c78f34341b54086bd",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/common_wave_paint.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/common_wave_paint.ffconcat",
+      "genuine_source_frames": 82,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 0.1666666753590107,
+      "source_time_end_seconds": 7.000000365078449,
+      "source_game_span_seconds": 6.8333336897194386,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Inherited common-wave capture; not used to accept the paint geometry repair; continuous playback not reviewed",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "206"
+          }
+        ],
+        "format": {
+          "duration": "6.866667"
+        }
+      },
+      "full_ffmpeg_decode": "passed"
+    },
+    {
+      "mode": "paint",
+      "clip": "jelly_paint_trail",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_trail.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_trail.png",
+      "video_sha256": "d3dc7710bbb0ce80b8a8c433423be816e9127d46b864f44493dba3417996ba5f",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_trail.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_trail.ffconcat",
+      "genuine_source_frames": 101,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 8.966667134314775,
+      "source_time_end_seconds": 20.800001084804535,
+      "source_game_span_seconds": 11.83333395048976,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Lead opened representative actual hero-camera, trail, post-rupture and brush source stills; continuous playback not reviewed",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "356"
+          }
+        ],
+        "format": {
+          "duration": "11.866667"
+        }
+      },
+      "full_ffmpeg_decode": "passed"
+    },
+    {
+      "mode": "paint",
+      "clip": "jelly_paint_gameplay",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_gameplay.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_gameplay.png",
+      "video_sha256": "9a3a27268b989d448b3acf4e664ebb4724e45bf7db0dd257ea0878032d5cb545",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_gameplay.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_gameplay.ffconcat",
+      "genuine_source_frames": 41,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 11.883333953097463,
+      "source_time_end_seconds": 15.300000797957182,
+      "source_game_span_seconds": 3.4166668448597193,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Lead opened representative actual hero-camera, trail, post-rupture and brush source stills; continuous playback not reviewed",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "103"
+          }
+        ],
+        "format": {
+          "duration": "3.433333"
+        }
+      },
+      "full_ffmpeg_decode": "passed"
+    },
+    {
+      "mode": "paint",
+      "clip": "jelly_paint_rupture",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_rupture.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_rupture.png",
+      "video_sha256": "980865f47917d07e7e9747366a1d2aa3f70c95ef5bb1617efcd276ce72ee94db",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_rupture.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_rupture.ffconcat",
+      "genuine_source_frames": 90,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 20.88333442248404,
+      "source_time_end_seconds": 28.300001475960016,
+      "source_game_span_seconds": 7.416667053475976,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Lead opened representative actual hero-camera, trail, post-rupture and brush source stills; continuous playback not reviewed",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "223"
+          }
+        ],
+        "format": {
+          "duration": "7.433333"
+        }
+      },
+      "full_ffmpeg_decode": "passed"
+    },
+    {
+      "mode": "paint",
+      "clip": "jelly_paint_brush",
+      "video": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_brush.mp4",
+      "poster": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_brush.png",
+      "video_sha256": "d8131026b5c9b222224cc411a6ee252a753a3cfb30f2cd0f6e93d477e4f98cff",
+      "source_frames_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_brush.frames.json",
+      "concat_manifest": "E:/DEVGAME/MessControl/Artifacts/CoffeeSurfaceFit_20261015/jelly_paint_brush.ffconcat",
+      "genuine_source_frames": 54,
+      "timestamp_basis": "recorded game seconds",
+      "source_time_start_seconds": 28.38333481363952,
+      "source_time_end_seconds": 32.88333504833281,
+      "source_game_span_seconds": 4.500000234693289,
+      "terminal_padding_seconds": 0.001,
+      "output_timing": "30 fps image repetition; no generated or interpolated motion; at most one output-frame timestamp rounding",
+      "crop": "Floating-window chrome removed at x=3 y=35",
+      "camera_validation": {
+        "view_target_matches": true,
+        "maximum_location_error_cm": 0.0,
+        "maximum_rotation_error_degrees": 0.0
+      },
+      "visual_quality_review": "Lead opened representative actual hero-camera, trail, post-rupture and brush source stills; continuous playback not reviewed",
+      "encoded": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1",
+            "nb_frames": "136"
+          }
+        ],
+        "format": {
+          "duration": "4.533333"
+        }
+      },
+      "full_ffmpeg_decode": "passed"
+    }
+  ],
+  "reports": [
+    {
+      "mode": "paint",
+      "report": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Report_paint.json",
+      "report_sha256": "7e1969323e242a7b7906f1d9f302d29c3acae5ecfae21f358fb663bc1831b7eb",
+      "source_sha256": {
+        "Source/MessControl/Private/MCCataclysmEvent.cpp": "ce93dde59627cb83292389081533400966579b892ae64296f4ed72cae0167916",
+        "Source/MessControl/Private/MCCataclysmRaft.cpp": "692957ab9484c00decad3a769af9291ebfc01e830a2febb2a243fdfb06b6cf20",
+        "Source/MessControl/Private/MCCataclysmJelly.cpp": "d8f2540a333d8c6104f6bb707f41bde6ceb4206918272c8f34276a2ef4af2dab",
+        "Source/MessControl/Private/MCToothMovementComponent.cpp": "960ff7b196dd4499f01f06923b1746bfc7d408be5d3d13b6450efae095932789",
+        "Tools/Unreal/probe_cataclysm_solo.py": "c837aa0e34ff1fa7560150901c3f4ff95ce83c7238f5c3123d0f3a12210ba9b8",
+        "Tools/Unreal/probe_jelly_paint_solo.py": "d90436d239b172015cd84b15d87a70f2e6d3ed6f405b91adbe50861af91a6f61",
+        "Source/MessControl/Public/MCCataclysmJelly.h": "e0959a2d4225895222e618050c496044202f5988c35a31facc2e82ff40de3416",
+        "Source/MessControl/Public/MCCataclysmEvent.h": "39b6baa04a892f1c71b0eacc6a5fd721d70d648c8785af89086f84a8c1b3be12",
+        "Source/MessControl/Public/MCMouthSurface.h": "08b16d6afa4394486826eae980582ba954042aa1f67fe1dab24e942b84163957",
+        "Source/MessControl/Private/MCMouthLiquid.cpp": "1e038a2b972b92833b00a6e282fbdb84b80f2a5e3c57fe302b69f2f04fbd07fb",
+        "Source/MessControl/Private/MCCoffeeWipe.cpp": "64e097f5204f2b23009816166fd530d0d9a9f438a692c46a98395ef4208b7b2c",
+        "Tools/Unreal/probe_coffee_slime_solo.py": "4d8af6a64a97c7154ed5eb33e6cf1135677916c64bdeb8864f140e835cdb44f9",
+        "Tools/Unreal/probe_coffee_slime_v2_solo.py": "3597b3cc56163a63f8eb871eeef001bed944889d81e09de16115e2e8cce2fb16",
+        "Tools/Unreal/probe_coffee_surface_fit_solo.py": "42daf1682a6e0799a1d886be7406aa1c435b59a7ec98d517860ace360ff80f55"
+      },
+      "checks": {
+        "real_f3_deterministic_start": true,
+        "natural_real_f3_jelly_branch_with_default_health": true,
+        "source_and_runtime_show_independent_wandering": true,
+        "real_travel_adds_bounded_paint_tiles": true,
+        "observed_path_has_connected_wet_coverage": true,
+        "ordinary_pickaxe_input_starts_native_balloon_warning": true,
+        "balloon_rupture_commits_once_with_persistent_deposit": true,
+        "paint_survives_cosmetic_retirement": true,
+        "ordinary_brush_erases_persistent_paint_cells": true,
+        "real_surface_fit_observed_at_trail_and_brush": true,
+        "wet_paint_does_not_intersect_rendered_tongue": true,
+        "hero_remains_supported_on_tongue": true,
+        "v2_three_body_materials_observed": true,
+        "actual_paint_mid_has_warm_coffee_color": true,
+        "actual_drop_mid_uses_coffee_theme": true,
+        "actual_hero_gameplay_camera_observed": true,
+        "native_coffee_skin_and_four_gameplay_clips": true,
+        "coffee_replaces_primitives_without_double_scale": true
+      },
+      "fixture_tuning": {},
+      "limitations": [
+        "The initial F3 wave and 12-second wandering observation advance naturally; no jelly tick, steering, health, attack damage or game clock is assigned.",
+        "The unrelated single-day scheduler is paused in this owned PIE and restored; the Cataclysm event/liquid/jellies and hero continue ticking.",
+        "After the wandering observation, the hero is a disclosed position-only fixture following one moving jelly at approximately 88 cm on verified supported floor. Normal held Pickaxe LMB deals all damage.",
+        "A temporary review camera follows the action. The hero is positioned beside an actually wet paint cell for normal held brush LMB; the surviving jelly keeps painting.",
+        "Source policy plus actual empty Target, goal changes and travel corroborate independent wandering. Player proximity is not treated as a reliable pursuit test.",
+        "The native exact-commit death counters identify burst-added wet cells; ordinary global coverage changes alone are not attributed to the rupture.",
+        "Only one jelly is killed. Full encounter cleanup, balance, network behavior, GPU cost and final visual quality remain separate checks.",
+        "No editor map changes, package saves, build/cook/package, native damage/care helpers or broad test suite.",
+        "Idle is delivered as an authored asset; the existing alive jelly always hops. Solo does not validate network peers.",
+        "Inside the existing natural 12-second wander interval, seconds 3–6.5 use the actual possessed hero Camera and view target. A disclosed position/control-facing-only hero fixture follows the moving jelly; no camera boom/FOV/native camera tuning is assigned. Material paths and effective MID parameters are technical evidence; ROOT must inspect rendered colors/highlights/trail readability.",
+        "Two synchronous game-thread snapshots compare actual procedural section-0 triangles and bilinear wet mask >63. Three interior barycentric samples per paint triangle plus wet mask-cell centers cannot prove every pixel or material WPO. Existing observer-position fixtures remain disclosed; capsule/floor/indentation measurements distinguish support from visual overlap."
+      ],
+      "manual_checkpoints": [
+        "Inspect the real trail/balloon/brush clips in gameplay lighting; telemetry does not establish visual quality.",
+        "Finish every event paint tile and new player/tooth coating after killing the remaining jelly; completion-to-zero is outside this short probe.",
+        "Assess default difficulty without the disclosed position-following observer fixture."
+      ],
+      "integrity_verified_source_frames": 372,
+      "accepted_client_frames": 368,
+      "excluded_nonclient_frames": [
+        {
+          "source_frame_index": 0,
+          "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00000.png",
+          "sha256": "e4c7fc378cac5de4f62f62a7e30c0bedab0bf016fcb7d28282a64e574d332b53",
+          "time": 0.08333333767950535,
+          "width": 2311,
+          "height": 1122,
+          "clip_window": "common_wave",
+          "reason": "PNG dimensions are neither 1280x720 game client nor 1286x760 floating client window; excluded with explicit --exclude-nonclient-frames",
+          "integrity_validation": "Source SHA256, PNG chunks/CRC, metadata dimensions and game timestamp verified; source file left unchanged"
+        },
+        {
+          "source_frame_index": 24,
+          "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00024.png",
+          "sha256": "c37d2c298b9ebb82d1ffbbb8ccb06fbbbb0eaeaa640ea10561c356569d985ea1",
+          "time": 2.0833334419876337,
+          "width": 2311,
+          "height": 1122,
+          "clip_window": "common_wave",
+          "reason": "PNG dimensions are neither 1280x720 game client nor 1286x760 floating client window; excluded with explicit --exclude-nonclient-frames",
+          "integrity_validation": "Source SHA256, PNG chunks/CRC, metadata dimensions and game timestamp verified; source file left unchanged"
+        },
+        {
+          "source_frame_index": 84,
+          "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00084.png",
+          "sha256": "a529a30ce9bffc4d19e9dcc5244e191f3bf5f7472c74a4df7b373fedae08473f",
+          "time": 8.88333379663527,
+          "width": 2311,
+          "height": 1122,
+          "clip_window": "jelly_paint_trail",
+          "reason": "PNG dimensions are neither 1280x720 game client nor 1286x760 floating client window; excluded with explicit --exclude-nonclient-frames",
+          "integrity_validation": "Source SHA256, PNG chunks/CRC, metadata dimensions and game timestamp verified; source file left unchanged"
+        },
+        {
+          "source_frame_index": 321,
+          "file": "E:/DEVGAME/MessControl/Saved/CoffeeSurfaceFit/Fixed/Capture/Runs/20261015T093933Z_3f169323/frames/00321.png",
+          "sha256": "1996aef4533e9933840c2beafa2069248ee2547e71b90808f7268d9ab17723b0",
+          "time": 28.716668164357543,
+          "width": 2311,
+          "height": 1122,
+          "clip_window": "jelly_paint_brush",
+          "reason": "PNG dimensions are neither 1280x720 game client nor 1286x760 floating client window; excluded with explicit --exclude-nonclient-frames",
+          "integrity_validation": "Source SHA256, PNG chunks/CRC, metadata dimensions and game timestamp verified; source file left unchanged"
+        }
+      ],
+      "capture_validation": "Export uses a client-sized subset; excluded captures are not gameplay preview evidence"
+    }
+  ],
+  "limitations": [
+    "Sampled genuine engine screenshots do not record every game frame.",
+    "CFR output repeats source images at their actual game-time intervals; no interpolation or title cards.",
+    "Excluded nonclient captures stay recorded in report metadata. Their genuine time gaps remain as holds of preceding accepted frames; no wrong viewport is resized into output.",
+    "PlayerCamera metadata does not establish the screenshot surface; visual review of accepted client captures remains necessary.",
+    "The terminal 1 ms and 30 fps duration rounding are presentation padding, not additional observed gameplay.",
+    "Telemetry and successful encoding do not establish visual quality; inspect the previews in the gameplay camera."
+  ]
+}

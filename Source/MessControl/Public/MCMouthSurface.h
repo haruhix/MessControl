@@ -103,6 +103,10 @@ private:
     TMap<TWeakObjectPtr<AActor>,FBrushCenter> BrushCenters;
     TArray<float> WipeFractional;
     TWeakObjectPtr<AMCTongue> BoundTongue;
+    TWeakObjectPtr<class UStaticMesh> BoundTongueSource;
+    int32 BoundTongueVertexCount=0,BoundTongueIndexCount=0;
+    uint64 PaintSurfaceRevision=MAX_uint64;
+    FTransform PaintGeometryTransform=FTransform::Identity,PaintTongueTransform=FTransform::Identity;
     float Finish=0,TextureElapsed=0,GeometryElapsed=0,BrushClock=0;
     bool bWipeDirty=true;
     bool bPaintDepositPending=false;
