@@ -11,7 +11,7 @@ UENUM(BlueprintType)
 enum class EMCNutBossRole : uint8 { Tank, Mage };
 
 UENUM(BlueprintType)
-enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated };
+enum class EMCNutBossState : uint8 { Falling, Idle, Telegraph, Executing, Recovery, Defeated, Stunned };
 
 UENUM(BlueprintType)
 enum class EMCNutBossAttack : uint8 { None, Melee, Charge, Jump, Fireball, Summon, NutRain, Roll, Teleport };
@@ -39,9 +39,21 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankWalkLeftAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankWalkRightAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankMeleeAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankMelee2Animation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankComboAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankBlockAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankStunHitAnimation;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankDeathAnimation;
+    /** Authored seconds and normalized contacts; authority never depends on cosmetic bone evaluation. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="0.3",ClampMax="5")) float TankMeleeAnimationSeconds=1.2666667f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="0.05",ClampMax="0.95")) float TankMelee2ImpactFraction=.3947368f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="1",ClampMax="8")) float TankComboAnimationSeconds=3.0666667f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") FVector TankComboContactFractions=FVector(.1630435f,.3152174f,.5326087f);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shield", meta=(ClampMin="0.5",ClampMax="8",Units="s")) float TankStunSeconds=3.f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation", meta=(ClampMin="1",ClampMax="10")) float TankDeathSeconds=5.1666667f;
     /** Optional short authored reaction. Missing clips keep the procedural recoil. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankHitAnimation;
-    /** Optional shield break reaction; clip duration never interrupts the server attack. */
+    /** Looped shield-break stun pose; TankStunSeconds controls the authority window. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankShieldBreakAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankJumpAnimation;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation") TSoftObjectPtr<UAnimSequence> TankTransformAnimation;
@@ -140,6 +152,7 @@ struct MESSCONTROL_API FMCNutBossSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") int32 SummonCount=2;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") int32 MaxLiveCreeps=8;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon") float CreepHealth=40;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Summon",meta=(ClampMin="40",ClampMax="500",Units="cm/s")) float CreepMoveSpeed=360;
     /** The original 300 cm radius enlarged by sqrt(5.5), so its area grows 5.5 times. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainRadius=703.5624f;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Nut Rain") float RainImpactRadius=90;

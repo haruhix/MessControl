@@ -7,6 +7,9 @@
 class UMaterialInterface;
 class UMaterialInstanceDynamic;
 class UProceduralMeshComponent;
+class USkeletalMeshComponent;
+class USkeletalMesh;
+class UAnimSequence;
 
 /** A killable summoned nut: its fuse starts on spawn, rather than on player contact. */
 UCLASS(Blueprintable)
@@ -36,6 +39,14 @@ public:
     UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Nut Combat|Summon") TObjectPtr<UProceduralMeshComponent> BlastWarning;
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|Summon") TSoftObjectPtr<UMaterialInterface> FuseMaterial;
     UPROPERTY(EditDefaultsOnly,Category="Nut Combat|Summon") TSoftObjectPtr<UMaterialInterface> WarningMaterial;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Nut Combat|Summon") TObjectPtr<USkeletalMeshComponent> SummonModel;
+    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|Summon") TSoftObjectPtr<USkeletalMesh> SummonMesh;
+    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|Summon") TSoftObjectPtr<UAnimSequence> RunAnimation;
+    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|Summon") float ModelHeight=116.f;
+    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|Summon") float ModelYaw=-90.f;
+    /** Ground speed represented by one second of the supplied in-place run. */
+    UPROPERTY(EditDefaultsOnly,Category="Nut Combat|Summon",meta=(ClampMin="40")) float RunReferenceSpeed=130.f;
+    UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Nut Combat|Summon") float RunPlayRate=0.f;
 
 protected:
     virtual void RefreshPresentation() override;
@@ -44,6 +55,9 @@ private:
     double ServerNow() const;
     void PresentFuse(double Time);
     void Detonate();
+    void PresentSummon(double Time,float DeltaSeconds);
+    FVector ModelCenter=FVector::ZeroVector,ModelScale=FVector::OneVector,LastModelLocation=FVector::ZeroVector;
+    bool bModelMotionInitialized=false;
     double NextNearestTargetAt=0;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> FuseMID;
     UPROPERTY(Transient) TObjectPtr<UMaterialInstanceDynamic> WarningMID;

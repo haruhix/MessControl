@@ -1,0 +1,18 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": false,
+  "dirty_content": [],
+  "dirty_maps": [],
+  "source_blend_preserved": true,
+  "all_previous_boss_assets_unchanged": true,
+  "fixed_fps_enabled": false,
+  "fixed_fps": 30.0,
+  "throttle_background": true,
+  "source_sha256": {
+    "Source/MessControl/Public/MCNutKamikaze.h": "88e593a22cf18b3f79b79fcc5c17a2761c1434058e9477aad5c6996b54d5d3cd",
+    "Source/MessControl/Private/MCNutKamikaze.cpp": "7310e177e5ba04df3a28b9d5369cea0007c6224c8960f25ec8b32da5bcb38978",
+    "Source/MessControl/Public/MCNutBossTypes.h": "9bea4e0294d2016b65a2e4d61779edfac329375cd65a838a16e627dc49839eb7",
+    "Source/MessControl/Private/MCNutBossTypes.cpp": "eba599097fb6783d8b533c7cb662d4cfc0533a80ad3eaa98d9c5da850195f271",
+    "Source/MessControl/Private/MCNutBoss.cpp": "3bf71d6a5c8972cae13195d5924b9eec58ccb0d4ac5239ed1c05760e5b64e4fa"
+  }
+}

@@ -1,0 +1,314 @@
+{
+  "source": "C:\\Users\\vasil\\Downloads\\Telegram Desktop\\Summon.blend",
+  "sha256": "a480c7269a07a7fe0e4acd527856f916f9a2e37c7b088bb040d91920948793dc",
+  "blender": "5.2.2 LTS",
+  "fps": 30.0,
+  "objects": [
+    {
+      "name": "rig",
+      "type": "ARMATURE",
+      "dimensions": [
+        1.433396577835083,
+        1.5547640323638916,
+        1.4480063915252686
+      ],
+      "parent": "char_grp.001",
+      "modifiers": [],
+      "bones": 286,
+      "deform_bones": [
+        "root.x",
+        "foot.l",
+        "toes_01.l",
+        "thigh_twist.l",
+        "foot.r",
+        "toes_01.r",
+        "thigh_twist.r",
+        "shoulder.r",
+        "hand.r",
+        "c_pinky1_base.r",
+        "pinky1.r",
+        "c_pinky2.r",
+        "c_pinky3.r",
+        "c_ring1_base.r",
+        "ring1.r",
+        "c_ring2.r",
+        "c_ring3.r",
+        "thumb1.r",
+        "c_thumb2.r",
+        "c_thumb3.r",
+        "c_arm_twist_offset.r",
+        "hand.l",
+        "c_pinky1_base.l",
+        "pinky1.l",
+        "c_pinky2.l",
+        "c_pinky3.l",
+        "c_ring1_base.l",
+        "ring1.l",
+        "c_ring2.l",
+        "c_ring3.l",
+        "thumb1.l",
+        "c_thumb2.l",
+        "c_thumb3.l",
+        "shoulder.l",
+        "c_arm_twist_offset.l",
+        "neck.x",
+        "head.x",
+        "leg_stretch.l",
+        "leg_twist.l",
+        "leg_stretch.r",
+        "leg_twist.r",
+        "thigh_stretch.l",
+        "thigh_stretch.r",
+        "arm_stretch.l",
+        "arm_stretch.r",
+        "forearm_stretch.l",
+        "forearm_twist.l",
+        "forearm_stretch.r",
+        "forearm_twist.r"
+      ],
+      "action": null
+    },
+    {
+      "name": "SM_NutWizard",
+      "type": "MESH",
+      "dimensions": [
+        1.3811805248260498,
+        0.8764249086380005,
+        1.1469519138336182
+      ],
+      "parent": "rig",
+      "modifiers": [
+        {
+          "type": "ARMATURE",
+          "target": "rig"
+        }
+      ],
+      "vertices": 1253,
+      "materials": [
+        "Walnut",
+        "hand/eye"
+      ],
+      "groups": [
+        "root.x",
+        "foot.l",
+        "toes_01.l",
+        "foot.r",
+        "toes_01.r",
+        "shoulder.r",
+        "hand.r",
+        "c_pinky1_base.r",
+        "pinky1.r",
+        "c_pinky2.r",
+        "c_pinky3.r",
+        "c_ring1_base.r",
+        "ring1.r",
+        "c_ring2.r",
+        "c_ring3.r",
+        "thumb1.r",
+        "c_thumb2.r",
+        "c_thumb3.r",
+        "hand.l",
+        "c_pinky1_base.l",
+        "pinky1.l",
+        "c_pinky2.l",
+        "c_pinky3.l",
+        "c_ring1_base.l",
+        "ring1.l",
+        "c_ring2.l",
+        "c_ring3.l",
+        "thumb1.l",
+        "c_thumb2.l",
+        "c_thumb3.l",
+        "shoulder.l",
+        "neck.x",
+        "head.x",
+        "leg_stretch.l",
+        "leg_stretch.r",
+        "thigh_stretch.l",
+        "thigh_stretch.r",
+        "arm_stretch.l",
+        "arm_stretch.r",
+        "forearm_stretch.l",
+        "forearm_stretch.r",
+        "leg_twist.l",
+        "leg_twist.r",
+        "thigh_twist.l",
+        "thigh_twist.r",
+        "c_arm_twist_offset.l",
+        "c_arm_twist_offset.r",
+        "forearm_twist.l",
+        "forearm_twist.r"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "mixamo.com",
+      "range": [
+        1.0,
+        66.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature",
+          "type": "OBJECT"
+        }
+      ]
+    },
+    {
+      "name": "mixamo.com.001",
+      "range": [
+        1.0,
+        70.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.001",
+          "type": "OBJECT"
+        }
+      ]
+    },
+    {
+      "name": "mixamo.com.002",
+      "range": [
+        1.0,
+        69.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.002",
+          "type": "OBJECT"
+        }
+      ]
+    },
+    {
+      "name": "mixamo.com.003",
+      "range": [
+        1.0,
+        99.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.003",
+          "type": "OBJECT"
+        }
+      ]
+    },
+    {
+      "name": "mixamo.com.004",
+      "range": [
+        1.0,
+        35.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.004",
+          "type": "OBJECT"
+        }
+      ]
+    },
+    {
+      "name": "mixamo.com.005",
+      "range": [
+        1.0,
+        34.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature.005",
+          "type": "OBJECT"
+        }
+      ]
+    },
+    {
+      "name": "mixamo.com.006",
+      "range": [
+        1.0,
+        25.0
+      ],
+      "slots": [
+        {
+          "name": "OBArmature",
+          "type": "OBJECT"
+        }
+      ]
+    },
+    {
+      "name": "Summon_walk",
+      "range": [
+        1.0,
+        25.0
+      ],
+      "slots": [
+        {
+          "name": "OBSlot 1",
+          "type": "OBJECT"
+        }
+      ]
+    }
+  ],
+  "materials": [
+    {
+      "name": "hand/eye",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "images": [
+        "hand_eye"
+      ]
+    },
+    {
+      "name": "Walnut",
+      "color": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "images": [
+        "stylized_walnut_game_ready_texture_0.PNG"
+      ]
+    }
+  ],
+  "images": [
+    {
+      "name": "hand_eye",
+      "filepath": "C:\\Users\\vasil\\Documents\\hand_eye.png",
+      "packed": true,
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "name": "Render Result",
+      "filepath": "",
+      "packed": false,
+      "size": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "stylized_walnut_game_ready_texture_0.PNG",
+      "filepath": "C:\\Users\\vasil\\Desktop\\stylized_walnut_game_ready_texture_0.PNG",
+      "packed": true,
+      "size": [
+        2048,
+        2048
+      ]
+    },
+    {
+      "name": "Viewer Node",
+      "filepath": "",
+      "packed": false,
+      "size": [
+        256,
+        256
+      ]
+    }
+  ]
+}

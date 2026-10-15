@@ -54,6 +54,9 @@ public:
     UPROPERTY(Replicated, BlueprintReadOnly) int32 AttackSeed=0;
     UPROPERTY(Replicated, BlueprintReadOnly) double VisualHitAt=-100;
     UPROPERTY(Replicated, BlueprintReadOnly) double ShieldHitAt=-100;
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Animation") bool bLastToolHitBlocked=false;
+    /** 0/1: one authored swing, 2: three contacts ending in a ground slam. */
+    UPROPERTY(Replicated, BlueprintReadOnly,Category="Animation") uint8 TankMeleeVariant=0;
     UPROPERTY(Replicated, BlueprintReadOnly,Category="Shield") double ShieldBrokenAt=-100;
     UPROPERTY(ReplicatedUsing=RefreshBossPresentation, BlueprintReadOnly,Category="Shield") float ShieldHealth=500;
     UPROPERTY(Replicated, BlueprintReadOnly) FVector VisualHitDirection=FVector::ZeroVector;
@@ -96,6 +99,11 @@ private:
     void TriggerRollToothPain(const FHitResult& Hit);
     void Recover(float Seconds);
     float RecoverySeconds(float Requested) const;
+    float TankMeleeSeconds() const;
+    float TankMeleeContactFraction(int32 Contact) const;
+    float TankMeleeContactOffset(int32 Contact) const;
+    float TankMeleeActiveSeconds() const;
+    float DeathSeconds() const;
     void StartAttackCooldown(double RecoveryEndsAt);
     void DamageArea(FVector Center,float Radius,float Damage,float Push,TSet<TWeakObjectPtr<AMCToothCharacter>>* HitSet=nullptr);
     void DamageChargeSegment(FVector Start,FVector End);
@@ -113,6 +121,7 @@ private:
     bool bResolved=false;
     int32 RainDropsResolved=0;
     int32 MeleeHitsResolved=0;
+    uint32 TankMeleeSequence=0;
     float PlannedRollSeconds=12;
     TSet<TWeakObjectPtr<AMCToothCharacter>> AttackHits;
     TMap<TWeakObjectPtr<AMCToothCharacter>,double> RainHitAt;

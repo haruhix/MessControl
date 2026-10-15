@@ -1,0 +1,54 @@
+{
+  "preview": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\preview.mp4",
+  "clips": [
+    {
+      "case": "knife_combo",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\knife_combo.mp4",
+      "captured_frames": 147,
+      "report": "SoloCheck.json",
+      "full_decode": true,
+      "comparison_crop": [
+        220,
+        90,
+        560,
+        315
+      ]
+    },
+    {
+      "case": "pickaxe_combo",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\pickaxe_combo.mp4",
+      "captured_frames": 147,
+      "report": "SoloCheck.json",
+      "full_decode": true,
+      "comparison_crop": [
+        220,
+        90,
+        560,
+        315
+      ]
+    },
+    {
+      "case": "knife_food_hold",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\knife_food_hold.mp4",
+      "captured_frames": 84,
+      "report": "FoodSoloCheck.json",
+      "full_decode": true,
+      "comparison_crop": [
+        220,
+        90,
+        560,
+        315
+      ]
+    },
+    {
+      "case": "mouth_combo",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\mouth_combo.mp4",
+      "captured_frames": 74,
+      "report": "MouthCheck.json",
+      "full_decode": true,
+      "comparison_crop": null
+    }
+  ],
+  "audio": "Silent preview; no new sound assets authored.",
+  "source": "Genuine solo PIE SceneCapture frames at normal simulation speed. Comparison stage cropped for readability; L_Mouth keeps full gameplay camera and postprocess. Encoder temporary PNG copies verified pixel-identical before scaling/cropping. No synthesized motion."
+}

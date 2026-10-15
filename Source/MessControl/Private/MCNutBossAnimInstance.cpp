@@ -151,7 +151,7 @@ private:
             AimYaw*.2f*Cast,SideSpeed*-4*Procedural+Recoil*HitDirection.Y*10));
         Rotate(Head,FRotator(AimPitch*.2f*Alive-Recoil*5,AimYaw*.25f*Alive,Breath*.6f));
         if(!Input.bAuthoredSpellGestures) {
-        Rotate(LeftArm,FRotator((-Guard*13*Procedural-ShieldHit*10)*Alive+AimPitch*.25f*Cast,-Guard*8*Alive*Procedural+AimYaw*.25f*Cast,
+        Rotate(LeftArm,FRotator((-Guard*13*Procedural-ShieldHit*10*(1-Input.AuthoredTankHitWeight))*Alive+AimPitch*.25f*Cast,-Guard*8*Alive*Procedural+AimYaw*.25f*Cast,
             Input.bMage?Cast*(-5+Channel*2):0));
         Rotate(RightArm,FRotator(AimPitch*.55f*Cast-Input.Release*14,
             AimYaw*.55f*Cast,Input.bMage?Channel*3:Stride*ForwardSpeed*2));
@@ -176,7 +176,7 @@ private:
             Rotate(PoseBone(Pose,Input,EMCNutPoseBone::RightForearm),FRotator(-Strike*24*Weight,0,0));
             Rotate(RightHand,FRotator(Strike*12*Weight,0,0));
         }
-        if(Input.Death>0) {
+        if(Input.Death>0 && (Input.bMage || !Input.bHasDeathClip)) {
             const float Fall=FMath::SmoothStep(.1f,.85f,Input.Death);
             Rotate(Torso,FRotator(-Fall*(Input.bHasDeathClip?10:65),0,Fall*12));
             if(Torso.GetInt()!=INDEX_NONE) Pose[Torso].AddToTranslation(FVector(0,0,-Fall*(Input.bHasDeathClip?2:12)));

@@ -15,6 +15,10 @@ FMCNutBossSettings::FMCNutBossSettings()
     TankMeleeAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutTank_Melee.A_NutTank_Melee")));
     TankJumpAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutTank_Jump.A_NutTank_Jump")));
     TankTransformAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/A_NutTank_Transform.A_NutTank_Transform")));
+    const FString Knight=TEXT("/Game/Gameplay/CoreLoop/NutTank/Animations/KnightUpdate/A_NutKnight_");
+    auto NewClip=[&](const TCHAR* Name){return TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(Knight+Name+TEXT(".A_NutKnight_")+Name));};
+    TankMelee2Animation=NewClip(TEXT("Attack2"));TankComboAnimation=NewClip(TEXT("Combo"));
+    TankBlockAnimation=NewClip(TEXT("Block"));TankStunHitAnimation=NewClip(TEXT("StunHit"));TankDeathAnimation=NewClip(TEXT("Death"));
     MageSkeletalMesh=TSoftObjectPtr<USkeletalMesh>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutWizard/SK_NutWizard.SK_NutWizard")));
     MageIdleAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutWizard/Animations/A_NutWizard_Idle.A_NutWizard_Idle")));
     MageWalkAnimation=TSoftObjectPtr<UAnimSequence>(FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutWizard/Animations/A_NutWizard_Walk.A_NutWizard_Walk")));
@@ -57,6 +61,12 @@ void FMCNutBossSettings::Sanitize()
     Safe(TankModelYaw,-90,-180,180); Safe(MageModelYaw,-90,-180,180);
     Safe(TankHeight,440,150,640); Safe(MageHeight,400,140,600); Safe(CreepHeight,116,40,240);
     Safe(TankBallHeight,400,120,600); Safe(TankMeleeImpactFraction,.5f,.05f,.95f);
+    Safe(TankMeleeAnimationSeconds,1.2666667f,.3f,5.f);Safe(TankMelee2ImpactFraction,.3947368f,.05f,.95f);
+    Safe(TankComboAnimationSeconds,3.0666667f,1.f,8.f);Safe(TankStunSeconds,3.f,.5f,8.f);Safe(TankDeathSeconds,5.1666667f,1.f,10.f);
+    if(TankComboContactFractions.ContainsNaN()) TankComboContactFractions=FVector(.1630435f,.3152174f,.5326087f);
+    TankComboContactFractions.X=FMath::Clamp(TankComboContactFractions.X,.05,.75);
+    TankComboContactFractions.Y=FMath::Clamp(TankComboContactFractions.Y,TankComboContactFractions.X+.05,.85);
+    TankComboContactFractions.Z=FMath::Clamp(TankComboContactFractions.Z,TankComboContactFractions.Y+.05,.95);
     Safe(TankChargeLoopPlayRate,2.f,.1f,4.f); Safe(MageMeleeImpactFraction,.55f,.05f,.95f);
     Safe(TankJumpTakeoffFraction,.25f,.05f,.8f); Safe(TankJumpImpactFraction,FMath::Max(.7f,TankJumpTakeoffFraction+.05f),TankJumpTakeoffFraction+.05f,.95f);
     Safe(MageCastReleaseFraction,.55f,.2f,.8f); Safe(AnimationBlendSeconds,.18f,.08f,.4f); Safe(DeathSeconds,2.4f,1.6f,4);
@@ -81,6 +91,7 @@ void FMCNutBossSettings::Sanitize()
     Safe(FireballSpeed,550,250,850); Safe(FireballRadius,65,55,80);
     Safe(SummonCooldown,22,10,60); SummonCount=FMath::Clamp(SummonCount,1,4); MaxLiveCreeps=FMath::Clamp(MaxLiveCreeps,1,12);
     Safe(CreepHealth,40,20,80);
+    Safe(CreepMoveSpeed,360,40,500);
     Safe(RainRadius,703.5624f,180,1000); Safe(RainImpactRadius,90,55,130); Safe(RainWindup,1.2f,1,3); Safe(RainActiveSeconds,4,3,6);
     RainDrops=FMath::Clamp(RainDrops,4,12); Safe(RainDamage,8,1,15); Safe(RainHitGap,.8f,.6f,2); Safe(RainCooldown,28,12,60);
     Safe(MageTeleportCooldown,18,3,60); Safe(MageTeleportWindup,.65f,.3f,2);

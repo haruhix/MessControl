@@ -1,0 +1,23 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": "None",
+  "dirty_content": [],
+  "dirty_maps": [],
+  "fixed_fps_enabled": false,
+  "fixed_fps": 30.0,
+  "throttle_background": true,
+  "source_sha256": {
+    "Source/MessControl/Private/MCMeleeCombo.h": "868795d74d98925a9159d38a8777190fa63868036c2d59ce65538bfa76593d50",
+    "Source/MessControl/Private/MCMeleeCombo.cpp": "ab8a289a6edcf439689a781c0af511a4f74a11aa9a0da095d3920a44c8865e6e",
+    "Source/MessControl/Private/MCToothCharacter.cpp": "6a3dcd7527e378f58ea6b93ae1c5d8714060c4320b2c6e653bcaaf5795e139ed",
+    "Source/MessControl/Private/MCInventoryComponent.cpp": "815e58daf45aca62c4adb7c279b1cf3ab3fc20b44b568cc50859018c505969f4",
+    "Source/MessControl/Private/MCToothAnimInstance.cpp": "bb15a1cd01219c7421b978d6270e6483c586d5aaa9c5df7ae26ff927c0141243",
+    "Source/MessControl/Private/MCWeaponTrailComponent.cpp": "d9505c5aa5484242ea6bd1159a4de0755829ca52061ae309e1e5c9be0781f312",
+    "Source/MessControl/Private/MCCombatFeedbackComponent.cpp": "9c7c477d1258f3d8034dabfd973387cbec419628c5369eb66b9e8084b85e121c",
+    "Source/MessControl/Public/MCToothCharacter.h": "30dea9571884c4fe682589604ba8fd8d6eed40f6633cbd7ab156c010ef2e5174",
+    "Source/MessControl/Public/MCInventoryComponent.h": "6270dd0dd0cf1b3d2a007442aec6c487375f71a289d61e22f0b7d5313abf30cc",
+    "Source/MessControl/Public/MCWeaponTrailComponent.h": "03ff51e4b661402e065de07405a25f175659ea87072791c5e96ca1dac681a430",
+    "Content/Gameplay/VFX/WeaponTrail/M_WeaponSwingTrail.uasset": "e289496b949b039c10e27e8508ff8e039558ae2b6188c5b60c7a805e185d62bb"
+  },
+  "integration": "Cold Development Editor module compile and clean editor restart; no game cook/package."
+}

@@ -1,0 +1,5914 @@
+{
+  "status": "complete",
+  "source": "C:\\Users\\vasil\\Downloads\\Telegram Desktop\\Summon.blend",
+  "source_sha256_before": "a480c7269a07a7fe0e4acd527856f916f9a2e37c7b088bb040d91920948793dc",
+  "fps": 30.0,
+  "blender": "5.2.2 LTS",
+  "files": [
+    {
+      "file": "SK_NutSummon.fbx",
+      "sha256": "06881f24b1a2b95ae0b619332e013f5265377079420fbf00bb5acd0064f01123",
+      "fbx": {
+        "version": 7400,
+        "bones": [
+          {
+            "name": "root.x",
+            "parent": "root",
+            "properties": {
+              "Lcl Translation": [
+                -1.4707128744018139e-12,
+                16.389240264892578,
+                36.604156494140625
+              ],
+              "Lcl Rotation": [
+                89.999995674289,
+                -2.7911013515370852e-11,
+                -0.00039615086764032374
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "neck.x",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                1.2917139429191593e-06,
+                12.62708854675293,
+                0.18921661376953125
+              ],
+              "Lcl Rotation": [
+                7.226072056948568,
+                0.00039114135702416746,
+                -3.99073234373582e-11
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0,
+                0.9999986290931702
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "head.x",
+            "parent": "neck.x",
+            "properties": {
+              "Lcl Translation": [
+                -2.3515217550951206e-13,
+                13.54384994506836,
+                9.5367431640625e-07
+              ],
+              "Lcl Rotation": [
+                -7.226072056948568,
+                4.969768440411707e-06,
+                -6.300924108356261e-07
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0,
+                1.000001311302185
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thigh_stretch.l",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                13.748239517211914,
+                -2.447672128677368,
+                2.8549816608428955
+              ],
+              "Lcl Rotation": [
+                -147.21345774749432,
+                -96.86909643200332,
+                -21.250559243890986
+              ],
+              "Lcl Scaling": [
+                1.000003457069397,
+                1.0000001192092896,
+                1.0000003576278687
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thigh_twist.l",
+            "parent": "thigh_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                1.9073486328125e-06,
+                2.562999725341797e-06,
+                1.6689300537109375e-06
+              ],
+              "Lcl Rotation": [
+                -4.322228677037695e-06,
+                -3.628537996569274e-06,
+                -1.0672170578144923e-07
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000001192092896,
+                1.000000238418579
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "leg_stretch.l",
+            "parent": "thigh_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                1.9073486328125e-06,
+                9.07765007019043,
+                1.6689300537109375e-06
+              ],
+              "Lcl Rotation": [
+                4.8024761087876166e-05,
+                -4.055424819695071e-06,
+                22.025153922189208
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000001192092896,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "foot.l",
+            "parent": "leg_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                1.9669532775878906e-06,
+                9.50806999206543,
+                -4.76837158203125e-07
+              ],
+              "Lcl Rotation": [
+                -3.1692557996535182,
+                77.0597788199713,
+                -83.44322580694103
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000001192092896,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "toes_01.l",
+            "parent": "foot.l",
+            "properties": {
+              "Lcl Translation": [
+                -1.945446456375066e-06,
+                23.59524154663086,
+                -1.2218952178955078e-06
+              ],
+              "Lcl Rotation": [
+                -8.248558205888646,
+                179.99980010328125,
+                -2.041604502740769e-05
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                0.9999997019767761,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "leg_twist.l",
+            "parent": "leg_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                5.960464477539063e-08,
+                4.754036903381348,
+                -1.1920928955078125e-07
+              ],
+              "Lcl Rotation": [
+                6.403303161108952e-06,
+                -2.4972879152859122e-05,
+                7.523880257592171e-06
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thigh_stretch.r",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                -13.748197555541992,
+                -2.447675943374634,
+                2.855170965194702
+              ],
+              "Lcl Rotation": [
+                -147.21679087980928,
+                96.8698955641362,
+                21.24700071533341
+              ],
+              "Lcl Scaling": [
+                0.9999970197677612,
+                0.9999996423721313,
+                0.9999995231628418
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thigh_twist.r",
+            "parent": "thigh_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                1.5497207641601562e-06,
+                3.5762786865234375e-07,
+                2.384185791015625e-06
+              ],
+              "Lcl Rotation": [
+                -6.83018428468076e-06,
+                6.883549208681477e-06,
+                -8.53773544473844e-07
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000007152557373,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "leg_stretch.r",
+            "parent": "thigh_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                2.7418136596679688e-06,
+                9.077648162841797,
+                9.5367431640625e-07
+              ],
+              "Lcl Rotation": [
+                -4.204833579345103e-05,
+                7.790684522045793e-06,
+                -22.0252017335134
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000003576278687,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "foot.r",
+            "parent": "leg_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                1.5497207641601562e-06,
+                9.508084297180176,
+                -4.76837158203125e-06
+              ],
+              "Lcl Rotation": [
+                -3.168295304301485,
+                -77.05978565016046,
+                83.44265890123991
+              ],
+              "Lcl Scaling": [
+                0.9999997615814209,
+                0.9999997019767761,
+                0.9999997019767761
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "toes_01.r",
+            "parent": "foot.r",
+            "properties": {
+              "Lcl Translation": [
+                -1.960283043445088e-06,
+                23.595321655273438,
+                -7.264316082000732e-07
+              ],
+              "Lcl Rotation": [
+                -8.248515517206334,
+                -179.99980010328125,
+                2.0632621565220644e-05
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                1.0000005960464478,
+                1.000000238418579
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "leg_twist.r",
+            "parent": "leg_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                2.384185791015625e-06,
+                4.754044532775879,
+                -2.86102294921875e-06
+              ],
+              "Lcl Rotation": [
+                6.83018998423475e-06,
+                1.675530780768753e-05,
+                2.4812796594186946e-06
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "shoulder.r",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                -9.044841766357422,
+                52.681373596191406,
+                1.1375099420547485
+              ],
+              "Lcl Rotation": [
+                -0.20306509920162277,
+                90.11036470108724,
+                89.79693415026452
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "arm_stretch.r",
+            "parent": "shoulder.r",
+            "properties": {
+              "Lcl Translation": [
+                -3.6042679312231485e-06,
+                27.134559631347656,
+                7.049595296848565e-06
+              ],
+              "Lcl Rotation": [
+                -0.3449417619607012,
+                65.6344364518599,
+                4.123460334017568
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "arm_twist.r",
+            "parent": "arm_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                -7.748603820800781e-06,
+                1.2665987014770508e-06,
+                2.384185791015625e-07
+              ],
+              "Lcl Rotation": [
+                3.895343482355895e-06,
+                -9.978477047899508e-06,
+                -5.06928000684134e-07
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                0.9999997019767761,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "forearm_stretch.r",
+            "parent": "arm_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                -5.0067901611328125e-06,
+                14.189108848571777,
+                -4.0531158447265625e-06
+              ],
+              "Lcl Rotation": [
+                8.911264875417006e-06,
+                -2.2705042905003325e-05,
+                2.1190937241965475
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                0.9999998211860657,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "forearm_twist.r",
+            "parent": "forearm_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                0.0,
+                7.390745639801025,
+                4.76837158203125e-07
+              ],
+              "Lcl Rotation": [
+                1.6579712691500797e-05,
+                -65.46941225132322,
+                -1.670423003328047e-05
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                1.0000003576278687,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "hand.r",
+            "parent": "forearm_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                -5.245208740234375e-06,
+                14.781506538391113,
+                7.152557373046875e-06
+              ],
+              "Lcl Rotation": [
+                -11.654601936471108,
+                -64.18241336639606,
+                19.38484184568323
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                1.0000003576278687,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb1.r",
+            "parent": "hand.r",
+            "properties": {
+              "Lcl Translation": [
+                -5.562563896179199,
+                4.9025397300720215,
+                -2.4195854663848877
+              ],
+              "Lcl Rotation": [
+                -26.87931472380391,
+                -58.72144489853908,
+                75.32148884601388
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                0.9999998211860657,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb2.r",
+            "parent": "thumb1.r",
+            "properties": {
+              "Lcl Translation": [
+                1.2250617146492004e-05,
+                7.528158187866211,
+                -1.817941665649414e-06
+              ],
+              "Lcl Rotation": [
+                16.537948990182922,
+                22.495260474835554,
+                8.021780557518591
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000001192092896,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb3.r",
+            "parent": "thumb2.r",
+            "properties": {
+              "Lcl Translation": [
+                1.0788440704345703e-05,
+                8.538284301757812,
+                1.2993812561035156e-05
+              ],
+              "Lcl Rotation": [
+                10.4616026762226,
+                -39.18149970208862,
+                -0.8523985370725999
+              ],
+              "Lcl Scaling": [
+                0.9999998211860657,
+                1.0000001192092896,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring1_base.r",
+            "parent": "hand.r",
+            "properties": {
+              "Lcl Translation": [
+                -0.3754535913467407,
+                8.975275039672852,
+                -2.016827344894409
+              ],
+              "Lcl Rotation": [
+                -12.726025537040682,
+                1.0832254765261093e-05,
+                -1.8663011659383826
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                1.0000001192092896,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "bend_all": [
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "ring1.r",
+            "parent": "ring1_base.r",
+            "properties": {
+              "Lcl Translation": [
+                3.1888484954833984e-06,
+                18.149749755859375,
+                -4.649162292480469e-06
+              ],
+              "Lcl Rotation": [
+                -6.205798035525927,
+                -130.1093936505968,
+                4.6319448658365685
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                1.0000001192092896,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring2.r",
+            "parent": "ring1.r",
+            "properties": {
+              "Lcl Translation": [
+                -8.344650268554688e-06,
+                7.729203224182129,
+                -9.5367431640625e-07
+              ],
+              "Lcl Rotation": [
+                -2.9481077212634337,
+                131.50549797732572,
+                -1.4358443950324904
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring3.r",
+            "parent": "ring2.r",
+            "properties": {
+              "Lcl Translation": [
+                -1.6689300537109375e-06,
+                8.47329330444336,
+                -1.6264617443084717e-05
+              ],
+              "Lcl Rotation": [
+                0.2957303557124651,
+                -1.6136208789146995,
+                5.647577346831363
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000001192092896,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky1_base.r",
+            "parent": "hand.r",
+            "properties": {
+              "Lcl Translation": [
+                7.236673831939697,
+                7.383330821990967,
+                -1.7117242813110352
+              ],
+              "Lcl Rotation": [
+                -11.962670788795364,
+                1.18194305437395e-05,
+                -16.99025265475763
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                1.0,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "bend_all": [
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "pinky1.r",
+            "parent": "pinky1_base.r",
+            "properties": {
+              "Lcl Translation": [
+                -1.9073486328125e-06,
+                17.590099334716797,
+                -6.139278411865234e-06
+              ],
+              "Lcl Rotation": [
+                18.459078005579702,
+                -71.46728822945656,
+                -22.692408762586094
+              ],
+              "Lcl Scaling": [
+                1.0000003576278687,
+                1.000000238418579,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky2.r",
+            "parent": "pinky1.r",
+            "properties": {
+              "Lcl Translation": [
+                -1.0013580322265625e-05,
+                7.4675116539001465,
+                3.814697265625e-06
+              ],
+              "Lcl Rotation": [
+                -2.6198266316378183,
+                66.39212982705692,
+                -4.707185802846606
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                0.9999998211860657,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky3.r",
+            "parent": "pinky2.r",
+            "properties": {
+              "Lcl Translation": [
+                1.0013580322265625e-05,
+                6.106748580932617,
+                1.4543533325195312e-05
+              ],
+              "Lcl Rotation": [
+                -2.859401706634951,
+                -29.961922530203235,
+                0.4170789382819231
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                0.9999996423721313,
+                0.9999997019767761
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "shoulder.l",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                9.044859886169434,
+                52.681373596191406,
+                1.1373876333236694
+              ],
+              "Lcl Rotation": [
+                0.2030639386030724,
+                -90.11036470108724,
+                -90.20306402850265
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "arm_stretch.l",
+            "parent": "shoulder.l",
+            "properties": {
+              "Lcl Translation": [
+                2.07169273380714e-06,
+                27.134552001953125,
+                7.054343768686522e-06
+              ],
+              "Lcl Rotation": [
+                -0.3450581419808558,
+                -65.63442962167073,
+                -4.123342513254385
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "arm_twist.l",
+            "parent": "arm_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                -2.7418136596679688e-06,
+                7.68899917602539e-06,
+                5.245208740234375e-06
+              ],
+              "Lcl Rotation": [
+                1.3270175474818082e-05,
+                1.0778893912370369e-05,
+                -4.7931392622869376e-05
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                1.0000001192092896,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "forearm_stretch.l",
+            "parent": "arm_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                -7.152557373046875e-07,
+                14.189111709594727,
+                4.0531158447265625e-06
+              ],
+              "Lcl Rotation": [
+                1.7022108815253158e-05,
+                1.736895435904287e-05,
+                -2.1191417489641493
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.000000238418579,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "forearm_twist.l",
+            "parent": "forearm_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                8.106231689453125e-06,
+                7.390761375427246,
+                1.9073486328125e-06
+              ],
+              "Lcl Rotation": [
+                9.639376383759099e-06,
+                65.4694190815124,
+                8.932487571806727e-06
+              ],
+              "Lcl Scaling": [
+                0.9999997615814209,
+                0.9999996423721313,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "hand.l",
+            "parent": "forearm_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                4.76837158203125e-06,
+                14.78151798248291,
+                9.5367431640625e-07
+              ],
+              "Lcl Rotation": [
+                -11.654602790244756,
+                64.18243385696357,
+                -19.38484184568323
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb1.l",
+            "parent": "hand.l",
+            "properties": {
+              "Lcl Translation": [
+                5.562564373016357,
+                4.902543544769287,
+                -2.4195921421051025
+              ],
+              "Lcl Rotation": [
+                -26.879283987952643,
+                58.721451728728255,
+                -75.32145469506803
+              ],
+              "Lcl Scaling": [
+                0.9999997019767761,
+                0.9999999403953552,
+                0.9999998211860657
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb2.l",
+            "parent": "thumb1.l",
+            "properties": {
+              "Lcl Translation": [
+                -4.973262548446655e-07,
+                7.528162479400635,
+                1.1920928955078125e-06
+              ],
+              "Lcl Rotation": [
+                16.53794215999375,
+                -22.49526559747743,
+                -8.021786533934113
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                1.000000238418579,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb3.l",
+            "parent": "thumb2.l",
+            "properties": {
+              "Lcl Translation": [
+                -5.364418029785156e-06,
+                8.538288116455078,
+                5.960464477539062e-07
+              ],
+              "Lcl Rotation": [
+                10.461585600749675,
+                39.18148604171028,
+                0.8523940547609571
+              ],
+              "Lcl Scaling": [
+                0.9999996423721313,
+                0.9999997019767761,
+                0.9999997615814209
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring1_base.l",
+            "parent": "hand.l",
+            "properties": {
+              "Lcl Translation": [
+                0.3754555583000183,
+                8.975281715393066,
+                -2.0168213844299316
+              ],
+              "Lcl Rotation": [
+                -12.726020414398805,
+                -1.2779925895772542e-05,
+                1.8663020197120288
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                1.0000001192092896,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "bend_all": [
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "ring1.l",
+            "parent": "ring1_base.l",
+            "properties": {
+              "Lcl Translation": [
+                2.0265579223632812e-06,
+                18.149765014648438,
+                4.149973392486572e-06
+              ],
+              "Lcl Rotation": [
+                -6.205789924676287,
+                130.1093936505968,
+                -4.631939316307868
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                0.9999996423721313,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring2.l",
+            "parent": "ring1.l",
+            "properties": {
+              "Lcl Translation": [
+                6.4373016357421875e-06,
+                7.72920560836792,
+                7.152557373046875e-07
+              ],
+              "Lcl Rotation": [
+                -2.948105159942495,
+                -131.50549797732572,
+                1.435845568971254
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring3.l",
+            "parent": "ring2.l",
+            "properties": {
+              "Lcl Translation": [
+                3.0994415283203125e-06,
+                8.47331428527832,
+                -2.1383166313171387e-05
+              ],
+              "Lcl Rotation": [
+                0.29573022231033286,
+                1.6136204520278765,
+                -5.647577346831363
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                1.0,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky1_base.l",
+            "parent": "hand.l",
+            "properties": {
+              "Lcl Translation": [
+                -7.2366719245910645,
+                7.383317470550537,
+                -1.711738109588623
+              ],
+              "Lcl Rotation": [
+                -11.962670788795364,
+                -1.2806604693773907e-05,
+                16.99025265475763
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "bend_all": [
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "pinky1.l",
+            "parent": "pinky1_base.l",
+            "properties": {
+              "Lcl Translation": [
+                -2.384185791015625e-06,
+                17.5900821685791,
+                -1.4066696166992188e-05
+              ],
+              "Lcl Rotation": [
+                18.459067760295945,
+                71.46728822945656,
+                22.692395102207755
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000001192092896,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky2.l",
+            "parent": "pinky1.l",
+            "properties": {
+              "Lcl Translation": [
+                9.059906005859375e-06,
+                7.46750545501709,
+                -7.62939453125e-06
+              ],
+              "Lcl Rotation": [
+                -2.619837517251808,
+                -66.3921366572461,
+                4.707191352375307
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999997615814209,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky3.l",
+            "parent": "pinky2.l",
+            "properties": {
+              "Lcl Translation": [
+                -2.86102294921875e-06,
+                6.106760025024414,
+                -5.4836273193359375e-06
+              ],
+              "Lcl Rotation": [
+                -2.8594032007388317,
+                29.961922530203235,
+                -0.4170758433524554
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                0.9999998211860657,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          }
+        ],
+        "bone_count": 49,
+        "object_roots": [
+          {
+            "name": "root",
+            "parent": null,
+            "properties": {
+              "Lcl Rotation": [
+                -90.00000250447816,
+                -0.0,
+                0.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "arp_previous_secondaries": [
+                "NONE"
+              ],
+              "arp_retarget_bound": [
+                0
+              ],
+              "set": [
+                1
+              ],
+              "binded": [
+                1
+              ],
+              "arp_rig_name": [
+                "rig"
+              ]
+            }
+          }
+        ],
+        "hierarchy_sha256": "15b930e625c4beeb94d0889ab24286d5ef4e597dbfbbc599e6fbb068606321ea",
+        "bind_poses": [
+          {
+            "name": "SM_NutWizard",
+            "matrix": [
+              0.9777,
+              0.21001,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              0.0,
+              -0.21001,
+              0.9777,
+              0.0,
+              0.0,
+              -19.47376,
+              90.46677,
+              -16.02337,
+              1.0
+            ]
+          },
+          {
+            "name": "root",
+            "matrix": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          {
+            "name": "root.x",
+            "matrix": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              -0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              36.60416,
+              -16.38924,
+              1.0
+            ]
+          },
+          {
+            "name": "neck.x",
+            "matrix": [
+              1.0,
+              -0.0,
+              0.0,
+              0.0,
+              -0.0,
+              0.99206,
+              0.12578,
+              0.0,
+              -0.0,
+              -0.12578,
+              0.99206,
+              0.0,
+              0.0,
+              49.23125,
+              -16.20002,
+              1.0
+            ]
+          },
+          {
+            "name": "head.x",
+            "matrix": [
+              1.0,
+              -0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              -0.0,
+              0.0,
+              -0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              62.66753,
+              -14.49641,
+              1.0
+            ]
+          },
+          {
+            "name": "thigh_stretch.l",
+            "matrix": [
+              -0.11148,
+              0.04335,
+              0.99282,
+              0.0,
+              0.19636,
+              -0.97839,
+              0.06477,
+              0.0,
+              0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              13.74822,
+              34.15649,
+              -13.53416,
+              1.0
+            ]
+          },
+          {
+            "name": "thigh_twist.l",
+            "matrix": [
+              -0.11148,
+              0.04335,
+              0.99282,
+              0.0,
+              0.19636,
+              -0.97839,
+              0.06477,
+              0.0,
+              0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              13.74822,
+              34.15648,
+              -13.53416,
+              1.0
+            ]
+          },
+          {
+            "name": "leg_stretch.l",
+            "matrix": [
+              -0.0297,
+              -0.32672,
+              0.94465,
+              0.0,
+              0.22384,
+              -0.92324,
+              -0.31228,
+              0.0,
+              0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              15.53073,
+              25.275,
+              -12.94624,
+              1.0
+            ]
+          },
+          {
+            "name": "foot.l",
+            "matrix": [
+              -0.99999,
+              -0.0,
+              -0.00437,
+              0.0,
+              -0.00384,
+              -0.47926,
+              0.87766,
+              0.0,
+              -0.0021,
+              0.87767,
+              0.47926,
+              0.0,
+              17.659,
+              16.49674,
+              -15.91544,
+              1.0
+            ]
+          },
+          {
+            "name": "toes_01.l",
+            "matrix": [
+              0.99999,
+              6e-05,
+              0.00439,
+              0.0,
+              -0.0041,
+              -0.34839,
+              0.93734,
+              0.0,
+              0.00158,
+              -0.93735,
+              -0.34839,
+              0.0,
+              17.56846,
+              5.18839,
+              4.79326,
+              1.0
+            ]
+          },
+          {
+            "name": "leg_twist.l",
+            "matrix": [
+              -0.0297,
+              -0.32672,
+              0.94465,
+              0.0,
+              0.22384,
+              -0.92324,
+              -0.31228,
+              0.0,
+              0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              16.59487,
+              20.88587,
+              -14.43084,
+              1.0
+            ]
+          },
+          {
+            "name": "thigh_stretch.r",
+            "matrix": [
+              -0.11148,
+              -0.04335,
+              -0.99282,
+              0.0,
+              -0.19636,
+              -0.97839,
+              0.06477,
+              0.0,
+              -0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              -13.74822,
+              34.15649,
+              -13.53417,
+              1.0
+            ]
+          },
+          {
+            "name": "thigh_twist.r",
+            "matrix": [
+              -0.11148,
+              -0.04335,
+              -0.99282,
+              0.0,
+              -0.19636,
+              -0.97839,
+              0.06477,
+              0.0,
+              -0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              -13.74822,
+              34.15648,
+              -13.53416,
+              1.0
+            ]
+          },
+          {
+            "name": "leg_stretch.r",
+            "matrix": [
+              -0.0297,
+              0.32672,
+              -0.94465,
+              0.0,
+              -0.22384,
+              -0.92324,
+              -0.31228,
+              0.0,
+              -0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              -15.53073,
+              25.275,
+              -12.94625,
+              1.0
+            ]
+          },
+          {
+            "name": "foot.r",
+            "matrix": [
+              -0.99999,
+              0.0,
+              0.00437,
+              0.0,
+              0.00384,
+              -0.47926,
+              0.87766,
+              0.0,
+              0.0021,
+              0.87767,
+              0.47926,
+              0.0,
+              -17.659,
+              16.49674,
+              -15.91544,
+              1.0
+            ]
+          },
+          {
+            "name": "toes_01.r",
+            "matrix": [
+              0.99999,
+              -6e-05,
+              -0.00439,
+              0.0,
+              0.0041,
+              -0.34839,
+              0.93734,
+              0.0,
+              -0.00158,
+              -0.93735,
+              -0.34838,
+              0.0,
+              -17.56846,
+              5.18839,
+              4.79327,
+              1.0
+            ]
+          },
+          {
+            "name": "leg_twist.r",
+            "matrix": [
+              -0.0297,
+              0.32672,
+              -0.94465,
+              0.0,
+              -0.22384,
+              -0.92324,
+              -0.31228,
+              0.0,
+              -0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              -16.59486,
+              20.88587,
+              -14.43084,
+              1.0
+            ]
+          },
+          {
+            "name": "shoulder.r",
+            "matrix": [
+              0.0,
+              -0.00193,
+              -1.0,
+              0.0,
+              -1.0,
+              0.0,
+              -0.0,
+              0.0,
+              0.0,
+              1.0,
+              -0.00193,
+              0.0,
+              -9.04485,
+              89.28554,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "arm_stretch.r",
+            "matrix": [
+              -0.02967,
+              -0.91172,
+              -0.40973,
+              0.0,
+              -0.997,
+              -0.00233,
+              0.07738,
+              0.0,
+              -0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              -36.17941,
+              89.28554,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "arm_twist.r",
+            "matrix": [
+              -0.02967,
+              -0.91172,
+              -0.40973,
+              0.0,
+              -0.997,
+              -0.00233,
+              0.07738,
+              0.0,
+              -0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              -36.17941,
+              89.28555,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "forearm_stretch.r",
+            "matrix": [
+              -0.06651,
+              -0.91119,
+              -0.40659,
+              0.0,
+              -0.99522,
+              0.03138,
+              0.09248,
+              0.0,
+              -0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              -50.32593,
+              89.25242,
+              -14.15385,
+              1.0
+            ]
+          },
+          {
+            "name": "forearm_twist.r",
+            "matrix": [
+              -0.09266,
+              -0.00458,
+              -0.99569,
+              0.0,
+              -0.99522,
+              0.03138,
+              0.09248,
+              0.0,
+              0.03082,
+              0.9995,
+              -0.00747,
+              0.0,
+              -57.68137,
+              89.48432,
+              -13.47038,
+              1.0
+            ]
+          },
+          {
+            "name": "hand.r",
+            "matrix": [
+              -0.23555,
+              -0.0,
+              -0.97186,
+              0.0,
+              -0.96301,
+              0.13464,
+              0.23341,
+              0.0,
+              0.13085,
+              0.99089,
+              -0.03171,
+              0.0,
+              -65.0368,
+              89.71624,
+              -12.7869,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb1.r",
+            "matrix": [
+              -0.40284,
+              0.91449,
+              -0.03774,
+              0.0,
+              -0.42816,
+              -0.15184,
+              0.89086,
+              0.0,
+              0.80895,
+              0.37503,
+              0.45271,
+              0.0,
+              -68.76437,
+              87.97875,
+              -6.15984,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb2.r",
+            "matrix": [
+              -0.73326,
+              0.67358,
+              -0.09288,
+              0.0,
+              -0.18974,
+              -0.07153,
+              0.97923,
+              0.0,
+              0.65294,
+              0.73565,
+              0.18026,
+              0.0,
+              -71.9876,
+              86.83566,
+              0.54667,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb3.r",
+            "matrix": [
+              -0.15362,
+              0.98766,
+              0.03061,
+              0.0,
+              -0.02161,
+              -0.03432,
+              0.99918,
+              0.0,
+              0.98789,
+              0.15283,
+              0.02661,
+              0.0,
+              -73.60765,
+              86.2249,
+              8.90757,
+              1.0
+            ]
+          },
+          {
+            "name": "ring1_base.r",
+            "matrix": [
+              -0.20406,
+              -0.00439,
+              -0.97895,
+              0.0,
+              -0.97517,
+              -0.08702,
+              0.20366,
+              0.0,
+              -0.08608,
+              0.9962,
+              0.01348,
+              0.0,
+              -73.85559,
+              88.92619,
+              -10.26317,
+              1.0
+            ]
+          },
+          {
+            "name": "ring1.r",
+            "matrix": [
+              0.11593,
+              0.76925,
+              0.62834,
+              0.0,
+              -0.97922,
+              -0.01744,
+              0.20203,
+              0.0,
+              0.16637,
+              -0.63871,
+              0.75125,
+              0.0,
+              -91.5546,
+              87.34673,
+              -6.56672,
+              1.0
+            ]
+          },
+          {
+            "name": "ring2.r",
+            "matrix": [
+              -0.21766,
+              -0.03158,
+              -0.97551,
+              0.0,
+              -0.97446,
+              -0.04957,
+              0.21903,
+              0.0,
+              -0.05527,
+              0.99827,
+              -0.01999,
+              0.0,
+              -99.12322,
+              87.21191,
+              -5.00521,
+              1.0
+            ]
+          },
+          {
+            "name": "ring3.r",
+            "matrix": [
+              -0.31393,
+              -0.00818,
+              -0.94941,
+              0.0,
+              -0.94854,
+              -0.04107,
+              0.31399,
+              0.0,
+              -0.04156,
+              0.99912,
+              0.00513,
+              0.0,
+              -107.3801,
+              86.7919,
+              -3.14933,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky1_base.r",
+            "matrix": [
+              0.05613,
+              -0.03934,
+              -0.99765,
+              0.0,
+              -0.99544,
+              -0.07942,
+              -0.05288,
+              0.0,
+              -0.07716,
+              0.99606,
+              -0.04362,
+              0.0,
+              -74.07564,
+              89.01417,
+              -18.04236,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky1.r",
+            "matrix": [
+              0.06537,
+              0.94261,
+              -0.32743,
+              0.0,
+              -0.98919,
+              0.01804,
+              -0.14554,
+              0.0,
+              -0.13128,
+              0.3334,
+              0.9336,
+              0.0,
+              -91.58546,
+              87.61712,
+              -18.97244,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky2.r",
+            "matrix": [
+              0.1789,
+              0.07013,
+              -0.98137,
+              0.0,
+              -0.98319,
+              0.04985,
+              -0.17567,
+              0.0,
+              0.0366,
+              0.99629,
+              0.07787,
+              0.0,
+              -98.97225,
+              87.75183,
+              -20.05928,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky3.r",
+            "matrix": [
+              0.16706,
+              0.55864,
+              -0.81241,
+              0.0,
+              -0.98054,
+              0.00797,
+              -0.19615,
+              0.0,
+              -0.1031,
+              0.82937,
+              0.5491,
+              0.0,
+              -104.97635,
+              88.05623,
+              -21.13203,
+              1.0
+            ]
+          },
+          {
+            "name": "shoulder.l",
+            "matrix": [
+              -0.0,
+              0.00193,
+              1.0,
+              0.0,
+              1.0,
+              -0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              -0.00193,
+              0.0,
+              9.04485,
+              89.28554,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "arm_stretch.l",
+            "matrix": [
+              -0.02967,
+              0.91172,
+              0.40973,
+              0.0,
+              0.997,
+              -0.00233,
+              0.07738,
+              0.0,
+              0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              36.17941,
+              89.28554,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "arm_twist.l",
+            "matrix": [
+              -0.02967,
+              0.91172,
+              0.40973,
+              0.0,
+              0.997,
+              -0.00233,
+              0.07738,
+              0.0,
+              0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              36.17942,
+              89.28555,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "forearm_stretch.l",
+            "matrix": [
+              -0.06651,
+              0.91119,
+              0.40659,
+              0.0,
+              0.99522,
+              0.03138,
+              0.09248,
+              0.0,
+              0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              50.32594,
+              89.25241,
+              -14.15384,
+              1.0
+            ]
+          },
+          {
+            "name": "forearm_twist.l",
+            "matrix": [
+              -0.09266,
+              0.00458,
+              0.99569,
+              0.0,
+              0.99522,
+              0.03138,
+              0.09248,
+              0.0,
+              -0.03082,
+              0.9995,
+              -0.00747,
+              0.0,
+              57.68137,
+              89.48434,
+              -13.47036,
+              1.0
+            ]
+          },
+          {
+            "name": "hand.l",
+            "matrix": [
+              -0.23555,
+              -0.0,
+              0.97186,
+              0.0,
+              0.96301,
+              0.13464,
+              0.23341,
+              0.0,
+              -0.13085,
+              0.9909,
+              -0.03171,
+              0.0,
+              65.0368,
+              89.71626,
+              -12.78689,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb1.l",
+            "matrix": [
+              -0.40284,
+              -0.91449,
+              0.03774,
+              0.0,
+              0.42816,
+              -0.15184,
+              0.89086,
+              0.0,
+              -0.80895,
+              0.37503,
+              0.45271,
+              0.0,
+              68.76437,
+              87.97875,
+              -6.15984,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb2.l",
+            "matrix": [
+              -0.73326,
+              -0.67358,
+              0.09288,
+              0.0,
+              0.18974,
+              -0.07153,
+              0.97922,
+              0.0,
+              -0.65294,
+              0.73565,
+              0.18026,
+              0.0,
+              71.98761,
+              86.83566,
+              0.54667,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb3.l",
+            "matrix": [
+              -0.15362,
+              -0.98766,
+              -0.03061,
+              0.0,
+              0.02161,
+              -0.03432,
+              0.99918,
+              0.0,
+              -0.98789,
+              0.15283,
+              0.02661,
+              0.0,
+              73.60765,
+              86.2249,
+              8.90757,
+              1.0
+            ]
+          },
+          {
+            "name": "ring1_base.l",
+            "matrix": [
+              -0.20406,
+              0.00438,
+              0.97895,
+              0.0,
+              0.97517,
+              -0.08702,
+              0.20366,
+              0.0,
+              0.08608,
+              0.9962,
+              0.01348,
+              0.0,
+              73.85558,
+              88.9262,
+              -10.26317,
+              1.0
+            ]
+          },
+          {
+            "name": "ring1.l",
+            "matrix": [
+              0.11593,
+              -0.76925,
+              -0.62834,
+              0.0,
+              0.97922,
+              -0.01744,
+              0.20203,
+              0.0,
+              -0.16637,
+              -0.63871,
+              0.75125,
+              0.0,
+              91.5546,
+              87.34673,
+              -6.56672,
+              1.0
+            ]
+          },
+          {
+            "name": "ring2.l",
+            "matrix": [
+              -0.21766,
+              0.03158,
+              0.97551,
+              0.0,
+              0.97446,
+              -0.04957,
+              0.21903,
+              0.0,
+              0.05527,
+              0.99827,
+              -0.01998,
+              0.0,
+              99.12323,
+              87.21193,
+              -5.00521,
+              1.0
+            ]
+          },
+          {
+            "name": "ring3.l",
+            "matrix": [
+              -0.31393,
+              0.00818,
+              0.94941,
+              0.0,
+              0.94854,
+              -0.04107,
+              0.31399,
+              0.0,
+              0.04156,
+              0.99912,
+              0.00513,
+              0.0,
+              107.38011,
+              86.79189,
+              -3.14933,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky1_base.l",
+            "matrix": [
+              0.05613,
+              0.03934,
+              0.99765,
+              0.0,
+              0.99544,
+              -0.07942,
+              -0.05288,
+              0.0,
+              0.07716,
+              0.99606,
+              -0.04362,
+              0.0,
+              74.07564,
+              89.01418,
+              -18.04235,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky1.l",
+            "matrix": [
+              0.06537,
+              -0.94261,
+              0.32743,
+              0.0,
+              0.98919,
+              0.01804,
+              -0.14554,
+              0.0,
+              0.13128,
+              0.3334,
+              0.9336,
+              0.0,
+              91.58546,
+              87.61711,
+              -18.97243,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky2.l",
+            "matrix": [
+              0.1789,
+              -0.07013,
+              0.98137,
+              0.0,
+              0.98319,
+              0.04985,
+              -0.17567,
+              0.0,
+              -0.0366,
+              0.99629,
+              0.07787,
+              0.0,
+              98.97224,
+              87.75183,
+              -20.05928,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky3.l",
+            "matrix": [
+              0.16706,
+              -0.55864,
+              0.81241,
+              0.0,
+              0.98054,
+              0.00797,
+              -0.19615,
+              0.0,
+              0.1031,
+              0.82937,
+              0.5491,
+              0.0,
+              104.97635,
+              88.05623,
+              -21.13203,
+              1.0
+            ]
+          }
+        ],
+        "root_animation_curves": [],
+        "geometry_bounds_fbx_units": [
+          {
+            "name": "stylized_walnut_game_ready.004",
+            "lower": [
+              -93.24961853027344,
+              -35.925445556640625,
+              -98.3907241821289
+            ],
+            "upper": [
+              131.4384002685547,
+              29.63831901550293,
+              29.71730613708496
+            ],
+            "dimensions": [
+              224.68801879882812,
+              65.56376457214355,
+              128.10803031921387
+            ]
+          }
+        ],
+        "root_animation_constant": false,
+        "materials": [
+          "Walnut",
+          "hand/eye"
+        ],
+        "animation_stacks": [],
+        "global_settings": {
+          "UpAxis": [
+            1
+          ],
+          "UpAxisSign": [
+            1
+          ],
+          "FrontAxis": [
+            2
+          ],
+          "FrontAxisSign": [
+            1
+          ],
+          "CoordAxis": [
+            0
+          ],
+          "CoordAxisSign": [
+            1
+          ],
+          "OriginalUpAxis": [
+            -1
+          ],
+          "OriginalUpAxisSign": [
+            1
+          ],
+          "UnitScaleFactor": [
+            1.0
+          ],
+          "OriginalUnitScaleFactor": [
+            1.0
+          ],
+          "AmbientColor": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "DefaultCamera": [
+            "Producer Perspective"
+          ],
+          "TimeMode": [
+            6
+          ],
+          "TimeSpanStart": [
+            0
+          ],
+          "TimeSpanStop": [
+            46186158000
+          ],
+          "CustomFrameRate": [
+            30.0
+          ]
+        }
+      }
+    },
+    {
+      "file": "A_NutSummon_Run.fbx",
+      "sha256": "3f3b73635fd8a5e3515f04de234e6cea6a23ed5249337218a2551aa17b0e52b4",
+      "fbx": {
+        "version": 7400,
+        "bones": [
+          {
+            "name": "root.x",
+            "parent": "root",
+            "properties": {
+              "Lcl Translation": [
+                0.24464833736419678,
+                16.213274002075195,
+                21.527128219604492
+              ],
+              "Lcl Rotation": [
+                87.34383755890859,
+                -2.3364209520762445,
+                -1.8765029072374428
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                0.9999999403953552,
+                0.9999998211860657
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "neck.x",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                1.1324882507324219e-06,
+                12.627092361450195,
+                0.18921364843845367
+              ],
+              "Lcl Rotation": [
+                56.45815926421781,
+                -5.158083729112759,
+                9.008952067128766
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000001192092896,
+                0.9999986886978149
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "head.x",
+            "parent": "neck.x",
+            "properties": {
+              "Lcl Translation": [
+                8.344650268554688e-07,
+                13.543863296508789,
+                -3.8743019104003906e-07
+              ],
+              "Lcl Rotation": [
+                -7.226070349401275,
+                4.695755461494766e-06,
+                -8.537737480293437e-07
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                1.0,
+                1.0000014305114746
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thigh_stretch.l",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                13.748236656188965,
+                -2.44766902923584,
+                2.8549859523773193
+              ],
+              "Lcl Rotation": [
+                -78.04985572129966,
+                -173.3851034015824,
+                16.391951989126607
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000039339065552,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thigh_twist.l",
+            "parent": "thigh_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                -3.2186508178710938e-06,
+                -1.4603137969970703e-06,
+                -2.1457672119140625e-06
+              ],
+              "Lcl Rotation": [
+                -9.025708174098601e-05,
+                -84.24873733651731,
+                9.917633657687385e-05
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                0.9999998211860657,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "leg_stretch.l",
+            "parent": "thigh_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                -2.175569534301758e-06,
+                9.07764720916748,
+                -1.5497207641601562e-06
+              ],
+              "Lcl Rotation": [
+                2.5613205316437823e-06,
+                -4.653066697759986e-05,
+                108.76706056992292
+              ],
+              "Lcl Scaling": [
+                0.9999998211860657,
+                1.0000001192092896,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "foot.l",
+            "parent": "leg_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                -4.76837158203125e-07,
+                9.508071899414062,
+                -4.76837158203125e-07
+              ],
+              "Lcl Rotation": [
+                -79.96161200960789,
+                -4.336288174781519,
+                -106.09998781224883
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.000000238418579,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "toes_01.l",
+            "parent": "foot.l",
+            "properties": {
+              "Lcl Translation": [
+                3.4570693969726562e-06,
+                23.59524154663086,
+                -2.9802322387695312e-08
+              ],
+              "Lcl Rotation": [
+                -23.03023333402951,
+                170.0018784792433,
+                -7.103736111837646
+              ],
+              "Lcl Scaling": [
+                0.9999998211860657,
+                0.9999997615814209,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "leg_twist.l",
+            "parent": "leg_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                -4.76837158203125e-07,
+                4.754034996032715,
+                -2.1457672119140625e-06
+              ],
+              "Lcl Rotation": [
+                9.940661809936479e-05,
+                79.10840526905741,
+                0.00011748056169043763
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                0.9999999403953552,
+                1.0000003576278687
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thigh_stretch.r",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                -13.748200416564941,
+                -2.447675943374634,
+                2.8551700115203857
+              ],
+              "Lcl Rotation": [
+                -72.34713953795926,
+                155.86139248207925,
+                19.244645382779545
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                0.9999972581863403,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thigh_twist.r",
+            "parent": "thigh_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                -4.76837158203125e-07,
+                -1.7881393432617188e-06,
+                1.430511474609375e-06
+              ],
+              "Lcl Rotation": [
+                -1.4151359090425652e-05,
+                28.977818629304043,
+                2.927868822907598e-06
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                1.0000003576278687,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "leg_stretch.r",
+            "parent": "thigh_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                -3.814697265625e-06,
+                9.077651023864746,
+                1.7881393432617188e-06
+              ],
+              "Lcl Rotation": [
+                -2.4759443883516208e-05,
+                -4.610377689758607e-05,
+                -90.27407750530327
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999997019767761,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "foot.r",
+            "parent": "leg_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                3.814697265625e-06,
+                9.508085250854492,
+                -3.814697265625e-06
+              ],
+              "Lcl Rotation": [
+                -46.21496554708471,
+                -17.24396003147775,
+                107.57807489958543
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                1.000000238418579,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "toes_01.r",
+            "parent": "foot.r",
+            "properties": {
+              "Lcl Translation": [
+                -3.7990394048392773e-06,
+                23.595321655273438,
+                -9.5367431640625e-07
+              ],
+              "Lcl Rotation": [
+                -13.737935991824642,
+                179.97973300749973,
+                -0.015576489861105393
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                1.0000001192092896,
+                0.9999997615814209
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "leg_twist.r",
+            "parent": "leg_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                1.6689300537109375e-06,
+                4.754044532775879,
+                0.0
+              ],
+              "Lcl Rotation": [
+                -5.4352709631472136e-06,
+                -38.242191596860955,
+                -1.0870537448073436e-06
+              ],
+              "Lcl Scaling": [
+                1.000000238418579,
+                0.9999997615814209,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "shoulder.r",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                -9.044841766357422,
+                52.68140411376953,
+                1.1375144720077515
+              ],
+              "Lcl Rotation": [
+                -18.00816940714297,
+                33.503802501677974,
+                91.47064468561946
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                0.9999998211860657,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "arm_stretch.r",
+            "parent": "shoulder.r",
+            "properties": {
+              "Lcl Translation": [
+                2.2649765014648438e-06,
+                27.134553909301758,
+                -3.814697265625e-06
+              ],
+              "Lcl Rotation": [
+                -38.18203470574607,
+                128.13395267846735,
+                -30.29350430874526
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.000000238418579,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "arm_twist.r",
+            "parent": "arm_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                7.331371307373047e-06,
+                5.4836273193359375e-06,
+                -1.6689300537109375e-06
+              ],
+              "Lcl Rotation": [
+                5.8914504811560153e-05,
+                -43.56548735671257,
+                -3.0930101835672704e-05
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                0.9999998211860657,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "forearm_stretch.r",
+            "parent": "arm_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                -1.5497207641601562e-06,
+                14.189114570617676,
+                5.9604644775390625e-06
+              ],
+              "Lcl Rotation": [
+                -27.84819754813773,
+                3.969020792260294,
+                14.086940729165724
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999995827674866,
+                1.000000238418579
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "forearm_twist.r",
+            "parent": "forearm_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                0.0,
+                7.390758514404297,
+                5.7220458984375e-06
+              ],
+              "Lcl Rotation": [
+                1.7422614438518026e-06,
+                -23.2457514155528,
+                -4.64603061871589e-07
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "hand.r",
+            "parent": "forearm_stretch.r",
+            "properties": {
+              "Lcl Translation": [
+                1.1920928955078125e-05,
+                14.78153133392334,
+                8.58306884765625e-06
+              ],
+              "Lcl Rotation": [
+                -12.380516149007356,
+                -20.252185370268347,
+                22.274947600514913
+              ],
+              "Lcl Scaling": [
+                0.9999997615814209,
+                1.0000003576278687,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb1.r",
+            "parent": "hand.r",
+            "properties": {
+              "Lcl Translation": [
+                -5.562562942504883,
+                4.902546405792236,
+                -2.4195942878723145
+              ],
+              "Lcl Rotation": [
+                -26.879326676634957,
+                -58.72143806834991,
+                75.32149567620306
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                1.0000001192092896,
+                1.000000238418579
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb2.r",
+            "parent": "thumb1.r",
+            "properties": {
+              "Lcl Translation": [
+                1.1771917343139648e-05,
+                7.528170585632324,
+                -8.106231689453125e-06
+              ],
+              "Lcl Rotation": [
+                16.537952405277508,
+                22.49525705974097,
+                8.021785680160468
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999998807907104,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb3.r",
+            "parent": "thumb2.r",
+            "properties": {
+              "Lcl Translation": [
+                1.004338264465332e-05,
+                8.53829288482666,
+                9.775161743164062e-06
+              ],
+              "Lcl Rotation": [
+                10.461606091317185,
+                -39.18149287189945,
+                -0.8523990173202759
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                1.0,
+                0.9999998211860657
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring1_base.r",
+            "parent": "hand.r",
+            "properties": {
+              "Lcl Translation": [
+                -0.3754476308822632,
+                8.975281715393066,
+                -2.016818046569824
+              ],
+              "Lcl Rotation": [
+                -12.726022121946098,
+                1.4514151986277097e-05,
+                -1.8663026600422634
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                1.0,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "bend_all": [
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "ring1.r",
+            "parent": "ring1_base.r",
+            "properties": {
+              "Lcl Translation": [
+                1.0132789611816406e-06,
+                18.149757385253906,
+                -8.821487426757812e-06
+              ],
+              "Lcl Rotation": [
+                -6.205787363355348,
+                -130.10940731097512,
+                4.6319448658365685
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000001192092896,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring2.r",
+            "parent": "ring1.r",
+            "properties": {
+              "Lcl Translation": [
+                -1.1682510375976562e-05,
+                7.729208469390869,
+                3.814697265625e-06
+              ],
+              "Lcl Rotation": [
+                -2.9481004641874407,
+                131.50549797732572,
+                -1.4358500512828967
+              ],
+              "Lcl Scaling": [
+                1.0000003576278687,
+                1.0000003576278687,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring3.r",
+            "parent": "ring2.r",
+            "properties": {
+              "Lcl Translation": [
+                4.0531158447265625e-06,
+                8.473318099975586,
+                -1.9073486328125e-05
+              ],
+              "Lcl Rotation": [
+                0.2957308626405676,
+                -1.6136227999054036,
+                5.647579908152301
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                1.0,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky1_base.r",
+            "parent": "hand.r",
+            "properties": {
+              "Lcl Translation": [
+                7.236672401428223,
+                7.383337020874023,
+                -1.711714267730713
+              ],
+              "Lcl Rotation": [
+                -11.96266481237984,
+                9.391510108767532e-06,
+                -16.99025606985221
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000001192092896,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "bend_all": [
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "pinky1.r",
+            "parent": "pinky1_base.r",
+            "properties": {
+              "Lcl Translation": [
+                -1.1622905731201172e-06,
+                17.590099334716797,
+                1.4513731002807617e-05
+              ],
+              "Lcl Rotation": [
+                18.459081420674284,
+                -71.46728822945656,
+                -22.692395102207755
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.000000238418579,
+                1.0000003576278687
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky2.r",
+            "parent": "pinky1.r",
+            "properties": {
+              "Lcl Translation": [
+                2.384185791015625e-07,
+                7.467509746551514,
+                9.5367431640625e-07
+              ],
+              "Lcl Rotation": [
+                -2.6198221493261755,
+                66.3921366572461,
+                -4.707171715581443
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                0.9999999403953552,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky3.r",
+            "parent": "pinky2.r",
+            "properties": {
+              "Lcl Translation": [
+                0.0,
+                6.106773853302002,
+                1.9550323486328125e-05
+              ],
+              "Lcl Rotation": [
+                -2.8594023469651857,
+                -29.961922530203235,
+                0.4170791250449082
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999998211860657,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "shoulder.l",
+            "parent": "root.x",
+            "properties": {
+              "Lcl Translation": [
+                9.04486083984375,
+                52.68138885498047,
+                1.1373887062072754
+              ],
+              "Lcl Rotation": [
+                1.229072264019696,
+                -32.95368199045222,
+                -87.14144539342277
+              ],
+              "Lcl Scaling": [
+                0.9999998211860657,
+                1.0000001192092896,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "arm_stretch.l",
+            "parent": "shoulder.l",
+            "properties": {
+              "Lcl Translation": [
+                1.430511474609375e-06,
+                27.134565353393555,
+                2.384185791015625e-06
+              ],
+              "Lcl Rotation": [
+                -1.6072593047547732,
+                -122.9223407568292,
+                -3.571384467698488
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999998211860657,
+                1.000000238418579
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "arm_twist.l",
+            "parent": "arm_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                3.337860107421875e-06,
+                3.814697265625e-06,
+                2.86102294921875e-06
+              ],
+              "Lcl Rotation": [
+                5.137756280466877e-06,
+                56.60150785942345,
+                -2.1132674377127577e-05
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000004768371582,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "forearm_stretch.l",
+            "parent": "arm_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                -8.821487426757812e-06,
+                14.189115524291992,
+                3.337860107421875e-06
+              ],
+              "Lcl Rotation": [
+                1.5367920747196698e-05,
+                1.2699881359548462e-05,
+                -2.119121471840051
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000003576278687,
+                1.000000238418579
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "forearm_twist.l",
+            "parent": "forearm_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                4.76837158203125e-06,
+                7.390761375427246,
+                -9.5367431640625e-07
+              ],
+              "Lcl Rotation": [
+                1.00249520253493e-05,
+                65.4694190815124,
+                1.0506918524004561e-05
+              ],
+              "Lcl Scaling": [
+                0.9999998211860657,
+                0.999999463558197,
+                0.9999997019767761
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "hand.l",
+            "parent": "forearm_stretch.l",
+            "properties": {
+              "Lcl Translation": [
+                -5.245208740234375e-06,
+                14.781514167785645,
+                -7.152557373046875e-06
+              ],
+              "Lcl Rotation": [
+                -11.654619011944034,
+                64.18243385696357,
+                -19.38485721360886
+              ],
+              "Lcl Scaling": [
+                0.9999998211860657,
+                0.9999999403953552,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb1.l",
+            "parent": "hand.l",
+            "properties": {
+              "Lcl Translation": [
+                5.562565803527832,
+                4.9025492668151855,
+                -2.4195985794067383
+              ],
+              "Lcl Rotation": [
+                -26.8792942332364,
+                58.721451728728255,
+                -75.32145469506803
+              ],
+              "Lcl Scaling": [
+                0.9999996423721313,
+                0.9999995827674866,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb2.l",
+            "parent": "thumb1.l",
+            "properties": {
+              "Lcl Translation": [
+                2.6322901248931885e-05,
+                7.528158187866211,
+                3.7848949432373047e-06
+              ],
+              "Lcl Rotation": [
+                16.537945575088337,
+                -22.495262182382845,
+                -8.021789095255054
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000001192092896,
+                0.9999999403953552
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "thumb3.l",
+            "parent": "thumb2.l",
+            "properties": {
+              "Lcl Translation": [
+                1.4901161193847656e-06,
+                8.53828239440918,
+                3.2186508178710938e-06
+              ],
+              "Lcl Rotation": [
+                10.461587308296968,
+                39.18148604171028,
+                0.852393574513281
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                0.9999998211860657,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring1_base.l",
+            "parent": "hand.l",
+            "properties": {
+              "Lcl Translation": [
+                0.3754584789276123,
+                8.97527027130127,
+                -2.0168259143829346
+              ],
+              "Lcl Rotation": [
+                -12.726022975719744,
+                -1.3020049733780803e-05,
+                1.8663015928252056
+              ],
+              "Lcl Scaling": [
+                0.9999998211860657,
+                1.0,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "bend_all": [
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "ring1.l",
+            "parent": "ring1_base.l",
+            "properties": {
+              "Lcl Translation": [
+                -2.6226043701171875e-06,
+                18.149768829345703,
+                7.852911949157715e-06
+              ],
+              "Lcl Rotation": [
+                -6.205790778449933,
+                130.10940731097512,
+                -4.631937608760575
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                0.9999997615814209,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring2.l",
+            "parent": "ring1.l",
+            "properties": {
+              "Lcl Translation": [
+                7.62939453125e-06,
+                7.729182243347168,
+                5.245208740234375e-06
+              ],
+              "Lcl Rotation": [
+                -2.948104092725437,
+                -131.50551163770407,
+                1.4358464227449002
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000001192092896,
+                1.0000001192092896
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "ring3.l",
+            "parent": "ring2.l",
+            "properties": {
+              "Lcl Translation": [
+                5.4836273193359375e-06,
+                8.47331714630127,
+                5.885958671569824e-07
+              ],
+              "Lcl Rotation": [
+                0.29573014226905353,
+                1.6136211990798168,
+                -5.647577346831363
+              ],
+              "Lcl Scaling": [
+                1.0000001192092896,
+                1.0000001192092896,
+                1.000000238418579
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky1_base.l",
+            "parent": "hand.l",
+            "properties": {
+              "Lcl Translation": [
+                -7.236674785614014,
+                7.383328914642334,
+                -1.711742877960205
+              ],
+              "Lcl Rotation": [
+                -11.962670788795364,
+                -1.3460275141685285e-05,
+                16.99025265475763
+              ],
+              "Lcl Scaling": [
+                1.0,
+                0.9999999403953552,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "bend_all": [
+                0.0
+              ]
+            }
+          },
+          {
+            "name": "pinky1.l",
+            "parent": "pinky1_base.l",
+            "properties": {
+              "Lcl Translation": [
+                2.0265579223632812e-06,
+                17.5900936126709,
+                -1.0371208190917969e-05
+              ],
+              "Lcl Rotation": [
+                18.459062637654068,
+                71.46728822945656,
+                22.692395102207755
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0000004768371582,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky2.l",
+            "parent": "pinky1.l",
+            "properties": {
+              "Lcl Translation": [
+                1.52587890625e-05,
+                7.4675164222717285,
+                -6.67572021484375e-06
+              ],
+              "Lcl Rotation": [
+                -2.6198345290440463,
+                -66.3921366572461,
+                4.707189644828014
+              ],
+              "Lcl Scaling": [
+                0.9999999403953552,
+                0.9999998211860657,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          },
+          {
+            "name": "pinky3.l",
+            "parent": "pinky2.l",
+            "properties": {
+              "Lcl Translation": [
+                1.2636184692382812e-05,
+                6.106776237487793,
+                8.225440979003906e-06
+              ],
+              "Lcl Rotation": [
+                -2.8594023469651857,
+                29.961922530203235,
+                -0.41707573663074965
+              ],
+              "Lcl Scaling": [
+                0.9999998807907104,
+                0.9999998807907104,
+                0.9999998807907104
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ]
+            }
+          }
+        ],
+        "bone_count": 49,
+        "object_roots": [
+          {
+            "name": "root",
+            "parent": null,
+            "properties": {
+              "Lcl Translation": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "Lcl Rotation": [
+                -90.00000250447816,
+                -0.0,
+                0.0
+              ],
+              "Lcl Scaling": [
+                1.0,
+                1.0,
+                1.0
+              ],
+              "DefaultAttributeIndex": [
+                0
+              ],
+              "InheritType": [
+                1
+              ],
+              "arp_previous_secondaries": [
+                "NONE"
+              ],
+              "arp_retarget_bound": [
+                0
+              ],
+              "set": [
+                1
+              ],
+              "binded": [
+                0
+              ],
+              "arp_rig_name": [
+                "rig"
+              ]
+            }
+          }
+        ],
+        "hierarchy_sha256": "15b930e625c4beeb94d0889ab24286d5ef4e597dbfbbc599e6fbb068606321ea",
+        "bind_poses": [
+          {
+            "name": "SM_NutWizard",
+            "matrix": [
+              0.9777,
+              0.21001,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              0.0,
+              -0.21001,
+              0.9777,
+              0.0,
+              0.0,
+              -19.47376,
+              90.46677,
+              -16.02337,
+              1.0
+            ]
+          },
+          {
+            "name": "root",
+            "matrix": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              -1.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          {
+            "name": "root.x",
+            "matrix": [
+              1.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              -0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              36.60416,
+              -16.38924,
+              1.0
+            ]
+          },
+          {
+            "name": "neck.x",
+            "matrix": [
+              1.0,
+              -0.0,
+              0.0,
+              0.0,
+              -0.0,
+              0.99206,
+              0.12578,
+              0.0,
+              -0.0,
+              -0.12578,
+              0.99206,
+              0.0,
+              0.0,
+              49.23125,
+              -16.20002,
+              1.0
+            ]
+          },
+          {
+            "name": "head.x",
+            "matrix": [
+              1.0,
+              -0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              -0.0,
+              0.0,
+              -0.0,
+              0.0,
+              1.0,
+              0.0,
+              0.0,
+              62.66753,
+              -14.49641,
+              1.0
+            ]
+          },
+          {
+            "name": "thigh_stretch.l",
+            "matrix": [
+              -0.11148,
+              0.04335,
+              0.99282,
+              0.0,
+              0.19636,
+              -0.97839,
+              0.06477,
+              0.0,
+              0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              13.74822,
+              34.15649,
+              -13.53416,
+              1.0
+            ]
+          },
+          {
+            "name": "thigh_twist.l",
+            "matrix": [
+              -0.11148,
+              0.04335,
+              0.99282,
+              0.0,
+              0.19636,
+              -0.97839,
+              0.06477,
+              0.0,
+              0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              13.74822,
+              34.15648,
+              -13.53416,
+              1.0
+            ]
+          },
+          {
+            "name": "leg_stretch.l",
+            "matrix": [
+              -0.0297,
+              -0.32672,
+              0.94465,
+              0.0,
+              0.22384,
+              -0.92324,
+              -0.31228,
+              0.0,
+              0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              15.53073,
+              25.275,
+              -12.94624,
+              1.0
+            ]
+          },
+          {
+            "name": "foot.l",
+            "matrix": [
+              -0.99999,
+              -0.0,
+              -0.00437,
+              0.0,
+              -0.00384,
+              -0.47926,
+              0.87766,
+              0.0,
+              -0.0021,
+              0.87767,
+              0.47926,
+              0.0,
+              17.659,
+              16.49674,
+              -15.91544,
+              1.0
+            ]
+          },
+          {
+            "name": "toes_01.l",
+            "matrix": [
+              0.99999,
+              6e-05,
+              0.00439,
+              0.0,
+              -0.0041,
+              -0.34839,
+              0.93734,
+              0.0,
+              0.00158,
+              -0.93735,
+              -0.34839,
+              0.0,
+              17.56846,
+              5.18839,
+              4.79326,
+              1.0
+            ]
+          },
+          {
+            "name": "leg_twist.l",
+            "matrix": [
+              -0.0297,
+              -0.32672,
+              0.94465,
+              0.0,
+              0.22384,
+              -0.92324,
+              -0.31228,
+              0.0,
+              0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              16.59487,
+              20.88587,
+              -14.43084,
+              1.0
+            ]
+          },
+          {
+            "name": "thigh_stretch.r",
+            "matrix": [
+              -0.11148,
+              -0.04335,
+              -0.99282,
+              0.0,
+              -0.19636,
+              -0.97839,
+              0.06477,
+              0.0,
+              -0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              -13.74822,
+              34.15649,
+              -13.53417,
+              1.0
+            ]
+          },
+          {
+            "name": "thigh_twist.r",
+            "matrix": [
+              -0.11148,
+              -0.04335,
+              -0.99282,
+              0.0,
+              -0.19636,
+              -0.97839,
+              0.06477,
+              0.0,
+              -0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              -13.74822,
+              34.15648,
+              -13.53416,
+              1.0
+            ]
+          },
+          {
+            "name": "leg_stretch.r",
+            "matrix": [
+              -0.0297,
+              0.32672,
+              -0.94465,
+              0.0,
+              -0.22384,
+              -0.92324,
+              -0.31228,
+              0.0,
+              -0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              -15.53073,
+              25.275,
+              -12.94625,
+              1.0
+            ]
+          },
+          {
+            "name": "foot.r",
+            "matrix": [
+              -0.99999,
+              0.0,
+              0.00437,
+              0.0,
+              0.00384,
+              -0.47926,
+              0.87766,
+              0.0,
+              0.0021,
+              0.87767,
+              0.47926,
+              0.0,
+              -17.659,
+              16.49674,
+              -15.91544,
+              1.0
+            ]
+          },
+          {
+            "name": "toes_01.r",
+            "matrix": [
+              0.99999,
+              -6e-05,
+              -0.00439,
+              0.0,
+              0.0041,
+              -0.34839,
+              0.93734,
+              0.0,
+              -0.00158,
+              -0.93735,
+              -0.34838,
+              0.0,
+              -17.56846,
+              5.18839,
+              4.79327,
+              1.0
+            ]
+          },
+          {
+            "name": "leg_twist.r",
+            "matrix": [
+              -0.0297,
+              0.32672,
+              -0.94465,
+              0.0,
+              -0.22384,
+              -0.92324,
+              -0.31228,
+              0.0,
+              -0.97417,
+              0.20217,
+              0.10056,
+              0.0,
+              -16.59486,
+              20.88587,
+              -14.43084,
+              1.0
+            ]
+          },
+          {
+            "name": "shoulder.r",
+            "matrix": [
+              0.0,
+              -0.00193,
+              -1.0,
+              0.0,
+              -1.0,
+              0.0,
+              -0.0,
+              0.0,
+              0.0,
+              1.0,
+              -0.00193,
+              0.0,
+              -9.04485,
+              89.28554,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "arm_stretch.r",
+            "matrix": [
+              -0.02967,
+              -0.91172,
+              -0.40973,
+              0.0,
+              -0.997,
+              -0.00233,
+              0.07738,
+              0.0,
+              -0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              -36.17941,
+              89.28554,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "arm_twist.r",
+            "matrix": [
+              -0.02967,
+              -0.91172,
+              -0.40973,
+              0.0,
+              -0.997,
+              -0.00233,
+              0.07738,
+              0.0,
+              -0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              -36.17941,
+              89.28555,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "forearm_stretch.r",
+            "matrix": [
+              -0.06651,
+              -0.91119,
+              -0.40659,
+              0.0,
+              -0.99522,
+              0.03138,
+              0.09248,
+              0.0,
+              -0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              -50.32593,
+              89.25242,
+              -14.15385,
+              1.0
+            ]
+          },
+          {
+            "name": "forearm_twist.r",
+            "matrix": [
+              -0.09266,
+              -0.00458,
+              -0.99569,
+              0.0,
+              -0.99522,
+              0.03138,
+              0.09248,
+              0.0,
+              0.03082,
+              0.9995,
+              -0.00747,
+              0.0,
+              -57.68137,
+              89.48432,
+              -13.47038,
+              1.0
+            ]
+          },
+          {
+            "name": "hand.r",
+            "matrix": [
+              -0.23555,
+              -0.0,
+              -0.97186,
+              0.0,
+              -0.96301,
+              0.13464,
+              0.23341,
+              0.0,
+              0.13085,
+              0.99089,
+              -0.03171,
+              0.0,
+              -65.0368,
+              89.71624,
+              -12.7869,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb1.r",
+            "matrix": [
+              -0.40284,
+              0.91449,
+              -0.03774,
+              0.0,
+              -0.42816,
+              -0.15184,
+              0.89086,
+              0.0,
+              0.80895,
+              0.37503,
+              0.45271,
+              0.0,
+              -68.76437,
+              87.97875,
+              -6.15984,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb2.r",
+            "matrix": [
+              -0.73326,
+              0.67358,
+              -0.09288,
+              0.0,
+              -0.18974,
+              -0.07153,
+              0.97923,
+              0.0,
+              0.65294,
+              0.73565,
+              0.18026,
+              0.0,
+              -71.9876,
+              86.83566,
+              0.54667,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb3.r",
+            "matrix": [
+              -0.15362,
+              0.98766,
+              0.03061,
+              0.0,
+              -0.02161,
+              -0.03432,
+              0.99918,
+              0.0,
+              0.98789,
+              0.15283,
+              0.02661,
+              0.0,
+              -73.60765,
+              86.2249,
+              8.90757,
+              1.0
+            ]
+          },
+          {
+            "name": "ring1_base.r",
+            "matrix": [
+              -0.20406,
+              -0.00439,
+              -0.97895,
+              0.0,
+              -0.97517,
+              -0.08702,
+              0.20366,
+              0.0,
+              -0.08608,
+              0.9962,
+              0.01348,
+              0.0,
+              -73.85559,
+              88.92619,
+              -10.26317,
+              1.0
+            ]
+          },
+          {
+            "name": "ring1.r",
+            "matrix": [
+              0.11593,
+              0.76925,
+              0.62834,
+              0.0,
+              -0.97922,
+              -0.01744,
+              0.20203,
+              0.0,
+              0.16637,
+              -0.63871,
+              0.75125,
+              0.0,
+              -91.5546,
+              87.34673,
+              -6.56672,
+              1.0
+            ]
+          },
+          {
+            "name": "ring2.r",
+            "matrix": [
+              -0.21766,
+              -0.03158,
+              -0.97551,
+              0.0,
+              -0.97446,
+              -0.04957,
+              0.21903,
+              0.0,
+              -0.05527,
+              0.99827,
+              -0.01999,
+              0.0,
+              -99.12322,
+              87.21191,
+              -5.00521,
+              1.0
+            ]
+          },
+          {
+            "name": "ring3.r",
+            "matrix": [
+              -0.31393,
+              -0.00818,
+              -0.94941,
+              0.0,
+              -0.94854,
+              -0.04107,
+              0.31399,
+              0.0,
+              -0.04156,
+              0.99912,
+              0.00513,
+              0.0,
+              -107.3801,
+              86.7919,
+              -3.14933,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky1_base.r",
+            "matrix": [
+              0.05613,
+              -0.03934,
+              -0.99765,
+              0.0,
+              -0.99544,
+              -0.07942,
+              -0.05288,
+              0.0,
+              -0.07716,
+              0.99606,
+              -0.04362,
+              0.0,
+              -74.07564,
+              89.01417,
+              -18.04236,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky1.r",
+            "matrix": [
+              0.06537,
+              0.94261,
+              -0.32743,
+              0.0,
+              -0.98919,
+              0.01804,
+              -0.14554,
+              0.0,
+              -0.13128,
+              0.3334,
+              0.9336,
+              0.0,
+              -91.58546,
+              87.61712,
+              -18.97244,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky2.r",
+            "matrix": [
+              0.1789,
+              0.07013,
+              -0.98137,
+              0.0,
+              -0.98319,
+              0.04985,
+              -0.17567,
+              0.0,
+              0.0366,
+              0.99629,
+              0.07787,
+              0.0,
+              -98.97225,
+              87.75183,
+              -20.05928,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky3.r",
+            "matrix": [
+              0.16706,
+              0.55864,
+              -0.81241,
+              0.0,
+              -0.98054,
+              0.00797,
+              -0.19615,
+              0.0,
+              -0.1031,
+              0.82937,
+              0.5491,
+              0.0,
+              -104.97635,
+              88.05623,
+              -21.13203,
+              1.0
+            ]
+          },
+          {
+            "name": "shoulder.l",
+            "matrix": [
+              -0.0,
+              0.00193,
+              1.0,
+              0.0,
+              1.0,
+              -0.0,
+              0.0,
+              0.0,
+              0.0,
+              1.0,
+              -0.00193,
+              0.0,
+              9.04485,
+              89.28554,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "arm_stretch.l",
+            "matrix": [
+              -0.02967,
+              0.91172,
+              0.40973,
+              0.0,
+              0.997,
+              -0.00233,
+              0.07738,
+              0.0,
+              0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              36.17941,
+              89.28554,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "arm_twist.l",
+            "matrix": [
+              -0.02967,
+              0.91172,
+              0.40973,
+              0.0,
+              0.997,
+              -0.00233,
+              0.07738,
+              0.0,
+              0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              36.17942,
+              89.28555,
+              -15.25179,
+              1.0
+            ]
+          },
+          {
+            "name": "forearm_stretch.l",
+            "matrix": [
+              -0.06651,
+              0.91119,
+              0.40659,
+              0.0,
+              0.99522,
+              0.03138,
+              0.09248,
+              0.0,
+              0.0715,
+              0.4108,
+              -0.90892,
+              0.0,
+              50.32594,
+              89.25241,
+              -14.15384,
+              1.0
+            ]
+          },
+          {
+            "name": "forearm_twist.l",
+            "matrix": [
+              -0.09266,
+              0.00458,
+              0.99569,
+              0.0,
+              0.99522,
+              0.03138,
+              0.09248,
+              0.0,
+              -0.03082,
+              0.9995,
+              -0.00747,
+              0.0,
+              57.68137,
+              89.48434,
+              -13.47036,
+              1.0
+            ]
+          },
+          {
+            "name": "hand.l",
+            "matrix": [
+              -0.23555,
+              -0.0,
+              0.97186,
+              0.0,
+              0.96301,
+              0.13464,
+              0.23341,
+              0.0,
+              -0.13085,
+              0.9909,
+              -0.03171,
+              0.0,
+              65.0368,
+              89.71626,
+              -12.78689,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb1.l",
+            "matrix": [
+              -0.40284,
+              -0.91449,
+              0.03774,
+              0.0,
+              0.42816,
+              -0.15184,
+              0.89086,
+              0.0,
+              -0.80895,
+              0.37503,
+              0.45271,
+              0.0,
+              68.76437,
+              87.97875,
+              -6.15984,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb2.l",
+            "matrix": [
+              -0.73326,
+              -0.67358,
+              0.09288,
+              0.0,
+              0.18974,
+              -0.07153,
+              0.97922,
+              0.0,
+              -0.65294,
+              0.73565,
+              0.18026,
+              0.0,
+              71.98761,
+              86.83566,
+              0.54667,
+              1.0
+            ]
+          },
+          {
+            "name": "thumb3.l",
+            "matrix": [
+              -0.15362,
+              -0.98766,
+              -0.03061,
+              0.0,
+              0.02161,
+              -0.03432,
+              0.99918,
+              0.0,
+              -0.98789,
+              0.15283,
+              0.02661,
+              0.0,
+              73.60765,
+              86.2249,
+              8.90757,
+              1.0
+            ]
+          },
+          {
+            "name": "ring1_base.l",
+            "matrix": [
+              -0.20406,
+              0.00438,
+              0.97895,
+              0.0,
+              0.97517,
+              -0.08702,
+              0.20366,
+              0.0,
+              0.08608,
+              0.9962,
+              0.01348,
+              0.0,
+              73.85558,
+              88.9262,
+              -10.26317,
+              1.0
+            ]
+          },
+          {
+            "name": "ring1.l",
+            "matrix": [
+              0.11593,
+              -0.76925,
+              -0.62834,
+              0.0,
+              0.97922,
+              -0.01744,
+              0.20203,
+              0.0,
+              -0.16637,
+              -0.63871,
+              0.75125,
+              0.0,
+              91.5546,
+              87.34673,
+              -6.56672,
+              1.0
+            ]
+          },
+          {
+            "name": "ring2.l",
+            "matrix": [
+              -0.21766,
+              0.03158,
+              0.97551,
+              0.0,
+              0.97446,
+              -0.04957,
+              0.21903,
+              0.0,
+              0.05527,
+              0.99827,
+              -0.01998,
+              0.0,
+              99.12323,
+              87.21193,
+              -5.00521,
+              1.0
+            ]
+          },
+          {
+            "name": "ring3.l",
+            "matrix": [
+              -0.31393,
+              0.00818,
+              0.94941,
+              0.0,
+              0.94854,
+              -0.04107,
+              0.31399,
+              0.0,
+              0.04156,
+              0.99912,
+              0.00513,
+              0.0,
+              107.38011,
+              86.79189,
+              -3.14933,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky1_base.l",
+            "matrix": [
+              0.05613,
+              0.03934,
+              0.99765,
+              0.0,
+              0.99544,
+              -0.07942,
+              -0.05288,
+              0.0,
+              0.07716,
+              0.99606,
+              -0.04362,
+              0.0,
+              74.07564,
+              89.01418,
+              -18.04235,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky1.l",
+            "matrix": [
+              0.06537,
+              -0.94261,
+              0.32743,
+              0.0,
+              0.98919,
+              0.01804,
+              -0.14554,
+              0.0,
+              0.13128,
+              0.3334,
+              0.9336,
+              0.0,
+              91.58546,
+              87.61711,
+              -18.97243,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky2.l",
+            "matrix": [
+              0.1789,
+              -0.07013,
+              0.98137,
+              0.0,
+              0.98319,
+              0.04985,
+              -0.17567,
+              0.0,
+              -0.0366,
+              0.99629,
+              0.07787,
+              0.0,
+              98.97224,
+              87.75183,
+              -20.05928,
+              1.0
+            ]
+          },
+          {
+            "name": "pinky3.l",
+            "matrix": [
+              0.16706,
+              -0.55864,
+              0.81241,
+              0.0,
+              0.98054,
+              0.00797,
+              -0.19615,
+              0.0,
+              0.1031,
+              0.82937,
+              0.5491,
+              0.0,
+              104.97635,
+              88.05623,
+              -21.13203,
+              1.0
+            ]
+          }
+        ],
+        "root_animation_curves": [
+          {
+            "property": "Lcl Translation",
+            "axis": "d|X",
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "keys": 25
+          },
+          {
+            "property": "Lcl Translation",
+            "axis": "d|Y",
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "keys": 25
+          },
+          {
+            "property": "Lcl Translation",
+            "axis": "d|Z",
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "keys": 25
+          },
+          {
+            "property": "Lcl Rotation",
+            "axis": "d|X",
+            "minimum": -90.0,
+            "maximum": -90.0,
+            "keys": 25
+          },
+          {
+            "property": "Lcl Rotation",
+            "axis": "d|Y",
+            "minimum": -0.0,
+            "maximum": -0.0,
+            "keys": 25
+          },
+          {
+            "property": "Lcl Rotation",
+            "axis": "d|Z",
+            "minimum": 0.0,
+            "maximum": 0.0,
+            "keys": 25
+          },
+          {
+            "property": "Lcl Scaling",
+            "axis": "d|X",
+            "minimum": 1.0,
+            "maximum": 1.0,
+            "keys": 25
+          },
+          {
+            "property": "Lcl Scaling",
+            "axis": "d|Y",
+            "minimum": 1.0,
+            "maximum": 1.0,
+            "keys": 25
+          },
+          {
+            "property": "Lcl Scaling",
+            "axis": "d|Z",
+            "minimum": 1.0,
+            "maximum": 1.0,
+            "keys": 25
+          }
+        ],
+        "geometry_bounds_fbx_units": [
+          {
+            "name": "stylized_walnut_game_ready.004",
+            "lower": [
+              -93.24961853027344,
+              -35.925445556640625,
+              -98.3907241821289
+            ],
+            "upper": [
+              131.4384002685547,
+              29.63831901550293,
+              29.71730613708496
+            ],
+            "dimensions": [
+              224.68801879882812,
+              65.56376457214355,
+              128.10803031921387
+            ]
+          }
+        ],
+        "root_animation_constant": true,
+        "materials": [
+          "Walnut",
+          "hand/eye"
+        ],
+        "animation_stacks": [
+          "root|Summon_walk"
+        ],
+        "global_settings": {
+          "UpAxis": [
+            1
+          ],
+          "UpAxisSign": [
+            1
+          ],
+          "FrontAxis": [
+            2
+          ],
+          "FrontAxisSign": [
+            1
+          ],
+          "CoordAxis": [
+            0
+          ],
+          "CoordAxisSign": [
+            1
+          ],
+          "OriginalUpAxis": [
+            -1
+          ],
+          "OriginalUpAxisSign": [
+            1
+          ],
+          "UnitScaleFactor": [
+            1.0
+          ],
+          "OriginalUnitScaleFactor": [
+            1.0
+          ],
+          "AmbientColor": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "DefaultCamera": [
+            "Producer Perspective"
+          ],
+          "TimeMode": [
+            6
+          ],
+          "TimeSpanStart": [
+            0
+          ],
+          "TimeSpanStop": [
+            46186158000
+          ],
+          "CustomFrameRate": [
+            30.0
+          ]
+        }
+      }
+    }
+  ],
+  "poses": [
+    {
+      "frame": 1,
+      "points": {
+        "root.x": [
+          -0.0025012902915477753,
+          0.1681496500968933,
+          0.3413016200065613
+        ],
+        "foot.l": [
+          0.2251754105091095,
+          0.07888520509004593,
+          0.24264758825302124
+        ],
+        "foot.r": [
+          -0.2596924602985382,
+          0.10074615478515625,
+          0.1690199077129364
+        ],
+        "hand.l": [
+          0.6284878253936768,
+          0.12613961100578308,
+          0.7904247045516968
+        ],
+        "hand.r": [
+          -0.6247445940971375,
+          0.16520695388317108,
+          0.6696228384971619
+        ]
+      }
+    },
+    {
+      "frame": 2,
+      "points": {
+        "root.x": [
+          -0.00740090012550354,
+          0.17144104838371277,
+          0.350057989358902
+        ],
+        "foot.l": [
+          0.2274409830570221,
+          -0.00741036981344223,
+          0.22231382131576538
+        ],
+        "foot.r": [
+          -0.2615305781364441,
+          0.19019752740859985,
+          0.18062402307987213
+        ],
+        "hand.l": [
+          0.6112136244773865,
+          0.1114138662815094,
+          0.8084360361099243
+        ],
+        "hand.r": [
+          -0.6465157866477966,
+          0.15314890444278717,
+          0.6659609079360962
+        ]
+      }
+    },
+    {
+      "frame": 3,
+      "points": {
+        "root.x": [
+          -0.008554046973586082,
+          0.17140088975429535,
+          0.3591161072254181
+        ],
+        "foot.l": [
+          0.21098069846630096,
+          -0.042974717915058136,
+          0.21303938329219818
+        ],
+        "foot.r": [
+          -0.26227787137031555,
+          0.27373960614204407,
+          0.19614800810813904
+        ],
+        "hand.l": [
+          0.5993313789367676,
+          0.09601061791181564,
+          0.8220166563987732
+        ],
+        "hand.r": [
+          -0.661051869392395,
+          0.12779298424720764,
+          0.6695314645767212
+        ]
+      }
+    },
+    {
+      "frame": 4,
+      "points": {
+        "root.x": [
+          -0.0061059738509356976,
+          0.16498708724975586,
+          0.3675050735473633
+        ],
+        "foot.l": [
+          0.19996406137943268,
+          -0.05225374549627304,
+          0.21608097851276398
+        ],
+        "foot.r": [
+          -0.2369278520345688,
+          0.3126058876514435,
+          0.21122437715530396
+        ],
+        "hand.l": [
+          0.5961174368858337,
+          0.07823699712753296,
+          0.8264434933662415
+        ],
+        "hand.r": [
+          -0.6651149392127991,
+          0.08619163930416107,
+          0.6826971769332886
+        ]
+      }
+    },
+    {
+      "frame": 5,
+      "points": {
+        "root.x": [
+          -0.0004039723426103592,
+          0.15133827924728394,
+          0.3735044002532959
+        ],
+        "foot.l": [
+          0.1980295032262802,
+          -0.06280899047851562,
+          0.22183050215244293
+        ],
+        "foot.r": [
+          -0.21393749117851257,
+          0.317553848028183,
+          0.22280755639076233
+        ],
+        "hand.l": [
+          0.6008262634277344,
+          0.056827399879693985,
+          0.8201565742492676
+        ],
+        "hand.r": [
+          -0.6609929203987122,
+          0.03713955730199814,
+          0.6988486051559448
+        ]
+      }
+    },
+    {
+      "frame": 6,
+      "points": {
+        "root.x": [
+          0.0073228683322668076,
+          0.13404060900211334,
+          0.37528538703918457
+        ],
+        "foot.l": [
+          0.20234043896198273,
+          -0.07703392207622528,
+          0.2223752737045288
+        ],
+        "foot.r": [
+          -0.19605281949043274,
+          0.31003931164741516,
+          0.22951608896255493
+        ],
+        "hand.l": [
+          0.6082707643508911,
+          0.04401642084121704,
+          0.8075793981552124
+        ],
+        "hand.r": [
+          -0.6528913378715515,
+          -0.00525318831205368,
+          0.7143203020095825
+        ]
+      }
+    },
+    {
+      "frame": 7,
+      "points": {
+        "root.x": [
+          0.015214179642498493,
+          0.11903414130210876,
+          0.37240687012672424
+        ],
+        "foot.l": [
+          0.21028444170951843,
+          -0.09119905531406403,
+          0.21509447693824768
+        ],
+        "foot.r": [
+          -0.1775180697441101,
+          0.30179351568222046,
+          0.22433778643608093
+        ],
+        "hand.l": [
+          0.6140491962432861,
+          0.04129943251609802,
+          0.7915397882461548
+        ],
+        "hand.r": [
+          -0.6444112658500671,
+          -0.02976130321621895,
+          0.7276499271392822
+        ]
+      }
+    },
+    {
+      "frame": 8,
+      "points": {
+        "root.x": [
+          0.022978713735938072,
+          0.11056257039308548,
+          0.3640826344490051
+        ],
+        "foot.l": [
+          0.22114108502864838,
+          -0.10174942761659622,
+          0.2056705355644226
+        ],
+        "foot.r": [
+          -0.15978789329528809,
+          0.2957199811935425,
+          0.22090396285057068
+        ],
+        "hand.l": [
+          0.617612361907959,
+          0.049139995127916336,
+          0.7746021747589111
+        ],
+        "hand.r": [
+          -0.6371608972549438,
+          -0.031764522194862366,
+          0.7362468838691711
+        ]
+      }
+    },
+    {
+      "frame": 9,
+      "points": {
+        "root.x": [
+          0.03141159936785698,
+          0.11070924997329712,
+          0.35586312413215637
+        ],
+        "foot.l": [
+          0.23751772940158844,
+          -0.10309625416994095,
+          0.1973213255405426
+        ],
+        "foot.r": [
+          -0.14470869302749634,
+          0.2919037342071533,
+          0.2315828651189804
+        ],
+        "hand.l": [
+          0.6224813461303711,
+          0.0688479021191597,
+          0.7638773918151855
+        ],
+        "hand.r": [
+          -0.6296172142028809,
+          -0.017373353242874146,
+          0.7425768375396729
+        ]
+      }
+    },
+    {
+      "frame": 10,
+      "points": {
+        "root.x": [
+          0.04035268351435661,
+          0.11507454514503479,
+          0.34837666153907776
+        ],
+        "foot.l": [
+          0.25587937235832214,
+          -0.0960097685456276,
+          0.18609753251075745
+        ],
+        "foot.r": [
+          -0.13341248035430908,
+          0.2858443260192871,
+          0.24544301629066467
+        ],
+        "hand.l": [
+          0.6302423477172852,
+          0.09438185393810272,
+          0.7600015997886658
+        ],
+        "hand.r": [
+          -0.6223005652427673,
+          -0.003494150936603546,
+          0.7429475784301758
+        ]
+      }
+    },
+    {
+      "frame": 11,
+      "points": {
+        "root.x": [
+          0.04823967069387436,
+          0.1256476193666458,
+          0.3395429849624634
+        ],
+        "foot.l": [
+          0.2782836854457855,
+          -0.07331884652376175,
+          0.17561355233192444
+        ],
+        "foot.r": [
+          -0.12712521851062775,
+          0.279655396938324,
+          0.25890687108039856
+        ],
+        "hand.l": [
+          0.6408270001411438,
+          0.12382645905017853,
+          0.7574545741081238
+        ],
+        "hand.r": [
+          -0.6156489849090576,
+          0.00011083483695983887,
+          0.7341252565383911
+        ]
+      }
+    },
+    {
+      "frame": 12,
+      "points": {
+        "root.x": [
+          0.05731289088726044,
+          0.13762837648391724,
+          0.3323230445384979
+        ],
+        "foot.l": [
+          0.30920082330703735,
+          -0.04054052382707596,
+          0.16701725125312805
+        ],
+        "foot.r": [
+          -0.14160673320293427,
+          0.2542240619659424,
+          0.27528244256973267
+        ],
+        "hand.l": [
+          0.6582029461860657,
+          0.1637774109840393,
+          0.7573526501655579
+        ],
+        "hand.r": [
+          -0.602274477481842,
+          -0.00032670795917510986,
+          0.7259442210197449
+        ]
+      }
+    },
+    {
+      "frame": 13,
+      "points": {
+        "root.x": [
+          0.06406118720769882,
+          0.15339186787605286,
+          0.33189254999160767
+        ],
+        "foot.l": [
+          0.319598525762558,
+          0.04275450110435486,
+          0.16496475040912628
+        ],
+        "foot.r": [
+          -0.1491502821445465,
+          0.16966412961483002,
+          0.2535756826400757
+        ],
+        "hand.l": [
+          0.6762053370475769,
+          0.20302461087703705,
+          0.7597528100013733
+        ],
+        "hand.r": [
+          -0.5834447145462036,
+          0.0019063204526901245,
+          0.7266488075256348
+        ]
+      }
+    },
+    {
+      "frame": 14,
+      "points": {
+        "root.x": [
+          0.06987958401441574,
+          0.16736866533756256,
+          0.3366515040397644
+        ],
+        "foot.l": [
+          0.3192380666732788,
+          0.13660530745983124,
+          0.1650698482990265
+        ],
+        "foot.r": [
+          -0.15901274979114532,
+          0.0732005164027214,
+          0.2349442094564438
+        ],
+        "hand.l": [
+          0.693311333656311,
+          0.23127208650112152,
+          0.7620605826377869
+        ],
+        "hand.r": [
+          -0.5614290237426758,
+          0.013353146612644196,
+          0.7372956275939941
+        ]
+      }
+    },
+    {
+      "frame": 15,
+      "points": {
+        "root.x": [
+          0.0728570893406868,
+          0.17838262021541595,
+          0.34534937143325806
+        ],
+        "foot.l": [
+          0.3146127164363861,
+          0.22745943069458008,
+          0.17102733254432678
+        ],
+        "foot.r": [
+          -0.16155634820461273,
+          -0.019274316728115082,
+          0.21314498782157898
+        ],
+        "hand.l": [
+          0.7060168385505676,
+          0.24281732738018036,
+          0.7642455697059631
+        ],
+        "hand.r": [
+          -0.5442532300949097,
+          0.03464827686548233,
+          0.7548404932022095
+        ]
+      }
+    },
+    {
+      "frame": 16,
+      "points": {
+        "root.x": [
+          0.07254740595817566,
+          0.18341079354286194,
+          0.3567085564136505
+        ],
+        "foot.l": [
+          0.31374070048332214,
+          0.3095262050628662,
+          0.18599268794059753
+        ],
+        "foot.r": [
+          -0.13889598846435547,
+          -0.03245985507965088,
+          0.2044777125120163
+        ],
+        "hand.l": [
+          0.7133795022964478,
+          0.23519432544708252,
+          0.7672632932662964
+        ],
+        "hand.r": [
+          -0.5350167751312256,
+          0.0645647868514061,
+          0.775033712387085
+        ]
+      }
+    },
+    {
+      "frame": 17,
+      "points": {
+        "root.x": [
+          0.06854066997766495,
+          0.1808088719844818,
+          0.363905668258667
+        ],
+        "foot.l": [
+          0.29516661167144775,
+          0.33293765783309937,
+          0.21178819239139557
+        ],
+        "foot.r": [
+          -0.13485801219940186,
+          -0.03956054896116257,
+          0.2066219002008438
+        ],
+        "hand.l": [
+          0.7127798795700073,
+          0.217166468501091,
+          0.7701326012611389
+        ],
+        "hand.r": [
+          -0.5320547223091125,
+          0.08968835324048996,
+          0.7836485505104065
+        ]
+      }
+    },
+    {
+      "frame": 18,
+      "points": {
+        "root.x": [
+          0.060323864221572876,
+          0.17166092991828918,
+          0.3666578531265259
+        ],
+        "foot.l": [
+          0.2804144024848938,
+          0.32366058230400085,
+          0.23179641366004944
+        ],
+        "foot.r": [
+          -0.1387171447277069,
+          -0.051444560289382935,
+          0.20919036865234375
+        ],
+        "hand.l": [
+          0.7050499320030212,
+          0.19682586193084717,
+          0.7732910513877869
+        ],
+        "hand.r": [
+          -0.5330280661582947,
+          0.10338494926691055,
+          0.7797406315803528
+        ]
+      }
+    },
+    {
+      "frame": 19,
+      "points": {
+        "root.x": [
+          0.05011184513568878,
+          0.15859341621398926,
+          0.36442041397094727
+        ],
+        "foot.l": [
+          0.266507625579834,
+          0.3111012876033783,
+          0.23437167704105377
+        ],
+        "foot.r": [
+          -0.14906276762485504,
+          -0.06466455012559891,
+          0.20300379395484924
+        ],
+        "hand.l": [
+          0.6949083805084229,
+          0.17576543986797333,
+          0.7743663787841797
+        ],
+        "hand.r": [
+          -0.5351961851119995,
+          0.1016901358962059,
+          0.7655604481697083
+        ]
+      }
+    },
+    {
+      "frame": 20,
+      "points": {
+        "root.x": [
+          0.03901185467839241,
+          0.1490112841129303,
+          0.35557228326797485
+        ],
+        "foot.l": [
+          0.2519007623195648,
+          0.29808664321899414,
+          0.23973089456558228
+        ],
+        "foot.r": [
+          -0.1607321798801422,
+          -0.07581212371587753,
+          0.19722121953964233
+        ],
+        "hand.l": [
+          0.6850851774215698,
+          0.1650267392396927,
+          0.768936038017273
+        ],
+        "hand.r": [
+          -0.5401667356491089,
+          0.10349708050489426,
+          0.7465757131576538
+        ]
+      }
+    },
+    {
+      "frame": 21,
+      "points": {
+        "root.x": [
+          0.027574393898248672,
+          0.14694783091545105,
+          0.34594640135765076
+        ],
+        "foot.l": [
+          0.24042220413684845,
+          0.28571319580078125,
+          0.25433868169784546
+        ],
+        "foot.r": [
+          -0.17830361425876617,
+          -0.07543207705020905,
+          0.1883746087551117
+        ],
+        "hand.l": [
+          0.6749386787414551,
+          0.1593751460313797,
+          0.7632421851158142
+        ],
+        "hand.r": [
+          -0.5512832999229431,
+          0.11405443400144577,
+          0.727552056312561
+        ]
+      }
+    },
+    {
+      "frame": 22,
+      "points": {
+        "root.x": [
+          0.016718212515115738,
+          0.14825789630413055,
+          0.33776378631591797
+        ],
+        "foot.l": [
+          0.23729678988456726,
+          0.26697397232055664,
+          0.2728787064552307
+        ],
+        "foot.r": [
+          -0.20187510550022125,
+          -0.0657748281955719,
+          0.1782054603099823
+        ],
+        "hand.l": [
+          0.6656147241592407,
+          0.15150272846221924,
+          0.7588790059089661
+        ],
+        "hand.r": [
+          -0.5666260123252869,
+          0.12926992774009705,
+          0.7099650502204895
+        ]
+      }
+    },
+    {
+      "frame": 23,
+      "points": {
+        "root.x": [
+          0.009286850690841675,
+          0.15460553765296936,
+          0.33485478162765503
+        ],
+        "foot.l": [
+          0.23983386158943176,
+          0.2351333200931549,
+          0.28755462169647217
+        ],
+        "foot.r": [
+          -0.22907418012619019,
+          -0.04369310289621353,
+          0.17014628648757935
+        ],
+        "hand.l": [
+          0.6571427583694458,
+          0.1463155448436737,
+          0.7623937129974365
+        ],
+        "hand.r": [
+          -0.582883894443512,
+          0.14944717288017273,
+          0.6950410604476929
+        ]
+      }
+    },
+    {
+      "frame": 24,
+      "points": {
+        "root.x": [
+          0.0026247079949826,
+          0.16167894005775452,
+          0.3358919024467468
+        ],
+        "foot.l": [
+          0.22709140181541443,
+          0.1583312451839447,
+          0.26627135276794434
+        ],
+        "foot.r": [
+          -0.2614915072917938,
+          0.004826094955205917,
+          0.16496585309505463
+        ],
+        "hand.l": [
+          0.6447726488113403,
+          0.1389678418636322,
+          0.7733950614929199
+        ],
+        "hand.r": [
+          -0.6026442646980286,
+          0.1637495458126068,
+          0.6809850335121155
+        ]
+      }
+    },
+    {
+      "frame": 25,
+      "points": {
+        "root.x": [
+          -0.0023222120944410563,
+          0.1682325005531311,
+          0.34130239486694336
+        ],
+        "foot.l": [
+          0.22455862164497375,
+          0.07850444316864014,
+          0.24251598119735718
+        ],
+        "foot.r": [
+          -0.2605306804180145,
+          0.10015155375003815,
+          0.16913814842700958
+        ],
+        "hand.l": [
+          0.6291408538818359,
+          0.12648062407970428,
+          0.7897815108299255
+        ],
+        "hand.r": [
+          -0.6242185235023499,
+          0.16550874710083008,
+          0.6702848672866821
+        ]
+      }
+    }
+  ],
+  "textures": [
+    {
+      "source_image": "hand_eye",
+      "file": "Textures/T_Summon_HandEye.png",
+      "sha256": "ec9a8ffd8faa0e610eb2cbc3276c307072add73efd21efe612d664d5c1e108e3"
+    },
+    {
+      "source_image": "stylized_walnut_game_ready_texture_0.PNG",
+      "file": "Textures/T_Summon_Walnut.png",
+      "sha256": "20bdb24677866d9394aee3dc229ce43f71d826985089022f671b489a7fe4189a"
+    }
+  ],
+  "source_action": "Summon_walk",
+  "start_frame": 1,
+  "end_frame": 25,
+  "duration_seconds": 0.8,
+  "source_sha256_after": "a480c7269a07a7fe0e4acd527856f916f9a2e37c7b088bb040d91920948793dc",
+  "source_preserved": true
+}

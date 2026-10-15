@@ -1,0 +1,19 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": false,
+  "dirty_content": [],
+  "dirty_maps": [],
+  "original_blend_preserved": true,
+  "all_legacy_tank_assets_byte_identical": true,
+  "fixed_fps_enabled": false,
+  "fixed_fps": 30.0,
+  "throttle_background": true,
+  "source_sha256": {
+    "Source/MessControl/Public/MCNutBoss.h": "c26abe47696984ca35f96d7f11ac50d7bb7832ad8c0b1a5794e0cf744be6d120",
+    "Source/MessControl/Public/MCNutBossTypes.h": "6c26547fdf6cb13478681a68a0097954e7a86b6840aeb25f1f0d85af282ba83b",
+    "Source/MessControl/Public/MCNutBossAnimInstance.h": "d61092c3653991142ffff6a40ee1a10aab0a780cb45061f77e18ceb4cce1d368",
+    "Source/MessControl/Private/MCNutBoss.cpp": "335a7ad80363b6a4e7e77151a010bf5511134c3f402dbfeb1208834e9a3330cf",
+    "Source/MessControl/Private/MCNutBossTypes.cpp": "c8254758c0aa5fbdb921c99c7d3498172151ae469e1b103dd952cf4d5d1b2f98",
+    "Source/MessControl/Private/MCNutBossAnimInstance.cpp": "c3694d1503c5a20ce3ef76cef49a21cb365bad1a1f86abdf8198f4207eddfc68"
+  }
+}

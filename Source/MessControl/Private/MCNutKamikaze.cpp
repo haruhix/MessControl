@@ -3,12 +3,17 @@
 #include "MCGameState.h"
 #include "MCNutCombatEffect.h"
 #include "MCNutCombatVisuals.h"
+#include "MCCombatFeedbackComponent.h"
+#include "MCWeaponImpact.h"
 #include "MCNutRainEvent.h"
 #include "MCTongue.h"
 #include "MCToothCharacter.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCToothStatusComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Animation/AnimSequence.h"
+#include "Engine/SkeletalMesh.h"
 #include "Components/TextRenderComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/World.h"
@@ -54,6 +59,13 @@ AMCNutKamikaze::AMCNutKamikaze()
 {
     Settings.MaxHealth=40;
     Health=Settings.MaxHealth;
+    SummonModel=CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SummonModel"));
+    SummonModel->SetupAttachment(RootComponent);
+    SummonModel->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    SummonModel->SetCanEverAffectNavigation(false);SummonModel->SetVisibility(false);
+    SummonModel->bEnableUpdateRateOptimizations=false;
+    SummonMesh=FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutSummon/SK_NutSummon.SK_NutSummon"));
+    RunAnimation=FSoftObjectPath(TEXT("/Game/Gameplay/CoreLoop/NutSummon/Animations/A_NutSummon_Run.A_NutSummon_Run"));
     FuseFlame=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("BurningFuse"));
     FuseFlame->SetupAttachment(RootComponent);
     BlastWarning=CreateDefaultSubobject<UProceduralMeshComponent>(TEXT("BlastFootprint"));
@@ -81,13 +93,28 @@ void AMCNutKamikaze::BeginPlay()
     Super::BeginPlay();
     if(IsValid(Tongue)) AddTickPrerequisiteActor(Tongue);
     if(GetNetMode()!=NM_DedicatedServer) {
+        auto* Mesh=SummonMesh.LoadSynchronous();auto* Run=RunAnimation.LoadSynchronous();
+        if(Mesh && Run && Run->GetSkeleton()==Mesh->GetSkeleton()) {
+            SummonModel->SetSkeletalMeshAsset(Mesh);
+            SummonModel->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+            SummonModel->PlayAnimation(Run,true);SummonModel->SetPlayRate(0.f);
+            SummonModel->AddTickPrerequisiteActor(this);
+            const auto Bounds=Mesh->GetBounds();ModelCenter=Bounds.Origin;
+            ModelScale=FVector(ModelHeight/FMath::Max(1.,Bounds.BoxExtent.Z*2));
+            FuseFlame->AttachToComponent(SummonModel,FAttachmentTransformRules::KeepRelativeTransform,TEXT("head_x"));
+            FuseFlame->SetAbsolute(false,true,true);FuseFlame->SetWorldRotation(FRotator::ZeroRotator);
+            // This supplied head's local -Y/-Z diagonal points up through its crown.
+            FuseFlame->SetRelativeLocation(FVector(0,-23,-25));
+        }
         if(auto* Material=FuseMaterial.LoadSynchronous()) {
             FuseMID=FuseFlame->CreateDynamicMaterialInstance(0,Material);
             FuseFlame->SetMaterial(1,FuseMID);
         }
         if(auto* Material=WarningMaterial.LoadSynchronous()) WarningMID=BlastWarning->CreateDynamicMaterialInstance(0,Material);
         PresentFuse(ServerNow());
+        PresentSummon(ServerNow(),0);
     }
+    else SummonModel->SetComponentTickEnabled(false);
 }
 
 bool AMCNutKamikaze::ConfigureKamikaze(AMCTongue* OnTongue,UStaticMesh* Mesh,FVector Scale,FMCNutEnemySettings InSettings,
@@ -116,6 +143,35 @@ void AMCNutKamikaze::RefreshPresentation()
         FuseFlame->SetVisibility(bArmed && !bDefeated && FuseMID);
         BlastWarning->SetVisibility(false);
     }
+    PresentSummon(ServerNow(),0);
+}
+
+void AMCNutKamikaze::PresentSummon(double Time,float Dt)
+{
+    if(GetNetMode()==NM_DedicatedServer || !SummonModel || !SummonModel->GetSkeletalMeshAsset()) return;
+    Visual->SetVisibility(false);LeftEye->SetVisibility(false);RightEye->SetVisibility(false);
+    Feedback->SetVisualTarget(SummonModel);
+    // Retain the existing hit/fuse/death pulse, with feet anchored to the live
+    // floor instead of adding the old static walnut's procedural hop.
+    const auto Bounds=SummonModel->GetSkeletalMeshAsset()->GetBounds();
+    const float Height=NutMesh?float(NutMesh->GetBounds().BoxExtent.Z*2*MeshScale.Z):ModelHeight;
+    ModelScale=FVector(Height/FMath::Max(1.,Bounds.BoxExtent.Z*2));
+    const FVector Scale=ModelScale*(Visual->GetRelativeScale3D()/MeshScale);
+    const FRotator Rotation(0,ModelYaw,0);
+    SummonModel->SetRelativeRotation(Rotation);SummonModel->SetRelativeScale3D(Scale);
+    const double HalfHeight=SummonModel->GetSkeletalMeshAsset()->GetBounds().BoxExtent.Z*Scale.Z;
+    const float Hit=Feedback->GetHitPulse();
+    const FVector Recoil=GetActorTransform().InverseTransformVectorNoScale(Feedback->LastHit.Direction).GetSafeNormal2D()
+        *(Settings.BodyRadius*.42f*Hit);
+    SummonModel->SetRelativeLocation(-Rotation.RotateVector(ModelCenter*Scale)+FVector(0,0,HalfHeight-Settings.BodyRadius)+Recoil);
+    SummonModel->SetVisibility(Scale.GetMax()>.001f);
+    if(Dt>SMALL_NUMBER) {
+        const FVector Location=GetActorLocation();
+        const float Speed=bModelMotionInitialized?FVector::Dist2D(Location,LastModelLocation)/Dt:0.f;
+        const float TargetRate=!bDefeated && !MCWeaponImpact::IsPoseHeld(this)?FMath::Clamp(Speed/FMath::Max(40.f,RunReferenceSpeed),0.f,4.f):0.f;
+        RunPlayRate=MCWeaponImpact::IsPoseHeld(this)?0.f:FMath::FInterpTo(RunPlayRate,TargetRate,Dt,14.f);
+        SummonModel->SetPlayRate(RunPlayRate);LastModelLocation=Location;bModelMotionInitialized=true;
+    }
 }
 
 void AMCNutKamikaze::PresentFuse(double Time)
@@ -138,7 +194,7 @@ void AMCNutKamikaze::PresentFuse(double Time)
     Label->SetText(FText::FromString(FString::Printf(TEXT("%d HP | %.1f s"),FMath::CeilToInt(Health),Remaining)));
     Label->SetTextRenderColor(FColor(255,FMath::RoundToInt(FMath::Lerp(190.f,45.f,Progress)),30));
     if(FuseMID) {
-        FuseFlame->SetRelativeLocation(Visual->GetRelativeLocation()+FVector(0,0,Settings.BodyRadius*.8f));
+        if(!SummonModel->GetSkeletalMeshAsset()) FuseFlame->SetRelativeLocation(Visual->GetRelativeLocation()+FVector(0,0,Settings.BodyRadius*.8f));
         const float FireAge=Phase/5.f;
         FuseMID->SetScalarParameterValue(TEXT("FireAge"),FireAge);
         MCNutCombatVisuals::RenderFlames(FuseFlame,(7.f+Progress*5.f)*(1+Pulse*Progress*.07f),FireAge,.75f+Pulse*Progress*.17f);
@@ -207,7 +263,7 @@ void AMCNutKamikaze::Tick(float DeltaSeconds)
     // As with the boss subtype, retain AActor ticking and shared hit presentation while replacing the ordinary bite AI.
     AActor::Tick(DeltaSeconds);
     const double Time=ServerNow();
-    if(GetNetMode()!=NM_DedicatedServer) PresentFuse(Time);
+    if(GetNetMode()!=NM_DedicatedServer) {PresentFuse(Time);PresentSummon(Time,DeltaSeconds);}
     if(!HasAuthority() || bDefeated || !bArmed) return;
     const auto* Game=GetWorld()->GetGameState<AMCGameState>();
     if((Game && (Game->Phase==EMCShiftPhase::Won || Game->Phase==EMCShiftPhase::Lost))

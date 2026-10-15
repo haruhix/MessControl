@@ -1,0 +1,232 @@
+[
+  {
+    "label": "Attack1",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack1_001.png"
+  },
+  {
+    "label": "Attack1",
+    "frame": 8,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack1_008.png"
+  },
+  {
+    "label": "Attack1",
+    "frame": 12,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack1_012.png"
+  },
+  {
+    "label": "Attack1",
+    "frame": 16,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack1_016.png"
+  },
+  {
+    "label": "Attack1",
+    "frame": 20,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack1_020.png"
+  },
+  {
+    "label": "Attack1",
+    "frame": 26,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack1_026.png"
+  },
+  {
+    "label": "Attack1",
+    "frame": 32,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack1_032.png"
+  },
+  {
+    "label": "Attack1",
+    "frame": 39,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack1_039.png"
+  },
+  {
+    "label": "Attack2",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack2_001.png"
+  },
+  {
+    "label": "Attack2",
+    "frame": 8,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack2_008.png"
+  },
+  {
+    "label": "Attack2",
+    "frame": 12,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack2_012.png"
+  },
+  {
+    "label": "Attack2",
+    "frame": 16,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack2_016.png"
+  },
+  {
+    "label": "Attack2",
+    "frame": 20,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack2_020.png"
+  },
+  {
+    "label": "Attack2",
+    "frame": 26,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack2_026.png"
+  },
+  {
+    "label": "Attack2",
+    "frame": 32,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack2_032.png"
+  },
+  {
+    "label": "Attack2",
+    "frame": 39,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Attack2_039.png"
+  },
+  {
+    "label": "Combo",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Combo_001.png"
+  },
+  {
+    "label": "Combo",
+    "frame": 11,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Combo_011.png"
+  },
+  {
+    "label": "Combo",
+    "frame": 16,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Combo_016.png"
+  },
+  {
+    "label": "Combo",
+    "frame": 26,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Combo_026.png"
+  },
+  {
+    "label": "Combo",
+    "frame": 30,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Combo_030.png"
+  },
+  {
+    "label": "Combo",
+    "frame": 41,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Combo_041.png"
+  },
+  {
+    "label": "Combo",
+    "frame": 50,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Combo_050.png"
+  },
+  {
+    "label": "Combo",
+    "frame": 70,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Combo_070.png"
+  },
+  {
+    "label": "Jump",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Jump_001.png"
+  },
+  {
+    "label": "Jump",
+    "frame": 8,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Jump_008.png"
+  },
+  {
+    "label": "Jump",
+    "frame": 15,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Jump_015.png"
+  },
+  {
+    "label": "Jump",
+    "frame": 23,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Jump_023.png"
+  },
+  {
+    "label": "Jump",
+    "frame": 32,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Jump_032.png"
+  },
+  {
+    "label": "Jump",
+    "frame": 37,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Jump_037.png"
+  },
+  {
+    "label": "Jump",
+    "frame": 60,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Jump_060.png"
+  },
+  {
+    "label": "Jump",
+    "frame": 98,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Jump_098.png"
+  },
+  {
+    "label": "Idle",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Idle_001.png"
+  },
+  {
+    "label": "Idle",
+    "frame": 25,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Idle_025.png"
+  },
+  {
+    "label": "Block",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Block_001.png"
+  },
+  {
+    "label": "Block",
+    "frame": 25,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Block_025.png"
+  },
+  {
+    "label": "Hit",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Hit_001.png"
+  },
+  {
+    "label": "Hit",
+    "frame": 9,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Hit_009.png"
+  },
+  {
+    "label": "Stun",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Stun_001.png"
+  },
+  {
+    "label": "Stun",
+    "frame": 25,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Stun_025.png"
+  },
+  {
+    "label": "StunHit",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\StunHit_001.png"
+  },
+  {
+    "label": "StunHit",
+    "frame": 5,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\StunHit_005.png"
+  },
+  {
+    "label": "Death",
+    "frame": 1,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Death_001.png"
+  },
+  {
+    "label": "Death",
+    "frame": 16,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Death_016.png"
+  },
+  {
+    "label": "Death",
+    "frame": 50,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Death_050.png"
+  },
+  {
+    "label": "Death",
+    "frame": 156,
+    "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\NutKnightAnimations_20261016\\AssetPoses\\Death_156.png"
+  }
+]

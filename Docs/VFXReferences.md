@@ -23,6 +23,18 @@ reset history; no ribbon joins separate attacks. Damage and input remain in
 the existing gameplay paths. Implementation and genuine solo evidence are
 recorded separately under `Artifacts/PlayerWeaponTrail_20261015`.
 
+Tried and integrated: all three ordinary knife/pickaxe combo strokes and held
+overhead food chopping. The bright center, orange filaments, tapered history
+and short fade are visible in genuine solo PIE captures. A small camera-facing
+minimum thickness keeps the descending diagonal readable when the blade plane
+is edge-on. It retains the sampled blade span and does not change the swing.
+The same effect was checked with the actual L_Mouth camera, post-process and
+lighting. One collision-free ribbon section is bounded to 24 history samples,
+630 vertices / 1,104 triangles; the 60 Hz checks peaked at 225 vertices and
+cleared to zero with ticking disabled after recovery. No textures or extra
+emitters are required. No GPU profiling, multiplayer or packaged-game check
+was performed for this pass.
+
 ## Player tool contact feel — 2026-10-15
 
 Reviewed the supplied 30.3 s local video, `AQNH3H4TYZ_6hsPNAYKYChcp1ym_hv2jyCZ10OORjG0zHM7Dcyd_SzZ4rdp1TySfOkRsE206F5w5D08S1M6yXGU0dztRFhnHaopGnHs.mp4`.

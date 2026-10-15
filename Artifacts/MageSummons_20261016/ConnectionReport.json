@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "speed_before_cm_s": 260.0,
+  "speed_after_cm_s": 360.0,
+  "increase_percent": 38.46153846153846,
+  "health": 40.0,
+  "legacy_boss_bindings_preserved": true
+}

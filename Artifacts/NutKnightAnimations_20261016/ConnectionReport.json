@@ -1,0 +1,39 @@
+{
+  "passed": true,
+  "bindings": {
+    "idle": "Idle",
+    "unshielded_idle": "Idle",
+    "melee": "Attack1",
+    "melee2": "Attack2",
+    "combo": "Combo",
+    "block": "Block",
+    "hit": "Hit",
+    "shield_break": "Stun",
+    "stun_hit": "StunHit",
+    "jump": "Jump",
+    "death": "Death"
+  },
+  "tuning": {
+    "tank_melee_impact_fraction": "0.39473684210526316",
+    "tank_melee2_impact_fraction": "0.39473684210526316",
+    "tank_melee_animation_seconds": "1.2666666666666666",
+    "tank_combo_animation_seconds": "3.066666666666667",
+    "tank_combo_contact_fractions": "<Struct 'Vector' (0x0000024B34841460) {x: 0.163043, y: 0.315217, z: 0.532609}>",
+    "tank_jump_takeoff_fraction": "0.08247422680412371",
+    "tank_jump_impact_fraction": "0.38144329896907214",
+    "tank_stun_seconds": "3.0",
+    "tank_death_seconds": "5.166666666666667"
+  },
+  "preserved": {
+    "tank_walk_animation": "/Game/Gameplay/CoreLoop/NutTank/Animations/MCStyleV3/A_NutTank_Walk.A_NutTank_Walk",
+    "tank_walk_left_animation": "/Game/Gameplay/CoreLoop/NutTank/Animations/MCSmoothV2/A_NutTank_WalkLeft.A_NutTank_WalkLeft",
+    "tank_walk_right_animation": "/Game/Gameplay/CoreLoop/NutTank/Animations/MCSmoothV2/A_NutTank_WalkRight.A_NutTank_WalkRight",
+    "tank_unshielded_walk_animation": "/Game/Gameplay/CoreLoop/NutTank/Animations/MCStyleV4/A_NutTank_UnshieldedWalk.A_NutTank_UnshieldedWalk",
+    "tank_transform_animation": "/Game/Gameplay/CoreLoop/NutTank/Animations/MCSmoothV2/A_NutTank_Transform.A_NutTank_Transform",
+    "tank_charge_tell_animation": "/Game/Gameplay/CoreLoop/NutTank/Animations/MCStyleV4/A_NutTank_ChargeTell.A_NutTank_ChargeTell",
+    "tank_charge_loop_animation": "/Game/Gameplay/CoreLoop/NutTank/Animations/MCSmoothV2/A_NutTank_ChargeLoop.A_NutTank_ChargeLoop",
+    "tank_charge_recovery_animation": "/Game/Gameplay/CoreLoop/NutTank/Animations/MCStyleV4/A_NutTank_ChargeRecovery.A_NutTank_ChargeRecovery",
+    "tank_skeletal_mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank.SK_NutTank",
+    "tank_unshielded_skeletal_mesh": "/Game/Gameplay/CoreLoop/NutTank/SK_NutTank_NoShield.SK_NutTank_NoShield"
+  }
+}

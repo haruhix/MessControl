@@ -1,0 +1,1572 @@
+{
+  "passed": true,
+  "error": null,
+  "samples": [
+    {
+      "time": 0.01666666567325592,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.03333333134651184,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.04999999701976776,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.06666666269302368,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.0833333283662796,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.09999999403953552,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.11666665971279144,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.13333332538604736,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.14999999105930328,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.1666666567325592,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.18333332240581512,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.19999998807907104,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.21666665375232697,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 0
+    },
+    {
+      "time": 0.23333331942558289,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.2499999850988388,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.2666666507720947,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.28333331644535065,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.29999998211860657,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.3166666477918625,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.3333333134651184,
+      "vertices": 0,
+      "samples": 1,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.34999997913837433,
+      "vertices": 36,
+      "samples": 2,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.36666664481163025,
+      "vertices": 63,
+      "samples": 3,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.38333331048488617,
+      "vertices": 90,
+      "samples": 4,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.3999999761581421,
+      "vertices": 117,
+      "samples": 5,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.416666641831398,
+      "vertices": 144,
+      "samples": 6,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.43333330750465393,
+      "vertices": 171,
+      "samples": 7,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.44999997317790985,
+      "vertices": 198,
+      "samples": 8,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.46666663885116577,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.4833333045244217,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.4999999701976776,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.5166666358709335,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.5333333015441895,
+      "vertices": 198,
+      "samples": 8,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.5499999672174454,
+      "vertices": 171,
+      "samples": 7,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.5666666328907013,
+      "vertices": 144,
+      "samples": 6,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.5833332985639572,
+      "vertices": 117,
+      "samples": 5,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.5999999642372131,
+      "vertices": 90,
+      "samples": 4,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.616666629910469,
+      "vertices": 63,
+      "samples": 3,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.633333295583725,
+      "vertices": 36,
+      "samples": 2,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.6499999612569809,
+      "vertices": 0,
+      "samples": 1,
+      "ticking": true,
+      "swings": 1
+    },
+    {
+      "time": 0.6666666269302368,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 1
+    },
+    {
+      "time": 0.6833332926034927,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 1
+    },
+    {
+      "time": 0.6999999582767487,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 1
+    },
+    {
+      "time": 0.7166666239500046,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 1
+    },
+    {
+      "time": 0.7333332896232605,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 1
+    },
+    {
+      "time": 0.7499999552965164,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 1
+    },
+    {
+      "time": 0.7666666209697723,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 1
+    },
+    {
+      "time": 0.7833332866430283,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 1
+    },
+    {
+      "time": 0.7999999523162842,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.8166666179895401,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.833333283662796,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.8499999493360519,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.8666666150093079,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.8833332806825638,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.8999999463558197,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.9166666120290756,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.9333332777023315,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.9499999433755875,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.9666666090488434,
+      "vertices": 0,
+      "samples": 1,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.9833332747220993,
+      "vertices": 36,
+      "samples": 2,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 0.9999999403953552,
+      "vertices": 63,
+      "samples": 3,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.0166666060686111,
+      "vertices": 90,
+      "samples": 4,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.033333271741867,
+      "vertices": 117,
+      "samples": 5,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.049999937415123,
+      "vertices": 144,
+      "samples": 6,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.066666603088379,
+      "vertices": 171,
+      "samples": 7,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.0833332687616348,
+      "vertices": 198,
+      "samples": 8,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.0999999344348907,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.1166666001081467,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.1333332657814026,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.1499999314546585,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.1666665971279144,
+      "vertices": 198,
+      "samples": 8,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.1833332628011703,
+      "vertices": 171,
+      "samples": 7,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.1999999284744263,
+      "vertices": 144,
+      "samples": 6,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.2166665941476822,
+      "vertices": 117,
+      "samples": 5,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.233333259820938,
+      "vertices": 90,
+      "samples": 4,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.249999925494194,
+      "vertices": 63,
+      "samples": 3,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.26666659116745,
+      "vertices": 36,
+      "samples": 2,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.2833332568407059,
+      "vertices": 0,
+      "samples": 1,
+      "ticking": true,
+      "swings": 2
+    },
+    {
+      "time": 1.2999999225139618,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 2
+    },
+    {
+      "time": 1.3166665881872177,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 2
+    },
+    {
+      "time": 1.3333332538604736,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 2
+    },
+    {
+      "time": 1.3499999195337296,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 2
+    },
+    {
+      "time": 1.3666665852069855,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 2
+    },
+    {
+      "time": 1.3833332508802414,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 2
+    },
+    {
+      "time": 1.3999999165534973,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 2
+    },
+    {
+      "time": 1.4166665822267532,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 2
+    },
+    {
+      "time": 1.4333332479000092,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.449999913573265,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.466666579246521,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.483333244919777,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.4999999105930328,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.5166665762662888,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.5333332419395447,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.5499999076128006,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.5666665732860565,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.5833332389593124,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.5999999046325684,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.6166665703058243,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.6333332359790802,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.6499999016523361,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.666666567325592,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.683333232998848,
+      "vertices": 0,
+      "samples": 1,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.6999998986721039,
+      "vertices": 36,
+      "samples": 2,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.7166665643453598,
+      "vertices": 63,
+      "samples": 3,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.7333332300186157,
+      "vertices": 90,
+      "samples": 4,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.7499998956918716,
+      "vertices": 117,
+      "samples": 5,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.7666665613651276,
+      "vertices": 144,
+      "samples": 6,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.7833332270383835,
+      "vertices": 171,
+      "samples": 7,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.7999998927116394,
+      "vertices": 198,
+      "samples": 8,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.8166665583848953,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.8333332240581512,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.8499998897314072,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.866666555404663,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.883333221077919,
+      "vertices": 225,
+      "samples": 9,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.899999886751175,
+      "vertices": 198,
+      "samples": 8,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.9166665524244308,
+      "vertices": 171,
+      "samples": 7,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.9333332180976868,
+      "vertices": 144,
+      "samples": 6,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.9499998837709427,
+      "vertices": 117,
+      "samples": 5,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.9666665494441986,
+      "vertices": 90,
+      "samples": 4,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.9833332151174545,
+      "vertices": 63,
+      "samples": 3,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 1.9999998807907104,
+      "vertices": 36,
+      "samples": 2,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 2.0166665464639664,
+      "vertices": 0,
+      "samples": 1,
+      "ticking": true,
+      "swings": 3
+    },
+    {
+      "time": 2.0333332121372223,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.049999877810478,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.066666543483734,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.08333320915699,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.099999874830246,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.116666540503502,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.133333206176758,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.1499998718500137,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.1666665375232697,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.1833332031965256,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.1999998688697815,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.2166665345430374,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.2333332002162933,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.2499998658895493,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.266666531562805,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.283333197236061,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.299999862909317,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.316666528582573,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.333333194255829,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.3499998599290848,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.3666665256023407,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.3833331912755966,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.3999998569488525,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.4166665226221085,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.4333331882953644,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.4499998539686203,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.466666519641876,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.483333185315132,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.499999850988388,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.516666516661644,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.5333331823349,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.549999848008156,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.5666665136814117,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.5833331793546677,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.5999998450279236,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.6166665107011795,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.6333331763744354,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.6499998420476913,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.6666665077209473,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.683333173394203,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.699999839067459,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.716666504740715,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.733333170413971,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.749999836087227,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.766666501760483,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.7833331674337387,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.7999998331069946,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.8166664987802505,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.8333331644535065,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.8499998301267624,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.8666664958000183,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.8833331614732742,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.89999982714653,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.916666492819786,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.933333158493042,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.949999824166298,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.966666489839554,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.9833331555128098,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 2.9999998211860657,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    },
+    {
+      "time": 3.0166664868593216,
+      "vertices": 0,
+      "samples": 0,
+      "ticking": false,
+      "swings": 3
+    }
+  ],
+  "captures": [
+    {
+      "time": 0.01666666567325592,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0000.png"
+    },
+    {
+      "time": 0.04999999701976776,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0001.png"
+    },
+    {
+      "time": 0.0833333283662796,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0002.png"
+    },
+    {
+      "time": 0.11666665971279144,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0003.png"
+    },
+    {
+      "time": 0.14999999105930328,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0004.png"
+    },
+    {
+      "time": 0.18333332240581512,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0005.png"
+    },
+    {
+      "time": 0.21666665375232697,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0006.png"
+    },
+    {
+      "time": 0.2499999850988388,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0007.png"
+    },
+    {
+      "time": 0.28333331644535065,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0008.png"
+    },
+    {
+      "time": 0.3166666477918625,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0009.png"
+    },
+    {
+      "time": 0.34999997913837433,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0010.png"
+    },
+    {
+      "time": 0.38333331048488617,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0011.png"
+    },
+    {
+      "time": 0.416666641831398,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0012.png"
+    },
+    {
+      "time": 0.44999997317790985,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0013.png"
+    },
+    {
+      "time": 0.4833333045244217,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0014.png"
+    },
+    {
+      "time": 0.5166666358709335,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0015.png"
+    },
+    {
+      "time": 0.5499999672174454,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0016.png"
+    },
+    {
+      "time": 0.5833332985639572,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0017.png"
+    },
+    {
+      "time": 0.616666629910469,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0018.png"
+    },
+    {
+      "time": 0.6499999612569809,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0019.png"
+    },
+    {
+      "time": 0.6833332926034927,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0020.png"
+    },
+    {
+      "time": 0.7166666239500046,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0021.png"
+    },
+    {
+      "time": 0.7499999552965164,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0022.png"
+    },
+    {
+      "time": 0.7833332866430283,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0023.png"
+    },
+    {
+      "time": 0.8166666179895401,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0024.png"
+    },
+    {
+      "time": 0.8499999493360519,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0025.png"
+    },
+    {
+      "time": 0.8833332806825638,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0026.png"
+    },
+    {
+      "time": 0.9166666120290756,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0027.png"
+    },
+    {
+      "time": 0.9499999433755875,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0028.png"
+    },
+    {
+      "time": 0.9833332747220993,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0029.png"
+    },
+    {
+      "time": 1.0166666060686111,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0030.png"
+    },
+    {
+      "time": 1.049999937415123,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0031.png"
+    },
+    {
+      "time": 1.0833332687616348,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0032.png"
+    },
+    {
+      "time": 1.1166666001081467,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0033.png"
+    },
+    {
+      "time": 1.1499999314546585,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0034.png"
+    },
+    {
+      "time": 1.1833332628011703,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0035.png"
+    },
+    {
+      "time": 1.2166665941476822,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0036.png"
+    },
+    {
+      "time": 1.249999925494194,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0037.png"
+    },
+    {
+      "time": 1.2833332568407059,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0038.png"
+    },
+    {
+      "time": 1.3166665881872177,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0039.png"
+    },
+    {
+      "time": 1.3499999195337296,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0040.png"
+    },
+    {
+      "time": 1.3833332508802414,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0041.png"
+    },
+    {
+      "time": 1.4166665822267532,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0042.png"
+    },
+    {
+      "time": 1.449999913573265,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0043.png"
+    },
+    {
+      "time": 1.483333244919777,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0044.png"
+    },
+    {
+      "time": 1.5166665762662888,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0045.png"
+    },
+    {
+      "time": 1.5499999076128006,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0046.png"
+    },
+    {
+      "time": 1.5833332389593124,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0047.png"
+    },
+    {
+      "time": 1.6166665703058243,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0048.png"
+    },
+    {
+      "time": 1.6499999016523361,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0049.png"
+    },
+    {
+      "time": 1.683333232998848,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0050.png"
+    },
+    {
+      "time": 1.7166665643453598,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0051.png"
+    },
+    {
+      "time": 1.7499998956918716,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0052.png"
+    },
+    {
+      "time": 1.7833332270383835,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0053.png"
+    },
+    {
+      "time": 1.8166665583848953,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0054.png"
+    },
+    {
+      "time": 1.8499998897314072,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0055.png"
+    },
+    {
+      "time": 1.883333221077919,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0056.png"
+    },
+    {
+      "time": 1.9166665524244308,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0057.png"
+    },
+    {
+      "time": 1.9499998837709427,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0058.png"
+    },
+    {
+      "time": 1.9833332151174545,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0059.png"
+    },
+    {
+      "time": 2.0166665464639664,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0060.png"
+    },
+    {
+      "time": 2.049999877810478,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0061.png"
+    },
+    {
+      "time": 2.08333320915699,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0062.png"
+    },
+    {
+      "time": 2.116666540503502,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0063.png"
+    },
+    {
+      "time": 2.1499998718500137,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0064.png"
+    },
+    {
+      "time": 2.1833332031965256,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0065.png"
+    },
+    {
+      "time": 2.2166665345430374,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0066.png"
+    },
+    {
+      "time": 2.2499998658895493,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0067.png"
+    },
+    {
+      "time": 2.283333197236061,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0068.png"
+    },
+    {
+      "time": 2.316666528582573,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0069.png"
+    },
+    {
+      "time": 2.3499998599290848,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0070.png"
+    },
+    {
+      "time": 2.3833331912755966,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0071.png"
+    },
+    {
+      "time": 2.4166665226221085,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0072.png"
+    },
+    {
+      "time": 2.4499998539686203,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\MouthFrames\\mouth_0073.png"
+    }
+  ],
+  "scope": "Actual L_Mouth lighting and hero gameplay camera; base camera post-process settings copied; HUD excluded."
+}
