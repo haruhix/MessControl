@@ -1,0 +1,39 @@
+{
+  "preview": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerMeleeTargetModes_20261015\\preview.mp4",
+  "clips": [
+    {
+      "case": "knife_food_hold",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerMeleeTargetModes_20261015\\knife_food_hold.mp4",
+      "hit_times": [
+        0.5833332985639572,
+        1.3666665852069855,
+        2.1499998718500137
+      ],
+      "captured_frames": 84,
+      "full_decode": true
+    },
+    {
+      "case": "mob_combo",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerMeleeTargetModes_20261015\\mob_combo.mp4",
+      "hit_times": [
+        0.43333330750465393,
+        1.066666603088379,
+        1.7999998927116394
+      ],
+      "captured_frames": 74,
+      "full_decode": true
+    },
+    {
+      "case": "boss_combo",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerMeleeTargetModes_20261015\\boss_combo.mp4",
+      "hit_times": [
+        0.43333330750465393,
+        1.1166666001081467,
+        1.866666555404663
+      ],
+      "captured_frames": 74,
+      "full_decode": true
+    }
+  ],
+  "scope": "Genuine solo PIE gameplay-camera captures, normalized losslessly before video encoding. Silent preview."
+}

@@ -1,6 +1,10 @@
 #include "MCCombatFeedbackComponent.h"
 
 #include "MCReactionVFX.h"
+#include "MCWeaponImpact.h"
+#include "MCWeaponTrailComponent.h"
+#include "MCToothCharacter.h"
+#include "MCInventoryComponent.h"
 #include "Components/MeshComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
@@ -8,6 +12,87 @@
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Net/UnrealNetwork.h"
+
+namespace MCWeaponImpact
+{
+namespace
+{
+struct FContactHold
+{
+    double StartedAt=0;
+    float Seconds=0, SwingAtContact=0;
+};
+// Weak actor keys keep PIE sessions and destroyed enemies out of subsequent fights.
+TMap<TWeakObjectPtr<const AActor>,FContactHold> Contacts;
+
+bool IsHandTool(const AMCToothCharacter* Hero)
+{
+    return IsValid(Hero) && Hero->Inventory && Hero->GetNetMode()!=NM_DedicatedServer
+        && !Hero->ActorHasTag(TEXT("MC.LegacyCombatFeedback"))
+        && Hero->Inventory->SelectedUpgrade()==EMCToolUpgrade::None
+        && (Hero->Inventory->Selected==EMCToolSlot::Knife || Hero->Inventory->Selected==EMCToolSlot::Pickaxe);
+}
+
+const FContactHold* Find(const AActor* Actor)
+{
+    if(!IsValid(Actor) || !Actor->GetWorld()) return nullptr;
+    const auto* Hold=Contacts.Find(Actor);
+    const double Age=Hold?Actor->GetWorld()->GetTimeSeconds()-Hold->StartedAt:-1;
+    return Age>=0 && Age<2.?Hold:nullptr;
+}
+
+void Store(const AActor* Actor,float Seconds,float SwingAtContact=0)
+{
+    for(auto It=Contacts.CreateIterator();It;++It)
+        if(!It.Key().IsValid() || !It.Key()->GetWorld()
+            || It.Key()->GetWorld()->GetTimeSeconds()-It.Value().StartedAt>=2.) It.RemoveCurrent();
+    Contacts.Add(Actor,{Actor->GetWorld()->GetTimeSeconds(),Seconds,SwingAtContact});
+}
+}
+
+void BeginSwing(const AMCToothCharacter* Hero)
+{
+    Contacts.Remove(Hero);
+    if(IsValid(Hero)) if(auto* Trail=Hero->FindComponentByClass<UMCWeaponTrailComponent>()) Trail->BeginSwing();
+}
+
+void ConfirmSwing(AMCToothCharacter* Hero,uint8 ToolSlot)
+{
+    if(!IsHandTool(Hero) || ToolSlot!=uint8(Hero->Inventory->Selected)) return;
+    const float Elapsed=Hero->GetToolSwingElapsed();
+    if(Elapsed<0 || Elapsed>=Hero->Inventory->SwingDuration() || Find(Hero)) return;
+    const float Hold=FMath::Clamp((Hero->Inventory->Selected==EMCToolSlot::Pickaxe?.055f:.045f)
+        /Hero->Inventory->RogueAttackRate(),.016f,.055f);
+    Store(Hero,Hold,Elapsed);
+}
+
+void HoldTarget(AActor* Target,const AMCToothCharacter* Source)
+{
+    if(IsValid(Target) && IsHandTool(Source) && !Target->ActorHasTag(TEXT("MC.LegacyCombatFeedback")))
+        Store(Target,.045f);
+}
+
+bool IsPoseHeld(const AActor* Actor)
+{
+    const auto* Hold=Find(Actor);
+    return Hold && Actor->GetWorld()->GetTimeSeconds()-Hold->StartedAt<Hold->Seconds;
+}
+
+float VisualSwingElapsed(const AMCToothCharacter* Hero)
+{
+    const float Raw=Hero->GetToolSwingElapsed();
+    const auto* Hold=IsHandTool(Hero)?Find(Hero):nullptr;
+    return Hold?Raw-FMath::Clamp(Raw-Hold->SwingAtContact,0.f,Hold->Seconds):Raw;
+}
+
+float Recoil(const AMCToothCharacter* Hero)
+{
+    const auto* Hold=IsHandTool(Hero)?Find(Hero):nullptr;
+    if(!Hold) return 0;
+    const float T=FMath::Clamp(float(Hero->GetWorld()->GetTimeSeconds()-Hold->StartedAt-Hold->Seconds)/.18f,0.f,1.f);
+    return FMath::Sin(T*PI)*(1-T);
+}
+}
 
 UMCCombatFeedbackComponent::UMCCombatFeedbackComponent()
 {
@@ -79,7 +164,7 @@ float UMCCombatFeedbackComponent::PresentationFlash() const
 {
     if(IsLegacy() || LastHit.Serial==0) return 0.f;
     const float Age=FMath::Max(0.f,float(ServerNow()-LastHit.ServerTime));
-    return Age<.19f?1.f-FMath::SmoothStep(.035f,.19f,Age):0.f;
+    return Age<.105f?1.f-FMath::SmoothStep(.045f,.105f,Age):0.f;
 }
 
 void UMCCombatFeedbackComponent::SetVisualTarget(UMeshComponent* Mesh)
@@ -104,6 +189,8 @@ void UMCCombatFeedbackComponent::PresentHit()
     // Ignore expired snapshots on late join/relevancy; all timing uses the replicated server clock.
     const double Age=ServerNow()-LastHit.ServerTime;
     if(GetNetMode()==NM_DedicatedServer || IsLegacy() || Age>.32) return;
+    if(Age<.06 && !LastHit.bFatal && bUseProceduralRecoil)
+        MCWeaponImpact::HoldTarget(GetOwner(),Cast<AMCToothCharacter>(LastHit.Source));
     UpdateOverlay();
     OnHitPresented.Broadcast(LastHit);
 }
@@ -134,9 +221,9 @@ void UMCCombatFeedbackComponent::UpdateOverlay()
         SetComponentTickEnabled(false);
         return;
     }
-    const FLinearColor Color=LastHit.bShielded?FLinearColor(.22f,.75f,1.f):FLinearColor(1.f,.92f,.72f);
+    const FLinearColor Color=LastHit.bShielded?FLinearColor(.22f,.75f,1.f):FLinearColor(1.8f,1.8f,1.8f);
     HitOverlay->SetVectorParameterValue(TEXT("Color"),Color);
-    HitOverlay->SetScalarParameterValue(TEXT("Opacity"),Flash*.42f);
+    HitOverlay->SetScalarParameterValue(TEXT("Opacity"),Flash*(LastHit.bShielded?.55f:.85f));
     SetComponentTickEnabled(true);
 }
 

@@ -272,7 +272,10 @@ private:
     bool bSharedPrimaryInputHeld=false,bSharedHandleInputHeld=false,bSharedJumpInputHeld=false;
     UFUNCTION(Server,Reliable) void ServerToggleFoodCollection();
     void SelectBrush(); void SelectPickaxe(); void SelectKnife(); void SelectSpray();
-    void ResolvePrimaryAction();
+    void ResolvePrimaryAction(bool bNewPress=false);
+    AActor* FindMeleeEnemyTarget() const;
+    AMCFoodActor* FindMeleeFoodTarget() const;
+    bool WantsFoodChop() const;
     void TogglePanel(); void ToggleConnection(); void RestartRun();
     UFUNCTION(Server, Reliable) void ServerSetWorking(bool bBrush, bool bActive);
     void ToggleSelfCare();

@@ -1,0 +1,18 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": "None",
+  "dirty_content": [],
+  "dirty_maps": [],
+  "fixed_fps_enabled": false,
+  "fixed_fps": 30.0,
+  "throttle_background": true,
+  "source_sha256": {
+    "Source/MessControl/Private/MCWeaponImpact.h": "352e7ee52d211194818c3fa8288e7b3dd46eff24716767176880f6a59a8f97ac",
+    "Source/MessControl/Private/MCCombatFeedbackComponent.cpp": "69cbde10ab46246266b82e5b1cce6275e709911fe824a00757c06dc2fcb6d7d1",
+    "Source/MessControl/Private/MCToothCharacter.cpp": "ac986339d53e5cf84ae5068b23eb33318a88a278ebfd9d06a8a477bd7a1ca10a",
+    "Source/MessControl/Private/MCToothAnimInstance.cpp": "ea9c0fe2cf39b8895722f0119ca20d5ee4d2856e425d93054aa9848b5e70f12b",
+    "Source/MessControl/Private/MCNutEnemy.cpp": "d108c61a383f8b319b7195352b09bc66f6bb9fa40b8283fadd7afd0995eeca0f",
+    "Source/MessControl/Private/MCPlayerCameraComponent.cpp": "f2172d26e1b4d9defe5bc4a4996ef92a0a3422e0de72bc2d0959d15818bcbbe1",
+    "Source/MessControl/Private/MCReactionVFX.cpp": "2f33aeaab829badc98c692608c7aa8d0000d82af9061d3d496c933ffdb9b673e"
+  }
+}

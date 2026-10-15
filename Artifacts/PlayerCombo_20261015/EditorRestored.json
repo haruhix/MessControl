@@ -1,0 +1,18 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": "None",
+  "dirty_content": [],
+  "dirty_maps": [],
+  "fixed_fps_enabled": false,
+  "fixed_fps": 30.0,
+  "throttle_background": true,
+  "source_sha256": {
+    "Source/MessControl/Private/MCMeleeCombo.h": "5e1dfe607db8e449a6eb2f9d2068577651d23f07ed68d6441ba9ab3533793665",
+    "Source/MessControl/Private/MCMeleeCombo.cpp": "a38e369742c5caff289ba28c1903fd2eb58e01233e5b366ea518146afd5cb2c7",
+    "Source/MessControl/Private/MCToothCharacter.cpp": "6fc11285c3a85c91ec2c9a234df8cf3a248c6b79ee0b8989e307a275a4c0b595",
+    "Source/MessControl/Private/MCInventoryComponent.cpp": "f05fdfcb560c66f29b35b7676cc8f1a235a43db8672ef4ce4a24fed4aafb19d3",
+    "Source/MessControl/Private/MCToothAnimInstance.cpp": "843f4ed6eca9104784446760e5cfbaba00b13f6454d2bed125c814871f039bcb",
+    "Source/MessControl/Public/MCToothCharacter.h": "ddfc4805a5b0d0d2a9de7833579fde28dbeb9c2e0064098b034fb8d1af9b58e1"
+  },
+  "integration": "Cold Development Editor module compile and clean editor restart; no game cook/package."
+}

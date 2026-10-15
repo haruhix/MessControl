@@ -1,0 +1,38 @@
+[
+  {
+    "case": "knife_combo",
+    "before_ready_hand": [
+      -17.09438198224743,
+      121.75438187971213,
+      66.12828737732721
+    ],
+    "after_ready_hand": [
+      -103.96218556442176,
+      125.14791531214652,
+      82.77484195323864
+    ],
+    "additional_backward_reach_cm": 86.86780358217433,
+    "before_lateral_sweep_cm": 192.93567107783826,
+    "after_lateral_sweep_cm": 214.19390780354883,
+    "readable_windup": true,
+    "sharp_edge_leads": true
+  },
+  {
+    "case": "pickaxe_combo",
+    "before_ready_hand": [
+      -7.8242253734287885,
+      119.61794881471836,
+      63.61610420012964
+    ],
+    "after_ready_hand": [
+      -89.20450602013197,
+      125.18746068439553,
+      79.05718034903815
+    ],
+    "additional_backward_reach_cm": 81.38028064670318,
+    "before_lateral_sweep_cm": 191.62372433173573,
+    "after_lateral_sweep_cm": 215.1206175028014,
+    "readable_windup": true,
+    "sharp_edge_leads": true
+  }
+]

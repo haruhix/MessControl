@@ -1,0 +1,10 @@
+{
+  "asset": "/Game/Gameplay/VFX/WeaponTrail/M_WeaponSwingTrail.M_WeaponSwingTrail",
+  "blend": "Additive",
+  "shading": "Unlit",
+  "two_sided": true,
+  "depth_test": true,
+  "textures": 0,
+  "default_glow": 3.2,
+  "compile_result": "[]"
+}

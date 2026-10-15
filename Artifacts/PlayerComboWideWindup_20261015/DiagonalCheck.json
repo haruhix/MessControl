@@ -1,0 +1,106 @@
+[
+  {
+    "case": "knife_combo",
+    "second_started": 0.8062666030883789,
+    "contact_offset": 0.26039999999999996,
+    "ready_hand": [
+      -103.96218556442176,
+      125.14791531214652,
+      82.77484195323864
+    ],
+    "finish_hand": [
+      -27.375961556649074,
+      -89.0459924914023,
+      -50.68739941440347
+    ],
+    "hand_delta": [
+      76.58622400777269,
+      -214.19390780354883,
+      -133.4622413676421
+    ],
+    "cutting_alignment_samples": [
+      {
+        "time": 0.9833332747220993,
+        "edge_dot_hand_velocity": 0.8838298794347511,
+        "edge_dot_sharp_point_velocity": 0.9092497277794478,
+        "face_dot_hand_velocity": 0.21058105387276718
+      },
+      {
+        "time": 0.9999999403953552,
+        "edge_dot_hand_velocity": 0.9163608911319532,
+        "edge_dot_sharp_point_velocity": 0.9426939215305896,
+        "face_dot_hand_velocity": 0.19019138343509884
+      },
+      {
+        "time": 1.0166666060686111,
+        "edge_dot_hand_velocity": 0.9509461333625021,
+        "edge_dot_sharp_point_velocity": 0.9754302962239778,
+        "face_dot_hand_velocity": 0.10780334979150495
+      },
+      {
+        "time": 1.033333271741867,
+        "edge_dot_hand_velocity": 0.9756863711208204,
+        "edge_dot_sharp_point_velocity": 0.9938016305682436,
+        "face_dot_hand_velocity": 0.028513959516299963
+      },
+      {
+        "time": 1.049999937415123,
+        "edge_dot_hand_velocity": 0.9754956328862998,
+        "edge_dot_sharp_point_velocity": 0.9883937514067487,
+        "face_dot_hand_velocity": 0.19103404076701663
+      }
+    ]
+  },
+  {
+    "case": "pickaxe_combo",
+    "second_started": 0.8478666001081467,
+    "contact_offset": 0.2688,
+    "ready_hand": [
+      -89.20450602013197,
+      125.18746068439553,
+      79.05718034903815
+    ],
+    "finish_hand": [
+      -28.83561730673385,
+      -89.93315681840588,
+      -50.28226458298437
+    ],
+    "hand_delta": [
+      60.36888871339812,
+      -215.1206175028014,
+      -129.3394449320225
+    ],
+    "cutting_alignment_samples": [
+      {
+        "time": 1.033333271741867,
+        "edge_dot_hand_velocity": 0.9005137506094387,
+        "edge_dot_sharp_point_velocity": 0.9298645998566554,
+        "face_dot_hand_velocity": 0.21004960185286362
+      },
+      {
+        "time": 1.049999937415123,
+        "edge_dot_hand_velocity": 0.9343717068582205,
+        "edge_dot_sharp_point_velocity": 0.9645170603156293,
+        "face_dot_hand_velocity": 0.15721666489086092
+      },
+      {
+        "time": 1.066666603088379,
+        "edge_dot_hand_velocity": 0.9657542559719138,
+        "edge_dot_sharp_point_velocity": 0.9918454079776141,
+        "face_dot_hand_velocity": 0.04469844622870288
+      },
+      {
+        "time": 1.0833332687616348,
+        "edge_dot_hand_velocity": 0.9796408408385445,
+        "edge_dot_sharp_point_velocity": 0.996296901905523,
+        "face_dot_hand_velocity": 0.10892166655463878
+      },
+      {
+        "time": 1.0999999344348907,
+        "edge_dot_hand_velocity": 0.9558977895404426,
+        "edge_dot_sharp_point_velocity": 0.9689241700624508,
+        "face_dot_hand_velocity": 0.29013306030548713
+      }
+    ]
+  }
+]

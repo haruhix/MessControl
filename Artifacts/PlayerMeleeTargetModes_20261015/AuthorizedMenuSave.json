@@ -1,0 +1,537 @@
+[
+	{
+		"Name": "Broccoli",
+		"Label": "NSLOCTEXT(\"DT_BreakfastMenu [86450014EF0B56DA597EA55BD2C39D3F]\", \"Broccoli_Label\", \"BROCCOLI\")",
+		"WholeMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_Broccoli.SM_Broccoli",
+			"None",
+			"None"
+		],
+		"FragmentMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_BroccoliCutA.SM_BroccoliCutA",
+			"/Game/Stylized_Vegetables/Meshes/SM_BroccoliCutB.SM_BroccoliCutB",
+			"/Game/Stylized_Vegetables/Meshes/SM_BroccoliCutC.SM_BroccoliCutC"
+		],
+		"Collision":
+		{
+			"bAutoOptimize": true,
+			"WholeHullLimit": 12,
+			"FragmentHullLimit": 4,
+			"HullVertexLimit": 256,
+			"VoxelResolution": 100000
+		},
+		"CollisionData": [
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_Broccoli_6C1C006F31D9_68D73053.SM_Broccoli_6C1C006F31D9_68D73053'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_BroccoliCutA_56B4346E7AD4_C7EBB18D.SM_BroccoliCutA_56B4346E7AD4_C7EBB18D'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_BroccoliCutB_59A64AA090A6_C7EBB18D.SM_BroccoliCutB_59A64AA090A6_C7EBB18D'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_BroccoliCutC_18492931E6F9_C7EBB18D.SM_BroccoliCutC_18492931E6F9_C7EBB18D'"
+		],
+		"Scale":
+		{
+			"X": 20,
+			"Y": 20,
+			"Z": 20
+		},
+		"FragmentScale":
+		{
+			"X": 20,
+			"Y": 20,
+			"Z": 20
+		},
+		"SelectionWeight": 1,
+		"Health": 200,
+		"Resistance": "Automatic",
+		"Kind": "Food",
+		"FuseSeconds": 8,
+		"FirstPulseRadius": 180,
+		"RadiusPerRound": 90,
+		"PulseDamage": 18,
+		"Mass": 12,
+		"SpoilSeconds": 180,
+		"AbsorbSeconds": 2,
+		"Fragments": 4,
+		"HalfExtent":
+		{
+			"X": 45,
+			"Y": 40,
+			"Z": 40
+		},
+		"Stack":
+		{
+			"LayerGap": 3,
+			"HorizontalOffset": 2.5,
+			"YawVariation": 8,
+			"MaxSwayDegrees": 8,
+			"PoseOverrides": []
+		}
+	},
+	{
+		"Name": "Egg",
+		"Label": "NSLOCTEXT(\"DT_BreakfastMenu [86450014EF0B56DA597EA55BD2C39D3F]\", \"Egg_Label\", \"EGG\")",
+		"WholeMeshes": [
+			"/Game/Art/Meshes/Breakfast/SM_Egg_01.SM_Egg_01",
+			"/Game/Art/Meshes/Breakfast/SM_Egg_02.SM_Egg_02",
+			"None"
+		],
+		"FragmentMeshes": [
+			"/Game/Art/Meshes/Breakfast/SM_Egg_03.SM_Egg_03",
+			"/Game/Art/Meshes/Breakfast/SM_Egg_03.SM_Egg_03",
+			"/Game/Art/Meshes/Breakfast/SM_Egg_03.SM_Egg_03"
+		],
+		"Collision":
+		{
+			"bAutoOptimize": true,
+			"WholeHullLimit": 12,
+			"FragmentHullLimit": 4,
+			"HullVertexLimit": 256,
+			"VoxelResolution": 100000
+		},
+		"CollisionData": [
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_Egg_01_80EEF85A629D_B5826BC8.SM_Egg_01_80EEF85A629D_B5826BC8'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_Egg_02_44FFCB4A3A0C_B5826BC8.SM_Egg_02_44FFCB4A3A0C_B5826BC8'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_Egg_03_9C42E7667DAD_FD6304ED.SM_Egg_03_9C42E7667DAD_FD6304ED'"
+		],
+		"Scale":
+		{
+			"X": 2,
+			"Y": 2,
+			"Z": 2
+		},
+		"FragmentScale":
+		{
+			"X": 1,
+			"Y": 1,
+			"Z": 1
+		},
+		"SelectionWeight": 1,
+		"Health": 100,
+		"Resistance": "Automatic",
+		"Kind": "Food",
+		"FuseSeconds": 8,
+		"FirstPulseRadius": 180,
+		"RadiusPerRound": 90,
+		"PulseDamage": 18,
+		"Mass": 5,
+		"SpoilSeconds": 180,
+		"AbsorbSeconds": 2,
+		"Fragments": 10,
+		"HalfExtent":
+		{
+			"X": 48,
+			"Y": 35,
+			"Z": 18
+		},
+		"Stack":
+		{
+			"LayerGap": 3,
+			"HorizontalOffset": 2.5,
+			"YawVariation": 8,
+			"MaxSwayDegrees": 8,
+			"PoseOverrides": []
+		}
+	},
+	{
+		"Name": "Bacon",
+		"Label": "NSLOCTEXT(\"DT_BreakfastMenu [86450014EF0B56DA597EA55BD2C39D3F]\", \"Bacon_Label\", \"BACON\")",
+		"WholeMeshes": [
+			"None",
+			"/Game/Stylized_Fruits/Meshes/SM_GrapesPurple.SM_GrapesPurple",
+			"None"
+		],
+		"FragmentMeshes": [
+			"/Game/Stylized_Fruits/Meshes/SM_Grape_B.SM_Grape_B",
+			"None",
+			"None"
+		],
+		"Collision":
+		{
+			"bAutoOptimize": true,
+			"WholeHullLimit": 12,
+			"FragmentHullLimit": 4,
+			"HullVertexLimit": 256,
+			"VoxelResolution": 1000000
+		},
+		"CollisionData": [
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_Grape_B_1C5572D7811D_1F51AF8C.SM_Grape_B_1C5572D7811D_1F51AF8C'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_GrapesPurple_EFD2B51A25E3_6AE1D433.SM_GrapesPurple_EFD2B51A25E3_6AE1D433'"
+		],
+		"Scale":
+		{
+			"X": 40,
+			"Y": 40,
+			"Z": 40
+		},
+		"FragmentScale":
+		{
+			"X": 20,
+			"Y": 20,
+			"Z": 20
+		},
+		"SelectionWeight": 1,
+		"Health": 200,
+		"Resistance": "Automatic",
+		"Kind": "Food",
+		"FuseSeconds": 8,
+		"FirstPulseRadius": 180,
+		"RadiusPerRound": 90,
+		"PulseDamage": 18,
+		"Mass": 9,
+		"SpoilSeconds": 180,
+		"AbsorbSeconds": 2,
+		"Fragments": 30,
+		"HalfExtent":
+		{
+			"X": 52,
+			"Y": 26,
+			"Z": 14
+		},
+		"Stack":
+		{
+			"LayerGap": 3,
+			"HorizontalOffset": 2.5,
+			"YawVariation": 8,
+			"MaxSwayDegrees": 8,
+			"PoseOverrides": []
+		}
+	},
+	{
+		"Name": "Carrot",
+		"Label": "NSLOCTEXT(\"DT_BreakfastMenu [86450014EF0B56DA597EA55BD2C39D3F]\", \"Carrot_Label\", \"CARROT\")",
+		"WholeMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_CarrotBNoLeaves.SM_CarrotBNoLeaves",
+			"/Game/Stylized_Vegetables/Meshes/SM_CarrotANoLeaves.SM_CarrotANoLeaves",
+			"/Game/Stylized_Vegetables/Meshes/SM_CarrotACutB.SM_CarrotACutB"
+		],
+		"FragmentMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_CarrotSliceC.SM_CarrotSliceC",
+			"/Game/Stylized_Vegetables/Meshes/SM_CarrotSliceD.SM_CarrotSliceD",
+			"None"
+		],
+		"Collision":
+		{
+			"bAutoOptimize": true,
+			"WholeHullLimit": 12,
+			"FragmentHullLimit": 4,
+			"HullVertexLimit": 256,
+			"VoxelResolution": 100000
+		},
+		"CollisionData": [
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_CarrotACutB_467DCC303207_65902504.SM_CarrotACutB_467DCC303207_65902504'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_CarrotANoLeaves_65BAB1577D3F_65902504.SM_CarrotANoLeaves_65BAB1577D3F_65902504'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_CarrotBNoLeaves_348F75CA6417_65902504.SM_CarrotBNoLeaves_348F75CA6417_65902504'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_CarrotSliceC_4382336C69C8_C7EBB18D.SM_CarrotSliceC_4382336C69C8_C7EBB18D'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_CarrotSliceD_156487C00A5C_C7EBB18D.SM_CarrotSliceD_156487C00A5C_C7EBB18D'"
+		],
+		"Scale":
+		{
+			"X": 30,
+			"Y": 30,
+			"Z": 30
+		},
+		"FragmentScale":
+		{
+			"X": 20,
+			"Y": 20,
+			"Z": 20
+		},
+		"SelectionWeight": 1,
+		"Health": 200,
+		"Resistance": "Soft",
+		"Kind": "Food",
+		"FuseSeconds": 8,
+		"FirstPulseRadius": 180,
+		"RadiusPerRound": 90,
+		"PulseDamage": 18,
+		"Mass": 7,
+		"SpoilSeconds": 180,
+		"AbsorbSeconds": 2,
+		"Fragments": 5,
+		"HalfExtent":
+		{
+			"X": 20,
+			"Y": 20,
+			"Z": 20
+		},
+		"Stack":
+		{
+			"LayerGap": 3,
+			"HorizontalOffset": 2.5,
+			"YawVariation": 8,
+			"MaxSwayDegrees": 8,
+			"PoseOverrides": [
+				{
+					"Mesh": "/Game/Stylized_Vegetables/Meshes/SM_CarrotSliceC.SM_CarrotSliceC",
+					"VerticalAxis": "Y"
+				},
+				{
+					"Mesh": "/Game/Stylized_Vegetables/Meshes/SM_CarrotSliceD.SM_CarrotSliceD",
+					"VerticalAxis": "Y"
+				},
+				{
+					"Mesh": "/Game/Stylized_Vegetables/Meshes/SM_CarrotSliceH.SM_CarrotSliceH",
+					"VerticalAxis": "Z"
+				}
+			]
+		}
+	},
+	{
+		"Name": "Fibre",
+		"Label": "NSLOCTEXT(\"DT_BreakfastMenu [86450014EF0B56DA597EA55BD2C39D3F]\", \"Fibre_Label\", \"FIBRE\")",
+		"WholeMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_CabbageGreen.SM_CabbageGreen",
+			"None",
+			"None"
+		],
+		"FragmentMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_CabbageGreenCutA.SM_CabbageGreenCutA",
+			"/Game/Stylized_Vegetables/Meshes/SM_CabbageGreenCutB.SM_CabbageGreenCutB",
+			"None",
+			"None"
+		],
+		"Collision":
+		{
+			"bAutoOptimize": true,
+			"WholeHullLimit": 12,
+			"FragmentHullLimit": 4,
+			"HullVertexLimit": 256,
+			"VoxelResolution": 100000
+		},
+		"CollisionData": [
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_CabbageGreen_536C4D24D3E8_68D73053.SM_CabbageGreen_536C4D24D3E8_68D73053'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_CabbageGreenCutA_7B98ED61D488_017A45A4.SM_CabbageGreenCutA_7B98ED61D488_017A45A4'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_CabbageGreenCutB_184392299CFE_017A45A4.SM_CabbageGreenCutB_184392299CFE_017A45A4'"
+		],
+		"Scale":
+		{
+			"X": 20,
+			"Y": 20,
+			"Z": 20
+		},
+		"FragmentScale":
+		{
+			"X": 10,
+			"Y": 10,
+			"Z": 10
+		},
+		"SelectionWeight": 1,
+		"Health": 200,
+		"Resistance": "Automatic",
+		"Kind": "Food",
+		"FuseSeconds": 8,
+		"FirstPulseRadius": 180,
+		"RadiusPerRound": 90,
+		"PulseDamage": 18,
+		"Mass": 6,
+		"SpoilSeconds": 180,
+		"AbsorbSeconds": 2,
+		"Fragments": 2,
+		"HalfExtent":
+		{
+			"X": 55,
+			"Y": 24,
+			"Z": 15
+		},
+		"Stack":
+		{
+			"LayerGap": 3,
+			"HorizontalOffset": 2.5,
+			"YawVariation": 8,
+			"MaxSwayDegrees": 8,
+			"PoseOverrides": []
+		}
+	},
+	{
+		"Name": "Tomato",
+		"Label": "NSLOCTEXT(\"DT_BreakfastMenu [86450014EF0B56DA597EA55BD2C39D3F]\", \"282CD7824ED97B9A4891A09DA8F9541A\", \"Tomato\")",
+		"WholeMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_TomatoA.SM_TomatoA",
+			"/Game/Stylized_Vegetables/Meshes/SM_TomatoB.SM_TomatoB",
+			"/Game/Stylized_Vegetables/Meshes/SM_TomatoCutA.SM_TomatoCutA"
+		],
+		"FragmentMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_TomatoQuartersCutA.SM_TomatoQuartersCutA",
+			"/Game/Stylized_Vegetables/Meshes/SM_TomatoQuartersCutB.SM_TomatoQuartersCutB",
+			"/Game/Stylized_Vegetables/Meshes/SM_TomatoSliceE.SM_TomatoSliceE",
+			"/Game/Stylized_Vegetables/Meshes/SM_TomatoSliceC.SM_TomatoSliceC"
+		],
+		"Collision":
+		{
+			"bAutoOptimize": true,
+			"WholeHullLimit": 12,
+			"FragmentHullLimit": 4,
+			"HullVertexLimit": 256,
+			"VoxelResolution": 100000
+		},
+		"CollisionData": [
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_TomatoA_5E08F543A1BB_3092C2B0.SM_TomatoA_5E08F543A1BB_3092C2B0'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_TomatoB_F41E229E1876_3092C2B0.SM_TomatoB_F41E229E1876_3092C2B0'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_TomatoCutA_565EDD9EF468_3092C2B0.SM_TomatoCutA_565EDD9EF468_3092C2B0'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_TomatoQuartersCutA_0088A6D31137_C7EBB18D.SM_TomatoQuartersCutA_0088A6D31137_C7EBB18D'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_TomatoQuartersCutB_D4A8617BCEAF_C7EBB18D.SM_TomatoQuartersCutB_D4A8617BCEAF_C7EBB18D'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_TomatoSliceC_A157D8A5F36C_C7EBB18D.SM_TomatoSliceC_A157D8A5F36C_C7EBB18D'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_TomatoSliceE_414ED88853D1_C7EBB18D.SM_TomatoSliceE_414ED88853D1_C7EBB18D'"
+		],
+		"Scale":
+		{
+			"X": 40,
+			"Y": 40,
+			"Z": 40
+		},
+		"FragmentScale":
+		{
+			"X": 20,
+			"Y": 20,
+			"Z": 20
+		},
+		"SelectionWeight": 1,
+		"Health": 100,
+		"Resistance": "Automatic",
+		"Kind": "Food",
+		"FuseSeconds": 8,
+		"FirstPulseRadius": 180,
+		"RadiusPerRound": 90,
+		"PulseDamage": 18,
+		"Mass": 6,
+		"SpoilSeconds": 180,
+		"AbsorbSeconds": 2,
+		"Fragments": 5,
+		"HalfExtent":
+		{
+			"X": 55,
+			"Y": 24,
+			"Z": 15
+		},
+		"Stack":
+		{
+			"LayerGap": 3,
+			"HorizontalOffset": 2.5,
+			"YawVariation": 8,
+			"MaxSwayDegrees": 8,
+			"PoseOverrides": []
+		}
+	},
+	{
+		"Name": "SpicyPepper",
+		"Label": "NSLOCTEXT(\"DT_BreakfastMenu [86450014EF0B56DA597EA55BD2C39D3F]\", \"SpicyPepper_Label\", \"SPICY PEPPER\")",
+		"WholeMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_Chili.SM_Chili"
+		],
+		"FragmentMeshes": [
+			"/Game/Stylized_Vegetables/Meshes/SM_ChiliCutA.SM_ChiliCutA",
+			"/Game/Stylized_Vegetables/Meshes/SM_ChiliCutB.SM_ChiliCutB"
+		],
+		"Collision":
+		{
+			"bAutoOptimize": true,
+			"WholeHullLimit": 12,
+			"FragmentHullLimit": 4,
+			"HullVertexLimit": 256,
+			"VoxelResolution": 100000
+		},
+		"CollisionData": [
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_Chili_DB5F60A530FC_8C25A856.SM_Chili_DB5F60A530FC_8C25A856'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_ChiliCutA_35BAE6E0B1F1_FD6304ED.SM_ChiliCutA_35BAE6E0B1F1_FD6304ED'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_ChiliCutB_8424E631711F_FD6304ED.SM_ChiliCutB_8424E631711F_FD6304ED'"
+		],
+		"Scale":
+		{
+			"X": 10,
+			"Y": 10,
+			"Z": 10
+		},
+		"FragmentScale":
+		{
+			"X": 1,
+			"Y": 1,
+			"Z": 1
+		},
+		"SelectionWeight": 0.35,
+		"Health": 50,
+		"Resistance": "Soft",
+		"Kind": "Spicy",
+		"FuseSeconds": 10,
+		"FirstPulseRadius": 180,
+		"RadiusPerRound": 90,
+		"PulseDamage": 18,
+		"Mass": 4,
+		"SpoilSeconds": 600,
+		"AbsorbSeconds": 2,
+		"Fragments": 2,
+		"HalfExtent":
+		{
+			"X": 40,
+			"Y": 20,
+			"Z": 20
+		},
+		"Stack":
+		{
+			"LayerGap": 3,
+			"HorizontalOffset": 2.5,
+			"YawVariation": 8,
+			"MaxSwayDegrees": 8,
+			"PoseOverrides": []
+		}
+	},
+	{
+		"Name": "Apple",
+		"Label": "",
+		"WholeMeshes": [
+			"/Game/Stylized_Fruits/Meshes/SM_AppleRed.SM_AppleRed",
+			"/Game/Stylized_Fruits/Meshes/SM_AppleRedCut.SM_AppleRedCut"
+		],
+		"FragmentMeshes": [
+			"/Game/Stylized_Fruits/Meshes/SM_AppleRedSlice.SM_AppleRedSlice"
+		],
+		"Collision":
+		{
+			"bAutoOptimize": true,
+			"WholeHullLimit": 12,
+			"FragmentHullLimit": 4,
+			"HullVertexLimit": 32,
+			"VoxelResolution": 100000
+		},
+		"CollisionData": [
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_AppleRed_C285133F0996_6409B5FA.SM_AppleRed_C285133F0996_6409B5FA'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_AppleRedCut_7A84746EA288_6409B5FA.SM_AppleRedCut_7A84746EA288_6409B5FA'",
+			"/Script/MessControl.MCFoodCollisionData'/Game/Generated/FoodCollision/SM_AppleRedSlice_C7E38FFDEF6A_E899DFC7.SM_AppleRedSlice_C7E38FFDEF6A_E899DFC7'"
+		],
+		"Scale":
+		{
+			"X": 30,
+			"Y": 30,
+			"Z": 30
+		},
+		"FragmentScale":
+		{
+			"X": 22,
+			"Y": 22,
+			"Z": 22
+		},
+		"SelectionWeight": 1,
+		"Health": 100,
+		"Resistance": "Automatic",
+		"Kind": "Food",
+		"FuseSeconds": 10,
+		"FirstPulseRadius": 180,
+		"RadiusPerRound": 90,
+		"PulseDamage": 18,
+		"Mass": 9,
+		"SpoilSeconds": 180,
+		"AbsorbSeconds": 2,
+		"Fragments": 3,
+		"HalfExtent":
+		{
+			"X": 44,
+			"Y": 35,
+			"Z": 35
+		},
+		"Stack":
+		{
+			"LayerGap": 3,
+			"HorizontalOffset": 2.5,
+			"YawVariation": 8,
+			"MaxSwayDegrees": 8,
+			"PoseOverrides": []
+		}
+	}
+]

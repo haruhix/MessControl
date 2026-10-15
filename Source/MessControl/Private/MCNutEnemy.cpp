@@ -7,6 +7,8 @@
 #include "MCToothCharacter.h"
 #include "MCToothStatusComponent.h"
 #include "MCCombatFeedbackComponent.h"
+#include "MCWeaponImpact.h"
+#include "MCReactionVFX.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/TextRenderComponent.h"
@@ -158,7 +160,11 @@ bool AMCNutEnemy::HasAttackContact(const AMCToothCharacter* Hero) const
 
 void AMCNutEnemy::Defeat()
 {
+    if(bDefeated) return;
     bDefeated=true; Health=0; Target=nullptr; bAttackPending=false; AttackTarget.Reset();
+    if(Feedback->LastHit.bFatal && !ActorHasTag(TEXT("MC.LegacyCombatFeedback")))
+        AMCReactionVFX::Spawn(GetWorld(),GetActorLocation(),EMCReactionEffect::FoodBreak,.45f,
+            Settings.BodyRadius*1.6f,Feedback->LastHit.Direction);
     RefreshPresentation(); SetLifeSpan(1.2f); ForceNetUpdate();
 }
 
@@ -182,14 +188,18 @@ void AMCNutEnemy::MoveOnTongue(FVector Direction,float Dt)
 
 void AMCNutEnemy::TickPresentation(double Now)
 {
+    if(!bDefeated && MCWeaponImpact::IsPoseHeld(this)) return;
     const bool Winding=AttackStartedAt>-99 && Now-AttackStartedAt<Settings.WindupSeconds;
     // Every procedural monster consumes the same accepted-hit pulse and fixed impact direction.
     const float Hit=!bDefeated && Feedback->bUseProceduralRecoil?Feedback->GetHitPulse():0.f;
     const FVector Away=GetActorTransform().InverseTransformVectorNoScale(Feedback->LastHit.Direction);
-    const FVector Recoil=Away.GetSafeNormal2D(SMALL_NUMBER,-FVector::ForwardVector)*(Settings.BodyRadius*.28f*Hit);
+    const FVector Recoil=Away.GetSafeNormal2D(SMALL_NUMBER,-FVector::ForwardVector)*(Settings.BodyRadius*.42f*Hit);
     const float Hop=bDefeated?0:Settings.HopHeight*(.5f+.5f*FMath::Sin(Now*9+PhaseOffset))*(1-Hit);
     const float Squash=(Winding?.82f:1.f)*(1-.23f*Hit);
-    const float DeathScale=bDefeated?FMath::Clamp(1.f-float(Now-HitAt)/.6f,0.f,1.f):1.f;
+    const float DeathAge=FMath::Max(0.f,float(Now-HitAt));
+    const bool PopDeath=bDefeated && Feedback->LastHit.bFatal && !ActorHasTag(TEXT("MC.LegacyCombatFeedback"));
+    const float DeathScale=PopDeath?(1+.12f*FMath::Sin(FMath::Clamp(DeathAge/.09f,0.f,1.f)*PI))
+        *(1-FMath::SmoothStep(.055f,.16f,DeathAge)):bDefeated?FMath::Clamp(1-DeathAge/.6f,0.f,1.f):1.f;
     Visual->SetRelativeScale3D(MeshScale*FVector(1.f/Squash,1.f/Squash,Squash)*DeathScale);
     Visual->SetRelativeLocation(VisualCenter+Recoil+FVector(0,0,Winding?0:Hop));
     for(UStaticMeshComponent* Eye:{LeftEye.Get(),RightEye.Get()})

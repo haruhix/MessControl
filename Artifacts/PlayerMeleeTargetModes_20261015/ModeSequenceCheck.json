@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "observed": {
+    "knife_food_hold": [
+      "overhead",
+      "overhead",
+      "overhead"
+    ],
+    "pickaxe_food_hold": [
+      "overhead",
+      "overhead",
+      "overhead"
+    ],
+    "mob_hold": [
+      1
+    ],
+    "mob_combo": [
+      1,
+      2,
+      3
+    ],
+    "boss_combo": [
+      1,
+      2,
+      3
+    ],
+    "food_to_enemy_hold": [
+      "overhead"
+    ]
+  },
+  "expected": {
+    "knife_food_hold": [
+      "overhead",
+      "overhead",
+      "overhead"
+    ],
+    "pickaxe_food_hold": [
+      "overhead",
+      "overhead",
+      "overhead"
+    ],
+    "mob_hold": [
+      1
+    ],
+    "mob_combo": [
+      1,
+      2,
+      3
+    ],
+    "boss_combo": [
+      1,
+      2,
+      3
+    ],
+    "food_to_enemy_hold": [
+      "overhead"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "map": "/Game/Maps/L_Mouth.L_Mouth",
+  "pie": "None",
+  "dirty_content": [],
+  "dirty_maps": [],
+  "fixed_fps_enabled": false,
+  "fixed_fps": 30.0,
+  "throttle_background": true,
+  "source_sha256": {
+    "Source/MessControl/Private/MCMeleeCombo.cpp": "d885951fb10e954c1428d5e95e790005237a3b525e7ef96487b09d9dab3e414e",
+    "Source/MessControl/Private/MCMeleeCombo.h": "d4656fc83fbcd294d263f2cec4be302ab7b2e77f4b57837832542e6c7d15285e",
+    "Source/MessControl/Private/MCToothCharacter.cpp": "6a3dcd7527e378f58ea6b93ae1c5d8714060c4320b2c6e653bcaaf5795e139ed",
+    "Source/MessControl/Public/MCToothCharacter.h": "30dea9571884c4fe682589604ba8fd8d6eed40f6633cbd7ab156c010ef2e5174"
+  },
+  "authorized_menu_preserved": true,
+  "integration": "Cold Development Editor module compile and clean restart; no game cook/package."
+}

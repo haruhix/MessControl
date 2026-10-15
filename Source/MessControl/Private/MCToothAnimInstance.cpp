@@ -1,5 +1,7 @@
 ﻿#include "MCToothAnimInstance.h"
 #include "MCToothCharacter.h"
+#include "MCWeaponImpact.h"
+#include "MCMeleeCombo.h"
 #include "MCInventoryComponent.h"
 #include "MCToothPhysicsComponent.h"
 #include "MCGazeComponent.h"
@@ -909,7 +911,12 @@ public:
         const auto* Tooth=Cast<AMCToothCharacter>(Instance->TryGetPawnOwner());
         const auto* Mesh=Instance->GetSkelMeshComponent()->GetSkeletalMeshAsset();
         if (!Tooth || !Mesh) return;
-        const auto& Ref=Mesh->GetRefSkeleton(); Pose=Ref.GetRefBonePose();
+        const auto& Ref=Mesh->GetRefSkeleton();
+        // Hold only the rendered contact pose for two or three frames. Input,
+        // movement, target health and the authoritative swing timer keep running.
+        if(Pose.Num()==Ref.GetNum() && Tooth->ToothPhysics->CanAct()
+            && Tooth->Inventory->ShouldPresentTool() && MCWeaponImpact::IsPoseHeld(Tooth)) return;
+        Pose=Ref.GetRefBonePose();
         DashPoseProgress=-1;
         TArray<FTransform> ReferenceCS; ReferenceCS.SetNum(Pose.Num());
         for (int32 I=0;I<Pose.Num();++I) ReferenceCS[I]=Ref.GetParentIndex(I)>=0?Pose[I]*ReferenceCS[Ref.GetParentIndex(I)]:Pose[I];
@@ -959,18 +966,28 @@ public:
         // Hold the ready pose across repeated swings. Only losing the aimed
         // cycle fades to the normal grip, rather than dropping it every hit.
         const bool AimedCalculus=CalculusAllowed && (CalculusContact || CalculusBlend>.001f);
+        const auto ComboPose=MCMeleeCombo::Sample(Tooth,MCWeaponImpact::VisualSwingElapsed(Tooth));
+        const bool Combo=WideSwing && !AimedCalculus && ComboPose.bActive;
         Rotate(TEXT("arm_r"),FRotator(FMath::Clamp(((WideSwing || BufferTool)?0:Tooth->AnimationBrushAngle)+FMath::Sin(G-.25f)*18*Speed-Tooth->AnimationInertia.X*8,-60.f,65.f),0,10+Tooth->AnimationSlip*18));
-        Rotate(TEXT("hand_r"),FRotator(FMath::Clamp(((AimedCalculus || BufferTool)?-12.f*A.Exaggeration:Tooth->AnimationBrushAngle)*(WideSwing?1.f:.3f),WideSwing?-115.f:-35.f,WideSwing?115.f:35.f),0,0));
+        Rotate(TEXT("hand_r"),Combo?ComboPose.Wrist:FRotator(FMath::Clamp(((AimedCalculus || BufferTool)?-12.f*A.Exaggeration:Tooth->AnimationBrushAngle)*(WideSwing?1.f:.3f),WideSwing?-115.f:-35.f,WideSwing?115.f:35.f),0,0));
         // The current character has compact floating mittens. Move the wrist branch
         // through a visible overhead arc while preserving palm/finger proportions.
         if(WideSwing && !AimedCalculus && !Tooth->AnimationToolOffset.IsNearlyZero()) {
             Translate(TEXT("forearm_r"),Tooth->GetMesh()->GetComponentTransform().InverseTransformVectorNoScale(Tooth->AnimationToolOffset));
-            Rotate(TEXT("body"),FRotator(Tooth->AnimationToolOffset.X*.10f,0,-Tooth->AnimationToolOffset.Z*.04f));
-            Rotate(TEXT("arm_l"),FRotator(-Tooth->AnimationToolOffset.Z*.22f,0,-Tooth->AnimationToolOffset.Z*.10f));
+            if(!Combo) {
+                Rotate(TEXT("body"),FRotator(Tooth->AnimationToolOffset.X*.10f,0,-Tooth->AnimationToolOffset.Z*.04f));
+                Rotate(TEXT("arm_l"),FRotator(-Tooth->AnimationToolOffset.Z*.22f,0,-Tooth->AnimationToolOffset.Z*.10f));
+            }
+        }
+        if(Combo) {
+            Rotate(TEXT("body"),FRotator(-ComboPose.Lean,ComboPose.Twist,ComboPose.Side));
+            Translate(TEXT("body"),Tooth->StandingMeshTransform().InverseTransformVectorNoScale(FVector(ComboPose.Lean*.25f,0,-ComboPose.Lean*.10f)));
+            Rotate(TEXT("gaze_head"),FRotator(ComboPose.Lean*.25f,-ComboPose.Twist*.15f,0));
+            Rotate(TEXT("arm_l"),FRotator(ComboPose.Support,0,-ComboPose.Lean*.35f));
         }
         if(AimedCalculus && !BufferTool) {
             const float Rate=PickaxePlayRate*Tooth->Inventory->RogueAttackRate();
-            const float T=Tooth->GetToolSwingElapsed()*Rate,Contact=Tooth->Inventory->SwingContactTime()*Rate;
+            const float T=MCWeaponImpact::VisualSwingElapsed(Tooth)*Rate,Contact=Tooth->Inventory->SwingContactTime()*Rate;
             const float WindEnd=FMath::Max(.1f,Contact-.14f);
             const float Wind=FMath::SmoothStep(0.f,WindEnd,T)*(1-FMath::SmoothStep(WindEnd,Contact,T));
             const float Impact=FMath::SmoothStep(WindEnd,Contact,T)*(1-FMath::SmoothStep(Contact,Contact+.10f,T));
@@ -984,6 +1001,12 @@ public:
             Rotate(TEXT("body"),FRotator(4*CalculusBlend+.8f*Kick,0,.35f*FMath::Sin(Time*53)*CalculusBlend));
             Translate(TEXT("body"),Tooth->StandingMeshTransform().InverseTransformVectorNoScale(FVector(-.25f*Kick,0,.12f*FMath::Cos(Time*59)*CalculusBlend)));
             Rotate(TEXT("gaze_head"),FRotator(-.3f*Kick,0,0));
+        }
+        if(WideSwing && Tooth->ToothPhysics->CanAct()) {
+            const float Recoil=MCWeaponImpact::Recoil(Tooth);
+            Rotate(TEXT("body"),FRotator(-9*Recoil,0,2*Recoil));
+            Translate(TEXT("body"),Tooth->StandingMeshTransform().InverseTransformVectorNoScale(FVector(-7*Recoil,0,1.5f*Recoil)));
+            Rotate(TEXT("arm_l"),FRotator(8*Recoil,0,-4*Recoil));
         }
         if(Tooth->Inventory && Tooth->Inventory->SelectedUpgrade()==EMCToolUpgrade::Watergun && Tooth->Inventory->ShouldPresentTool()) {
             const float Recoil=Tooth->Inventory->WaterRecoil();
@@ -1065,6 +1088,18 @@ public:
                     const FTransform ParentWorld=Parent<0?MeshWorld:CS[Parent]*MeshWorld;
                     Pose[Arm].AddToTranslation(ParentWorld.InverseTransformVector(Correction));
                 }
+            }
+        }
+        if(Combo && ComboPose.ToolRotationAlpha>0 && Tooth->ToothPhysics->CanAct()) {
+            const int32 Hand=Ref.FindBoneIndex(Tooth->RigBone(TEXT("hand_r")));
+            if(Hand>=0) {
+                TArray<FTransform> CS;CS.SetNum(Pose.Num());
+                for(int32 I=0;I<Pose.Num();++I) CS[I]=Ref.GetParentIndex(I)<0?Pose[I]:Pose[I]*CS[Ref.GetParentIndex(I)];
+                const int32 Parent=Ref.GetParentIndex(Hand);
+                const FQuat ParentWorld=(Parent<0?Tooth->GetMesh()->GetComponentTransform():CS[Parent]*Tooth->GetMesh()->GetComponentTransform()).GetRotation();
+                const FQuat ToolWorld=Tooth->GetActorQuat()*ComboPose.ToolRotation;
+                const FQuat Local=ParentWorld.Inverse()*Tooth->Inventory->ToolHandRotation(ToolWorld);
+                Pose[Hand].SetRotation(FQuat::Slerp(Pose[Hand].GetRotation(),Local,ComboPose.ToolRotationAlpha).GetNormalized());
             }
         }
         UpgradeSupportPose(Tooth,Ref,Dt);

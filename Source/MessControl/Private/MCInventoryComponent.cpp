@@ -1,6 +1,8 @@
 #include "MCInventoryComponent.h"
 #include "MCPerkComponent.h"
 #include "MCToothCharacter.h"
+#include "MCMeleeCombo.h"
+#include "MCWeaponTrailComponent.h"
 #include "MCToothMovementComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCFoodActor.h"
@@ -67,6 +69,8 @@ void UMCInventoryComponent::BeginPlay()
         Hero->AddInstanceComponent(Mesh); Mesh->RegisterComponent(); return Mesh;
     };
     Tool=Part(TEXT("InventoryTool")); Detail=Part(TEXT("InventoryDetail"));
+    auto* Trail=NewObject<UMCWeaponTrailComponent>(Hero,TEXT("WeaponSwingTrail"));
+    Hero->AddInstanceComponent(Trail);Trail->RegisterComponent();
     if(auto* System=LoadObject<UNiagaraSystem>(nullptr,TEXT("/Game/Gameplay/VFX/NS_SprayMist.NS_SprayMist"))) {
         SprayMist=NewObject<UNiagaraComponent>(Hero,TEXT("TreatmentSprayNiagara"));
         SprayMist->SetupAttachment(Hero->GetRootComponent());SprayMist->SetAutoActivate(false);
@@ -91,6 +95,7 @@ void UMCInventoryComponent::ServerSelect_Implementation(EMCToolSlot Slot)
     }
     CancelUpgradeUse();
     Hero->FoodCollection->Stop();
+    MCMeleeCombo::Reset(Hero);
     Hero->ServerSetPrimary(false); Hero->ResetContact(); Hero->bSelfCare=false;
     Selected=Slot; GetOwner()->ForceNetUpdate();
 }
@@ -115,6 +120,22 @@ bool UMCInventoryComponent::CanBreak(const AMCFoodActor* Food) const
     return IsValid(Food) && !Food->bBrushTool && !Food->IsDisposed()
         && (Selected==EMCToolSlot::Pickaxe?Food->IsHardFood():Selected==EMCToolSlot::Knife && !Food->IsHardFood());
 }
+bool UMCInventoryComponent::MeleeTrailSpan(FVector& Base,FVector& Tip) const
+{
+    if(!Tool || !Tool->GetStaticMesh() || !ShouldPresentTool() || SelectedUpgrade()!=EMCToolUpgrade::None) return false;
+    const FBox Bounds=Tool->GetStaticMesh()->GetBoundingBox();
+    const float Y=Bounds.GetCenter().Y;
+    FVector A,B;
+    if(Selected==EMCToolSlot::Knife) {
+        const float Z=FMath::Lerp(Bounds.Min.Z,Bounds.Max.Z,.10f);
+        A=FVector(FMath::Lerp(Bounds.Min.X,Bounds.Max.X,.42f),Y,Z);B=FVector(Bounds.Max.X,Y,Z);
+    } else if(Selected==EMCToolSlot::Pickaxe) {
+        A=FVector(FMath::Lerp(Bounds.Min.X,Bounds.Max.X,.48f),Y,-8);
+        B=FVector(FMath::Lerp(Bounds.Min.X,Bounds.Max.X,.77f),Y,Bounds.Min.Z);
+    } else return false;
+    Base=Tool->GetComponentTransform().TransformPosition(A);Tip=Tool->GetComponentTransform().TransformPosition(B);
+    return !Base.ContainsNaN() && !Tip.ContainsNaN();
+}
 float UMCInventoryComponent::Damage() const
 {
     if(Selected==EMCToolSlot::Knife && HasUpgrade(EMCToolUpgrade::Chainsaw)) return 2.f*FMath::Max(1.f,Settings?Settings->PickaxeDamage:40.f);
@@ -122,8 +143,8 @@ float UMCInventoryComponent::Damage() const
     return FMath::Max(1.f,Selected==EMCToolSlot::Pickaxe?(Settings?Settings->PickaxeDamage:40.f):(Settings?Settings->KnifeDamage:25.f));
 }
 float UMCInventoryComponent::SwingPlayRate(EMCToolSlot Slot) { return Slot==EMCToolSlot::Pickaxe?1.05f/.65f:1.f; }
-float UMCInventoryComponent::SwingDuration() const { return (Selected==EMCToolSlot::Pickaxe?1.05f:Selected==EMCToolSlot::Knife?.70f:.85f)/(SwingPlayRate(Selected)*RogueAttackRate()); }
-float UMCInventoryComponent::SwingContactTime() const { return (Selected==EMCToolSlot::Pickaxe?.38f:Selected==EMCToolSlot::Knife?.28f:.16f)/(SwingPlayRate(Selected)*RogueAttackRate()); }
+float UMCInventoryComponent::SwingDuration() const { const float Combo=MCMeleeCombo::Duration(Hero);return Combo>0?Combo:(Selected==EMCToolSlot::Pickaxe?1.05f:Selected==EMCToolSlot::Knife?.70f:.85f)/(SwingPlayRate(Selected)*RogueAttackRate()); }
+float UMCInventoryComponent::SwingContactTime() const { const float Combo=MCMeleeCombo::ContactTime(Hero);return Combo>0?Combo:(Selected==EMCToolSlot::Pickaxe?.38f:Selected==EMCToolSlot::Knife?.28f:.16f)/(SwingPlayRate(Selected)*RogueAttackRate()); }
 float UMCInventoryComponent::SwingAngle(EMCToolSlot Slot,float T)
 {
     T*=SwingPlayRate(Slot);

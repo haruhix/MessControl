@@ -19,6 +19,8 @@
 #include "MCToothCalculusComponent.h"
 #include "MCToothStatusComponent.h"
 #include "MCCombatFeedbackComponent.h"
+#include "MCWeaponImpact.h"
+#include "MCMeleeCombo.h"
 #include "MCFoodActor.h"
 #include "MCGameMode.h"
 #include "MCTutorialDirector.h"
@@ -922,17 +924,26 @@ void AMCToothCharacter::ServerSetPrimary_Implementation(bool bActive)
     {
         ClingTooth=nullptr; bBrushing=false; bHandling=false; DropFood(); ResetContact();
     }
-    else ResolvePrimaryAction();
+    else ResolvePrimaryAction(NewPrimaryPress);
     Inventory->UpdateWatergunInput();
     ForceNetUpdate();
 }
-void AMCToothCharacter::ResolvePrimaryAction()
+void AMCToothCharacter::ResolvePrimaryAction(bool bNewPress)
 {
     if(FoodCollection->bCollecting) return;
-    if (!bPrimaryHeld || !CanWork() || GetWorld()->GetTimeSeconds()<NextSwingTime-.3f) return;
+    if (!bPrimaryHeld || !CanWork()) return;
     if(HeldFood && HeldFood->FoodData.Kind==EMCFoodKind::Spicy) {
         bHandling=true;bBrushing=false;return;
     }
+    const bool Mining=Inventory->Selected==EMCToolSlot::Pickaxe && IsValid(CalculusTarget)
+        && CalculusTarget->Calculus && CalculusTarget->Calculus->HasCalculus();
+    if(!bInCoffee && MCMeleeCombo::Supports(this) && !Mining) {
+        // Combat consumes press edges. Only a reachable food target repeats
+        // while held, and only after the current swing has fully recovered.
+        if(bNewPress || (GetWorld()->GetTimeSeconds()>=NextSwingTime && WantsFoodChop())) ServerSwingBrush();
+        return;
+    }
+    if(GetWorld()->GetTimeSeconds()<NextSwingTime-.3f) return;
     if(!bInCoffee && !Inventory->IsCleaningTool()) {
         if(Inventory->IsChainsawRunning()) {bBrushing=false;bHandling=false;return;}
         if(Inventory->Selected==EMCToolSlot::Spray) Inventory->ServerSpray();
@@ -1077,6 +1088,7 @@ void AMCToothCharacter::FindWork(float DeltaSeconds)
 void AMCToothCharacter::Tick(float DeltaSeconds)
 {
     Super::Tick(DeltaSeconds);
+    if(MCMeleeCombo::ConsumeBufferedPress(this)) ServerSwingBrush();
     UpdateRowing(DeltaSeconds);
     if(IsFreezingToDeath())
     {
@@ -1181,9 +1193,11 @@ void AMCToothCharacter::Tick(float DeltaSeconds)
     GetMesh()->SetMorphTarget(TEXT("Stretch"),ToothPhysics->CanAct()?FMath::Clamp(Stretch/0.28f,0.f,1.f)*(1-GripBlend):0.f);
     const float Bob = bAir ? 0.f : (FMath::Abs(FMath::Sin(Gait))-.5f)*A.Bob*Speed*(1-.5f*AnimationSticky) + FMath::Sin(Time*2.f)*0.7f;
     const float Pitch = Speed*A.Lean + Anticipation*15.f + (bHandling && !HeldFood && !Grip->GrabbedPlayer && AnimationClimb<.05f ? FMath::Sin(Time*13.f)*7.f : 0.f);
-    const float AttackTime=GetToolSwingElapsed()*Inventory->RogueAttackRate();
-    AnimationToolOffset=GetActorRotation().RotateVector(UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime));
-    const float AttackAngle=UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
+    const float VisualElapsed=MCWeaponImpact::VisualSwingElapsed(this);
+    const auto ComboPose=MCMeleeCombo::Sample(this,VisualElapsed);
+    const float AttackTime=VisualElapsed*Inventory->RogueAttackRate();
+    AnimationToolOffset=GetActorRotation().RotateVector(ComboPose.bActive?ComboPose.HandOffset:UMCInventoryComponent::SwingOffset(Inventory->Selected,AttackTime));
+    const float AttackAngle=ComboPose.bActive?ComboPose.Wrist.Pitch:UMCInventoryComponent::SwingAngle(Inventory->Selected,AttackTime);
     const float Swing = AttackTime<Inventory->SwingDuration()?AttackAngle:bVisualBrush ? -35.f + FMath::Sin(WorkTime*18.f*A.Tempo)*65.f*(1.f-Anticipation) : bHandling ? 35.f : -12.f;
     const bool ChoppingTool=Inventory->Selected==EMCToolSlot::Pickaxe || Inventory->Selected==EMCToolSlot::Knife;
     BrushAngle = FMath::FInterpTo(BrushAngle,Swing,DeltaSeconds,ChoppingTool?25.f*UMCInventoryComponent::SwingPlayRate(Inventory->Selected):18.f-12.f*A.FollowThrough);
@@ -1234,12 +1248,15 @@ void AMCToothCharacter::SwingBrush()
 void AMCToothCharacter::ServerSwingBrush_Implementation()
 {
     const float Now=GetWorld()->GetTimeSeconds();
-    if (bRowing || !CanWork() || Now<NextSwingTime) return;
+    if (bRowing || !CanWork()) return;
+    if(Now<NextSwingTime) {MCMeleeCombo::QueuePress(this);return;}
     if(Inventory->Selected==EMCToolSlot::Knife && Inventory->HasUpgrade(EMCToolUpgrade::Chainsaw)) return;
     Grip->ReleaseBrace();
     if(Inventory->Selected==EMCToolSlot::Spray) { Inventory->ServerSpray(); return; }
     FVector Point=FVector::ZeroVector,Normal=FVector::UpVector;
     CalculusTarget=Inventory->Selected==EMCToolSlot::Pickaxe && !Inventory->HasUpgrade(EMCToolUpgrade::Buffer)?FindCalculusTarget(Point,Normal):nullptr;
+    const uint8 ComboStep=!CalculusTarget && WantsFoodChop()?MCMeleeCombo::BeginFoodChop(this)
+        :MCMeleeCombo::BeginSwing(this,!CalculusTarget && MCMeleeCombo::Supports(this));
     CalculusContactLocal=CalculusTarget?CalculusTarget->Visual->GetComponentTransform().InverseTransformPosition(Point):FVector::ZeroVector;
     const FTransform Surface=CalculusTarget?CalculusTarget->Visual->GetComponentTransform():FTransform::Identity;
     CalculusNormalLocal=CalculusTarget?(Surface.InverseTransformVectorNoScale(Normal)*Surface.GetScale3D()).GetSafeNormal():FVector::UpVector;
@@ -1247,19 +1264,26 @@ void AMCToothCharacter::ServerSwingBrush_Implementation()
     SwingStartedAt=GS?GS->GetServerWorldTimeSeconds():Now;
     NextSwingTime=Now+Inventory->SwingDuration(); ++ValidatedSwingCount;
     bBrushing=false; bHandling=false; DropFood(); ForceNetUpdate();
-    MulticastSwing(SwingStartedAt,CalculusTarget,CalculusContactLocal,CalculusNormalLocal,uint8(Inventory->Selected));
+    // Lower nibble keeps the tool identity; upper nibble carries 0..3 for combat
+    // or 4 for food's repeatable overhead chop,
+    // through the existing reliable event without changing its reflected signature.
+    MulticastSwing(SwingStartedAt,CalculusTarget,CalculusContactLocal,CalculusNormalLocal,uint8(Inventory->Selected)|(ComboStep<<4));
     ResetContact();
     SwingContactEndsAt=Now+Inventory->SwingContactTime()+.12f;
     GetWorldTimerManager().SetTimer(SwingTimer,this,&AMCToothCharacter::ResolveSwing,Inventory->SwingContactTime(),false);
 }
 void AMCToothCharacter::MulticastSwing_Implementation(double StartedAt,AMCArenaTooth* AimTooth,FVector LocalPoint,FVector LocalNormal,uint8 ToolSlot)
 {
+    MCMeleeCombo::PresentSwing(this,ToolSlot&15,ToolSlot>>4);
+    ToolSlot&=15;
+    MCWeaponImpact::BeginSwing(this);
     SwingStartedAt=StartedAt; CalculusTarget=AimTooth; CalculusContactLocal=LocalPoint; CalculusNormalLocal=LocalNormal;
     const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeSwing")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeSwing")):FName(TEXT("Whoosh"));
     if(SoundPalette) SoundPalette->PlayWithParameters(this,Event,GetActorLocation(),.65f,.5f);
 }
 void AMCToothCharacter::MulticastHitSound_Implementation(FVector Location,uint8 ToolSlot,float Intensity)
 {
+    MCWeaponImpact::ConfirmSwing(this,ToolSlot);
     if(IsLocallyControlled() && IsPlayerControlled()) if(auto* PlayerCamera=Cast<UMCPlayerCameraComponent>(Camera))
         PlayerCamera->AddCombatConfirm(.35f+.65f*FMath::Clamp(Intensity,0.f,1.f));
     const FName Event=ToolSlot==uint8(EMCToolSlot::Knife)?FName(TEXT("KnifeHit")):ToolSlot==uint8(EMCToolSlot::Pickaxe)?FName(TEXT("PickaxeHit")):FName(TEXT("Hit"));
@@ -1311,6 +1335,52 @@ AMCArenaTooth* AMCToothCharacter::FindCalculusTarget(FVector& Point,FVector& Nor
         if(D<Distance) {Best=*It;Distance=D;Point=P;Normal=N;}
     }
     return Best;
+}
+AActor* AMCToothCharacter::FindMeleeEnemyTarget() const
+{
+    if(!Inventory || Inventory->IsCleaningTool()) return nullptr;
+    const float ReachSquared=FMath::Square(Inventory->MeleeReach());
+    AMCNutEnemy* Nut=nullptr;float Best=ReachSquared;
+    for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
+        if(!It->CanReceiveToolHit()) continue;
+        const FVector Offset=It->GetToolTargetPoint(GetActorLocation())-GetActorLocation();
+        if(Offset.SizeSquared()<Best && FMath::Abs(Offset.Z)<120
+            && FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())>.15f && CanContact(*It)) {
+            Nut=*It;Best=Offset.SizeSquared();
+        }
+    }
+    if(Nut) return Nut;
+    AMCBossCharacter* Boss=nullptr;Best=ReachSquared;
+    for(TActorIterator<AMCBossCharacter> It(GetWorld());It;++It) {
+        const FVector Point=It->GetMeleeTargetPoint(GetActorLocation());
+        const FVector Offset=Point-GetActorLocation(),Aim=It->GetActorLocation()-GetActorLocation();
+        if(!It->CanReceiveWeaponHit() || Offset.SizeSquared2D()>=Best || FMath::Abs(Offset.Z)>120
+            || FVector::DotProduct(GetActorForwardVector(),Aim.GetSafeNormal2D())<.25f) continue;
+        FHitResult Hit;FCollisionQueryParams Query(SCENE_QUERY_STAT(MCBossWeaponHit),false,this);Query.AddIgnoredActor(*It);
+        if(GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),Point,ECC_Visibility,Query)) continue;
+        Boss=*It;Best=Offset.SizeSquared2D();
+    }
+    return Boss;
+}
+AMCFoodActor* AMCToothCharacter::FindMeleeFoodTarget() const
+{
+    if(!Inventory) return nullptr;
+    AMCFoodActor* Food=nullptr;float Best=FMath::Square(Inventory->MeleeReach());
+    for(TActorIterator<AMCFoodActor> It(GetWorld());It;++It) {
+        if(!Inventory->CanBreak(*It) || It->Phase==EMCFoodPhase::Swallowing) continue;
+        FHitResult Contact;
+        if(!It->FindToolContact(this,Inventory->MeleeReach(),Contact)) continue;
+        const float Distance=FVector::DistSquared(GetActorLocation(),Contact.ImpactPoint);
+        if(Distance>=Best) continue;
+        Food=*It;Best=Distance;
+    }
+    return Food;
+}
+bool AMCToothCharacter::WantsFoodChop() const
+{
+    // Use the same reach, facing and occlusion rules as contact resolution.
+    // A boss or small enemy in front keeps combat active beside loose food.
+    return MCMeleeCombo::Supports(this) && !FindMeleeEnemyTarget() && FindMeleeFoodTarget();
 }
 void AMCToothCharacter::ResolveSwing()
 {
@@ -1382,25 +1452,21 @@ void AMCToothCharacter::ResolveSwing()
         }
         if(BestIce && BestIce->HitWithPickaxe(this,Inventory->Damage())) { ++ConfirmedHitCount; MulticastHitSound(BestIce->GetActorLocation(),AudioTool,HitIntensity); if(BestIce->bBroken) NotifyTaskFeedback(true,BestIce->GetActorLocation()); return; }
     }
-    if(!Inventory->IsCleaningTool()) {
-        AMCNutEnemy* BestNut=nullptr; float Distance=FMath::Square(Inventory->MeleeReach());
-        for(TActorIterator<AMCNutEnemy> It(GetWorld());It;++It) {
-            if(!It->CanReceiveToolHit()) continue;
-            const FVector Offset=It->GetToolTargetPoint(GetActorLocation())-GetActorLocation();
-            if(Offset.SizeSquared()<Distance && FMath::Abs(Offset.Z)<120 && FVector::DotProduct(Offset.GetSafeNormal2D(),GetActorForwardVector())>.15f && CanContact(*It)) {BestNut=*It;Distance=Offset.SizeSquared();}
+    const bool FoodChop=MCMeleeCombo::IsFoodChop(this);
+    if(auto* Enemy=FoodChop?nullptr:FindMeleeEnemyTarget()) {
+        if(auto* Nut=Cast<AMCNutEnemy>(Enemy)) {
+            if(Nut->ReceiveToolDamage(Inventory->Damage(),this)>0) {
+                ++ConfirmedHitCount;MulticastHitSound(Nut->GetActorLocation(),AudioTool,HitIntensity);
+            }
+        } else if(auto* Boss=Cast<AMCBossCharacter>(Enemy)) {
+            if(Boss->ReceiveBossDamage(Inventory->Damage(),this)>0) {
+                ++ConfirmedHitCount;MulticastHitSound(Boss->GetMeleeTargetPoint(GetActorLocation()),AudioTool,HitIntensity);
+            }
         }
-        if(BestNut && BestNut->ReceiveToolDamage(Inventory->Damage(),this)>0) {++ConfirmedHitCount;MulticastHitSound(BestNut->GetActorLocation(),AudioTool,HitIntensity);return;}
+        return;
     }
-    AMCFoodActor* FoodTarget=nullptr; float FoodDistance=FMath::Square(Inventory->MeleeReach());
-    for (TActorIterator<AMCFoodActor> It(GetWorld());It;++It)
-    {
-        if (!Inventory->CanBreak(*It) || It->Phase==EMCFoodPhase::Swallowing) continue;
-        FHitResult Contact;
-        if (!It->FindToolContact(this,Inventory->MeleeReach(),Contact)) continue;
-        const float Distance=FVector::DistSquared(GetActorLocation(),Contact.ImpactPoint);
-        if (Distance>=FoodDistance) continue;
-        FoodTarget=*It; FoodDistance=Distance;
-    }
+    // A combat sweep that moves into food mid-swing must not cut it sideways.
+    auto* FoodTarget=(!MCMeleeCombo::Supports(this) || FoodChop)?FindMeleeFoodTarget():nullptr;
     if (FoodTarget)
     {
         if (FoodTarget->HitFood(Inventory->Damage(),GetActorForwardVector(),this))
@@ -1410,6 +1476,7 @@ void AMCToothCharacter::ResolveSwing()
         }
         return;
     }
+    if(FoodChop) return;
     AMCToothCharacter* Target=nullptr; float Best=FMath::Square(Inventory->MeleeReach());
     for (TActorIterator<AMCToothCharacter> It(GetWorld());It;++It)
     {
@@ -1422,24 +1489,6 @@ void AMCToothCharacter::ResolveSwing()
         Target=*It; Best=Offset.SizeSquared2D();
     }
     AMCArenaTooth* ArenaTarget=nullptr;
-    AMCBossCharacter* BossTarget=nullptr;
-    if (!Inventory->IsCleaningTool()) for (TActorIterator<AMCBossCharacter> It(GetWorld());It;++It)
-    {
-        const FVector Point=It->GetMeleeTargetPoint(GetActorLocation());
-        const FVector Offset=Point-GetActorLocation();
-        const FVector AimOffset=It->GetActorLocation()-GetActorLocation();
-        if (!It->CanReceiveWeaponHit() || Offset.SizeSquared2D()>=Best || FMath::Abs(Offset.Z)>120
-            || FVector::DotProduct(GetActorForwardVector(),AimOffset.GetSafeNormal2D())<.25f) continue;
-        FHitResult Hit; FCollisionQueryParams Query(SCENE_QUERY_STAT(MCBossWeaponHit),false,this); Query.AddIgnoredActor(*It);
-        if (GetWorld()->LineTraceSingleByChannel(Hit,GetActorLocation(),Point,ECC_Visibility,Query)) continue;
-        BossTarget=*It; Best=Offset.SizeSquared2D();
-    }
-    if (BossTarget)
-    {
-        if (BossTarget->ReceiveBossDamage(Inventory->Damage(),this)>0.f)
-        { ++ConfirmedHitCount; MulticastHitSound(BossTarget->GetMeleeTargetPoint(GetActorLocation()),AudioTool,HitIntensity); }
-        return;
-    }
     if(Inventory->IsCleaningTool()) for (TActorIterator<AMCArenaTooth> It(GetWorld());It;++It)
     {
         const FVector Offset=It->GetActorLocation()-GetActorLocation();

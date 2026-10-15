@@ -1,0 +1,34 @@
+{
+  "preview": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ToothAttackFeel_20261015\\preview.mp4",
+  "clips": [
+    {
+      "case": "knife",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ToothAttackFeel_20261015\\knife.mp4",
+      "captured": 66,
+      "requested": 66,
+      "first_time": 0.01666666567325592,
+      "last_time": 1.0999999344348907,
+      "full_decode": true
+    },
+    {
+      "case": "pickaxe",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ToothAttackFeel_20261015\\pickaxe.mp4",
+      "captured": 66,
+      "requested": 66,
+      "first_time": 0.01666666567325592,
+      "last_time": 1.0999999344348907,
+      "full_decode": true
+    },
+    {
+      "case": "fatal",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\ToothAttackFeel_20261015\\fatal.mp4",
+      "captured": 66,
+      "requested": 66,
+      "first_time": 0.01666666567325592,
+      "last_time": 1.0999999344348907,
+      "full_decode": true
+    }
+  ],
+  "audio": "Silent screenshot preview; actual impact event paths separately verified in the engine log.",
+  "source": "Genuine solo PIE frames; no generated imagery or pose interpolation. Encoding PNG copies have pixel-identical RGBA contents."
+}

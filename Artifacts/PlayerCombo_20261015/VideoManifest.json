@@ -1,0 +1,29 @@
+{
+  "preview": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerCombo_20261015\\preview.mp4",
+  "clips": [
+    {
+      "case": "knife_combo",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerCombo_20261015\\knife_combo.mp4",
+      "captured_frames": 147,
+      "hit_times": [
+        0.43333330750465393,
+        1.066666603088379,
+        1.7999998927116394
+      ],
+      "full_decode": true
+    },
+    {
+      "case": "pickaxe_combo",
+      "video": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerCombo_20261015\\pickaxe_combo.mp4",
+      "captured_frames": 147,
+      "hit_times": [
+        0.43333330750465393,
+        1.1166666001081467,
+        1.866666555404663
+      ],
+      "full_decode": true
+    }
+  ],
+  "audio": "Silent gameplay preview. Native swing/hit audio events are verified separately in the engine log.",
+  "source": "Genuine solo PIE SceneCapture frames; no generated or interpolated poses. Encoder PNG copies retain every RGBA pixel."
+}

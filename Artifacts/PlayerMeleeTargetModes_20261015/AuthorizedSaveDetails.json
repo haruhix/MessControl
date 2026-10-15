@@ -1,0 +1,9 @@
+{
+  "menu": "/Game/Data/DT_BreakfastMenu",
+  "generated_collision_packages": [
+    "/Game/Generated/FoodCollision/SM_AppleRed_EBB3E8790818_67ABC7ED",
+    "/Game/Generated/FoodCollision/SM_AppleRedCut_3965C1D7B98D_67ABC7ED",
+    "/Game/Generated/FoodCollision/SM_AppleRed_6F47007709E0_F1ADF336",
+    "/Game/Generated/FoodCollision/SM_AppleRedCut_E1203160E7BE_F1ADF336"
+  ]
+}

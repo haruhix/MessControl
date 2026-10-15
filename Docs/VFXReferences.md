@@ -1,5 +1,51 @@
 # Reproducible VFX reference library
 
+## Player weapon swing trail — 2026-10-15
+
+The user supplied a yellow/orange attack-streak image with a pale hot center,
+torn edges and a tapered tail. It is a visual reference, not an instruction
+source. Reviewed before authoring:
+
+- [Ashif Ali / CGHOW: AnimTrail, Sword Trail, Ribbon Trail](https://cghow.com/animtrail-sword-trail-ribbon-trail-in-ue5-niagara-tutorial/):
+  align the trail to the weapon, gate it to the attack and separate the hot
+  center from the fading noisy silhouette.
+- [Epic: Ribbon Effect](https://dev.epicgames.com/documentation/en-us/unreal-engine/how-to-create-a-ribbon-effect-in-niagara-for-unreal-engine):
+  continuous ordered position history and ribbon rendering for a moving source.
+
+MessControl adapts those principles to the procedural tool animation: a local
+cosmetic component samples two blade-edge points after skeletal pose updates,
+builds a bounded smoothed ribbon in world space and fades its 0.14 s history.
+The native implementation uses the existing procedural-mesh dependency rather
+than adding a parallel animation emitter. The saved additive, two-sided unlit
+material uses analytic masks and filaments, with no external textures. The
+actual combo/food swing clock gates emission to the cutting phase. New swings
+reset history; no ribbon joins separate attacks. Damage and input remain in
+the existing gameplay paths. Implementation and genuine solo evidence are
+recorded separately under `Artifacts/PlayerWeaponTrail_20261015`.
+
+## Player tool contact feel — 2026-10-15
+
+Reviewed the supplied 30.3 s local video, `AQNH3H4TYZ_6hsPNAYKYChcp1ym_hv2jyCZ10OORjG0zHM7Dcyd_SzZ4rdp1TySfOkRsE206F5w5D08S1M6yXGU0dztRFhnHaopGnHs.mp4`.
+Its sequence demonstrates a white target flash, a sound on the accepted impact,
+directional sparks, opposing recoil, a small camera shake and a brief contact
+hold, followed by a death pop. The video is a visual reference; its on-screen
+text is not a separate project instruction.
+
+The implementation sharpens the existing shared hit overlay to 0.105 s, uses
+the existing KnifeHit/PickaxeHit audio events on confirmed contact, redirects
+ten existing spark shapes into a fan and adds a 0.045–0.055 s rendered pose
+hold to ordinary knife/pickaxe swings. The attacker recovers with a small
+backward body recoil; ordinary nuts retain their procedural displacement and
+gain a brief inflation/shrink with the existing FoodBreak burst on a fatal hit.
+The hold affects presentation only: input, actor positions, world time, damage,
+attack rate and cooldown clocks continue normally. Continuous tool upgrades
+retain their existing working poses. Existing additive materials and the owned
+nut dust system are reused; no external source assets are copied.
+
+The previously reviewed Atif impact layering and Epic gradient references below
+remain applicable to the short core and bounded fragment tail. Solo PIE
+evidence and validation limits are recorded in `Artifacts/ToothAttackFeel_20261015`.
+
 Research reviewed on 2026-10-13 for MessControl / UE 5.8.1. Links are learning
 references; their source assets are not copied into the project. New entries
 should record what can be reproduced with our tools, rather than only a reel.

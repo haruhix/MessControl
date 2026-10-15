@@ -1,0 +1,7038 @@
+{
+  "passed": true,
+  "error": null,
+  "checks": [
+    {
+      "case": "knife_food_hold",
+      "passed": true,
+      "food_mob_boss_damage": [
+        75.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        75,
+        0,
+        0
+      ]
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "passed": true,
+      "food_mob_boss_damage": [
+        120.0,
+        0.0,
+        0.0
+      ],
+      "expected": [
+        120,
+        0,
+        0
+      ]
+    }
+  ],
+  "input": [
+    {
+      "case": "knife_food_hold",
+      "time": 0.21666665375232697,
+      "held": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.21666665375232697,
+      "held": true
+    }
+  ],
+  "samples": [
+    {
+      "case": "knife_food_hold",
+      "time": 0.01666666567325592,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.93239137070244
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.03333333134651184,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.930446292329485
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.04999999701976776,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.928231145311052
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.06666666269302368,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.925989951062853
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.0833333283662796,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.92391022579735
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.09999999403953552,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.92213597433632
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.11666665971279144,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.92077770369118
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.13333332538604736,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.919920052457506
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.14999999105930328,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.919627632070238
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.1666666567325592,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.91994955675667
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.18333332240581512,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.489738937662555,
+        60.04053806439983,
+        -15.876603089708986
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.19999998807907104,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.687814628915323,
+        59.86123543294608,
+        -16.390573051166612
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.21666665375232697,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.788299960495994,
+        59.813206418560476,
+        -16.59211909827912
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.23333331942558289,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.9958396088787436,
+        60.37300959796422,
+        -14.893372233964278
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.2499999850988388,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.678014255329647,
+        61.36606724849989,
+        -11.197430817308252
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.2666666507720947,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.9144466783511878,
+        62.890607145142795,
+        -5.141069832654047
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.28333331644535065,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.8516593508843098,
+        65.02688861734256,
+        3.15699809509627
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.29999998211860657,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.235566258941524,
+        67.62850598614727,
+        13.047445389125201
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.3166666477918625,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.835695879302953,
+        70.5309425392195,
+        24.05185287334534
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.3333333134651184,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -7.5556190280448385,
+        73.58650610852797,
+        35.68077300600643
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.34999997913837433,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.05700129802326,
+        76.64142251972613,
+        47.43969239385093
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.36666664481163025,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.692171766802653,
+        79.53226303625263,
+        58.85929257926391
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.38333331048488617,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.24926396070472,
+        82.12591715044074,
+        69.47812584744766
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.3999999761581421,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -7.651862456116898,
+        84.31267631450211,
+        78.80580651233389
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.416666641831398,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.958332501278702,
+        85.99229857972117,
+        86.33320116217844
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.43333330750465393,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.356086886790391,
+        87.06881112690519,
+        91.54684582148717
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.44999997317790985,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        2.799621617509873,
+        87.44890629871801,
+        93.94551152011125
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.46666663885116577,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        9.008744683382448,
+        86.31997231193236,
+        91.00116373591344
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.4833333045244217,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        21.394361467640156,
+        81.94650533699871,
+        77.3000469132683
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.4999999701976776,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        37.08512515401859,
+        75.56078012985851,
+        55.545533092049396
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5166666358709335,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        53.37066004271279,
+        68.49987794288745,
+        29.503703127647228
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5333333015441895,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        67.8976141870139,
+        62.06335005676893,
+        3.198119818888962
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5499999672174454,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        78.98773212052684,
+        57.27249241838557,
+        -18.895328063581218
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5666666328907013,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        85.07388548670797,
+        55.05581676379565,
+        -32.28743116602694
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5833332985639572,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779429,
+        55.5184644902321,
+        -34.99421695753971
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5999999642372131,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779429,
+        55.5184644902321,
+        -34.99421695753971
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.616666629910469,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779429,
+        55.5184644902321,
+        -34.99421695753971
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.633333295583725,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.98324854460212,
+        55.41776658493851,
+        -37.2665565849785
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.6499999612569809,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        70.12905363941336,
+        53.74856880109152,
+        -46.22272425886729
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.6666666269302368,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        55.05259948734191,
+        50.553623928552256,
+        -55.796625018357815
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.6833332926034927,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        40.15307563050003,
+        46.75288461336022,
+        -64.39706080011615
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.6999999582767487,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.749376834435438,
+        43.45105071128598,
+        -70.84780888179759
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7166666239500046,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.87441186514171,
+        41.7936606712409,
+        -73.86394330139647
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7333332896232605,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.1908307796442,
+        41.985259771396706,
+        -73.16933802934678
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7499999552965164,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        26.816423002253586,
+        42.5341804334716,
+        -71.23039184257489
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7666666209697723,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.074155635802683,
+        43.291862804927,
+        -68.40960134570243
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7833332866430283,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.600959519604643,
+        44.187122868904304,
+        -64.97105429273138
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7999999523162842,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.170894421430702,
+        45.17078442988032,
+        -61.156560306996155
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.8166666179895401,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        26.799068392558056,
+        46.22569228739044,
+        -57.121548976019355
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.833333283662796,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.00296182787575,
+        47.38366481493689,
+        -52.8010794561594
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.8499999493360519,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        22.870769447445113,
+        48.62901352359722,
+        -48.30073369289413
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.8666666150093079,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        20.42299692175088,
+        49.93802790628189,
+        -43.75536676066659
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.8833332806825638,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        17.70070939767048,
+        51.28697653788955,
+        -39.289784927328
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.8999999463558197,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        14.7656517672455,
+        52.65115281716637,
+        -35.01553915702401
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9166666120290756,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        11.69888921784512,
+        54.00396529942422,
+        -31.02832648929996
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9333332777023315,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        8.598244851759643,
+        55.316206305902526,
+        -27.406393217310182
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9499999433755875,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        5.574901359875509,
+        56.55559856343641,
+        -24.210332149319427
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9666666090488434,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        2.7493620933375778,
+        57.68676341419254,
+        -21.4843434845815
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9833332747220993,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        0.24728150289051265,
+        58.67156915423608,
+        -19.25934527164509
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9999999403953552,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.688503692913706
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.0166666060686111,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.444930724250885,
+        60.69679842804634,
+        -14.409490586170527
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.033333271741867,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.036789491906309,
+        61.62401342372445,
+        -10.556990657486125
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.049999937415123,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.31502567470064,
+        63.17791926968654,
+        -4.214087655023263
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.066666603088379,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.4789645069443136,
+        65.3461203099154,
+        4.3001158790033
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.0833332687616348,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.004840970955818,
+        67.89009184827638,
+        14.266713319458816
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.0999999344348907,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.680323514881728,
+        70.68348961362521,
+        25.212899481644556
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1166666001081467,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -7.436278430967001,
+        73.61105251568488,
+        36.68612170991072
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1333332657814026,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -8.942552133726986,
+        76.54614154175204,
+        48.229603072814825
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1499999314546585,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.557005413644527,
+        79.34713022835996,
+        59.40363050691684
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1666665971279144,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.091925717967651,
+        81.8916798287436,
+        69.76906912072296
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1833332628011703,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -7.481428082405753,
+        84.06374337178177,
+        78.85395305850408
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1999999284744263,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.788610482994753,
+        85.7540368829206,
+        86.16106974540922
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.2166665941476822,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.2104335460162166,
+        86.86029178810203,
+        91.18275692403448
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.233333259820938,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        2.9299318591926373,
+        87.28684415673867,
+        93.4189552968504
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.249999925494194,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        9.1243217147875,
+        86.20349127175666,
+        90.33651313056349
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.26666659116745,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        21.49548287695561,
+        81.8673058054168,
+        76.5128774985457
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.2833332568407059,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        37.16970221120224,
+        75.51046027837744,
+        54.664920606921214
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.2999999225139618,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        53.37066004271279,
+        68.49987794288744,
+        28.526442418838343
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3166665881872177,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        67.8976141870139,
+        62.06335005676892,
+        2.2188219425309157
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3333332538604736,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        78.98773212052684,
+        57.272492418385546,
+        -19.875575501535167
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3499999195337296,
+      "health": {
+        "food": 975.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        85.07388548670797,
+        55.055816763795654,
+        -33.26753942713535
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3666665852069855,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779435,
+        55.518464490232105,
+        -35.973097303361094
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3833332508802414,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779435,
+        55.518464490232105,
+        -35.973097303361094
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3999999165534973,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779435,
+        55.518464490232105,
+        -35.973097303361094
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.4166665822267532,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.98324854460212,
+        55.41776658493851,
+        -38.23524051322977
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.4333332479000092,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        70.12905363941336,
+        53.74856880109152,
+        -47.1858509182606
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.449999913573265,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        55.05259948734191,
+        50.553623928552256,
+        -56.75312444591481
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.466666579246521,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        40.15307563050003,
+        46.75288461336022,
+        -65.34587042383441
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.483333244919777,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.749376834435438,
+        43.45105071128598,
+        -71.78787462333659
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.4999999105930328,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.87441186514171,
+        41.7936606712409,
+        -74.7942207979728
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5166665762662888,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.1908307796442,
+        41.985259771396706,
+        -74.08879382582694
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5333332419395447,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        26.816423002253586,
+        42.5341804334716,
+        -72.13800476238232
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5499999076128006,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.074155635802683,
+        43.291862804927,
+        -69.3043617755616
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5666665732860565,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.600959519604643,
+        44.187122868904304,
+        -65.8519683400918
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5833332389593124,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.170894421430702,
+        45.17078442988032,
+        -62.02264945730573
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5999999046325684,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        26.799068392558056,
+        46.22569228739044,
+        -57.971851076200934
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.6166665703058243,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.00296182787575,
+        47.38366481493689,
+        -53.63464998120956
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.6333332359790802,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        22.870769447445113,
+        48.62901352359722,
+        -49.11664663995282
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.6499999016523361,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        20.42299692175088,
+        49.93802790628189,
+        -44.552715706999535
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.666666567325592,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        17.70070939767048,
+        51.28697653788955,
+        -40.067684036155114
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.683333232998848,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        14.7656517672455,
+        52.65115281716637,
+        -35.77312427275477
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.6999998986721039,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        11.69888921784512,
+        54.00396529942422,
+        -31.764755964547835
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7166665643453598,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        8.598244851759643,
+        55.316206305902526,
+        -28.12084889636921
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7333332300186157,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        5.574901359875509,
+        56.55559856343641,
+        -24.90202031252541
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7499998956918716,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        2.7493620933375778,
+        57.68676341419254,
+        -22.15249571071665
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7666665613651276,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        0.24728150289051265,
+        58.67156915423608,
+        -19.90321926867773
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7833332270383835,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -16.3073838605172
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7999998927116394,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.444930724250885,
+        60.69679842804634,
+        -15.002688185223917
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.8166665583848953,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.036789491906309,
+        61.62401342372445,
+        -11.123846967257663
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.8333332240581512,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.31502567470064,
+        63.17791926968654,
+        -4.753973175958322
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.8499998897314072,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.4789645069443136,
+        65.3461203099154,
+        3.7878007845323225
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.866666555404663,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.004840970955818,
+        67.89009184827638,
+        13.78253769699559
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.883333221077919,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.680323514881728,
+        70.68348961362521,
+        24.757401114096567
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.899999886751175,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -7.436278430967001,
+        73.61105251568488,
+        36.259806521502824
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9166665524244308,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -8.942552133726986,
+        76.54614154175204,
+        47.8329446820544
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9333332180976868,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.557005413644527,
+        79.34713022835996,
+        59.03706948153575
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9499998837709427,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.091925717967651,
+        81.8916798287436,
+        69.43301270945663
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9666665494441986,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -7.481428082405753,
+        84.06374337178177,
+        78.54877456524274
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9833332151174545,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.788610482994753,
+        85.7540368829206,
+        85.88710820137236
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9999998807907104,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.2104335460162166,
+        86.86029178810203,
+        90.94031670034063
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.0166665464639664,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        2.9299318591926373,
+        87.28684415673867,
+        93.20830568728466
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.0333332121372223,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        9.1243217147875,
+        86.20349127175666,
+        90.1578890072286
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.049999877810478,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        21.49548287695561,
+        81.8673058054168,
+        76.3664771064902
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.066666543483734,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        37.16970221120224,
+        75.51046027837744,
+        54.55090741188337
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.08333320915699,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        53.37066004271279,
+        68.49987794288744,
+        28.44494272306045
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.099999874830246,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        67.8976141870139,
+        62.06335005676892,
+        2.169926047049806
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.116666540503502,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        78.98773212052684,
+        57.272492418385546,
+        -19.891813475702037
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.133333206176758,
+      "health": {
+        "food": 950.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        85.07388548670797,
+        55.055816763795654,
+        -33.25110159859454
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.1499998718500137,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779435,
+        55.518464490232105,
+        -35.924002089947855
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.1666665375232697,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779435,
+        55.518464490232105,
+        -35.924002089947855
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.1833332031965256,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        84.42577178779435,
+        55.518464490232105,
+        -35.924002089947855
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.1999998688697815,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.98324854460212,
+        55.41776658493851,
+        -38.08864560141603
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.2166665345430374,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        70.12905363941336,
+        53.74856880109152,
+        -47.00703391429522
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.2333332002162933,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        55.05259948734191,
+        50.553623928552256,
+        -56.542284041881146
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.2499998658895493,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        40.15307563050003,
+        46.75288461336022,
+        -65.10324086598644
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.266666531562805,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.749376834435438,
+        43.45105071128598,
+        -71.51372547368028
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.283333197236061,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.87441186514171,
+        41.7936606712409,
+        -74.48885547395241
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.299999862909317,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.1908307796442,
+        41.985259771396706,
+        -73.7525518354991
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.316666528582573,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        26.816423002253586,
+        42.5341804334716,
+        -71.77125955864888
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.333333194255829,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.074155635802683,
+        43.291862804927,
+        -68.90752102439049
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.3499998599290848,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.600959519604643,
+        44.187122868904304,
+        -65.42547316055784
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.3666665256023407,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.170894421430702,
+        45.17078442988032,
+        -61.56697382554418
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.3833331912755966,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        26.799068392558056,
+        46.22569228739044,
+        -57.487501408174964
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.3999998569488525,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.00296182787575,
+        47.38366481493689,
+        -53.122164447256864
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.4166665226221085,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        22.870769447445113,
+        48.62901352359722,
+        -48.5765946432449
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.4333331882953644,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        20.42299692175088,
+        49.93802790628189,
+        -43.98569730984711
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.4499998539686203,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        17.70070939767048,
+        51.28697653788955,
+        -39.47432925965346
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.466666519641876,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        14.7656517672455,
+        52.65115281716637,
+        -35.15409231447278
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.483333185315132,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        11.69888921784512,
+        54.00396529942422,
+        -31.12073458758039
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.499999850988388,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        8.598244851759643,
+        55.316206305902526,
+        -27.452553633987776
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.516666516661644,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        5.574901359875509,
+        56.55559856343641,
+        -24.210193629987614
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.5333331823349,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        2.7493620933375778,
+        57.68676341419254,
+        -21.4379049656699
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.549999848008156,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        0.24728150289051265,
+        58.67156915423608,
+        -19.166658655760784
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.5666665136814117,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.804764869398884,
+        59.46992560494554,
+        -17.41895683120711
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.5833331793546677,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.2834586700269206,
+        60.04097757292068,
+        -16.21534226853536
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.5999998450279236,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.072923703968417,
+        60.34461447203137,
+        -15.5824739740738
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.6166665107011795,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.480976636577303
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.6333331763744354,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.458345050979311
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.6499998420476913,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.435888941455538
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.6666665077209473,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.4136332227475
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.683333173394203,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.391602630782778
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.699999839067459,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.369821633268053
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.716666504740715,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.348314399886782
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.733333170413971,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.327104861903841
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.749999836087227,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.306216533351595
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.766666501760483,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.285672630239183
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.7833331674337387,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.440120367786637,
+        59.94176684772734,
+        -16.390008045379467
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.7999998331069946,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.754699105085894,
+        59.71579129018818,
+        -17.02007085563791
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.8166664987802505,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.08004494035028,
+        59.66348795593602,
+        -17.303307161370185
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.8333331644535065,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.385516321778045,
+        59.72813912235855,
+        -17.343975629050966
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.8499998301267624,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.648196252445832,
+        59.857231404162505,
+        -17.230567977987782
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.8666664958000183,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.852164585482587,
+        60.00542533615308,
+        -17.038247381664597
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.8833331614732742,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.98754455659601,
+        60.139785269204324,
+        -16.82988047912555
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.89999982714653,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -6.050175531275233,
+        60.23596862187649,
+        -16.655315731343833
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.916666492819786,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -6.040592669191444,
+        60.279305130157105,
+        -16.551389792730134
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.933333158493042,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.963387429731444,
+        60.259827022878056,
+        -16.542184902401672
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.949999824166298,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.826211187270548,
+        60.173400074165826,
+        -16.640113044766316
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.966666489839554,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.638883452091211,
+        60.01705985726002,
+        -16.84731209941195
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.9833331555128098,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.412808399630837,
+        59.79250889909043,
+        -17.15763820309938
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.9999998211860657,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.159928657942505,
+        59.50069264561815,
+        -17.55817152770326
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.0166664868593216,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.892620003006204,
+        59.14861081551088,
+        -18.03192075590603
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.0333331525325775,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.6225918936510375,
+        58.741074862621616,
+        -18.558344033453167
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.0499998182058334,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.360978462901091,
+        58.29122741060907,
+        -19.1170941509765
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.0666664838790894,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.117466774554958,
+        57.807746181875686,
+        -19.68644890509914
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.0833331495523453,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.900242726873063,
+        57.309434638878834,
+        -20.248703632681185
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.099999815225601,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.7157794504319837,
+        56.80713986664885,
+        -20.785446651142323
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.116666480898857,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.5683335933976137,
+        56.32258344892743,
+        -21.285215797766725
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.133333146572113,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.46077070432803,
+        55.86554741504141,
+        -21.73495714570482
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.149999812245369,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.3933729492220714,
+        55.456673215227696,
+        -22.13036017744328
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.166666477918625,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.3657759067480293,
+        55.10124742772894,
+        -22.463594913760232
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.183333143591881,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.375045197668856,
+        54.81528498935728,
+        -22.73633144322637
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.1999998092651367,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.4184657937623393,
+        54.59741848524893,
+        -22.944614057352453
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 3.2166664749383926,
+      "health": {
+        "food": 925.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.49102545882319,
+        54.45715188157561,
+        -23.094066377478747
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.01666666567325592,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.753699930538704,
+        56.41269592445912,
+        -21.078511191989605
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.03333333134651184,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.9480053146030687,
+        57.68653100821,
+        -19.55717170398806
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.04999999701976776,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.085623666437204,
+        58.52964681145768,
+        -18.449620981308158
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.06666666269302368,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.179666740825116,
+        59.10024023975135,
+        -17.63312513485547
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.0833333283662796,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.240173382538462,
+        59.49419867347457,
+        -17.022101944025394
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.09999999403953552,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.275419801604034,
+        59.76964212724587,
+        -16.557746465588373
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.11666665971279144,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.291764303830764,
+        59.96241199782979,
+        -16.200330996037877
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.13333332538604736,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.298505597869184,
+        60.0938732388009,
+        -15.921473989020164
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.14999999105930328,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.318833581550809,
+        60.17623543917762,
+        -15.697180881349176
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.1666666567325592,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.321991297798849,
+        60.235266540902735,
+        -15.522893102032576
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.18333332240581512,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.31442566316726,
+        60.27763219236224,
+        -15.387093693685863
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.19999998807907104,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.3008840656308,
+        60.30808553726465,
+        -15.28201004366673
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.21666665375232697,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.277040542412198,
+        60.32991116421857,
+        -15.199433582682644
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.23333331942558289,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.5155202510533923,
+        60.63759494104884,
+        -13.958034500356646
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.2499999850988388,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.0632935966915693,
+        61.510942752760236,
+        -10.361134979441175
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.2666666507720947,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.2851636489662799,
+        62.96627034849511,
+        -4.427070674712027
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.28333331644535065,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.3574778541578976,
+        65.00547098311674,
+        3.5861730131824956
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.29999998211860657,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.7853786299593453,
+        67.40791615074815,
+        13.01082789775846
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.3166666477918625,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.361924949148964,
+        70.05919597160201,
+        23.42234921984597
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.3333333134651184,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -7.028993487892159,
+        72.85718338379377,
+        34.4162191598825
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.34999997913837433,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -8.572278257844255,
+        75.6831974950075,
+        45.66964669048767
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.36666664481163025,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.432516689580916,
+        78.43311066134262,
+        56.59533300323781
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.38333331048488617,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.306831862457695,
+        80.98106526350779,
+        66.90994951831469
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.3999999761581421,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -8.100691205384717,
+        83.22153464975263,
+        76.20078357977717
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.416666641831398,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.83100438979383,
+        85.054837514435,
+        84.02910091751043
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.43333330750465393,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.6337533798701687,
+        86.38752634213104,
+        89.94150504193082
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.44999997317790985,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        1.238633704628486,
+        87.13225953270864,
+        93.48534976220479
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.46666663885116577,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        5.496429545471105,
+        87.18113913183349,
+        94.15270331759886
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.4833333045244217,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        14.507056524267202,
+        84.58232445404144,
+        86.16752317960906
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.4999999701976776,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.591521631642568,
+        79.17352942499691,
+        68.29411249363419
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.5166666358709335,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        44.672964814623334,
+        72.36882275129412,
+        44.03314511856442
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.5333333015441895,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        60.2691492051192,
+        65.47657485798453,
+        17.310088811448196
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.5499999672174454,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        73.40472273298006,
+        59.654966248015945,
+        -7.627445762710082
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.5666666328907013,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        82.42969028797044,
+        55.9104158160423,
+        -26.34516436011055
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.5833332985639572,
+      "health": {
+        "food": 1000.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        85.73851969087876,
+        55.11483073077893,
+        -34.380045189835464
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.5999999642372131,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -36.781295938888725
+      ],
+      "trail_vertices": 225,
+      "trail_samples": 9,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.616666629910469,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -36.781295938888725
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.633333295583725,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -36.781295938888725
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.6499999612569809,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -36.781295938888725
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.6666666269302368,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        73.29342247389967,
+        54.18413817125856,
+        -43.56287705802498
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.6833332926034927,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        58.240290838297184,
+        51.16711992017539,
+        -53.76641984420464
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.6999999582767487,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        42.69582699626976,
+        47.36621250643208,
+        -63.06372843392357
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.7166666239500046,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        30.08754513674488,
+        43.87001799310566,
+        -70.19172642128088
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.7333332896232605,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.613342355575284,
+        41.844176195995125,
+        -73.96637548498938
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.7499999552965164,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        24.192978745249476,
+        41.83839253810432,
+        -73.75506342041949
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.7666666209697723,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.755506640865562,
+        42.31951494720478,
+        -72.0931077862119
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.7833332866430283,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        27.20359334457099,
+        43.02867029497205,
+        -69.50356937151335
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.7999999523162842,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.12411086865687,
+        43.89013961082451,
+        -66.23917373098645
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.8166666179895401,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.214265836963236,
+        44.84600070893527,
+        -62.54720500590439
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.833333283662796,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        27.32120281467978,
+        45.86139704447,
+        -58.63779670149804
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.8499999493360519,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.70227618768739,
+        46.94686150477938,
+        -54.550814970965305
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.8666666150093079,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.762854212441297,
+        48.122066066518634,
+        -50.24875070093951
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.8833332806825638,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        21.51802055689909,
+        49.365690172586625,
+        -45.854917505677115
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.8999999463558197,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        18.99710459469769,
+        50.65636434752678,
+        -41.486503836867435
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.9166666120290756,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        16.247711933364187,
+        51.97221944766039,
+        -37.25028425738975
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.9333332777023315,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        13.335061268432623,
+        53.290105142247434,
+        -33.2400634503494
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.9499999433755875,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        10.340332497958668,
+        54.58485173442325,
+        -29.534963074384233
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.9666666090488434,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        7.358038249585758,
+        55.828785319996285,
+        -26.198512245152614
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.9833332747220993,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        4.492878351053418,
+        56.99148774945414,
+        -23.279050385756022
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 0.9999999403953552,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        1.8563104545232076,
+        58.039873855057174,
+        -20.81151910418781
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.0166666060686111,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.813340242076578
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.033333271741867,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.419566283146271,
+        60.66941788742977,
+        -14.641894894400046
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.049999937415123,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.9605192609830808,
+        61.52095162449913,
+        -11.085181054846622
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.066666603088379,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.1841138280133425,
+        62.96302308063338,
+        -5.179610758040511
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.0833332687616348,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.269508924654607,
+        64.99691180420514,
+        2.8085019156228483
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.0999999344348907,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.7084504095961592,
+        67.39594361929355,
+        12.20742602864452
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.1166666001081467,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.297993134606564,
+        70.04606081213913,
+        22.592585848263766
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.1333332657814026,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -6.976415958877305,
+        72.84436067126065,
+        33.55995263139576
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.1499999314546585,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -8.572278257844255,
+        75.68319749500749,
+        44.702968458533064
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.1666665971279144,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.432516689580916,
+        78.4331106613426,
+        55.62111579699811
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.1833332628011703,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.306831862457695,
+        80.98106526350777,
+        65.92927569853434
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.1999999284744263,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -8.10069120538466,
+        83.22153464975263,
+        75.2147426299557
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.2166665941476822,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.83100438979383,
+        85.054837514435,
+        83.03878831141417
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.233333259820938,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.6337533798701687,
+        86.38752634213104,
+        88.94802102169767
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.249999925494194,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        1.238633704628486,
+        87.13225953270864,
+        92.48979805684444
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.26666659116745,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        5.496429545471105,
+        87.18113913183345,
+        93.15618995089964
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.2833332568407059,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        14.507056524267146,
+        84.58232445404138,
+        85.17115521844072
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.2999999225139618,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.591521631642568,
+        79.17352942499689,
+        67.2989968856573
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.3166665881872177,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        44.672964814623334,
+        72.36882275129412,
+        43.04038675507907
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.3333332538604736,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        60.2691492051192,
+        65.47657485798455,
+        16.32079082541763
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.3499999195337296,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        73.40472273298006,
+        59.65496624801593,
+        -8.612184172229298
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.3666665852069855,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        82.42969028797044,
+        55.9104158160423,
+        -27.324247957770616
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.3833332508802414,
+      "health": {
+        "food": 960.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        85.73851969087876,
+        55.11483073077893,
+        -35.35238636968317
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.3999999165534973,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -37.74581460515612
+      ],
+      "trail_vertices": 225,
+      "trail_samples": 9,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.4166665822267532,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -37.74581460515612
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.4333332479000092,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -37.74581460515612
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.449999913573265,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -37.74581460515612
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.466666579246521,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        73.29342247389967,
+        54.18413817125856,
+        -44.48549541735231
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.483333244919777,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        58.240290838297184,
+        51.16711992017539,
+        -54.675968663269735
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.4999999105930328,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        42.69582699626976,
+        47.36621250643208,
+        -63.95919729478821
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.5166665762662888,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        30.08754513674488,
+        43.87001799310566,
+        -71.07212047772029
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.5333332419395447,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.613342355575284,
+        41.844176195995125,
+        -74.83071665458512
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.5499999076128006,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        24.192978745249476,
+        41.83839253810432,
+        -74.60239148724537
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.5666665732860565,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.755506640865562,
+        42.31951494720478,
+        -72.92248147371764
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.5833332389593124,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        27.20359334457099,
+        43.02867029497205,
+        -70.31406720679188
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.5999999046325684,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.12411086865687,
+        43.89013961082451,
+        -67.0298952368668
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.6166665703058243,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.214265836963236,
+        44.84600070893527,
+        -63.317270440181446
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.6333332359790802,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        27.32120281467978,
+        45.86139704447,
+        -59.386350812025086
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.6499999016523361,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.70227618768739,
+        46.94686150477938,
+        -55.27702630275003
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.666666567325592,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.762854212441297,
+        48.122066066518634,
+        -50.9518125963845
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.683333232998848,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        21.51802055689909,
+        49.365690172586625,
+        -46.534049034039754
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.6999998986721039,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        18.99710459469769,
+        50.65636434752678,
+        -42.14095059147201
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.7166665643453598,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        16.247711933364187,
+        51.97221944766039,
+        -37.87931918264196
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.7333332300186157,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        13.335061268432623,
+        53.290105142247434,
+        -33.84298781217441
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.7499998956918716,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        10.340332497958668,
+        54.58485173442325,
+        -30.111107039509317
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.7666665613651276,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        7.358038249585758,
+        55.828785319996285,
+        -26.747235808704517
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.7833332270383835,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        4.492878351053418,
+        56.99148774945414,
+        -23.799743941230304
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.7999998927116394,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        1.8563104545232076,
+        58.039873855057174,
+        -21.303604188506924
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.8166665583848953,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -16.276269639898004
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.8333332240581512,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.419566283146271,
+        60.66941788742977,
+        -15.075154411354468
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.8499998897314072,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.9605192609830808,
+        61.52095162449913,
+        -11.488289428130962
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.866666555404663,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -1.1841138280133425,
+        62.96302308063338,
+        -5.552119075272643
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.883333221077919,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.269508924654607,
+        64.99691180420514,
+        2.467007176567215
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.899999886751175,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.7084504095961592,
+        67.39594361929355,
+        11.897323983108478
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.9166665524244308,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.297993134606564,
+        70.04606081213913,
+        22.314220862082507
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.9333332180976868,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -6.976415958877305,
+        72.84436067126065,
+        33.313633784454765
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.9499998837709427,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -8.572278257844255,
+        75.68319749500749,
+        44.488969336151854
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.9666665494441986,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.432516689580916,
+        78.4331106613426,
+        55.439674042895405
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.9833332151174545,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -9.306831862457695,
+        80.98106526350777,
+        65.78059277640948
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 1.9999998807907104,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -8.10069120538466,
+        83.22153464975263,
+        75.09898373408167
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.0166665464639664,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -5.83100438979383,
+        85.054837514435,
+        82.95608194940512
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.0333332121372223,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.6337533798701687,
+        86.38752634213104,
+        88.89845910391584
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.049999877810478,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        1.238633704628486,
+        87.13225953270864,
+        92.47343559837695
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.066666543483734,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        5.496429545471105,
+        87.18113913183345,
+        93.1730461146398
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.08333320915699,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        14.507056524267146,
+        84.58232445404138,
+        85.2212110799138
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.099999874830246,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.591521631642568,
+        79.17352942499689,
+        67.3821966549158
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.116666540503502,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        44.672964814623334,
+        72.36882275129412,
+        43.15663852176074
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.133333206176758,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        60.2691492051192,
+        65.47657485798455,
+        16.469965128234023
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.1499998718500137,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        73.40472273298006,
+        59.65496624801593,
+        -8.43025324280692
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.1666665375232697,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        82.42969028797044,
+        55.9104158160423,
+        -27.109762699906618
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.1833332031965256,
+      "health": {
+        "food": 920.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        85.73851969087876,
+        55.11483073077893,
+        -35.10558523175897
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.1999998688697815,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -37.46697182814234
+      ],
+      "trail_vertices": 225,
+      "trail_samples": 9,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.2166665345430374,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -37.46697182814234
+      ],
+      "trail_vertices": 198,
+      "trail_samples": 8,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.2333332002162933,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -37.46697182814234
+      ],
+      "trail_vertices": 171,
+      "trail_samples": 7,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.2499998658895493,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        81.70746825600331,
+        55.35210650496146,
+        -37.46697182814234
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.266666531562805,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        73.29342247389967,
+        54.18413817125856,
+        -44.081935196157076
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.283333197236061,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        58.240290838297184,
+        51.16711992017539,
+        -54.24226452546761
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.299999862909317,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        42.69582699626976,
+        47.36621250643208,
+        -63.49583106942639
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.316666528582573,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        30.08754513674488,
+        43.87001799310566,
+        -70.57960698501685
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.333333194255829,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.613342355575284,
+        41.844176195995125,
+        -74.30960182838272
+      ],
+      "trail_vertices": 144,
+      "trail_samples": 6,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.3499998599290848,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        24.192978745249476,
+        41.83839253810432,
+        -74.05325455058079
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.3666665256023407,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.755506640865562,
+        42.31951494720478,
+        -72.3459326440429
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.3833331912755966,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        27.20359334457099,
+        43.02867029497205,
+        -69.71074725639009
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.3999998569488525,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.12411086865687,
+        43.89013961082451,
+        -66.40047461368356
+      ],
+      "trail_vertices": 117,
+      "trail_samples": 5,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.4166665226221085,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        28.214265836963236,
+        44.84600070893527,
+        -62.66244853766794
+      ],
+      "trail_vertices": 90,
+      "trail_samples": 4,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.4333331882953644,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        27.32120281467978,
+        45.86139704447,
+        -58.706855227805384
+      ],
+      "trail_vertices": 63,
+      "trail_samples": 3,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.4499998539686203,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        25.70227618768739,
+        46.94686150477938,
+        -54.57361204699687
+      ],
+      "trail_vertices": 36,
+      "trail_samples": 2,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.466666519641876,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        23.762854212441297,
+        48.122066066518634,
+        -50.22526122010133
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 1,
+      "trail_ticking": true
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.483333185315132,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        21.51802055689909,
+        49.365690172586625,
+        -45.785167731265794
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.499999850988388,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        18.99710459469769,
+        50.65636434752678,
+        -41.37057139089427
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.516666516661644,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        16.247711933364187,
+        51.97221944766039,
+        -37.088298029311154
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.5333331823349,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        13.335061268432623,
+        53.290105142247434,
+        -33.03220348717077
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.549999848008156,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        10.340332497958668,
+        54.58485173442325,
+        -29.281460347829363
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.5666665136814117,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        7.358038249585758,
+        55.828785319996285,
+        -25.899648446772716
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.5833331793546677,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        4.492878351053418,
+        56.99148774945414,
+        -22.935156410736553
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.5999998450279236,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        1.8563104545232076,
+        58.039873855057174,
+        -20.42297733122618
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.6166665107011795,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -0.43713331080018125,
+        58.93868042712811,
+        -18.387785877088945
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.6333331763744354,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -2.273345064222344,
+        59.65123604004684,
+        -16.84861870805716
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.6499998420476913,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -3.5421851360636265,
+        60.14057593915302,
+        -15.824820168761207
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.6666665077209473,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.141081142058699,
+        60.370791397656774,
+        -15.343229287999385
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.683333173394203,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.295807506013574
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.699999839067459,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.275445903707208
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.716666504740715,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.2554629697091
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.733333170413971,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.235880876947107
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.749999836087227,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.216721381116571
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.766666501760483,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.198005761075677
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.7833331674337387,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.179754759240808
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.7999998331069946,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.161988700795831
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.8166664987802505,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.144727314878168
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.8333331644535065,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.12798898952073
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.8499998301267624,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.111793304849321
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.8666664958000183,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.096158231664361
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.8833331614732742,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.081101085115137
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.89999982714653,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.066638554502191
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.916666492819786,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.052786673474962
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.933333158493042,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.039560820031816
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.949999824166298,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.026975656915361
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.966666489839554,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.01504519121712
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.9833331555128098,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -15.00378265516823
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 2.9999998211860657,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.993200565744097
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.0166664868593216,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.98331066505974
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.0333331525325775,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.974123920369799
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.0499998182058334,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.965650583673174
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.0666664838790894,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.957900012899096
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.0833331495523453,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.950880612302477
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.099999815225601,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.944600547719652
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.116666480898857,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.939066733289415
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.133333146572113,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.934285248685534
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.149999812245369,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.930261458326036
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.166666477918625,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.926999772954638
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.183333143591881,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.924503828454668
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.1999998092651367,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.922776426244432
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    },
+    {
+      "case": "pickaxe_food_hold",
+      "time": 3.2166664749383926,
+      "health": {
+        "food": 880.0,
+        "mob": 1000.0,
+        "boss": 600.0
+      },
+      "hand_local": [
+        -4.1761273418172955,
+        60.384249214621036,
+        -14.921819473672564
+      ],
+      "trail_vertices": 0,
+      "trail_samples": 0,
+      "trail_ticking": false
+    }
+  ],
+  "captures": [
+    {
+      "case": "knife_food_hold",
+      "time": 0.01666666567325592,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0000.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.04999999701976776,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0001.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.0833333283662796,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0002.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.11666665971279144,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0003.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.14999999105930328,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0004.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.18333332240581512,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0005.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.21666665375232697,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0006.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.2499999850988388,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0007.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.28333331644535065,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0008.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.3166666477918625,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0009.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.34999997913837433,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0010.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.38333331048488617,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0011.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.416666641831398,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0012.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.44999997317790985,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0013.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.4833333045244217,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0014.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5166666358709335,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0015.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5499999672174454,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0016.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.5833332985639572,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0017.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.616666629910469,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0018.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.6499999612569809,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0019.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.6833332926034927,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0020.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7166666239500046,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0021.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7499999552965164,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0022.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.7833332866430283,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0023.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.8166666179895401,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0024.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.8499999493360519,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0025.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.8833332806825638,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0026.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9166666120290756,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0027.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9499999433755875,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0028.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 0.9833332747220993,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0029.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.0166666060686111,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0030.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.049999937415123,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0031.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.0833332687616348,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0032.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1166666001081467,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0033.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1499999314546585,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0034.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.1833332628011703,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0035.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.2166665941476822,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0036.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.249999925494194,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0037.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.2833332568407059,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0038.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3166665881872177,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0039.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3499999195337296,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0040.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.3833332508802414,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0041.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.4166665822267532,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0042.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.449999913573265,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0043.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.483333244919777,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0044.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5166665762662888,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0045.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5499999076128006,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0046.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.5833332389593124,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0047.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.6166665703058243,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0048.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.6499999016523361,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0049.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.683333232998848,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0050.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7166665643453598,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0051.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7499998956918716,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0052.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.7833332270383835,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0053.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.8166665583848953,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0054.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.8499998897314072,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0055.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.883333221077919,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0056.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9166665524244308,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0057.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9499998837709427,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0058.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 1.9833332151174545,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0059.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.0166665464639664,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0060.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.049999877810478,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0061.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.08333320915699,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0062.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.116666540503502,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0063.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.1499998718500137,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0064.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.1833332031965256,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0065.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.2166665345430374,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0066.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.2499998658895493,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0067.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.283333197236061,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0068.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.316666528582573,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0069.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.3499998599290848,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0070.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.3833331912755966,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0071.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.4166665226221085,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0072.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.4499998539686203,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0073.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.483333185315132,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0074.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.516666516661644,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0075.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.549999848008156,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0076.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.5833331793546677,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0077.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.6166665107011795,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0078.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.6499998420476913,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0079.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.683333173394203,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0080.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.716666504740715,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0081.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.749999836087227,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0082.png"
+    },
+    {
+      "case": "knife_food_hold",
+      "time": 2.7833331674337387,
+      "file": "D:\\PROJECT\\GAME\\WaifuTD\\MessControl\\Artifacts\\PlayerWeaponTrail_20261015\\CapturedFrames\\knife_food_hold_0083.png"
+    }
+  ],
+  "restored_engine_settings": {
+    "fixed": false,
+    "fps": 30.0,
+    "throttle": true
+  },
+  "scope": "Short solo PIE; real primary press/release edges, real food damage, enemy damage and boss damage. No multiplayer, cook or package."
+}

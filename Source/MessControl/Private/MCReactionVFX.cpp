@@ -266,11 +266,15 @@ void AMCReactionVFX::Tick(float Dt)
         const float SparkFade=1-FMath::SmoothStep(.10f,.32f,Age);
         if(SparkFade>.001f) {
             const FVector Push=(Axis-View*FVector::DotProduct(Axis,View)).GetSafeNormal(SMALL_NUMBER,Up);
-            const float Flight=FMath::Clamp(Age/.30f,0.f,1.f);
-            for(int32 I=0;I<8;++I) {
+            const float Flight=1-FMath::Exp(-Age*11.f);
+            const FVector Spread=FVector::CrossProduct(View,Push).GetSafeNormal();
+            for(int32 I=0;I<10;++I) {
                 const float A=I*2.39996f;
-                const FVector Radial=Right*FMath::Cos(A)+Up*FMath::Sin(A);
-                const FVector Travel=Radial*Radius*(.20f+Flight*(.74f+(I%3)*.12f))+Push*Radius*Flight*.35f;
+                // A narrow fan carries the impact away from the attacker, with
+                // a fast launch and drag instead of a uniform radial explosion.
+                const FVector Radial=(Push+Spread*FMath::Sin(A)*.72f).GetSafeNormal();
+                const FVector Travel=Radial*Radius*(.10f+Flight*(1.2f+(I%3)*.16f))
+                    -Up*(Age*Age*Radius*.9f);
                 const float Roll=A+Age*(I%2?6.f:-6.f);
                 const FVector Along=Right*FMath::Cos(Roll)+Up*FMath::Sin(Roll),Across=FVector::CrossProduct(View,Along).GetSafeNormal();
                 const float Size=(6.f+(I%3)*2.f)*(1-Flight*.45f);

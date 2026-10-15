@@ -129,6 +129,7 @@ public:
     bool WatergunHandGoal(FTransform& RightHandWorld) const;
     UFUNCTION(BlueprintPure,Category="Tools|Watergun") float WaterRecoil() const;
     FQuat ToolHandRotation(const FQuat& ToolWorldRotation) const;
+    bool MeleeTrailSpan(FVector& Base,FVector& Tip) const;
     bool UpgradeSupportGrip(const FTransform& RightHandWorld,FTransform& LeftHandWorld) const;
     UFUNCTION(BlueprintPure,Category="Tools|Watergun",meta=(DeprecatedFunction,DeprecationMessage="Watergun now uses automatic fire.")) float WaterChargeFraction() const;
     UFUNCTION(BlueprintPure,Category="Tools|Watergun") int32 WaterMagazineCapacity() const;

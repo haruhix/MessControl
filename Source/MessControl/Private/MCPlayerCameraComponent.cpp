@@ -225,7 +225,8 @@ void UMCPlayerCameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& 
         const double ConfirmAge=Time-CombatConfirmAt;
         if(ConfirmAge>=0. && ConfirmAge<.13) {
             const float Punch=CombatConfirmStrength*ImpactEnvelope(ConfirmAge,.13f)*FeedbackScale;
-            DesiredView.Rotation.Pitch-=.48f*Punch;
+            const float Wave=FMath::Sin(float(ConfirmAge)*2*PI*21.f);
+            DesiredView.Rotation+=FRotator(-.62f,.22f*Wave,.12f*Wave)*Punch;
             DesiredView.FOV-=.8f*Punch;
         }
         const auto& Status=Hero->Status->State;
