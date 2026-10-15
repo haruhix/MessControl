@@ -1,0 +1,26 @@
+{
+  "status": "authored",
+  "revision": "coffee_surfaces_v2:2",
+  "sources": {
+    "Tools/Unreal/author_coffee_slime_surfaces_v2.py": "80b60c447d3c6c045e58a7e5d94427e4d21ef9b9f73749d1f0090f472ec1d5ae"
+  },
+  "assets": {
+    "/Game/Cataclysm/Jelly/M_CataclysmPaintTrail": {
+      "before_sha256": "b18b82553144717e9518bb6dace8605e317308f97cf1218fe071bbe070c03116",
+      "backup": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSlimeV2\\SurfaceBackup\\M_CataclysmPaintTrail.uasset",
+      "after_sha256": "5c4669c46b55611b23eee783b1c737543da0e12285961ab50d3a1267a76c88d1",
+      "nodes": 16,
+      "compiled": true
+    },
+    "/Game/Cataclysm/Jelly/M_CataclysmJellyGel": {
+      "before_sha256": "e1e4872fe408009bbe36d114933c36f491c3e9769dca5aaf4f5352488ac41e53",
+      "backup": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSlimeV2\\SurfaceBackup\\M_CataclysmJellyGel.uasset",
+      "after_sha256": "291b6f64dc102d1c391ae43237e0af22a006f97c8e9f6d675a0ef8202e0f2b06",
+      "nodes": 22,
+      "compiled": true
+    }
+  },
+  "mask_contract": "Exact bilinear 64x64 WipeMask, clip .25; no UV distortion, coverage expansion or cleaning changes",
+  "gameplay_visual_review": "accepted; final15-check solo and actual PNG review in ValidationSummary.json",
+  "utc": "2026-10-15T08:59:28.285664+00:00"
+}

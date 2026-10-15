@@ -1,0 +1,50 @@
+{
+  "asset": "exports/A_CoffeeSlime_Burst.fbx",
+  "blender_version": "5.1.0",
+  "meshes": [],
+  "actions": [
+    {
+      "name": "A_CoffeeSlime_Burst",
+      "frame_range": [
+        2.0,
+        20.0
+      ],
+      "duration_seconds": 0.18,
+      "max_root_delta": 0.0,
+      "max_gel_body_lift_m": 2.6469779010051207e-25,
+      "max_mark_gap_m": 0.0,
+      "min_mark_signed_m": 0.0,
+      "critical_poses": [
+        {
+          "source_frame": 1
+        },
+        {
+          "source_frame": 5
+        },
+        {
+          "source_frame": 10
+        },
+        {
+          "source_frame": 19
+        }
+      ]
+    }
+  ],
+  "rig": {
+    "name": "Armature",
+    "parents": {
+      "root": null,
+      "gel_body": "root",
+      "gel_top": "gel_body",
+      "foam_tip": "gel_top",
+      "face": "gel_body"
+    },
+    "object_scale": [
+      0.009999999776482582,
+      0.009999999776482582,
+      0.009999999776482582
+    ]
+  },
+  "technical_pass": true,
+  "errors": []
+}

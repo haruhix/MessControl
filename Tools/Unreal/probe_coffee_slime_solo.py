@@ -2,6 +2,7 @@
 
 Adds read-only skeletal/clip evidence to the existing normal tool-input check.
 Does not assign animations, health, jelly movement or package properties.
+MC_COFFEE_AUTOSTART=False loads the class for a derived source-only probe.
 """
 import builtins
 import hashlib
@@ -62,12 +63,13 @@ class CoffeeSlimeSolo(Parent):
                 self.report['checks']['coffee_replaces_primitives_without_double_scale']=True
         super().finish(error)
 
-previous=getattr(builtins,KEY,None)
-if previous and not getattr(previous,'done',True):
-    raise RuntimeError('Preserve the active owned coffee probe')
-probe=CoffeeSlimeSolo()
-setattr(builtins,KEY,probe)
-try: probe.start()
-except Exception:
-    probe.finish(traceback.format_exc())
-    raise
+if globals().get('MC_COFFEE_AUTOSTART', True):
+    previous=getattr(builtins,KEY,None)
+    if previous and not getattr(previous,'done',True):
+        raise RuntimeError('Preserve the active owned coffee probe')
+    probe=CoffeeSlimeSolo()
+    setattr(builtins,KEY,probe)
+    try: probe.start()
+    except Exception:
+        probe.finish(traceback.format_exc())
+        raise

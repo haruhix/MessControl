@@ -1,0 +1,68 @@
+{
+  "asset": "exports/A_CoffeeSlime_Hop.fbx",
+  "blender_version": "5.1.0",
+  "meshes": [],
+  "actions": [
+    {
+      "name": "A_CoffeeSlime_Hop",
+      "frame_range": [
+        2.0,
+        92.0
+      ],
+      "duration_seconds": 0.9,
+      "max_root_delta": 0.0,
+      "max_gel_body_lift_m": 0.3399815559387207,
+      "max_mark_gap_m": 0.0,
+      "min_mark_signed_m": 0.0,
+      "critical_poses": [
+        {
+          "source_frame": 1
+        },
+        {
+          "source_frame": 15
+        },
+        {
+          "source_frame": 20
+        },
+        {
+          "source_frame": 35
+        },
+        {
+          "source_frame": 44
+        },
+        {
+          "source_frame": 63
+        },
+        {
+          "source_frame": 71
+        },
+        {
+          "source_frame": 77
+        },
+        {
+          "source_frame": 83
+        },
+        {
+          "source_frame": 91
+        }
+      ]
+    }
+  ],
+  "rig": {
+    "name": "Armature",
+    "parents": {
+      "root": null,
+      "gel_body": "root",
+      "gel_top": "gel_body",
+      "foam_tip": "gel_top",
+      "face": "gel_body"
+    },
+    "object_scale": [
+      0.009999999776482582,
+      0.009999999776482582,
+      0.009999999776482582
+    ]
+  },
+  "technical_pass": true,
+  "errors": []
+}

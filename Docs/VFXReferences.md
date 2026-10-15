@@ -239,3 +239,41 @@ corrected centimeter set passed with five bones, root scale1 and 33.998cm hop.
 Exact tested bytes are promoted under `v1/exports`. Blender appearance evidence
 does not establish Unreal material parity, network behavior or runtime frame cost;
 gameplay-camera and runtime acceptance remain separate integration checks.
+
+## Coffee slime v2 and coffee paint — 2026-10-15
+
+The user rejected v1's busy human-like face and requested the simplicity of an
+elemental blob. The lead inspected the [Hydro reference on HoYoWiki](https://wiki.hoyolab.com/pc/genshin/entry/2132?lang=ja-jp)
+and [Geo reference](https://wiki.hoyolab.com/pc/genshin/entry/2137?lang=ja-jp):
+one broad rounded volume, flat eye marks, and a wide grounded squash. These are
+style and motion references; no source pixels, models, emblems or texture assets
+are reused. The original warm coffee design and small flush crema crescent are
+recorded in `ArtSource/CoffeeSlime/v2/concept_v2.png`. The lead reviews each
+delegated concept/geometry/motion checkpoint in `v2/LeadReview.md`.
+
+For the coffee trails and rupture drops, reuse [Sam Perzanowski's original gel
+breakdown, post 5](https://realtimevfx.com/t/vfx-experiments-personal-wip-sam-perzanowski/1278)
+and [Epic's material inputs documentation](https://dev.epicgames.com/documentation/en-us/unreal-engine/material-inputs-in-unreal-engine),
+reopened before authoring. Adapt the restrained meniscus and seated bounded
+vertex motion; the project uses opaque/masked surfaces rather than additional
+transparent layers. `Tools/Unreal/author_coffee_slime_surfaces_v2.py` authors warm
+coffee pigment, a lighter thin edge, moderate wet reflections and a small color
+floor under the mouth's colored lighting. `CoffeeTheme=1` makes the rupture gel
+use its authored coffee palette despite the legacy runtime green tint overrides.
+The exact bilinear 64x64 cleaning mask, clip threshold .25, coverage and brush
+logic remain intact. The first surface revision read too matte in gameplay;
+revision2 strengthens the mask-derived shading meniscus and a bounded warm
+view-dependent sheen. Two owned materials compiled and saved after disk backups.
+The lead opened final actual hero-camera, trail, rupture and brush frames; all
+15 focused solo checks passed. The trail retains the native angular mask edges.
+No added external textures, network tests or GPU-cost measurement are claimed.
+
+The v2 body texture initially stored intended linear values as raw sRGB pixels,
+darkening the sampled material. The source now encodes the PNG correctly and
+records texture parity; the lead reviewed the repaired hero and fresh GLB poses.
+The final mesh has12,458triangles, five bones, three material slots and five
+baked actions. Eight source/FBX/GLB technical audits and the raw FBX unit contract
+passed. The engine migration also checks updated rest transforms and all five
+clips, including a33.998cmHop. `Artifacts/CoffeeSlimeV2_20261015` contains final
+solo reports, sampled review frames and short genuine gameplay previews;
+`v2/review/CoffeeSlimeV2_Motion.mp4` shows the authored motion in studio lighting.

@@ -1,0 +1,25 @@
+{
+  "stage": "graybox",
+  "visual_acceptance": "pending ROOT GRAYBOX APPROVED",
+  "dimensions_m_xyz": [
+    1.5800000429153442,
+    1.6800000667572021,
+    0.8999999761581421
+  ],
+  "triangles_with_marks": 9386,
+  "materials": [
+    "M_CoffeeSlimeV2_Body",
+    "M_CoffeeSlimeV2_Crema",
+    "M_CoffeeSlimeV2_Eyes"
+  ],
+  "armatures": 0,
+  "actions": 0,
+  "exports": 0,
+  "body_form": "one closed rounded volume with subtle integrated lowerlobes",
+  "marks": "open surface-conforming patches,1.2mmoffset,no protruding eyes/cap",
+  "source_units": "meters",
+  "forward": "+X",
+  "up": "+Z",
+  "pivot": "floor",
+  "blender_version": "5.1.0"
+}

@@ -1,0 +1,37 @@
+{
+  "technical_pass": true,
+  "assets_checked": [
+    "exports/A_CoffeeSlime_Burst.fbx",
+    "exports/A_CoffeeSlime_Hop.fbx",
+    "exports/A_CoffeeSlime_Hurt.fbx",
+    "exports/A_CoffeeSlime_Idle.fbx",
+    "exports/A_CoffeeSlime_PreBurst.fbx",
+    "exports/CoffeeSlime.glb",
+    "CoffeeSlimeV2.blend",
+    "exports/SK_CoffeeSlime.fbx"
+  ],
+  "source_glb_critical_bounds_max_delta_m": 2.384185791015625e-07,
+  "max_glb_mark_gap_m": 0.003074290696531534,
+  "hop_lift_m": 0.3399815261363983,
+  "preburst_burst_max_matrix_delta": 0.0,
+  "video": {
+    "path": "review/CoffeeSlimeV2_Motion.mp4",
+    "codec": "h264",
+    "width": 960,
+    "height": 720,
+    "fps": 24,
+    "frames": 158,
+    "duration_seconds": 6.583333333333333,
+    "full_ffmpeg_decode_exit_code": 0
+  },
+  "sha256": {
+    "exports/A_CoffeeSlime_Burst.fbx": "9b22a383b60a1a2696f79245511a6fbd99f7f3c2e4ff052938e750a743420e4c",
+    "exports/A_CoffeeSlime_Hop.fbx": "14f985ee058062e57f90d5c5f286c8f58d900a0e33e897e44ae63699dd8f6552",
+    "exports/A_CoffeeSlime_Hurt.fbx": "6009e4565418a9f6fc849e147c690bf462a096721ef11d140cac6edc62e2c5c7",
+    "exports/A_CoffeeSlime_Idle.fbx": "fe0f54878f9890a55132b1ab7fe062e18f3c9e5190d730a2ff9ed8026fdc70ac",
+    "exports/A_CoffeeSlime_PreBurst.fbx": "da9e787b0c50fcd63f53b4764874c82e7dbd6720f528b31fa7fe741b59c06a12",
+    "exports/CoffeeSlime.glb": "1318aa66ce53c2337ae2305114b507fbd0b3af56d5d61a9370aee1e6e516b298",
+    "exports/SK_CoffeeSlime.fbx": "7bab7ed6bcc6a2b86bbe86c8f6bd58b34c9672871aeefa2c062e649bd811f3f7"
+  },
+  "unreal_validation": "pending root execution; DCC evidence only"
+}

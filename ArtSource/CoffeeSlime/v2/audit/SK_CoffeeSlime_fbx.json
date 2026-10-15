@@ -1,0 +1,43 @@
+{
+  "asset": "exports/SK_CoffeeSlime.fbx",
+  "blender_version": "5.1.0",
+  "meshes": [
+    {
+      "name": "SK_CoffeeSlime",
+      "triangles": 12458,
+      "dimensions_m": [
+        1.5799999833106995,
+        1.6800000667572021,
+        0.9011878967285156
+      ],
+      "body_nonmanifold_edges": 0,
+      "degenerate_triangles": 0,
+      "finite_uv": true,
+      "materials": [
+        "M_CoffeeSlimeV2_Body",
+        "M_CoffeeSlimeV2_Crema",
+        "M_CoffeeSlimeV2_Eyes"
+      ],
+      "max_influences": 4,
+      "bad_weights": 0
+    }
+  ],
+  "actions": [],
+  "rig": {
+    "name": "Armature",
+    "parents": {
+      "root": null,
+      "gel_body": "root",
+      "gel_top": "gel_body",
+      "foam_tip": "gel_top",
+      "face": "gel_body"
+    },
+    "object_scale": [
+      0.009999999776482582,
+      0.009999999776482582,
+      0.009999999776482582
+    ]
+  },
+  "technical_pass": true,
+  "errors": []
+}

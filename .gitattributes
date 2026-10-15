@@ -32,4 +32,6 @@ Artifacts/JellyPaint_20261015/*.log -text whitespace=-blank-at-eol,-blank-at-eof
 ArtSource/CoffeeSlime/**/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CoffeeSlime_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/RowingFeel_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/CoffeeSlimeV2_20261015/**/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+Artifacts/CoffeeSlimeV2_20261015/*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 Artifacts/CataclysmInflow_20261014/*.log -text whitespace=-blank-at-eol,-blank-at-eof,cr-at-eol

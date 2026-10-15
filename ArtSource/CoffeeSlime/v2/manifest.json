@@ -1,0 +1,205 @@
+{
+  "asset": "CoffeeSlime",
+  "schema_version": 2,
+  "revision": "v2",
+  "units": "meters",
+  "forward": "+X",
+  "up": "+Z",
+  "pivot": "floor",
+  "expected_dimensions_m": [
+    1.58,
+    1.68,
+    0.9
+  ],
+  "triangle_budget": 15000,
+  "max_skin_influences": 4,
+  "mesh_file": "exports/SK_CoffeeSlime.fbx",
+  "fbx_units": "centimeters",
+  "fbx_export": {
+    "coordinate_scale_from_source": 100,
+    "scene_unit_scale_length": 0.01,
+    "root_scale": 1,
+    "wrapper_object_name": "Armature"
+  },
+  "approved_graybox_sha256": "f56006e55c72723cdfc507fda8a46f0092e7ccec8ee94178b1f8fa5b95073abd",
+  "required_skinned_meshes": [
+    "SK_CoffeeSlime"
+  ],
+  "material_slots": [
+    "M_CoffeeSlimeV2_Body",
+    "M_CoffeeSlimeV2_Crema",
+    "M_CoffeeSlimeV2_Eyes"
+  ],
+  "materials": {
+    "M_CoffeeSlimeV2_Body": {
+      "color": [
+        0.3,
+        0.111,
+        0.032
+      ],
+      "roughness": 0.3,
+      "specular": 0.28,
+      "coat": 0.05,
+      "coat_roughness": 0.25,
+      "color_gain": 1.0,
+      "emissive_gain": 0.0,
+      "textures": {
+        "BaseColor": "textures/T_CoffeeSlimeV2_Body_BaseColor.png"
+      }
+    },
+    "M_CoffeeSlimeV2_Crema": {
+      "color": [
+        0.82,
+        0.59,
+        0.28
+      ],
+      "roughness": 0.42,
+      "specular": 0.2,
+      "coat": 0.02,
+      "coat_roughness": 0.25,
+      "color_gain": 1.0,
+      "emissive_gain": 0.0
+    },
+    "M_CoffeeSlimeV2_Eyes": {
+      "color": [
+        0.94,
+        0.81,
+        0.52
+      ],
+      "roughness": 0.48,
+      "specular": 0.15,
+      "coat": 0.0,
+      "coat_roughness": 0.25,
+      "color_gain": 1.0,
+      "emissive_gain": 0.0
+    }
+  },
+  "skeleton": {
+    "name": "SK_CoffeeSlime_Rig",
+    "required_bones": [
+      "root",
+      "gel_body",
+      "gel_top",
+      "face",
+      "foam_tip"
+    ],
+    "bone_parents": {
+      "root": null,
+      "gel_body": "root",
+      "gel_top": "gel_body",
+      "face": "gel_body",
+      "foam_tip": "gel_top"
+    },
+    "reference_positions_space": "UE_COMPONENT",
+    "reference_positions_cm": {
+      "root": [
+        0,
+        0,
+        0
+      ],
+      "gel_body": [
+        0,
+        0,
+        0
+      ],
+      "gel_top": [
+        0,
+        0,
+        65.0
+      ],
+      "face": [
+        70.59246713156378,
+        0,
+        43.0
+      ],
+      "foam_tip": [
+        0,
+        0,
+        90.0
+      ]
+    }
+  },
+  "clips": {
+    "A_CoffeeSlime_Idle": {
+      "file": "exports/A_CoffeeSlime_Idle.fbx",
+      "frame_start": 1,
+      "frame_end": 121,
+      "fps": 100,
+      "duration_seconds": 1.2,
+      "critical_frames": [
+        1,
+        31,
+        61,
+        91,
+        121
+      ],
+      "loop": true
+    },
+    "A_CoffeeSlime_Hop": {
+      "file": "exports/A_CoffeeSlime_Hop.fbx",
+      "frame_start": 1,
+      "frame_end": 91,
+      "fps": 100,
+      "duration_seconds": 0.9,
+      "critical_frames": [
+        1,
+        15,
+        20,
+        35,
+        44,
+        63,
+        71,
+        77,
+        83,
+        91
+      ],
+      "loop": true,
+      "min_gel_body_lift_cm": 30.0
+    },
+    "A_CoffeeSlime_Hurt": {
+      "file": "exports/A_CoffeeSlime_Hurt.fbx",
+      "frame_start": 1,
+      "frame_end": 29,
+      "fps": 100,
+      "duration_seconds": 0.28,
+      "critical_frames": [
+        1,
+        5,
+        12,
+        20,
+        29
+      ],
+      "loop": false
+    },
+    "A_CoffeeSlime_PreBurst": {
+      "file": "exports/A_CoffeeSlime_PreBurst.fbx",
+      "frame_start": 1,
+      "frame_end": 61,
+      "fps": 100,
+      "duration_seconds": 0.6,
+      "critical_frames": [
+        1,
+        16,
+        31,
+        46,
+        61
+      ],
+      "loop": false
+    },
+    "A_CoffeeSlime_Burst": {
+      "file": "exports/A_CoffeeSlime_Burst.fbx",
+      "frame_start": 1,
+      "frame_end": 19,
+      "fps": 100,
+      "duration_seconds": 0.18,
+      "critical_frames": [
+        1,
+        5,
+        10,
+        19
+      ],
+      "loop": false
+    }
+  },
+  "skin_contract": "One common position-based4-influence function; passive face/foam_tip inherit respective parent skin matrices. Eye region below.58 and crema above.78 have constant support weights."
+}

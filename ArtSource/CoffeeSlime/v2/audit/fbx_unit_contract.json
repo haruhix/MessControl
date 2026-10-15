@@ -1,0 +1,107 @@
+{
+  "pass": true,
+  "files": [
+    {
+      "file": "A_CoffeeSlime_Burst.fbx",
+      "fbx_version": 7400,
+      "UnitScaleFactor_cm": 0.9999999776482582,
+      "root_and_wrapper_LclScaling": {
+        "Armature": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "root": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "file": "A_CoffeeSlime_Hop.fbx",
+      "fbx_version": 7400,
+      "UnitScaleFactor_cm": 0.9999999776482582,
+      "root_and_wrapper_LclScaling": {
+        "Armature": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "root": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "file": "A_CoffeeSlime_Hurt.fbx",
+      "fbx_version": 7400,
+      "UnitScaleFactor_cm": 0.9999999776482582,
+      "root_and_wrapper_LclScaling": {
+        "Armature": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "root": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "file": "A_CoffeeSlime_Idle.fbx",
+      "fbx_version": 7400,
+      "UnitScaleFactor_cm": 0.9999999776482582,
+      "root_and_wrapper_LclScaling": {
+        "Armature": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "root": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "file": "A_CoffeeSlime_PreBurst.fbx",
+      "fbx_version": 7400,
+      "UnitScaleFactor_cm": 0.9999999776482582,
+      "root_and_wrapper_LclScaling": {
+        "Armature": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "root": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "file": "SK_CoffeeSlime.fbx",
+      "fbx_version": 7400,
+      "UnitScaleFactor_cm": 0.9999999776482582,
+      "root_and_wrapper_LclScaling": {
+        "Armature": [
+          1,
+          1,
+          1
+        ],
+        "root": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  ]
+}

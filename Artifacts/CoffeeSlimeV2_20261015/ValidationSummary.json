@@ -1,0 +1,78 @@
+{
+  "passed": true,
+  "scope": "Original coffee blob presentation, five animations, in-game coffee shaders/trails and rupture drops; existing gameplay retained",
+  "dcc": {
+    "source": "ArtSource/CoffeeSlime/v2/CoffeeSlimeV2.blend",
+    "technical_audits": "ArtSource/CoffeeSlime/v2/audit",
+    "lead_review": "ArtSource/CoffeeSlime/v2/LeadReview.md",
+    "triangles": 12458,
+    "material_slots": 3,
+    "bones": 5,
+    "animations": 5
+  },
+  "unreal_import": {
+    "report": "Artifacts/CoffeeSlimeV2_20261015/ImportReport.json",
+    "saved_packages": 11,
+    "root_scale": 1,
+    "hop_lift_cm": 33.99815547477212
+  },
+  "solo": {
+    "report": "Artifacts/CoffeeSlimeV2_20261015/RuntimeReport.json",
+    "game_seconds": 33.716668425127864,
+    "checks": {
+      "real_f3_deterministic_start": true,
+      "natural_real_f3_jelly_branch_with_default_health": true,
+      "source_and_runtime_show_independent_wandering": true,
+      "real_travel_adds_bounded_paint_tiles": true,
+      "observed_path_has_connected_wet_coverage": true,
+      "ordinary_pickaxe_input_starts_native_balloon_warning": true,
+      "balloon_rupture_commits_once_with_persistent_deposit": true,
+      "paint_survives_cosmetic_retirement": true,
+      "ordinary_brush_erases_persistent_paint_cells": true,
+      "v2_three_body_materials_observed": true,
+      "actual_paint_mid_has_warm_coffee_color": true,
+      "actual_drop_mid_uses_coffee_theme": true,
+      "actual_hero_gameplay_camera_observed": true,
+      "native_coffee_skin_and_four_gameplay_clips": true,
+      "coffee_replaces_primitives_without_double_scale": true
+    },
+    "actual_hero_camera_clip_seconds": 3.5
+  },
+  "surface_revision": "coffee_surfaces_v2:2",
+  "visual_review": {
+    "result": "accepted",
+    "basis": "Lead opened the actual concept, source/fresh-export views, motion sheets and sampled genuine final gameplay PNGs. Encoded clips preserve source frames/timestamps; no continuous playback claim.",
+    "body": "Simple flat eyes remain readable, warm coffee pigment retained in arena lighting, no old face/cap overlap.",
+    "trail": "Warm wet coffee film and reflected sheen; existing 64x64 angular mask resolution remains. Brush removes the same coverage.",
+    "rupture": "Coffee-profile drops and persistent coffee splat match the body palette; retained native warning and pop timing.",
+    "reviews": {
+      "Gameplay": {
+        "file": "Artifacts/CoffeeSlimeV2_20261015/GameplayReview.png",
+        "source": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSlimeV2\\Capture\\Runs\\20261015T085928Z_paint_ed7ea69a\\frames\\00140.png",
+        "sha256": "95f5c097dfccac237c10a39df54627bd6cc5a8422e1f15aa136ad3ebf80e4f33"
+      },
+      "Trail": {
+        "file": "Artifacts/CoffeeSlimeV2_20261015/TrailReview.png",
+        "source": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSlimeV2\\Capture\\Runs\\20261015T085928Z_paint_ed7ea69a\\frames\\00210.png",
+        "sha256": "b7fc326e06f19133ce9f1b73f08f0e245dc0dcc839625d278ab509ac7ebd94b2"
+      },
+      "Rupture": {
+        "file": "Artifacts/CoffeeSlimeV2_20261015/RuptureReview.png",
+        "source": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSlimeV2\\Capture\\Runs\\20261015T085928Z_paint_ed7ea69a\\frames\\00308.png",
+        "sha256": "8d27d86cf685504e0909f859da6a4d0dc155333cb46b9489ab158baed3acc0ad"
+      },
+      "Brush": {
+        "file": "Artifacts/CoffeeSlimeV2_20261015/BrushReview.png",
+        "source": "E:\\DEVGAME\\MessControl\\Saved\\CoffeeSlimeV2\\Capture\\Runs\\20261015T085928Z_paint_ed7ea69a\\frames\\00347.png",
+        "sha256": "caad79065a4f4a87076ebc19205d87cb5101f0dbe52eaab7a0fc63e67e856ddf"
+      }
+    }
+  },
+  "limitations": [
+    "Single authority solo PIE; no network clients.",
+    "No Windows build, cook or packaging needed/run for the asset-only change.",
+    "No GPU performance profile or full encounter balance/cleanup playthrough.",
+    "Actual hero camera uses a disclosed observer position/control-facing fixture; jelly health, wandering, animation and tool damage remain native.",
+    "Gameplay previews capture source PNGs at12Hz and repeat them at30fps without interpolated motion."
+  ]
+}

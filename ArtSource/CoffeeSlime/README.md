@@ -1,5 +1,22 @@
 # Coffee slime
 
+The current game presentation is **v2**, documented in [v2/README.md](v2/README.md).
+It is an original broad coffee-gel blob with two flat cream eye marks and a small
+flush crema crescent. The lead reviewed the concept, rejected and repaired the
+first hard lower rim, corrected texture color-space handling and checked the
+source/exported poses. The editable source is `v2/CoffeeSlimeV2.blend`.
+
+The existing native asset paths now contain the v2 mesh, updated five-bone
+reference pose, five clips and three materials. The v2 importer checks reference
+pose parity and reimports all clips when migrating from v1. Coffee trails and
+rupture drops have separate coffee materials. Integration evidence is in
+`Artifacts/CoffeeSlimeV2_20261015`; gameplay visual review is recorded there.
+
+## Historical v1
+
+The material below describes the preserved v1 source and its earlier validation.
+Its appearance was rejected by the user and is superseded in the game by v2.
+
 Original coffee creature for MessControl, authored from the generated `v1/concept_v1.png` and the game's Tooth character screenshot. References inform wet material readability and animation principles; no external models, textures or creator geometry are included. See `reference_notes.md` for sources and the applied design choices.
 
 `v1/CoffeeSlime.blend` is the editable source. It has a single joined skinned mesh, an export collection, a five-bone rig, five baked actions, packed image textures, and a separate review stage. Blender 5.1.0 (`D:/BLENDER_TEST/blender.exe`, build `adfe2921d5f3`) authored it in isolated background processes. The unrelated unsaved live Blender project was preserved.
